@@ -1,0 +1,425 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "P39": "Complete exact commit footprint: 7 paths = 3 mechanism rows, 2 source/test/documentation companion rows, plus 2 required LEASES/index metadata paths. Required metadata is outside mechanism count; every actual commit path is enumerated.",
+  "P40": "SAME module/package source-resolution class, second finding; widened shared resolver and both owner companions.",
+  "property": "Resolve a polisyos module to the source object selected by Python file-finder precedence while enforcing the repository source-root boundary: a regular package initializer wins over a sibling module file; otherwise the regular module file is selected; missing/non-regular candidates remain missing.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "93b09c756c114d8d3533e552dac4da58733a91d4",
+    "commit_subject": "fix(e02): honor package-first module source resolution in both owners",
+    "parents": [
+      "a346e0e784fe0af2d361194f55aaed8851442263"
+    ],
+    "slice_base": "a346e0e784fe0af2d361194f55aaed8851442263",
+    "tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f",
+    "observed_head_at_receipt": "93b09c756c114d8d3533e552dac4da58733a91d4",
+    "source_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/fbc-module-package-source-r3-20261019-readback.json",
+      "sha256": "617e113a0eac140bd1666b3f358c9d45a01ae05f7e336345800de1166ec11f1a",
+      "bytes": 1971
+    }
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/source-application.json",
+    "sha256": "501d661bde9c1580cd6a88ec5477d242762a3bc4936755ab2189529c788fa821",
+    "bytes": 9465
+  },
+  "full_footprint": {
+    "path_count": 7,
+    "mechanism_paths": 3,
+    "source_companion_paths": 2,
+    "required_delivery_metadata_paths": 2,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "ec780d49f0080fee13973be0c3d29731c0a3e1c0322ed9b4f8b828e3a7555e92",
+        "bytes": 1246761,
+        "mode": "100644",
+        "category": "delivery_metadata",
+        "role": "required delivery metadata (LEASES/index)"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "postimage_sha256": "e551848bcd21586258ccb1468abb9a02761e7b3fbed0890b8a26fcd766abb3ac",
+        "bytes": 90643,
+        "mode": "100644",
+        "category": "delivery_metadata",
+        "role": "required delivery metadata (LEASES/index)"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
+        "postimage_sha256": "c697427b80cbc3ba6413a02da17bab24e984e2e1b3375b90a8923eca48a343d3",
+        "bytes": 25412,
+        "mode": "100644",
+        "category": "mandatory_test_companion",
+        "role": "mandatory_test_companion"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_fabric_product_integration.py",
+        "postimage_sha256": "f6de6d872ef385f454568220e1a9177d277e9ccb757ada2d77396e8b18eccd93",
+        "bytes": 8252,
+        "mode": "100644",
+        "category": "mandatory_test_companion",
+        "role": "mandatory_test_companion"
+      },
+      {
+        "path": "policy-engine/tools/lib/imports.py",
+        "postimage_sha256": "b5d526162f7038967712b2e99446377ea1a2543185eb46f9731354bda9bd7286",
+        "bytes": 3137,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/fabric_best_in_class_inventory.py",
+        "postimage_sha256": "52b2a42528d93d83b4c0d20793bb5a3cd6818bc472facd69a06cfc98e451a162",
+        "bytes": 170691,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/fabric_product_integration.py",
+        "postimage_sha256": "e130d35fc2c255db7999ae36f00d2aa85d86685cf9d9350f2c7f7aa521a5e38f",
+        "bytes": 26460,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "mechanism"
+      }
+    ],
+    "complete_commit_path_and_sha256_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/fbc-module-package-source-r3-20261019-readback.json",
+      "sha256": "617e113a0eac140bd1666b3f358c9d45a01ae05f7e336345800de1166ec11f1a",
+      "bytes": 1971
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194,
+      "roles": [
+        "canonical Ruff config at source commit"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r2-20261019/candidate-manifest.json",
+      "sha256": "f988ec080713a5880537bfa173610d014e1f7800a95b954d1c0e7f54cd673bba",
+      "bytes": 18615,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/candidate-manifest-r3.json",
+      "sha256": "8a802b6e1e65da901cb40bff3cf8664eb73d198fe08f15ea2886b731ed130e39",
+      "bytes": 14356,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-r3-independent-20261019/review.json",
+      "sha256": "ecde88b9d6ece7251e6746c6ebfcb8bbb069e318f84323ee442a98a4b5eecd8d",
+      "bytes": 4993,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-r3-independent-20261019/review.md",
+      "sha256": "c605e25dfbeb974f6d09bfe8f8629deb1c389f88c4b966b4b693dcc3e2a46bc6",
+      "bytes": 2619,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "b8e49254b169f43189f94568c0d2c06ed2997de13c4a8549df89067a5dbc7af8",
+      "bytes": 10960,
+      "roles": [
+        "complete per-file Ruff preflight context"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/fbc-module-package-source-r3-20261019-commit.stderr.txt",
+      "sha256": "d114ff5a44934e2c8e035150d6b56d3d7997b268a6253932f8c3a46f6a634969",
+      "bytes": 653,
+      "roles": [
+        "commit stderr"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/fbc-module-package-source-r3-20261019-commit.stdout.txt",
+      "sha256": "d1390c3b60347e3521db89417beba9408ddf320d2f797c7abacbbaea544192a2",
+      "bytes": 168,
+      "roles": [
+        "commit stdout"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/fbc-module-package-source-r3-20261019-readback.json",
+      "sha256": "617e113a0eac140bd1666b3f358c9d45a01ae05f7e336345800de1166ec11f1a",
+      "bytes": 1971,
+      "roles": [
+        "commit source-byte readback"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/format-native-role-0.stdout.txt",
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "bytes": 26,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf",
+      "bytes": 197,
+      "roles": [
+        "source application trash receipt"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/plan.json",
+      "sha256": "a6d56a191d1fa19a546e513acf56a2b343c4bd1520455b2900823a33a796d0b3",
+      "bytes": 6108,
+      "roles": [
+        "adoption plan"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/reviewed-present-postimages.patch",
+      "sha256": "3f54c13c3672b294a33ee2e8743d32ff70d6454131631b2d8392ce39d7b3120b",
+      "bytes": 30004,
+      "roles": [
+        "applied source patch"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/source-application.json",
+      "sha256": "501d661bde9c1580cd6a88ec5477d242762a3bc4936755ab2189529c788fa821",
+      "bytes": 9465,
+      "roles": [
+        "source application"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-prepare-20261019/adoption-plan.json",
+      "sha256": "3f58b46b09e6f368f2bd5fcd1108112696b941925112348f1e529b92b005ff04",
+      "bytes": 23972,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+      "bytes": 13255,
+      "roles": [
+        "canonical Ruff profile owner pin"
+      ]
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+      "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+      "bytes": 2778,
+      "roles": [
+        "canonical Ruff profile owner pin"
+      ]
+    }
+  ],
+  "canonical_ruff_preflight": {
+    "profile": "policy-engine/.venv/bin/python -B -m ruff with policy-engine/architecture/tooling/ruff/workspace_root.toml; canonical profile owner sources are pinned below.",
+    "tool_version": "Not separately recorded in source-application receipt; no version claim added.",
+    "canonical_context": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "b8e49254b169f43189f94568c0d2c06ed2997de13c4a8549df89067a5dbc7af8",
+      "bytes": 10960,
+      "role": "per-file Ruff commands and outputs"
+    },
+    "aggregate_runs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
+          "policy-engine/tests/repo_quality/tools/test_fabric_product_integration.py",
+          "policy-engine/tools/lib/imports.py",
+          "policy-engine/tools/quality/validation/fabric_best_in_class_inventory.py",
+          "policy-engine/tools/quality/validation/fabric_product_integration.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04611025005578995,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19,
+          "role": "aggregate Ruff stdout"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "aggregate Ruff stderr"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
+          "policy-engine/tests/repo_quality/tools/test_fabric_product_integration.py",
+          "policy-engine/tools/lib/imports.py",
+          "policy-engine/tools/quality/validation/fabric_best_in_class_inventory.py",
+          "policy-engine/tools/quality/validation/fabric_product_integration.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04249270795844495,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+          "bytes": 26,
+          "role": "aggregate Ruff stdout"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "aggregate Ruff stderr"
+        }
+      }
+    ],
+    "per_target_runs": "The context record contains every per-file check/format command, exit code, and output pin; those referenced outputs were hash-checked and each recorded exit code is zero.",
+    "applicability": "changed Python files",
+    "profile_owner_pins": [
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+        "bytes": 13255,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+        "bytes": 2778,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "bytes": 28194,
+        "role": "canonical Ruff config at source commit"
+      }
+    ]
+  },
+  "independent_review": {
+    "decision": "The independent peer disposition is GO_SOURCE_CANDIDATE_ONLY; owner regeneration, checks, corruption refusal, imports, and pytest remain unrun.",
+    "scope": "Static source review only. No passing runtime, product tests, full diagnostic result, or capability closure is inferred.",
+    "references": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-r3-independent-20261019/review.json",
+        "sha256": "ecde88b9d6ece7251e6746c6ebfcb8bbb069e318f84323ee442a98a4b5eecd8d",
+        "bytes": 4993,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-r3-independent-20261019/review.md",
+        "sha256": "c605e25dfbeb974f6d09bfe8f8629deb1c389f88c4b966b4b693dcc3e2a46bc6",
+        "bytes": 2619,
+        "role": "independent peer review"
+      }
+    ]
+  },
+  "other_open_reviews": [
+    "Run the actual Fabric inventory owner update/check with exact canonical generated companions and a one-field content-digest corruption refusal.",
+    "Run the Phase10 check/report and both complete mirrored modules without clearing canonical pytest options.",
+    "Recompute the current source/report denominators; do not reuse historical 777/59 counts."
+  ],
+  "environment_boundary": {
+    "source_application_environment_changes": "none recorded",
+    "ruff_profile": "Canonical product-root .venv interpreter and tracked workspace_root Ruff config used for source preflight; no product tests/imports are claimed.",
+    "profile_owner_pins": [
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+        "bytes": 13255,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+        "bytes": 2778,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "bytes": 28194,
+        "role": "canonical Ruff config at source commit"
+      }
+    ],
+    "source_freeze": false
+  },
+  "verification_boundary": {
+    "runtime": "UNRUN on this exact source commit.",
+    "owner_regeneration_and_check": "UNRUN.",
+    "content_digest_corruption_refusal": "UNRUN.",
+    "phase10_check_and_report": "UNRUN.",
+    "whole_mirrored_test_modules": "UNRUN.",
+    "result": "Source-only review and commit; no runtime or authority claim."
+  },
+  "open_limits": [
+    "FBC owner regeneration/update/check, generated companion checks, corruption refusal, Phase10 report/check, and both whole mirrored test modules remain UNRUN on this exact composition.",
+    "The static source inventory does not establish runtime adapter semantic adequacy or authority.",
+    "Historical 777 input records and 59 surface rows have different denominators and must be recomputed; no historical count is promoted."
+  ],
+  "next_check": "Freeze blocking source and inputs, then run real FBC owner update/check with exact generated companions, a one-field content-digest corruption refusal, Phase10 check/report, and the full two mirrored modules without clearing canonical pytest options."
+}

@@ -1,0 +1,714 @@
+{
+  "record_type": "cross_cut_verification_receipt_candidate",
+  "created_on": "2026-10-19",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "scope": "Exact actual-run evidence at the listed source cuts. Failed, incomplete, and qualification-held outcomes remain distinct.",
+  "runs": [
+    {
+      "id": "core-two-module-diagnostic-at-93b",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "93b09c756c114d8d3533e552dac4da58733a91d4",
+        "tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f"
+      },
+      "classification": "completed red diagnostic; requested-origin profile qualification held",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_wave_capture_r8",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/core-ro-93b09c75-20261019/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/core-ro-93b09c75-20261019/pytest-cache",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/core-ro-93b09c75-20261019/benchmarks",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/pytest.xml",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py"
+      ],
+      "return_code": 1,
+      "wall_seconds": 161.05621179193258,
+      "wall_cap_seconds": 180,
+      "rss_cap_bytes": 3221225472,
+      "max_sampled_process_tree_rss_bytes": 1207042048,
+      "process_group_gone": true,
+      "counts": {
+        "passed": 89,
+        "failed": 36,
+        "errors": 0,
+        "cases": 125
+      },
+      "failure": {
+        "pydantic.errors.PydanticUserError: `N13bAcquisitionExecutorContract` is not fully defined; you should define `N13bLifecycleManifest`, then call `N13bAcquisitionExecutorContract.model_rebuild()`.\n\nFor further information visit https://errors.pydantic.dev/2.12/u/class-not-fully-defined": 36
+      },
+      "runtime_origin_reconciliation": {
+        "exact_hash_joins": 1453,
+        "hash_mismatches": 0,
+        "loaded": 1453,
+        "missing_source_map_members": 0,
+        "module_file_and_resolved_origin_both_present": 1453,
+        "module_file_equals_resolved_origin": 1453,
+        "namespace_counts": {
+          "polisyos": 1417,
+          "tools": 36
+        },
+        "origins_outside_worktree": 0,
+        "resolution_errors": 0,
+        "total": 1453
+      },
+      "requested_origin_projection": {
+        "environment_value": "polisyos.core.artifacts,polisyos.core.artifacts.store,polisyos.core.artifacts.ownership,polisyos.core.artifacts.protocol,polisyos.runtime.quality.acquisition_executor,polisyos.data_forge.domains.catalog.knowledge.acquisition_authority,tools.quality.validation.layer3_gy_confidence_ledger_contract",
+        "erratum": {
+          "closure_ids": [],
+          "field": "E02_ORIGIN_MODULES",
+          "kind": "root_wrapper_input_encoding_error",
+          "next_check": "Correct actual producer JSON encoding and validate supplied selection/input fields before later composed replay; preserve this attempt unchanged.",
+          "qualification": "requested-origin projection malformed; do not interpret as an intentionally empty origin requirement or strict qualified R8 receipt. Full module trace remains separately retained as actual diagnostic evidence, pending independent reconciliation.",
+          "required_format": "JSON array",
+          "supplied_format": "comma-delimited string"
+        },
+        "provenance_requested_runtime_module_origins": {},
+        "status": "invalid_json_input; do not interpret empty parsed request as empty requested set"
+      },
+      "limits": [
+        "This qualifies only the recorded bounded two-module failed diagnostic. It does not qualify the strict requested-origin R8 profile.",
+        "No whole-Core or capability-green claim follows; the 36 N13b lifecycle failures remain real results.",
+        "The failed requested-origin encoding is not repaired or reinterpreted by the separately captured full runtime-origin map."
+      ],
+      "evidence": {
+        "request.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/request.json",
+          "sha256": "e49758949a765335f8b855e103a25a181a0637aa9b317f3ae94ce8c990b3e98a",
+          "bytes": 3332
+        },
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/result.json",
+          "sha256": "5f68d5361ca7f7d822b269bab0ba01ca39f1f86f95d2bb07136039503a83029f",
+          "bytes": 2343
+        },
+        "pytest.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/pytest.stdout.txt",
+          "sha256": "0b07484f10862e3d1bd174236e222479924f665173f022147e8466bddbe7d188",
+          "bytes": 82234
+        },
+        "pytest.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "pytest.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/pytest.xml",
+          "sha256": "06883621e73fb80c1386a79d5892837a4e2598ddbdcd4165f6cca95f4f3da707",
+          "bytes": 107534
+        },
+        "execution-provenance.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/execution-provenance.json",
+          "sha256": "965c543ac0d5a1a4befeeb6015f4d43cb241871bba2ec6e4269875bd54a1cd0d",
+          "bytes": 1499692
+        },
+        "source-before.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/source-before.json",
+          "sha256": "88bce3aa7d700ac2a6c71abb4b27e889f099589bd3260d08cb4e667cd88ba528",
+          "bytes": 19366659
+        },
+        "source-after.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/source-after.json",
+          "sha256": "88bce3aa7d700ac2a6c71abb4b27e889f099589bd3260d08cb4e667cd88ba528",
+          "bytes": 19366659
+        },
+        "independent_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-independent-20261019/review.json",
+          "sha256": "22942f62efecb0f4ee475fefb939f39f9795501b8e5de6408c4f0b9b0feb82b3",
+          "bytes": 15354
+        },
+        "independent_manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-independent-20261019/manifest.json",
+          "sha256": "2d95d6dfe39b88a62012d11d2bc0f50c93d19d6708e3be1cd2899855d40533bc",
+          "bytes": 2339
+        },
+        "controller-events.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/controller-events.jsonl",
+          "sha256": "5c44194036d3d269441f0630256f1704dbdb1f35a5628101c7350c8a691c152a",
+          "bytes": 1388
+        },
+        "phase-output.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/phase-output.jsonl",
+          "sha256": "a25ba8714d1b7dd3c5da542e40fa4d34be67826584ae324ea6c7330ce98d496f",
+          "bytes": 1322
+        },
+        "process-tree.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-readonly-two-module-93b09c75-actual-20261019/process-tree.jsonl",
+          "sha256": "d9ea974af5577082a404cf4b4d9c16fe656f9004c0624011df035f71113a821e",
+          "bytes": 670272
+        }
+      }
+    },
+    {
+      "id": "fbc-owner-and-phase10-at-93b",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "93b09c756c114d8d3533e552dac4da58733a91d4",
+        "tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f"
+      },
+      "classification": "bounded FBC owner generation/check/corruption witness plus static Phase 10 failure",
+      "fbc": {
+        "explicit_file_reader_operations": 759,
+        "complete_verdict": false,
+        "update_rc": 0,
+        "check_rc": 0,
+        "corruption_expected_rc": 1,
+        "corruption_observed_rc": 1,
+        "corruption_changed_field": [
+          "text_sha256"
+        ],
+        "corruption_refusal": "manifest out of date after only the source content digest was changed in the copied RAW manifest"
+      },
+      "phase10": {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "tools/quality/validation/fabric_product_integration.py",
+          "--check",
+          "--report"
+        ],
+        "frontend_rendering_rows": [
+          {
+            "id": "frontend.fabric_decision_data_to_quantity",
+            "status": "missing"
+          },
+          {
+            "id": "frontend.use_run_fabric_decision_data",
+            "status": "implemented"
+          }
+        ],
+        "product_evidence_adapter_rows": 5,
+        "product_evidence_adapter_statuses": [
+          {
+            "id": "fabric.product_evidence_path",
+            "status": "implemented"
+          },
+          {
+            "id": "scholar.fabric_citation",
+            "status": "implemented"
+          },
+          {
+            "id": "lex.fabric_evidence",
+            "status": "implemented"
+          },
+          {
+            "id": "foundry.calibration.fabric_quality",
+            "status": "implemented"
+          },
+          {
+            "id": "foundry.uncertainty.fabric_quality",
+            "status": "implemented"
+          }
+        ],
+        "report_status": "partial",
+        "return_code": 1,
+        "stderr_reason": "frontend.fabric_decision_data_to_quantity: frontend_rendering is incomplete",
+        "stderr_sha256": "92d2c3fb4e38c5aa2ac3bec5936e0c405ee4d09cad16153b88e2f227680aaf3d",
+        "summary": {
+          "compatibility_bridge_count": 5,
+          "frontend_fixture_count": 12,
+          "public_facade_stable": true,
+          "runtime_endpoint_count": 8,
+          "status": "partial"
+        }
+      },
+      "command_reconciliation": [
+        {
+          "complete": true,
+          "id": "fbc-owner-update",
+          "process_group_gone": true,
+          "return_code": 0,
+          "status": "passed",
+          "wall_seconds": 0.543999916
+        },
+        {
+          "complete": true,
+          "id": "fbc-owner-check",
+          "process_group_gone": true,
+          "return_code": 0,
+          "status": "passed",
+          "wall_seconds": 0.5426733330000001
+        },
+        {
+          "complete": true,
+          "id": "fbc-owner-corrupt-check",
+          "process_group_gone": true,
+          "return_code": 1,
+          "status": "command_failed",
+          "wall_seconds": 0.539200959
+        },
+        {
+          "complete": true,
+          "id": "phase10-owner-check-report",
+          "process_group_gone": true,
+          "return_code": 1,
+          "status": "command_failed",
+          "wall_seconds": 0.540864292
+        }
+      ],
+      "resource_profile": {
+        "declared": {
+          "minimum_free_disk_bytes": 1395864372,
+          "numeric_threads": 1,
+          "sampled_process_tree_rss_bytes": 2147483648,
+          "wall_seconds": 180
+        },
+        "relation_to_supervisor_enforcement": "not_established: the peer audit reports supervisor source defaults of 600s/4GiB/1GiB, which do not establish the addendum 180s/2GiB/1.3GiB profile. Do not assert those caps were enforced.",
+        "observed_samples": {
+          "all_process_groups_gone": true,
+          "max_sampled_process_tree_rss_bytes": 311296,
+          "min_sampled_disk_free_bytes": 4146720768,
+          "one_process_per_sample": true,
+          "one_sample_per_command": true
+        }
+      },
+      "source_before_after_equal": true,
+      "limits": [
+        "The FBC receipt is an explicit filesystem-reader/probe list with complete_verdict=false; it does not claim a full import, subprocess, Git, environment, or external-service census.",
+        "The candidate review verdict is GO_SOURCE_CANDIDATE_ONLY and declares a different readback commit/tree; all nine selected direct file pins were independently checked against the execution Git object, including five candidate postimages, but that is not whole-tree runtime acceptance.",
+        "The source snapshots record independent_review.verdict as null, while the candidate peer file and owner result say GO_SOURCE_CANDIDATE_ONLY; the mismatch is retained as a metadata propagation discrepancy.",
+        "Whole mirrored tests are UNRUN. Phase 10 is a static report and the actual check/report is red; live adapter behavior, currentness, and external authority are not established.",
+        "One process sample was retained per short command, so observed RSS/disk values are samples rather than continuous peak measurements.",
+        "The recorded resource profile and pinned supervisor source defaults do not match exactly; effective profile enforcement is not established from the retained launcher/config evidence.",
+        "No formal closure is requested or supported by these receipts."
+      ],
+      "evidence": {
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/result.json",
+          "sha256": "1f404c4da5bdaecd1c95a98b4d9fa0d7c96bd0e2949f17bb6b29f49aa3f1899a",
+          "bytes": 12077
+        },
+        "actual-outcome-addendum.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/actual-outcome-addendum.json",
+          "sha256": "a600402300f1980028d82b10a2fd1115e9089131f77b86cca539eb63f9ddb0cc",
+          "bytes": 4894
+        },
+        "fabric_best_in_class_manifest.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fabric_best_in_class_manifest.json",
+          "sha256": "8175ce7af19504b24728d72e77cbf932ba9c5a4682f4978a04937a0aff5513d6",
+          "bytes": 256614
+        },
+        "best-in-class-inventory.md": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/best-in-class-inventory.md",
+          "sha256": "d42ee47e62e3c681943dbe4640bdc12dc9ba7ce0bfaef5c47336539352b9e889",
+          "bytes": 20861
+        },
+        "corrupt-control.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/corrupt-control.json",
+          "sha256": "374700499977f1c05c5113d387abe53d782bcba8bdfbfcd4d0140110b1669b41",
+          "bytes": 1457
+        },
+        "corrupt-manifest.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/corrupt-manifest.json",
+          "sha256": "d07aaae7b0825caf3502c762d99523a2c23e57a5f05dd2b2a1ee0b648bfe568b",
+          "bytes": 256614
+        },
+        "fbc-owner-update.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fbc-owner-update.stdout.txt",
+          "sha256": "279ff376da0256b80f64abd7b906c4ffc261f0f528df972751894390e6dcbe18",
+          "bytes": 540
+        },
+        "fbc-owner-update.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fbc-owner-update.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "fbc-owner-check.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fbc-owner-check.stdout.txt",
+          "sha256": "82abcc38145984b194e597075bf1826885af6d6588fca36565fb452b2eceb9a7",
+          "bytes": 151866
+        },
+        "fbc-owner-check.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fbc-owner-check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "fbc-owner-corrupt-check.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fbc-owner-corrupt-check.stdout.txt",
+          "sha256": "70172aa585161bf66c9878abfb565b8ecfd4ce5967bdda3f17a8f7af76b23568",
+          "bytes": 152075
+        },
+        "fbc-owner-corrupt-check.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/fbc-owner-corrupt-check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "phase10-owner-check-report.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/phase10-owner-check-report.stdout.txt",
+          "sha256": "5b02224418a81f384dd8ffc8b417d5346e20e03837f82633aad21b9bae4a024a",
+          "bytes": 9750
+        },
+        "phase10-owner-check-report.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/phase10-owner-check-report.stderr.txt",
+          "sha256": "92d2c3fb4e38c5aa2ac3bec5936e0c405ee4d09cad16153b88e2f227680aaf3d",
+          "bytes": 123
+        },
+        "source-before.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/source-before.json",
+          "sha256": "87ea7ec4e0d6676b70568b8698ac3504f0f0861f9919eb84e334a8093d07e79b",
+          "bytes": 6261
+        },
+        "source-after.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/source-after.json",
+          "sha256": "54c7a1da680ca74057c06a526de08df3d8cb81983e80c264c6dd0d604578c21a",
+          "bytes": 6261
+        },
+        "independent_audit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-independent-20261019/audit.json",
+          "sha256": "cb7028030479402e7bc31a55426658df73322c748b2b04bdd9a8d158a568c17f",
+          "bytes": 12353
+        },
+        "controller-events.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/controller-events.jsonl",
+          "sha256": "ec159379786547dbf5c00497d96a30c65bd7a60433c90f0f7d213e9a683461f7",
+          "bytes": 4420
+        },
+        "phase-output.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/phase-output.jsonl",
+          "sha256": "7097cc4fbfb29ae028a6d018d50bf7493b44b6dfd9126b7a926cf60d88c3fd77",
+          "bytes": 4305
+        },
+        "process-tree.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/process-tree.jsonl",
+          "sha256": "7f3193bca953ec1fb83a87605100201f1fc39bea771c5a13a322defa227113ce",
+          "bytes": 4126
+        },
+        "SHA256SUMS": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-owner-93b09c75-actual-20261019/SHA256SUMS",
+          "sha256": "3f7f82c24b347fc0be50dc95b9e5653e07d2b52b17abbdd71ef14d0bdda23d80",
+          "bytes": 1755
+        }
+      }
+    },
+    {
+      "id": "mypy-172-at-1c9",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "1c9acee07939dfc43343abde6c171e807281b042",
+        "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a"
+      },
+      "classification": "completed red static diagnostic; causal attribution of comparison not established",
+      "target_count": 172,
+      "return_code": 1,
+      "wall_seconds": 61.242084875004366,
+      "wall_cap_seconds": 180,
+      "rss_cap_bytes": 3221225472,
+      "max_sampled_process_tree_rss_bytes": 715816960,
+      "process_group_gone": true,
+      "current_error_occurrences": 5,
+      "direct_actual_comparison": {
+        "current_occurrences": 5,
+        "current_only_paths": {
+          "src/polisyos/fabric/connectors/sources/_file_common.py": 1
+        },
+        "current_signatures": 5,
+        "exact_common_signature_count": 4,
+        "exact_signature_occurrences_added": 1,
+        "exact_signature_occurrences_removed": 32,
+        "net_occurrence_reduction": 31,
+        "prior_index_sha256": "b03aee89cb31b86c9b3d8a7dcf7a145bf68117d6bff96082559f466ced423178",
+        "prior_occurrences": 36,
+        "prior_result_sha256": "14638cb334e04f90da3f035b8076270397bb136c755db769924dbd9df8104eea",
+        "prior_run_id": "root-native-mypy-172-canonical-cc3d3edd490ff1e674ff996338422c6694f361b0-20261019",
+        "prior_signatures": 28,
+        "prior_stdout_sha256": "058cc8c26f7f2df07ab63dcaa550c00d7967a16f5b82dc8995015f7979df8d93",
+        "removed_class_counts": {
+          "numerical": 9,
+          "prior_file_common_arg_type_signature_replaced": 1,
+          "registry": 15,
+          "utility_except_revised_file_common_arg_type": 7
+        },
+        "same_profile_fingerprint": true,
+        "same_target_set": true
+      },
+      "review_verdict": {
+        "actual_mypy_run": "reconciled_complete_nonzero_diagnostic",
+        "causal_attribution_of_delta": "NOT_ESTABLISHED",
+        "runtime_or_pii_capability": "NOT_ESTABLISHED_BY_STATIC_DIAGNOSTIC",
+        "static_gate": "RED_5_CURRENT_ERRORS"
+      },
+      "source_integrity": {
+        "direct_actual_predecessor_to_current_tree_delta": {
+          "added_paths": 11,
+          "changed_paths_include_core": true,
+          "changed_paths_include_tests": true,
+          "changed_paths_include_tools": true,
+          "current_tracked_entries": 25692,
+          "modified_paths": 33,
+          "prior_tracked_entries": 25681,
+          "removed_paths": 0
+        },
+        "full_source_snapshot_equal": true,
+        "git_index_equal": true,
+        "source_after_file_sha256": "f85d36e7e199d9d9c464f73103a47c2e55f6a905ce785381b0b23ed3ecaf5101",
+        "source_before_file_sha256": "f85d36e7e199d9d9c464f73103a47c2e55f6a905ce785381b0b23ed3ecaf5101",
+        "tracked_entry_count": 25692,
+        "tracked_posix_lstat_equal": true,
+        "tracked_status_clean_before_and_after": true,
+        "tracked_worktree_byte_map_equal": true
+      },
+      "evidence": {
+        "request.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/request.json",
+          "sha256": "5ef4d68fc7b9699a54063c60d45c0e4472d5e61495b1aa3810d75d6de6af3cee",
+          "bytes": 76950
+        },
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/result.json",
+          "sha256": "4fcb349e8f0fbf023b1006021da5cac17cb364d292e1f14c85f377d50548e4dd",
+          "bytes": 29938
+        },
+        "diagnostic-index.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/diagnostic-index.json",
+          "sha256": "f5812f71bd8916261dc61a148809e17166d3e0b66b03b1089afa07750cf95af3",
+          "bytes": 82141
+        },
+        "mypy-172-current.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/mypy-172-current.stdout.txt",
+          "sha256": "fda3637dbfab7135eff9a022f9356db5016068c7f6a598e68d593f0453674e97",
+          "bytes": 2314
+        },
+        "mypy-172-current.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/mypy-172-current.stderr.txt",
+          "sha256": "b48fbc124adc37be3a32f7fcdc56c17ab849e1d58bff4b589a8f711d0f7bcb16",
+          "bytes": 32945
+        },
+        "source-before.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/source-before.json",
+          "sha256": "f85d36e7e199d9d9c464f73103a47c2e55f6a905ce785381b0b23ed3ecaf5101",
+          "bytes": 19371228
+        },
+        "source-after.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/source-after.json",
+          "sha256": "f85d36e7e199d9d9c464f73103a47c2e55f6a905ce785381b0b23ed3ecaf5101",
+          "bytes": 19371228
+        },
+        "phase-output.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/phase-output.jsonl",
+          "sha256": "f54be86e0e03845b8aa0a52a1b353628870d2f628ec877c30fe5b733eae823f4",
+          "bytes": 24584
+        },
+        "process-tree.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/process-tree.jsonl",
+          "sha256": "7ae31872ffd69188a9d3284b1465a2491b30f18390ec2e5a161bf7b86cd90269",
+          "bytes": 2451229
+        },
+        "peer_manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-1c9-actual-independent-20261019/manifest.json",
+          "sha256": "fce3ab92ba59da63a91e86cb0d0647f49a59df2873e1bb1540667facfea2cb7c",
+          "bytes": 5949
+        },
+        "peer_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-1c9-actual-independent-20261019/review.json",
+          "sha256": "d8b9056cde6d3133d3a4ffe4fd3404c2824d23f9266c8be5fbafa0b78d0a1290",
+          "bytes": 12973
+        },
+        "controller-events.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-1c9acee07939dfc43343abde6c171e807281b042-20261019/controller-events.jsonl",
+          "sha256": "a32d24c6a66a3d1e017d5bdc4e945800e47c4a324d5900b6e63ce00e96422d01",
+          "bytes": 24629
+        }
+      }
+    },
+    {
+      "id": "native-validator-module-size-and-whole-characterization-at-1c9",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "1c9acee07939dfc43343abde6c171e807281b042",
+        "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a"
+      },
+      "classification": "59 contract-error JSON produced; subsequent whole two-module characterization incomplete at overall wall cap; no JUnit",
+      "module_size": {
+        "command_rc": 1,
+        "contract_error_count": 59,
+        "report_finding_count": 10,
+        "status": "contract_errors",
+        "prior_and_current_error_rows": {
+          "old_error_rows": 63,
+          "current_error_rows": 59
+        },
+        "error_key_delta": {
+          "removed": 4,
+          "added": 0
+        }
+      },
+      "pytest": {
+        "return_code": -15,
+        "aborted_reason": "overall_wall_cap",
+        "wall_seconds": 170.431315083988,
+        "requested_overall_wall_cap_seconds": 180,
+        "max_sampled_process_tree_rss_bytes": 2607448064,
+        "process_group_gone": true,
+        "junit_raw_counts": {},
+        "source_snapshot_equal": true
+      },
+      "P41": "No inherited-red claim: full actual-input comparison intersects this source slice.",
+      "evidence": {
+        "request.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/request.json",
+          "sha256": "cf7595144ce251b6a886716df73549b2868d5f66aa9a42e16f24295e718f2a2f",
+          "bytes": 3729
+        },
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/result.json",
+          "sha256": "0ae09e8ece1e13409d0c4430b4f1ecf5b3a519e62448c07941660985b0b3561c",
+          "bytes": 3740
+        },
+        "module-size.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/module-size.json",
+          "sha256": "cd1aa214ab232dd54dc200cfd94ad7fa60b6a129981ae84da25a1474c3d7e753",
+          "bytes": 20870
+        },
+        "full-error-set-reconciliation.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/full-error-set-reconciliation.json",
+          "sha256": "c381cb52ba73a8244ef5685b86470d253fa637199231c59bc2585404706f7028",
+          "bytes": 2924
+        },
+        "native-module-size.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/native-module-size.stdout.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "native-module-size.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/native-module-size.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "pytest.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/pytest.stdout.txt",
+          "sha256": "7d35638d923f02558418ad75a17de406f2ecf726d5cb74f9b0390bf0ca10d4d7",
+          "bytes": 48
+        },
+        "pytest.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "source-before.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/source-before.json",
+          "sha256": "090e8de35450a186de3c4cc865ab5f94467f643c9627cb3787650557674bcf35",
+          "bytes": 19371228
+        },
+        "source-after.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/source-after.json",
+          "sha256": "090e8de35450a186de3c4cc865ab5f94467f643c9627cb3787650557674bcf35",
+          "bytes": 19371228
+        },
+        "process-tree.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/process-tree.jsonl",
+          "sha256": "b74f2c7a65cb862aeff696ad2b1a3b1897d770d207e6d6e19b876450335d6a43",
+          "bytes": 417451
+        },
+        "controller-events.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/controller-events.jsonl",
+          "sha256": "791642b4bd80dbf2a49c1810291867dfaf55efed07104d53c25edd4c84603994",
+          "bytes": 2323
+        },
+        "phase-output.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-1c9acee0-actual-20261019/phase-output.jsonl",
+          "sha256": "8afe2ba776c9edb4374a8eed0e4daabb22ae115f2cf2f33b5e38406f043c712d",
+          "bytes": 2220
+        }
+      }
+    },
+    {
+      "id": "native-validator-first-failure-at-1c9",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "1c9acee07939dfc43343abde6c171e807281b042",
+        "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a"
+      },
+      "classification": "bounded first-failure diagnostic only; no full-suite PASS claim",
+      "return_code": 1,
+      "wall_seconds": 13.446160125080496,
+      "requested_wall_cap_seconds": 120,
+      "junit_summary": {
+        "cases": 11,
+        "errors": 0,
+        "failures": 1,
+        "passed": 10,
+        "skipped": 0
+      },
+      "source_snapshot_equal": true,
+      "evidence": {
+        "request.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/request.json",
+          "sha256": "acb66cbfc8dbe27e03ad5185ef93a3f3421845973deb7da76a5421a2f016d733",
+          "bytes": 4695
+        },
+        "result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/result.json",
+          "sha256": "add558511129067d9040be731b867a04df0ee40c30f771584293943599550147",
+          "bytes": 3483
+        },
+        "pytest-first-failure.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/pytest-first-failure.stdout.txt",
+          "sha256": "95f3924c1825108256b04a519de0ba7ec2b1388293b4039470517f2bcdbba21d",
+          "bytes": 4761
+        },
+        "pytest-first-failure.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/pytest-first-failure.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "pytest.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/pytest.xml",
+          "sha256": "d94c9e9eb6886a4db89db89a5ffcc7d31b54062bd626efe813e6ccfe7abe5606",
+          "bytes": 3881
+        },
+        "execution-provenance.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/execution-provenance.json",
+          "sha256": "4bdc8f3c285a7173dd002f9c8d9271f04f8f3849d588ecbc2977ee6ce30eca8d",
+          "bytes": 240989
+        },
+        "source-before.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/source-before.json",
+          "sha256": "ea8004b1685553a5b5bc69316f102a9526e5ae501e5ce308d36b5b413fb572d0",
+          "bytes": 16185269
+        },
+        "source-after.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/source-after.json",
+          "sha256": "ea8004b1685553a5b5bc69316f102a9526e5ae501e5ce308d36b5b413fb572d0",
+          "bytes": 16185269
+        },
+        "controller-events.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/controller-events.jsonl",
+          "sha256": "0229b8ff088a43b50e75d4943e1451b13e655b589720ab2849fda9490729df1f",
+          "bytes": 1559
+        },
+        "phase-output.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/phase-output.jsonl",
+          "sha256": "670555e83602df055a02067d6366b1906819afe0f55fac967270e8ed98325f40",
+          "bytes": 1522
+        },
+        "process-tree.jsonl": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-1c9-actual-20261019/process-tree.jsonl",
+          "sha256": "3a4fa820d3f0b8f7f25f358828502580b2126d711b57c3d8ec33a3c7772fbf4f",
+          "bytes": 34968
+        }
+      }
+    }
+  ],
+  "decision_boundary": {
+    "status": "Verification remains RED or incomplete; no aggregate gate or capability closure is claimed.",
+    "required_followups": [
+      "Run the full native validator module-size/architecture gate at the exact source cut with sufficient wall budget and retained JUnit; the 1c9 whole characterization timed out.",
+      "Run the full N13b lifecycle test quantity after fa919; the 93b diagnostic predates the runtime binding fix.",
+      "Resolve the FBC recorded-profile-to-supervisor enforcement discrepancy before asserting those resource caps."
+    ],
+    "not_established": [
+      "strict requested-origin profile for the 93b Core run",
+      "FBC 180s/2-GiB/1.3-GB profile enforcement",
+      "N13b runtime correctness at fa919",
+      "G acceptance or formal closure"
+    ]
+  }
+}

@@ -1,0 +1,325 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "P39": "Exact commit footprint: 13 paths = 8 mechanism modules, 1 budget/config companion, 2 test companions, and 2 required LEASES/index metadata paths. Metadata is outside the mechanism count; every committed path is listed.",
+  "P40": "SAME oversized-validator class; widened from one extracted family to whole facade and all cohesive owners below1000. Genuine budget repayment only, no blanket waiver or time shift.",
+  "property": "Restore the existing native validator module-size invariant structurally across the full facade and seven coherent owner families while preserving all original callable signatures, exported constants and live monkeypatch seams. Remove only the repaid facade exception, no threshold or expiry change.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "1c9acee07939dfc43343abde6c171e807281b042",
+    "commit_subject": "refactor(e02): split architecture report owners and retire repaid facade budget",
+    "parents": [
+      "93b09c756c114d8d3533e552dac4da58733a91d4"
+    ],
+    "slice_base": "93b09c756c114d8d3533e552dac4da58733a91d4",
+    "base_tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f",
+    "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a",
+    "observed_head_at_receipt": "fa91983925a95c4428655c91d4601c5fd54b1345",
+    "source_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/native-validator-facade-module-size-r5-20261019-readback.json",
+      "sha256": "a2a8227717d40ec15f8e21cbc678b2dd09ffd4c696fe6f75b83a62a4687ccf97",
+      "bytes": 3525
+    }
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/source-application.json",
+    "sha256": "8efeb3e498975cf228efd0fd774f629ad5ee2526917176f5e01d9ea706c96321",
+    "bytes": 14635
+  },
+  "adoption_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/plan.json",
+    "sha256": "a6e779871a5d081927fb0694424dbc39ea0bfc72ee31d79a4beb39aaa542b20f",
+    "bytes": 9955
+  },
+  "full_footprint": {
+    "path_count": 13,
+    "mechanism_paths": 8,
+    "mandatory_config_companion_paths": 1,
+    "test_companion_paths": 2,
+    "required_delivery_metadata_paths": 2,
+    "paths": [
+      {
+        "path": "policy-engine/architecture/module_size_budget.toml",
+        "mode": "100644",
+        "bytes": 33627,
+        "postimage_sha256": "f9a1af648609d200c4f0ed6d4c13262f1e7cb1ba1ba871d35399c92302fb5274",
+        "role": "mandatory_config_companion",
+        "category": "mandatory_config_companion"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "mode": "100644",
+        "bytes": 1257311,
+        "postimage_sha256": "6d049bc6d81f10a7b0bc49cb2f224b8ae94f601f633fdfbac9581fae2d407203",
+        "role": "required delivery metadata (LEASES/index)",
+        "category": "delivery_metadata"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "mode": "100644",
+        "bytes": 90643,
+        "postimage_sha256": "49a2daebc1efc45b14170eb4662907e7bae62c517c4c475bf6657b9611d59122",
+        "role": "required delivery metadata (LEASES/index)",
+        "category": "delivery_metadata"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "mode": "100644",
+        "bytes": 67777,
+        "postimage_sha256": "5c92090bdaa48ce1e9a7fcf7b8e0105369763629e3823769980f3e0975010b79",
+        "role": "mandatory_test_companion",
+        "category": "mandatory_test_companion"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py",
+        "mode": "100644",
+        "bytes": 45881,
+        "postimage_sha256": "2d291fae7bf9815e2846e943cc9ce14f7c49a1fb98a5d4c7fe375057417a1d60",
+        "role": "mandatory_test_companion",
+        "category": "mandatory_test_companion"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_artifact_contracts.py",
+        "mode": "100644",
+        "bytes": 28034,
+        "postimage_sha256": "33d49110608e3a7d097cc1b6299700ea73dcd3da0e6423606719084ad1b70fbf",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_directory_contracts.py",
+        "mode": "100644",
+        "bytes": 13030,
+        "postimage_sha256": "610cf15391d2a30e5751bab4db2f1765277ed6cc7ba1f4c20c83aa5eff977183",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_import_graph.py",
+        "mode": "100644",
+        "bytes": 34780,
+        "postimage_sha256": "5f277b8b6b0ce7ef2f6d4d16272c1ba37b51635c8043c0e219776d2802987a55",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_module_size_contracts.py",
+        "mode": "100644",
+        "bytes": 15143,
+        "postimage_sha256": "e6522fffb0b606e32a12102935abf578ba4974950d64cedac3a5f31ed1677bbe",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_package_contracts.py",
+        "mode": "100644",
+        "bytes": 22990,
+        "postimage_sha256": "7e1a96291220d2204495891fe5ac90fc597f8c31d4d3271214ffa12d0bde0fcc",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_package_mirror_projection.py",
+        "mode": "100644",
+        "bytes": 33033,
+        "postimage_sha256": "09d0361731833a78eb804f3bb346b047e78b3403af65401e5e08e49dc837339f",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+        "mode": "100644",
+        "bytes": 31169,
+        "postimage_sha256": "51872af190fba7c33aff7d00385bee063ee0459146ab8125145b19d9ee5261d3",
+        "role": "mechanism",
+        "category": "mechanism"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_report_surface.py",
+        "mode": "100644",
+        "bytes": 28774,
+        "postimage_sha256": "9d97d8f041603fd79105edae229f809f11ecc7f1a6cd825c3bc603b4eb4511b7",
+        "role": "mechanism",
+        "category": "mechanism"
+      }
+    ],
+    "complete_commit_path_and_sha256_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/native-validator-facade-module-size-r5-20261019-readback.json",
+      "sha256": "a2a8227717d40ec15f8e21cbc678b2dd09ffd4c696fe6f75b83a62a4687ccf97",
+      "bytes": 3525
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/patch-manifest-r5.json",
+      "sha256": "18bf457145f95381aa1c560fc3be96eb8c07f4871495c0dcbfffc198e50762e3",
+      "bytes": 3877
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/candidate-r5.patch",
+      "sha256": "1df636f50f999ec406465687ec4177b5f9ea7694912f3ed381271c9133cfa69f",
+      "bytes": 366300
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/authoring-packet-r5.md",
+      "sha256": "d9c4c95de7b52e307daa03ca05bdacc6a0d87e51936a2d475a0314a33b855d79",
+      "bytes": 3973
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/static-verification-r5.json",
+      "sha256": "1e4facb209d4fd4641147dc75609440794ea30264f2852bf07d0c5a3c470c9a8",
+      "bytes": 8072
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/ruff-source-qualified-r5-final2.json",
+      "sha256": "2c85a2cbe56f61bd548759ca83e26eca210e5575386c0414968322da130eef9f",
+      "bytes": 13322
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/candidate-inventory-r5-final.json",
+      "sha256": "84e721375c2ef90e1c5b5bc145eb5dc03de030a6243411cc5cd9747950e4f039",
+      "bytes": 22390
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-r5-independent-20261019/review-v2.json",
+      "sha256": "a1003ac46154a9dd458eefcbca0c1d40257fab199479f35c40ad6ded1df58837",
+      "bytes": 8021
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-r5-independent-20261019/review-corrigendum-v2.md",
+      "sha256": "b6d05cd393556d99d90e104a4961e66e0d1b5f50c8cb5ec6cab13433967a1f4a",
+      "bytes": 691
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+      "bytes": 13255
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+      "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+      "bytes": 2778
+    }
+  ],
+  "independent_review": {
+    "decision": "GO_SOURCE_CANDIDATE_ONLY",
+    "reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-r5-independent-20261019/review-v2.json",
+      "sha256": "a1003ac46154a9dd458eefcbca0c1d40257fab199479f35c40ad6ded1df58837",
+      "bytes": null
+    }
+  },
+  "canonical_ruff_preflight": {
+    "profile": "Product .venv with architecture/tooling/ruff/workspace_root.toml, canonical product cwd, and native role selector bound to pinned owner files listed in reviewed_inputs.",
+    "selected_python_paths": 10,
+    "check_exit_code": 0,
+    "format_check_exit_code": 0,
+    "commands": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_package_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_package_mirror_projection.py",
+          "policy-engine/tools/quality/validation/architecture_module_size_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_artifact_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_directory_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_import_graph.py",
+          "policy-engine/tools/quality/validation/architecture_report_surface.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05364370788447559,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_package_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_package_mirror_projection.py",
+          "policy-engine/tools/quality/validation/architecture_module_size_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_artifact_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_directory_contracts.py",
+          "policy-engine/tools/quality/validation/architecture_import_graph.py",
+          "policy-engine/tools/quality/validation/architecture_report_surface.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.050605874974280596,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "per_file_preflight_context": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "d9cecf610233f7f58a1756d8a1e60635df297b7d65f5644e7dc30bca74c40a3c",
+      "bytes": 22959
+    },
+    "aggregate_stdout_stderr": {
+      "check-native-role-0.stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/check-native-role-0.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "check-native-role-0.stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/check-native-role-0.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "format-native-role-0.stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/format-native-role-0.stdout.txt",
+        "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+        "bytes": 27
+      },
+      "format-native-role-0.stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/format-native-role-0.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  },
+  "verification_boundary": {
+    "source_application_runtime_field": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+    "same_cut_actuals": "Separate actual receipt records 59 module-size contract errors and an incomplete whole two-module characterization at wall cap; a separate first-failure attempt completed 10 passed/1 failed. No green postimage gate.",
+    "open_limits": [
+      "Independent exact R5source review GO; original report/corrigenda retained with finalv2full11pathhashmap authoritative. Runtime qualification is separate.",
+      "Historical native module-size gate had63contract errors with4facade errors; remaining59 are not established inherited and fullpostimagegate remainsUNRUN.",
+      "AST/body equivalence and canonical Ruff do not prove runtime compatibility or package/architecturegate behavior.",
+      "No new authority/status/scientificcontract semantics, no Gacceptance or closures."
+    ],
+    "G": false
+  }
+}

@@ -1,0 +1,614 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "P39": "Complete exact commit footprint: 12 paths = 10 mechanism rows, 0 source/test/documentation companion rows, plus 2 required LEASES/index metadata paths. Required metadata is outside mechanism count; every actual commit path is enumerated.",
+  "P40": "SAME internal typed-boundary class; repair whole concrete state or complete constructor domain once, not per-call ignores. All three cohorts independently reviewed; numerical R2 delta independently approved for exact composition.",
+  "property": "Repair the complete currently diagnosed internal registry state, numeric library, conversion, utility and DTO boundary typing cohort without suppressions or runtime scientific-contract changes. Preserve actual MappingProxyType snapshot publication, factory fallback capture, live mapping reads, pandas null exceptions, Decimal object values and default optional backend behavior.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "aaf53bf77569ca295b0f8642a094499638d59dc8",
+    "commit_subject": "fix(e02): align Fabric internal typing with concrete runtime boundaries",
+    "parents": [
+      "27e38aa0d4dc7f0c4d15a18a065cc0e3ad85aef4"
+    ],
+    "slice_base": "27e38aa0d4dc7f0c4d15a18a065cc0e3ad85aef4",
+    "tree": "d8bb353ccfa658c94550ce84d61b7dd2851149ab",
+    "observed_head_at_receipt": "93b09c756c114d8d3533e552dac4da58733a91d4",
+    "source_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-32-internal-typing-source-20261019-readback.json",
+      "sha256": "9fedaf912fc32ec51db32ec87aa1e8dddc0b69c20819e6070ab71b9100f75db8",
+      "bytes": 3083
+    }
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/source-application.json",
+    "sha256": "916e68869f4b426fa67d2d831cfccba8cb45df908f9576b6525cafba9e011d78",
+    "bytes": 14426
+  },
+  "full_footprint": {
+    "path_count": 12,
+    "mechanism_paths": 10,
+    "source_companion_paths": 0,
+    "required_delivery_metadata_paths": 2,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "07609522433ae201acf90fe94d982858c9718418ddb110e5b3b8bde7aef1a723",
+        "bytes": 1225783,
+        "mode": "100644",
+        "category": "delivery_metadata",
+        "role": "required delivery metadata (LEASES/index)"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "postimage_sha256": "94a9add8f2e5db1503adbdd0a854cfd4bbdb31e0d79c6af59076969b71d3ba83",
+        "bytes": 90643,
+        "mode": "100644",
+        "category": "delivery_metadata",
+        "role": "required delivery metadata (LEASES/index)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/catalog/search.py",
+        "postimage_sha256": "564f3e02464a2626d9819c203592c4d021efe17e77e11b0269022e76d5c3dc54",
+        "bytes": 17327,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "utility_or_dto_runtime_boundary_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "postimage_sha256": "56788f00936349f8061f6e418ab904cf243716382c89c8e0d3f6ef59d2240361",
+        "bytes": 45367,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "registry_state_and_factory_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+        "postimage_sha256": "f8390e3f8ecfd2a3c01f369257abf9c7fe038ba40774428ae269444c5ec2a931",
+        "bytes": 14068,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "utility_or_dto_runtime_boundary_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+        "postimage_sha256": "93658eca6990c50eb6765293d9e79170a72799c63e6a5770f56f5e0f2c1c19f9",
+        "bytes": 18063,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "numeric_library_and_attribute_protocol_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/quality/statistics.py",
+        "postimage_sha256": "cfe5a518fc799e14bf9b5289d2cc7e19ed9e38e7180d072a5dd2ec82b49e066d",
+        "bytes": 47804,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "numeric_library_and_attribute_protocol_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "postimage_sha256": "341be758b4eefb17a00397e960088a400b56a48aa557dc03a867155e52638eed",
+        "bytes": 57707,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "registry_state_and_factory_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+        "postimage_sha256": "aa627df94112dc8d636d229cfbfdeb93ce9777d1e1adaf6de7cd52f0217e7369",
+        "bytes": 12544,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "utility_or_dto_runtime_boundary_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "postimage_sha256": "9e9207fa108dbaa2a5400c3e638d2f49cf738a2d970d825c597a820dac18a2da",
+        "bytes": 9560,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "utility_or_dto_runtime_boundary_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/transform/harmonizer.py",
+        "postimage_sha256": "e9912cb83a5102348e7a4658ea7e6878f2da54be14ba49ba577942ead01d1c7b",
+        "bytes": 6366,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "numeric_library_and_attribute_protocol_typing"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+        "postimage_sha256": "4bda9d70f16e2e3e9bc3e815048b97d7ae4b49ccf6bd14e2f023abc52d5b9a83",
+        "bytes": 22111,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "utility_or_dto_runtime_boundary_typing"
+      }
+    ],
+    "complete_commit_path_and_sha256_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-32-internal-typing-source-20261019-readback.json",
+      "sha256": "9fedaf912fc32ec51db32ec87aa1e8dddc0b69c20819e6070ab71b9100f75db8",
+      "bytes": 3083
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194,
+      "roles": [
+        "canonical Ruff config at source commit"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "59dfb138aa92ec3eee585f3c16d9d918dc638bc0b90cbc474d072c09d6891ccf",
+      "bytes": 22049,
+      "roles": [
+        "complete per-file Ruff preflight context"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/format-native-role-0.stdout.txt",
+      "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+      "bytes": 27,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-32-internal-typing-source-20261019-commit.stderr.txt",
+      "sha256": "3844ad9d4bacfddee44eb2c5cda94bdda7ee4742add377842f4f588dc318ecc4",
+      "bytes": 653,
+      "roles": [
+        "commit stderr"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-32-internal-typing-source-20261019-commit.stdout.txt",
+      "sha256": "2135e7cfef02d0d50bc0aa1175219898bcf96f4ce00a7a2f2bca33b654b95130",
+      "bytes": 171,
+      "roles": [
+        "commit stdout"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-32-internal-typing-source-20261019-readback.json",
+      "sha256": "9fedaf912fc32ec51db32ec87aa1e8dddc0b69c20819e6070ab71b9100f75db8",
+      "bytes": 3083,
+      "roles": [
+        "commit source-byte readback"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf",
+      "bytes": 197,
+      "roles": [
+        "source application trash receipt"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/plan.json",
+      "sha256": "21fae723d243679cb23b3f06179f148250d7e95b0bc215aa7c054b77dcf27220",
+      "bytes": 10081,
+      "roles": [
+        "adoption plan"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/reviewed-present-postimages.patch",
+      "sha256": "ed64c7500eef9ad171eeb61b8f4a179227ce74771e255b68e2f4ca2b7efa7b07",
+      "bytes": 12108,
+      "roles": [
+        "applied source patch"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/source-application.json",
+      "sha256": "916e68869f4b426fa67d2d831cfccba8cb45df908f9576b6525cafba9e011d78",
+      "bytes": 14426,
+      "roles": [
+        "source application"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-20261019/manifest.json",
+      "sha256": "b7c5edffa099974fff842bb82cec612205333a28a4d8085108132e48a46691bd",
+      "bytes": 9017,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-r2-20261019/manifest.json",
+      "sha256": "c2ac81d3eb332c0edf4bc4addd585df1dbaec44efd8df208912e1f0ab71bdb54",
+      "bytes": 5107,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-independent-20261019/manifest.json",
+      "sha256": "fff469940a37ca3feebd00e956f2f89eac41c6f93f0b13713b9008cb99de713e",
+      "bytes": 8394,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-independent-20261019/review.json",
+      "sha256": "9c81127d70e323d24a903cdd9147c962e812c04ae4e02e887a4ae750c2da3c74",
+      "bytes": 13826,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-independent-20261019/review.md",
+      "sha256": "1a4437edbeed14f3e51af9dfda32d88f54ef26d1039ba85cd0a7aa7c30277240",
+      "bytes": 2979,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-r2-independent-20261019/manifest.json",
+      "sha256": "8f9d3d282f8fd51299a32b29fce8f0a2a9152a29f31dbd7a06876239d0629698",
+      "bytes": 5765,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-r2-independent-20261019/review.json",
+      "sha256": "66d23e4fd88c3395cbfb8116c815895716215db6d86ba9d41a3a831c052134b8",
+      "bytes": 8073,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-r2-independent-20261019/review.md",
+      "sha256": "e5a381b1c3335bdbf996d06e43c8c512050a673a833a20c10a4c00cab36e261a",
+      "bytes": 2058,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-candidate-20261019/manifest.json",
+      "sha256": "ef7ca4674e5ab2c2ddbf6572e1853f8680dd68b0b134d85c3dd7121fb55835fb",
+      "bytes": 12268,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/manifest.json",
+      "sha256": "996fc47d515f48679144c12a6c74b932b300fa19f0a21bb60878eb4ad64c4010",
+      "bytes": 7457,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/packet-seal.json",
+      "sha256": "d3f525bcf796841372e4315f2804ed80d208551d768ae906c498de25a39175f1",
+      "bytes": 363,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/review.json",
+      "sha256": "4009a9a0c1052d6f0e94834c8db5e112a172577f9eece58af29ace2e5a8f438d",
+      "bytes": 12841,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/review.md",
+      "sha256": "5e9d652e27de5baf51688849669e97914d89d20a82527dd61bd405a2633c803a",
+      "bytes": 2052,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/manifest.json",
+      "sha256": "6ce0c7ca97028bb7840bb75c417f46c43738ec96cc3999f984ead59bfbd2c660",
+      "bytes": 11094,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-independent-20261019/review.json",
+      "sha256": "656fd0fba626f1b254da2bbb114503b694e7db7b4a4d056284ca96465ef71fa7",
+      "bytes": 6058,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-independent-20261019/review.md",
+      "sha256": "2e5defbd3c81732e6239fd35dfef2e2b1aea4711fbb0ff6e5a910ed2f9417feb",
+      "bytes": 5052,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-independent-20261019/source-recheck.json",
+      "sha256": "5920ab432918e885cf5bc0501a98ec6b804090ab2a0ed3bd188201e57e4fb3a3",
+      "bytes": 2015,
+      "roles": [
+        "peer review packet"
+      ]
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+      "bytes": 13255,
+      "roles": [
+        "canonical Ruff profile owner pin"
+      ]
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+      "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+      "bytes": 2778,
+      "roles": [
+        "canonical Ruff profile owner pin"
+      ]
+    }
+  ],
+  "canonical_ruff_preflight": {
+    "profile": "policy-engine/.venv/bin/python -B -m ruff with policy-engine/architecture/tooling/ruff/workspace_root.toml; canonical profile owner sources are pinned below.",
+    "tool_version": "Not separately recorded in source-application receipt; no version claim added.",
+    "canonical_context": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "59dfb138aa92ec3eee585f3c16d9d918dc638bc0b90cbc474d072c09d6891ccf",
+      "bytes": 22049,
+      "role": "per-file Ruff commands and outputs"
+    },
+    "aggregate_runs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+          "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+          "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+          "policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+          "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+          "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+          "policy-engine/src/polisyos/fabric/catalog/search.py",
+          "policy-engine/src/polisyos/fabric/connectors/quality/statistics.py",
+          "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+          "policy-engine/src/polisyos/fabric/connectors/transform/harmonizer.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.044794166926294565,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19,
+          "role": "aggregate Ruff stdout"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "aggregate Ruff stderr"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+          "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+          "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+          "policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+          "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+          "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+          "policy-engine/src/polisyos/fabric/catalog/search.py",
+          "policy-engine/src/polisyos/fabric/connectors/quality/statistics.py",
+          "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py",
+          "policy-engine/src/polisyos/fabric/connectors/transform/harmonizer.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03995595802552998,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+          "bytes": 27,
+          "role": "aggregate Ruff stdout"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "aggregate Ruff stderr"
+        }
+      }
+    ],
+    "per_target_runs": "The context record contains every per-file check/format command, exit code, and output pin; those referenced outputs were hash-checked and each recorded exit code is zero.",
+    "applicability": "changed Python files",
+    "profile_owner_pins": [
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+        "bytes": 13255,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+        "bytes": 2778,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "bytes": 28194,
+        "role": "canonical Ruff config at source commit"
+      }
+    ]
+  },
+  "independent_review": {
+    "decision": "Pinned peers give scoped static source GO across registry, utility/DTO, and numerical R1+R2 cohorts. They explicitly do not establish runtime, MyPy, or full diagnostic closure.",
+    "scope": "Static source review only. No passing runtime, product tests, full diagnostic result, or capability closure is inferred.",
+    "references": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/review.json",
+        "sha256": "4009a9a0c1052d6f0e94834c8db5e112a172577f9eece58af29ace2e5a8f438d",
+        "bytes": 12841,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/review.md",
+        "sha256": "5e9d652e27de5baf51688849669e97914d89d20a82527dd61bd405a2633c803a",
+        "bytes": 2052,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-independent-20261019/review.json",
+        "sha256": "656fd0fba626f1b254da2bbb114503b694e7db7b4a4d056284ca96465ef71fa7",
+        "bytes": 6058,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-independent-20261019/review.md",
+        "sha256": "2e5defbd3c81732e6239fd35dfef2e2b1aea4711fbb0ff6e5a910ed2f9417feb",
+        "bytes": 5052,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-independent-20261019/review.json",
+        "sha256": "9c81127d70e323d24a903cdd9147c962e812c04ae4e02e887a4ae750c2da3c74",
+        "bytes": 13826,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-independent-20261019/review.md",
+        "sha256": "1a4437edbeed14f3e51af9dfda32d88f54ef26d1039ba85cd0a7aa7c30277240",
+        "bytes": 2979,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-r2-independent-20261019/review.json",
+        "sha256": "66d23e4fd88c3395cbfb8116c815895716215db6d86ba9d41a3a831c052134b8",
+        "bytes": 8073,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-r2-independent-20261019/review.md",
+        "sha256": "e5a381b1c3335bdbf996d06e43c8c512050a673a833a20c10a4c00cab36e261a",
+        "bytes": 2058,
+        "role": "independent peer review"
+      }
+    ]
+  },
+  "other_open_reviews": [
+    "Fresh source/profile-qualified 172-target MyPy remains required.",
+    "The four public BaseModel/Mapping/schema typing items require the tracked G contract decision.",
+    "Whole affected importer/owner tests remain UNRUN; Decimal inference has no focused runtime test."
+  ],
+  "environment_boundary": {
+    "source_application_environment_changes": "none recorded",
+    "ruff_profile": "Canonical product-root .venv interpreter and tracked workspace_root Ruff config used for source preflight; no product tests/imports are claimed.",
+    "profile_owner_pins": [
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+        "bytes": 13255,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+        "bytes": 2778,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "bytes": 28194,
+        "role": "canonical Ruff config at source commit"
+      }
+    ],
+    "source_freeze": false
+  },
+  "verification_boundary": {
+    "runtime": "UNRUN on this exact source commit.",
+    "targeted_32_diagnostic": "UNRUN; no resolved-diagnostic claim.",
+    "fresh_172_target_mypy": "UNRUN and required after a qualified source/profile freeze.",
+    "runtime_consumer_tests": "UNRUN on this exact source commit.",
+    "result": "No product/runtime verification claim is made in this receipt."
+  },
+  "open_limits": [
+    "The 32 targeted typing occurrences remain diagnostic targets, not resolved findings; the fresh 172-target diagnostic run is UNRUN on this exact commit.",
+    "Four incompatible public BaseModel/Mapping/schema diagnostics remain under an explicit G contract decision; this commit does not enact public API semantics.",
+    "Runtime consumer tests are UNRUN on these exact bytes. The cited packet has no focused Decimal inference test.",
+    "Earlier diagnostics are historical inputs and do not establish a causal result for this commit."
+  ],
+  "next_check": "Run fresh source/profile-qualified 172-target MyPy and the actual whole importer/owner test modules after the blocking composition freeze; preserve all FAIL/ERROR/SKIP/UNRUN. Resolve the four public typing diagnostics through the tracked G decision."
+}

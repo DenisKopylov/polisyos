@@ -1,0 +1,557 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "P39": "Complete exact commit footprint: 13 paths = 6 mechanism rows, 5 source/test/documentation companion rows, plus 2 required LEASES/index metadata paths. Required metadata is outside mechanism count; every actual commit path is enumerated.",
+  "P40": "SAME/deeper read-only presence/admission class. R1 exposed Path.exists collapsing dangling links and status failures into absence. R2 widens one generic classifier across both selected blob and manifest paths and all components; R3 adds a real pending-transaction behavioral witness for both writer and read-only public APIs. No separate symlink/error ladder or new semantic class.",
+  "property": "For the exact selected CAS manifest view, read-only has/read returns false only for a genuinely absent selected view. A dangling link, non-regular path component, incomplete present blob/manifest pair, unreadable member, or pending publication transaction must refuse with the typed error and leave the CAS tree unchanged. R2 applies a generic component-wise classifier across blob and selected-manifest paths; R3 behaviorally exercises all public read methods on both writer and read-only reader after the normal writer persists a pending intent.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "a346e0e784fe0af2d361194f55aaed8851442263",
+    "commit_subject": "fix(e02): make read-only CAS reads fail closed",
+    "parents": [
+      "aaf53bf77569ca295b0f8642a094499638d59dc8"
+    ],
+    "slice_base": "aaf53bf77569ca295b0f8642a094499638d59dc8",
+    "tree": "baf139f9910e82fb99c0c3d013d3af8aaf504047",
+    "observed_head_at_receipt": "93b09c756c114d8d3533e552dac4da58733a91d4",
+    "source_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/core-cas-readonly-owner-r2-r3-composed-adoption-20261019-readback.json",
+      "sha256": "db590b5d452bacda66665763dba1a4bf9c8574a37b1580b951016226dcfcd6b5",
+      "bytes": 3180
+    }
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/source-application.json",
+    "sha256": "0d6a35ff116a856bfed2ebbff550019ba48908cd2a87ee6db7fab330c9b5a53e",
+    "bytes": 18217
+  },
+  "full_footprint": {
+    "path_count": 13,
+    "mechanism_paths": 6,
+    "source_companion_paths": 5,
+    "required_delivery_metadata_paths": 2,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "e5b52bc14e0d70c6b3cd7608e7a2b35ffa48621cda06e4147019a62c4b2fe14b",
+        "bytes": 1240426,
+        "mode": "100644",
+        "category": "delivery_metadata",
+        "role": "required delivery metadata (LEASES/index)"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "postimage_sha256": "dcf724331d8c0446fc9135aa9d3c48fb5cc43416ef8e5b462d2ae842a29fad00",
+        "bytes": 90643,
+        "mode": "100644",
+        "category": "delivery_metadata",
+        "role": "required delivery metadata (LEASES/index)"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/README.md",
+        "postimage_sha256": "25a4e1be2e5e852bfa74a0ec8c3ae767f175c78955f1dd059a3483b25a7f3f69",
+        "bytes": 9662,
+        "mode": "100644",
+        "category": "contract_documentation_companion",
+        "role": "required_local_reader_boundary_documentation"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "postimage_sha256": "96582cd045d1be271dee38dc3d21ff484428018f1b38317d6b0bf93451d35f8b",
+        "bytes": 21399,
+        "mode": "100644",
+        "category": "contract_documentation_companion",
+        "role": "required_local_reader_boundary_documentation"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "postimage_sha256": "853e4146e84072da9711743af49fdb6587411ed511c153c4f1bf1f1c06aaa597",
+        "bytes": 8880,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "read_only_CAS_typed_access_and_consumer_wiring"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "postimage_sha256": "fdef26824abd5c4401310f17d51ced48bbc17a6785324675786ff9eae69cc02c",
+        "bytes": 101684,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "read_only_CAS_typed_access_and_consumer_wiring"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "postimage_sha256": "55b080c39f8b639140eb267f44daae6d816101153a34045d7041261701fcf665",
+        "bytes": 17666,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "read_only_CAS_typed_access_and_consumer_wiring"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "postimage_sha256": "b60f51062932b08f46e5a3ceb82b5e49cde6dd523ca0445800a34d1a5d7c0f4d",
+        "bytes": 232934,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "read_only_CAS_typed_access_and_consumer_wiring"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+        "postimage_sha256": "c33bffc0ac0ab93ff330cc6f8bdfa50fa73fc2305bab5eb70a3fbc79fc13c131",
+        "bytes": 103354,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "read_only_CAS_typed_access_and_consumer_wiring"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "postimage_sha256": "a7b0f249bfd947faf766aebba1e6bc36bcab0b94d4209b39fa906adcfd5bf75d",
+        "bytes": 111558,
+        "mode": "100644",
+        "category": "mechanism",
+        "role": "read_only_CAS_typed_access_and_consumer_wiring"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py",
+        "postimage_sha256": "79d1bcf084299226e960c12522e8c8b92747b0edbd8b5c82b6203306c36311a5",
+        "bytes": 83957,
+        "mode": "100644",
+        "category": "meaningful_test_companion",
+        "role": "behavioral_consumer_or_CAS_regression_control"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "postimage_sha256": "917cf502951fabe9fc6dc1f0488b85b3f7227340ca427a5baf4cacc255432468",
+        "bytes": 43380,
+        "mode": "100644",
+        "category": "meaningful_test_companion",
+        "role": "pending_transaction_refusal_on_writer_and_read_only_reader_with_tree_stability"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+        "postimage_sha256": "4157235f0a4cf086f468fed80c8b58cc03f1801c5407cf6b6041e7a323faed82",
+        "bytes": 52778,
+        "mode": "100644",
+        "category": "validation_tool",
+        "role": "runtime_contract_validator"
+      }
+    ],
+    "complete_commit_path_and_sha256_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/core-cas-readonly-owner-r2-r3-composed-adoption-20261019-readback.json",
+      "sha256": "db590b5d452bacda66665763dba1a4bf9c8574a37b1580b951016226dcfcd6b5",
+      "bytes": 3180
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194,
+      "roles": [
+        "canonical Ruff config at source commit"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-adoption-prepare-20261019/plan.json",
+      "sha256": "68f3c3e6d8f98d67f167f99a192a40084ca2d691af7ce7f9dd831d630aecc6fe",
+      "bytes": 19307,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r2-20261019/candidate.json",
+      "sha256": "fc9da2a376ef9ff6acd8fa1a1fa0a084fbe02254bca9d9648bd9ebf31a9ac23e",
+      "bytes": 12099,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r2-20261019/candidate.patch",
+      "sha256": "20473d7243e423f9e03cb075f75dad81023045733043bc69d216f2cb887506a3",
+      "bytes": 53252,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r2-20261019/seal.json",
+      "sha256": "9fe84f7398f89270a33955a0a7b438a36fcd70dc603648f57d97b52e28a1f5e5",
+      "bytes": 3599,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r2-20261019/static-validation.json",
+      "sha256": "1e95f3513c51ed9d654a989a1fbc930d07874ba28d07e7b040ae794927e7c606",
+      "bytes": 12562,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r3-20261019/candidate.json",
+      "sha256": "89b1832e805f5190af45152a35f46455444b86503f3ca432932e0c28b7563f6f",
+      "bytes": 10893,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r3-20261019/seal.json",
+      "sha256": "e8054b957879d531c3ab9d024351c9229bc250f6c91d55fc5fc32a0ef0e33813",
+      "bytes": 1161,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r3-20261019/static-validation.json",
+      "sha256": "de0a0ac7675270632df21efa74812dd011ab383f2ed70d71925568c690203543",
+      "bytes": 1249,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-candidate-r3-20261019/test-delta-from-r2.patch",
+      "sha256": "96be74e7470e10167138ab7aa2700ffa9a8b378771427a0ee416fe43103394aa",
+      "bytes": 2668,
+      "roles": [
+        "plan input",
+        "source-application input"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-independent-20261019/review.json",
+      "sha256": "06f0e3fe83c87e6d4149aaa37117878454065b7b7a63e125ac8b03c1b419ad3c",
+      "bytes": 7941,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-r2-independent-20261019/review.json",
+      "sha256": "9411ddf16debb49650967b82788edb0b0d1fb4f9fb3c8010e7cd1cdc1f6a82eb",
+      "bytes": 7574,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-r3-independent-20261019/review.json",
+      "sha256": "9fb5f5188f8e48bb5a0354e67287b7d85cf3b1ec2cabd833c9ac4dfb635ce543",
+      "bytes": 5843,
+      "roles": [
+        "plan input",
+        "source-application input",
+        "peer review"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "3acada43760dca4e0d1100d4f6076155d8f01d90117b2abb88c3cae3c590b80b",
+      "bytes": 19813,
+      "roles": [
+        "complete per-file Ruff preflight context"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/core-cas-readonly-owner-r2-r3-composed-adoption-20261019-commit.stderr.txt",
+      "sha256": "cd09b132c3cf65adf595e0fcc0659c14eb62b85762132e2369224290074f70de",
+      "bytes": 653,
+      "roles": [
+        "commit stderr"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/core-cas-readonly-owner-r2-r3-composed-adoption-20261019-commit.stdout.txt",
+      "sha256": "7a8d30f97fe951456d066a9a7eaa770e0492318e5e899208f07e1de2dc58a2e0",
+      "bytes": 147,
+      "roles": [
+        "commit stdout"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/core-cas-readonly-owner-r2-r3-composed-adoption-20261019-readback.json",
+      "sha256": "db590b5d452bacda66665763dba1a4bf9c8574a37b1580b951016226dcfcd6b5",
+      "bytes": 3180,
+      "roles": [
+        "commit source-byte readback"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/format-native-role-0.stdout.txt",
+      "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+      "bytes": 26,
+      "roles": [
+        "aggregate Ruff output"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf",
+      "bytes": 197,
+      "roles": [
+        "source application trash receipt"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/plan.json",
+      "sha256": "6130e5951441ed0cd66478b1f68a94848a22d2297d3e735194575889960be579",
+      "bytes": 19132,
+      "roles": [
+        "adoption plan"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/reviewed-present-postimages.patch",
+      "sha256": "2e2fa352e20e956b41c0b72264fc8529c161c34b0e690220bb0f9e5095d93fd7",
+      "bytes": 52749,
+      "roles": [
+        "applied source patch"
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/source-application.json",
+      "sha256": "0d6a35ff116a856bfed2ebbff550019ba48908cd2a87ee6db7fab330c9b5a53e",
+      "bytes": 18217,
+      "roles": [
+        "source application"
+      ]
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+      "bytes": 13255,
+      "roles": [
+        "canonical Ruff profile owner pin"
+      ]
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+      "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+      "bytes": 2778,
+      "roles": [
+        "canonical Ruff profile owner pin"
+      ]
+    }
+  ],
+  "canonical_ruff_preflight": {
+    "profile": "policy-engine/.venv/bin/python -B -m ruff with policy-engine/architecture/tooling/ruff/workspace_root.toml; canonical profile owner sources are pinned below.",
+    "tool_version": "Not separately recorded in source-application receipt; no version claim added.",
+    "canonical_context": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "3acada43760dca4e0d1100d4f6076155d8f01d90117b2abb88c3cae3c590b80b",
+      "bytes": 19813,
+      "role": "per-file Ruff commands and outputs"
+    },
+    "aggregate_runs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "policy-engine/src/polisyos/core/artifacts/ownership.py",
+          "policy-engine/src/polisyos/core/artifacts/protocol.py",
+          "policy-engine/src/polisyos/core/artifacts/store.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+          "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py",
+          "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+          "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04823920805938542,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19,
+          "role": "aggregate Ruff stdout"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "aggregate Ruff stderr"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "policy-engine/src/polisyos/core/artifacts/ownership.py",
+          "policy-engine/src/polisyos/core/artifacts/protocol.py",
+          "policy-engine/src/polisyos/core/artifacts/store.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+          "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py",
+          "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+          "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04558858391828835,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+          "bytes": 26,
+          "role": "aggregate Ruff stdout"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-source-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "aggregate Ruff stderr"
+        }
+      }
+    ],
+    "per_target_runs": "The context record contains every per-file check/format command, exit code, and output pin; those referenced outputs were hash-checked and each recorded exit code is zero.",
+    "applicability": "changed Python files",
+    "profile_owner_pins": [
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+        "bytes": 13255,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+        "bytes": 2778,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "bytes": 28194,
+        "role": "canonical Ruff config at source commit"
+      }
+    ]
+  },
+  "independent_review": {
+    "decision": "R2 independent review is GO to a separately authorized controlled runtime profile, not adoption or closure; R3 is GO for R2+R3 source composition only.",
+    "scope": "Static source review only. No passing runtime, product tests, full diagnostic result, or capability closure is inferred.",
+    "references": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-independent-20261019/review.json",
+        "sha256": "06f0e3fe83c87e6d4149aaa37117878454065b7b7a63e125ac8b03c1b419ad3c",
+        "bytes": 7941,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-r2-independent-20261019/review.json",
+        "sha256": "9411ddf16debb49650967b82788edb0b0d1fb4f9fb3c8010e7cd1cdc1f6a82eb",
+        "bytes": 7574,
+        "role": "independent peer review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-cas-readonly-owner-r3-independent-20261019/review.json",
+        "sha256": "9fb5f5188f8e48bb5a0354e67287b7d85cf3b1ec2cabd833c9ac4dfb635ce543",
+        "bytes": 5843,
+        "role": "independent peer review"
+      }
+    ]
+  },
+  "other_open_reviews": [
+    "Controlled runtime tests for invalid/dangling members, errors, exact profile selection, no-write behavior, and pending transactions remain required.",
+    "Regenerate/check the public-surface inventory and generated artifacts; run facade, export-resolution, supported-entrypoint inventory, and snapshot tests.",
+    "Resolve owner review of historical public_surface_pre_decomp snapshot interaction and any release record required by policy.",
+    "N13b end-to-end CAS-to-passport consumer behavior is not established by the mocked consumer test."
+  ],
+  "environment_boundary": {
+    "source_application_environment_changes": "none recorded",
+    "ruff_profile": "Canonical product-root .venv interpreter and tracked workspace_root Ruff config used for source preflight; no product tests/imports are claimed.",
+    "profile_owner_pins": [
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+        "bytes": 13255,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733",
+        "bytes": 2778,
+        "role": "canonical Ruff profile owner pin"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "bytes": 28194,
+        "role": "canonical Ruff config at source commit"
+      }
+    ],
+    "source_freeze": false
+  },
+  "verification_boundary": {
+    "runtime": "UNRUN on this exact source commit.",
+    "actual_diagnostic": "Separate run was in progress with no passing result recorded at receipt preparation; not included here.",
+    "core_protocol_module": "UNRUN.",
+    "tenant_pending_publication_selector": "UNRUN; R2 peer called for a read-only-reader witness or explicit equivalence determination.",
+    "passport_consumer_selector": "UNRUN; current candidate test mocks opener and revalidator.",
+    "generated_public_surface_and_architecture_tests": "UNRUN.",
+    "result": "Static source review only; no capability closure claim."
+  },
+  "open_limits": [
+    "Core CAS runtime tests and generated public-surface checks remain UNRUN on this exact source commit.",
+    "At receipt preparation, the separate actual diagnostic run was in progress and had not passed; this receipt does not include or promote a diagnostic result.",
+    "N13b empty passport rows still return early; the changed consumer test mocks the opener and revalidator and is not an end-to-end CAS-to-passport proof.",
+    "Stable trusted local CAS root/cooperating lock users remain assumed; hostile concurrent ancestor replacement is outside the reviewed property.",
+    "Filesystem state does not establish issuer, producer, authenticity, authority, or currentness."
+  ],
+  "next_check": "After exact source/profile admission, run the whole artifact-store protocol module, the pending-tenant-publication selector with the read-only-reader witness resolved, and the passport revalidation selector. Then regenerate/check the generated public-surface artifacts and run the listed facade/export/entrypoint/snapshot tests."
+}

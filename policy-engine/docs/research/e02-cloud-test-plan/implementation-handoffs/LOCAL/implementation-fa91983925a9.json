@@ -1,0 +1,201 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "P39": "Exact commit footprint: 5 paths = 1 mechanism source, 1 Ruff base-config companion, 1 generated Ruff config emitted by the real owner, and 2 required LEASES/index metadata paths. Every committed path is listed.",
+  "P40": "NEW runtime Pydantic field dependency class, whole V4/V5 owner dependency set and meaningful lint-base recognition; no schema weakening/suppression.",
+  "property": "Bind dependent Pydantic lifecycle model types at runtime and preserve the intended Ruff generated-config dependency classification through its existing owner.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "fa91983925a95c4428655c91d4601c5fd54b1345",
+    "commit_subject": "fix(e02): bind lifecycle models at runtime and preserve lint recognition",
+    "parents": [
+      "1c9acee07939dfc43343abde6c171e807281b042"
+    ],
+    "slice_base": "1c9acee07939dfc43343abde6c171e807281b042",
+    "base_tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a",
+    "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+    "observed_head_at_receipt": "fa91983925a95c4428655c91d4601c5fd54b1345",
+    "source_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/n13b-runtime-model-and-ruff-source-20261019-readback.json",
+      "sha256": "965ca36422565eab8f8d83816cebb24936252c3e71b5eb8ba53583db0bed5c9a",
+      "bytes": 1466
+    }
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/source-application.json",
+    "sha256": "2d72bb699e2d32765a377edbbf6e00f667f6e3e38ae10d595e844115746a363b",
+    "bytes": 5804
+  },
+  "adoption_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/plan.json",
+    "sha256": "0bea75cb9d19816117c1660da8613d8129520cb4b2fad9f84dd1ba66908ca4e3",
+    "bytes": 2823
+  },
+  "full_footprint": {
+    "path_count": 5,
+    "mechanism_paths": 1,
+    "mandatory_config_companion_paths": 1,
+    "mandatory_generated_config_companion_paths": 1,
+    "required_delivery_metadata_paths": 2,
+    "paths": [
+      {
+        "path": "policy-engine/architecture/tooling/ruff/base.toml",
+        "mode": "100644",
+        "bytes": 1102,
+        "postimage_sha256": "e436072433f59cc3f7490fef05a082242f6d19c1ca82a514e3c5ce68f5da9ba8",
+        "role": "mandatory_config_companion",
+        "category": "mandatory_config_companion"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "mode": "100644",
+        "bytes": 1261219,
+        "postimage_sha256": "20521381e8ed249fac017955aa943429fa71dcc8cb03b9177e961322ea44ec16",
+        "role": "required delivery metadata (LEASES/index)",
+        "category": "delivery_metadata"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "mode": "100644",
+        "bytes": 90643,
+        "postimage_sha256": "8607c50a58ca70e1f2f16b53d3de02a1d3496295dffdf25d048bc8ebe9d832b3",
+        "role": "required delivery metadata (LEASES/index)",
+        "category": "delivery_metadata"
+      },
+      {
+        "path": "policy-engine/ruff.generated.toml",
+        "mode": "100644",
+        "bytes": 24907,
+        "postimage_sha256": "bbd8f9cbf79174cabc2f26fe9934d5bfdc0e857d1a7eb9b9bcd499706b39656e",
+        "role": "mandatory_generated_config_companion",
+        "category": "mandatory_generated_config_companion"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/acquisition_admission_contract.py",
+        "mode": "100644",
+        "bytes": 39849,
+        "postimage_sha256": "69d4e633767d25e03c1032d88d582c05e04793eca2a82fd651c4ebc8d418c626",
+        "role": "mechanism",
+        "category": "mechanism"
+      }
+    ],
+    "complete_commit_path_and_sha256_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/n13b-runtime-model-and-ruff-source-20261019-readback.json",
+      "sha256": "965ca36422565eab8f8d83816cebb24936252c3e71b5eb8ba53583db0bed5c9a",
+      "bytes": 1466
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-dependency-repair-20261019/candidate-r4/review-entry.json",
+      "sha256": "b679d8d58176933473ac53d6266a726df6ae07dbfff211930ffa40257889e2da",
+      "bytes": 3794
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-dependency-repair-20261019/candidate-r4/candidate.patch",
+      "sha256": "e9738c914405592cc940db2ff56a83e3c0bfccd12815a8f8b83868bda33ff8b5",
+      "bytes": 1526
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-r4-independent-20261019/review.json",
+      "sha256": "5592fab8ad62e106c0219809dba4156c37b0c35ba639324c6ef78fbe0df2b3f7",
+      "bytes": 7964
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-pydantic-runtime-field-dependency-systemic-audit-20261019/audit-record.json",
+      "sha256": "e39db4c40de2f90503f68ec28152597c9297f5860f9c4d4b49152a5d85ef9fe5",
+      "bytes": 9421
+    }
+  ],
+  "independent_review": {
+    "reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-r4-independent-20261019/review.json",
+      "sha256": "5592fab8ad62e106c0219809dba4156c37b0c35ba639324c6ef78fbe0df2b3f7",
+      "bytes": null
+    },
+    "decision": "GO_SOURCE_ONLY",
+    "scope_note": "The exact pinned peer review reports decision GO_SOURCE_ONLY; its stated runtime and whole-quantity checks remain open."
+  },
+  "canonical_ruff_preflight": {
+    "profile": "Product .venv, workspace_root.toml, canonical product cwd.",
+    "check_exit_code": 0,
+    "format_check_exit_code": 0,
+    "commands": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/acquisition_admission_contract.py"
+        ],
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/acquisition_admission_contract.py"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "source_path": "policy-engine/tools/quality/validation/acquisition_admission_contract.py"
+  },
+  "generated_config_owner": {
+    "owner": "python -B -m tools.cli workspace tool-configs",
+    "update_exit_code": 0,
+    "check_exit_code": 0,
+    "generated_sha256": "bbd8f9cbf79174cabc2f26fe9934d5bfdc0e857d1a7eb9b9bcd499706b39656e",
+    "command_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/tool-configs-command-results.json",
+      "sha256": "486af12213219a87c920999743818684b41e306fcc0b1800e4a40e16344cea25",
+      "bytes": 2823
+    },
+    "update_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/tool-configs-update.json",
+      "sha256": "b5c6e48e8093b39c9639715e7b6ae8bc2ecd7b70939dfc127f8d8e9748e2775e",
+      "bytes": 330
+    },
+    "check_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/tool-configs-check.json",
+      "sha256": "b5c6e48e8093b39c9639715e7b6ae8bc2ecd7b70939dfc127f8d8e9748e2775e",
+      "bytes": 330
+    }
+  },
+  "metadata_adoption_correction": {
+    "reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/metadata-adoption-check-correction.json",
+      "sha256": "7f11a7eaa63328cadf3575790a8c114e0a5b39e683cae48e4f0b37126366b451",
+      "bytes": 906
+    },
+    "finding": "The initial AssertionError was wrapper metadata validation, not captured subprocess stderr: it compared already-updated LEASES with its preimage. The correction records that the guard failed before index mutation, uses the HEAD LEASE/index preimage correctly, and final real config-owner update/check both exited 0. No unexpected source state is claimed."
+  },
+  "verification_boundary": {
+    "source_application_runtime_field": "UNRUN on committed canonical source",
+    "open_limits": [
+      "Source/config independent GO and real generated-config checks only; committed-source runtime consumer and whole125case replay remain required.",
+      "Four public BaseModel/Mapping/schema MyPy contracts remain held for G decision.",
+      "No production authority/currentness or formalGclosure."
+    ],
+    "runtime": "No post-fa919 whole N13b lifecycle replay is included; the two-module 93b diagnostic predates this fix. No production authority/currentness or G closure."
+  },
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-1c9-fa919-implementation-receipts-prepare-20261019/implementation-fa91983925a9.json",
+    "sha256": "28370e1fe3e7393dcdc3bc456b76f474d8ec1750aa765b11faf3f6ea6dd9faab",
+    "reason": "Corrected the independent source review decision label to match the pinned peer review JSON; no other receipt content changed."
+  }
+}

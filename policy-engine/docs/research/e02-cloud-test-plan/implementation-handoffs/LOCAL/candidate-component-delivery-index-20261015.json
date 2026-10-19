@@ -2,6 +2,25 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
+    "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
+    "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+    "parents": [
+      "1c9acee07939dfc43343abde6c171e807281b042"
+    ],
+    "source_freeze": false,
+    "dirty_active_source": "Tracked source clean at this cut; pre-existing untracked local/research artifacts remain outside this tracked-source receipt cut. source_freeze=false.",
+    "published_candidate_last_verified": {
+      "sha": "fa91983925a95c4428655c91d4601c5fd54b1345",
+      "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+      "remote_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-fa919839-20261019/remote-readback.json",
+        "sha256": "0176d458088ce5d04c3a64149270961f26fe74cf1e24e7cfd82143464d50c376"
+      },
+      "meaning": "Remote readback confirms the exact fa919 candidate and tree; this does not establish G acceptance or closure."
+    }
+  },
+  "previous_observed_source_branch": {
+    "branch": "codex/e02-unified-local-20261009",
     "head": "a63fb11be8907375163915932b3cdd8f340291c0",
     "tree": "a605a8fddc85d1b00335e69d5f61c906c9c57c99",
     "parents": [
@@ -1180,12 +1199,39 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-318430fac36a.json",
       "sha256": "3844cfb8acab7085e67d68ac896f9e45503d01585d4e6323dd6c7d2f8968dba5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-aaf53bf77569.json",
+      "sha256": "0f3655c56475614017a094bf6800dd0b516627837d9a032f668009160f29ec3b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a346e0e784fe.json",
+      "sha256": "fb6e7dc55ef6a4ba590b254af96d63c8d9f22048d204b46f37c6540818f71461"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-93b09c756c11.json",
+      "sha256": "92251e5277fd699b7a4ac756b189f510872dcad0b0f0288954286995432a3ca6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-1c9acee07939.json",
+      "sha256": "41433c072b5c5112a63022941432a8645719e51b0ac0d108178edb9c399ef702"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-fa91983925a9.json",
+      "sha256": "c321c2547b031409448ccb80536dcf4bfef8bf57460f26b96bb937405edf972a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-93b-1c9.json",
+      "sha256": "43c9b3fac5b53ead112e9f820fcd1c9c4e702db8caf0027e505400427336a210"
     }
   ],
   "canonical_denominator_recomputed": {
     "occurrences": 291,
     "unique_finding_ids": 282,
-    "all_primary_and_companion_bundles": 127
+    "all_primary_and_companion_bundles": 127,
+    "historical_values_retained": true,
+    "historical_status": "Carried from the prior 975-navigation snapshot; not recomputed against fa919.",
+    "current_source_cut_reconciliation": "not_established"
   },
   "proposal_boundaries": {
     "formal_G_closure_ids": [],
@@ -1195,8 +1241,9 @@
       "occurrences": 202,
       "formal_G_closure": false
     },
-    "current_report_role": "All291 rows preserve exact original source/span/hash and individual next checks. Original partition proposals and later12-row independent reconciliation are distinct, not additive closures. Report is intermediate, not final current-source acceptance.",
-    "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated."
+    "current_report_role": "The prior 291-row / 282-ID / 127-bundle report, 975 navigation progress, nine historical ledger closures, 198-ID/202-occurrence author proposal, and B198 status are preserved as historical evidence. This fa919 cut does not recompute current occurrence membership, spans, or hashes; 975 navigation is not final current acceptance. Formal G closure IDs remain empty.",
+    "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated.",
+    "previous_current_report_role": "All291 rows preserve exact original source/span/hash and individual next checks. Original partition proposals and later12-row independent reconciliation are distinct, not additive closures. Report is intermediate, not final current-source acceptance."
   },
   "known_current_composition_limits": [
     "Every receipt remains bound to its own source/property/input/profile/backend slice. Later deltas require affected re-verification; no task PASS grants whole-property or formal closure.",
@@ -1231,58 +1278,189 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "318430fac36ae14bf5406debf4942dc375da597b",
-    "tree": "a80288711690214f6e81f3f013bba96a6ebf2fcc",
+    "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
+    "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
     "parents": [
-      "cc3d3edd490ff1e674ff996338422c6694f361b0"
+      "1c9acee07939dfc43343abde6c171e807281b042"
     ],
     "source_freeze": false,
     "tracked_source_clean_before_receipt_edit": true,
-    "implementation_handoffs": [
+    "source_changes": [
       {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-851600e7c313.json",
-        "sha256": "73f7475ba06967e044014f132ae20926f2ceec624942e9cb04bc122291189fd3"
+        "commit": "aaf53bf77569ca295b0f8642a094499638d59dc8",
+        "tree": "d8bb353ccfa658c94550ce84d61b7dd2851149ab",
+        "parents": [
+          "27e38aa0d4dc7f0c4d15a18a065cc0e3ad85aef4"
+        ],
+        "subject": "fix(e02): align Fabric internal typing with concrete runtime boundaries",
+        "changed_path_count": 12,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-aaf53bf77569.json",
+          "sha256": "0f3655c56475614017a094bf6800dd0b516627837d9a032f668009160f29ec3b"
+        }
       },
       {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-192a306501ef.json",
-        "sha256": "cb8cf786fe85043c300d941b3abe8f5ff6b2df15fa189510f9a23debb92bf475"
+        "commit": "a346e0e784fe0af2d361194f55aaed8851442263",
+        "tree": "baf139f9910e82fb99c0c3d013d3af8aaf504047",
+        "parents": [
+          "aaf53bf77569ca295b0f8642a094499638d59dc8"
+        ],
+        "subject": "fix(e02): make read-only CAS reads fail closed",
+        "changed_path_count": 13,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a346e0e784fe.json",
+          "sha256": "fb6e7dc55ef6a4ba590b254af96d63c8d9f22048d204b46f37c6540818f71461"
+        }
       },
       {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
-        "sha256": "2ca30b54518176bba86feba5c322aa0d2c4bf151856dba15b69a84f8c1f0107c"
+        "commit": "93b09c756c114d8d3533e552dac4da58733a91d4",
+        "tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f",
+        "parents": [
+          "a346e0e784fe0af2d361194f55aaed8851442263"
+        ],
+        "subject": "fix(e02): honor package-first module source resolution in both owners",
+        "changed_path_count": 7,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-93b09c756c11.json",
+          "sha256": "92251e5277fd699b7a4ac756b189f510872dcad0b0f0288954286995432a3ca6"
+        }
       },
       {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a0e9b3731112.json",
-        "sha256": "3ccae15bc107262fb8b80e32f3fba00378c0034bd5854dd27efd8cb1fb31ffcc"
+        "commit": "1c9acee07939dfc43343abde6c171e807281b042",
+        "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a",
+        "parents": [
+          "93b09c756c114d8d3533e552dac4da58733a91d4"
+        ],
+        "subject": "refactor(e02): split architecture report owners and retire repaid facade budget",
+        "changed_path_count": 13,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-1c9acee07939.json",
+          "sha256": "41433c072b5c5112a63022941432a8645719e51b0ac0d108178edb9c399ef702"
+        }
       },
       {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-67712ca142d0.json",
-        "sha256": "48fd5daa95dea82ab4e93d3f43d3d806fdb69c417d17a78e19ccf3abc73c0072"
-      },
-      {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-964e24635666.json",
-        "sha256": "e107697f6d5c045fe3b826ad9c6cd7d6428959ba04249695045390c7d352e449"
-      },
-      {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-cc3d3edd490f.json",
-        "sha256": "3771e7c0343a0172988490104dad1546b8d77ce3d79651e0df7b022a4158f7f4"
-      },
-      {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-318430fac36a.json",
-        "sha256": "3844cfb8acab7085e67d68ac896f9e45503d01585d4e6323dd6c7d2f8968dba5"
+        "commit": "fa91983925a95c4428655c91d4601c5fd54b1345",
+        "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+        "parents": [
+          "1c9acee07939dfc43343abde6c171e807281b042"
+        ],
+        "subject": "fix(e02): bind lifecycle models at runtime and preserve lint recognition",
+        "changed_path_count": 5,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-fa91983925a9.json",
+          "sha256": "c321c2547b031409448ccb80536dcf4bfef8bf57460f26b96bb937405edf972a"
+        }
       }
     ],
+    "implementation_handoffs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-aaf53bf77569.json",
+        "sha256": "0f3655c56475614017a094bf6800dd0b516627837d9a032f668009160f29ec3b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a346e0e784fe.json",
+        "sha256": "fb6e7dc55ef6a4ba590b254af96d63c8d9f22048d204b46f37c6540818f71461"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-93b09c756c11.json",
+        "sha256": "92251e5277fd699b7a4ac756b189f510872dcad0b0f0288954286995432a3ca6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-1c9acee07939.json",
+        "sha256": "41433c072b5c5112a63022941432a8645719e51b0ac0d108178edb9c399ef702"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-fa91983925a9.json",
+        "sha256": "c321c2547b031409448ccb80536dcf4bfef8bf57460f26b96bb937405edf972a"
+      }
+    ],
+    "verification_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-93b-1c9.json",
+      "sha256": "43c9b3fac5b53ead112e9f820fcd1c9c4e702db8caf0027e505400427336a210"
+    },
+    "cross_cut_actual_states": [
+      {
+        "id": "core-two-module-diagnostic-at-93b",
+        "source_frame": {
+          "branch": "codex/e02-unified-local-20261009",
+          "head": "93b09c756c114d8d3533e552dac4da58733a91d4",
+          "tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f"
+        },
+        "classification": "completed red diagnostic; requested-origin profile qualification held",
+        "counts": {
+          "passed": 89,
+          "failed": 36,
+          "errors": 0,
+          "cases": 125
+        }
+      },
+      {
+        "id": "fbc-owner-and-phase10-at-93b",
+        "source_frame": {
+          "branch": "codex/e02-unified-local-20261009",
+          "head": "93b09c756c114d8d3533e552dac4da58733a91d4",
+          "tree": "0befca75c46fe413d5b5351dd1dd5ac818f97d9f"
+        },
+        "classification": "bounded FBC owner generation/check/corruption witness plus static Phase 10 failure",
+        "observed_outcomes": {
+          "FBC owner update/check/corrupt-control": "return codes 0/0/1",
+          "Phase10 owner check": "return code 1; frontend.fabric_decision_data_to_quantity missing",
+          "resource-profile enforcement": "not_established"
+        }
+      },
+      {
+        "id": "mypy-172-at-1c9",
+        "source_frame": {
+          "branch": "codex/e02-unified-local-20261009",
+          "head": "1c9acee07939dfc43343abde6c171e807281b042",
+          "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a"
+        },
+        "classification": "completed red static diagnostic; causal attribution of comparison not established"
+      },
+      {
+        "id": "native-validator-module-size-and-whole-characterization-at-1c9",
+        "source_frame": {
+          "branch": "codex/e02-unified-local-20261009",
+          "head": "1c9acee07939dfc43343abde6c171e807281b042",
+          "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a"
+        },
+        "classification": "59 contract-error JSON produced; subsequent whole two-module characterization incomplete at overall wall cap; no JUnit"
+      },
+      {
+        "id": "native-validator-first-failure-at-1c9",
+        "source_frame": {
+          "branch": "codex/e02-unified-local-20261009",
+          "head": "1c9acee07939dfc43343abde6c171e807281b042",
+          "tree": "44c7eb378645fa5fb0f4f36e25724593f053cd5a"
+        },
+        "classification": "bounded first-failure diagnostic only; no full-suite PASS claim"
+      }
+    ],
+    "fa919_targeted_actual": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-fa919-actual-20261019/result.json",
+      "sha256": "a0953dc81b1e77328f0a3650738e2be0db2d168f86365c3069d836d5ce2eea80",
+      "state": "HOLD",
+      "returncode": 1,
+      "classification": "Targeted N13b consumer probe stopped at d2_source_growth.rows.0: connector-gap row identity drift; not full lifecycle coverage."
+    },
+    "fbc_profile_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-resource-profile-reconciliation-20261019/profile-reconciliation.json",
+      "sha256": "625767d4a81af33e8b3398af80005c50bb3e4c57d863b191f6802b447f94af07",
+      "classification": "not_established"
+    },
     "occurrence_progress": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
       "sha256": "0788f5af53f5f0ff7886212bd8a58650874d34fa5ecb69cec365461df63f5a55"
     },
+    "occurrence_progress_status": "Stale historical 975 navigation receipt only; not a final/current 291-occurrence reconciliation and not acceptance.",
     "published_candidate_last_verified": {
-      "sha": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
-      "tree": "0cb0383165173f3214efba4384bf712ab1b4b76a",
-      "readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-d7ad6b0b-20261019/remote-readback.json",
-        "sha256": "b336938f94b7aaa48a8084ebaf69948a16edaefada739c7762308b9b92f3790a"
-      }
+      "sha": "fa91983925a95c4428655c91d4601c5fd54b1345",
+      "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+      "remote_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-fa919839-20261019/remote-readback.json",
+        "sha256": "0176d458088ce5d04c3a64149270961f26fe74cf1e24e7cfd82143464d50c376"
+      },
+      "meaning": "Remote readback confirms the exact fa919 candidate and tree; this does not establish G acceptance or closure."
     },
     "G_checkpoint_last_remote_verified": {
       "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -1298,19 +1476,99 @@
       "sha256": "d57dbd2071647138a682e6d895d3e94bbdefaabdbb691dbf6232b922aade5817"
     },
     "G_acceptance": false,
-    "meaning": "Exact sourcecc3d fixes the runtime stdlib import, verified separately by actual N13two-full-module33PASS with independent case/origin/source reconciliation; actual172-targetMyPy remainsRED36occurrences28signatures15files. The source+SDK profile both changed relative to earlier122diagnostics; no causal or P41inheritance claim. Source318adds only actualinputcustody retention to existing shared-workload test; B56actualruntime remainsUNRUN. Locked SDK actualsync and pipcheck succeeded with exact allowed3-package delta and293unaffected inventory records. Fresh FBCcandidate owner update/check/corruptfield0/0/1 is scoped reportonly; pairedowner resolution repair and canonicalownerrefresh pending. CoreROCAS/newtyping/nativefacade sourcecandidates remainRAW author/review work. Full native, GP/shared-workload/B13/Legal/Linux/archivewheel/currentfull291proposal are not established. Historical975complete291navigation retained; no formalGclosure.",
-    "latest_actual_verification": {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-cc3d3edd490f.json",
-      "sha256": "1ba2eb1014dd1e6fbcbfd47a79c89f8c9de52180843e600e8799873ec8cd61b0"
-    },
-    "narrow_decision_proposals": {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-contract-decision-proposals-a0e9b373.json",
-      "sha256": "525979aa8b6375d5d6839a45b98cc8d781c504c2352120cd805d1449cd67f283"
-    },
-    "separate_prior_actual_verification": {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-d7ad6b0b3c79.json",
-      "sha256": "0585bc754b17fc1bb806740b0421d6a3cd6701308ef99e147af0c5308e04ac3e"
+    "formal_G_closure_ids": [],
+    "meaning": "Five first-parent source changes are represented: aaf53bf77569 (12 paths), a346e0e784fe (13), 93b09c756c11 (7), 1c9acee07939 (13), and fa91983925a9 (5). Source freeze is false. Cross-cut actual evidence remains red or incomplete: Core at 93b is 89/125 passed and 36 failed with strict requested-origin qualification held; FBC update/check/corrupt-control return codes are 0/0/1 while Phase10 is red and resource caps are not established; MyPy at 1c9 is red with five errors; module-size produced 59 contract errors before whole characterization hit its wall cap without JUnit; first-failure diagnostic is only 10/11. At fa919, the targeted N13b runtime probe is HOLD on connector-gap row identity drift, and full lifecycle quantity is not established. The prior 975 navigation, nine historical ledger closures, 198-ID/202-occurrence author proposal, and B198 record remain historical. Current 291-occurrence membership/spans/hashes are not recomputed. No aggregate acceptance or formal G closure is claimed.",
+    "not_established": [
+      "current-source 291-occurrence membership/span/hash reconciliation",
+      "strict requested-origin qualification for Core at 93b",
+      "FBC/Phase10 enforcement of 180s, 2-GiB RSS, 1.3-GiB disk caps",
+      "full current-fa919 N13b lifecycle quantity",
+      "whole two-module module-size characterization at 1c9",
+      "MyPy diagnostics resolved at 1c9",
+      "G acceptance and formal closure"
+    ],
+    "historical_prior_source_cut": {
+      "head": "318430fac36ae14bf5406debf4942dc375da597b",
+      "tree": "a80288711690214f6e81f3f013bba96a6ebf2fcc",
+      "parents": [
+        "cc3d3edd490ff1e674ff996338422c6694f361b0"
+      ],
+      "source_freeze": false,
+      "tracked_source_clean_before_receipt_edit": true,
+      "implementation_handoffs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-851600e7c313.json",
+          "sha256": "73f7475ba06967e044014f132ae20926f2ceec624942e9cb04bc122291189fd3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-192a306501ef.json",
+          "sha256": "cb8cf786fe85043c300d941b3abe8f5ff6b2df15fa189510f9a23debb92bf475"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
+          "sha256": "2ca30b54518176bba86feba5c322aa0d2c4bf151856dba15b69a84f8c1f0107c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a0e9b3731112.json",
+          "sha256": "3ccae15bc107262fb8b80e32f3fba00378c0034bd5854dd27efd8cb1fb31ffcc"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-67712ca142d0.json",
+          "sha256": "48fd5daa95dea82ab4e93d3f43d3d806fdb69c417d17a78e19ccf3abc73c0072"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-964e24635666.json",
+          "sha256": "e107697f6d5c045fe3b826ad9c6cd7d6428959ba04249695045390c7d352e449"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-cc3d3edd490f.json",
+          "sha256": "3771e7c0343a0172988490104dad1546b8d77ce3d79651e0df7b022a4158f7f4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-318430fac36a.json",
+          "sha256": "3844cfb8acab7085e67d68ac896f9e45503d01585d4e6323dd6c7d2f8968dba5"
+        }
+      ],
+      "occurrence_progress": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
+        "sha256": "0788f5af53f5f0ff7886212bd8a58650874d34fa5ecb69cec365461df63f5a55"
+      },
+      "published_candidate_last_verified": {
+        "sha": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
+        "tree": "0cb0383165173f3214efba4384bf712ab1b4b76a",
+        "readback": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-d7ad6b0b-20261019/remote-readback.json",
+          "sha256": "b336938f94b7aaa48a8084ebaf69948a16edaefada739c7762308b9b92f3790a"
+        }
+      },
+      "G_checkpoint_last_remote_verified": {
+        "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+        "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+        "parents": [
+          "78be3aff64185e2de24abe710523e14491e36ba6"
+        ],
+        "receipt": "raw/root-g-published-readback-20261017/readback.json",
+        "meaning": "Fetched G unchanged; read-only, not authorship or automatic acceptance. Own28ba exactremote/tree/10changedpaths verified separately."
+      },
+      "G_published_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-published-readback-20261019/readback.json",
+        "sha256": "d57dbd2071647138a682e6d895d3e94bbdefaabdbb691dbf6232b922aade5817"
+      },
+      "G_acceptance": false,
+      "meaning": "Exact sourcecc3d fixes the runtime stdlib import, verified separately by actual N13two-full-module33PASS with independent case/origin/source reconciliation; actual172-targetMyPy remainsRED36occurrences28signatures15files. The source+SDK profile both changed relative to earlier122diagnostics; no causal or P41inheritance claim. Source318adds only actualinputcustody retention to existing shared-workload test; B56actualruntime remainsUNRUN. Locked SDK actualsync and pipcheck succeeded with exact allowed3-package delta and293unaffected inventory records. Fresh FBCcandidate owner update/check/corruptfield0/0/1 is scoped reportonly; pairedowner resolution repair and canonicalownerrefresh pending. CoreROCAS/newtyping/nativefacade sourcecandidates remainRAW author/review work. Full native, GP/shared-workload/B13/Legal/Linux/archivewheel/currentfull291proposal are not established. Historical975complete291navigation retained; no formalGclosure.",
+      "latest_actual_verification": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-cc3d3edd490f.json",
+        "sha256": "1ba2eb1014dd1e6fbcbfd47a79c89f8c9de52180843e600e8799873ec8cd61b0"
+      },
+      "narrow_decision_proposals": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-contract-decision-proposals-a0e9b373.json",
+        "sha256": "525979aa8b6375d5d6839a45b98cc8d781c504c2352120cd805d1449cd67f283"
+      },
+      "separate_prior_actual_verification": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-d7ad6b0b3c79.json",
+        "sha256": "0585bc754b17fc1bb806740b0421d6a3cd6701308ef99e147af0c5308e04ac3e"
+      }
     }
   },
-  "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
+  "next_check": "Root-controlled receipt adoption: copy the five implementation receipts and cross-cut verification receipt byte-for-byte, append their six references, and commit the six receipts plus this index postimage as one seven-path receipt-only change after a source-freeze decision. Then read the branch and remote back. Before any current-source 291-occurrence proposal or G review, reconcile exact current membership/spans/hashes and address the red or incomplete actuals above; do not claim aggregate acceptance or closure."
 }

@@ -23781,5 +23781,72 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "q2-generic-module-capture-driver-binding-20261019": {
+    "slice_base": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py": {
+        "operation": "write",
+        "preimage_sha256": "3bed9c9ab0824723a5b5ab031d7ec9aa813f68cc35167248ec689ccd0a95d76d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dx0-nonmodule-capture-repair-20261019-r3/postimage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_sha256": "bfb8bb70a1f0ded3a0247b5da8ebf9d2733b3f1ecb3b3174a768953aaa67cd2f"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py": {
+        "operation": "write",
+        "preimage_sha256": "3ca426f68b2ee730265ec30bab2bf983a1be1f50ce7d11f1698b7742940ff17a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dx0-nonmodule-capture-repair-20261019-r3/postimage/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "postimage_sha256": "27e26065c2ebb63ce0cd1e9e55aea5fec7adbd43f5616985c48ee65f7f19ec2d"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py": {
+        "operation": "write",
+        "preimage_sha256": "712de235e7cdf13908d491aac316ca314c4cdb04b8f9cdfe5592643eef77bbc7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-capture-driver-composition-adoption-20261019/timeout_driver.postimage.py",
+        "postimage_sha256": "821f706406b7a641ce7de25e203c3838bc13e494a31e984cd104d4b770061373"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-capture-driver-composition-adoption-20261019/source-application.json",
+      "sha256": "10d987e7ab78944616c0791c710e41832400ea1f6785621bd6e45f6fbc5c6727"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-capture-driver-composition-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dx0-nonmodule-capture-repair-20261019-r3/manifest-r3-v3.json",
+        "sha256": "985b8a2cc9b25a4eb1305d13c365e58c590232bfe92fe00f285557103e665ed0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dx0-capture-driver-independent-review-20261019/review-r3-v3.json",
+        "sha256": "bf90cd5a3502d4839575cb88a12e6ad5e90864134a12f337e347a277e5f3ae94"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dx0-timeout-driver-rebind-20261019-r1/proposal.json",
+        "sha256": "09dd7e7c619d91679ed323e1fee8c84a99ffab2784a459314539bc0324a75408"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dx0-timeout-driver-rebind-20261019-r1/timeout-driver-rebind.patch",
+        "sha256": "7033c662fe02b090d1e5fe794c20081c30231fa3f7e3d6e8310c0110fdfa8210"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same capture/binding class one level deeper; widened shared producer to serialized report to binder to receipt. Runner pin is mandatory source companion, not a runtime positive.",
+    "bounded_proof": "Independent final patch review GO, eight synthetic semantic/removal controls, canonical-context Ruff; complete timeout-driver module and packaging prepare remain required.",
+    "limitations": [
+      "No full timeout module or archive/sdist/installed-wheel behavior claimed on adopted source.",
+      "Supplemental manifest still requires successful canonical prepare after source selection; do not hand-edit its hashes to claim qualification."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete timeout-driver module, then canonical prepare with fresh output and final source/input binding; independently review generated deltas before expensive three-profile consumer wave.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -2219,3 +2219,9 @@ def test_timeout_driver_cli_preserves_status_output(
     assert driver.main() == 1
     failure = capsys.readouterr()
     assert failure.err == "Q2 timeout driver failed: timeout-cli-control\n"
+
+
+def test_collection_capture_binds_external_nonmodules_through_receipt_and_fails_removal() -> None:
+    cases = audit_api.self_test_non_module_sys_modules_capture()
+    assert cases
+    assert all(cases.values()), cases

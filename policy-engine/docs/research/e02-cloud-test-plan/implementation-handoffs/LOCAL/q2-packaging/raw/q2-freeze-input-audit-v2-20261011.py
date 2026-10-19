@@ -697,12 +697,25 @@ def _module_data_digest(module):
     }
 
 
-def _module_rows(metadata):
-    module_items = tuple(sys.modules.copy().items())
+def _is_owned_source_module_name(name):
+    return (
+        name == "polisyos"
+        or name.startswith("polisyos.")
+        or name == "tools"
+        or name.startswith("tools.")
+    )
+
+
+def _module_rows(metadata, module_items=None):
+    if module_items is None:
+        module_items = tuple(sys.modules.copy().items())
+    else:
+        module_items = tuple(module_items.items())
     if any(type(name) is not str for name, _value in module_items):
         raise RuntimeError("sys.modules contains a non-string key")
     module_items = tuple(sorted(module_items))
     rows = []
+    non_module_rows = []
     parent_bindings = {}
     for parent_name, parent_module in module_items:
         if not _is_module_instance(parent_module):
@@ -714,10 +727,19 @@ def _module_rows(metadata):
                 )
     for name, module in module_items:
         if not _is_module_instance(module):
-            raise RuntimeError(
-                "sys.modules contains a non-module value: "
-                f"name={name!r} type={_runtime_type_label(module)}"
+            if _is_owned_source_module_name(name):
+                raise RuntimeError(
+                    "owned source module key maps to a non-module value: "
+                    f"name={name!r} type={_runtime_type_label(module)}"
+                )
+            non_module_rows.append(
+                {
+                    "name": name,
+                    "runtime_type": _runtime_type_label(module),
+                    "classification": "non_module_sys_modules_value",
+                }
             )
+            continue
         try:
             module_class_provenance = _module_class_provenance(module)
         except (AttributeError, TypeError, ValueError) as error:
@@ -789,7 +811,16 @@ def _module_rows(metadata):
                 "module_class_provenance": module_class_provenance,
             }
         )
-    return rows
+    return rows, non_module_rows
+
+
+def _capture_module_inventory(metadata, module_items=None):
+    module_origins, non_module_sys_modules = _module_rows(metadata, module_items)
+    return {
+        "module_origins": module_origins,
+        "non_module_sys_modules": non_module_sys_modules,
+    }
+
 
 def _startup_files():
     rows = {}
@@ -848,6 +879,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
         }
     )
     capture_metadata = _CaptureMetadata(site_roots)
+    module_inventory = _capture_module_inventory(capture_metadata)
     output = {
         "node_ids": [item.nodeid for item in session.items],
         "collection_exitstatus": int(exitstatus),
@@ -878,7 +910,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
             "origin": str(pytest_path),
         },
         "plugins": sorted(plugins, key=lambda row: (str(row["name"]), str(row["module"]))),
-        "module_origins": _module_rows(capture_metadata),
+        **module_inventory,
         "config_origin": str(Path(config.inifile).absolute()) if config.inifile else None,
         "startup_files": _startup_files(),
     }
@@ -3156,6 +3188,96 @@ def validate_module_class_provenance(
     return subclass_rows
 
 
+def owned_source_module_name(module_name: str) -> bool:
+    """Identify module keys that must remain actual module objects."""
+    return (
+        module_name == "polisyos"
+        or module_name.startswith("polisyos.")
+        or module_name == "tools"
+        or module_name.startswith("tools.")
+    )
+
+
+def validate_non_module_sys_modules(module_names: set[str], value: object) -> list[dict[str, str]]:
+    """Validate the explicit inventory of non-module sys.modules values."""
+    if type(value) is not list:
+        raise AuditFailure("pytest collection report omits non-module sys.modules inventory")
+    rows: list[dict[str, str]] = []
+    names: list[str] = []
+    seen: set[str] = set()
+    for row in value:
+        if type(row) is not dict or set(row) != {"name", "runtime_type", "classification"}:
+            raise AuditFailure("non-module sys.modules inventory contains a malformed row")
+        name = row.get("name")
+        runtime_type = row.get("runtime_type")
+        classification = row.get("classification")
+        if (
+            type(name) is not str
+            or not name
+            or type(runtime_type) is not str
+            or not runtime_type
+            or type(classification) is not str
+            or classification != "non_module_sys_modules_value"
+        ):
+            raise AuditFailure("non-module sys.modules inventory contains an invalid identity")
+        if name in seen or name in module_names:
+            raise AuditFailure(f"non-module sys.modules inventory repeats module key: {name}")
+        if owned_source_module_name(name):
+            raise AuditFailure(f"owned source module key is not a module object: {name}")
+        seen.add(name)
+        names.append(name)
+        rows.append(
+            {
+                "name": name,
+                "runtime_type": runtime_type,
+                "classification": classification,
+            }
+        )
+    if names != sorted(names):
+        raise AuditFailure("non-module sys.modules inventory is not deterministically sorted")
+    return rows
+
+
+def bind_collection_module_inventory(
+    report: dict[str, Any],
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, str]]]:
+    """Bind module rows and explicit non-module values from a collection report."""
+    modules = report.get("module_origins")
+    if type(modules) is not list:
+        raise AuditFailure("pytest collection report omits its runtime or module-origin inventory")
+    module_rows: dict[str, dict[str, Any]] = {}
+    for module in modules:
+        if not isinstance(module, dict) or not isinstance(module.get("module"), str):
+            raise AuditFailure("pytest module-origin inventory contains a malformed row")
+        module_name = module["module"]
+        if "module_class_provenance" not in module:
+            raise AuditFailure(f"module inventory omits runtime type provenance: {module_name}")
+        if module_name in module_rows:
+            raise AuditFailure(f"pytest module-origin inventory repeats {module_name}")
+        module_rows[module_name] = module
+    non_module_rows = validate_non_module_sys_modules(
+        set(module_rows), report.get("non_module_sys_modules")
+    )
+    return module_rows, non_module_rows
+
+
+def collection_origin_receipt_fields(
+    report: dict[str, Any],
+    origins: list[dict[str, Any]],
+    bound_non_module_rows: list[dict[str, str]],
+) -> dict[str, list[dict[str, Any]] | list[dict[str, str]]]:
+    """Carry the bound report inventories into the source collection receipt."""
+    if type(origins) is not list or type(bound_non_module_rows) is not list:
+        raise AuditFailure("bound collection-origin inventories are not lists")
+    _module_rows, report_non_module_rows = bind_collection_module_inventory(report)
+    if report_non_module_rows != bound_non_module_rows:
+        raise AuditFailure("collection receipt differs from the bound capture report")
+    return {
+        "loaded_module_origins": origins,
+        "non_module_sys_modules": report_non_module_rows,
+    }
+
+
 def bind_collection_origins(
     repo: Path,
     source_sha: str,
@@ -3167,12 +3289,13 @@ def bind_collection_origins(
     python: Path,
     python_executable: dict[str, Any],
     timeout_seconds: float,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     """Bind every loaded module, config, startup file, plugin, and conftest origin."""
     python_profile = report.get("python")
     modules = report.get("module_origins")
     if not isinstance(python_profile, dict) or not isinstance(modules, list):
         raise AuditFailure("pytest collection report omits its runtime or module-origin inventory")
+    module_rows, non_module_sys_modules = bind_collection_module_inventory(report)
     sys_path = python_profile.get("sys_path")
     if not isinstance(sys_path, list):
         raise AuditFailure("pytest collection report omits its effective import path")
@@ -3209,16 +3332,6 @@ def bind_collection_origins(
         raise AuditFailure(
             f"pytest import path is outside the reconciled source/runtime roots: {entry}"
         )
-    module_rows: dict[str, dict[str, Any]] = {}
-    for module in modules:
-        if not isinstance(module, dict) or not isinstance(module.get("module"), str):
-            raise AuditFailure("pytest module-origin inventory contains a malformed row")
-        module_name = module["module"]
-        if "module_class_provenance" not in module:
-            raise AuditFailure(f"module inventory omits runtime type provenance: {module_name}")
-        if module_name in module_rows:
-            raise AuditFailure(f"pytest module-origin inventory repeats {module_name}")
-        module_rows[module_name] = module
 
     def retain_record(record: dict[str, Any], module_name: str | None = None) -> None:
         key = str(record.get("origin", f"intrinsic:{record.get('module')}"))
@@ -3540,7 +3653,7 @@ def bind_collection_origins(
             or existing.get("sha256") != record_evidence["sha256"]
         ):
             raise AuditFailure(f"installed RECORD changed during complete ownership census: {key}")
-    return [origin_rows[key] for key in sorted(origin_rows)]
+    return [origin_rows[key] for key in sorted(origin_rows)], non_module_sys_modules
 
 
 def bound_pytest_environment(
@@ -3815,7 +3928,7 @@ def collect_ids(
         )
     ids = parse_collected_ids(report, allowed_paths)
     lock_versions = locked_python_versions(repo, source_sha)
-    origins = bind_collection_origins(
+    origins, non_module_sys_modules = bind_collection_origins(
         repo,
         source_sha,
         report,
@@ -3894,7 +4007,7 @@ def collect_ids(
     record["python_runtime_profile"] = python_profile
     record["pytest_profile"] = pytest_profile
     record["loaded_plugins"] = report.get("plugins")
-    record["loaded_module_origins"] = origins
+    record.update(collection_origin_receipt_fields(report, origins, non_module_sys_modules))
     record["config_origin"] = report.get("config_origin")
     record["startup_files"] = report.get("startup_files")
     return ids, record
@@ -4846,6 +4959,114 @@ def self_test_environment_reconciliation() -> dict[str, bool]:
     return cases
 
 
+def self_test_non_module_sys_modules_capture() -> dict[str, bool]:
+    """Exercise producer, JSON capture, binding, receipt propagation, and property removal."""
+    import types
+
+    sentinel = object()
+    prior_pytest = sys.modules.get("pytest", sentinel)
+    pytest_stub = types.ModuleType("pytest")
+    pytest_stub.hookimpl = lambda **_kwargs: (lambda function: function)
+    sys.modules["pytest"] = pytest_stub
+    plugin_namespace: dict[str, Any] = {"__name__": "q2_source_freeze_capture_nonmodule_test"}
+    try:
+        exec(  # noqa: S102 -- evaluates only the exact embedded collector plugin.
+            compile(COLLECTION_PLUGIN_SOURCE, "q2-source-freeze-capture-nonmodule", "exec"),
+            plugin_namespace,
+        )
+    finally:
+        if prior_pytest is sentinel:
+            sys.modules.pop("pytest", None)
+        else:
+            sys.modules["pytest"] = prior_pytest
+
+    class CffiLikeLibrary:
+        pass
+
+    external_name = "_q2_external_cffi_cache.control"
+    external_value = CffiLikeLibrary()
+    captured_fields = plugin_namespace["_capture_module_inventory"](
+        plugin_namespace["_CaptureMetadata"]([]),
+        {external_name: external_value, "sys": sys},
+    )
+    report = json.loads(
+        json.dumps(
+            {
+                "collection_exitstatus": 0,
+                "plugins": [{"name": "explicit-capture", "module": "q2_source_freeze_capture"}],
+                **captured_fields,
+            },
+            sort_keys=True,
+        )
+    )
+    module_rows, non_module_rows = bind_collection_module_inventory(report)
+    origins = [{"kind": "source-bound-origin", "module": "sys"}]
+    receipt_fields = collection_origin_receipt_fields(report, origins, non_module_rows)
+    expected_external = {
+        "name": external_name,
+        "runtime_type": f"{type(external_value).__module__}.{type(external_value).__qualname__}",
+        "classification": "non_module_sys_modules_value",
+    }
+    cases: dict[str, bool] = {
+        "producer-captures-real-module-object-in-origin-denominator": (
+            "sys" in module_rows and module_rows["sys"].get("module") == "sys"
+        ),
+        "producer-records-external-nonmodule-with-runtime-type": (
+            non_module_rows == [expected_external]
+        ),
+        "bound-collection-receipt-preserves-both-inventories": (
+            receipt_fields["non_module_sys_modules"] == [expected_external]
+            and receipt_fields["loaded_module_origins"] == origins
+        ),
+    }
+
+    missing_property_report = dict(report)
+    missing_property_report.pop("non_module_sys_modules")
+    try:
+        bind_collection_module_inventory(missing_property_report)
+    except AuditFailure as error:
+        cases["remove-property-keep-markers-fails-closed"] = (
+            str(error).startswith("pytest collection report omits non-module sys.modules inventory")
+            and missing_property_report["collection_exitstatus"] == 0
+            and bool(missing_property_report["plugins"])
+            and "module_origins" in missing_property_report
+        )
+    else:
+        cases["remove-property-keep-markers-fails-closed"] = False
+
+    for name in ("polisyos._q2_nonmodule_control", "tools._q2_nonmodule_control"):
+        try:
+            plugin_namespace["_capture_module_inventory"](
+                plugin_namespace["_CaptureMetadata"]([]), {name: external_value}
+            )
+        except RuntimeError as error:
+            cases[f"producer-refuses-owned-source-nonmodule:{name}"] = str(error).startswith(
+                "owned source module key maps to a non-module value:"
+            )
+        else:
+            cases[f"producer-refuses-owned-source-nonmodule:{name}"] = False
+        try:
+            validate_non_module_sys_modules(
+                set(),
+                [
+                    {
+                        "name": name,
+                        "runtime_type": expected_external["runtime_type"],
+                        "classification": "non_module_sys_modules_value",
+                    }
+                ],
+            )
+        except AuditFailure as error:
+            cases[f"consumer-refuses-owned-source-nonmodule:{name}"] = str(error).startswith(
+                "owned source module key is not a module object:"
+            )
+        else:
+            cases[f"consumer-refuses-owned-source-nonmodule:{name}"] = False
+    if not all(cases.values()):
+        raise AuditFailure(f"non-module sys.modules capture controls failed: {cases}")
+    return cases
+
+
 def self_test_record_origin_inventory() -> dict[str, bool]:
     """Exercise physical RECORD ownership and metadata-path boundary controls."""
     import tempfile
@@ -5567,6 +5788,10 @@ def self_test() -> dict[str, Any]:
         raise AuditFailure("source audit accepted a non-full runner gate digest")
     origin_controls = self_test_origin_gate_symlink()
     cases.update({f"installed-origin-{name}": passed for name, passed in origin_controls.items()})
+    module_capture_controls = self_test_non_module_sys_modules_capture()
+    cases.update(
+        {f"module-capture-{name}": passed for name, passed in module_capture_controls.items()}
+    )
     record_controls = self_test_record_origin_inventory()
     cases.update({f"record-owner-{name}": passed for name, passed in record_controls.items()})
     cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"] = all(

@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-EXPECTED_RUNNER_SHA256 = "aa95b261be3dfa920da4c7646995c9b6c36c475c09199528157c2394433347f6"
+EXPECTED_RUNNER_SHA256 = "683e1aecdb053582d2acf8fc0d528ace60d426700c7660fb2193556c7579d3e2"
 EXPECTED_PROFILE_ORDER = (
     "source-wheel",
     "rebuilt-sdist-wheel",

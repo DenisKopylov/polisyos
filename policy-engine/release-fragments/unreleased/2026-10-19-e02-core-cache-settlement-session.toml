@@ -1,0 +1,47 @@
+id = "2026-10-19-e02-core-cache-settlement-session"
+title = "Keep cache reuse attestation inside Core"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Add a typed opaque cache-settlement session so Core retains per-client HMAC issuance and verification while Scientist reports cache-flight facts through non-serializable handles."
+evidence = [
+  "src/polisyos/core/llm/cache_settlement.py",
+  "src/polisyos/core/llm/settlement.py",
+  "src/polisyos/core/llm/response.py",
+  "src/polisyos/core/llm/traced_client.py",
+  "src/polisyos/core/llm/README.md",
+  "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+  "src/polisyos/scientist/orchestration/llm/factory.py",
+  "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+  "src/polisyos/scientist/methods/search/controller.py",
+  "tests/unit/core/llm/test_cache_settlement.py",
+  "tests/unit/core/llm/test_traced_client_settlement.py",
+  "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+  "tests/unit/scientist/orchestration/llm/test_factory.py",
+  "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+  "tests/unit/scientist/search/test_search_loop.py",
+]
+compatibility = "Additive exact leaf polisyos.core.llm.cache_settlement; the broad core.llm surface and existing producer settlement DTOs remain unchanged. No durable receipt or wire schema changes. Existing cache authorization, one provider event, zero-cost reuse event, cancellation, nested-owner routing, and unmanaged settlement semantics remain in place."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.llm.cache_settlement"
+migration = "No persisted cache migration. Cache clients obtain their Core session from exact weak client identity and pass only opaque handles and Core-issued response attestations."
+api = "Add CacheSettlementSession with typed flight registration, dispatch, join, settlement, attestation issue, and verification operations; expose only the exact leaf polisyos.core.llm.cache_settlement. The per-client secret and private provenance remain in Core."
+limitations = "Source candidate only: runtime tests and G acceptance remain pending. The exact leaf contract and native-generated inventory are integrated and locally technically reviewed; institutional owner approval is not established. The capability authenticates Core's in-process cache flight record; it is not external billing authority or proof of cache authorization, which remains Scientist-owned."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-core-cache-settlement-session"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.llm.cache_settlement"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add an opaque Core-owned cache settlement session for response-bound cache reuse proofs."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

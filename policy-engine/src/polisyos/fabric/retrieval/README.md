@@ -13,6 +13,39 @@ payload and a `polisyos.fabric.fetch_receipt.v1` receipt; `DataContextMetric`
 carries their typed `payload_ref` and `fetch_receipt_ref`. Its `sample_rows`
 remain a preview and cannot substitute for the persisted payload.
 
+
+`execute_persisted_fetch_capture` is the single-plan bounded capture operation
+for callers that must check a local route and then verify persisted custody.
+The service owns the exact plan, effective connector configuration, registration
+snapshot, catalog binding, and CAS store across both callbacks. The preflight
+view exposes plan, catalog-binding, and effective-config fingerprints,
+connector identities, and classified inputs for the selected route. It also
+carries the captured source-profile fingerprint when a named profile supplied
+the config; these are transient digests, not a claim that the live profile
+registry remains current. For `files.tabular`, the connector reads only the
+owner-bound effective `ConnectionConfig.url`; the route check always resolves
+that value under the approved root using the same local-path parser as the
+registered file connector. The effective route is not trimmed or shell-expanded;
+relative effective paths refuse before execution because the connector would
+resolve them against its process working directory. When the selected catalog binding supplies
+`connector_params.url` or `connector_params.path`, each supplied value must be
+well-formed and resolve to the same file. If those keys are absent, the captured
+profile/default config supplies the route. `DistributionResult.url` and
+`source_locator` remain bound catalog metadata but are not substituted for the
+transport input. A local path is transient for a root check and must not be
+persisted or logged. The postflight view exposes metric summaries and scalar
+CAS references, not sample rows or payload content. Both callbacks may refuse by
+raising and must return `None`; their return values do not establish admission.
+After the callbacks, the owner revalidates the original catalog binding,
+the captured effective-config fingerprint, store identity, and connector
+registration. The same captured config is used throughout the operation; a
+later profile-registry update does not silently reroute this fetch, and the
+capture does not establish live profile currentness. Explore-lane promotion
+candidates are queued only after postflight succeeds and that owner recheck
+completes. This path establishes
+bounded local fetch custody only; it does not prove historical timing, current
+source truth, or scientific validity.
+
 `custody.resolve_persisted_fetch` resolves the full CAS chain, rechecks the
 catalog source bytes, and repeats the exact full request through the registered
 connector. A changed or unavailable source refuses current verification.

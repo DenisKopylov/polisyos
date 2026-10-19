@@ -454,6 +454,21 @@ def test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents(
         )
 
 
+def test_method_result_evidence_join_rejects_same_bytes_other_selected_profile(
+    recorded_panel_owner,
+):
+    store, binding, state = _method_owner_case(recorded_panel_owner)
+    selected_ref = state.artifacts_index["causal_method_result_ref"]
+    alternate_ref = _different_profile_artifact_view(store, selected_ref)
+    assert alternate_ref.artifact_id == selected_ref.artifact_id
+    assert alternate_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    assert store.get_bytes(alternate_ref) == store.get_bytes(selected_ref)
+    state.artifacts_index["causal_method_result_ref"] = alternate_ref
+
+    with pytest.raises(ValueError, match="foundry_method_artifact_identity_mismatch"):
+        _consume_case(store, binding, state)
+
+
 def _constraint_canonical_problem():
     """Evaluate the existing canonical request constructor, not a copied fixture."""
     import ast
@@ -732,18 +747,26 @@ def test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact(
     )
     artifact_id = str(result.artifact_ref.artifact_id)
     original = store.get_bytes
+    mutation_count = 0
 
     def altered(ref):
+        nonlocal mutation_count
         raw = original(ref)
-        if str(ref) == artifact_id:
+        received_id = str(getattr(ref, "artifact_id", ref))
+        if received_id == artifact_id:
             packet = from_canonical_bytes(raw)
-            packet["decision"]["blocks_promotion"] = False
-            return to_canonical_bytes(packet, CanonSpec(forbid_floats=False, exclude_none=False))
+            packet["decision"]["blocks_promotion"] = not packet["decision"]["blocks_promotion"]
+            changed = to_canonical_bytes(packet, CanonSpec(forbid_floats=False, exclude_none=False))
+            if changed == raw:
+                raise AssertionError("constraint decision mutation did not change bytes")
+            mutation_count += 1
+            return changed
         return raw
 
     monkeypatch.setattr(store, "get_bytes", altered)
     with pytest.raises(ValueError, match="artifact_byte_or_manifest_identity_mismatch"):
         evaluate_constraint_store_for_phase2(result, owner=owner, workspace_id=result.workspace_id)
+    assert mutation_count == 1
 
 
 def test_method_consumption_binds_constraint_custody_and_uses_sealed_decision(
@@ -1055,6 +1078,69 @@ def test_every_constraint_emission_requires_actual_full_readback(
         owner._persist(kind, {"same_content": True, "parent_refs": parents}, parents)
 
 
+def _profiled_synthetic_data_snapshot(store):
+    """Persist a selected snapshot with an intentionally profileless parent selector."""
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from tests.unit.foundry.data_plane.test_bindings_multiscale import (
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+    )
+
+    payload_ref = store.put_json(
+        SYNTHETIC_MULTISCALE_PAYLOAD,
+        PutOptions(kind="fabric.synthetic_multiscale_payload", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    alternate_parent_view = _different_profile_artifact_view(store, payload_ref)
+    default_parent_profile = artifact_manifest_profile_sha256(store.get_manifest(payload_ref))
+    assert alternate_parent_view.artifact_id == payload_ref.artifact_id
+    assert alternate_parent_view.manifest_profile_sha256 != default_parent_profile
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[InputRef(artifact_id=payload_ref.artifact_id, role="data_ref")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
+
+
+def _different_profile_artifact_view(store, artifact_ref):
+    """Create a same-bytes, same-schema CAS view with a different owner profile."""
+    from polisyos.core.artifacts.manifest import ProducerInfo
+
+    manifest = store.get_manifest(artifact_ref)
+    return store.put_bytes(
+        store.get_bytes(artifact_ref),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.synthetic_profile_alias", version="1"),
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+
+
+def _different_profile_snapshot_view(store, snapshot_ref):
+    """Create a same-bytes snapshot view with a different owner profile."""
+    from polisyos.core.contracts.fabric import DataSnapshotRef
+
+    alternate = _different_profile_artifact_view(store, snapshot_ref)
+    return DataSnapshotRef.model_validate(alternate.model_dump(mode="python"))
+
+
 def _staged_method_case(recorded_panel_owner, tmp_path):
     """Real owners over an engineering cassette; no canonical or safety claim."""
     import json
@@ -1075,9 +1161,10 @@ def _staged_method_case(recorded_panel_owner, tmp_path):
 
     _, store, _, _ = recorded_panel_owner
     bound = _produce_recorded(recorded_panel_owner)
+    snapshot_ref = _profiled_synthetic_data_snapshot(store)
     root = tmp_path / "staged-source"
     root.mkdir()
-    paths = _ukraine_intake_manifests(root)
+    paths = _ukraine_intake_manifests(root, data_snapshot_ref=snapshot_ref)
     manifest = BuildRunManifest.model_validate_json(paths["d2"].read_bytes())
     selected = next(
         row
@@ -1132,11 +1219,11 @@ def _staged_method_case(recorded_panel_owner, tmp_path):
             "causal_method_evidence_ref": actual.exec_artifacts.evidence_ref,
         },
     )
-    return store, bound, state, root, paths
+    return store, bound, state, root, paths, snapshot_ref
 
 
-def _staged_consumer(store, root, paths):
-    """Keep the old-owner red on its actual refusal, not a missing new API."""
+def _staged_consumer(store, root, paths, snapshot_ref):
+    """Construct the explicit source binding used by the actual intake owner."""
     import inspect
 
     from polisyos.runtime.quality.workspace import foundry_consumption as owner
@@ -1146,6 +1233,7 @@ def _staged_consumer(store, root, paths):
         kwargs["staged_input_source"] = owner.StagedFoundryInputSource(
             allowed_root=root,
             stage_manifests=tuple(sorted(paths.items())),
+            data_snapshot_ref=snapshot_ref,
         )
     return owner.FoundryMethodOutputConsumer(**kwargs)
 
@@ -1153,17 +1241,200 @@ def _staged_consumer(store, root, paths):
 def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(
     recorded_panel_owner, tmp_path
 ):
-    store, bound, state, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
-    consumer = _staged_consumer(store, root, paths)
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.pdc import ArtifactRef as PDCArtifactRef
+    from polisyos.pdc import MethodOutputConsumptionRecord
+
+    store, bound, state, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
+    snapshot_manifest = store.get_manifest(snapshot_ref)
+    snapshot_edge = next(edge for edge in snapshot_manifest.inputs if edge.role == "data_ref")
+    snapshot_body = DataSnapshot.model_validate_json(store.get_bytes(snapshot_ref))
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert snapshot_edge.manifest_profile_sha256 is None
+    assert snapshot_body.data_ref.manifest_profile_sha256 is None
+    consumer = _staged_consumer(store, root, paths, snapshot_ref)
     result = _consume_case(store, bound, state, consumer=consumer)
     assert result.method_replay_verified
     assert result.authority_boundary.evidence_kind == "measurement"
     assert result.authority_boundary.decision_grade == "descriptive_only"
     assert "causal_identification" in result.authority_boundary.may_not_use_for
-    ref = consumer.persist_consumption(store=store, consumption=result)
-    assert (
-        ref.content_hash == "sha256:" + hashlib.sha256(store.get_bytes(ref.artifact_id)).hexdigest()
+    result_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index["causal_method_result_ref"]
     )
+    evidence_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index["causal_method_evidence_ref"]
+    )
+    result_pdc_ref = result.record.consumed_method_output_refs[0]
+    evidence_pdc_ref = result.record.consumed_method_evidence_refs[0]
+    assert result_pdc_ref.manifest_profile_sha256 == result_ref.manifest_profile_sha256
+    assert evidence_pdc_ref.manifest_profile_sha256 == evidence_ref.manifest_profile_sha256
+    evidence_manifest = store.get_manifest(evidence_ref)
+    assert evidence_manifest.inputs == [
+        InputRef(
+            artifact_id=result_ref.artifact_id,
+            role="method_result",
+            manifest_profile_sha256=result_ref.manifest_profile_sha256,
+        )
+    ]
+    intake_manifest = store.get_manifest(
+        state.artifacts_index["ukraine_foundry_intake_receipt_ref"]
+    )
+    snapshot_edge = next(edge for edge in intake_manifest.inputs if edge.role == "data_snapshot")
+    assert snapshot_edge.manifest_profile_sha256 == snapshot_ref.manifest_profile_sha256
+    ref = consumer.persist_consumption(store=store, consumption=result)
+
+    # Follow the actual owner readback from a fresh loop consumer and traverse
+    # the persisted record and its selected CAS parents through a reopened CAS.
+    from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
+    from polisyos.runtime.quality.workspace.scientist_node_adapters import _read_binding
+
+    loop = WorkspaceLoop(artifact_store=store)
+    loop._phase2_method_readbacks[id(ref)] = (ref, consumer, result, store)
+    owner_seal = from_canonical_bytes(loop.readback_method_consumption(ref))
+    reader = FileSystemCAS.open_existing_read_only(store.root)
+    persisted_raw = reader.get_bytes(ref.artifact_id)
+    assert ref.content_hash == "sha256:" + hashlib.sha256(persisted_raw).hexdigest()
+    persisted_payload = from_canonical_bytes(persisted_raw)
+    assert persisted_payload["schema_version"] == "policyos.gy.phase2.foundry.v3"
+    persisted_payload.pop("schema_version")
+    assert persisted_payload == owner_seal
+    persisted_record = MethodOutputConsumptionRecord.model_validate(persisted_payload["record"])
+    persisted_input_binding_ref = PDCArtifactRef.model_validate(
+        persisted_payload["input_binding_receipt_ref"]
+    )
+    persisted_manifest = reader.get_manifest(ref.artifact_id)
+    profiles_by_role = {
+        edge.role: edge.manifest_profile_sha256 for edge in persisted_manifest.inputs
+    }
+    assert profiles_by_role["method_result"] == result_ref.manifest_profile_sha256
+    assert profiles_by_role["method_evidence"] == evidence_ref.manifest_profile_sha256
+    assert profiles_by_role["measurement_root"] == (
+        result.authority_boundary.evidence_basis.producer_roots[0].manifest_profile_sha256
+    )
+    input_binding_edges = [
+        edge for edge in persisted_manifest.inputs if edge.role == "input_binding"
+    ]
+    expected_input_binding_edge = InputRef(
+        artifact_id=persisted_input_binding_ref.artifact_id,
+        role="input_binding",
+        manifest_profile_sha256=(persisted_input_binding_ref.manifest_profile_sha256),
+    )
+    # This exact fresh-CAS join fails if the persisted edge is removed, duplicated,
+    # assigned another role, or bound to another artifact/profile view.
+    assert input_binding_edges == [expected_input_binding_edge]
+
+    for role, refs in (
+        ("method_result", persisted_record.consumed_method_output_refs),
+        ("method_evidence", persisted_record.consumed_method_evidence_refs),
+        ("measurement_root", persisted_record.measurement_root_refs),
+        ("input_binding", [persisted_input_binding_ref]),
+    ):
+        for pdc_ref in refs:
+            selector = pdc_ref.manifest_profile_sha256
+            selected_manifest = (
+                core_artifacts.resolve_manifest_by_profile(reader, pdc_ref.artifact_id, selector)
+                if selector is not None
+                else reader.get_manifest(pdc_ref.artifact_id)
+            )
+            core_ref = core_artifacts.ArtifactRef(
+                artifact_id=pdc_ref.artifact_id,
+                kind=selected_manifest.kind,
+                media_type=selected_manifest.media_type,
+                manifest_profile_sha256=selector,
+            )
+            binding, _, verified_manifest = _read_binding(
+                reader,
+                core_ref,
+                "fresh_consumption_reader:" + role,
+                require_profiled_json=role in {"method_result", "method_evidence"},
+            )
+            assert binding.content_hash == pdc_ref.content_hash
+            if selector is not None:
+                assert (
+                    core_artifacts.artifact_manifest_profile_sha256(verified_manifest) == selector
+                )
+
+
+def test_staged_intake_refuses_same_bytes_under_a_different_snapshot_profile(
+    recorded_panel_owner, tmp_path
+):
+    store, bound, state, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
+    alternate_ref = _different_profile_snapshot_view(store, snapshot_ref)
+    assert alternate_ref.artifact_id == snapshot_ref.artifact_id
+    assert alternate_ref.manifest_profile_sha256 != snapshot_ref.manifest_profile_sha256
+    consumer = _staged_consumer(store, root, paths, alternate_ref)
+    with pytest.raises(ValueError):
+        _consume_case(store, bound, state, consumer=consumer)
+
+
+def test_staged_intake_refuses_other_view_for_profileless_parent_selector(
+    recorded_panel_owner, tmp_path, monkeypatch
+):
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+    from polisyos.core.contracts.fabric import DataSnapshot
+
+    store, bound, state, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
+    snapshot_body = DataSnapshot.model_validate_json(store.get_bytes(snapshot_ref))
+    parent_ref = snapshot_body.data_ref
+    assert parent_ref.manifest_profile_sha256 is None
+    default_manifest = store.get_manifest(parent_ref)
+    default_profile = artifact_manifest_profile_sha256(default_manifest)
+    alternate_ref = _different_profile_artifact_view(store, parent_ref)
+    assert alternate_ref.artifact_id == parent_ref.artifact_id
+    assert alternate_ref.manifest_profile_sha256 != default_profile
+    assert store.get_bytes(alternate_ref) == store.get_bytes(parent_ref)
+
+    original_export = store.export_subgraph
+
+    def export_with_other_profile(artifact_ids, target, *, compress=True, include_manifests=True):
+        replaced_count = 0
+        substituted = []
+        for ref in artifact_ids:
+            if (
+                str(ref.artifact_id) == str(parent_ref.artifact_id)
+                and ref.manifest_profile_sha256 is None
+            ):
+                substituted.append(alternate_ref)
+                replaced_count += 1
+            else:
+                substituted.append(ref)
+        assert replaced_count == 1
+        return original_export(
+            substituted,
+            target,
+            compress=compress,
+            include_manifests=include_manifests,
+        )
+
+    monkeypatch.setattr(store, "export_subgraph", export_with_other_profile)
+    consumer = _staged_consumer(store, root, paths, snapshot_ref)
+    with pytest.raises(ValueError, match="foundry_staged_intake_snapshot_import_incomplete"):
+        _consume_case(store, bound, state, consumer=consumer)
+
+
+def test_staged_intake_requires_explicit_profiled_snapshot_source(recorded_panel_owner, tmp_path):
+    from polisyos.runtime.quality.workspace import foundry_consumption as owner
+
+    store, bound, state, root, paths, _snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
+    source = owner.StagedFoundryInputSource(
+        allowed_root=root,
+        stage_manifests=tuple(sorted(paths.items())),
+        data_snapshot_ref=None,
+    )
+    consumer = owner.FoundryMethodOutputConsumer(store=store, staged_input_source=source)
+    with pytest.raises(ValueError, match="foundry_staged_intake_source_data_snapshot_missing"):
+        _consume_case(store, bound, state, consumer=consumer)
 
 
 def test_workspace_phase2_transports_verified_staged_input_owner_refs(
@@ -1176,10 +1447,13 @@ def test_workspace_phase2_transports_verified_staged_input_owner_refs(
     from polisyos.runtime.quality.workspace import loop as loop_owner
     from tests.unit.runtime.quality.test_design_problem import _design_problem
 
-    store, bound, offered, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
+    store, bound, offered, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
     source_fields = {
         "allowed_root": root,
         "stage_manifests": tuple(sorted(paths.items())),
+        "data_snapshot_ref": snapshot_ref,
     }
     kwargs = {"artifact_store": store}
     if "staged_foundry_inputs" in inspect.signature(loop_owner.WorkspaceLoop).parameters:
@@ -1244,8 +1518,10 @@ def test_staged_intake_owner_readback_refuses_decisive_mutation(
 
     from polisyos.core.artifacts import InputRef
 
-    store, bound, state, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
-    consumer = _staged_consumer(store, root, paths)
+    store, bound, state, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
+    consumer = _staged_consumer(store, root, paths, snapshot_ref)
     if mutation == "source_output":
         manifest = json.loads(paths["d1"].read_bytes())
         output = Path(manifest["outputs"][0]["path"])
@@ -1428,7 +1704,7 @@ def test_validated_staged_refs_reach_actual_causal_safety_refusal(recorded_panel
         _validated_node_state,
     )
 
-    _, _, state, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
+    _, _, state, _, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
     validated = _validated_node_state(state)
     assert all(
         isinstance(ref, artifacts.ArtifactRef)
@@ -1447,7 +1723,9 @@ def test_staged_result_lineage_cannot_hide_supplied_intake_by_removing_state_slo
 ):
     import json
 
-    store, bound, state, _, paths = _staged_method_case(recorded_panel_owner, tmp_path)
+    store, bound, state, _, paths, _snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
     del state.inputs["ukraine_selected_foundry_method_contract_ref"]
     del state.inputs["ukraine_foundry_method_input_bundle_ref"]
     del state.artifacts_index["ukraine_foundry_intake_receipt_ref"]
@@ -1471,6 +1749,9 @@ def test_staged_result_lineage_cannot_hide_supplied_intake_by_removing_state_slo
         "stage_empty",
         "path_type",
         "duplicate_stage",
+        "snapshot_kind",
+        "snapshot_profileless",
+        "snapshot_missing",
     ],
 )
 def test_staged_intake_malformed_transport_is_typed_refusal(
@@ -1478,7 +1759,9 @@ def test_staged_intake_malformed_transport_is_typed_refusal(
 ):
     from polisyos.runtime.quality.workspace import foundry_consumption as owner
 
-    store, bound, state, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
+    store, bound, state, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
     rows = tuple(sorted(paths.items()))
     if mutation == "source_object":
         source = {"allowed_root": root, "stage_manifests": rows}
@@ -1497,7 +1780,19 @@ def test_staged_intake_malformed_transport_is_typed_refusal(
             rows = ((rows[0][0], str(rows[0][1])), *rows[1:])
         elif mutation == "duplicate_stage":
             rows = (*rows, rows[0])
-        source = owner.StagedFoundryInputSource(allowed_root=root, stage_manifests=rows)
+        if mutation == "snapshot_kind":
+            snapshot_source = snapshot_ref.model_copy(update={"kind": "fabric.other_snapshot"})
+        elif mutation == "snapshot_profileless":
+            snapshot_source = snapshot_ref.model_copy(update={"manifest_profile_sha256": None})
+        elif mutation == "snapshot_missing":
+            snapshot_source = None
+        else:
+            snapshot_source = snapshot_ref
+        source = owner.StagedFoundryInputSource(
+            allowed_root=root,
+            stage_manifests=rows,
+            data_snapshot_ref=snapshot_source,
+        )
     consumer = owner.FoundryMethodOutputConsumer(store=store, staged_input_source=source)
     with pytest.raises(ValueError, match="foundry_staged_intake_source"):
         _consume_case(store, bound, state, consumer=consumer)
@@ -1514,7 +1809,7 @@ def test_staged_intake_malformed_transport_is_typed_refusal(
 def test_staged_manifest_presence_requires_complete_intake(
     recorded_panel_owner, tmp_path, remaining_slot
 ):
-    store, bound, state, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
+    store, bound, state, _, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
     for mapping, slots in (
         (
             state.inputs,
@@ -1549,7 +1844,9 @@ def test_staged_input_refusal_retains_completed_selection_in_typed_terminal(
     from polisyos.runtime.quality.workspace import loop as loop_owner
     from tests.unit.runtime.quality.test_design_problem import _design_problem
 
-    store, bound, offered, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
+    store, bound, offered, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
     offered = offered.model_copy(deep=True)
     missing_slot = "ukraine_foundry_method_input_bundle_ref"
     del offered.inputs[missing_slot]
@@ -1557,6 +1854,7 @@ def test_staged_input_refusal_retains_completed_selection_in_typed_terminal(
         source=owner.StagedFoundryInputSource(
             allowed_root=root,
             stage_manifests=tuple(sorted(paths.items())),
+            data_snapshot_ref=snapshot_ref,
         ),
         state=offered,
     )

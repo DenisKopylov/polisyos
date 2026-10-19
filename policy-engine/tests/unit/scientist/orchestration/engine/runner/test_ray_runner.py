@@ -527,7 +527,9 @@ async def test_ray_refuses_conflicting_sibling_snapshots_before_parent_trace_wri
     state = ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle_ref})
     runner = RayWorkflowRunner(address="ray://unused", namespace="test", max_parallelism=2)
     monkeypatch.setattr(runner, "_ensure_init", lambda: None)
-    parent_owner_ref = ctx.run._owner_snapshot_ref
+    from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
+
+    parent_owner_ref = WorkerLifecycleCapability.for_parent(ctx.run).snapshot().owner_snapshot_ref
 
     def _discover_nodes(registry: NodeRegistry, **_kwargs: object) -> None:
         registry.register(RaySnapshotNode())
@@ -572,7 +574,10 @@ async def test_ray_refuses_conflicting_sibling_snapshots_before_parent_trace_wri
         json.loads(line) for line in ctx.run.trace_path.read_text(encoding="utf-8").splitlines()
     ]
     assert [record["event"] for record in records] == ["RUN_STARTED"]
-    assert ctx.run._owner_snapshot_ref == parent_owner_ref
+    assert (
+        WorkerLifecycleCapability.for_parent(ctx.run).snapshot().owner_snapshot_ref
+        == parent_owner_ref
+    )
 
 
 def test_ray_runner_inject_trace_carrier_records_degraded_path_on_runtime_error(

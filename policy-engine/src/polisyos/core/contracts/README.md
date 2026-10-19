@@ -45,6 +45,14 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 ## Public API
 
+`polisyos.core.contracts` also exposes Fabric's `data_snapshot_reference_fields()` and
+`data_snapshot_reference_input_roles(field_name)` through the stable lazy facade; both names retain
+the function objects owned by `fabric.py`.
+
+It also exposes `acquisition_native_coordinate_role(kind)` through the stable lazy facade. The
+typed role is derived from the existing epoch codec registry; `AcquisitionArtifactCodec` retains
+its existing six-field tuple shape and constructor behavior.
+
 `polisyos.core.contracts.__all__` expands the chronology export tuple and every
 declared symbol resolves through the defining contract module. Wildcard imports
 retain the same class objects as explicit imports, including CausalFrontier and

@@ -1166,7 +1166,7 @@ def _build_spine_projection(stable: Any) -> dict[str, Any]:
         GovernanceTailVerifier,
         LexBoundsApplicabilityGate,
     )
-    from polisyos.scientist.policy_design import search as policy_search
+    from polisyos.scientist.policy_design import derive_phase2_parameter_bounds
 
     if stable is None:
         raise ValueError("phase2_stable_result_unavailable_for_spine_projection")
@@ -1176,7 +1176,7 @@ def _build_spine_projection(stable: Any) -> dict[str, Any]:
         lower=None,
         upper=10.0,
     )
-    search_bounds = policy_search.derive_phase2_parameter_bounds(
+    search_bounds = derive_phase2_parameter_bounds(
         workspace_id="ws-phase2-validator",
         invocation_id="invoke-refine",
         default=10.0,

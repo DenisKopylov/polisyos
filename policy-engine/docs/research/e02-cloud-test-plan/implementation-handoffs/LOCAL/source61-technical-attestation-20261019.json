@@ -1,0 +1,54 @@
+{
+  "slice_base": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+  "base_tree": "090507e88e53d81bc89af3645ecf81ff6fae406d",
+  "scope": "Technical source/inventory composition before actual affected-consumer replay.",
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-coherent-owner-source61-application-20261019/source-application.json",
+    "sha256": "fc0500ded75e41beefa3b9cbbfeff3f74b9e9bfb65f7e16577e86829fae20658"
+  },
+  "local_independent_inventory_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-generated-public-surface-independent-20261019/review.json",
+    "sha256": "f6dc17e0e4fe652235bdf1a5d4f9c1ce5f973943fbcebd34af43b5dfce9720c1"
+  },
+  "source_delta_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-coherent-owner-source61-format-release-independent-r1-20261019/review.json",
+      "sha256": "08f7a81128dc3eb97fcdc8ab885c0134cc6f202ff0af761d22175afc71b7bad1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-coherent-owner-source61-format-release-independent-r2-20261019/review.json",
+      "sha256": "0df276de88fc55f812692b09f702c3aa411e19df550289440467b8894bd0fc0b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-binding-fresh-cas-independent-20261019/review.json",
+      "sha256": "f240d675a1be63f8e9b40f5e182cc24a9a3e0b5f436200cd12308618ee02c8c3"
+    }
+  ],
+  "native_checks": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-public-surface-sync-20261019/result.json",
+      "sha256": "fe4e6bf546360fc0efb56feee47318abe88d1d2b1fc07e599c236ff5cd1d4b06"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-native-live-20261019/result.json",
+      "sha256": "5dc4f0114970bb403ae22e4cd5d119b6ef326afa0b3999b802f90cc85f663ec6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-binding-fresh-cas-test-native-format-20261019/manifest.json",
+      "sha256": "8a513ff4645f07e88a2a9801630cb17ac5b9ba5427f5a9bb2397ab71aa8d1145"
+    }
+  ],
+  "release_metadata_corrections": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-20261019/release-postimages.json",
+    "sha256": "c1a3f33c48e85560eb4ad2527caad6f448cf3bf7305509d5193e3893da3d488c"
+  },
+  "public_surface_inventory_reviewed_predicate": "consumer_asserted local technical acknowledgement only; exact generated inventory independently reconciled",
+  "institutional_inventory_owner_identity": "not_established",
+  "runtime_exports": "not_established; bounded native static parser remains unresolved",
+  "R4_test_delta": "fresh reader joins the persisted payload input binding to exactly one manifest edge by artifact ID/role/profile; formatting-only successor preserves AST",
+  "source_freeze": "slice-specific source composition only; frontend14 deliberately preserved and excluded",
+  "runtime": "UNRUN on this composition",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "next_check": "23 complete worker/cache consumer modules, two full R4 modules and three actual child runs; separate facade/Fabric/CAN/import/native/installed verification remains required."
+}

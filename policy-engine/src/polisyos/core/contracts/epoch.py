@@ -71,7 +71,10 @@ _CANONICAL_OWNER_ROW_KINDS = frozenset(
 _RAW_OWNER_SOURCE_KINDS = frozenset(
     {"l5.schema_regime_registry", "l5.schema_regime_scope_registry"}
 )
-_EPOCH_NATIVE_COORDINATE_ROLES = {
+_EPOCH_NATIVE_COORDINATE_ROLES: dict[
+    str,
+    Literal["valid_effect", "visibility_knowledge_cutoff", "purpose_admission_cutoff"],
+] = {
     "epoch.coordinate.valid_effect.v1": "valid_effect",
     "epoch.coordinate.visibility_knowledge_cutoff.v1": "visibility_knowledge_cutoff",
     "epoch.coordinate.purpose_admission_cutoff.v1": "purpose_admission_cutoff",
@@ -298,9 +301,21 @@ def acquisition_artifact_codec(
     return None
 
 
-def _acquisition_native_coordinate_role(kind: str) -> str | None:
-    """Return the exact registered temporal role for one epoch coordinate kind."""
+def acquisition_native_coordinate_role(
+    kind: str,
+) -> Literal["valid_effect", "visibility_knowledge_cutoff", "purpose_admission_cutoff"] | None:
+    """Return the registered temporal role for one native coordinate kind."""
+    codec = acquisition_artifact_codec(kind)
+    if codec is None or codec.payload_format != "native_coordinate":
+        return None
     return _EPOCH_NATIVE_COORDINATE_ROLES.get(kind)
+
+
+def _acquisition_native_coordinate_role(
+    kind: str,
+) -> Literal["valid_effect", "visibility_knowledge_cutoff", "purpose_admission_cutoff"] | None:
+    """Retain the pre-facade helper as an internal compatibility alias."""
+    return acquisition_native_coordinate_role(kind)
 
 
 def acquisition_artifact_canon_info(kind: str) -> CanonInfo | None:
@@ -1258,6 +1273,7 @@ __all__ = [
     "SemanticEpochStamp",
     "acquisition_artifact_canon_info",
     "acquisition_artifact_codec",
+    "acquisition_native_coordinate_role",
     "acquisition_semantic_candidate_bytes",
     "acquisition_semantic_candidate_content_hash",
     "canonical_epoch_bytes",

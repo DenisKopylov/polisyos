@@ -19,7 +19,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import secrets
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
@@ -54,6 +54,12 @@ from polisyos.scientist.orchestration.engine.runner.serialization import (
     worker_dispatch_sha256,
 )
 from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
+
+if TYPE_CHECKING:
+    from polisyos.core.run.worker_lifecycle import (
+        WorkerDispatchBinding,
+        WorkerLifecycleCapability,
+    )
 
 _logger = logging.getLogger(__name__)
 _TRACE_IMPORT_ERRORS = (ImportError, ModuleNotFoundError, AttributeError)
@@ -246,6 +252,9 @@ class RayWorkflowRunner:
             workflow_id=workflow.workflow_id,
             runner_backend="ray",
         )
+        from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
+
+        lifecycle = WorkerLifecycleCapability.for_parent(ctx.run)
         if ctx.metrics is not None:
             ctx.metrics.record_trace_correlation(
                 runner_backend="ray",
@@ -287,7 +296,7 @@ class RayWorkflowRunner:
                 worker_context_meta["workflow_id"] = workflow.workflow_id
                 futures = []
                 chunk_aliases: list[str] = []
-                dispatches: dict[str, tuple[str, str, Any]] = {}
+                dispatches: dict[str, tuple[WorkerLifecycleCapability, WorkerDispatchBinding]] = {}
                 for alias in tier[offset : offset + effective_max_parallelism]:
                     inv = invocations[alias]
                     if inv.timeout_s is not None:
@@ -305,11 +314,11 @@ class RayWorkflowRunner:
                         max_retries=max_retries,
                         context_meta=worker_context_meta,
                     )
-                    dispatches[alias] = (
-                        invocation_id,
-                        dispatch_digest,
-                        ctx.run._owner_snapshot_ref,
+                    binding = lifecycle.bind_dispatch(
+                        invocation_id=invocation_id,
+                        dispatch_sha256=dispatch_digest,
                     )
+                    dispatches[alias] = (lifecycle, binding)
 
                     task_ref = execute_node_task
                     future = task_ref.remote(
@@ -342,7 +351,14 @@ class RayWorkflowRunner:
                     _worker_node_error,
                 )
 
-                receipt_items: list[tuple[str, bytes, tuple[str, str, Any], list[Any]]] = []
+                receipt_items: list[
+                    tuple[
+                        str,
+                        bytes,
+                        tuple[WorkerLifecycleCapability, WorkerDispatchBinding],
+                        list[Any],
+                    ]
+                ] = []
                 exceptions = [item for item in results if isinstance(item, BaseException)]
                 for alias, item in zip(chunk_aliases, results, strict=False):
                     if isinstance(item, BaseException):
@@ -356,11 +372,11 @@ class RayWorkflowRunner:
                             receipt_owner_ref,
                             records,
                         ) = deserialize_worker_execution_receipt(item)
-                        invocation_id, expected_dispatch, owner_ref = dispatches[alias]
+                        _capability, binding = dispatches[alias]
                         if (
-                            receipt_invocation_id != invocation_id
-                            or receipt_dispatch != expected_dispatch
-                            or receipt_owner_ref != owner_ref
+                            receipt_invocation_id != binding.invocation_id
+                            or receipt_dispatch != binding.dispatch_sha256
+                            or receipt_owner_ref != binding.owner_snapshot_ref
                         ):
                             raise ValueError("ray_worker_receipt_binding_mismatch")
                         if outcome_bytes is not None:
@@ -394,15 +410,14 @@ class RayWorkflowRunner:
 
                 receipt_errors: list[BaseException] = []
                 for alias, item, dispatch, _records in receipt_items:
-                    invocation_id, expected_dispatch, owner_ref = dispatch
+                    capability, binding = dispatch
                     try:
                         outcome = _admit_worker_execution_receipt(
                             ctx,
                             item,
-                            invocation_id=invocation_id,
-                            expected_dispatch=expected_dispatch,
-                            owner_snapshot_ref=owner_ref,
-                            expected_run_id=state.run_id,
+                            capability=capability,
+                            binding=binding,
+                            expected_run_id=binding.run_id,
                         )
                     except Exception as exc:
                         receipt_errors.append(exc)

@@ -296,7 +296,7 @@ def build_recorded_file_fetch_owner(
         configured_locator = primary_connector_params.get("url")
         if configured_locator is None:
             configured_locator = primary_connector_params.get("path")
-        if configured_locator is not None:
+        if isinstance(configured_locator, str) and configured_locator.strip():
             assert Path(configured_locator).resolve(strict=True) == canonical_catalog_locator
     profiles = SourceProfileRegistry()
     selected_profile_id = "recorded_file_local" if publish_current_catalog else None
@@ -664,6 +664,200 @@ def test_persisted_fetch_carries_complete_payload_and_actual_catalog(real_fetch_
     assert "optional" in resolved.result.data[-1] and resolved.result.data[-1]["optional"] is None
     assert resolved.used_plan.dataset_id == "primary"
     assert resolved.payload_ref == executed.metric.payload_ref == executed.payload_ref
+
+
+def test_persisted_fetch_capture_owner_runs_safe_preflight_and_postflight(tmp_path):
+    from polisyos.core import canon
+    from polisyos.fabric.retrieval.service import (
+        FetchCapturePostflightView,
+        FetchCapturePreflightView,
+        RetrievalService,
+    )
+
+    runtime_store = FileSystemCAS(tmp_path / "persisted-capture-operation-cas")
+    with build_recorded_file_fetch_owner(
+        tmp_path,
+        canonicalize_catalog_source=True,
+        publish_current_catalog=True,
+    ) as owner:
+        service = RetrievalService(
+            curated_dir=tmp_path,
+            artifact_store=runtime_store,
+            dataset_catalog=owner.graph,
+            providers=owner.providers,
+        )
+        resolved = service.resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric="metric.test")],
+                mode="hybrid",
+                allow_explore_fallback=False,
+            ),
+            run_profile="prod_full",
+        )
+        assert len(resolved.fetch_plans) == 1
+        callback_order: list[str] = []
+        plan_fingerprints: list[str] = []
+        config_fingerprints: list[tuple[str, str | None]] = []
+
+        def preflight(view: FetchCapturePreflightView) -> None:
+            callback_order.append("preflight")
+            plan_fingerprints.append(view.plan_fingerprint)
+            config_fingerprints.append(
+                (view.effective_config_fingerprint, view.source_profile_fingerprint)
+            )
+            assert owner.requests == []
+            assert view.plan_id == resolved.fetch_plans[0].plan_id
+            assert view.metric_id == resolved.fetch_plans[0].metric_id
+            assert view.connector_id == "files.tabular"
+            binding = owner.graph.bind_fetch_target(
+                metric_id=resolved.fetch_plans[0].metric_id,
+                connector_id=resolved.fetch_plans[0].connector_id,
+                request_dataset_id=resolved.fetch_plans[0].dataset_id,
+                profile_id=resolved.fetch_plans[0].profile_id,
+                filters=resolved.fetch_plans[0].filters,
+            )
+            assert view.catalog_binding_fingerprint == canon.fingerprint(
+                binding.model_dump(mode="json"),
+                prefix=True,
+                canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+            )
+            assert view.target_profile_id == resolved.fetch_plans[0].profile_id
+            assert tuple(name for name, _ in view.connector_param_locators) == ("url",)
+            assert view.connector_param_locators[0][1].classification == "local"
+            assert view.effective_locator.local_path == str(owner.csv_path)
+            assert str(owner.csv_path) not in repr(view)
+
+        def postflight(view: FetchCapturePostflightView) -> None:
+            callback_order.append("postflight")
+            assert view.plan_fingerprint == plan_fingerprints[0]
+            assert (
+                view.effective_config_fingerprint,
+                view.source_profile_fingerprint,
+            ) == config_fingerprints[0]
+            assert len(view.metrics) == 1
+            metric = view.metrics[0]
+            assert metric.plan_id == resolved.fetch_plans[0].plan_id
+            assert metric.payload_ref is not None
+            assert metric.fetch_receipt_ref is not None
+            assert not hasattr(metric, "sample_rows")
+
+        outcome = service.execute_persisted_fetch_capture(
+            resolved.fetch_plans,
+            preflight=preflight,
+            postflight=postflight,
+        )
+
+        assert callback_order == ["preflight", "postflight"]
+        assert len(owner.requests) == 2
+        assert outcome.previews[0].used_plan == resolved.fetch_plans[0]
+        assert not outcome.previews[0].fallback_used
+        metric = outcome.data_context.metrics[0]
+        assert metric.payload_ref is not None
+        assert metric.fetch_receipt_ref is not None
+        assert runtime_store.has(metric.payload_ref.artifact_id)
+        assert runtime_store.has(metric.fetch_receipt_ref.artifact_id)
+
+
+def test_persisted_fetch_capture_owner_rejects_non_none_preflight_result(tmp_path):
+    from polisyos.fabric.retrieval.service import RetrievalService
+
+    runtime_store = FileSystemCAS(tmp_path / "persisted-capture-veto-cas")
+    with build_recorded_file_fetch_owner(
+        tmp_path,
+        canonicalize_catalog_source=True,
+        publish_current_catalog=True,
+    ) as owner:
+        service = RetrievalService(
+            curated_dir=tmp_path,
+            artifact_store=runtime_store,
+            dataset_catalog=owner.graph,
+            providers=owner.providers,
+        )
+        resolved = service.resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric="metric.test")],
+                mode="hybrid",
+                allow_explore_fallback=False,
+            ),
+            run_profile="prod_full",
+        )
+        assert len(resolved.fetch_plans) == 1
+        execute_calls: list[object] = []
+
+        def trap_execute(*args: object, **kwargs: object) -> object:
+            execute_calls.append((args, kwargs))
+            raise AssertionError("a non-None preflight result must refuse before execution")
+
+        service.execute_fetch_plans = trap_execute  # type: ignore[method-assign]
+        with pytest.raises(ValueError, match="preflight_must_return_none"):
+            service.execute_persisted_fetch_capture(
+                resolved.fetch_plans,
+                preflight=lambda _view: False,
+                postflight=lambda _view: None,
+            )
+        assert execute_calls == []
+        assert runtime_store.iter_artifact_ids() == []
+
+
+@pytest.mark.parametrize("reject_postflight", [False, True])
+def test_persisted_fetch_capture_defers_explore_promotion_until_postflight(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    reject_postflight: bool,
+) -> None:
+    from polisyos.fabric.retrieval.service import RetrievalService
+
+    monkeypatch.setenv("POLISYOS_RETRIEVAL_PROMOTION_ENABLED", "1")
+    runtime_store = FileSystemCAS(tmp_path / f"promotion-capture-cas-{reject_postflight}")
+    with build_recorded_file_fetch_owner(
+        tmp_path,
+        canonicalize_catalog_source=True,
+        publish_current_catalog=True,
+    ) as owner:
+        service = RetrievalService(
+            curated_dir=tmp_path,
+            artifact_store=runtime_store,
+            dataset_catalog=owner.graph,
+            providers=owner.providers,
+        )
+        resolved = service.resolve(
+            DataResolveRequest(
+                data_needs=[DataNeed(metric="metric.test")],
+                mode="hybrid",
+                allow_explore_fallback=False,
+            ),
+            run_profile="prod_full",
+        )
+        assert len(resolved.fetch_plans) == 1
+        plan = resolved.fetch_plans[0].model_copy(update={"source_lane": "explorelane"})
+
+        def preflight(_view) -> None:
+            assert service.list_promotion_candidates() == []
+
+        def postflight(_view) -> None:
+            assert service.list_promotion_candidates() == []
+            if reject_postflight:
+                raise ValueError("fixture_postflight_refused")
+
+        if reject_postflight:
+            with pytest.raises(ValueError, match="fixture_postflight_refused"):
+                service.execute_persisted_fetch_capture(
+                    [plan],
+                    preflight=preflight,
+                    postflight=postflight,
+                )
+            assert service.list_promotion_candidates() == []
+        else:
+            outcome = service.execute_persisted_fetch_capture(
+                [plan],
+                preflight=preflight,
+                postflight=postflight,
+            )
+            candidates = service.list_promotion_candidates()
+            assert outcome.promoted_count == 1
+            assert len(candidates) == 1
+            assert candidates[0].source_lane == "explorelane"
+            assert candidates[0].status == "pending"
 
 
 @pytest.mark.parametrize(

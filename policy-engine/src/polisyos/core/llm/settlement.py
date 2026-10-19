@@ -142,6 +142,7 @@ class _CacheFlightOutcome:
     receiver_attempt_ids: tuple[str, ...]
     role: Literal["producer", "receiver", "not_dispatched"]
     terminal: Literal["success", "error", "deadline", "cancelled"]
+    origin_event_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,6 +152,7 @@ class _CacheReuseProvenance:
     request_digest: str
     reuse_event_id: str
     origin_event_id: str
+    response_identity: int
     signature: bytes
 
     def __reduce_ex__(self, protocol: int) -> Any:
@@ -165,6 +167,7 @@ class _CacheReuseOwner:
         self._owner_id = secrets.token_hex(16)
         self._secret = secrets.token_bytes(32)
         self._registrations: dict[str, _CacheFlightRegistration] = {}
+        self._registration_handles: dict[str, _CacheFlightRegistration] = {}
         self._outcomes: dict[str, _CacheFlightOutcome] = {}
         self._published: dict[tuple[str, str], str] = {}
 
@@ -181,18 +184,19 @@ class _CacheReuseOwner:
             self._owner_id, tuple(scope_key), request_digest, attempt_id
         )
         self._registrations[attempt_id] = registration
+        self._registration_handles[attempt_id] = registration
         return registration
 
     def bind_request_key(self, registration: _CacheFlightRegistration, cache_key: str) -> None:
         self._replace_registration(registration, cache_key=cache_key)
 
     def dispatch(self, registration: _CacheFlightRegistration, attempt_id: str) -> None:
+        current = self._registered_registration(registration)
         if registration.attempt_id != attempt_id:
             raise ValueError("cache dispatch must be bound to its registered attempt")
-        current = self._registrations.get(attempt_id)
-        if current is None or current.cache_key is None:
+        if current.cache_key is None:
             raise ValueError("cache dispatch must bind its exact request key")
-        self._replace_registration(current, role="producer")
+        self._replace_registration(registration, role="producer")
 
     def join(
         self,
@@ -202,17 +206,16 @@ class _CacheReuseOwner:
         cache_key: str,
         attempt_id: str,
     ) -> None:
-        current = self._registrations.get(attempt_id)
+        current = self._registered_registration(registration)
         if (
-            current is None
-            or current.owner_id != self._owner_id
+            current.owner_id != self._owner_id
             or current.scope_key != tuple(scope_key)
             or current.request_digest != request_digest
             or current.cache_key != cache_key
             or current.attempt_id != attempt_id
         ):
             raise ValueError("cache receiver does not match the registered producer request")
-        self._replace_registration(current, role="receiver")
+        self._replace_registration(registration, role="receiver")
 
     def settle_flight(
         self,
@@ -224,15 +227,18 @@ class _CacheReuseOwner:
         terminal: Literal["success", "error", "deadline", "cancelled"],
         origin_event_id: str | None = None,
     ) -> _CacheFlightOutcome:
-        producer = self._registrations.get(producer_attempt_id)
+        producer_handle = self._registration_handles.get(producer_attempt_id)
+        producer = (
+            self._registered_registration(producer_handle) if producer_handle is not None else None
+        )
         if producer is None or producer.role != "producer":
             raise ValueError("cache flight has no registered dispatched producer")
         if producer.cache_key != cache_key or producer.request_digest != request_digest:
             raise ValueError("cache flight producer binding disagrees with outcome")
         receivers: list[str] = []
         for item in registrations:
-            current = self._registrations.get(item.attempt_id)
-            if current is None or current.scope_key != producer.scope_key:
+            current = self._registered_registration(item)
+            if current.scope_key != producer.scope_key:
                 continue
             if (
                 current.request_digest == request_digest
@@ -249,6 +255,7 @@ class _CacheReuseOwner:
             tuple(sorted(set(receivers))),
             "producer",
             terminal,
+            origin_event_id=origin_event_id if terminal == "success" else None,
         )
         self._outcomes[producer_attempt_id] = outcome
         if terminal == "success" and origin_event_id:
@@ -256,16 +263,23 @@ class _CacheReuseOwner:
         return outcome
 
     def registered_outcome(self, outcome: _CacheFlightOutcome) -> bool:
+        if type(outcome) is not _CacheFlightOutcome:
+            return False
+        try:
+            producer_attempt_id = outcome.producer_attempt_id
+        except AttributeError:
+            return False
+        if self._outcomes.get(producer_attempt_id) is not outcome:
+            return False
         if outcome.owner_id != self._owner_id:
             return False
-        producer = self._registrations.get(outcome.producer_attempt_id)
+        producer = self._registrations.get(producer_attempt_id)
         if (
             producer is None
             or producer.role != "producer"
             or producer.scope_key != outcome.scope_key
             or producer.request_digest != outcome.request_digest
             or producer.cache_key != outcome.cache_key
-            or self._outcomes.get(outcome.producer_attempt_id) != outcome
         ):
             return False
         return all(
@@ -284,25 +298,48 @@ class _CacheReuseOwner:
         reuse_event_id: str | None = None,
         origin_event_id: str | None = None,
         outcome: _CacheFlightOutcome | None = None,
+        *,
+        response_identity: int,
     ) -> _CacheReuseProvenance:
         reuse_id = reuse_event_id or secrets.token_hex(16)
-        origin_id = origin_event_id or reuse_id
         if outcome is not None:
             if not self.registered_outcome(outcome) or outcome.terminal != "success":
                 raise ValueError("cache reuse requires the exact successful registered flight")
             if (outcome.cache_key, outcome.request_digest) != (cache_key, request_digest):
                 raise ValueError("cache reuse request does not match its settled flight")
-        elif self._published.get((cache_key, request_digest)) != origin_id:
-            raise ValueError("cache reuse has no retained successful producer event")
-        signature = self._signature(cache_key, request_digest, reuse_id, origin_id)
+            origin_id = outcome.origin_event_id
+            if not origin_id or origin_event_id != origin_id:
+                raise ValueError("cache reuse origin does not match its settled flight")
+        else:
+            origin_id = self._published.get((cache_key, request_digest))
+            if not origin_id or origin_event_id != origin_id:
+                raise ValueError("cache reuse has no matching retained successful producer event")
+        signature = self._signature(
+            cache_key, request_digest, reuse_id, origin_id, response_identity
+        )
         return _CacheReuseProvenance(
-            self._owner_id, cache_key, request_digest, reuse_id, origin_id, signature
+            self._owner_id,
+            cache_key,
+            request_digest,
+            reuse_id,
+            origin_id,
+            response_identity,
+            signature,
         )
 
     def verify_provenance(self, provenance: Any) -> bool:
-        if not isinstance(provenance, _CacheReuseProvenance):
+        if type(provenance) is not _CacheReuseProvenance:
             return False
-        if provenance.owner_id != self._owner_id:
+        if (
+            type(provenance.owner_id) is not str
+            or provenance.owner_id != self._owner_id
+            or type(provenance.cache_key) is not str
+            or type(provenance.request_digest) is not str
+            or type(provenance.reuse_event_id) is not str
+            or type(provenance.origin_event_id) is not str
+            or type(provenance.response_identity) is not int
+            or type(provenance.signature) is not bytes
+        ):
             return False
         return hmac.compare_digest(
             provenance.signature,
@@ -311,19 +348,39 @@ class _CacheReuseOwner:
                 provenance.request_digest,
                 provenance.reuse_event_id,
                 provenance.origin_event_id,
+                provenance.response_identity,
             ),
         )
 
     def _signature(
-        self, cache_key: str, request_digest: str, reuse_event_id: str, origin_event_id: str = ""
+        self,
+        cache_key: str,
+        request_digest: str,
+        reuse_event_id: str,
+        origin_event_id: str,
+        response_identity: int,
     ) -> bytes:
         body = "\0".join(
-            (self._owner_id, cache_key, request_digest, reuse_event_id, origin_event_id)
+            (
+                self._owner_id,
+                cache_key,
+                request_digest,
+                reuse_event_id,
+                origin_event_id,
+                str(response_identity),
+            )
         ).encode()
         return hmac.new(self._secret, body, hashlib.sha256).digest()
 
-    def _replace_registration(self, registration: _CacheFlightRegistration, **changes: Any) -> None:
-        current = self._registrations.get(registration.attempt_id)
+    def _registered_registration(
+        self, registration: _CacheFlightRegistration
+    ) -> _CacheFlightRegistration:
+        if type(registration) is not _CacheFlightRegistration:
+            raise ValueError("cache flight registration is stale or foreign")
+        attempt_id = registration.attempt_id
+        if self._registration_handles.get(attempt_id) is not registration:
+            raise ValueError("cache flight registration is stale or foreign")
+        current = self._registrations.get(attempt_id)
         if current is None or (
             current.owner_id,
             current.scope_key,
@@ -336,6 +393,10 @@ class _CacheReuseOwner:
             registration.attempt_id,
         ):
             raise ValueError("cache flight registration is stale or foreign")
+        return current
+
+    def _replace_registration(self, registration: _CacheFlightRegistration, **changes: Any) -> None:
+        current = self._registered_registration(registration)
         self._registrations[registration.attempt_id] = replace(current, **changes)
 
 

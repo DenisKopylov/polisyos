@@ -19,6 +19,10 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   reuse, and unknown amounts. Missing or malformed cost is never imputed to zero.
 - **Settlement** - `LLMProducerSettlement` binds one producer payload to a local committed,
   unknown, or unmanaged acknowledgment. This does not assert external billing authority.
+- **Cache settlement session** - `polisyos.core.llm.cache_settlement` owns opaque cache-flight
+  and response-bound reuse capabilities. Scientist reports flight facts through typed handles;
+  Core keeps the per-client secret, HMAC, and verifier private. A cache marker alone never creates
+  admitted reuse.
 - **Retry wrapper** - `retry_async` forwards to the shared retry layer.
 
 ## Public API
@@ -27,6 +31,8 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 - `TracedLLMClient`
 - `LLMResponseData`
 - `extract_llm_response_data`
+- `polisyos.core.llm.cache_settlement` exact leaf: `CacheSettlementSession`, opaque handles, and
+  exact-client session lookup/creation.
 - `estimate_cost`
 - `estimate_cost_from_tokens`
 - `estimate_cost_from_text`

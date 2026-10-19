@@ -242,7 +242,111 @@ def test_journal_projection_reopens_full_attempt_denominator_and_cas_bytes() -> 
     assert tuple(row.request_sequence for row in projection.attempts) == (1, 10, 19, 27, 36)
 
 
-def test_derivation_projection_binds_one_recipe_two_consumers_and_cache_hit() -> None:
+def _copy_acceptance_case_cas_closure(
+    acceptance: AcceptanceCaseReceipt,
+    *,
+    destination_root: Path,
+) -> None:
+    """Copy the typed manifest-input closure into a writable test CAS.
+
+    The canonical CAS remains read-only. Each selected blob and manifest view is
+    validated against its content or profile identity before its exact bytes are
+    placed in the isolated fixture.
+    """
+    from polisyos.core.artifacts import ArtifactManifest, ManifestLifecycle
+
+    roots = (
+        acceptance.nominal_series_artifact_id,
+        acceptance.deflator_series_artifact_id,
+        acceptance.derived_artifact_id,
+        acceptance.certificate_artifact_id,
+    )
+    pending_refs = [(artifact_id, None) for artifact_id in roots]
+    visited_refs: set[tuple[str, str | None]] = set()
+    copied_members: set[Path] = set()
+
+    if destination_root.exists() or destination_root.is_symlink():
+        raise AssertionError("isolated acceptance CAS destination already exists")
+    destination_root.mkdir(parents=True)
+
+    while pending_refs:
+        artifact_id, profile_sha256 = pending_refs.pop()
+        identity = (artifact_id, profile_sha256)
+        if identity in visited_refs:
+            continue
+        visited_refs.add(identity)
+
+        if (
+            not isinstance(artifact_id, str)
+            or not artifact_id.startswith("sha256:")
+            or len(artifact_id) != 71
+            or any(character not in "0123456789abcdef" for character in artifact_id[7:])
+        ):
+            raise AssertionError("acceptance graph contains a non-canonical artifact ID")
+        digest = artifact_id.removeprefix("sha256:")
+        if profile_sha256 is not None and (
+            not isinstance(profile_sha256, str)
+            or not profile_sha256.startswith("sha256:")
+            or len(profile_sha256) != 71
+            or any(character not in "0123456789abcdef" for character in profile_sha256[7:])
+        ):
+            raise AssertionError("acceptance graph contains an invalid manifest profile ref")
+
+        relative_dir = Path("artifacts") / "sha256" / digest[:2] / digest[2:4]
+        blob_relative_path = relative_dir / f"{digest}.blob"
+        if profile_sha256 is None:
+            manifest_name = f"{digest}.manifest.json"
+        else:
+            manifest_name = f"{digest}.view.{profile_sha256.removeprefix('sha256:')}.manifest.json"
+        manifest_relative_path = relative_dir / manifest_name
+
+        blob_source = CAS_ROOT / blob_relative_path
+        manifest_source = CAS_ROOT / manifest_relative_path
+        for source_path, relative_path in (
+            (blob_source, blob_relative_path),
+            (manifest_source, manifest_relative_path),
+        ):
+            if source_path.is_symlink() or not source_path.is_file():
+                raise AssertionError(f"canonical acceptance CAS member is missing: {relative_path}")
+
+        blob_bytes = blob_source.read_bytes()
+        if hashlib.sha256(blob_bytes).hexdigest() != digest:
+            raise AssertionError(f"canonical acceptance blob digest does not match {artifact_id}")
+        manifest_bytes = manifest_source.read_bytes()
+        manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+        if (
+            str(manifest.artifact_id) != artifact_id
+            or manifest.byte_size != len(blob_bytes)
+            or manifest.integrity.sha256 != digest
+        ):
+            raise AssertionError(f"canonical acceptance manifest does not match {artifact_id}")
+        if (
+            profile_sha256 is not None
+            and ManifestLifecycle.profile_sha256(manifest) != profile_sha256
+        ):
+            raise AssertionError(f"canonical acceptance view does not match {profile_sha256}")
+
+        for relative_path, member_bytes in (
+            (blob_relative_path, blob_bytes),
+            (manifest_relative_path, manifest_bytes),
+        ):
+            destination_path = destination_root / relative_path
+            if relative_path not in copied_members:
+                destination_path.parent.mkdir(parents=True, exist_ok=True)
+                destination_path.write_bytes(member_bytes)
+                copied_members.add(relative_path)
+            if destination_path.is_symlink() or destination_path.read_bytes() != member_bytes:
+                raise AssertionError("isolated acceptance CAS copy changed member bytes")
+
+        pending_refs.extend(
+            (str(input_ref.artifact_id), input_ref.manifest_profile_sha256)
+            for input_ref in manifest.inputs
+        )
+
+
+def test_derivation_projection_binds_one_recipe_two_consumers_and_cache_hit(
+    tmp_path: Path,
+) -> None:
     from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
         derive_derivation_projection,
     )
@@ -250,8 +354,13 @@ def test_derivation_projection_binds_one_recipe_two_consumers_and_cache_hit() ->
     acceptance = AcceptanceCaseReceipt.model_validate_json(
         (POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_CASE).read_bytes()
     )
+    isolated_cas_root = tmp_path / "acceptance-cas"
+    _copy_acceptance_case_cas_closure(acceptance, destination_root=isolated_cas_root)
 
-    projection = derive_derivation_projection(acceptance=acceptance, cas_root=CAS_ROOT)
+    projection = derive_derivation_projection(
+        acceptance=acceptance,
+        cas_root=isolated_cas_root,
+    )
 
     assert projection.recipe_id.startswith("derivation-recipe:sha256:")
     assert projection.first_materialization_cache_hit is False

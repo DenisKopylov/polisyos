@@ -33,6 +33,7 @@ from polisyos.core.security.tenant_context import (
     get_current_tenant_id_or_none,
 )
 
+from .cache_settlement import CacheSettlementSession, session_for_cache_client
 from .protocols import LLMClientProtocol
 from .response import LLMResponseData, extract_llm_response_data
 from .settlement import (
@@ -42,7 +43,6 @@ from .settlement import (
     LLMSettlementAck,
     LLMSettlementIntegrityError,
     LLMSettlementOwnershipError,
-    _CacheReuseOwner,
 )
 
 if TYPE_CHECKING:
@@ -213,22 +213,21 @@ class TracedLLMClient:
         metrics: MetricsRegistry | Any | None = None,
         required_accounting: Callable[[dict[str, Any]], None] | None = None,
         prompt_mode: str = "auto",
-        cache_reuse_owner: Any | None = None,
+        cache_settlement_session: CacheSettlementSession | None = None,
         producer_settlement_store: Any | None = None,
         producer_budget_key: str = "run",
     ) -> None:
         if prompt_mode not in {"auto", "native", "user"}:
             raise ValueError("prompt_mode must be 'auto', 'native', or 'user'")
         self._client = client
-        if cache_reuse_owner is None:
-            inherited_owner = getattr(client, "_cache_reuse_owner", None)
-            if type(inherited_owner) is _CacheReuseOwner and inherited_owner.owns(client):
-                cache_reuse_owner = inherited_owner
-        if cache_reuse_owner is not None and (
-            type(cache_reuse_owner) is not _CacheReuseOwner or not cache_reuse_owner.owns(client)
+        if cache_settlement_session is None:
+            cache_settlement_session = session_for_cache_client(client)
+        if cache_settlement_session is not None and (
+            type(cache_settlement_session) is not CacheSettlementSession
+            or not cache_settlement_session.owns(client)
         ):
-            raise ValueError("cache reuse owner must own the exact wrapped producer client")
-        self._cache_reuse_owner = cache_reuse_owner
+            raise ValueError("cache settlement session must own the exact wrapped producer client")
+        self._cache_settlement_session = cache_settlement_session
         self._producer_settlement_store = producer_settlement_store
         self._producer_budget_key = producer_budget_key
         self._producer_intents_by_event: dict[str, Any] = {}
@@ -279,9 +278,9 @@ class TracedLLMClient:
         return current
 
     @property
-    def _accounting_flight_owner(self) -> Any | None:
-        """Expose only the owner capability bound to this exact client chain."""
-        return self._cache_reuse_owner
+    def _accounting_flight_owner(self) -> CacheSettlementSession | None:
+        """Expose only the opaque Core session bound to this exact client chain."""
+        return self._cache_settlement_session
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         """Forward gateway model preflight through the tracing wrapper."""
@@ -599,7 +598,7 @@ class TracedLLMClient:
             raise LLMSettlementIntegrityError("producer_settlement_owner_ack_mismatch")
         parsed = extract_llm_response_data(
             response,
-            cache_reuse_owner=route.owner._cache_reuse_owner,
+            cache_settlement_session=route.owner._cache_settlement_session,
         )
         response_digest = hashlib.sha256(parsed.content.encode("utf-8")).hexdigest()
         if settlement.event.response_digest != response_digest:
@@ -1207,7 +1206,7 @@ class TracedLLMClient:
                     span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                     return response
                 parsed = extract_llm_response_data(
-                    response, cache_reuse_owner=self._cache_reuse_owner
+                    response, cache_settlement_session=self._cache_settlement_session
                 )
                 provider = self._detect_provider()
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
@@ -1274,7 +1273,7 @@ class TracedLLMClient:
                     span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                     return response
                 parsed = extract_llm_response_data(
-                    response, cache_reuse_owner=self._cache_reuse_owner
+                    response, cache_settlement_session=self._cache_settlement_session
                 )
                 provider = self._detect_provider()
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
@@ -1350,7 +1349,7 @@ class TracedLLMClient:
                     span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
                     return response
                 parsed = extract_llm_response_data(
-                    response, cache_reuse_owner=self._cache_reuse_owner
+                    response, cache_settlement_session=self._cache_settlement_session
                 )
                 provider = self._detect_provider()
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))

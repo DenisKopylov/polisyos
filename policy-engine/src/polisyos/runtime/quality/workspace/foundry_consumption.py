@@ -21,6 +21,7 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_requirement import (
     PolicyGrammarConceptSpineRefs,  # Pydantic resolves this field at runtime.
     UniversalAuthorityProfile,  # Pydantic resolves this field at runtime.
@@ -82,11 +83,13 @@ class StagedFoundryInputSource:
     """Explicit source coordinates for replay by the existing intake owner.
 
     Coordinates carry no completed-stage or measurement authority assertion.
-    The source files must remain available for every current admission.
+    The source files must remain available for every current admission. Fresh
+    intake replay also requires an explicit profile-bound snapshot reference.
     """
 
     allowed_root: Path
     stage_manifests: tuple[tuple[str, Path], ...]
+    data_snapshot_ref: DataSnapshotRef | None = None
 
 
 @dataclass(frozen=True)
@@ -107,6 +110,17 @@ def _staged_source_paths(source: StagedFoundryInputSource | None) -> dict[str, P
         raise ValueError("foundry_staged_intake_source_verification_missing")
     if not isinstance(source.allowed_root, Path) or not isinstance(source.stage_manifests, tuple):
         raise ValueError("foundry_staged_intake_source_coordinates_invalid")
+    if source.data_snapshot_ref is None:
+        raise ValueError("foundry_staged_intake_source_data_snapshot_missing")
+    if not isinstance(source.data_snapshot_ref, DataSnapshotRef):
+        raise ValueError("foundry_staged_intake_source_data_snapshot_invalid")
+    if source.data_snapshot_ref.manifest_profile_sha256 is None:
+        raise ValueError("foundry_staged_intake_source_data_snapshot_profile_required")
+    if (
+        source.data_snapshot_ref.kind != DataSnapshot.ARTIFACT_KIND
+        or source.data_snapshot_ref.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
+    ):
+        raise ValueError("foundry_staged_intake_source_data_snapshot_invalid")
     paths: dict[str, Path] = {}
     for row in source.stage_manifests:
         if (
@@ -122,6 +136,130 @@ def _staged_source_paths(source: StagedFoundryInputSource | None) -> dict[str, P
             raise ValueError("foundry_staged_intake_source_duplicate")
         paths[stage] = path
     return paths
+
+
+def _reference_view_key(ref: core_artifacts.ArtifactRef) -> tuple[str, str, str, str | None]:
+    """Identify one exact CAS manifest view, including its selected profile."""
+    return core_artifacts.artifact_ref_identity_key(ref)
+
+
+def _seed_staged_data_snapshot_closure(
+    *,
+    source_store: ArtifactStore,
+    replay_store: ArtifactStore,
+    source_ref: DataSnapshotRef,
+    export_path: Path,
+) -> None:
+    """Copy one explicitly selected snapshot and its verified CAS closure."""
+    from .scientist_node_adapters import (
+        AdapterArtifactByteBinding,
+        _read_binding,
+        _reference_closure,
+    )
+
+    if source_ref.manifest_profile_sha256 is None:
+        raise ValueError("foundry_staged_intake_source_data_snapshot_profile_required")
+    if not isinstance(source_store, core_artifacts.FileSystemCAS) or not isinstance(
+        replay_store, core_artifacts.FileSystemCAS
+    ):
+        raise ValueError("foundry_staged_intake_snapshot_transfer_unavailable")
+    _, source_raw, source_manifest = _read_binding(
+        source_store,
+        source_ref,
+        "staged_data_snapshot_source",
+        require_profiled_json=True,
+    )
+    expected_schema = SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    if (
+        source_manifest.kind != DataSnapshot.ARTIFACT_KIND
+        or source_manifest.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
+        or source_manifest.artifact_schema != expected_schema
+    ):
+        raise ValueError("foundry_staged_intake_source_data_snapshot_identity_mismatch")
+    DataSnapshot.model_validate_json(source_raw)
+
+    source_closure = _reference_closure(source_store, source_ref, "staged_data_snapshot_source")
+    source_by_view: dict[tuple[str, str, str, str | None], AdapterArtifactByteBinding] = {}
+    source_resolved_by_selector: dict[
+        tuple[str, str, str, str | None], tuple[str, str, str, str]
+    ] = {}
+    for binding in source_closure:
+        selector = _reference_view_key(binding.artifact_ref)
+        _, _, source_manifest = _read_binding(
+            source_store,
+            binding.artifact_ref,
+            "staged_data_snapshot_source_selector:" + str(selector),
+        )
+        resolved_profile = core_artifacts.artifact_manifest_profile_sha256(source_manifest)
+        if (
+            binding.artifact_ref.manifest_profile_sha256 is not None
+            and binding.artifact_ref.manifest_profile_sha256 != resolved_profile
+        ):
+            raise ValueError("foundry_staged_intake_source_selector_resolution_mismatch")
+        resolved_view = (selector[0], selector[1], selector[2], resolved_profile)
+        previous_view = source_resolved_by_selector.get(selector)
+        if previous_view is not None and previous_view != resolved_view:
+            raise ValueError("foundry_staged_intake_source_selector_resolution_changed")
+        source_by_view.setdefault(selector, binding)
+        source_resolved_by_selector[selector] = resolved_view
+    source_selector_views = set(source_by_view)
+    expected_resolved_views = set(source_resolved_by_selector.values())
+    root_selector = _reference_view_key(source_ref)
+    if root_selector not in source_by_view:
+        raise ValueError("foundry_staged_intake_source_data_snapshot_closure_incomplete")
+    expected_artifact_ids = {view[0] for view in source_by_view}
+    export = source_store.export_subgraph(
+        [binding.artifact_ref for binding in source_closure],
+        export_path,
+    )
+    if (
+        export.missing_artifacts
+        or export.missing_manifests
+        or export.exported_artifacts != len(expected_artifact_ids)
+    ):
+        raise ValueError("foundry_staged_intake_snapshot_export_incomplete")
+    imported = replay_store.import_subgraph(export.output_path, verify_integrity=True)
+    imported_selector_views = {_reference_view_key(ref) for ref in imported.imported_refs}
+    verified_views = {_reference_view_key(ref) for ref in imported.integrity_verified_refs}
+    if (
+        not imported.integrity_verification_requested
+        or imported.verification_failed
+        or imported.skipped_entries
+        or set(imported.received_artifact_ids) != expected_artifact_ids
+        or imported_selector_views != source_selector_views
+        or verified_views != expected_resolved_views
+    ):
+        raise ValueError("foundry_staged_intake_snapshot_import_incomplete")
+
+    replay_closure = _reference_closure(replay_store, source_ref, "staged_data_snapshot_replay")
+    replay_by_view = {
+        _reference_view_key(binding.artifact_ref): binding for binding in replay_closure
+    }
+    if set(replay_by_view) != source_selector_views:
+        raise ValueError("foundry_staged_intake_snapshot_replay_closure_mismatch")
+    for selector, source_binding in source_by_view.items():
+        _, source_bytes, source_manifest = _read_binding(
+            source_store,
+            source_binding.artifact_ref,
+            "staged_data_snapshot_source:" + str(selector),
+        )
+        replay_binding = replay_by_view[selector]
+        _, replay_bytes, replay_manifest = _read_binding(
+            replay_store,
+            replay_binding.artifact_ref,
+            "staged_data_snapshot_replay:" + str(selector),
+        )
+        replay_resolved_profile = core_artifacts.artifact_manifest_profile_sha256(replay_manifest)
+        replay_resolved_view = (selector[0], selector[1], selector[2], replay_resolved_profile)
+        if replay_resolved_view != source_resolved_by_selector[selector]:
+            raise ValueError("foundry_staged_intake_snapshot_replay_profile_mismatch")
+        if source_bytes != replay_bytes or source_manifest.model_dump(
+            mode="json", exclude={"created_at"}
+        ) != replay_manifest.model_dump(mode="json", exclude={"created_at"}):
+            raise ValueError("foundry_staged_intake_snapshot_replay_content_mismatch")
 
 
 def verify_staged_foundry_input_state(
@@ -150,6 +288,15 @@ def verify_staged_foundry_input_state(
                 root=str(Path(temporary) / "cas"),
             ),
         )
+        source_snapshot_ref = source.data_snapshot_ref
+        if not isinstance(source_snapshot_ref, DataSnapshotRef):
+            raise ValueError("foundry_staged_intake_source_data_snapshot_missing")
+        _seed_staged_data_snapshot_closure(
+            source_store=store,
+            replay_store=replay_store,
+            source_ref=source_snapshot_ref,
+            export_path=Path(temporary) / "selected-data-snapshot.tar.gz",
+        )
         replay = load_ukraine_foundry_intake(
             replay_store,
             stage_manifests=paths,
@@ -157,6 +304,8 @@ def verify_staged_foundry_input_state(
         )
         if set(paths) != set(replay.stage_receipt_refs):
             raise ValueError("foundry_staged_intake_source_scope_mismatch")
+        if replay.data_snapshot_ref != source_snapshot_ref:
+            raise ValueError("foundry_staged_intake_source_data_snapshot_mismatch")
         expected_refs = {
             "ukraine_foundry_method_input_bundle_ref": replay.method_input_bundle_ref,
             "ukraine_foundry_intake_receipt_ref": replay.receipt_ref,
@@ -192,27 +341,27 @@ def verify_staged_foundry_input_state(
 
         expected_closure = _reference_closure(replay_store, expected_refs, "owner_replay")
         actual_closure = _reference_closure(store, supplied_refs, "supplied")
-        expected_by_id = {str(row.artifact_ref.artifact_id): row for row in expected_closure}
-        actual_by_id = {str(row.artifact_ref.artifact_id): row for row in actual_closure}
-        if set(actual_by_id) != set(expected_by_id):
+        expected_by_view = {_reference_view_key(row.artifact_ref): row for row in expected_closure}
+        actual_by_view = {_reference_view_key(row.artifact_ref): row for row in actual_closure}
+        if set(actual_by_view) != set(expected_by_view):
             raise ValueError("foundry_staged_intake_complete_lineage_mismatch")
-        for identity, expected_binding in expected_by_id.items():
+        for identity, expected_binding in expected_by_view.items():
             _, expected_raw, expected_manifest = _read_binding(
                 replay_store,
                 expected_binding.artifact_ref,
-                "owner_replay:" + identity,
+                "owner_replay:" + str(identity),
             )
             _, actual_raw, actual_manifest = _read_binding(
                 store,
-                actual_by_id[identity].artifact_ref,
-                "supplied:" + identity,
+                actual_by_view[identity].artifact_ref,
+                "supplied:" + str(identity),
             )
             # created_at is the CAS storage event, not the source stage time.
             # Source finished_at and every other content/manifest field stay bound.
             if actual_raw != expected_raw or actual_manifest.model_dump(
                 mode="json", exclude={"created_at"}
             ) != expected_manifest.model_dump(mode="json", exclude={"created_at"}):
-                raise ValueError("foundry_staged_intake_owner_content_mismatch:" + identity)
+                raise ValueError("foundry_staged_intake_owner_content_mismatch:" + str(identity))
 
 
 def install_verified_staged_foundry_inputs(
@@ -393,6 +542,9 @@ class FoundryMethodOutputConsumer:
                     InputRef(
                         artifact_id=result_binding.artifact_ref.artifact_id,
                         role="method_result",
+                        manifest_profile_sha256=(
+                            result_binding.artifact_ref.manifest_profile_sha256
+                        ),
                     )
                 ]
             ):
@@ -630,7 +782,11 @@ class FoundryMethodOutputConsumer:
                     version=FOUNDRY_CONSUMPTION_RULE_VERSION,
                 ),
                 inputs=[
-                    InputRef(artifact_id=ref["artifact_id"], role=role)
+                    InputRef(
+                        artifact_id=ref["artifact_id"],
+                        role=role,
+                        manifest_profile_sha256=ref.get("manifest_profile_sha256"),
+                    )
                     for role, refs in (
                         ("method_result", verified["record"]["consumed_method_output_refs"]),
                         ("method_evidence", verified["record"]["consumed_method_evidence_refs"]),

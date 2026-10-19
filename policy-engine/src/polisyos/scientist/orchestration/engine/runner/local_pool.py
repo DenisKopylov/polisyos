@@ -6,7 +6,7 @@ import asyncio
 import heapq
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from polisyos.scientist.orchestration.engine.runner.worker_pool import (
     NodeTask,
@@ -14,9 +14,20 @@ from polisyos.scientist.orchestration.engine.runner.worker_pool import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.run.worker_lifecycle import (
+        WorkerDispatchBinding,
+        WorkerLifecycleCapability,
+    )
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 _logger = logging.getLogger(__name__)
+
+
+class _ParentReceiptBinding(TypedDict):
+    """Typed admission handles kept with one accepted local dispatch."""
+
+    capability: WorkerLifecycleCapability
+    binding: WorkerDispatchBinding
 
 
 @dataclass(order=True)
@@ -28,7 +39,7 @@ class _QueuedSubmission:
     task: NodeTask = field(compare=False)
     future: asyncio.Future[bytes] = field(compare=False)
     parent_context: Any | None = field(compare=False, default=None)
-    receipt_payload: dict[str, Any] | None = field(compare=False, default=None)
+    receipt_payload: _ParentReceiptBinding | None = field(compare=False, default=None)
 
 
 class LocalWorkerPool:
@@ -83,7 +94,7 @@ class LocalWorkerPool:
         task: NodeTask,
         *,
         parent_context: Any | None,
-        receipt_payload: dict[str, Any] | None,
+        receipt_payload: _ParentReceiptBinding | None,
     ) -> asyncio.Future[bytes]:
         if self._shutdown:
             raise RuntimeError("Pool is shut down")
@@ -109,7 +120,7 @@ class LocalWorkerPool:
         future: asyncio.Future[bytes],
         *,
         parent_context: Any | None,
-        receipt_payload: dict[str, Any] | None,
+        receipt_payload: _ParentReceiptBinding | None,
     ) -> None:
         submission = _QueuedSubmission(
             sort_priority=-int(task.priority),
@@ -235,10 +246,13 @@ class LocalWorkerPool:
         await asyncio.gather(*list(self._runner_tasks), return_exceptions=True)
 
 
-def _prepare_parent_receipt(task: NodeTask, parent_context: Any) -> dict[str, Any]:
+def _prepare_parent_receipt(
+    task: NodeTask,
+    parent_context: Any,
+) -> _ParentReceiptBinding:
     """Validate and freeze the exact local worker dispatch against its parent."""
-    from polisyos.core.artifacts import ArtifactRef
     from polisyos.core.run.context import RunContext
+    from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.runner.serialization import (
         deserialize_state,
@@ -253,20 +267,17 @@ def _prepare_parent_receipt(task: NodeTask, parent_context: Any) -> dict[str, An
     if type(task.context_meta) is not dict:
         raise ValueError("worker_task_parent_receipt_context_invalid")
     run = parent_context.run
-    if (
-        type(run) is not RunContext
-        or run._active_lease is None
-        or run._closed
-        or run._suspended
-        or run._trace_path is None
-        or run._owner_snapshot_ref is None
-    ):
+    if type(run) is not RunContext:
+        raise ValueError("worker_task_parent_run_not_active")
+    capability = WorkerLifecycleCapability.for_parent(run)
+    snapshot = capability.snapshot()
+    if snapshot.trace_path is None:
         raise ValueError("worker_task_parent_run_not_active")
     try:
         state = deserialize_state(task.state_bytes)
     except (TypeError, ValueError) as exc:
         raise ValueError("worker_task_parent_receipt_state_invalid") from exc
-    if state.run_id != run.run_manifest.run_id:
+    if state.run_id != snapshot.run_id:
         raise ValueError("worker_task_parent_run_id_mismatch")
     try:
         expected_context = serialize_timeout_context(
@@ -294,14 +305,13 @@ def _prepare_parent_receipt(task: NodeTask, parent_context: Any) -> dict[str, An
         or task.worker_dispatch_sha256 != expected_dispatch
     ):
         raise ValueError("worker_task_parent_dispatch_binding_invalid")
-    if type(run._owner_snapshot_ref) is not ArtifactRef:
-        raise ValueError("worker_task_parent_owner_snapshot_invalid")
-    run._validate_timeout_worker_owner_binding()
+    binding = capability.bind_dispatch(
+        invocation_id=task.worker_invocation_id,
+        dispatch_sha256=expected_dispatch,
+    )
     return {
-        "invocation_id": task.worker_invocation_id,
-        "dispatch_sha256": expected_dispatch,
-        "owner_snapshot_ref": run._owner_snapshot_ref,
-        "run_id": state.run_id,
+        "capability": capability,
+        "binding": binding,
     }
 
 
@@ -309,7 +319,7 @@ async def _run_parent_receipt_task(
     payload: dict[str, Any],
     *,
     parent_context: Any,
-    receipt_payload: dict[str, Any],
+    receipt_payload: _ParentReceiptBinding,
 ) -> bytes:
     """Run one staged task and admit its returned events through the parent writer."""
     from polisyos.scientist.orchestration.engine.retry import (
@@ -320,18 +330,18 @@ async def _run_parent_receipt_task(
     )
     from polisyos.scientist.orchestration.engine.runner.serialization import serialize_outcome
 
+    binding = receipt_payload["binding"]
     payload = {
         **payload,
-        "worker_invocation_id": receipt_payload["invocation_id"],
-        "worker_dispatch_sha256": receipt_payload["dispatch_sha256"],
+        "worker_invocation_id": binding.invocation_id,
+        "worker_dispatch_sha256": binding.dispatch_sha256,
     }
     worker_receipt = await run_node_in_worker(payload, parent_receipt=True)
     outcome = _admit_worker_execution_receipt(
         parent_context,
         worker_receipt,
-        invocation_id=receipt_payload["invocation_id"],
-        expected_dispatch=receipt_payload["dispatch_sha256"],
-        owner_snapshot_ref=receipt_payload["owner_snapshot_ref"],
-        expected_run_id=receipt_payload["run_id"],
+        capability=receipt_payload["capability"],
+        binding=binding,
+        expected_run_id=binding.run_id,
     )
     return serialize_outcome(outcome)

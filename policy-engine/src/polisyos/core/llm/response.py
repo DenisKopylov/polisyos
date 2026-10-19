@@ -8,7 +8,8 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Any, Literal
 
-from .settlement import LLMSettledResponse, _CacheReuseOwner
+from .cache_settlement import CacheSettlementSession
+from .settlement import LLMSettledResponse
 
 LLMUsageStatus = Literal["known", "missing", "invalid"]
 
@@ -52,7 +53,9 @@ class LLMResponseData:
         )
 
 
-def extract_llm_response_data(response: Any, *, cache_reuse_owner: Any = None) -> LLMResponseData:
+def extract_llm_response_data(
+    response: Any, *, cache_settlement_session: CacheSettlementSession | None = None
+) -> LLMResponseData:
     """Extract usage without converting absent, malformed, or negative data to zero."""
     settlement = response.settlement if type(response) is LLMSettledResponse else None
     if settlement is not None:
@@ -64,7 +67,7 @@ def extract_llm_response_data(response: Any, *, cache_reuse_owner: Any = None) -
         cache_key,
         origin_event_id,
         reuse_request_digest,
-    ) = _extract_cache_provenance(response, owner=cache_reuse_owner)
+    ) = _extract_cache_provenance(response, session=cache_settlement_session)
     content = response.content if hasattr(response, "content") else str(response)
     usage = _get(response, "usage")
     payload = response
@@ -137,21 +140,21 @@ def extract_llm_response_data(response: Any, *, cache_reuse_owner: Any = None) -
 
 
 def _extract_cache_provenance(
-    response: Any, *, owner: Any = None
+    response: Any, *, session: CacheSettlementSession | None = None
 ) -> tuple[bool, str | None, str | None, str | None, str | None]:
-    """Accept reuse only from an owner-verified in-process provenance object."""
-    provenance = getattr(response, "_polisyos_reuse_provenance", None)
-    if type(owner) is not _CacheReuseOwner or provenance is None:
+    """Accept reuse only after the Core session verifies its exact response proof."""
+    attestation = getattr(response, "_polisyos_reuse_provenance", None)
+    if type(session) is not CacheSettlementSession or attestation is None:
         return False, None, None, None, None
-    verify = getattr(owner, "verify_provenance", None)
-    if not callable(verify) or not verify(provenance):
+    evidence = session.verify_reuse_attestation(attestation, response)
+    if evidence is None:
         return False, None, None, None, None
     return (
         True,
-        _as_str(getattr(provenance, "reuse_event_id", None)),
-        _as_str(getattr(provenance, "cache_key", None)),
-        _as_str(getattr(provenance, "origin_event_id", None)),
-        _as_str(getattr(provenance, "request_digest", None)),
+        evidence.reuse_event_id,
+        evidence.cache_key,
+        evidence.origin_event_id,
+        evidence.request_digest,
     )
 
 

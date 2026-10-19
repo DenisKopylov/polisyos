@@ -487,8 +487,16 @@ Workspace ownership:
   governance nodes for normative arbitration plus the phase-5 judge gate.
 - `workspace/foundry_consumption.py` owns the Phase-2 ESTIMATE/SIMULATE bridge: consumed Foundry
   method outputs, persisted `MethodOutputConsumptionRecord`s, and
-  `ConstraintStore` ingestion/consumption. Do not split constraints into a
-  parallel Phase-2 sidecar.
+  `ConstraintStore` ingestion/consumption. Selected manifest profiles remain
+  part of method-result/evidence joins and persisted consumption edges. A staged
+  fresh-CAS intake replay requires an explicit profile-bound `DataSnapshotRef`
+  and transfers only its byte-verified CAS closure. Original profileless parent
+  selectors remain profileless in the source/import selector graph; replay compares
+  the integrity-verified canonical profile derived from each resolved source manifest
+  and refuses a different selected view. This readback derivation does not rewrite a
+  producer reference or add upstream measurement authority. Stage coordinates and
+  snapshot refs remain candidate inputs, not measurement-authority attestations.
+  Do not split constraints into a parallel Phase-2 sidecar.
 - `workspace/agent_proposal_bridge.py` is a thin GY projection over `proving_ground/bounded_request_agent.py` and the
   existing knowledge-tool/tool-loop homes. Agent outputs remain Ring-1
   candidate-only; VOI/usefulness scores pass through GY-H normalization.

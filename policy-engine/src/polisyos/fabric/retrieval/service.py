@@ -9,12 +9,16 @@ import re
 import threading
 import time
 from collections import OrderedDict
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping, Sequence
+from contextvars import ContextVar
+from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
+from urllib.parse import urlparse
 
 from polisyos.common.logger import get_logger
+from polisyos.core import canon
 from polisyos.core.contracts.control import (
     DataContext,
     DataNeed,
@@ -30,6 +34,7 @@ from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
+from polisyos.fabric.connectors.base import _safe_local_path
 
 from .executor import ExecutePlanResult, FetchExecutor
 from .explore_lane import (
@@ -40,8 +45,6 @@ from .explore_lane import (
 from .providers import RetrievalProviders, resolve_retrieval_providers
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-
     from polisyos.core.artifacts import ArtifactStore, ArtifactStoreConfig
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.data_forge.read_api.catalog import (
@@ -88,6 +91,186 @@ class ExecuteOutcome:
     previews: list[ExecutePlanResult]
     promoted_count: int
     fallback_triggered_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class FetchCaptureLocatorView:
+    """Transient locator classification for the bounded local capture policy.
+
+    Local paths are exposed only to the callback for root checks and are omitted
+    from ``repr``. Remote authorities, query strings, fragments, and raw config
+    values are never copied into this view.
+    """
+
+    present: bool
+    is_text: bool
+    classification: Literal["missing", "malformed", "local", "remote", "nonlocal"]
+    local_path: str | None = field(default=None, repr=False)
+
+
+@dataclass(frozen=True, slots=True)
+class FetchCapturePreflightView:
+    """Minimal owner snapshot supplied to one persisted-capture preflight.
+
+    The view contains plan, catalog-binding, and captured config digests,
+    connector types, and classified locator inputs. ``local_path`` fields
+    are transient inputs for a root-bound policy check; callbacks must not
+    persist or log them. Captured fingerprints describe the immutable config
+    used for this operation, not the live profile registry or source
+    currentness.
+    """
+
+    plan_id: str
+    metric_id: str
+    connector_id: str
+    profile_id: str | None
+    plan_fingerprint: str
+    catalog_binding_fingerprint: str
+    effective_config_fingerprint: str
+    source_profile_fingerprint: str | None
+    target_distribution_id: str
+    target_connector_id: str
+    target_profile_id: str | None
+    connector_params_mappable: bool
+    connector_param_locators: tuple[tuple[str, FetchCaptureLocatorView], ...]
+    effective_locator: FetchCaptureLocatorView
+    connector_class: type[object] | None
+    connector_instance_class: type[object] | None
+
+
+@dataclass(frozen=True, slots=True)
+class FetchCaptureArtifactReferenceView:
+    """Scalar artifact-reference identity without a mutable CAS model object."""
+
+    artifact_id: str
+    kind: str
+    media_type: str
+    manifest_profile_sha256: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class FetchCaptureMetricView:
+    """Metric summary and CAS references for one actual persisted fetch."""
+
+    plan_id: str
+    metric_id: str
+    row_count: int
+    completeness: float
+    source_lane: str
+    payload_ref: FetchCaptureArtifactReferenceView | None
+    fetch_receipt_ref: FetchCaptureArtifactReferenceView | None
+
+
+@dataclass(frozen=True, slots=True)
+class FetchCapturePostflightView:
+    """Postflight projection with captured config digests and artifact refs.
+
+    Sample rows and payload content are excluded. The config fingerprints let
+    callbacks compare the operation's preflight and postflight snapshots; they
+    do not establish live profile currentness.
+    """
+
+    plan_fingerprint: str
+    effective_config_fingerprint: str
+    source_profile_fingerprint: str | None
+    metrics: tuple[FetchCaptureMetricView, ...]
+
+
+def _capture_locator_view(value: object, *, present: bool = True) -> FetchCaptureLocatorView:
+    """Classify a locator without retaining remote authority or raw config text."""
+    if not present:
+        return FetchCaptureLocatorView(
+            present=False,
+            is_text=False,
+            classification="missing",
+        )
+    if not isinstance(value, str):
+        return FetchCaptureLocatorView(
+            present=True,
+            is_text=False,
+            classification="malformed",
+        )
+    if not value:
+        return FetchCaptureLocatorView(
+            present=True,
+            is_text=True,
+            classification="malformed",
+        )
+    try:
+        parsed = urlparse(value)
+    except ValueError:
+        return FetchCaptureLocatorView(
+            present=True,
+            is_text=True,
+            classification="malformed",
+        )
+    scheme = parsed.scheme.lower()
+    if scheme in {"http", "https"}:
+        return FetchCaptureLocatorView(
+            present=True,
+            is_text=True,
+            classification="remote",
+        )
+    if (scheme and scheme != "file") or parsed.netloc:
+        return FetchCaptureLocatorView(
+            present=True,
+            is_text=True,
+            classification="nonlocal",
+        )
+    try:
+        # Use the exact lexical path projection consumed by the registered
+        # file connector; do not trim or expand shell-home syntax here.
+        local_path = str(_safe_local_path(value, scheme=scheme))
+    except ValueError:
+        return FetchCaptureLocatorView(
+            present=True,
+            is_text=True,
+            classification="malformed",
+        )
+    return FetchCaptureLocatorView(
+        present=True,
+        is_text=True,
+        classification="local",
+        local_path=local_path,
+    )
+
+
+def _capture_binding_fingerprint(binding: object) -> str:
+    """Return a non-reversible identity digest for one typed catalog binding."""
+    model_dump = getattr(binding, "model_dump", None)
+    if not callable(model_dump):
+        raise ValueError("fabric_fetch_capture_catalog_binding_missing")
+    return canon.fingerprint(
+        model_dump(mode="json"),
+        prefix=True,
+        canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+
+
+def _capture_artifact_reference_view(
+    value: object | None,
+) -> FetchCaptureArtifactReferenceView | None:
+    """Copy only typed CAS reference scalars into a callback view."""
+    if value is None:
+        return None
+    artifact_id = getattr(value, "artifact_id", None)
+    kind = getattr(value, "kind", None)
+    media_type = getattr(value, "media_type", None)
+    profile = getattr(value, "manifest_profile_sha256", None)
+    if artifact_id is None:
+        raise ValueError("fabric_fetch_capture_ref_metadata_mismatch")
+    if (
+        not isinstance(kind, str)
+        or not isinstance(media_type, str)
+        or (profile is not None and not isinstance(profile, str))
+    ):
+        raise ValueError("fabric_fetch_capture_ref_metadata_mismatch")
+    return FetchCaptureArtifactReferenceView(
+        artifact_id=str(artifact_id),
+        kind=kind,
+        media_type=media_type,
+        manifest_profile_sha256=profile,
+    )
 
 
 def _flag(name: str, *, default: bool) -> bool:
@@ -270,6 +453,9 @@ class RetrievalService:
         self._max_local_index_docs = max(1, max_local_index_docs)
         self._max_promotion_candidates = max(1, max_promotion_candidates)
         self._state_lock = threading.RLock()
+        self._capture_deferred_promotions: ContextVar[list[tuple[FetchPlan, float]] | None] = (
+            ContextVar(f"fabric-capture-promotions-{id(self)}", default=None)
+        )
 
     @property
     def artifact_store(self) -> ArtifactStore | None:
@@ -1003,10 +1189,14 @@ class RetrievalService:
                     fallback_triggered_count += 1
                 if outcome.metric is not None:
                     data_metrics.append(outcome.metric)
-                    promoted_count += self._emit_promotion_candidate(
-                        plan=outcome.used_plan,
-                        completeness=outcome.metric.completeness,
-                    )
+                    deferred_promotions = self._capture_deferred_promotions.get()
+                    if deferred_promotions is None:
+                        promoted_count += self._emit_promotion_candidate(
+                            plan=outcome.used_plan,
+                            completeness=outcome.metric.completeness,
+                        )
+                    else:
+                        deferred_promotions.append((outcome.used_plan, outcome.metric.completeness))
 
         with self._state_lock:
             index_docs_total = len(self._local_index_docs)
@@ -1031,6 +1221,198 @@ class RetrievalService:
                 status="success" if previews else "empty",
             )
         return execute_outcome
+
+    def execute_persisted_fetch_capture(
+        self,
+        plans: Sequence[FetchPlan],
+        *,
+        preflight: Callable[[FetchCapturePreflightView], None],
+        postflight: Callable[[FetchCapturePostflightView], None],
+    ) -> ExecuteOutcome:
+        """Execute one persisted fetch under owner-managed source and registry binding.
+
+        The callbacks receive scalar projections, not the raw catalog binding,
+        connector configuration, or mutable metric/ref objects. Config
+        fingerprints identify the one immutable effective config captured for
+        this operation; profile-registry updates do not reroute it or establish
+        live profile currentness. Callbacks may refuse by raising. A callback
+        return value is never accepted as an authorization result: callbacks
+        must return ``None``, after which this owner rechecks the original
+        plan, catalog bytes, captured config, store identity, and registration.
+
+        Args:
+            plans: The single resolved plan to execute and persist.
+            preflight: Runtime-owned route validation; raise to refuse before fetch.
+            postflight: Runtime-owned persisted-result validation; raise to refuse
+                returning the outcome.
+
+        Returns:
+            The existing execution outcome after both callbacks and owner rechecks.
+
+        Raises:
+            ValueError: If the plan, owner snapshots, callback result, execution
+                shape, or persisted references fail their checks.
+        """
+        if len(plans) != 1:
+            raise ValueError("fabric_fetch_capture_requires_one_plan")
+        if not callable(preflight) or not callable(postflight):
+            raise ValueError("fabric_fetch_capture_callback_missing")
+        try:
+            checked = FetchPlan.model_validate(plans[0].model_dump(mode="python"))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise ValueError("fabric_fetch_capture_plan_invalid") from exc
+
+        executor = self._executor
+        catalog = self._dataset_catalog
+        store = self._artifact_store
+        if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
+            raise ValueError("fabric_fetch_capture_catalog_owner_missing")
+        if store is None:
+            raise ValueError("fabric_fetch_capture_store_missing")
+        if executor.artifact_store is not store:
+            raise ValueError("fabric_fetch_capture_store_identity_mismatch")
+
+        binding = catalog.bind_fetch_target(
+            metric_id=checked.metric_id,
+            connector_id=checked.connector_id,
+            request_dataset_id=checked.dataset_id,
+            profile_id=checked.profile_id,
+            filters=checked.filters,
+        )
+        if binding is None:
+            raise ValueError("fabric_fetch_capture_catalog_binding_missing")
+        target = binding.target
+        if (
+            binding.metric_id != checked.metric_id
+            or binding.connector_id != checked.connector_id
+            or binding.request_dataset_id != checked.dataset_id
+            or binding.profile_id != checked.profile_id
+            or binding.requested_filters != checked.filters
+            or target.connector_id != checked.connector_id
+            or target.request_dataset_id != checked.dataset_id
+            or (target.profile_id or None) != checked.profile_id
+        ):
+            raise ValueError("fabric_fetch_capture_binding_plan_mismatch")
+        binding_fingerprint = _capture_binding_fingerprint(binding)
+        execution_binding = executor._bind_execution(checked)
+        executor._validate_execution_binding(checked, execution_binding)
+        registration = execution_binding.registration_binding
+        connector_params = target.connector_params
+        connector_params_mappable = isinstance(connector_params, Mapping)
+        connector_param_locators = tuple(
+            (name, _capture_locator_view(connector_params[name]))
+            for name in ("url", "path")
+            if connector_params_mappable and name in connector_params
+        )
+        instance = getattr(registration, "instance", None)
+        view = FetchCapturePreflightView(
+            plan_id=checked.plan_id,
+            metric_id=checked.metric_id,
+            connector_id=checked.connector_id,
+            profile_id=checked.profile_id,
+            plan_fingerprint=execution_binding.plan_fingerprint,
+            catalog_binding_fingerprint=binding_fingerprint,
+            effective_config_fingerprint=execution_binding.config_fingerprint,
+            source_profile_fingerprint=(
+                execution_binding.connection_config.source_profile_fingerprint
+            ),
+            target_distribution_id=target.distribution_id,
+            target_connector_id=target.connector_id,
+            target_profile_id=target.profile_id or None,
+            connector_params_mappable=connector_params_mappable,
+            connector_param_locators=connector_param_locators,
+            effective_locator=_capture_locator_view(execution_binding.connection_config.url),
+            connector_class=getattr(registration, "connector_class", None),
+            connector_instance_class=type(instance) if instance is not None else None,
+        )
+
+        def validate_captured_owner_state() -> None:
+            if (
+                self._executor is not executor
+                or self._dataset_catalog is not catalog
+                or self._artifact_store is not store
+                or executor.artifact_store is not store
+            ):
+                raise ValueError("fabric_fetch_capture_owner_identity_changed")
+            executor._validate_execution_binding(checked, execution_binding)
+            verified_binding = catalog.verify_fetch_binding(binding)
+            current_binding = catalog.bind_fetch_target(
+                metric_id=checked.metric_id,
+                connector_id=checked.connector_id,
+                request_dataset_id=checked.dataset_id,
+                profile_id=checked.profile_id,
+                filters=checked.filters,
+            )
+            if (
+                _capture_binding_fingerprint(verified_binding) != binding_fingerprint
+                or _capture_binding_fingerprint(current_binding) != binding_fingerprint
+            ):
+                raise ValueError("fabric_fetch_capture_catalog_binding_changed")
+
+        if preflight(view) is not None:
+            raise ValueError("fabric_fetch_capture_preflight_must_return_none")
+        validate_captured_owner_state()
+        deferred_promotions: list[tuple[FetchPlan, float]] = []
+        promotion_token = self._capture_deferred_promotions.set(deferred_promotions)
+        try:
+            outcome = self.execute_fetch_plans(
+                [checked.model_copy(deep=True)],
+                persist_payload=True,
+                allow_fallback=False,
+                execution_binding=execution_binding,
+            )
+        finally:
+            self._capture_deferred_promotions.reset(promotion_token)
+        if (
+            len(outcome.previews) != 1
+            or outcome.fallback_triggered_count != 0
+            or outcome.previews[0].fallback_used
+            or outcome.previews[0].used_plan != checked
+        ):
+            raise ValueError("fabric_fetch_capture_execution_shape_mismatch")
+        metrics = tuple(outcome.data_context.metrics)
+        if len(metrics) != 1:
+            raise ValueError("fabric_fetch_capture_plan_metric_cardinality_mismatch")
+        metric = metrics[0]
+        if (
+            metric.plan_id != checked.plan_id
+            or metric.metric_id != checked.metric_id
+            or metric.connector_id != checked.connector_id
+            or metric.dataset_id != checked.dataset_id
+        ):
+            raise ValueError("fabric_fetch_capture_plan_metric_identity_mismatch")
+        payload_ref = _capture_artifact_reference_view(metric.payload_ref)
+        receipt_ref = _capture_artifact_reference_view(metric.fetch_receipt_ref)
+        if payload_ref is None or receipt_ref is None:
+            raise ValueError("fabric_fetch_capture_refs_missing")
+        postflight_view = FetchCapturePostflightView(
+            plan_fingerprint=execution_binding.plan_fingerprint,
+            effective_config_fingerprint=execution_binding.config_fingerprint,
+            source_profile_fingerprint=(
+                execution_binding.connection_config.source_profile_fingerprint
+            ),
+            metrics=(
+                FetchCaptureMetricView(
+                    plan_id=metric.plan_id,
+                    metric_id=metric.metric_id,
+                    row_count=metric.row_count,
+                    completeness=metric.completeness,
+                    source_lane=str(metric.source_lane),
+                    payload_ref=payload_ref,
+                    fetch_receipt_ref=receipt_ref,
+                ),
+            ),
+        )
+        if postflight(postflight_view) is not None:
+            raise ValueError("fabric_fetch_capture_postflight_must_return_none")
+        validate_captured_owner_state()
+        promoted_count = sum(
+            self._emit_promotion_candidate(plan=plan, completeness=completeness)
+            for plan, completeness in deferred_promotions
+        )
+        if promoted_count:
+            outcome = replace(outcome, promoted_count=promoted_count)
+        return outcome
 
     def search_catalog(
         self,

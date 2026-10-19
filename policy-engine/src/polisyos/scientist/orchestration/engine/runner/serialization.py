@@ -20,7 +20,7 @@ import binascii
 import hashlib
 import math
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
@@ -206,32 +206,303 @@ def _escape_wire_mapping(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+@dataclass
+class _OutcomeWireContext:
+    """Per-call owner selection and plain state projection for outcome encoding."""
+
+    outcome: Any
+    state: Any
+    selected_journal: Any = None
+    root_owner: bool = False
+    legacy_journal: Any = None
+    tracked_journal: Any = None
+    tracked_conflict: bool = False
+    validation_values: dict[int, Any] = field(default_factory=dict)
+
+
+def _remember_validation_value(
+    value: Any,
+    projection: Any,
+    context: _OutcomeWireContext | None,
+) -> None:
+    if context is not None:
+        context.validation_values[id(value)] = projection
+
+
+def _record_wire_journal_owner(
+    context: _OutcomeWireContext,
+    value: Any,
+) -> None:
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        _wire_mutation_journal_owner,
+    )
+
+    journal, owner_kind = _wire_mutation_journal_owner(
+        value,
+        state_root=value is context.state,
+    )
+    if journal is None:
+        return
+    if owner_kind == "root":
+        context.selected_journal = journal
+        context.root_owner = True
+        return
+    if context.root_owner:
+        return
+    if owner_kind == "legacy":
+        if context.legacy_journal is None:
+            context.legacy_journal = journal
+            context.selected_journal = journal
+        return
+    if owner_kind == "tracked":
+        if context.legacy_journal is not None:
+            return
+        if context.tracked_journal is None:
+            context.tracked_journal = journal
+            context.selected_journal = journal
+        elif context.tracked_journal is not journal:
+            context.tracked_conflict = True
+
+
+def _wire_model_visit_order(value: BaseModel, model_type: type[BaseModel]) -> list[str]:
+    """Visit stored model fields in the legacy instance order, then defaults."""
+    try:
+        namespace = object.__getattribute__(value, "__dict__")
+    except AttributeError:
+        namespace = {}
+    fields = model_type.model_fields
+    if type(namespace) is dict:
+        stored_names = [name for name in namespace if name in fields]
+    else:
+        stored_names = []
+    stored = set(stored_names)
+    return stored_names + [name for name in fields if name not in stored]
+
+
 def _wire_model_payload(
     value: BaseModel,
     *,
     depth: int,
     seen: set[int],
+    model_type: type[BaseModel] | None = None,
+    journal_value_mode: bool = False,
+    artifact_ref_mapping: bool = False,
+    context: _OutcomeWireContext | None = None,
+    in_state_subtree: bool = False,
 ) -> Any:
-    """Convert one admitted Pydantic model without losing nested model values."""
-    model_type = type(value)
+    """Convert one admitted model using its canonical wire-field definition."""
+    model_type = model_type or type(value)
     if getattr(model_type, "__pydantic_root_model__", False):
-        return _encode_wire_value(value.model_dump(mode="python"), depth=depth + 1, seen=seen)
-
-    payload: dict[str, Any] = {}
-    for field_name, field_info in model_type.model_fields.items():
-        key = field_info.serialization_alias or field_info.alias or field_name
-        payload[key] = _encode_wire_value(
-            getattr(value, field_name),
+        root_value = value.root
+        encoded = _encode_wire_value(
+            root_value,
             depth=depth + 1,
             seen=seen,
+            journal_value_mode=journal_value_mode,
+            context=context,
+            in_state_subtree=in_state_subtree,
         )
+        _remember_validation_value(
+            value,
+            context.validation_values.get(id(root_value), root_value)
+            if context is not None
+            else root_value,
+            context,
+        )
+        return encoded
+
+    encoded_fields: dict[str, Any] = {}
+    validation_fields: dict[str, Any] = {}
+    mutation_wire_type = _wire_model_types().get(
+        "polisyos.scientist.orchestration.engine.state_branching.StateMutation"
+    )
+    is_journal_operation = journal_value_mode and model_type is mutation_wire_type
+    value_kind = getattr(value, "value_kind", None) if is_journal_operation else None
+    for field_name in _wire_model_visit_order(value, model_type):
+        field_info = model_type.model_fields[field_name]
+        key = field_info.serialization_alias or field_info.alias or field_name
+        field_value = getattr(value, field_name)
+        child_in_state = in_state_subtree or (
+            context is not None
+            and not in_state_subtree
+            and value is context.outcome
+            and field_name == "state"
+            and field_value is context.state
+        )
+        if artifact_ref_mapping and field_name == "manifest_profile_sha256" and field_value is None:
+            continue
+        if artifact_ref_mapping and field_name == "artifact_id":
+            encoded_fields[field_name] = _artifact_id_wire_text(
+                field_value,
+                depth=depth + 1,
+                seen=seen,
+                allow_plain_string=False,
+            )
+            continue
+        if is_journal_operation and field_name == "value" and value_kind == "artifact_ref":
+            encoded_fields[field_name] = _encode_artifact_ref_mutation_value(
+                field_value,
+                depth=depth + 1,
+                seen=seen,
+            )
+            continue
+        encoded_fields[field_name] = _encode_wire_value(
+            field_value,
+            depth=depth + 1,
+            seen=seen,
+            journal_value_mode=journal_value_mode,
+            context=context,
+            in_state_subtree=child_in_state,
+        )
+        if context is not None:
+            validation_fields[field_name] = context.validation_values.get(
+                id(field_value), field_value
+            )
+
+    payload: dict[str, Any] = {}
+    validation_payload: dict[str, Any] = {}
+    for field_name, field_info in model_type.model_fields.items():
+        key = field_info.serialization_alias or field_info.alias or field_name
+        if field_name in encoded_fields:
+            payload[key] = encoded_fields[field_name]
+            if context is not None and field_name in validation_fields:
+                validation_payload[key] = validation_fields[field_name]
     extra = getattr(value, "__pydantic_extra__", None)
     if isinstance(extra, Mapping):
         for key, item in extra.items():
             if not isinstance(key, str):
                 raise TypeError(f"Wire model extra keys must be str, got {type(key).__name__}")
             if key not in payload:
-                payload[key] = _encode_wire_value(item, depth=depth + 1, seen=seen)
+                payload[key] = _encode_wire_value(
+                    item,
+                    depth=depth + 1,
+                    seen=seen,
+                    journal_value_mode=journal_value_mode,
+                    context=context,
+                    in_state_subtree=in_state_subtree,
+                )
+                if context is not None:
+                    validation_payload[key] = context.validation_values.get(id(item), item)
+    if context is not None:
+        _remember_validation_value(value, validation_payload, context)
+    return payload if artifact_ref_mapping else _escape_wire_mapping(payload)
+
+
+def _artifact_ref_model_origin(value: BaseModel) -> type[BaseModel] | None:
+    """Resolve a source-typed artifact reference, including exact tracked origins."""
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.ir.registry.refs import ArtifactRefModel
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        _owned_wire_model_origin,
+    )
+
+    origin = _owned_wire_model_origin(value) or type(value)
+    if origin is ArtifactRef:
+        return origin
+    if type(origin) is type(BaseModel) and issubclass(origin, ArtifactRefModel):
+        return origin
+    return None
+
+
+def _artifact_id_wire_text(
+    value: Any,
+    *,
+    depth: int,
+    seen: set[int],
+    allow_plain_string: bool,
+) -> str:
+    """Extract canonical text from exact Core/IR ID roots or a plain wire ID."""
+    _wire_depth(depth)
+    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
+    from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
+
+    if type(value) is str and allow_plain_string:
+        artifact_id = value
+    elif isinstance(value, BaseModel):
+        value_id = id(value)
+        if value_id in seen:
+            raise TypeError("Cycle detected while serializing ArtifactID")
+        from polisyos.scientist.orchestration.engine.state_branching import (
+            _owned_wire_model_origin,
+        )
+
+        origin = _owned_wire_model_origin(value) or type(value)
+        if origin is not CoreArtifactID and origin is not IRArtifactID:
+            raise TypeError(
+                "Artifact reference mutation ID must be a declared Core or IR ArtifactID"
+            )
+        seen.add(value_id)
+        try:
+            artifact_id = object.__getattribute__(value, "root")
+        finally:
+            seen.remove(value_id)
+        if type(artifact_id) is not str:
+            raise TypeError("Artifact reference mutation ID root must be str")
+    else:
+        raise TypeError("Artifact reference mutation ID must be a canonical string")
+
+    if (
+        len(artifact_id) != 71
+        or not artifact_id.startswith("sha256:")
+        or any(character not in "0123456789abcdef" for character in artifact_id[7:])
+    ):
+        raise TypeError("Artifact reference mutation ID must be canonical sha256 text")
+    return artifact_id
+
+
+def _encode_artifact_ref_mutation_value(
+    value: Any,
+    *,
+    depth: int,
+    seen: set[int],
+) -> dict[str, Any]:
+    """Encode a declared reference model or a decoded plain sidecar mapping."""
+    _wire_depth(depth)
+    if isinstance(value, BaseModel):
+        value_id = id(value)
+        if value_id in seen:
+            raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
+        model_type = _artifact_ref_model_origin(value)
+        if model_type is None:
+            raise TypeError("Artifact reference mutation must carry a declared reference model")
+        seen.add(value_id)
+        try:
+            payload = _wire_model_payload(
+                value,
+                depth=depth,
+                seen=seen,
+                model_type=model_type,
+                artifact_ref_mapping=True,
+            )
+        finally:
+            seen.remove(value_id)
+    elif type(value) is dict:
+        value_id = id(value)
+        if value_id in seen:
+            raise TypeError("Cycle detected while serializing mapping")
+        seen.add(value_id)
+        try:
+            payload = {}
+            for key, item in dict.items(value):
+                if type(key) is not str:
+                    raise TypeError(f"Wire mapping keys must be str, got {type(key).__name__}")
+                if key == "artifact_id":
+                    payload[key] = _artifact_id_wire_text(
+                        item,
+                        depth=depth + 1,
+                        seen=seen,
+                        allow_plain_string=True,
+                    )
+                else:
+                    payload[key] = _encode_wire_value(item, depth=depth + 1, seen=seen)
+        finally:
+            seen.remove(value_id)
+    else:
+        raise TypeError("Artifact reference mutation must carry a declared model or plain mapping")
+
+    artifact_id = payload.get("artifact_id")
+    if type(artifact_id) is not str:
+        raise TypeError("Artifact reference mutation is missing a canonical artifact_id")
     return _escape_wire_mapping(payload)
 
 
@@ -240,34 +511,43 @@ def _encode_wire_value(
     *,
     depth: int = 0,
     seen: set[int] | None = None,
+    journal_value_mode: bool = False,
+    context: _OutcomeWireContext | None = None,
+    in_state_subtree: bool = False,
 ) -> Any:
-    """Recursively encode the bounded typed values accepted on the runner wire."""
+    """Recursively encode bounded wire values and the guarded state projection."""
     _wire_depth(depth)
     seen = seen if seen is not None else set()
 
     if value is None or isinstance(value, (str, bool, int)):
+        _remember_validation_value(value, value, context)
         return value
     if isinstance(value, float):
         if not math.isfinite(value):
             raise ValueError("Non-finite float is not supported on the runner wire")
+        _remember_validation_value(value, value, context)
         return value
     if isinstance(value, Decimal):
         if not value.is_finite():
             raise ValueError("Non-finite Decimal is not supported on the runner wire")
+        _remember_validation_value(value, value, context)
         return {_WIRE_TYPE_KEY: _WIRE_DECIMAL, "value": str(value)}
     if isinstance(value, (bytes, bytearray, memoryview)):
+        _remember_validation_value(value, value, context)
         return {
             _WIRE_TYPE_KEY: _WIRE_BYTES,
             "encoding": "base64",
             "data": base64.b64encode(bytes(value)).decode("ascii"),
         }
     if isinstance(value, datetime):
+        _remember_validation_value(value, value, context)
         normalized = value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
         return {
             _WIRE_TYPE_KEY: _WIRE_DATETIME,
             "iso_utc": normalized.isoformat().replace("+00:00", "Z"),
         }
     if isinstance(value, date):
+        _remember_validation_value(value, value, context)
         return {_WIRE_TYPE_KEY: _WIRE_DATE, "iso": value.isoformat()}
 
     value_id = id(value)
@@ -276,19 +556,43 @@ def _encode_wire_value(
             raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
         model_type = type(value)
         fqn = f"{model_type.__module__}.{model_type.__qualname__}"
-        if _wire_model_types().get(fqn) is not model_type:
-            raise TypeError(f"Unsupported model on runner wire: {fqn}")
+        wire_type = model_type
+        wire_fqn = fqn
+        wire_types = _wire_model_types()
+        if wire_types.get(fqn) is not model_type:
+            from polisyos.scientist.orchestration.engine.state_branching import (
+                _owned_wire_model_origin,
+            )
+
+            original = _owned_wire_model_origin(value)
+            if original is None:
+                raise TypeError(f"Unsupported model on runner wire: {fqn}")
+            original_fqn = f"{original.__module__}.{original.__qualname__}"
+            if wire_types.get(original_fqn) is not original:
+                raise TypeError(f"Unsupported model on runner wire: {fqn}")
+            wire_type = original
+            wire_fqn = original_fqn
         seen.add(value_id)
         try:
-            payload = _wire_model_payload(value, depth=depth, seen=seen)
+            if context is not None and in_state_subtree:
+                _record_wire_journal_owner(context, value)
+            payload = _wire_model_payload(
+                value,
+                depth=depth,
+                seen=seen,
+                model_type=wire_type,
+                journal_value_mode=journal_value_mode,
+                context=context,
+                in_state_subtree=in_state_subtree,
+            )
         finally:
             seen.remove(value_id)
-        if fqn in _WIRE_PLAIN_MODEL_FQNS:
+        if wire_fqn in _WIRE_PLAIN_MODEL_FQNS:
             return payload
         return {
             _WIRE_TYPE_KEY: _WIRE_MODEL,
-            "module": model_type.__module__,
-            "qualname": model_type.__qualname__,
+            "module": wire_type.__module__,
+            "qualname": wire_type.__qualname__,
             "value": payload,
         }
 
@@ -297,11 +601,25 @@ def _encode_wire_value(
             raise TypeError("Cycle detected while serializing mapping")
         seen.add(value_id)
         try:
+            if context is not None and in_state_subtree:
+                _record_wire_journal_owner(context, value)
             encoded: dict[str, Any] = {}
+            projection: dict[str, Any] = {}
             for key, item in value.items():
                 if not isinstance(key, str):
                     raise TypeError(f"Wire mapping keys must be str, got {type(key).__name__}")
-                encoded[key] = _encode_wire_value(item, depth=depth + 1, seen=seen)
+                encoded[key] = _encode_wire_value(
+                    item,
+                    depth=depth + 1,
+                    seen=seen,
+                    journal_value_mode=journal_value_mode,
+                    context=context,
+                    in_state_subtree=in_state_subtree,
+                )
+                if context is not None:
+                    projection[key] = context.validation_values.get(id(item), item)
+            if context is not None:
+                _remember_validation_value(value, projection, context)
             return _escape_wire_mapping(encoded)
         finally:
             seen.remove(value_id)
@@ -311,7 +629,29 @@ def _encode_wire_value(
             raise TypeError("Cycle detected while serializing sequence")
         seen.add(value_id)
         try:
-            return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
+            if context is not None and in_state_subtree:
+                _record_wire_journal_owner(context, value)
+            encoded_items: list[Any] = []
+            projection_items: list[Any] = []
+            for item in value:
+                encoded_items.append(
+                    _encode_wire_value(
+                        item,
+                        depth=depth + 1,
+                        seen=seen,
+                        journal_value_mode=journal_value_mode,
+                        context=context,
+                        in_state_subtree=in_state_subtree,
+                    )
+                )
+                if context is not None:
+                    projection_items.append(context.validation_values.get(id(item), item))
+            if context is not None:
+                projection = (
+                    tuple(projection_items) if isinstance(value, tuple) else projection_items
+                )
+                _remember_validation_value(value, projection, context)
+            return encoded_items
         finally:
             seen.remove(value_id)
 
@@ -340,12 +680,12 @@ def worker_dispatch_sha256(
         "wire_schema": "polisyos.scientist.worker_dispatch.v1",
         "node_id": node_id,
         "alias": alias,
-        "params": _encode_wire_value(dict(params)),
+        "params": _encode_wire_value(params),
         "state_sha256": hashlib.sha256(state_bytes).hexdigest(),
-        "trace_carrier": _encode_wire_value(dict(trace_carrier)),
+        "trace_carrier": _encode_wire_value(trace_carrier),
         "timeout_s": timeout_s,
         "max_retries": max_retries,
-        "context_meta": _encode_wire_value(dict(context_meta)),
+        "context_meta": _encode_wire_value(context_meta),
     }
     encoded = json.dumps(
         payload,
@@ -693,62 +1033,48 @@ def deserialize_state(data: bytes) -> Any:
         raise DeserializationError(f"Failed to deserialize state: {exc}") from exc
 
 
-def _wire_state_mutation(mutation: Any) -> Any:
-    """Normalize reference-valued operations before typed wire encoding."""
-    from polisyos.scientist.orchestration.engine.state_branching import StateMutation
-
-    if not isinstance(mutation, StateMutation):
-        raise TypeError("State mutation journal contains an untyped operation")
-    value = mutation.value
-    if mutation.value_kind == "artifact_ref":
-        if isinstance(value, BaseModel):
-            value = value.model_dump(mode="python", by_alias=True, exclude_none=False)
-        if not isinstance(value, Mapping):
-            raise TypeError("Artifact reference mutation must carry a typed mapping")
-        value = dict(value)
-        artifact_id = value.get("artifact_id")
-        if artifact_id is None:
-            raise TypeError("Artifact reference mutation is missing artifact_id")
-        value["artifact_id"] = str(artifact_id)
-    return mutation.model_copy(update={"value": value})
-
-
 def serialize_outcome(outcome: Any) -> bytes:
-    """Serialize a node outcome and its private mutation journal, when present."""
+    """Serialize one fully guarded outcome and its selected mutation journal."""
     from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
     from polisyos.scientist.orchestration.engine.state import ExperimentState
-    from polisyos.scientist.orchestration.engine.state_branching import (
-        mutation_journal_for_state,
-    )
 
     if not isinstance(outcome, NodeOutcome):
         encoded = _encode_wire_value(outcome)
         _typed_state_payload(encoded.get("state") if isinstance(encoded, Mapping) else None)
         return _dumps(_typed_envelope(_OUTCOME_WIRE_SCHEMA, encoded))
-    journal = mutation_journal_for_state(outcome.state)
-    if journal is None:
-        encoded = _encode_wire_value(outcome)
-        _typed_state_payload(encoded["state"])
-        return _dumps(_typed_envelope(_OUTCOME_WIRE_SCHEMA, encoded))
 
-    # A branch is implemented as an ExperimentState subclass for write tracking.
-    # The subclass itself is process-local; only the declared model fields and
-    # the typed operations cross the wire.
-    state = ExperimentState.model_validate(
-        outcome.state.model_dump(mode="python", by_alias=True, exclude_none=False)
-    )
-    serializable_outcome = outcome.model_copy(update={"state": state})
-    encoded_outcome = _encode_wire_value(serializable_outcome)
+    context = _OutcomeWireContext(outcome=outcome, state=outcome.state)
+    encoded_outcome = _encode_wire_value(outcome, seen=set(), context=context)
+    if context.tracked_conflict and context.legacy_journal is None and not context.root_owner:
+        raise TypeError("Conflicting tracked mutation journals in serialized state")
+
+    journal = context.selected_journal
+    if journal is None:
+        _typed_state_payload(encoded_outcome["state"])
+        return _dumps(_typed_envelope(_OUTCOME_WIRE_SCHEMA, encoded_outcome))
+
+    projection = context.validation_values.get(id(outcome.state))
+    if not isinstance(projection, Mapping):
+        raise TypeError("Journaled outcome state has no guarded validation projection")
+    state = ExperimentState.model_validate(projection)
+    encoded_outcome = dict(encoded_outcome)
+    # The outcome walk has already guarded the original state and every sibling.
+    # Re-encoding this normalized model is post-guard validation work.
+    encoded_outcome["state"] = _encode_wire_value(state, depth=1, seen=set())
     _typed_state_payload(encoded_outcome["state"])
+    encoded_mutations = _encode_wire_value(
+        journal.operations,
+        depth=0,
+        seen=set(),
+        journal_value_mode=True,
+    )
     return _dumps(
         _typed_envelope(
             _OUTCOME_WIRE_SCHEMA,
             {
                 "wire_schema": _OUTCOME_MUTATION_WIRE_SCHEMA,
                 "outcome": encoded_outcome,
-                "state_mutations": _encode_wire_value(
-                    [_wire_state_mutation(mutation) for mutation in tuple(journal.operations)]
-                ),
+                "state_mutations": encoded_mutations,
             },
         )
     )
@@ -1087,12 +1413,12 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         get_tracer,
         is_hpc_observability_enabled,
     )
+    from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
     from polisyos.core.security import (
         get_current_access_scope_or_none,
         get_current_cell_id,
         get_current_tenant_id_or_none,
     )
-    from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
     if type(ctx) is not ExecutionContext:
@@ -1105,11 +1431,13 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         raise ValueError("timeout_worker_run_context_required")
     if type(run.run_manifest) is not core_run.RunManifest:
         raise ValueError("timeout_worker_run_manifest_required")
-    if type(run.trace) is not JsonlTraceSink or run._audit_sink is not None:
+    lifecycle = WorkerLifecycleCapability.for_parent(run)
+    run_snapshot = lifecycle.snapshot()
+    if not run_snapshot.trace_is_jsonl or run_snapshot.audit_sink_present:
         raise ValueError("timeout_worker_jsonl_trace_profile_required")
-    access_scope_wire = _timeout_access_scope_to_wire(run.access_scope)
+    access_scope_wire = _timeout_access_scope_to_wire(run_snapshot.access_scope)
     ambient_access_scope = get_current_access_scope_or_none()
-    if ambient_access_scope is not None and ambient_access_scope != run.access_scope:
+    if ambient_access_scope is not None and ambient_access_scope != run_snapshot.access_scope:
         raise ValueError("timeout_worker_ambient_access_scope_mismatch")
     if run.store is not store:
         raise ValueError("timeout_worker_run_store_mismatch")
@@ -1147,7 +1475,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         raise ValueError("timeout_worker_signing_config_required")
 
     root = store.root.resolve(strict=True)
-    trace_path = run.trace_path
+    trace_path = run_snapshot.trace_path
     if not isinstance(trace_path, Path) or not trace_path.is_absolute():
         raise ValueError("timeout_worker_trace_path_required")
     trace_path = trace_path.resolve(strict=False)
@@ -1155,21 +1483,24 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
         trace_path.relative_to(root)
     except ValueError as exc:
         raise ValueError("timeout_worker_trace_path_outside_store") from exc
-    if run.run_manifest.run_id != expected_run_id:
+    if run_snapshot.run_id != expected_run_id:
         raise ValueError("timeout_worker_run_id_mismatch")
-    if run.run_manifest.tenant_id != run.tenant_id or run.run_manifest.cell_id != run.cell_id:
+    if (
+        run_snapshot.run_manifest.tenant_id != run_snapshot.tenant_id
+        or run_snapshot.run_manifest.cell_id != run_snapshot.cell_id
+    ):
         raise ValueError("timeout_worker_manifest_owner_mismatch")
-    if (store._tenant_id, store._cell_id) != (run.tenant_id, run.cell_id):
+    if (store._tenant_id, store._cell_id) != (
+        run_snapshot.tenant_id,
+        run_snapshot.cell_id,
+    ):
         raise ValueError("timeout_worker_store_run_owner_mismatch")
-    owner_snapshot_ref = run._owner_snapshot_ref
-    if type(owner_snapshot_ref) is not ArtifactRef:
-        raise ValueError("timeout_worker_owner_snapshot_ref_required")
-    run._validate_timeout_worker_owner_binding()
+    owner_snapshot_ref = run_snapshot.owner_snapshot_ref
     ambient_tenant = get_current_tenant_id_or_none()
     ambient_cell = get_current_cell_id()
     for owner_tenant, owner_cell in (
         (store._tenant_id, store._cell_id),
-        (run.tenant_id, run.cell_id),
+        (run_snapshot.tenant_id, run_snapshot.cell_id),
     ):
         if owner_tenant is not None and (
             ambient_tenant != owner_tenant
@@ -1196,10 +1527,10 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
             "hpc_observability_enabled": hpc_observability_enabled,
         },
         "run": {
-            "manifest": run.run_manifest.model_dump(mode="json"),
+            "manifest": run_snapshot.run_manifest.model_dump(mode="json"),
             "trace_path": str(trace_path),
-            "tenant_id": run.tenant_id,
-            "cell_id": run.cell_id,
+            "tenant_id": run_snapshot.tenant_id,
+            "cell_id": run_snapshot.cell_id,
             "owner_snapshot_ref": owner_snapshot_ref.model_dump(
                 mode="json", by_alias=True, exclude_none=False
             ),

@@ -295,7 +295,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.governance`, `polisyos.core.llm`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`, `polisyos.core.registry`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.artifacts`, `polisyos.core.canon`, `polisyos.core.components`, `polisyos.core.contracts`, `polisyos.core.governance`, `polisyos.core.llm`, `polisyos.core.llm.cache_settlement`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`, `polisyos.core.registry`, `polisyos.core.run.worker_lifecycle`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -314,10 +314,12 @@ Export total is unknown; the static reader cannot resolve the extension.
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.core.registry` | `src/polisyos/core/registry/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.core.run.worker_lifecycle` | `src/polisyos/core/run/worker_lifecycle.py` | `unresolved_exports` | unknown (no names proven) |
 
 #### `polisyos.core`
 
@@ -754,6 +756,30 @@ scan_secret_and_pii
 
 </details>
 
+#### `polisyos.core.llm.cache_settlement`
+
+- Source: `src/polisyos/core/llm/cache_settlement.py`
+- Facade: `unresolved_exports`
+- Summary: Opaque Core-owned owner boundary for authenticated cache reuse.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
+
+<details><summary>Source-declared candidates (7; native exports unproved)</summary>
+
+```text
+CacheFlightOutcome
+CacheFlightRegistration
+CacheReuseAttestation
+CacheReuseEvidence
+CacheSettlementSession
+create_cache_settlement_session
+session_for_cache_client
+```
+
+</details>
+
 #### `polisyos.core.observability`
 
 - Source: `src/polisyos/core/observability/__init__.py`
@@ -970,6 +996,27 @@ build_registry_bundle_from_components
 load_registry_bundle
 load_registry_bundle_content
 load_registry_bundle_payload
+```
+
+</details>
+
+#### `polisyos.core.run.worker_lifecycle`
+
+- Source: `src/polisyos/core/run/worker_lifecycle.py`
+- Facade: `unresolved_exports`
+- Summary: Core-owned boundary for staging and admitting run-worker receipts.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 4 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
+
+<details><summary>Source-declared candidates (4; native exports unproved)</summary>
+
+```text
+WorkerDispatchBinding
+WorkerLifecycleCapability
+WorkerRunSnapshot
+WorkerRunView
 ```
 
 </details>
@@ -3329,7 +3376,7 @@ run_connectors_ingestion
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (11; native exports unproved)</summary>
+<details><summary>Source-declared candidates (16; native exports unproved)</summary>
 
 ```text
 DiscoverOutcome
@@ -3338,6 +3385,11 @@ ExecutePlanResult
 ExploreLaneDiscoverResult
 ExploreLaneDiscovery
 ExploreLaneLimits
+FetchCaptureArtifactReferenceView
+FetchCaptureLocatorView
+FetchCaptureMetricView
+FetchCapturePostflightView
+FetchCapturePreflightView
 FetchExecutor
 ResolveOutcome
 RetrievalProviders
@@ -4700,7 +4752,7 @@ register_worker_tool
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (100; native exports unproved)</summary>
+<details><summary>Source-declared candidates (101; native exports unproved)</summary>
 
 ```text
 AdversarialScenarioBundle
@@ -4793,6 +4845,7 @@ critic_consensus_to_obligation_candidates
 critic_verdict
 critique_to_failure_cards
 critique_to_lesson_cards
+derive_phase2_parameter_bounds
 load_adversarial_scenario_bundle
 load_policy_artifact_bundle
 load_policy_brief

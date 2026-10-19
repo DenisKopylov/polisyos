@@ -1,0 +1,24 @@
+id = "2026-10-19-e02-persisted-fetch-owner-capture"
+title = "Bind persisted fetch capture through the retrieval owner"
+type = "changed"
+component = "fabric"
+owner = "team-fabric"
+summary = "Retrieval exposes one persisted-fetch capture operation that owns the plan, effective configuration, full catalog binding, registration snapshot, and CAS store across bounded preflight and postflight callbacks. Runtime verifies the actual local connector route from a redacted typed projection using the file connector’s path parser, rechecks the persisted CAS chain, and queues explore-lane promotion only after successful postflight and owner revalidation."
+evidence = [
+  "src/polisyos/fabric/retrieval/service.py",
+  "src/polisyos/fabric/retrieval/__init__.py",
+  "src/polisyos/fabric/retrieval/README.md",
+  "src/polisyos/runtime/quality/acquisition_planner.py",
+  "tests/unit/fabric/test_retrieval_fetch_custody.py",
+  "tests/unit/runtime/quality/test_acquisition_planner.py",
+]
+compatibility = "Existing resolve and execute_fetch_plans signatures, execution_binding compatibility, receipt schemas, and captured artifact fields are preserved. The additive callback views contain plan, catalog-binding, and effective-config fingerprints, an optional captured source-profile fingerprint, connector class identities, classified locator fields, and scalar artifact-reference metadata; callback returns cannot authorize capture."
+change_class = "python-public-api"
+surface_classification = "candidate_local_fetch_custody"
+migration = "No persisted artifact migration. Existing callers may continue using execute_fetch_plans; bounded capture callers may adopt execute_persisted_fetch_capture with raising callbacks that return None on success. Existing DistributionResult.url and source_locator values are not rewritten; local route admission uses the owner-bound effective FileTabular config and any explicitly supplied connector_params url/path values. The effective path is projected with the same parser as the connector; relative effective paths are refused instead of being resolved against CWD or shell-expanded."
+api = "The new owner operation executes exactly one already-resolved plan with payload persistence enabled and fallback disabled. Runtime validates each supplied catalog connector_params url/path against the owner-bound effective route; when neither is present, the captured profile/default config supplies the route. The owner uses one immutable effective-config snapshot through the operation and revalidates its fingerprint, original full catalog binding, registration snapshot, and store identity after both callbacks. Callback views expose transient effective-config and source-profile fingerprints so preflight and postflight can be compared; a later profile-registry update does not reroute the captured fetch or establish live profile currentness. The route view uses the registered file connector’s local-path parser without trimming or tilde expansion; relative effective paths refuse before fetch. Explore promotion is queued only after successful postflight and owner revalidation."
+limitations = "Candidate artifact output proves custody of the actual local connector response and its catalog binding only. It does not establish source currentness, historical timing, scientific validity, or authority to publish. Native tests and currentness gates remain pending canonical integration."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/retrieval/README.md"]
+runbook_docs = []

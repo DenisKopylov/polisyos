@@ -252,7 +252,9 @@ class TestLocalWorkerPool:
                     or record.event == "NODE_LOCAL_PARENT_RECEIPT_EMITTED"
                     or record.event == "RUN_INPUT_ADDED"
                 )
-                run._validate_timeout_worker_owner_binding()
+                from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
+
+                WorkerLifecycleCapability.for_parent(run).snapshot()
             finally:
                 if not run._closed and not run._suspended:
                     run.suspend_for_resume()

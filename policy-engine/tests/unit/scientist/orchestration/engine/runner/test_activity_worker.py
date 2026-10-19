@@ -27,6 +27,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace.record import TraceRecord
 from polisyos.foundry.methods.causal import PanelObservationalData
@@ -63,7 +64,6 @@ from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
     _AttemptAuthority,
     _build_attempt_context,
-    _worker_lifecycle_run_view,
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.runner import (
@@ -220,13 +220,10 @@ def test_timeout_worker_stages_run_events_and_refuses_parent_lifecycle(
             worker_ctx.run.suspend_for_resume()
         assert trace_path.read_bytes() == before
 
-        retry_run_view = _worker_lifecycle_run_view(parent_run)
-        assert isinstance(retry_run_view, RunContext)
-        assert retry_run_view.run_manifest is parent_run.run_manifest
-        with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
-            retry_run_view.finalize()
-        with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
-            retry_run_view.suspend_for_resume()
+        parent_capability = WorkerLifecycleCapability.for_parent(parent_run)
+        assert parent_capability.snapshot().run_manifest == parent_run.run_manifest
+        with pytest.raises(ValueError, match="worker_lifecycle_core_run_required"):
+            WorkerLifecycleCapability.for_parent(worker_ctx.run)
         assert not parent_run._closed and not parent_run._suspended
         assert parent_run._active_lease is not None
         parent_run.suspend_for_resume()

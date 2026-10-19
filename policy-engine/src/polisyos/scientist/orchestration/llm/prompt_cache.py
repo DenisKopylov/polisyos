@@ -16,10 +16,11 @@ from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
-from polisyos.core.llm.settlement import (
-    _CacheFlightOutcome,
-    _CacheFlightRegistration,
-    _CacheReuseOwner,
+from polisyos.core.llm.cache_settlement import (
+    CacheFlightOutcome,
+    CacheFlightRegistration,
+    CacheSettlementSession,
+    create_cache_settlement_session,
 )
 
 from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage
@@ -130,18 +131,19 @@ class _CacheFlight:
     task: asyncio.Task[Any]
     request_digest: str
     scope_key: tuple[str, ...]
-    owner_registration: _CacheFlightRegistration
-    registrations: list[_CacheFlightRegistration]
+    owner_registration: CacheFlightRegistration
+    registrations: list[CacheFlightRegistration]
     producer_attempt_id: str
     origin_event_id: str
     cache_key: str
-    outcome: _CacheFlightOutcome | None = None
+    outcome: CacheFlightOutcome | None = None
 
 
 class _CacheReuseGatewayResponse(GatewayLLMResponse):
     """Gateway response carrying cache-owned provenance outside provider raw data."""
 
     __slots__ = (
+        "__weakref__",
         "_polisyos_cache_hit",
         "_polisyos_cache_key",
         "_polisyos_reuse_event_id",
@@ -153,10 +155,10 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         response: GatewayLLMResponse,
         *,
         cache_key: str,
-        owner: _CacheReuseOwner,
+        session: CacheSettlementSession,
         request_digest: str,
         origin_event_id: str,
-        outcome: _CacheFlightOutcome | None = None,
+        outcome: CacheFlightOutcome | None = None,
     ) -> None:
         super().__init__(
             content=response.content,
@@ -172,12 +174,13 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         self._polisyos_cache_hit = True
         self._polisyos_cache_key = cache_key
         self._polisyos_reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
-        self._polisyos_reuse_provenance = owner.issue(
-            cache_key,
-            request_digest,
-            self._polisyos_reuse_event_id,
-            origin_event_id,
-            outcome,
+        self._polisyos_reuse_provenance = session.issue_reuse_attestation(
+            response=self,
+            cache_key=cache_key,
+            request_digest=request_digest,
+            reuse_event_id=self._polisyos_reuse_event_id,
+            origin_event_id=origin_event_id,
+            outcome=outcome,
         )
 
 
@@ -351,7 +354,7 @@ class CachingLLMClient:
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
         self._inflight: dict[str, _CacheFlight] = {}
         self._cache_reuse_authorizer = reuse_authorizer
-        self._cache_reuse_owner = _CacheReuseOwner(self)
+        self._cache_settlement_session = create_cache_settlement_session(self)
         self._producer_begin_hook: Any | None = None
         self._producer_settle_hook: Any | None = None
         self._producer_unknown_hook: Any | None = None
@@ -471,10 +474,10 @@ class CachingLLMClient:
             ).encode()
         ).hexdigest()
         attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
-        registration = self._cache_reuse_owner.register_request(
+        registration = self._cache_settlement_session.register_request(
             scope_key, request_digest, attempt_id
         )
-        self._cache_reuse_owner.bind_request_key(registration, internal_cache_key)
+        self._cache_settlement_session.bind_request_key(registration, internal_cache_key)
         cached = self._cache.get(internal_cache_key)
         if cached is not None:
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
@@ -488,7 +491,7 @@ class CachingLLMClient:
         flight = self._inflight.get(internal_cache_key)
         is_owner = flight is None
         if is_owner:
-            self._cache_reuse_owner.dispatch(registration, attempt_id)
+            self._cache_settlement_session.dispatch(registration, attempt_id)
             producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
             owner_task = asyncio.create_task(
                 self._produce(
@@ -514,7 +517,7 @@ class CachingLLMClient:
             self._inflight[internal_cache_key] = flight
             owner_task.add_done_callback(_consume_task_exception)
         else:
-            self._cache_reuse_owner.join(
+            self._cache_settlement_session.join(
                 registration,
                 scope_key,
                 request_digest,
@@ -654,7 +657,7 @@ class CachingLLMClient:
         cache_key: str,
         request_digest: str,
         origin_event_id: str | None = None,
-        outcome: _CacheFlightOutcome | None = None,
+        outcome: CacheFlightOutcome | None = None,
     ) -> GatewayLLMResponse:
         if not isinstance(response, GatewayLLMResponse):
             return response
@@ -664,7 +667,7 @@ class CachingLLMClient:
         return _CacheReuseGatewayResponse(
             response,
             cache_key=cache_key,
-            owner=self._cache_reuse_owner,
+            session=self._cache_settlement_session,
             request_digest=request_digest,
             origin_event_id=origin,
             outcome=outcome,
@@ -707,7 +710,7 @@ class CachingLLMClient:
             self._cache.put(cache_key, response, ttl_s=self._ttl_s)
             logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
             if flight is not None:
-                flight.outcome = self._cache_reuse_owner.settle_flight(
+                flight.outcome = self._cache_settlement_session.settle_flight(
                     registrations=tuple(flight.registrations),
                     cache_key=cache_key,
                     request_digest=request_digest,
@@ -722,7 +725,7 @@ class CachingLLMClient:
                     self._producer_unknown_hook(producer_event_id, request_digest, TimeoutError())
                 )
             if flight is not None:
-                self._cache_reuse_owner.settle_flight(
+                self._cache_settlement_session.settle_flight(
                     registrations=tuple(flight.registrations),
                     cache_key=cache_key,
                     request_digest=request_digest,
@@ -736,7 +739,7 @@ class CachingLLMClient:
                     self._producer_unknown_hook(producer_event_id, request_digest, exc)
                 )
             if flight is not None:
-                self._cache_reuse_owner.settle_flight(
+                self._cache_settlement_session.settle_flight(
                     registrations=tuple(flight.registrations),
                     cache_key=cache_key,
                     request_digest=request_digest,

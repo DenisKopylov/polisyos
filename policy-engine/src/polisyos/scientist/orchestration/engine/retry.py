@@ -62,7 +62,10 @@ from polisyos.scientist.orchestration.engine.state_branching import branch_state
 if TYPE_CHECKING:
     from multiprocessing.context import BaseContext
 
-    from polisyos.core.run.context import RunContext
+    from polisyos.core.run.worker_lifecycle import (
+        WorkerDispatchBinding,
+        WorkerLifecycleCapability,
+    )
     from polisyos.scientist.orchestration.engine.circuit_breaker import CircuitBreaker
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
@@ -86,46 +89,6 @@ def _process_factory(context: BaseContext) -> Callable[..., mp.Process]:
     return process_factory
 
 
-def _worker_lifecycle_run_view(run: RunContext) -> RunContext:
-    """Delegate a worker run surface while refusing parent-owned transitions."""
-    from polisyos.core.run.context import RunContext as RunContextType
-
-    class _WorkerLifecycleRunView(RunContextType):
-        def __init__(self, target: RunContextType) -> None:
-            object.__setattr__(self, "_target", target)
-
-        def __getattribute__(self, name: str) -> object:
-            if name in {"_target", "__class__", "finalize", "suspend_for_resume"}:
-                return object.__getattribute__(self, name)
-            target: RunContextType = object.__getattribute__(self, "_target")
-            return getattr(target, name)
-
-        def __setattr__(self, name: str, value: object) -> None:
-            if name in {"finalize", "suspend_for_resume"}:
-                raise AttributeError("worker run lifecycle methods cannot be rebound")
-            target: RunContextType = object.__getattribute__(self, "_target")
-            setattr(target, name, value)
-
-        def __delattr__(self, name: str) -> None:
-            if name in {"finalize", "suspend_for_resume"}:
-                raise AttributeError("worker run lifecycle methods cannot be removed")
-            target: RunContextType = object.__getattribute__(self, "_target")
-            delattr(target, name)
-
-        def finalize(
-            self,
-            status: str = "ok",
-            *,
-            errors: list[dict[str, object]] | None = None,
-        ) -> ArtifactRef:
-            raise ValueError("timeout_worker_run_lifecycle_not_owned")
-
-        def suspend_for_resume(self) -> None:
-            raise ValueError("timeout_worker_run_lifecycle_not_owned")
-
-    return _WorkerLifecycleRunView(run)
-
-
 # Node computation has one deadline; framed result delivery has one finite
 # window from the actual completion mark. Parent and supervisor drain while
 # their producer runs. No Queue feeder or blocking partial-frame read can
@@ -144,10 +107,24 @@ _SPAWN_TIMEOUT_NODE_IDS = frozenset({"scientist.node_resolve_parameters@1.0.0"})
 class _ForkWorkerReceiptBinding:
     """Parent-issued identity for one inherited-node Linux fork dispatch."""
 
-    invocation_id: str
-    dispatch_sha256: str
-    owner_snapshot_ref: ArtifactRef
-    run_id: str
+    capability: WorkerLifecycleCapability
+    binding: WorkerDispatchBinding
+
+    @property
+    def invocation_id(self) -> str:
+        return self.binding.invocation_id
+
+    @property
+    def dispatch_sha256(self) -> str:
+        return self.binding.dispatch_sha256
+
+    @property
+    def owner_snapshot_ref(self) -> ArtifactRef:
+        return self.binding.owner_snapshot_ref
+
+    @property
+    def run_id(self) -> str:
+        return self.binding.run_id
 
 
 class _WorkerComputeTimeout(Exception):
@@ -2276,6 +2253,42 @@ def _build_spawn_timeout_task(
     )
 
 
+def _bind_spawn_timeout_dispatch(
+    ctx: Any,
+    task: Any,
+    *,
+    expected_run_id: str,
+) -> tuple[WorkerLifecycleCapability, WorkerDispatchBinding]:
+    """Bind a spawn task to the exact current Core owner before process launch."""
+    run_adapter = getattr(ctx, "run", None)
+    lifecycle_factory = getattr(run_adapter, "_worker_lifecycle_capability", None)
+    if not callable(lifecycle_factory):
+        raise _timeout_worker_unsupported("spawn_parent_core_run_required")
+    try:
+        capability = lifecycle_factory()
+        snapshot = capability.snapshot()
+        run_meta = task.context_meta["run"]
+        owner_ref_payload = run_meta["owner_snapshot_ref"]
+        if (
+            snapshot.run_id != expected_run_id
+            or run_meta["manifest"]["run_id"] != expected_run_id
+            or snapshot.owner_snapshot_ref.model_dump(
+                mode="json",
+                by_alias=True,
+                exclude_none=False,
+            )
+            != owner_ref_payload
+        ):
+            raise ValueError("spawn_parent_owner_snapshot_mismatch")
+        binding = capability.bind_dispatch(
+            invocation_id=task.worker_invocation_id,
+            dispatch_sha256=task.worker_dispatch_sha256,
+        )
+    except (AttributeError, KeyError, TypeError, ValueError) as exc:
+        raise _timeout_worker_unsupported("spawn_parent_owner_snapshot_not_active") from exc
+    return capability, binding
+
+
 def _build_fork_worker_receipt_binding(
     node: Any,
     ctx: Any,
@@ -2303,19 +2316,17 @@ def _build_fork_worker_receipt_binding(
         # Every declared ExecutionContext must use a live Core parent writer.
         return None
 
-    from polisyos.core.run.context import RunContext
-
-    parent_run = getattr(ctx.run, "_target", ctx.run)
-    if not isinstance(parent_run, RunContext):
+    run_facade = ctx.run
+    lifecycle_factory = getattr(run_facade, "_worker_lifecycle_capability", None)
+    if not callable(lifecycle_factory):
         raise _timeout_worker_unsupported("fork_parent_core_run_required")
-    owner_snapshot_ref = parent_run._owner_snapshot_ref
-    if (
-        not isinstance(owner_snapshot_ref, ArtifactRef)
-        or parent_run._active_lease is None
-        or parent_run._closed
-        or parent_run._suspended
-        or parent_run.run_manifest.run_id != state.run_id
-    ):
+    try:
+        capability = lifecycle_factory()
+        snapshot = capability.snapshot()
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise _timeout_worker_unsupported("fork_parent_owner_snapshot_not_active") from exc
+    owner_snapshot_ref = snapshot.owner_snapshot_ref
+    if snapshot.run_id != state.run_id:
         raise _timeout_worker_unsupported("fork_parent_owner_snapshot_not_active")
     if dispatch_params is None or not isinstance(dispatch_params, Mapping):
         raise _timeout_worker_unsupported("fork_dispatch_params_not_bound")
@@ -2368,12 +2379,14 @@ def _build_fork_worker_receipt_binding(
         )
     except (TypeError, ValueError, OverflowError) as exc:
         raise _timeout_worker_unsupported("fork_dispatch_source_not_serializable") from exc
-    return _ForkWorkerReceiptBinding(
-        invocation_id=invocation_id,
-        dispatch_sha256=dispatch_digest,
-        owner_snapshot_ref=owner_snapshot_ref,
-        run_id=run_id,
-    )
+    try:
+        binding = capability.bind_dispatch(
+            invocation_id=invocation_id,
+            dispatch_sha256=dispatch_digest,
+        )
+    except (TypeError, ValueError) as exc:
+        raise _timeout_worker_unsupported("fork_parent_owner_snapshot_not_active") from exc
+    return _ForkWorkerReceiptBinding(capability=capability, binding=binding)
 
 
 def _admit_spawn_timeout_worker_result(
@@ -2382,6 +2395,8 @@ def _admit_spawn_timeout_worker_result(
     payload: Any,
     *,
     expected_run_id: str,
+    capability: WorkerLifecycleCapability,
+    binding: WorkerDispatchBinding,
 ) -> NodeOutcome:
     """Validate a worker receipt against the parent dispatch before returning its outcome."""
     from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -2410,16 +2425,18 @@ def _admit_spawn_timeout_worker_result(
     ):
         raise RuntimeError("timeout_worker_parent_dispatch_binding_invalid")
 
-    parent_run = getattr(ctx.run, "_target", ctx.run)
-    owner_snapshot_ref = getattr(parent_run, "_owner_snapshot_ref", None)
-    if owner_snapshot_ref is None:
+    if (
+        binding is None
+        or binding.invocation_id != task.worker_invocation_id
+        or binding.dispatch_sha256 != expected_dispatch
+        or binding.run_id != expected_run_id
+    ):
         raise RuntimeError("timeout_worker_parent_owner_snapshot_not_established")
     return _admit_worker_execution_receipt(
         ctx,
         payload,
-        invocation_id=task.worker_invocation_id,
-        expected_dispatch=expected_dispatch,
-        owner_snapshot_ref=owner_snapshot_ref,
+        capability=capability,
+        binding=binding,
         expected_run_id=expected_run_id,
     )
 
@@ -2433,9 +2450,8 @@ def _admit_fork_timeout_worker_result(
     return _admit_worker_execution_receipt(
         ctx,
         payload,
-        invocation_id=binding.invocation_id,
-        expected_dispatch=binding.dispatch_sha256,
-        owner_snapshot_ref=binding.owner_snapshot_ref,
+        capability=binding.capability,
+        binding=binding.binding,
         expected_run_id=binding.run_id,
     )
 
@@ -2444,9 +2460,8 @@ def _admit_worker_execution_receipt(
     ctx: Any,
     payload: Any,
     *,
-    invocation_id: str,
-    expected_dispatch: str,
-    owner_snapshot_ref: ArtifactRef,
+    capability: WorkerLifecycleCapability,
+    binding: WorkerDispatchBinding,
     expected_run_id: str,
 ) -> NodeOutcome:
     """Validate one result envelope and merge its trace only through its parent."""
@@ -2468,9 +2483,10 @@ def _admit_worker_execution_receipt(
     except DeserializationError as exc:
         raise RuntimeError("timeout_worker_receipt_invalid") from exc
     if (
-        receipt_invocation_id != invocation_id
-        or dispatch_digest != expected_dispatch
-        or receipt_owner_ref != owner_snapshot_ref
+        receipt_invocation_id != binding.invocation_id
+        or dispatch_digest != binding.dispatch_sha256
+        or receipt_owner_ref != binding.owner_snapshot_ref
+        or binding.run_id != expected_run_id
     ):
         raise RuntimeError("timeout_worker_receipt_binding_mismatch")
     try:
@@ -2494,27 +2510,16 @@ def _admit_worker_execution_receipt(
     except (AttributeError, TypeError, ValueError) as exc:
         raise RuntimeError("timeout_worker_result_invalid") from exc
 
-    parent_run = getattr(ctx.run, "_target", ctx.run)
-    merge = getattr(parent_run, "merge_worker_events", None)
-    if not callable(merge):
-        raise RuntimeError("timeout_worker_parent_receipt_admission_unsupported")
     try:
         authority = getattr(ctx.run, "_authority", None)
         if isinstance(authority, _AttemptAuthority):
             authority.invoke_persistent_write(
-                merge,
-                invocation_id=receipt_invocation_id,
-                dispatch_sha256=dispatch_digest,
-                owner_snapshot_ref=owner_snapshot_ref,
-                records=records,
+                capability.admit_worker_events,
+                binding,
+                records,
             )
         else:
-            merge(
-                invocation_id=receipt_invocation_id,
-                dispatch_sha256=dispatch_digest,
-                owner_snapshot_ref=owner_snapshot_ref,
-                records=records,
-            )
+            capability.admit_worker_events(binding, records)
     except (_AttemptWriteDeniedError, AttributeError, TypeError, ValueError) as exc:
         raise RuntimeError("timeout_worker_parent_receipt_admission_failed") from exc
     if worker_error is not None:
@@ -2627,6 +2632,8 @@ def _execute_with_timeout_process(
     )
     task = None
     fork_binding = None
+    spawn_capability = None
+    spawn_binding = None
     if start_method == "spawn":
         if authority._shared_active is None:
             raise _timeout_worker_unsupported("process_shared_attempt_authority_required")
@@ -2637,6 +2644,11 @@ def _execute_with_timeout_process(
                 state,
                 alias=alias,
                 dispatch_params=dispatch_params,
+            )
+            spawn_capability, spawn_binding = _bind_spawn_timeout_dispatch(
+                ctx,
+                task,
+                expected_run_id=state.run_id,
             )
         except _RETRY_RUNTIME_ERRORS as exc:
             authority.revoke()
@@ -2776,6 +2788,8 @@ def _execute_with_timeout_process(
                 task,
                 payload,
                 expected_run_id=state.run_id,
+                capability=spawn_capability,
+                binding=spawn_binding,
             )
         return _decode_worker_node_outcome(payload)
     if status == "worker_receipt":
@@ -2816,6 +2830,8 @@ async def _execute_with_timeout_process_async(
         state = state.model_copy(deep=True)
     task = None
     fork_binding = None
+    spawn_capability = None
+    spawn_binding = None
     if start_method == "spawn":
         if authority._shared_active is None:
             raise _timeout_worker_unsupported("process_shared_attempt_authority_required")
@@ -2826,6 +2842,11 @@ async def _execute_with_timeout_process_async(
                 state,
                 alias=alias,
                 dispatch_params=dispatch_params,
+            )
+            spawn_capability, spawn_binding = _bind_spawn_timeout_dispatch(
+                ctx,
+                task,
+                expected_run_id=state.run_id,
             )
         except _RETRY_RUNTIME_ERRORS as exc:
             authority.revoke()
@@ -2967,6 +2988,8 @@ async def _execute_with_timeout_process_async(
                 task,
                 payload,
                 expected_run_id=state.run_id,
+                capability=spawn_capability,
+                binding=spawn_binding,
             )
         return _decode_worker_node_outcome(payload)
     if status == "worker_receipt":
@@ -3109,14 +3132,12 @@ def _node_execute_worker(
             if not isinstance(ctx, ExecutionContext):
                 raise TypeError("fork_worker_execution_context_not_typed")
             run_facade = ctx.run
-            parent_run = getattr(run_facade, "_target", run_facade)
-            from polisyos.core.run.context import RunContext
-
-            if not isinstance(parent_run, RunContext):
-                raise TypeError("fork_worker_core_run_context_not_typed")
-            parent_run.trace = staged_trace
-            parent_run._audit_sink = None
-            worker_ctx = dataclasses.replace(ctx, run=_worker_lifecycle_run_view(run_facade))
+            capability = worker_binding.capability
+            worker_run = capability.worker_view(
+                run_adapter=run_facade,
+                trace=staged_trace,
+                binding=worker_binding.binding,
+            )
             authority = getattr(run_facade, "_authority", None)
             if isinstance(authority, _AttemptAuthority):
                 object.__setattr__(
@@ -3128,7 +3149,7 @@ def _node_execute_worker(
                         write_methods=_TRACE_WRITE_METHODS,
                     ),
                 )
-                object.__setattr__(run_facade, "_audit_sink", None)
+            worker_ctx = dataclasses.replace(ctx, run=worker_run)
 
         else:
             worker_ctx = ctx

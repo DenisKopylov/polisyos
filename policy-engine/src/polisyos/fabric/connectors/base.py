@@ -14,6 +14,7 @@ import threading
 from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
@@ -24,6 +25,7 @@ from typing import (
     TypeVar,
     runtime_checkable,
 )
+from urllib.parse import unquote, urlparse
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -56,6 +58,18 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.types import (
         DatasetDescriptor as DatasetDescriptor,
     )
+
+
+def _safe_local_path(location: str, *, scheme: str) -> Path:
+    """Return the lexical local path used by Fabric's file connectors.
+
+    This private projection is shared with local-route custody checks so both
+    resolve the same configured string before a connector reads it.
+    """
+    raw_path = unquote(urlparse(location).path) if scheme == "file" else location
+    if any(part == ".." for part in Path(raw_path).parts):
+        raise ValueError(f"Unsafe local data path: traversal is not allowed in {location!r}")
+    return Path(raw_path)
 
 
 DataT = TypeVar("DataT")

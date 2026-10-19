@@ -1310,7 +1310,7 @@ class TracedLLMCandidateGenerator:
         )
         response_data = extract_llm_response_data(
             response,
-            cache_reuse_owner=self.client._cache_reuse_owner,
+            cache_settlement_session=getattr(self.client, "_accounting_flight_owner", None),
         )
         try:
             candidate = json.loads(response_data.content)

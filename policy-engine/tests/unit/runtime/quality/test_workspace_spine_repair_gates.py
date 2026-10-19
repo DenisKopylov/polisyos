@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from importlib import import_module
 from unittest.mock import patch
 
 from polisyos.pdc import OperationClass
@@ -9,7 +10,8 @@ from polisyos.runtime.quality.workspace.spine_repair_gates import (
     LexBoundsApplicabilityGate,
 )
 from polisyos.scientist import api as scientist_api
-from polisyos.scientist.policy_design import search as policy_search
+
+policy_design = import_module("polisyos.scientist.policy_design")
 
 
 def test_lex_bounds_gate_does_not_coerce_none_to_zero() -> None:
@@ -41,14 +43,14 @@ def test_lex_bounds_gate_accepts_valid_bounded_frontier() -> None:
 
 
 def test_lex_bounds_gate_delegates_to_policy_search_repair() -> None:
-    expected = policy_search.derive_phase2_parameter_bounds(
+    expected = policy_design.derive_phase2_parameter_bounds(
         workspace_id="ws-phase2",
         invocation_id="invoke-refine",
         default=1.0,
         lower=None,
         upper=10.0,
     )
-    with patch.object(policy_search, "derive_phase2_parameter_bounds") as derive:
+    with patch.object(policy_design, "derive_phase2_parameter_bounds") as derive:
         derive.return_value = expected
 
         result = LexBoundsApplicabilityGate().evaluate(
@@ -63,8 +65,8 @@ def test_lex_bounds_gate_delegates_to_policy_search_repair() -> None:
 
 
 def test_policy_search_phase2_bounds_derivation_blocks_missing_bounds() -> None:
-    assert hasattr(policy_search, "derive_phase2_parameter_bounds")
-    result = policy_search.derive_phase2_parameter_bounds(
+    assert "derive_phase2_parameter_bounds" in policy_design.__all__
+    result = policy_design.derive_phase2_parameter_bounds(
         workspace_id="ws-phase2",
         invocation_id="invoke-refine",
         default=10.0,

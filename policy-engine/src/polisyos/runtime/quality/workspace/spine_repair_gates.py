@@ -41,9 +41,9 @@ class LexBoundsApplicabilityGate:
     ) -> LexBoundsGateResult:
         """Return a typed blocker or a bounded frontier payload."""
 
-        from polisyos.scientist.policy_design import search as policy_search
+        from polisyos.scientist.policy_design import derive_phase2_parameter_bounds
 
-        domain_result = policy_search.derive_phase2_parameter_bounds(
+        domain_result = derive_phase2_parameter_bounds(
             workspace_id=workspace_id,
             invocation_id=invocation_id,
             default=0.0,

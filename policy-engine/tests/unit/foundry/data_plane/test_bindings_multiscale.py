@@ -1138,7 +1138,7 @@ def test_selected_data_snapshot_resolves_every_supported_nested_reference_profil
     from pydantic import BaseModel
     from pydantic_core import PydanticUndefined
 
-    from polisyos.core.contracts.fabric import (
+    from polisyos.core.contracts import (
         data_snapshot_reference_fields,
         data_snapshot_reference_input_roles,
     )
@@ -1214,7 +1214,7 @@ def test_selected_data_snapshot_fails_closed_for_unbound_optional_reference_fiel
     from pydantic import BaseModel
     from pydantic_core import PydanticUndefined
 
-    from polisyos.core.contracts.fabric import (
+    from polisyos.core.contracts import (
         data_snapshot_reference_fields,
         data_snapshot_reference_input_roles,
     )

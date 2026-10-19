@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core.llm.cache_settlement import session_for_cache_client
 from polisyos.core.llm.sanitization import PromptSanitizer
 from polisyos.core.llm.traced_client import TracedLLMClient
 
@@ -243,7 +244,7 @@ def create_traced_gateway_client(
             inflight_timeout_s=cfg.timeout_s,
             reuse_authorizer=cache_reuse_authorizer,
         )
-    cache_reuse_owner = getattr(raw_client, "_cache_reuse_owner", None)
+    cache_settlement_session = session_for_cache_client(raw_client)
     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(
         raw_client,
@@ -259,7 +260,7 @@ def create_traced_gateway_client(
         prompt_sanitizer=prompt_sanitizer,
         tracer=tracer,
         metrics=metrics,
-        cache_reuse_owner=cache_reuse_owner,
+        cache_settlement_session=cache_settlement_session,
         producer_settlement_store=producer_settlement_store,
         producer_budget_key=producer_budget_key,
     )

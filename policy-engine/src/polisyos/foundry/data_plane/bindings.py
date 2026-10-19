@@ -34,13 +34,12 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import ValueOuterSet
-from polisyos.core.contracts.fabric import (
-    DataSnapshot,
-    DataSnapshotRef,
+from polisyos.core.contracts import (
+    ValueOuterSet,
     data_snapshot_reference_fields,
     data_snapshot_reference_input_roles,
 )
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
     FeedbackConfig,
     FeedbackStateSnapshot,

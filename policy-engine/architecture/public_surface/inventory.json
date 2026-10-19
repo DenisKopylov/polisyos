@@ -742,10 +742,12 @@
         "polisyos.core.contracts",
         "polisyos.core.governance",
         "polisyos.core.llm",
+        "polisyos.core.llm.cache_settlement",
         "polisyos.core.observability",
         "polisyos.core.security",
         "polisyos.core.trace",
-        "polisyos.core.registry"
+        "polisyos.core.registry",
+        "polisyos.core.run.worker_lifecycle"
       ],
       "major_subsystem": true,
       "export_count": null,
@@ -1368,8 +1370,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 68274,
-                "sha256": "7848afa922f753e2fb993ef5e5926ff5d9ff246621a73a8434c97635d67489fa"
+                "bytes": 68657,
+                "sha256": "e12812a1f5de8cbbbe2792c63b1b69adbedee58c492ff92fad8282942fa22d86"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -1565,6 +1567,98 @@
               "extract_llm_response_data",
               "retry_async",
               "scan_secret_and_pii"
+            ],
+            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+          }
+        },
+        {
+          "module": "polisyos.core.llm.cache_settlement",
+          "facade_mode_observed": "unresolved_exports",
+          "export_count": null,
+          "known_export_count": 0,
+          "exports": [],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/llm/cache_settlement.py",
+          "summary": "Opaque Core-owned owner boundary for authenticated cache reuse.",
+          "export_resolution": {
+            "complete_verdict": false,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/core/llm/cache_settlement.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/llm/cache_settlement/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/core/llm/cache_settlement.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 12342,
+                "sha256": "0b75e650abe1b35ae33dc00c3e08c009255f397b33d10d6230589f9206a70023"
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 24,
+                "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 11696,
+                "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+              },
+              {
+                "path": "src/polisyos/core/llm/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/llm/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 1338,
+                "sha256": "3896dbb95e3dc5553c75fa083b0f88270925a36e000cbda1d398f63ce6ddbe2f"
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": false,
+            "reason": "Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib",
+            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+            "declared_export_candidates": [
+              "CacheFlightOutcome",
+              "CacheFlightRegistration",
+              "CacheReuseAttestation",
+              "CacheReuseEvidence",
+              "CacheSettlementSession",
+              "create_cache_settlement_session",
+              "session_for_cache_client"
             ],
             "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
             "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
@@ -2005,6 +2099,95 @@
               "load_registry_bundle",
               "load_registry_bundle_content",
               "load_registry_bundle_payload"
+            ],
+            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+          }
+        },
+        {
+          "module": "polisyos.core.run.worker_lifecycle",
+          "facade_mode_observed": "unresolved_exports",
+          "export_count": null,
+          "known_export_count": 0,
+          "exports": [],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/run/worker_lifecycle.py",
+          "summary": "Core-owned boundary for staging and admitting run-worker receipts.",
+          "export_resolution": {
+            "complete_verdict": false,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/core/run/worker_lifecycle.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/run/worker_lifecycle/__init__.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/core/run/worker_lifecycle.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 19637,
+                "sha256": "2ba6f518ea40315f879aaa12ba9b73f64ac4d1da7cf15d2002f1e9feef90d01a"
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 24,
+                "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 11696,
+                "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+              },
+              {
+                "path": "src/polisyos/core/run/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/run/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 195,
+                "sha256": "6ee2f44052fb820dc40d0d3584b021c58ed20729a9e7d198bf7a4ef2c478c6e1"
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": false,
+            "reason": "Unresolved import-time Import outside pure-declaration grammar: src/polisyos/core/__init__.py:import importlib",
+            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+            "declared_export_candidates": [
+              "WorkerDispatchBinding",
+              "WorkerLifecycleCapability",
+              "WorkerRunSnapshot",
+              "WorkerRunView"
             ],
             "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
             "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
@@ -5848,8 +6031,8 @@
                 "path": "src/polisyos/fabric/retrieval/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 638,
-                "sha256": "4b4d1f9ff3913f46ad6920c51a003325a7bb0774974412435ae137248d06e14f"
+                "bytes": 987,
+                "sha256": "19f6be1e11b9df430232ffa7ce9fd0740726e0a15e7366a59893597866e76aad"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -5891,6 +6074,11 @@
               "ExploreLaneDiscoverResult",
               "ExploreLaneDiscovery",
               "ExploreLaneLimits",
+              "FetchCaptureArtifactReferenceView",
+              "FetchCaptureLocatorView",
+              "FetchCaptureMetricView",
+              "FetchCapturePostflightView",
+              "FetchCapturePreflightView",
               "FetchExecutor",
               "ResolveOutcome",
               "RetrievalProviders",
@@ -8597,8 +8785,8 @@
                 "path": "src/polisyos/scientist/policy_design/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8512,
-                "sha256": "f9f82fedc6173e49f2e3dc83b3b8394a430e351ee17f6343702e46c0d45a25b7"
+                "bytes": 8593,
+                "sha256": "3f04345b15cb45e93011a217a5f23ac18ff2d03629c7ebef5695e7dcba7b076d"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -8724,6 +8912,7 @@
               "critic_verdict",
               "critique_to_failure_cards",
               "critique_to_lesson_cards",
+              "derive_phase2_parameter_bounds",
               "load_adversarial_scenario_bundle",
               "load_policy_artifact_bundle",
               "load_policy_brief",

@@ -1678,6 +1678,49 @@ def test_connector_cache_graph_uses_real_serializer_media_without_pickle_executi
     assert forbidden_calls == []
 
 
+def test_registered_codec_roles_are_available_from_epoch_owner() -> None:
+    expected_roles = {
+        "epoch.coordinate.valid_effect.v1": "valid_effect",
+        "epoch.coordinate.visibility_knowledge_cutoff.v1": "visibility_knowledge_cutoff",
+        "epoch.coordinate.purpose_admission_cutoff.v1": "purpose_admission_cutoff",
+        "epoch.coordinate.valid-date.v1": "valid_effect",
+        "epoch.coordinate.knowledge-time.v1": "visibility_knowledge_cutoff",
+        "epoch.coordinate.admission-time.v1": "purpose_admission_cutoff",
+    }
+    for kind, expected_role in expected_roles.items():
+        codec = epoch_contract.acquisition_artifact_codec(kind)
+        assert codec is not None
+        assert codec.payload_format == "native_coordinate"
+        assert epoch_contract.acquisition_native_coordinate_role(kind) == expected_role
+        assert epoch_contract._acquisition_native_coordinate_role(kind) == expected_role
+
+    ordinary_codec = epoch_contract.acquisition_artifact_codec("lex.amendment")
+    assert ordinary_codec is not None
+    assert epoch_contract.acquisition_native_coordinate_role("lex.amendment") is None
+
+
+def test_acquisition_artifact_codec_keeps_its_existing_tuple_shape() -> None:
+    codec = epoch_contract.acquisition_artifact_codec("epoch.coordinate.valid_effect.v1")
+    assert codec is not None
+    assert codec._fields == (
+        "media_type",
+        "payload_format",
+        "canon",
+        "schema_name",
+        "schema_version",
+        "require_schema_absent",
+    )
+    assert len(codec) == 6
+    assert tuple(codec) == (
+        "application/vnd.polisyos.epoch+json",
+        "native_coordinate",
+        None,
+        None,
+        None,
+        False,
+    )
+
+
 def test_registered_codec_keeps_identity_tokens_and_unresolved_refs_distinct(
     tmp_path: Path,
 ) -> None:
@@ -2126,7 +2169,10 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         live_snapshot_profileless: bool = False,
         candidate_source_ref: ArtifactRef | None = None,
     ) -> bool:
-        from polisyos.core.contracts import fabric as fabric_contracts
+        from polisyos.core.contracts import (
+            data_snapshot_reference_fields,
+            data_snapshot_reference_input_roles,
+        )
 
         changed_snapshot_updates = dict(snapshot_changes or {})
         if live_bundle_ref is not None:
@@ -2137,10 +2183,10 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         if manifest_inputs is None:
             available_edges = list(store.get_manifest(produced_snapshot_ref).inputs)
             manifest_inputs = []
-            for field_name in fabric_contracts.data_snapshot_reference_fields():
+            for field_name in data_snapshot_reference_fields():
                 owner_ref = getattr(changed_snapshot, field_name)
                 if owner_ref is not None:
-                    roles = fabric_contracts.data_snapshot_reference_input_roles(field_name)
+                    roles = data_snapshot_reference_input_roles(field_name)
                     original_ref = getattr(snapshot, field_name)
                     matching_edges = [
                         edge

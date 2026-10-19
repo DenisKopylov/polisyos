@@ -19,7 +19,6 @@ from enum import StrEnum
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
-from urllib.parse import unquote, urlparse
 
 from pydantic import (
     BaseModel,
@@ -54,7 +53,11 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.data_forge.read_api import academic
     from polisyos.data_forge.read_api.catalog import CatalogRunProfile
-    from polisyos.fabric.retrieval.executor import _FetchExecutionBinding
+    from polisyos.fabric.retrieval.service import (
+        FetchCaptureLocatorView,
+        FetchCapturePostflightView,
+        FetchCapturePreflightView,
+    )
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.production_grounding_calibration import (
         ProductionCG2CalibrationSource,
@@ -1511,7 +1514,7 @@ class RealAcquisitionOwnerGateway:
                             dataset_catalog=graph,
                         )
                     if not callable(getattr(service, "resolve", None)) or not callable(
-                        getattr(service, "execute_fetch_plans", None)
+                        getattr(service, "execute_persisted_fetch_capture", None)
                     ):
                         raise ValueError("fabric_fetch_capture_service_invalid")
                     service_store = getattr(service, "artifact_store", None)
@@ -1526,33 +1529,75 @@ class RealAcquisitionOwnerGateway:
                     if len(response.fetch_plans) != 1:
                         raise ValueError("fabric_fetch_capture_requires_one_plan")
                     plan = response.fetch_plans[0]
-                    binding = graph.bind_fetch_target(
-                        metric_id=plan.metric_id,
-                        connector_id=plan.connector_id,
-                        request_dataset_id=plan.dataset_id,
-                        profile_id=plan.profile_id,
-                        filters=plan.filters,
-                    )
-                    execution_binding = _validate_local_fabric_capture_route(
-                        service=service,
-                        plan=plan,
-                        binding=binding,
-                        catalog=graph,
-                        approved_root=self._repo_root,
-                    )
-                    execution = service.execute_fetch_plans(
+                    preflight_views: list[FetchCapturePreflightView] = []
+
+                    def validate_local_route(view: FetchCapturePreflightView) -> None:
+                        if preflight_views:
+                            raise ValueError("fabric_fetch_capture_preflight_repeated")
+                        if (
+                            view.plan_id != plan.plan_id
+                            or view.metric_id != plan.metric_id
+                            or view.connector_id != plan.connector_id
+                            or view.profile_id != plan.profile_id
+                        ):
+                            raise ValueError("fabric_fetch_capture_plan_identity_mismatch")
+                        if not isinstance(graph, catalog_read_api.DatasetCatalogGraph):
+                            raise ValueError("fabric_fetch_capture_catalog_owner_missing")
+                        runtime_binding = graph.bind_fetch_target(
+                            metric_id=plan.metric_id,
+                            connector_id=plan.connector_id,
+                            request_dataset_id=plan.dataset_id,
+                            profile_id=plan.profile_id,
+                            filters=plan.filters,
+                        )
+                        runtime_binding_fingerprint = canon.fingerprint(
+                            runtime_binding.model_dump(mode="json"),
+                            prefix=True,
+                            canon_spec=canon.CanonSpec(
+                                forbid_floats=False,
+                                exclude_none=False,
+                            ),
+                        )
+                        if runtime_binding_fingerprint != view.catalog_binding_fingerprint:
+                            raise ValueError("fabric_fetch_capture_catalog_binding_mismatch")
+                        _validate_local_fabric_capture_route(
+                            view=view,
+                            catalog=graph,
+                            approved_root=self._repo_root,
+                        )
+                        preflight_views.append(view)
+
+                    def validate_persisted_result(view: FetchCapturePostflightView) -> None:
+                        if len(preflight_views) != 1:
+                            raise ValueError("fabric_fetch_capture_preflight_missing")
+                        preflight_view = preflight_views[0]
+                        if view.plan_fingerprint != preflight_view.plan_fingerprint:
+                            raise ValueError("fabric_fetch_capture_postflight_binding_mismatch")
+                        if (
+                            view.effective_config_fingerprint
+                            != preflight_view.effective_config_fingerprint
+                            or view.source_profile_fingerprint
+                            != preflight_view.source_profile_fingerprint
+                        ):
+                            raise ValueError(
+                                "fabric_fetch_capture_postflight_config_binding_mismatch"
+                            )
+                        captured_fetches.extend(
+                            _captured_fabric_fetches(
+                                plan=plan,
+                                postflight=view,
+                                store=cast("ArtifactStore", service_store),
+                                catalog=graph,
+                            )
+                        )
+
+                    service.execute_persisted_fetch_capture(
                         response.fetch_plans,
-                        persist_payload=True,
-                        allow_fallback=False,
-                        execution_binding=execution_binding,
+                        preflight=validate_local_route,
+                        postflight=validate_persisted_result,
                     )
-                    captured_fetches = _captured_fabric_fetches(
-                        plans=response.fetch_plans,
-                        metrics=execution.data_context.metrics,
-                        store=cast("ArtifactStore", service_store),
-                        catalog=graph,
-                        execution_binding=execution_binding,
-                    )
+                    if len(captured_fetches) != 1:
+                        raise ValueError("fabric_fetch_capture_postflight_missing")
                 except (
                     AttributeError,
                     OSError,
@@ -1614,7 +1659,7 @@ class RealAcquisitionOwnerGateway:
         return _artifact_from_owner_response(
             owner_component="fabric.retrieval",
             owner_endpoint=(
-                "RetrievalService.resolve/execute_fetch_plans"
+                "RetrievalService.resolve/execute_persisted_fetch_capture"
                 if capture_fetches
                 else "RetrievalService.resolve"
             ),
@@ -3080,122 +3125,72 @@ def _fabric_fetch_capture_enabled(spec: Mapping[str, Any]) -> bool:
 
 def _validate_local_fabric_capture_route(
     *,
-    service: object,
-    plan: Any,
-    binding: Any,
+    view: FetchCapturePreflightView,
     catalog: object,
     approved_root: Path,
-) -> _FetchExecutionBinding:
-    """Prove and bind the bounded capture plan to its effective local file config."""
+) -> None:
+    """Check one owner snapshot against the candidate-only local file policy."""
 
     from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.fabric.connectors import FileTabularConnector
-    from polisyos.fabric.retrieval.executor import _FetchExecutionBinding
-    from polisyos.fabric.retrieval.service import RetrievalService
+    from polisyos.fabric.retrieval.service import FetchCapturePreflightView
 
-    if not isinstance(service, RetrievalService):
-        raise ValueError("fabric_fetch_capture_service_not_retrieval_service")
+    if not isinstance(view, FetchCapturePreflightView):
+        raise ValueError("fabric_fetch_capture_owner_view_missing")
     if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
         raise ValueError("fabric_fetch_capture_catalog_owner_missing")
     connector_id = FileTabularConnector.connector_id
-    if plan.connector_id != connector_id or binding.connector_id != connector_id:
+    if view.connector_id != connector_id or view.target_connector_id != connector_id:
         raise ValueError("fabric_fetch_capture_connector_not_local_tabular")
-    if (
-        binding.metric_id != plan.metric_id
-        or binding.request_dataset_id != plan.dataset_id
-        or binding.profile_id != plan.profile_id
-    ):
+    if view.target_profile_id != view.profile_id:
         raise ValueError("fabric_fetch_capture_binding_plan_mismatch")
-    target = binding.target
-    if target.connector_id != connector_id or not target.distribution_id:
+    if not view.target_distribution_id:
         raise ValueError("fabric_fetch_capture_target_not_local_tabular")
-
-    distributions = catalog.get_distributions(target.catalog_dataset_id)
-    matches = [item for item in distributions if item.id == target.distribution_id]
-    if len(matches) != 1:
-        raise ValueError("fabric_fetch_capture_distribution_not_admitted")
-    distribution = matches[0]
-    if distribution.connector_type != connector_id:
-        raise ValueError("fabric_fetch_capture_distribution_not_admitted")
-    locator_values = tuple(
-        dict.fromkeys(
-            str(locator).strip()
-            for locator in (distribution.url, distribution.source_locator)
-            if locator is not None and str(locator).strip()
-        )
-    )
-    if len(locator_values) != 1:
-        raise ValueError("fabric_fetch_capture_distribution_locator_ambiguous")
-    catalog_path = _resolve_local_fabric_capture_path(
-        locator_values[0], approved_root=approved_root
-    )
-
-    executor = getattr(service, "_executor", None)
-    registry = getattr(executor, "_registry", None)
-    get_entry = getattr(registry, "get_entry", None)
-    bind_execution = getattr(service, "_bind_execution", None)
-    if not callable(get_entry) or not callable(bind_execution):
-        raise ValueError("fabric_fetch_capture_service_dependencies_missing")
-    capture_registration = getattr(registry, "_capture_registration_binding", None)
-    if not callable(capture_registration):
-        raise ValueError("fabric_fetch_capture_registration_binding_missing")
-    registration_binding = capture_registration(plan.connector_id)
-    entry = registration_binding.entry
-    if getattr(entry, "connector_class", None) is not FileTabularConnector:
+    if view.connector_class is not FileTabularConnector:
         raise ValueError("fabric_fetch_capture_connector_registration_mismatch")
-    instance = getattr(entry, "instance", None)
-    if instance is not None and type(instance) is not FileTabularConnector:
+    if view.connector_instance_class not in {None, FileTabularConnector}:
         raise ValueError("fabric_fetch_capture_connector_instance_mismatch")
-    execution_binding = bind_execution(
-        plan,
-        registration_binding=registration_binding,
-    )
-    if not isinstance(execution_binding, _FetchExecutionBinding):
-        raise ValueError("fabric_fetch_capture_execution_binding_missing")
-    config = execution_binding.connection_config
     actual_path = _resolve_local_fabric_capture_path(
-        getattr(config, "url", None), approved_root=approved_root, allow_relative=False
+        view.effective_locator,
+        approved_root=approved_root,
+        allow_relative=False,
     )
-    if actual_path != catalog_path:
-        raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
-
-    connector_params = target.connector_params
-    if not isinstance(connector_params, Mapping):
+    if not view.connector_params_mappable:
         raise ValueError("fabric_fetch_capture_connector_params_missing")
-    for locator_key in ("url", "path"):
-        if locator_key not in connector_params:
-            continue
-        configured_locator = connector_params[locator_key]
-        if not isinstance(configured_locator, str) or not configured_locator.strip():
+    for _locator_key, locator_view in view.connector_param_locators:
+        if (
+            not locator_view.is_text
+            or not locator_view.present
+            or locator_view.classification in {"missing", "malformed"}
+        ):
             raise ValueError("fabric_fetch_capture_catalog_locator_malformed")
         configured_path = _resolve_local_fabric_capture_path(
-            configured_locator, approved_root=approved_root
+            locator_view,
+            approved_root=approved_root,
         )
-        if configured_path != catalog_path:
+        if configured_path != actual_path:
             raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
-
-    return execution_binding
 
 
 def _resolve_local_fabric_capture_path(
-    locator: object,
+    locator: FetchCaptureLocatorView,
     *,
     approved_root: Path,
     allow_relative: bool = True,
 ) -> Path:
-    if locator is None:
+    from polisyos.fabric.retrieval.service import FetchCaptureLocatorView
+
+    if not isinstance(locator, FetchCaptureLocatorView) or not locator.present:
         raise ValueError("fabric_fetch_capture_local_locator_missing")
-    raw = str(locator).strip()
-    if not raw:
-        raise ValueError("fabric_fetch_capture_local_locator_missing")
-    parsed = urlparse(raw)
-    scheme = parsed.scheme.lower()
-    if scheme in {"http", "https"}:
+    if locator.classification == "remote":
         raise ValueError("fabric_fetch_capture_remote_locator")
-    if scheme not in {"", "file"} or parsed.netloc:
+    if locator.classification == "nonlocal":
         raise ValueError("fabric_fetch_capture_nonlocal_locator")
-    path_text = unquote(parsed.path) if scheme == "file" else raw
-    candidate = Path(path_text).expanduser()
+    if locator.classification == "malformed" or not locator.is_text:
+        raise ValueError("fabric_fetch_capture_local_locator_missing")
+    if locator.classification == "missing" or locator.local_path is None:
+        raise ValueError("fabric_fetch_capture_local_locator_missing")
+    candidate = Path(locator.local_path)
     root = approved_root.resolve(strict=True)
     if not candidate.is_absolute():
         if not allow_relative:
@@ -3216,107 +3211,103 @@ def _resolve_local_fabric_capture_path(
 
 def _captured_fabric_fetches(
     *,
-    plans: Sequence[Any],
-    metrics: Sequence[Any],
+    plan: Any,
+    postflight: FetchCapturePostflightView,
     store: ArtifactStore,
     catalog: object,
-    execution_binding: Any,
 ) -> list[dict[str, Any]]:
-    """Validate and project executor-owned payload/receipt references.
+    """Validate the persisted CAS chain and project only its typed references.
 
-    The capture lane records only the actual ``FetchExecutor`` output. It does
-    not manufacture substrate registrations or candidate bindings, and it
-    refuses an incomplete or foreign CAS chain before producing an owner
-    artifact.
+    This verifies the actual executor result. It does not manufacture catalog
+    registrations, candidate bindings, currentness, or scientific authority.
     """
 
-    from polisyos.fabric.retrieval.executor import FetchExecutor, _FetchExecutionBinding
+    from polisyos.fabric.retrieval.service import FetchCapturePostflightView
 
-    if (
-        not isinstance(execution_binding, _FetchExecutionBinding)
-        or not isinstance(execution_binding.owner, FetchExecutor)
-        or len(plans) != 1
-    ):
-        raise ValueError("fabric_fetch_capture_execution_binding_missing")
-    execution_binding.owner._validate_execution_binding(plans[0], execution_binding)
-
-    plans_by_id = {str(plan.plan_id): plan for plan in plans}
-    if len(plans_by_id) != len(plans) or len(metrics) != len(plans):
+    if not isinstance(postflight, FetchCapturePostflightView) or len(postflight.metrics) != 1:
         raise ValueError("fabric_fetch_capture_plan_metric_cardinality_mismatch")
-    if {str(metric.plan_id) for metric in metrics} != set(plans_by_id):
+    metric = postflight.metrics[0]
+    if metric.plan_id != plan.plan_id or metric.metric_id != plan.metric_id:
         raise ValueError("fabric_fetch_capture_plan_metric_identity_mismatch")
+    if metric.payload_ref is None or metric.fetch_receipt_ref is None:
+        raise ValueError("fabric_fetch_capture_refs_missing")
 
     from polisyos.core import canon
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.fabric.api import FabricFetchReceipt
 
     if not isinstance(catalog, catalog_read_api.DatasetCatalogGraph):
         raise ValueError("fabric_fetch_capture_catalog_owner_missing")
-    captured: list[dict[str, Any]] = []
-    for metric in metrics:
-        plan = plans_by_id[str(metric.plan_id)]
-        payload_ref = metric.payload_ref
-        receipt_ref = metric.fetch_receipt_ref
-        if payload_ref is None or receipt_ref is None:
-            raise ValueError("fabric_fetch_capture_refs_missing")
 
-        _validate_fabric_capture_ref(
-            store,
-            payload_ref,
-            expected_kind="fabric.fetch_payload",
-            expected_media_types={
-                "application/json",
-                "application/vnd.apache.arrow.stream",
-            },
-        )
-        receipt_manifest, receipt_bytes = _validate_fabric_capture_ref(
-            store,
-            receipt_ref,
-            expected_kind="fabric.fetch_receipt",
-            expected_media_types={"application/json"},
-        )
-        receipt = FabricFetchReceipt.model_validate(canon.from_canonical_bytes(receipt_bytes))
-        if receipt.used_plan != plan:
-            raise ValueError("fabric_fetch_capture_plan_mismatch")
-        if receipt.result.data != payload_ref:
-            raise ValueError("fabric_fetch_capture_payload_ref_mismatch")
-        binding_ref = receipt.catalog_binding_ref
-        _, binding_bytes = _validate_fabric_capture_ref(
-            store,
-            binding_ref,
-            expected_kind="fabric.catalog_fetch_binding",
-            expected_media_types={"application/json"},
-        )
-        binding = catalog_read_api.CatalogFetchBinding.model_validate(
-            canon.from_canonical_bytes(binding_bytes)
-        )
-        if catalog.verify_fetch_binding(binding) != catalog.bind_fetch_target(
-            metric_id=plan.metric_id,
-            connector_id=plan.connector_id,
-            request_dataset_id=plan.dataset_id,
-            profile_id=plan.profile_id,
-            filters=plan.filters,
-        ):
-            raise ValueError("fabric_fetch_capture_catalog_binding_mismatch")
-        expected_inputs = [
-            artifacts.InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
-            artifacts.InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
-        ]
-        if receipt_manifest.inputs != expected_inputs:
-            raise ValueError("fabric_fetch_capture_receipt_lineage_mismatch")
-        captured.append(
+    def restore_ref(view: object) -> ArtifactRef:
+        return ArtifactRef.model_validate(
             {
-                "plan": plan.model_dump(mode="json"),
-                "metric_id": metric.metric_id,
-                "row_count": metric.row_count,
-                "completeness": metric.completeness,
-                "source_lane": metric.source_lane,
-                "payload_ref": payload_ref.model_dump(mode="json"),
-                "fetch_receipt_ref": receipt_ref.model_dump(mode="json"),
-                "catalog_binding_ref": binding_ref.model_dump(mode="json"),
+                "artifact_id": getattr(view, "artifact_id", None),
+                "kind": getattr(view, "kind", None),
+                "media_type": getattr(view, "media_type", None),
+                "manifest_profile_sha256": getattr(view, "manifest_profile_sha256", None),
             }
         )
-    return captured
+
+    payload_ref = restore_ref(metric.payload_ref)
+    receipt_ref = restore_ref(metric.fetch_receipt_ref)
+    _validate_fabric_capture_ref(
+        store,
+        payload_ref,
+        expected_kind="fabric.fetch_payload",
+        expected_media_types={
+            "application/json",
+            "application/vnd.apache.arrow.stream",
+        },
+    )
+    receipt_manifest, receipt_bytes = _validate_fabric_capture_ref(
+        store,
+        receipt_ref,
+        expected_kind="fabric.fetch_receipt",
+        expected_media_types={"application/json"},
+    )
+    receipt = FabricFetchReceipt.model_validate(canon.from_canonical_bytes(receipt_bytes))
+    if receipt.used_plan != plan:
+        raise ValueError("fabric_fetch_capture_plan_mismatch")
+    if receipt.result.data != payload_ref:
+        raise ValueError("fabric_fetch_capture_payload_ref_mismatch")
+    binding_ref = receipt.catalog_binding_ref
+    _, binding_bytes = _validate_fabric_capture_ref(
+        store,
+        binding_ref,
+        expected_kind="fabric.catalog_fetch_binding",
+        expected_media_types={"application/json"},
+    )
+    binding = catalog_read_api.CatalogFetchBinding.model_validate(
+        canon.from_canonical_bytes(binding_bytes)
+    )
+    if catalog.verify_fetch_binding(binding) != catalog.bind_fetch_target(
+        metric_id=plan.metric_id,
+        connector_id=plan.connector_id,
+        request_dataset_id=plan.dataset_id,
+        profile_id=plan.profile_id,
+        filters=plan.filters,
+    ):
+        raise ValueError("fabric_fetch_capture_catalog_binding_mismatch")
+    expected_inputs = [
+        artifacts.InputRef(artifact_id=payload_ref.artifact_id, role="fetched_payload"),
+        artifacts.InputRef(artifact_id=binding_ref.artifact_id, role="catalog_binding"),
+    ]
+    if receipt_manifest.inputs != expected_inputs:
+        raise ValueError("fabric_fetch_capture_receipt_lineage_mismatch")
+    return [
+        {
+            "plan": plan.model_dump(mode="json"),
+            "metric_id": metric.metric_id,
+            "row_count": metric.row_count,
+            "completeness": metric.completeness,
+            "source_lane": metric.source_lane,
+            "payload_ref": payload_ref.model_dump(mode="json"),
+            "fetch_receipt_ref": receipt_ref.model_dump(mode="json"),
+            "catalog_binding_ref": binding_ref.model_dump(mode="json"),
+        }
+    ]
 
 
 def _validate_fabric_capture_ref(

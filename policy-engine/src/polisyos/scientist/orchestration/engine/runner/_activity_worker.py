@@ -61,12 +61,6 @@ class _StagedWorkerTraceSink:
         raise ValueError("timeout_worker_run_lifecycle_not_owned")
 
 
-def _timeout_worker_lifecycle_refusal(*args: Any, **kwargs: Any) -> None:
-    """Refuse worker lifecycle transitions; only the parent owns run finality."""
-    del args, kwargs
-    raise ValueError("timeout_worker_run_lifecycle_not_owned")
-
-
 async def run_node_in_worker(
     payload: dict[str, Any],
     *,
@@ -166,9 +160,16 @@ async def run_node_in_worker(
         if not receipt_requested:
             ctx = _build_worker_context(context_meta)
         else:
-            ctx = _build_timeout_worker_context(context_meta)
+            ctx = _build_timeout_worker_context(
+                context_meta,
+                invocation_id=receipt_invocation_id,
+                dispatch_sha256=receipt_dispatch_sha256,
+            )
             staged_trace = ctx.run.trace
-            receipt_owner_snapshot_ref = ctx.run._owner_snapshot_ref
+            worker_binding = ctx.run.dispatch_binding
+            receipt_owner_snapshot_ref = (
+                None if worker_binding is None else worker_binding.owner_snapshot_ref
+            )
             if not isinstance(staged_trace, _StagedWorkerTraceSink):
                 raise ValueError("timeout_worker_staged_trace_required")
             if receipt_owner_snapshot_ref is None:
@@ -724,13 +725,18 @@ def _build_worker_context(meta: dict[str, Any], *, store_only: bool = False) -> 
     return ctx
 
 
-def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
+def _build_timeout_worker_context(
+    meta: dict[str, Any],
+    *,
+    invocation_id: str | None = None,
+    dispatch_sha256: str | None = None,
+) -> Any:
     """Reconstruct only the exact filesystem/run context admitted for timeout work."""
     from polisyos.core import run as core_run
     from polisyos.core.artifacts import FileSystemCAS, SigningConfig
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.observability import is_hpc_observability_enabled
-    from polisyos.core.run.context import RunContext
+    from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
     if set(meta) != {
@@ -880,24 +886,21 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     if store._hpc_enabled != hpc_observability_enabled:
         raise ValueError("timeout_worker_observability_setting_mismatch")
     staged_trace = _StagedWorkerTraceSink()
-    run = RunContext(
+    lifecycle = WorkerLifecycleCapability.for_worker_context(
         store=store,
         trace=staged_trace,
         run_manifest=run_manifest,
-        _trace_path=trace_path,
-        _audit_sink=None,
+        trace_path=trace_path,
+        owner_snapshot_ref=owner_snapshot_ref,
+        invocation_id=invocation_id,
+        dispatch_sha256=dispatch_sha256,
         tenant_id=tenant_id,
         cell_id=cell_id,
         access_scope=access_scope,
-        _owner_snapshot_ref=owner_snapshot_ref,
     )
-    run._record_ref_owner = lambda ref, *, writer: None
-    run.finalize = _timeout_worker_lifecycle_refusal
-    run.suspend_for_resume = _timeout_worker_lifecycle_refusal
-    run._validate_timeout_worker_owner_binding()
     return ExecutionContext(
         store=store,
-        run=run,
+        run=lifecycle.worker_view(),
         logger=logging.getLogger(logger_name),
         depth=depth,
     )

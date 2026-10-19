@@ -230,7 +230,7 @@ class LLMBudgetEnforcer:
         resolved_run_id = self._run_id if run_id is None else run_id
         data = extract_llm_response_data(
             response,
-            cache_reuse_owner=getattr(self._client, "_accounting_flight_owner", None),
+            cache_settlement_session=getattr(self._client, "_accounting_flight_owner", None),
         )
         try:
             actual_cost = self._resolve_actual_cost(data)

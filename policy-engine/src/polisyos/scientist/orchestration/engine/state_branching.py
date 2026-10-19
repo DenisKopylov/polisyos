@@ -24,8 +24,8 @@ from enum import Enum, EnumType, IntEnum, ReprEnum, StrEnum
 from inspect import getattr_static
 from math import isfinite
 from operator import index as _index
-from types import NotImplementedType
-from typing import Any, ClassVar, Generic, Literal, Self, SupportsIndex, cast
+from types import GetSetDescriptorType, NotImplementedType
+from typing import Any, ClassVar, Generic, Literal, Self, SupportsIndex, TypeGuard, cast
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
@@ -137,6 +137,11 @@ class StateMutationJournal:
         return self
 
 
+def _is_owned_state_mutation_journal(value: object) -> TypeGuard[StateMutationJournal]:
+    """Recognize the concrete journal class owned by this process."""
+    return type(value) is StateMutationJournal
+
+
 class _JournaledExperimentState(ExperimentState):
     """ExperimentState view that records declared scalar assignments."""
 
@@ -147,12 +152,12 @@ class _JournaledExperimentState(ExperimentState):
             journal = object.__getattribute__(self, _MUTATION_JOURNAL_ATTR)
         except AttributeError:
             journal = None
-        if isinstance(journal, StateMutationJournal) and journal.enforce_write_scope:
+        if _is_owned_state_mutation_journal(journal) and journal.enforce_write_scope:
             if name not in journal.isolated_paths:
                 raise ValueError(f"undeclared state_writes at live paths: {[name]}")
             _validate_mutation_attachment(None, value, depth=_CANONICAL_STATE_FIELD_DEPTH)
             value = _wrap_mutable_value(value, (name,), journal)
-        if isinstance(journal, StateMutationJournal) and name in journal.isolated_paths:
+        if _is_owned_state_mutation_journal(journal) and name in journal.isolated_paths:
             previous = getattr(self, name, _MISSING)
             super().__setattr__(name, value)
             _bind_mutation_root(getattr(self, name), self, name, (name,))
@@ -613,6 +618,8 @@ def _is_branchable_container(value: Any) -> bool:
 
 def _attach_mutation_journal(state: ExperimentState, journal: StateMutationJournal) -> None:
     """Attach a private journal without widening the public state contract."""
+    if not _is_owned_state_mutation_journal(journal):
+        raise TypeError("state mutation journaling requires an owned StateMutationJournal")
     object.__setattr__(state, _MUTATION_JOURNAL_ATTR, journal)
 
 
@@ -624,10 +631,63 @@ def _promote_to_journaled_state(state: ExperimentState) -> ExperimentState:
 
 def mutation_journal_for_state(state: ExperimentState) -> StateMutationJournal | None:
     """Return the branch journal carried by *state*, if one is present."""
-    journal = getattr(state, _MUTATION_JOURNAL_ATTR, None)
-    if isinstance(journal, StateMutationJournal):
+    journal = _direct_mutation_journal_for_state(state)
+    if _is_owned_state_mutation_journal(journal):
         return journal
     return _find_mutation_journal(state, set())
+
+
+def _direct_mutation_journal_for_state(state: ExperimentState) -> StateMutationJournal | None:
+    """Return only the root journal without recursively walking state values.
+
+    Runner wire emission uses this exact-root lookup before passing the whole
+    value graph to its bounded encoder. Nested values are not a journal owner.
+    """
+    try:
+        journal = object.__getattribute__(state, _MUTATION_JOURNAL_ATTR)
+    except AttributeError:
+        return None
+    return journal if _is_owned_state_mutation_journal(journal) else None
+
+
+def _wire_instance_namespace(value: Any) -> dict[str, Any] | None:
+    """Read ordinary instance storage without resolving user descriptors."""
+    descriptor = getattr_static(value, "__dict__", _MISSING)
+    if type(descriptor) is not GetSetDescriptorType:
+        return None
+    try:
+        namespace = object.__getattribute__(value, "__dict__")
+    except AttributeError:
+        return None
+    return namespace if type(namespace) is dict else None
+
+
+def _wire_mutation_journal_owner(
+    value: Any,
+    *,
+    state_root: bool = False,
+) -> tuple[StateMutationJournal | None, Literal["root", "legacy", "tracked"] | None]:
+    """Return a real journal owner stored on one node of a guarded wire walk."""
+    if state_root and isinstance(value, ExperimentState):
+        root_journal = _direct_mutation_journal_for_state(value)
+        if _is_owned_state_mutation_journal(root_journal):
+            return root_journal, "root"
+
+    namespace = _wire_instance_namespace(value)
+    if namespace is not None:
+        legacy_journal = namespace.get("_polisyos_mutation_journal")
+        if _is_owned_state_mutation_journal(legacy_journal):
+            return legacy_journal, "legacy"
+
+    tracked_journal: Any = None
+    if type(value) in {_TrackedDict, _TrackedList}:
+        if namespace is not None:
+            tracked_journal = namespace.get("_mutation_journal")
+    elif isinstance(value, BaseModel) and _registered_tracked_model_origin(value) is not None:
+        tracked_journal = object.__getattribute__(value, "_mutation_journal")
+    if _is_owned_state_mutation_journal(tracked_journal):
+        return tracked_journal, "tracked"
+    return None, None
 
 
 def mutation_journal_from_operations(
@@ -665,7 +725,7 @@ def _find_mutation_journal(value: Any, seen: set[int]) -> StateMutationJournal |
         return None
     seen.add(id(value))
     journal = getattr(value, "_polisyos_mutation_journal", None)
-    if isinstance(journal, StateMutationJournal):
+    if _is_owned_state_mutation_journal(journal):
         return journal
     if isinstance(value, BaseModel):
         for child in value.__dict__.values():
@@ -1280,6 +1340,37 @@ class _TrackedModelMixin(BaseModel):
 
 
 _TRACKED_MODEL_TYPES: dict[type[BaseModel], type[BaseModel]] = {}
+_TRACKED_MODEL_ORIGINS: dict[type[BaseModel], type[BaseModel]] = {}
+
+
+def _registered_tracked_model_origin(value: BaseModel) -> type[BaseModel] | None:
+    """Resolve an exact tracked model through this process's closed registry.
+
+    The accepted origin comes only from the reverse registry populated when the
+    tracker class is created. An unregistered direct tracker class is refused;
+    class names and self-declared origin attributes never admit a model.
+    """
+    value_type = type(value)
+    original = _TRACKED_MODEL_ORIGINS.get(value_type)
+    if original is not None:
+        return original
+
+    value_bases = type.__getattribute__(value_type, "__bases__")
+    if _TrackedModelMixin in value_bases:
+        raise TypeError("state mutation journaling requires a registered tracked model type")
+    return None
+
+
+def _owned_wire_model_origin(value: BaseModel) -> type[BaseModel] | None:
+    """Return an exact process-owned wire projection for a tracked model.
+
+    The branch root has its existing state-only projection to ExperimentState;
+    its mutation journal remains exclusive to the outcome envelope. Nested
+    tracked model classes must be the exact process registry value.
+    """
+    if type(value) is _JournaledExperimentState:
+        return ExperimentState
+    return _registered_tracked_model_origin(value)
 
 
 def _assignment_sibling_signature(model: BaseModel, assigned_name: str) -> bytes:
@@ -1338,8 +1429,7 @@ def _validated_assignment_value(model: _TrackedModelMixin, name: str, value: Any
 
 def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
     value_type = type(value)
-    value_mro = type.__getattribute__(value_type, "__mro__")
-    original = value._original_model_type if _TrackedModelMixin in value_mro else value_type
+    original = _registered_tracked_model_origin(value) or value_type
     if type(original) is not type(BaseModel):
         raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
     hooks = (
@@ -1870,6 +1960,7 @@ def _wrap_mutable_value(
                 __pydantic_generic_metadata__=generic_metadata,
             )
             _TRACKED_MODEL_TYPES[original] = tracked
+            _TRACKED_MODEL_ORIGINS[tracked] = original
         # Preserve already-validated fields without re-running constructors.
         wrapped = tracked.model_construct(
             _fields_set=set(value.__pydantic_fields_set__), **dict(_model_members(value))

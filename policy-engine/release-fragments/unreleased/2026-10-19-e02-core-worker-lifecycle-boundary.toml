@@ -1,0 +1,14 @@
+id = "2026-10-19-e02-core-worker-lifecycle-boundary"
+title = "Keep run worker lifecycle writes in Core"
+type = "changed"
+change_class = "python-public-api"
+component = "core"
+owner = "team-policyos-runtime"
+summary = "Route local, fork, and remote worker lifecycle handling through the narrow Core worker_lifecycle capability. Workers stage typed events; the existing parent RunContext receipt writer rechecks dispatch, owner snapshot, artifact bytes, and replay state before persistence."
+surface_classification = "public_stable: polisyos.core.run.worker_lifecycle"
+compatibility = "Worker receipt wire fields and the existing parent merge format remain unchanged. The supported surface is the worker_lifecycle leaf; polisyos.core.run and RunContext remain internal."
+migration = "Engine worker routes obtain a Core WorkerLifecycleCapability for the exact active parent run, stage through its child-compatible view, and return the existing receipt envelope for parent admission."
+limitations = "The worker view is a Python API boundary, not an OS process sandbox; its preserved trace-path projection can still be used for direct filesystem access. No external worker authority, new producer law, or capability for unrelated run lifecycle operations is established."
+evidence = ["tests/unit/core/run/test_worker_lifecycle.py", "tests/unit/core/phase0/test_run_context.py", "tests/unit/scientist/orchestration/engine/test_retry.py", "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py", "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py", "tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py", "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py", "tests/unit/scientist/mirror_contracts/test_local_pool.py"]
+migration_docs = ["src/polisyos/core/README.md", "src/polisyos/core/run/README.md"]
+public_surface_inventory_reviewed = true

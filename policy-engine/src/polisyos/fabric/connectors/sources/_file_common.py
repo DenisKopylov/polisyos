@@ -9,13 +9,13 @@ from datetime import UTC, datetime
 from importlib import import_module
 from pathlib import Path
 from typing import Protocol, SupportsIndex, SupportsInt, cast
-from urllib.parse import unquote, urlparse
+from urllib.parse import urlparse
 
 import aiohttp
 import pandas as pd
 
 from polisyos.core.canon import content_hash
-from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.base import ConnectionConfig, _safe_local_path
 from polisyos.fabric.connectors.contracts import infer_schema
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.ir.connectors import DataVersion, VersionStrategy
@@ -110,13 +110,6 @@ def _configured_max_bytes(config: ConnectionConfig, *, prefixes: tuple[str, ...]
             raise ValueError(f"{header_name} must be a positive integer")
         return value
     return _DEFAULT_MAX_LOCATION_BYTES
-
-
-def _safe_local_path(location: str, *, scheme: str) -> Path:
-    raw_path = unquote(urlparse(location).path) if scheme == "file" else location
-    if any(part == ".." for part in Path(raw_path).parts):
-        raise ValueError(f"Unsafe local data path: traversal is not allowed in {location!r}")
-    return Path(raw_path)
 
 
 def _ensure_byte_limit(size: int, *, max_bytes: int, location: str) -> None:

@@ -2880,7 +2880,7 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
     normative_edges = list(normative_manifest.inputs)
     assert normative_edges
     assert all(edge.manifest_profile_sha256 is not None for edge in normative_edges)
-    from polisyos.core.contracts.fabric import (
+    from polisyos.core.contracts import (
         data_snapshot_reference_fields,
         data_snapshot_reference_input_roles,
     )

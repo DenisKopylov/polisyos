@@ -916,6 +916,7 @@ def _pdc_binding_ref(
         schema_ref=schema_ref,
         uri=f"cas://{identity}",
         version="phase2.v2",
+        manifest_profile_sha256=binding.artifact_ref.manifest_profile_sha256,
     )
 
 

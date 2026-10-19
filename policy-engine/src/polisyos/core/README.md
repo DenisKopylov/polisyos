@@ -39,6 +39,8 @@ depends on `polisyos.ir`, but not the other way around.
   not an HTTP endpoint or an authority claim.
 
 - Supported package entrypoint: `polisyos.core`
+- Narrow worker-lifecycle API leaf: `polisyos.core.run.worker_lifecycle`.
+  This does not make `polisyos.core.run` or `RunContext` a supported package API.
 - Lazy facade exports from `src/polisyos/core/__init__.py`: `artifacts`,
   `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`,
   `evaluation`, `errors`, `llm`, `observability`, `pipeline`, `registry`,
@@ -49,11 +51,18 @@ depends on `polisyos.ir`, but not the other way around.
   unless you also update the generated
   [Public Surface](../../../docs/reference/public-surface.md).
 
-`run` is available as a lazy attribute of `polisyos.core`, but the current
-public-surface contract does not list `polisyos.core.run` as a supported
-entrypoint; lazy availability alone does not make the child module public.
-`RunContext` and its methods are internal under that contract; `WarningRecord`
+`run` is available as a lazy attribute of `polisyos.core`, but the supported
+surface is limited to the explicit `polisyos.core.run.worker_lifecycle` leaf.
+The `polisyos.core.run` package and `RunContext` remain internal; lazy
+availability alone does not make a package or class public. `WarningRecord`
 remains the existing supported public model from `polisyos.core.artifacts`.
+
+Worker dispatch staging and parent receipt admission belong to
+`polisyos.core.run.worker_lifecycle.WorkerLifecycleCapability`. It accepts only
+the exact active Core parent context, and worker receipts return through Core's
+existing `RunContext.merge_worker_events` writer. The worker view refuses
+finalization and suspension and hides ordinary lifecycle-owner attributes; it
+is a Python API boundary, not a process sandbox.
 
 Internal run trace events: `polisyos.core.run.RunContext.emit` accepts optional
 typed `WarningRecord` values and stores them in the existing trace `warnings`
@@ -147,6 +156,7 @@ component/bootstrap compatibility checks together.
 - [LLM](llm/README.md)
 - [Observability](observability/README.md)
 - [Registry](registry/README.md)
+- [Run](run/README.md)
 - [Security](security/README.md)
 
 - Last updated: 2026-05-06

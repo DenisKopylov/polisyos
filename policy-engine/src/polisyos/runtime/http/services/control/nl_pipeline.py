@@ -3619,11 +3619,11 @@ class NaturalLanguageRunMixin:
                 # Snapshot the caller's mutable ref map before deriving this write's inputs.
                 # It can later gain reports produced from the same materialization; those
                 # derived outputs are not inputs to one another.
-                from polisyos.core.contracts.fabric import (
-                    DataSnapshot,
+                from polisyos.core.contracts import (
                     data_snapshot_reference_fields,
                     data_snapshot_reference_input_roles,
                 )
+                from polisyos.core.contracts.fabric import DataSnapshot
 
                 frozen_refs = dict(refs)
                 inputs: list[InputRef] = []
@@ -8239,7 +8239,7 @@ class NaturalLanguageRunMixin:
                                     role=ref_key,
                                 )
                             )
-                    from polisyos.core.contracts.fabric import data_snapshot_reference_fields
+                    from polisyos.core.contracts import data_snapshot_reference_fields
 
                     nested_snapshot_roles = frozenset(data_snapshot_reference_fields())
                     normative_report_inputs.extend(

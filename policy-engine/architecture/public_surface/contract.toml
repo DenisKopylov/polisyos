@@ -162,11 +162,13 @@ supported_entrypoints = [
   "polisyos.core.contracts",
   "polisyos.core.governance",
   "polisyos.core.llm",
+  "polisyos.core.llm.cache_settlement",
   "polisyos.core.observability",
   "polisyos.core.security",
   "polisyos.core.trace",
 
   "polisyos.core.registry",
+  "polisyos.core.run.worker_lifecycle",
 ]
 major_subsystem = true
 notes = "Cross-layer contracts, CAS, registry, observability, and security primitives."

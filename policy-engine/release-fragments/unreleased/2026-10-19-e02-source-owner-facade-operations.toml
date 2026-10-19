@@ -1,0 +1,17 @@
+id = "2026-10-19-e02-source-owner-facade-operations"
+title = "Expose existing source identity and epoch-role owner operations"
+type = "added"
+component = "architecture"
+owner = "team-polisyos"
+summary = "Cross-owner callers use existing DataSnapshot helper and parameter-bound functions through their owner facades, plus the existing epoch coordinate-role derivation through one additive owner operation."
+evidence = ["src/polisyos/core/contracts/__init__.py", "src/polisyos/core/contracts/epoch.py", "src/polisyos/core/contracts/fabric.py", "src/polisyos/scientist/policy_design/search.py", "src/polisyos/scientist/policy_design/__init__.py", "src/polisyos/runtime/quality/semantic_epoch.py"]
+compatibility = "Additive Python owner routes. AcquisitionArtifactCodec retains its six-field NamedTuple constructor and tuple values; the former private epoch helper remains a delegating internal alias. Persisted fields, hashes, selected profiles, and the existing coordinate-role vocabulary are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: existing Core contracts facade; existing Scientist policy-design facade"
+migration = "Existing owner-module routes remain valid. Cross-owner callers use the facade functions; ordinary artifact codecs retain the existing absent coordinate-role result."
+api = "Expose two existing DataSnapshot helpers and derive_phase2_parameter_bounds with defining-owner identity; expose acquisition_native_coordinate_role over the existing codec and role registry."
+limitations = "Source review only; runtime and semantic tests remain UNRUN on the composed source. The broader chronology private-wire helper family remains a bounded residual. These aliases establish no institutional custody, currentness, legal, causal, or promotion authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/contracts/README.md", "src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

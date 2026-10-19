@@ -9,7 +9,6 @@ import os
 import secrets
 import stat
 import threading
-from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
@@ -47,6 +46,9 @@ from .manifest import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
     from polisyos.core.security.access_scope import AccessScope
 
     from ..artifacts.protocol import ArtifactStore
@@ -1446,6 +1448,7 @@ class RunContext:
     _suspended: bool = False
     _worker_receipt_recovery_required: bool = False
     _worker_receipt_recovery_invocation_id: str | None = None
+    _worker_staging: bool = field(default=False, repr=False, compare=False)
     _worker_merge_lock: threading.RLock = field(
         default_factory=threading.RLock,
         repr=False,
@@ -1455,6 +1458,24 @@ class RunContext:
     @property
     def trace_path(self) -> Path | None:
         return self._trace_path
+
+    def _worker_lifecycle_capability(self) -> WorkerLifecycleCapability:
+        """Create the Core-owned capability for this exact active parent run."""
+        from .worker_lifecycle import WorkerLifecycleCapability
+
+        return WorkerLifecycleCapability.for_parent(self)
+
+    def _stage_worker_trace(self, trace: TraceSink | None) -> None:
+        """Restrict this process-local context to staged, non-owner run operations."""
+        lease = self._active_lease
+        if lease is not None and lease._owner_pid == os.getpid():
+            raise _FinalizeRecoveryError("worker_trace_parent_process_refused")
+        if self._closed or self._suspended:
+            raise _FinalizeRecoveryError("worker_lifecycle_parent_run_not_active")
+        if trace is not None:
+            self.trace = trace
+        self._audit_sink = None
+        self._worker_staging = True
 
     def _require_active_lease_owner(self) -> None:
         """Require this process to own an active run lease before terminal transitions."""
@@ -1774,6 +1795,8 @@ class RunContext:
                 active_lease.release()
 
     def _record_ref_owner(self, ref: ArtifactRef, *, writer: str) -> None:
+        if self._worker_staging:
+            return
         if not self.tenant_id:
             return
         recorder = getattr(self.store, "record_artifact_owner", None)

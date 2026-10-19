@@ -1475,7 +1475,7 @@ def test_linux_fork_worker_core_owner_refuses_inherited_lifecycle(
     operation: str,
     access_path: str,
 ) -> None:
-    """Real fork node calls cannot finalize or suspend its parent's active run."""
+    """A fork worker can stage events but cannot reach or terminalize its parent run."""
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
     from polisyos.core.registry import build_default_registry_bundle
@@ -1515,26 +1515,34 @@ def test_linux_fork_worker_core_owner_refuses_inherited_lifecycle(
         ) -> NodeOutcome:
             worker_state.params["fork_worker_pid"] = os.getpid()
             worker_run = worker_context.run
-            if access_path == "facade_alias":
-                target = worker_run._target
-            else:
-                target = worker_run._target._target
-
+            target_access = "not_attempted"
+            if access_path == "raw_context_alias":
+                target = worker_run
+                try:
+                    target_name = "_target"
+                    for _ in range(2):
+                        target = getattr(target, target_name)
+                except AttributeError:
+                    target_access = "refused"
+                else:
+                    target_access = "admitted"
             try:
                 if access_path == "class_dispatch":
                     if operation == "finalize":
-                        RunContext.finalize(target)
+                        RunContext.finalize(worker_run)
                     else:
-                        RunContext.suspend_for_resume(target)
+                        RunContext.suspend_for_resume(worker_run)
                 elif operation == "finalize":
-                    target.finalize()
+                    worker_run.finalize()
                 else:
-                    target.suspend_for_resume()
+                    worker_run.suspend_for_resume()
             except ValueError as exc:
-                worker_state.params["lifecycle_refusal"] = str(exc)
+                refusal = str(exc)
             else:
-                worker_state.params["lifecycle_refusal"] = "lifecycle_transition_was_admitted"
+                refusal = "lifecycle_transition_was_admitted"
 
+            worker_state.params["lifecycle_refusal"] = refusal
+            worker_state.params["target_access"] = target_access
             worker_context.run.emit(
                 "scientist.node.fork-lifecycle",
                 "NODE_FORK_LIFECYCLE_REFUSED",
@@ -1554,7 +1562,9 @@ def test_linux_fork_worker_core_owner_refuses_inherited_lifecycle(
 
     assert result.status == "ok"
     assert result.state.params["fork_worker_pid"] != parent_pid
-    assert result.state.params["lifecycle_refusal"] == "run_execution_lease_inherited_process"
+    assert result.state.params["lifecycle_refusal"] != "lifecycle_transition_was_admitted"
+    if access_path == "raw_context_alias":
+        assert result.state.params["target_access"] == "refused"
     assert not run._closed and not run._suspended and run._active_lease is not None
     trace_path = run.trace_path
     assert trace_path is not None

@@ -1,0 +1,17 @@
+id = "2026-10-19-e02-r4-method-consumption-profile-identity"
+title = "Require a selected snapshot for staged Foundry intake"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Staged Foundry intake now requires a selected, profile-bound DataSnapshotRef and verifies its source CAS closure before replay."
+evidence = ["src/polisyos/runtime/quality/workspace/foundry_consumption.py", "src/polisyos/runtime/quality/workspace/scientist_node_adapters.py", "tests/unit/runtime/quality/test_workspace_foundry_consumption.py", "src/polisyos/runtime/quality/README.md"]
+compatibility = "There is no HTTP request/response or persisted-schema change. The internal StagedFoundryInputSource constructor adds optional data_snapshot_ref: DataSnapshotRef | None = None; omitting it remains syntactically valid, but staged intake refuses the missing default."
+change_class = "python-runtime-behavior"
+surface_classification = "internal: Runtime-quality staged method-consumption source and selected CAS profile handling; no new public package entrypoint"
+migration = "Callers using staged intake must provide a genuine DataSnapshotRef selected from the source CAS, with its non-null manifest profile and expected snapshot kind/media. A missing ref, invalid ref, profileless ref, or replay mismatch receives the corresponding typed ValueError refusal; the None default preserves construction compatibility only, not the former staged-admission behavior."
+api = "The candidate validates the staged source snapshot reference, verifies and seeds the selected CAS closure into the replay store, and requires the replay result to retain that exact reference."
+limitations = "R2 is source-reviewed only; imports, tests, and the affected-consumer replay remain UNRUN. The R2 erratum limits fresh-reader traversal to persisted method-result, evidence, and measurement-root references; the input-binding traversal still uses the in-memory result reference, so a persisted input-binding edge identity join is not established. The staged transfer candidate is bounded to FileSystemCAS. No legal, causal, issuer, or promotion authority is added."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

@@ -177,7 +177,7 @@ def _epoch_coordinate_bindings(
                 raise ValueError("epoch coordinate query context differs from its role digests")
             for ref_field, digest_field, role in _EPOCH_COORDINATE_REF_FIELDS:
                 ref = getattr(query, ref_field)
-                if epoch_contract._acquisition_native_coordinate_role(ref.kind) != role:
+                if epoch_contract.acquisition_native_coordinate_role(ref.kind) != role:
                     raise ValueError("epoch coordinate query kind differs from its typed role")
                 identity = _selected_ref_identity(ref)
                 binding = (role, getattr(query, digest_field))
@@ -511,7 +511,10 @@ def _data_snapshot_manifest_inputs_match(
     snapshot: contracts.DataSnapshot,
 ) -> bool:
     """Reconcile every selected parent edge with its typed DataSnapshot field."""
-    from polisyos.core.contracts import fabric as fabric_contracts
+    from polisyos.core.contracts import (
+        data_snapshot_reference_fields,
+        data_snapshot_reference_input_roles,
+    )
 
     if selected_snapshot_ref.manifest_profile_sha256 is None:
         return False
@@ -523,13 +526,13 @@ def _data_snapshot_manifest_inputs_match(
     ):
         return False
     expected_edges: list[tuple[ArtifactRef, frozenset[str]]] = []
-    for field_name in fabric_contracts.data_snapshot_reference_fields():
+    for field_name in data_snapshot_reference_fields():
         owner_ref = getattr(snapshot, field_name)
         if owner_ref is None:
             continue
         if owner_ref.manifest_profile_sha256 is None:
             return False
-        allowed_roles = fabric_contracts.data_snapshot_reference_input_roles(field_name)
+        allowed_roles = data_snapshot_reference_input_roles(field_name)
         if not allowed_roles:
             return False
         expected_edges.append((owner_ref, allowed_roles))
@@ -578,7 +581,7 @@ def _walk_verified_reference_graph(
         tuple[ArtifactRef, MappingABC[str, object]],
     ] = {}
     qualified_native_projections: set[tuple[tuple[str, str, str], str]] = set()
-    coordinate_payloads: list[tuple[ArtifactRef, bytes]] = []
+    coordinate_payloads: list[tuple[ArtifactRef, str, bytes]] = []
     try:
         while pending or deferred_native_projections:
             if not pending:
@@ -641,7 +644,10 @@ def _walk_verified_reference_graph(
                 continue
             resolved.add(resolved_key)
             if codec.payload_format == "native_coordinate":
-                coordinate_payloads.append((selected_ref, store.get_bytes(selected_ref)))
+                role = epoch_contract.acquisition_native_coordinate_role(selected_ref.kind)
+                if role is None:
+                    return None
+                coordinate_payloads.append((selected_ref, role, store.get_bytes(selected_ref)))
             if ref.kind == "epoch.production_receipt":
                 qualified_projection = _verify_epoch_production_chronology_chain(
                     store,
@@ -661,9 +667,8 @@ def _walk_verified_reference_graph(
                 deferred_native_projections[resolved_key] = (selected_ref, mapping)
                 continue
             pending.extend((nested, True) for nested in _artifact_ref_graph(mapping))
-        for ref, payload in coordinate_payloads:
+        for ref, role, payload in coordinate_payloads:
             binding = coordinate_bindings.get(_selected_ref_identity(ref))
-            role = epoch_contract._acquisition_native_coordinate_role(ref.kind)
             if binding is None or binding[0] != role:
                 return None
             expected_digest = epoch_contract.native_coordinate_ref(

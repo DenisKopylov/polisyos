@@ -95,6 +95,7 @@ _SYMBOL_TO_MODULE = {
         "polisyos.scientist.policy_design.critic_obligation_bridge"
     ),
     "critic_verdict": "polisyos.scientist.policy_design.critic_contracts",
+    "derive_phase2_parameter_bounds": "polisyos.scientist.policy_design.search",
     "project_critic_consensus": "polisyos.scientist.policy_design.critic_ensemble",
     "critique_to_failure_cards": "polisyos.scientist.policy_design.critic",
     "critique_to_lesson_cards": "polisyos.scientist.policy_design.critic",

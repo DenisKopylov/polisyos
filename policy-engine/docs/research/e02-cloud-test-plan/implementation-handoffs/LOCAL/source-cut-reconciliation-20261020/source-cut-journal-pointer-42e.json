@@ -1,0 +1,31 @@
+{
+  "schema": "policyos.e02.source_frame_journal_pointer.v1",
+  "role": "Small pointer to retained ignored raw source-frame journal; no duplicate journal copy.",
+  "journal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-source-frame-journal-20261019/frames.jsonl",
+    "sha256": "1ae2e071d1f4485c94d2bddef98b85c0af44f53d528794635e7b19d1e9ebccb3",
+    "bytes": 25284
+  },
+  "bound_event": {
+    "line_sha256": "4f730f3368a90e6f6b79656d87e6e8cc62ea251bd063afbeab8d92014ebfe5c7",
+    "event": "root_known_source_commit_readback",
+    "candidate": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+    "parents": [
+      "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+    ],
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+    ],
+    "readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/implementation-readback-preservation-r2.json",
+    "readback_sha256": "f462d8a94d7f0818f0ec3074809b5bbe2f5d8e49f9ceef3338c77698991806ba"
+  },
+  "limits": {
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "role": "provenance pointer only"
+  }
+}

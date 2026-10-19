@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "source provenance plus bounded post-adoption runtime observation; not acceptance",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "tree": "f9fa889de88088b1797d51b17496bff6810885df",
+    "parents": [
+      "d59be5b90ac6e89f4f5cb5baff80b33694ec6458"
+    ],
+    "source_freeze": false,
+    "tracked_index_clean": true,
+    "known_dirty_test_paths_preserved": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "untracked_count_before_after": 5416,
+    "whole_worktree_clean_claim": false
+  },
+  "identity": {
+    "work_item": "core-semantic-epoch-receipt-test-representation-companion",
+    "candidate": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_freeze": false,
+    "external_currentness": false
+  },
+  "property": "Semantic epoch receipt compatibility companion accepts equivalent ordered input edges independent of list/tuple container representation.",
+  "footprint": {
+    "denominator": "git diff-tree --no-commit-id --name-only -r 7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "6d9525230d7f39ac0c4a32d815c6323c7904ec51",
+          "sha256": "43a4e774fe703bbfee1750d3cd84e9a569bcbd8da1849f4d8a90bc9969a31f54",
+          "bytes": 1804208
+        },
+        "postimage": {
+          "git_blob_oid": "f2d33170af09bc7ad4bd5fd43b21f5b0378d5b19",
+          "sha256": "68ebf4522cee37a6e2103b73baacc2b05d9c0157df90b458b5f23aa03b7c0854",
+          "bytes": 1811290
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "f4cbdf554c1160756a7272f40f3a21cac844214c",
+          "sha256": "7f5aaa54f3fbef80988dc96523ed82740b33a693d2c425b372ca6665c26015cc",
+          "bytes": 139406
+        },
+        "postimage": {
+          "git_blob_oid": "8429e0c8ca1770ff69e971d47935cdd9388ef0b0",
+          "sha256": "ec0bbf0b870516c7a8b65c38f49749366616612c7b923fc0ec9d0e6602377abf",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "40ca7405d8b5e6c74031f9b7cb1399b25f879a15",
+          "sha256": "d6ee3ee698ff013be526582a01593f430fd559f313f1f5f7daaa991c42304b1f",
+          "bytes": 10036
+        },
+        "postimage": {
+          "git_blob_oid": "2a279d248f00b0cf04c4be6683bc567f4c8d5395",
+          "sha256": "66ed143872e0463b3a7beb42491b88c5d19bbf855ccc8c678174215d94b4346d",
+          "bytes": 10040
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-sequence-companion-adoption-20261020/implementation-readback-preservation-r2.json",
+      "sha256": "635687f6823ce4b80b581c424dd1da5d9c1f4935c4711707846087819e058ced"
+    },
+    "runtime_analysis": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-postfix-20261020/attempt-1/analysis-v1.json",
+      "sha256": "cef7342d7beb060aaa1c09dacec34dde953555b0ca5527667cb1c3f58415dcb2",
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-postfix-20261020/attempt-1/actual-run/result.json",
+      "result_sha256": "8d4fe8ca33c754105787fca99ba3ee7585e4188d365287238f131f040507654f",
+      "status": "passed",
+      "passed": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 22.099082375178114,
+      "max_sampled_process_tree_rss_bytes": 991232000,
+      "source_pin_count": 3321,
+      "source_pins_unchanged": true,
+      "requested_module_count": 13,
+      "requested_modules_loaded": 10,
+      "requested_but_not_loaded": [
+        "polisyos.runtime.quality.epoch_certificate_issuance",
+        "polisyos.runtime.quality.epoch_transition_inputs",
+        "polisyos.runtime.quality.semantic_epoch_qualification"
+      ]
+    }
+  },
+  "limits": [
+    "Two complete test modules only; not whole CAN.",
+    "Three requested modules were not imported: epoch_certificate_issuance, epoch_transition_inputs, semantic_epoch_qualification.",
+    "No full native, source freeze, production currentness, installed consumers, G acceptance, or finding closure claim."
+  ],
+  "P40": "Same class deeper: representation compatibility only; the remaining three requested modules still require qualification.",
+  "P41": "Exact source and module set are bound; no inherited-green inference.",
+  "closure_ids": []
+}

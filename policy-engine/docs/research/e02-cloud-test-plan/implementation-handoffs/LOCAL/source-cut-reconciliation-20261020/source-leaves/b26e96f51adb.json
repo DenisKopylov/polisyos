@@ -1,0 +1,248 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact implementation leaf; source proposal for later tracked composition, not self-acceptance, runtime qualification, G acceptance, or formal closure",
+  "slice": {
+    "id": "q2-module-subtype-capture",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+    "base_tree": "016ddafe6835cdd87d78b3191a39f179ac8f5cd3",
+    "candidate": "b26e96f51adb532dd7969a33b672362f157c8714",
+    "tree": "33705ec588cbd5d2716ac5a905944ff4d5bf8626",
+    "parents": [
+      "a7ef7eb9cee4e95daeddddd021c853852f95bc20"
+    ],
+    "subject": "fix(e02): bind module subtype source capture with explicit opaque state",
+    "committed_at": "2026-10-19T23:53:11+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "tracked_and_index_status": "index clean; two known tracked test edits remain outside these commits and their byte hashes are verified unchanged",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true,
+    "preserved_tracked_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "identity": {
+    "work_item": "root-reviewed-q2-module-subtype-capture-adoption-20261019",
+    "lease_key": "root-reviewed-q2-module-subtype-capture-adoption-20261019",
+    "proposal_ids": [],
+    "proposal_status": "not mapped/adjudicated by this source receipt; requires separate original-occurrence G proposal mapping",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime_status": "PENDING in the composed current-source replay; this leaf does not promote pre-adoption or native-hook results to canonical runtime green",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Runtime object capture binds exact source/package/MRO identities through producer, JSON report, binder and receipt while explicitly carrying external opaque state as not_established.",
+  "bounded_pre_adoption_evidence": {
+    "summary": "Independent qualified GO 3981d343; focused real six.moves/cffi behavioral control and native canonical-role checks pass.",
+    "provenance": "verbatim source-plan summary; this leaf does not independently rerun or extend those candidate results",
+    "current_cut_replay": "PENDING"
+  },
+  "P40": "Same runtime-object capture class widened to actual ModuleType subtypes and external value domain; owned-source fences remain fail closed without method-count proxies.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay and full denominator with zero-intersection proof is asserted here."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames b26e96f51adb532dd7969a33b672362f157c8714",
+    "expected_paths_verified": 4,
+    "source_scope_paths": 2,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "metadata_companion_path_occurrences_repeat_across_slices": true,
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "A": 0,
+      "M": 4,
+      "D": 0
+    },
+    "preimage_bytes_total": 2283596,
+    "postimage_bytes_total": 2313748,
+    "bytes_delta": 30152,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "basis": "Every source-scope pre/post SHA-256 in the pinned source-application record matches the exact Git parent/current blob."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "4be243b9ffcf8cf4eab3322233fc04379f7d81bf",
+          "sha256": "daad3e6c05d943a7791ed429383ec06a441f9f7a8cdd81d9a467b67ebf880a75",
+          "bytes": 1760054
+        },
+        "post": {
+          "git_blob_oid": "d411f15478802f1276411069f01b2137ded8952d",
+          "sha256": "5364cc94fffc1ab03d3817546d2b92e2f064f18ae5ecc809c7e793ce1464e967",
+          "bytes": 1768064
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "0a6d67343f9ea65273b6864f8d8da7a85e3d78a1",
+          "sha256": "80b1bf0881b0373954a4dfdde86fd38aa95f454741d45292859ec1569efe1429",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "3e07687e0b7d4db4578e00d8203050d207d15de1",
+          "sha256": "17b5ef87b4f944c8058b63bcaa0542c91925219661e54a43973f9b9ed1b72cc0",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "aa756f12d710d3774c5b89b8f90c2588957203ab",
+          "sha256": "bfb8bb70a1f0ded3a0247b5da8ebf9d2733b3f1ecb3b3174a768953aaa67cd2f",
+          "bytes": 287729
+        },
+        "post": {
+          "git_blob_oid": "f0bef61ee049f8f6fe88c84fbb03f4a180dc5560",
+          "sha256": "a0be42c8f356fea405e3721a9e891d78ad6116def82d1613e7b784cae2f124cc",
+          "bytes": 308270
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "d12566c8e84ad6306d9c200bbd002f57325264d3",
+          "sha256": "27e26065c2ebb63ce0cd1e9e55aea5fec7adbd43f5616985c48ee65f7f19ec2d",
+          "bytes": 96407
+        },
+        "post": {
+          "git_blob_oid": "4c4c5a57a66ec4cfaa9c15abbdea31b493e562f5",
+          "sha256": "284479ab54b1577d6ac7f818bb6f12eba35f0842c30756e104efca4b07f9b48e",
+          "bytes": 98008
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/plan.json",
+      "sha256": "a95727f2092a0914547409cf6bdf6ecac5e0b2bf930f05f3c9a9bdc77a8ff99c",
+      "bytes": 7498
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/source-application.json",
+      "sha256": "9e0288615e30059941e0dc0cdf1a746c25f22fa00f3ecdc4727810d52fecd56c",
+      "bytes": 11106
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/commit-request-preservation-r2.json",
+      "sha256": "963620e3a4e7e2a8402aab361545478d1a19081c973ea695d2685a5fb05569d0",
+      "bytes": 6452
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/implementation-readback-preservation-r2.json",
+      "sha256": "03868c6c26389c2a17b91b5171e3e0684ecdec80fb6e651d573a6201536cb308",
+      "bytes": 3553
+    },
+    "posthoc_preservation_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276",
+      "bytes": 1833
+    },
+    "native_commit": {
+      "exit_code": 0,
+      "seconds": 4.391148166032508,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/native-commit.stdout.txt",
+        "sha256": "29a09aa12f6bcb1d44ca44d10ba990b1e9d1621095aeeeddd63feabc4a894a3f",
+        "bytes": 170
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/native-commit.stderr.txt",
+        "sha256": "20891c43c69117e7540f5833820e8af7f4ed77894cedd4943dd9cc2a43ef0056",
+        "bytes": 653
+      }
+    },
+    "source_checks": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.0606671660207212,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05668254196643829,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "reviewed_input_refs": "retained in the pinned source plan/application; not copied into this leaf"
+  },
+  "limits": [
+    "Selected-profile canonical prepare, full package/RECORD authentication and complete 46-module denominator remain UNRUN.",
+    "Custom-metaclass subtypes remain refused; external opaque state and live-execution provenance are not established.",
+    "Embedded-plugin full-rule comparison is diagnostic: both baseline and candidate have identical existing findings; it is not a native green claim.",
+    "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+    "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+  ],
+  "next_check": "After complete source boundary, run actual canonical prepare, source-derived manifest reconciliation, whole timeout-driver module and corruption/removal controls before installed consumers.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

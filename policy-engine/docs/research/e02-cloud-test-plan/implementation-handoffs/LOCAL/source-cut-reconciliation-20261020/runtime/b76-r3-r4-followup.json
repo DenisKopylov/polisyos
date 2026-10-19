@@ -1,0 +1,113 @@
+{
+  "schema": "policyos.e02.runtime_followup.v1",
+  "role": "source-qualified R3/R4 mixed replay and independent bounded R4 property readback at exact b76 cut",
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae"
+  },
+  "source_frame_after": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae"
+  },
+  "source_unchanged_during_run": true,
+  "scope": {
+    "modules": [
+      "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+    ],
+    "collected": 33,
+    "executed": 33,
+    "junit": {
+      "errors": 0,
+      "failures": 1,
+      "passed": 31,
+      "skipped": 1,
+      "tests": 33
+    },
+    "full_modules_no_selection": true
+  },
+  "result": {
+    "status": "command_failed",
+    "return_code": 1,
+    "r3_failure": {
+      "assertion": "selected_retrievals is empty after submit_ordinary_nl_post(env), test line 1049",
+      "classification": "observed failure; root cause not established.",
+      "test": "test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen"
+    },
+    "skip": "R4 child is intentionally invoked only by the R4 profile parent."
+  },
+  "independent_bounded_r4": {
+    "report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/r4-independent-property-readback-b76-20261020/report-v1.json",
+      "sha256": "5fba2f8c3b33363551118cb47cccb6f644950cb8b04b48b4fec114c998a127a6",
+      "bytes": 14026
+    },
+    "authority_boundary": "Read-only source/output analysis at exact R4 replay cut; no source edits, no tests rerun, no formal closure or G acceptance.",
+    "qualification": "Qualifies as bounded evidence for SharedExecutor admission at the MethodDispatcher entry: configured capacity 1 produced dispatch_peak 1 and shared worker peak 1; configured capacity 2 produced dispatch_peak 2 and peak 2; removal at configured capacity 1 produced dispatch_peak 2 with no dispatch on a SharedExecutor worker. Two full study outputs were persisted and linked into final Scientist state per profile. If the criterion requires simultaneous overlap inside the estimator/fold computation body, that stronger predicate is not_established because fold instrumentation counts executions but records no entry/exit overlap. Do not use the removal shared_executor_worker_peak=0 as a total physical-thread witness.",
+    "counter_semantics": {
+      "dispatch_peak": "Count of simultaneously active calls at the observed MethodDispatcher dispatch wrapper. The wrapper increments before a barrier, waits for both invocations, then calls the original dispatcher. The counter remains active in the bridge-removal case.",
+      "removal_path": "The target TMLE call bypasses run_shared_executor_sync and directly runs its captured callable. The controlled caller uses two ControlWorker.dispatch_once calls in a ThreadPoolExecutor(max_workers=2); the test waits until both dispatch wrappers are active and both futures are incomplete, then releases them. Thus dispatch_peak=2 in removal is a real concurrent dispatch-entry observation independent of the shared-executor-worker counter. The original dispatcher and actual TMLE folds then execute; the receipt counts all 12 folds, but does not time or synchronize overlap inside the fold function itself.",
+      "shared_executor_worker_peak": "Source-defined as the maximum number of distinct SharedExecutor worker threads simultaneously inside the dispatch wrapper; excludes ControlWorker threads and idle executor capacity. Removal value 0 therefore means no SharedExecutor worker was in that wrapper, not no physical threads."
+    },
+    "shared_context": "The same two observational-data refs occur in all three profiles: sha256:8dbd47559f10f41c20e2103bbd94385c44d58178aae8fea028260e1a91565383 and sha256:74c286c7ba8ed566a680628407c91d4653af6fd3a3d33b019e52c10b432f322b. Bindings remain tenant A/cell-a and tenant B/cell-b. Each profile has two distinct ControlWorkers in one process, the same per-profile SQLite control store, CAS root, and configured executor owner. The actual path is production ControlWorker.dispatch_once -> run_experiment -> MethodBackend -> TMLE MethodDispatcher -> folds -> CAS outputs -> final Scientist state. It is an internal control-job enqueue path, not public HTTP. The safety admission gate is intentionally bypassed; outputs remain candidate/legacy-shadow.",
+    "driver_attempts": [
+      {
+        "case_id": "cap-1-configured",
+        "child_returncode": 0,
+        "guard_diagnostic_present": true,
+        "status": "passed"
+      },
+      {
+        "case_id": "cap-2-configured",
+        "child_returncode": 0,
+        "guard_diagnostic_present": true,
+        "status": "passed"
+      },
+      {
+        "case_id": "cap-1-bridge-removal",
+        "child_returncode": 0,
+        "guard_diagnostic_present": true,
+        "status": "passed"
+      }
+    ],
+    "limits": [
+      "No public HTTP admission is tested.",
+      "Estimator/fold-body overlap is not established; evidence concerns MethodDispatcher dispatch entry.",
+      "Removal shared_executor_worker_peak=0 is not a total physical-thread witness."
+    ]
+  },
+  "source_frame_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/source-frame-readback-v1.json",
+    "sha256": "b4c68eecb8290c71d2cbec6e37e057bc2969f6fa9cb9dabe364b39f1d1ebf693",
+    "bytes": 10915
+  },
+  "full_outputs": {
+    "actual-run-v4/controller-result-v10.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v4/controller-result-v10.json",
+      "sha256": "9149cd7b3c2967e0abc55e2beecdf89ad70f8a0e00cb3502e547e63b67f75136",
+      "bytes": 8617
+    },
+    "actual-run-v4/pytest.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v4/pytest.xml",
+      "sha256": "214dd67ac3d49a704d325b0e5911b59fa2adb33e6d1e6b04242a02520c2a417a",
+      "bytes": 12633
+    },
+    "actual-run-v4/r3-r4-whole-module-pytest.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v4/r3-r4-whole-module-pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "actual-run-v4/r3-r4-whole-module-pytest.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v4/r3-r4-whole-module-pytest.stdout.txt",
+      "sha256": "887dbb2ab1f85c5d1d438b7298649e3d649ef92913158a5467ff0ea7702563d0",
+      "bytes": 15902750
+    }
+  },
+  "limits": [
+    "31 passed, 1 failed, 1 skipped is mixed, not green. R3 ordinary POST selected_retrievals remained empty; root cause not established.",
+    "R4 findings are bounded candidate-profile evidence for configured SharedExecutor admission at MethodDispatcher entry.",
+    "No current source freeze, formal closure, G acceptance, or production claim."
+  ]
+}

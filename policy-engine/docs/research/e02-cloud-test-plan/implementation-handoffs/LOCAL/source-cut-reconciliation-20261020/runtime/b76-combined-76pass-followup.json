@@ -1,0 +1,151 @@
+{
+  "schema": "policyos.e02.runtime_followup.v1",
+  "role": "source-qualified four-module replay, bounded to exact b76 source",
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "parents": [
+      "a414aa45691ec29bc268e2547b7379ebaa6f4d68"
+    ],
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae"
+  },
+  "source_frame_after": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "parents": [
+      "a414aa45691ec29bc268e2547b7379ebaa6f4d68"
+    ],
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae"
+  },
+  "source_unchanged_during_run": true,
+  "scope": {
+    "modules": [
+      "tests/unit/remediation/test_scm_03.py",
+      "tests/unit/remediation/test_fed_02.py",
+      "tests/unit/scholar/search/test_fetcher_security_cache.py",
+      "tests/unit/scholar/search/test_fetcher_dns_pinning.py"
+    ],
+    "collected": 76,
+    "executed": 76,
+    "deselected": 0,
+    "counts": {
+      "cases": 76,
+      "errors": 0,
+      "failed": 0,
+      "passed": 76,
+      "skipped": 0
+    },
+    "whole_module_selection_valid": true
+  },
+  "result": {
+    "status": "four_module_replay_pass",
+    "return_code": 0,
+    "wall_seconds": 10.238333290908486,
+    "claim_limit": "Whole-module runtime observations only; no G acceptance, external authority, or formal closure claim."
+  },
+  "resource_caps": {
+    "disk_floor_bytes": 1073741824,
+    "numeric_threads": 1,
+    "rss_bytes": 2147483648,
+    "wall_seconds": 180
+  },
+  "result_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/result.json",
+    "sha256": "de2fb65dd743f2731535faede0a5ba8cfeb2f3223bf8a71aac9f6f3f7bd895b1",
+    "bytes": 31290
+  },
+  "full_outputs": {
+    "controller-events.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/controller-events.jsonl",
+      "sha256": "3bc7ed1594811e7b299010664fd547d6a6804459b8f885a89fee625f10470cdc",
+      "bytes": 3408
+    },
+    "four-whole-module-replay.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/four-whole-module-replay.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "four-whole-module-replay.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/four-whole-module-replay.stdout.txt",
+      "sha256": "9f0dae35b250f66eead90cc7bad342e1437f6739e25cc0aaaa62e48f41e9703c",
+      "bytes": 702
+    },
+    "phase-output.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/phase-output.jsonl",
+      "sha256": "f37f1b5668476eb368b13721c8889fcddc9716180d3e46a70ca5f57367b42800",
+      "bytes": 3336
+    },
+    "process-tree.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/process-tree.jsonl",
+      "sha256": "d7264d93a8cc3a956925cf3f5fc7d2c32298fb87432c1b93f928ca74a4f69afb",
+      "bytes": 29593
+    },
+    "pytest-provenance.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/pytest-provenance.json",
+      "sha256": "a2df105bafc758de775b13895194fe46550157f14b2fc8ad7916ea3af165f840",
+      "bytes": 769718
+    },
+    "pytest.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/pytest.xml",
+      "sha256": "db06973314ccf574d19ccfec0807d5b850b11586e918e32e7ad9b40e4c5ca487",
+      "bytes": 12237
+    },
+    "request-copy.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/request-copy.json",
+      "sha256": "ca2e2bed24fe47cf53231542b239aa42699ed884a1191766961575aa1c0cb165",
+      "bytes": 15321
+    },
+    "scope-provenance.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/scope-provenance.json",
+      "sha256": "47435ef6217d15747bde5c38ef5adbdd2b03a3021ec65620ea88cab57f036990",
+      "bytes": 10133
+    },
+    "source-before.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/source-before.json",
+      "sha256": "74e3a2572114cfba2e19cb7f84a12bed88ab9dbcd4e112cd5ecbbd2ce8d357e0",
+      "bytes": 8284
+    },
+    "temp-write-probe.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/temp-write-probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "temp-write-probe.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/temp-write-probe.stdout.txt",
+      "sha256": "1e0f78e33cf5f2a008b95369b61b0a8261a2c25ec93dd4657c65d386e9636bc6",
+      "bytes": 30
+    }
+  },
+  "input_receipts": {
+    "request-copy.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/request-copy.json",
+      "sha256": "ca2e2bed24fe47cf53231542b239aa42699ed884a1191766961575aa1c0cb165",
+      "bytes": 15321
+    },
+    "source-before.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/source-before.json",
+      "sha256": "74e3a2572114cfba2e19cb7f84a12bed88ab9dbcd4e112cd5ecbbd2ce8d357e0",
+      "bytes": 8284
+    },
+    "scope-provenance.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/scope-provenance.json",
+      "sha256": "47435ef6217d15747bde5c38ef5adbdd2b03a3021ec65620ea88cab57f036990",
+      "bytes": 10133
+    },
+    "pytest-provenance.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/pytest-provenance.json",
+      "sha256": "a2df105bafc758de775b13895194fe46550157f14b2fc8ad7916ea3af165f840",
+      "bytes": 769718
+    },
+    "run-receipt.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/combined-scm-fed-la024-native-replay-20261019/controller-v1/attempt-1/actual-run/run-receipt.json",
+      "sha256": "c556ad3ce7ef1c516ee73764f608cf7766654fdc3c777a126e244131df33c94a",
+      "bytes": 1168
+    }
+  },
+  "limits": [
+    "76/76 covers the four named modules only.",
+    "This is source-qualified to b76 before d59; it says nothing about d59 or a current freeze.",
+    "No global E02 closure or formal G decision."
+  ]
+}

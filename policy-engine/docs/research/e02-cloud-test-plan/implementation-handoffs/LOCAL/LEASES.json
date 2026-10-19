@@ -24995,5 +24995,575 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "source-cut-42e-receipt-and-decision-tracking-20261020": {
+    "slice_base": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/53841a0e7eff.json": {
+        "operation": "write",
+        "preimage_sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/53841a0e7eff.json",
+        "postimage_sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/782e9d3cedf7.json": {
+        "operation": "write",
+        "preimage_sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/782e9d3cedf7.json",
+        "postimage_sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/791b9c339b28.json": {
+        "operation": "write",
+        "preimage_sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/791b9c339b28.json",
+        "postimage_sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/7c16fc46ff8e.json": {
+        "operation": "write",
+        "preimage_sha256": "27707d2546aee648fc3fb71d684cdbf12462db6b95332452b27d160da39dae1e",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/7c16fc46ff8e.json",
+        "postimage_sha256": "27707d2546aee648fc3fb71d684cdbf12462db6b95332452b27d160da39dae1e"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a414aa45691e.json": {
+        "operation": "write",
+        "preimage_sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a414aa45691e.json",
+        "postimage_sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a7ef7eb9cee4.json": {
+        "operation": "write",
+        "preimage_sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a7ef7eb9cee4.json",
+        "postimage_sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/ae14dac03b54.json": {
+        "operation": "write",
+        "preimage_sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/ae14dac03b54.json",
+        "postimage_sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b26e96f51adb.json": {
+        "operation": "write",
+        "preimage_sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b26e96f51adb.json",
+        "postimage_sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b76b4d016738.json": {
+        "operation": "write",
+        "preimage_sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b76b4d016738.json",
+        "postimage_sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b7709a52da57.json": {
+        "operation": "write",
+        "preimage_sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b7709a52da57.json",
+        "postimage_sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/be96782322a1.json": {
+        "operation": "write",
+        "preimage_sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/be96782322a1.json",
+        "postimage_sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d2926941e0f2.json": {
+        "operation": "write",
+        "preimage_sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d2926941e0f2.json",
+        "postimage_sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d4061a93d94d.json": {
+        "operation": "write",
+        "preimage_sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d4061a93d94d.json",
+        "postimage_sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d59be5b90ac6.json": {
+        "operation": "write",
+        "preimage_sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d59be5b90ac6.json",
+        "postimage_sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/e0462740b468.json": {
+        "operation": "write",
+        "preimage_sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/e0462740b468.json",
+        "postimage_sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/fe7817ff30e4.json": {
+        "operation": "write",
+        "preimage_sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/fe7817ff30e4.json",
+        "postimage_sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r3-manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "3a22a19797d2efad2e02477b66eb7590fc0cfdca3229004dfc2fabf9a7e624df",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r3-manifest.json",
+        "postimage_sha256": "3a22a19797d2efad2e02477b66eb7590fc0cfdca3229004dfc2fabf9a7e624df"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r4-manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "ee5a81fd65e4a85910604421de44477b3bf2db1879d668585f59c847c2d654f6",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r4-manifest.json",
+        "postimage_sha256": "ee5a81fd65e4a85910604421de44477b3bf2db1879d668585f59c847c2d654f6"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r5-manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "2212f3d52eb662ac98711b997300d36fbc4d1ce303b1fb3225618eb3c76c4773",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r5-manifest.json",
+        "postimage_sha256": "2212f3d52eb662ac98711b997300d36fbc4d1ce303b1fb3225618eb3c76c4773"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r6-manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "d1feb9c15b6b650fd342d424c2aa5a61ca20541b7b531e86b91af85a3c067762",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r6-manifest.json",
+        "postimage_sha256": "d1feb9c15b6b650fd342d424c2aa5a61ca20541b7b531e86b91af85a3c067762"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r3-review.json": {
+        "operation": "write",
+        "preimage_sha256": "cbbc42222af48e43786c71b3c9c17261c528b45d903ed5e9898ab3cf9a5740a4",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r3-review.json",
+        "postimage_sha256": "cbbc42222af48e43786c71b3c9c17261c528b45d903ed5e9898ab3cf9a5740a4"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r4-review.json": {
+        "operation": "write",
+        "preimage_sha256": "94ecdf84a9f63ddc8c9e34562e7ff50e4aef97cc2aa53b50e22944895f98a5fa",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r4-review.json",
+        "postimage_sha256": "94ecdf84a9f63ddc8c9e34562e7ff50e4aef97cc2aa53b50e22944895f98a5fa"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r5-review.json": {
+        "operation": "write",
+        "preimage_sha256": "0841b9c9c474891d36e4822deb22fb6377644055ecef9e2a2ab7394e03187607",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r5-review.json",
+        "postimage_sha256": "0841b9c9c474891d36e4822deb22fb6377644055ecef9e2a2ab7394e03187607"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/runtime-observations-v2.json": {
+        "operation": "write",
+        "preimage_sha256": "b799bf8c1c3c6679e2013b1621f12f543f20fbd30ffcfa83575de8e8c9d3450e",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/runtime-observations-v2.json",
+        "postimage_sha256": "b799bf8c1c3c6679e2013b1621f12f543f20fbd30ffcfa83575de8e8c9d3450e"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/current-authorship-map-v2.json": {
+        "operation": "write",
+        "preimage_sha256": "8317ee061514e5749feb65ccb2bd446715348f9bf81e62f22cd556677165675a",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/current-authorship-map-v2.json",
+        "postimage_sha256": "8317ee061514e5749feb65ccb2bd446715348f9bf81e62f22cd556677165675a"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-api-conflict-g-decision-v3.json": {
+        "operation": "write",
+        "preimage_sha256": "e620efefc5117ba7a99db269e4c4f6cb4e6fcf5a0607c7e0406c27d227c5ea6b",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-api-conflict-g-decision-v3.json",
+        "postimage_sha256": "e620efefc5117ba7a99db269e4c4f6cb4e6fcf5a0607c7e0406c27d227c5ea6b"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-consumer-inventory-correction-v1.json": {
+        "operation": "write",
+        "preimage_sha256": "772f9a349863a795bd353aad79c6ea12df57d33165fbe1cf5ce44d8a579434dd",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-consumer-inventory-correction-v1.json",
+        "postimage_sha256": "772f9a349863a795bd353aad79c6ea12df57d33165fbe1cf5ce44d8a579434dd"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-g-packet-independent-delta-qa-v3.md": {
+        "operation": "write",
+        "preimage_sha256": "6562c95f13a7c0e0285de8f1e951500221376662ebe432ee9202827e1ed3844c",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-g-packet-independent-delta-qa-v3.md",
+        "postimage_sha256": "6562c95f13a7c0e0285de8f1e951500221376662ebe432ee9202827e1ed3844c"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/can-semantic-receipt-list-tuple-review-v1.json": {
+        "operation": "write",
+        "preimage_sha256": "a95bb2dc5d77ccef377b576222ee979da2f81d1243627ed2035fa2d348a13713",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/can-semantic-receipt-list-tuple-review-v1.json",
+        "postimage_sha256": "a95bb2dc5d77ccef377b576222ee979da2f81d1243627ed2035fa2d348a13713"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/can-epoch-7c16-two-module-postfix-analysis-v1.json": {
+        "operation": "write",
+        "preimage_sha256": "cef7342d7beb060aaa1c09dacec34dde953555b0ca5527667cb1c3f58415dcb2",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/can-epoch-7c16-two-module-postfix-analysis-v1.json",
+        "postimage_sha256": "cef7342d7beb060aaa1c09dacec34dde953555b0ca5527667cb1c3f58415dcb2"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/d59-can-two-module-followup.json": {
+        "operation": "write",
+        "preimage_sha256": "e5ab6fdff2669bb7326855562d0036a94ae3c33f58dfd9534741634adecb20d7",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/d59-can-two-module-followup.json",
+        "postimage_sha256": "e5ab6fdff2669bb7326855562d0036a94ae3c33f58dfd9534741634adecb20d7"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-combined-76pass-followup.json": {
+        "operation": "write",
+        "preimage_sha256": "dbdfbbd99c6d7d8f00ca05fef3d56d414ce9bb87857dd6042f7fde4beb12d727",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-combined-76pass-followup.json",
+        "postimage_sha256": "dbdfbbd99c6d7d8f00ca05fef3d56d414ce9bb87857dd6042f7fde4beb12d727"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-r3-r4-followup.json": {
+        "operation": "write",
+        "preimage_sha256": "3912b17f6ee87557ccf10717400f60f8c3505b437c43d62a44d5d032beb8e399",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-r3-r4-followup.json",
+        "postimage_sha256": "3912b17f6ee87557ccf10717400f60f8c3505b437c43d62a44d5d032beb8e399"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/7c16-source-preservation-readback.json": {
+        "operation": "write",
+        "preimage_sha256": "635687f6823ce4b80b581c424dd1da5d9c1f4935c4711707846087819e058ced",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/7c16-source-preservation-readback.json",
+        "postimage_sha256": "635687f6823ce4b80b581c424dd1da5d9c1f4935c4711707846087819e058ced"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-range-reconciliation.json": {
+        "operation": "write",
+        "preimage_sha256": "6ad7e8d508501e3eb0c17bb1d0ef5f5bf274e6838d5c533add92c60898cf5d46",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-range-reconciliation.json",
+        "postimage_sha256": "6ad7e8d508501e3eb0c17bb1d0ef5f5bf274e6838d5c533add92c60898cf5d46"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-full-id-ledger-pointer.json": {
+        "operation": "write",
+        "preimage_sha256": "e0a783afc05cd2f611084d5416345e5f1cdd47104df7cfb8ec2ea94d7303ae71",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-full-id-ledger-pointer.json",
+        "postimage_sha256": "e0a783afc05cd2f611084d5416345e5f1cdd47104df7cfb8ec2ea94d7303ae71"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/42e0cf2f0079.json": {
+        "operation": "write",
+        "preimage_sha256": "59a2876c60a30f947b5cec7ff65ca55845e2e243fd9e3a53d5fa5abb8727b849",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/42e0cf2f0079.json",
+        "postimage_sha256": "59a2876c60a30f947b5cec7ff65ca55845e2e243fd9e3a53d5fa5abb8727b849"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/42e-source-preservation-readback.json": {
+        "operation": "write",
+        "preimage_sha256": "f462d8a94d7f0818f0ec3074809b5bbe2f5d8e49f9ceef3338c77698991806ba",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/42e-source-preservation-readback.json",
+        "postimage_sha256": "f462d8a94d7f0818f0ec3074809b5bbe2f5d8e49f9ceef3338c77698991806ba"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "e34e6848609d0d24f240537fd423e3ca24b9ae2a99760e8bd3f7dddb802d67f5",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-manifest.json",
+        "postimage_sha256": "e34e6848609d0d24f240537fd423e3ca24b9ae2a99760e8bd3f7dddb802d67f5"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-result.json": {
+        "operation": "write",
+        "preimage_sha256": "6efc8ef24f2beda738dafc0c2aef8e451ad011fd23507c46e2b72946c6ad27ff",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-result.json",
+        "postimage_sha256": "6efc8ef24f2beda738dafc0c2aef8e451ad011fd23507c46e2b72946c6ad27ff"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/b61-unconsumed-source-inventory-witness-review-v1.json": {
+        "operation": "write",
+        "preimage_sha256": "ebd4ad262a82fc0801a72ba67c05ce174b2b647921166c943a4c9392498ae498",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/b61-unconsumed-source-inventory-witness-review-v1.json",
+        "postimage_sha256": "ebd4ad262a82fc0801a72ba67c05ce174b2b647921166c943a4c9392498ae498"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-journal-pointer-42e.json": {
+        "operation": "write",
+        "preimage_sha256": "8fbefa2cb2658f26ad01a87fe92245d477cf5a04cab6769f8aa1f249fcb6841f",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-journal-pointer-42e.json",
+        "postimage_sha256": "8fbefa2cb2658f26ad01a87fe92245d477cf5a04cab6769f8aa1f249fcb6841f"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json": {
+        "operation": "write",
+        "preimage_sha256": "4b5c55d98c88cfd06f5de56265b736900b88ffc3985da4e69b9a9c2ec5e7db7c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/candidate-component-delivery-index-20261015.postimage.json",
+        "postimage_sha256": "05b1094af48ecfa24fda39102cba7c0c951fc7cd44f367f64e4c4e7030204ece"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-cut-receipt-adoption-20261020/source-application.json",
+      "sha256": "40a9fe8f8228430a5cc08348df87c1157c2fbc2da620421940514c0d42b2c071"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-cut-receipt-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/tracking-plan.json",
+        "sha256": "75b43c9dea943424ca6568b0a295abdf3ebe7fc6ac737155d53f987a50a987f6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/manifest.json",
+        "sha256": "c85fecf88d082d410f27f403af9d475aa2c9a06f675fde6366fafa92dabf34d3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-r6-independent-review-20261020/review-v1.json",
+        "sha256": "2915692217843727683dac15d3a1e26cd5ec6109bf8fbf2305f751cb289ec3f9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-cut-receipt-adoption-20261020/materialization-readback.json",
+        "sha256": "7b2955cd194493c5650b36c5b1826bc5431764009109a40e39d7c61dec4ac3be"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-cut-receipt-adoption-20261020/materialization-plan.json",
+        "sha256": "dbe1f3f137132e48a2dba28626822d0f39c06fa50544830507d016f635a5f33e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/53841a0e7eff.json",
+        "sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/782e9d3cedf7.json",
+        "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/791b9c339b28.json",
+        "sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/7c16fc46ff8e.json",
+        "sha256": "27707d2546aee648fc3fb71d684cdbf12462db6b95332452b27d160da39dae1e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a414aa45691e.json",
+        "sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a7ef7eb9cee4.json",
+        "sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/ae14dac03b54.json",
+        "sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b26e96f51adb.json",
+        "sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b76b4d016738.json",
+        "sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b7709a52da57.json",
+        "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/be96782322a1.json",
+        "sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d2926941e0f2.json",
+        "sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d4061a93d94d.json",
+        "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d59be5b90ac6.json",
+        "sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/e0462740b468.json",
+        "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/fe7817ff30e4.json",
+        "sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r3-manifest.json",
+        "sha256": "3a22a19797d2efad2e02477b66eb7590fc0cfdca3229004dfc2fabf9a7e624df"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r4-manifest.json",
+        "sha256": "ee5a81fd65e4a85910604421de44477b3bf2db1879d668585f59c847c2d654f6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r5-manifest.json",
+        "sha256": "2212f3d52eb662ac98711b997300d36fbc4d1ce303b1fb3225618eb3c76c4773"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r6-manifest.json",
+        "sha256": "d1feb9c15b6b650fd342d424c2aa5a61ca20541b7b531e86b91af85a3c067762"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r3-review.json",
+        "sha256": "cbbc42222af48e43786c71b3c9c17261c528b45d903ed5e9898ab3cf9a5740a4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r4-review.json",
+        "sha256": "94ecdf84a9f63ddc8c9e34562e7ff50e4aef97cc2aa53b50e22944895f98a5fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r5-review.json",
+        "sha256": "0841b9c9c474891d36e4822deb22fb6377644055ecef9e2a2ab7394e03187607"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/runtime-observations-v2.json",
+        "sha256": "b799bf8c1c3c6679e2013b1621f12f543f20fbd30ffcfa83575de8e8c9d3450e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/current-authorship-map-v2.json",
+        "sha256": "8317ee061514e5749feb65ccb2bd446715348f9bf81e62f22cd556677165675a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-api-conflict-g-decision-v3.json",
+        "sha256": "e620efefc5117ba7a99db269e4c4f6cb4e6fcf5a0607c7e0406c27d227c5ea6b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-consumer-inventory-correction-v1.json",
+        "sha256": "772f9a349863a795bd353aad79c6ea12df57d33165fbe1cf5ce44d8a579434dd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-g-packet-independent-delta-qa-v3.md",
+        "sha256": "6562c95f13a7c0e0285de8f1e951500221376662ebe432ee9202827e1ed3844c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/can-semantic-receipt-list-tuple-review-v1.json",
+        "sha256": "a95bb2dc5d77ccef377b576222ee979da2f81d1243627ed2035fa2d348a13713"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/can-epoch-7c16-two-module-postfix-analysis-v1.json",
+        "sha256": "cef7342d7beb060aaa1c09dacec34dde953555b0ca5527667cb1c3f58415dcb2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/d59-can-two-module-followup.json",
+        "sha256": "e5ab6fdff2669bb7326855562d0036a94ae3c33f58dfd9534741634adecb20d7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-combined-76pass-followup.json",
+        "sha256": "dbdfbbd99c6d7d8f00ca05fef3d56d414ce9bb87857dd6042f7fde4beb12d727"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-r3-r4-followup.json",
+        "sha256": "3912b17f6ee87557ccf10717400f60f8c3505b437c43d62a44d5d032beb8e399"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/7c16-source-preservation-readback.json",
+        "sha256": "635687f6823ce4b80b581c424dd1da5d9c1f4935c4711707846087819e058ced"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-range-reconciliation.json",
+        "sha256": "6ad7e8d508501e3eb0c17bb1d0ef5f5bf274e6838d5c533add92c60898cf5d46"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-full-id-ledger-pointer.json",
+        "sha256": "e0a783afc05cd2f611084d5416345e5f1cdd47104df7cfb8ec2ea94d7303ae71"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/42e0cf2f0079.json",
+        "sha256": "59a2876c60a30f947b5cec7ff65ca55845e2e243fd9e3a53d5fa5abb8727b849"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/42e-source-preservation-readback.json",
+        "sha256": "f462d8a94d7f0818f0ec3074809b5bbe2f5d8e49f9ceef3338c77698991806ba"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-manifest.json",
+        "sha256": "e34e6848609d0d24f240537fd423e3ca24b9ae2a99760e8bd3f7dddb802d67f5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-result.json",
+        "sha256": "6efc8ef24f2beda738dafc0c2aef8e451ad011fd23507c46e2b72946c6ad27ff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/b61-unconsumed-source-inventory-witness-review-v1.json",
+        "sha256": "ebd4ad262a82fc0801a72ba67c05ce174b2b647921166c943a4c9392498ae498"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/proposed/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-journal-pointer-42e.json",
+        "sha256": "8fbefa2cb2658f26ad01a87fe92245d477cf5a04cab6769f8aa1f249fcb6841f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-cut-reconciliation-3a02-to-42e0-20261020-r6/candidate-component-delivery-index-20261015.postimage.json",
+        "sha256": "05b1094af48ecfa24fda39102cba7c0c951fc7cd44f367f64e4c4e7030204ece"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-cut-receipt-adoption-20261020/materialization-readback.json",
+      "sha256": "7b2955cd194493c5650b36c5b1826bc5431764009109a40e39d7c61dec4ac3be"
+    },
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "P29/P35/P38 one complete path/hash enumeration of the source range and receipt index; no source or closure semantics promoted.",
+    "bounded_proof": "Independent source-range/index-integrity GO; all42payloads materialized and all379proposed refs verified before index application. Native hooks are delivery checks, not product runtime qualification.",
+    "limitations": [
+      "This is a receipt-only commit; source/input/backend freeze and G acceptance remain false.",
+      "Historical282IDs/291occurrences/127bundles,198authorproposedIDs/202occurrences and9historicalclosures includingB198 are preserved.",
+      "The old337index prefix remains exact except the mandatory updated LEASES.json digest after this new append-only path-lease entry.",
+      "Runtime observations retain their exact earlier source/input/backend bounds; failures and UNRUN remain visible.",
+      "Two known-owned incomplete N7/B108 test edits remain outside this commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Read every379ref back from the committed branch; complete pending implementation mechanisms then establish a new reviewed source/input/backend freeze and composed replay.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

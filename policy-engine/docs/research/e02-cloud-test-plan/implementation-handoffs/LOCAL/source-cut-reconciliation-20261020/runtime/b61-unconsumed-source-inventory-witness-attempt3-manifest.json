@@ -1,0 +1,49 @@
+{
+  "apply_check": {
+    "applied": false,
+    "record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/apply-check-r2.json",
+    "record_sha256": "e9562a797fa3583e2729c3602102d2359813e7bad70b29923352945621c5e446",
+    "returncode": 0
+  },
+  "candidate": {
+    "patch_bytes": 7069,
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/candidate-r2.patch",
+    "patch_sha256": "0c8ba98fc21190d49096763ac7444ea4cf4af1cb594c689c48ecb99a991461bb",
+    "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/postimage/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "postimage_sha256": "2afd256ac12fe78b08e50930f1a4fc3b3a688ce1ad851fff47d8abfceaa521d4"
+  },
+  "candidate_manifest_parent": "attempt-3/manifest-r2.json",
+  "canonical_target": {
+    "observed_after_attempt2_sha256": "643ff61936988d30bac6e5ae8814f03660521e5548a77754c41c8a9648c28769",
+    "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "preimage_sha256": "643ff61936988d30bac6e5ae8814f03660521e5548a77754c41c8a9648c28769"
+  },
+  "delta": {
+    "P40": "same B61 read-set/cache-reuse criterion; initial normal red was a test harness lifecycle-construction defect, not evidence of product cache defect.",
+    "contract_changed": false,
+    "product_code_changed": false,
+    "repair": "Final phase now calls _execute_workflow and captures its terminal events using _trace_event_count/_trace_events; the RUN_FINALIZED assertion stays.",
+    "root_cause": "The authored test copied the right existing lifecycle pattern for warmup and intermediate resume, but incorrectly used _execute_workflow_and_suspend for its final consumed-A reissue. The existing whole-property test uses _execute_workflow for that final phase, then asserts one RUN_FINALIZED."
+  },
+  "next_check": "Fresh root grant requested for corrected candidate: exact 7c16fc46/tree f9fa889 source frame, normal pytest.ini/plugin autoload, exact candidate-postimage SHA, canonical target/resolver pins, same marker-preserving global-inventory-key mutant, total <=60 s, <=2 GiB sampled RSS, numeric threads=1. Do not infer pass before a fresh pair.",
+  "runtime_attempt2": {
+    "mutant": "one real collected test failed at the selected-A execution-count assertion after adding the global inventory field to the real resolver read-set; this is the expected removal falsifier.",
+    "normal": "one real collected test failed only at terminal lifecycle assertion because final phase used the suspend helper; preceding selected-A/B-inventory/cache/miss/recompute assertions passed.",
+    "pair": "not_established; normal does not pass; do not report a B61 closure.",
+    "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-2/result.json",
+    "result_sha256": "bf6b8c27023a5431fc6d1a215e306e38dd3c14bf65530308450319fd6cdc476c"
+  },
+  "schema": "policyos.e02.b61_unconsumed_inventory_candidate.r3",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "tree": "f9fa889de88088b1797d51b17496bff6810885df"
+  },
+  "static_verification": {
+    "path_identity_note": "Product-root Ruff was rerun from policy-engine with tests/... stdin filename so its per-file test ignores applied; static-checks-r2.json retained the initial misrooted invocation and is superseded by this correctly rooted r3 record.",
+    "product_root_ruff_check_format": "PASS",
+    "record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/static-checks-r3.json",
+    "record_sha256": "dede320cc007a6225d8fec1814024ab076209a0f0e654110c2771cdcf036ad3f",
+    "workspace_root_ruff_check_format": "PASS"
+  }
+}

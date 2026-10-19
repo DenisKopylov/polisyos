@@ -1,0 +1,201 @@
+{
+  "authority_and_scope": {
+    "G_acceptance": false,
+    "bundle_closure_ids": [],
+    "evidence_scope": "The leaves distinguish source-level Ruff/format and bounded/historical tests from adopted-source runtime. CAN21 collection aborts and earlier B154 passes are not promoted; the final B154 three-module replay is UNRUN; V7/N4 POST/event-CAS/retry/fresh-GET is UNRUN; ABI native docs-commit SKIP is not backend green. The candidate-specific boundary evidence is kept bounded and is not treated as whole capability acceptance.",
+    "formal_G_closure_ids": [],
+    "receipt_authority_closure_ids_all_empty": true,
+    "runtime_qualification_claimed": false,
+    "source_freeze_claimed": false
+  },
+  "decision": "GO_FOR_RECEIPT_INTEGRITY_AND_DEFERRED_APPEND_PLAN",
+  "findings": [],
+  "git_object_validation": {
+    "all_42_prepost_path_blob_sha_byte_records_match": true,
+    "all_five_candidate_parent_tree_records_match": true,
+    "all_five_full_path_status_denominators_match": true,
+    "method": "For each slice, compared full candidate/parent/tree from git show metadata; exact parent-to-candidate git diff-tree --name-status -r --no-renames list; and each footprint pre/post blob OID, SHA-256, and byte length against git objects.",
+    "receipt_evidence_path_sha_references": {
+      "git_object_base_reference_matches_parent_blob": 1,
+      "local_file_sha_matches": 109,
+      "missing_or_unexplained_mismatch": 0,
+      "total": 110
+    },
+    "special_binding_note": "The one reviewed-input SHA that differs from the current worktree is explicitly binding=git-object:base for predictive_calibration.py in the 791 slice; its SHA matches the parent commit blob exactly."
+  },
+  "index_append_plan_review": {
+    "append_rules": "Exact receipt path/SHA rows only, deduplicated by exact path and SHA; no row replacement/renumber/drop, finding/occurrence closure, denominator increment, or B198/historical field changes.",
+    "component_receipt_rows_actual": 337,
+    "component_receipt_rows_match_plan": true,
+    "current_source_occurrence_reconciliation": "not_established",
+    "cut_handling": "The plan pins ae14 and explicitly defers current source-cut field refresh to a later root-owned final handoff. The indexed latest_reconciled_source_cut is still 3a02d5d; it must not be presented as current at ae14. Preserve historic values and rebind at the final source cut before any separately authorized append/update.",
+    "five_proposed_receipts_already_present": false,
+    "input_index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "input_index_sha256_actual": "38b8beae7590e0ae99535fd80a677524fc9ca3feb453ac6edf0c1ca1f907b09c",
+    "input_index_sha256_matches_plan": true,
+    "not_applied": true,
+    "plan_sha256": "20702da854000bd478e9dcc0c44959c13bb5a2c5cc1e8f013c4529656daef3c0"
+  },
+  "limitations": [
+    "This GO is limited to static integrity and the deferred metadata append plan at the pinned source cut. It does not establish semantic correctness of capabilities, final composed-source qualification, current source denominator reconciliation, production authority/currentness, or any formal finding closure."
+  ],
+  "package_role": "Read-only independent static review. This is not source adoption, runtime qualification, source freeze, G acceptance, integration publication, or formal closure.",
+  "path_denominator_recomputed": {
+    "changed_path_occurrences": 42,
+    "metadata_companion_occurrences": 10,
+    "metadata_paths_each_recur_in_all_five_slices": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "source_path_occurrences": 32,
+    "source_path_repeat": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py occurs in the 538 and be967 slices.",
+    "unique_changed_paths": 33,
+    "unique_metadata_paths": 2,
+    "unique_source_paths": 31
+  },
+  "receipt_reviews": [
+    {
+      "G_acceptance": false,
+      "bounded_evidence": "Review packet/independent source review reported complete callsite closure; no adopted-cut runtime qualification. Earlier retained 15-module run was 381 PASS / 5 FAIL and does not cover the required 21-module union. At source 538 the CAN21 collection aborted; R3/R4 attempts aborted during setup. These are aborts, not runtime passes or product failures.",
+      "changed_path_occurrences": 14,
+      "closure_ids": [],
+      "commit": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+      "evidence_reference_count": 26,
+      "formal_finding_adjudication": false,
+      "metadata_path_occurrences": 2,
+      "parent": "c2c383dd0b269cd4890a7b0415f14f2d3e270084",
+      "receipt_file": "receipt-can-origin-profile-53841a0e.json",
+      "receipt_sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3",
+      "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks.",
+      "source_path_occurrences": 12,
+      "source_scope_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-exact-cas-profile-composition.toml",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+        "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd"
+    },
+    {
+      "G_acceptance": false,
+      "bounded_evidence": "Collection on the source 538 origin producer aborted before test bodies; this commit is test-only and no adopted-source runtime or full union pass is established.",
+      "changed_path_occurrences": 3,
+      "closure_ids": [],
+      "commit": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+      "evidence_reference_count": 14,
+      "formal_finding_adjudication": false,
+      "metadata_path_occurrences": 2,
+      "parent": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+      "receipt_file": "receipt-can-cas-test-fixture-be967823.json",
+      "receipt_sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5",
+      "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks.",
+      "source_path_occurrences": 1,
+      "source_scope_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e"
+    },
+    {
+      "G_acceptance": false,
+      "bounded_evidence": "A frozen pre-style-overlay source run had 10 PASS at source 538. A bounded AST/style correction followed; the final canonical whole-three-module replay on this commit is UNRUN. Previous stale overlay and setup-error receipts are superseded. No whole-property closure is claimed.",
+      "changed_path_occurrences": 8,
+      "closure_ids": [],
+      "commit": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+      "evidence_reference_count": 28,
+      "formal_finding_adjudication": false,
+      "metadata_path_occurrences": 2,
+      "parent": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+      "receipt_file": "receipt-b154-executor-completion-fe7817ff.json",
+      "receipt_sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1",
+      "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks.",
+      "source_path_occurrences": 6,
+      "source_scope_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py"
+      ],
+      "tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95"
+    },
+    {
+      "G_acceptance": false,
+      "bounded_evidence": "Boundary 11 PASS is retained in RAW and Ruff/format evidence covers nine Python paths, but actual POST/persisted event-CAS/retry/fresh GET remains UNRUN. Strict API-5 compatibility review and five generated OpenAPI/client/dashboard companions remain pending. N4 stays blocked/limited; metric relation, authority and currentness are not established.",
+      "changed_path_occurrences": 14,
+      "closure_ids": [],
+      "commit": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+      "evidence_reference_count": 29,
+      "formal_finding_adjudication": false,
+      "metadata_path_occurrences": 2,
+      "parent": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+      "receipt_file": "receipt-v7-n4-projection-791b9c339.json",
+      "receipt_sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305",
+      "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks.",
+      "source_path_occurrences": 12,
+      "source_scope_paths": [
+        "policy-engine/docs/reference/api/runs.md",
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+        "policy-engine/src/polisyos/runtime/http/README.md",
+        "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+        "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013"
+    },
+    {
+      "G_acceptance": false,
+      "bounded_evidence": "Official guardrails sync on parent 791 exited 0 and root verified exact output substitution. Public inventory outputs were byte-identical; generated-artifacts content adds the two schema-doc paths. This is not export completeness, API compatibility, ABI model-106 completeness, bulk owner registration, or native backend green. Native docs-commit Python SKIP remains a skip.",
+      "changed_path_occurrences": 3,
+      "closure_ids": [],
+      "commit": "ae14dac03b54346f53b9a4fd214405174856b888",
+      "evidence_reference_count": 13,
+      "formal_finding_adjudication": false,
+      "metadata_path_occurrences": 2,
+      "parent": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+      "receipt_file": "receipt-abi-generated-doc-ae14dac0.json",
+      "receipt_sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5",
+      "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks.",
+      "source_path_occurrences": 1,
+      "source_scope_paths": [
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535"
+    }
+  ],
+  "reviewed_inputs": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/manifest-addendum-r3.json",
+      "sha256": "3a22a19797d2efad2e02477b66eb7590fc0cfdca3229004dfc2fabf9a7e624df"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/index-append-plan-r3.json",
+      "sha256": "20702da854000bd478e9dcc0c44959c13bb5a2c5cc1e8f013c4529656daef3c0"
+    }
+  ],
+  "schema": "policyos.e02.source_leaf_receipt_independent_review.v1",
+  "source_cut_readback": {
+    "all_five_candidates_ancestors_of_HEAD": true,
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "matches_package_cut": true,
+    "tracked_and_index_diff_empty": true,
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "untracked_files_present": true,
+    "whole_worktree_clean_asserted": false
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "source provenance with a bounded source-adjacent B61 test observation; not code acceptance, source freeze, or formal closure",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+    "parents": [
+      "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+    ],
+    "source_freeze": false,
+    "tracked_index_clean": true,
+    "known_dirty_test_paths_preserved": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "untracked_count_at_readback": 5416,
+    "whole_worktree_clean_claim": false
+  },
+  "identity": {
+    "work_item": "b61-unconsumed-source-inventory-cache-witness-test-companion",
+    "candidate": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_freeze": false,
+    "external_currentness": false
+  },
+  "property": "A selected academic SKG source digest remains reusable after an unrelated, unconsumed study-source inventory member changes; mutation of selected source bytes invalidates the consumed-source cache entry. This is one bounded cache/read-set witness, not the full B61 historical-source inventory criterion.",
+  "footprint": {
+    "denominator": "git diff-tree --no-commit-id --name-status --no-renames -r 42e0cf2f00791cf77c284fd1f91f490337614224",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "f2d33170af09bc7ad4bd5fd43b21f5b0378d5b19",
+          "sha256": "68ebf4522cee37a6e2103b73baacc2b05d9c0157df90b458b5f23aa03b7c0854",
+          "bytes": 1811290
+        },
+        "postimage": {
+          "git_blob_oid": "fe4c2454ea8bd3e724474ed58f159427652d594a",
+          "sha256": "fc1a01501abb258cc455f974ea6b2ae1d4aacd80ad05a174a9e6499492966f18",
+          "bytes": 1818505
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "8429e0c8ca1770ff69e971d47935cdd9388ef0b0",
+          "sha256": "ec0bbf0b870516c7a8b65c38f49749366616612c7b923fc0ec9d0e6602377abf",
+          "bytes": 139406
+        },
+        "postimage": {
+          "git_blob_oid": "6a721f359745e446eaad89ea5ae43ca3ce048028",
+          "sha256": "4b5c55d98c88cfd06f5de56265b736900b88ffc3985da4e69b9a9c2ec5e7db7c",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "b510d6e00a28fc7a2fd4b63595d28f7e7aa1b582",
+          "sha256": "643ff61936988d30bac6e5ae8814f03660521e5548a77754c41c8a9648c28769",
+          "bytes": 75124
+        },
+        "postimage": {
+          "git_blob_oid": "2401896b346fffae5c8d9f3606e35da42b03c959",
+          "sha256": "2afd256ac12fe78b08e50930f1a4fc3b3a688ce1ad851fff47d8abfceaa521d4",
+          "bytes": 81610
+        }
+      }
+    ],
+    "classification_rule": "The committed pytest companion is the only source-scope path; LEASES and delivery index are mandatory coordination/evidence companions."
+  },
+  "evidence": {
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/implementation-readback-preservation-r2.json",
+      "sha256": "f462d8a94d7f0818f0ec3074809b5bbe2f5d8e49f9ceef3338c77698991806ba",
+      "candidate": "42e0cf2f00791cf77c284fd1f91f490337614224",
+      "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+      "parents": [
+        "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+      ],
+      "exact_paths_verified": true,
+      "known_dirty_test_paths_preserved": {
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      },
+      "whole_worktree_clean_claim": false,
+      "source_freeze": false,
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    "source_frame_journal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-source-frame-journal-20261019/frames.jsonl",
+      "sha256": "1ae2e071d1f4485c94d2bddef98b85c0af44f53d528794635e7b19d1e9ebccb3",
+      "bytes": 25284,
+      "bound_event_line_sha256": "4f730f3368a90e6f6b79656d87e6e8cc62ea251bd063afbeab8d92014ebfe5c7",
+      "event": "root_known_source_commit_readback"
+    },
+    "candidate_test_identity": {
+      "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "committed_test_sha256": "2afd256ac12fe78b08e50930f1a4fc3b3a688ce1ad851fff47d8abfceaa521d4",
+      "runtime_candidate_postimage_sha256": "2afd256ac12fe78b08e50930f1a4fc3b3a688ce1ad851fff47d8abfceaa521d4",
+      "equal": true
+    },
+    "bounded_runtime_observation": {
+      "candidate_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/manifest-r3.json",
+      "candidate_manifest_sha256": "e34e6848609d0d24f240537fd423e3ca24b9ae2a99760e8bd3f7dddb802d67f5",
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/result.json",
+      "result_sha256": "6efc8ef24f2beda738dafc0c2aef8e451ad011fd23507c46e2b72946c6ad27ff",
+      "runtime_source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+        "tree": "f9fa889de88088b1797d51b17496bff6810885df"
+      },
+      "run_observations": [
+        {
+          "phase": "normal",
+          "process_status": "passed",
+          "junit_cases": 1,
+          "junit_counts": {
+            "passed": 1
+          }
+        },
+        {
+          "phase": "marker_preserving_global_inventory_key_mutant",
+          "process_status": "command_failed",
+          "junit_cases": 1,
+          "junit_counts": {
+            "failed": 1
+          },
+          "failure_is_expected_counterfactual": true
+        }
+      ],
+      "aggregate_status": "runtime_pair_not_established",
+      "aggregate_limitation": "Wrapper aggregate remains runtime_pair_not_established; independent review identifies a P38 runner predicate mismatch. Preserve this status; do not relabel the aggregate clean."
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/independent-review-r1/review-v1.json",
+      "sha256": "ebd4ad262a82fc0801a72ba67c05ce174b2b647921166c943a4c9392498ae498",
+      "review_mode": "read-only; no test rerun; no canonical source/index edits",
+      "bounded_behavioral_witness": "GO",
+      "formal_G_acceptance": false,
+      "full_B61_closure": "not proposed by this witness; historical replayability of old bytes after replacement/removal remains a distinct limited/unestablished subclaim"
+    }
+  },
+  "limitations": [
+    "The RAW runtime run used the exact test postimage now committed in 42e, while the imported product source frame remains 7c16; the test identity hash matches the 42e committed file. This is not a post-42e runtime replay.",
+    "The wrapper aggregate result remains runtime_pair_not_established because its terminal/readback count predicate diverged from actual successful finalization; the independent review supports only the bounded normal and mutant JUnit observations.",
+    "The witness does not establish a real whole-study source inventory producer, replayability of historical bytes after replacement/removal, complete B61, production currentness, or any formal closure."
+  ],
+  "proposal": {
+    "bucket": "same-class bounded B61 read-set/cache-reuse witness; not a new mechanism class",
+    "status": "limited_proposal_only",
+    "formal_G_closure_ids": [],
+    "next_check": "Rerun the canonical committed B61 test at the adopted source frame with a corrected aggregate runner predicate; independently decide whether the actual inventory producer and historical old-byte replay subclaim exist in the current selected producer/consumer chain."
+  }
+}

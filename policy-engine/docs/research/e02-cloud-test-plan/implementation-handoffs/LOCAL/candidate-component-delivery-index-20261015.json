@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
-    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "head": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
     "parents": [
-      "ac42e495f074e209b40d706d337cd851b228f89b"
+      "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Tracked source and index were clean at the 3a02d5d receipt cut; extensive pre-existing untracked local/research artifacts remain preserved outside the tracked-source cut; source_freeze=false.",
+    "dirty_active_source": "At the 42e source cut the delivery index is clean; two known tracked author test edits remain preserved unchanged, and 5416 pre-existing untracked paths remain. No whole-worktree-clean or source-freeze claim.",
     "published_candidate_last_verified": {
       "sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
       "tree": "32e457c88cf5fe001294aa292156b2a7887cba01",
@@ -21,21 +21,21 @@
   },
   "previous_observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
-    "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
     "parents": [
-      "1c9acee07939dfc43343abde6c171e807281b042"
+      "ac42e495f074e209b40d706d337cd851b228f89b"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Tracked source clean at this cut; pre-existing untracked local/research artifacts remain outside this tracked-source receipt cut. source_freeze=false.",
+    "dirty_active_source": "Prior canonical observed cut at 3a02; pre-existing local/research artifacts remain preserved. It was not source-frozen.",
     "published_candidate_last_verified": {
-      "sha": "fa91983925a95c4428655c91d4601c5fd54b1345",
-      "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+      "sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+      "tree": "32e457c88cf5fe001294aa292156b2a7887cba01",
       "remote_readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-fa919839-20261019/remote-readback.json",
-        "sha256": "0176d458088ce5d04c3a64149270961f26fe74cf1e24e7cfd82143464d50c376"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
+        "sha256": "2d50b972dc26ada593b8b9189473d5820b01c3d9f05b2616d66a3f64db503771"
       },
-      "meaning": "Remote readback confirms the exact fa919 candidate and tree; this does not establish G acceptance or closure."
+      "meaning": "Exact remote readback confirms the own branch remains at 5ebf230; local 3a02d5d is not published. This does not establish G acceptance or closure."
     }
   },
   "G_checkpoint_last_remote_verified": {
@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "fc1a01501abb258cc455f974ea6b2ae1d4aacd80ad05a174a9e6499492966f18",
+      "sha256": "fafb6df72fef8bf528bf1e90a8593d97eab0cecf2dece75580b1593f13640068",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1399,6 +1399,174 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
       "sha256": "2d50b972dc26ada593b8b9189473d5820b01c3d9f05b2616d66a3f64db503771"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/53841a0e7eff.json",
+      "sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/782e9d3cedf7.json",
+      "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/791b9c339b28.json",
+      "sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/7c16fc46ff8e.json",
+      "sha256": "27707d2546aee648fc3fb71d684cdbf12462db6b95332452b27d160da39dae1e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a414aa45691e.json",
+      "sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a7ef7eb9cee4.json",
+      "sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/ae14dac03b54.json",
+      "sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b26e96f51adb.json",
+      "sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b76b4d016738.json",
+      "sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b7709a52da57.json",
+      "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/be96782322a1.json",
+      "sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d2926941e0f2.json",
+      "sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d4061a93d94d.json",
+      "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d59be5b90ac6.json",
+      "sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/e0462740b468.json",
+      "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/fe7817ff30e4.json",
+      "sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r3-manifest.json",
+      "sha256": "3a22a19797d2efad2e02477b66eb7590fc0cfdca3229004dfc2fabf9a7e624df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r4-manifest.json",
+      "sha256": "ee5a81fd65e4a85910604421de44477b3bf2db1879d668585f59c847c2d654f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r5-manifest.json",
+      "sha256": "2212f3d52eb662ac98711b997300d36fbc4d1ce303b1fb3225618eb3c76c4773"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaf-bundles/r6-manifest.json",
+      "sha256": "d1feb9c15b6b650fd342d424c2aa5a61ca20541b7b531e86b91af85a3c067762"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r3-review.json",
+      "sha256": "cbbc42222af48e43786c71b3c9c17261c528b45d903ed5e9898ab3cf9a5740a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r4-review.json",
+      "sha256": "94ecdf84a9f63ddc8c9e34562e7ff50e4aef97cc2aa53b50e22944895f98a5fa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/r5-review.json",
+      "sha256": "0841b9c9c474891d36e4822deb22fb6377644055ecef9e2a2ab7394e03187607"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/runtime-observations-v2.json",
+      "sha256": "b799bf8c1c3c6679e2013b1621f12f543f20fbd30ffcfa83575de8e8c9d3450e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-runtime/current-authorship-map-v2.json",
+      "sha256": "8317ee061514e5749feb65ccb2bd446715348f9bf81e62f22cd556677165675a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-api-conflict-g-decision-v3.json",
+      "sha256": "e620efefc5117ba7a99db269e4c4f6cb4e6fcf5a0607c7e0406c27d227c5ea6b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-consumer-inventory-correction-v1.json",
+      "sha256": "772f9a349863a795bd353aad79c6ea12df57d33165fbe1cf5ce44d8a579434dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/decisions/native-g-packet-independent-delta-qa-v3.md",
+      "sha256": "6562c95f13a7c0e0285de8f1e951500221376662ebe432ee9202827e1ed3844c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/can-semantic-receipt-list-tuple-review-v1.json",
+      "sha256": "a95bb2dc5d77ccef377b576222ee979da2f81d1243627ed2035fa2d348a13713"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/can-epoch-7c16-two-module-postfix-analysis-v1.json",
+      "sha256": "cef7342d7beb060aaa1c09dacec34dde953555b0ca5527667cb1c3f58415dcb2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/d59-can-two-module-followup.json",
+      "sha256": "e5ab6fdff2669bb7326855562d0036a94ae3c33f58dfd9534741634adecb20d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-combined-76pass-followup.json",
+      "sha256": "dbdfbbd99c6d7d8f00ca05fef3d56d414ce9bb87857dd6042f7fde4beb12d727"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b76-r3-r4-followup.json",
+      "sha256": "3912b17f6ee87557ccf10717400f60f8c3505b437c43d62a44d5d032beb8e399"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/7c16-source-preservation-readback.json",
+      "sha256": "635687f6823ce4b80b581c424dd1da5d9c1f4935c4711707846087819e058ced"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-range-reconciliation.json",
+      "sha256": "6ad7e8d508501e3eb0c17bb1d0ef5f5bf274e6838d5c533add92c60898cf5d46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-full-id-ledger-pointer.json",
+      "sha256": "e0a783afc05cd2f611084d5416345e5f1cdd47104df7cfb8ec2ea94d7303ae71"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/42e0cf2f0079.json",
+      "sha256": "59a2876c60a30f947b5cec7ff65ca55845e2e243fd9e3a53d5fa5abb8727b849"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/42e-source-preservation-readback.json",
+      "sha256": "f462d8a94d7f0818f0ec3074809b5bbe2f5d8e49f9ceef3338c77698991806ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-manifest.json",
+      "sha256": "e34e6848609d0d24f240537fd423e3ca24b9ae2a99760e8bd3f7dddb802d67f5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/runtime/b61-unconsumed-source-inventory-witness-attempt3-result.json",
+      "sha256": "6efc8ef24f2beda738dafc0c2aef8e451ad011fd23507c46e2b72946c6ad27ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/independent-reviews/b61-unconsumed-source-inventory-witness-review-v1.json",
+      "sha256": "ebd4ad262a82fc0801a72ba67c05ce174b2b647921166c943a4c9392498ae498"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-journal-pointer-42e.json",
+      "sha256": "8fbefa2cb2658f26ad01a87fe92245d477cf5a04cab6769f8aa1f249fcb6841f"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -1417,7 +1585,7 @@
       "occurrences": 202,
       "formal_G_closure": false
     },
-    "current_report_role": "The prior 291-row / 282-ID / 127-bundle report, 975 navigation progress, nine historical ledger closures, 198-ID/202-occurrence author proposal, and B198 status remain historical. At 3a02d5d, current occurrence membership/spans/hashes are not recomputed. Formal G closure IDs remain empty.",
+    "current_report_role": "The prior 291-row / 282-ID / 127-bundle report, 975 navigation progress, nine historical ledger closures, 198-ID/202-occurrence author proposal, and B198 status remain historical. Current source composition now reaches 42e0cf2, but occurrence membership/spans/hashes and original whole-properties remain unreconciled. Formal G closure IDs remain empty.",
     "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated.",
     "previous_current_report_role": "All291 rows preserve exact original source/span/hash and individual next checks. Original partition proposals and later12-row independent reconciliation are distinct, not additive closures. Report is intermediate, not final current-source acceptance."
   },
@@ -1450,7 +1618,9 @@
     "N4 RAWrefusalconsumer reaches publicN4→V2GenerationSourceCAS→freshN6 preservinglimitedWMR atmissingatoms. Independent62ebbHOLD: canonicaltestpatch mismatch, tool-onlyproducerbridge, actualV5CASowner untested and staledocs are repairedtogether. No simulation/meaningfulchildren/fullKrefsource/authority closure; CAN/Kreflawchoices remainGpending.",
     "Current added records are individually scoped GL125+Lexstyle, BERL54, native6-errors, three explicit G choices and environment serialization erratum. No whole-property closure, current global source/input/backend freeze or composed/native/Linux/installed/browser acceptance follows. N4 R6 explicitly composed fixture lacks normal V5 runtime bridge; R7 wires existing recursive owner before canonical replay. V2/V6 source-present actual served tests remain UNRUN; exact original-capture monetary budget stop is held by unknown gateway settlements, alternatives investigated.",
     "Scoped canonical additions: UI20P/Prettier, R9focused35P, C05strict12selected, NL67P+strict5selected andN8oneP. No overall runtime/native/Linux/installed/browser freeze or closure. R7 N4 whole-routeHOLD: GenericCycle root bypasses V5 guard; R8 commonowner bridge being authored. NativeR2/R3HOLD route/status context, R4wholeprofile design underway. FullcanonicalRuff selector is correct; realformatterdebt andtypingselectors under repair. Causalobsoletebacklog onlyretiredf925, remainingexpiryissuer/engineeringrows separatelyscoped.",
-    "Selected canonical checks now include five basedpyright-selector tests and four synthetic acquisition signer/currentness tests, each with Ruff green. The checker itself was not run. Original currentness refusal-cause loss remains under repair. The contributor command documentation passes its own style check; native R4 remains held for its initial-workspace counterexample, with R5 under independent preparation. These results do not change any finding outcome or establish the full native/composed/Linux/installed/browser freeze."
+    "Selected canonical checks now include five basedpyright-selector tests and four synthetic acquisition signer/currentness tests, each with Ruff green. The checker itself was not run. Original currentness refusal-cause loss remains under repair. The contributor command documentation passes its own style check; native R4 remains held for its initial-workspace counterexample, with R5 under independent preparation. These results do not change any finding outcome or establish the full native/composed/Linux/installed/browser freeze.",
+    "At 7c16fc4, the CAN postfix selected two complete test modules and passed 11/11; only 10 of 13 requested module origins loaded, and issuance, transition_inputs, and semantic qualification remain unrun. This bounded slice does not establish complete CAN or freeze.",
+    "B61 at 42e adds the canonical selected-source cache test companion. RAW attempt-3 used the exact test bytes now committed at 42e against product source frame 7c16: normal JUnit 1 PASS and marker-preserving global-inventory mutant 1 expected FAIL. The wrapper aggregate remains runtime_pair_not_established due its P38 terminal/readback count predicate; independent review supports only the bounded behavior. No real whole-study inventory producer or historical old-byte replay is established; no full B61 closure or formal G closure."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "source_cut_history": [
@@ -1796,18 +1966,411 @@
           }
         }
       }
+    },
+    {
+      "captured_from_index_sha256": "4b5c55d98c88cfd06f5de56265b736900b88ffc3985da4e69b9a9c2ec5e7db7c",
+      "captured_at_candidate_source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "42e0cf2f00791cf77c284fd1f91f490337614224",
+        "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+        "parents": [
+          "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+        ]
+      },
+      "preservation_reason": "Append-only history: preserve the exact current 42e index preimage (SHA 4b5c55) and its recorded latest source cut 3a02 before advancing the index to 42e. The actual index blob in the 3a02 commit is separately pinned as 96ae16 in the range proof.",
+      "previous_observed_source_branch": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
+        "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+        "parents": [
+          "1c9acee07939dfc43343abde6c171e807281b042"
+        ],
+        "source_freeze": false,
+        "dirty_active_source": "Tracked source clean at this cut; pre-existing untracked local/research artifacts remain outside this tracked-source receipt cut. source_freeze=false.",
+        "published_candidate_last_verified": {
+          "sha": "fa91983925a95c4428655c91d4601c5fd54b1345",
+          "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+          "remote_readback": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-fa919839-20261019/remote-readback.json",
+            "sha256": "0176d458088ce5d04c3a64149270961f26fe74cf1e24e7cfd82143464d50c376"
+          },
+          "meaning": "Remote readback confirms the exact fa919 candidate and tree; this does not establish G acceptance or closure."
+        }
+      },
+      "observed_source_branch": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+        "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+        "parents": [
+          "ac42e495f074e209b40d706d337cd851b228f89b"
+        ],
+        "source_freeze": false,
+        "dirty_active_source": "Tracked source and index were clean at the 3a02d5d receipt cut; extensive pre-existing untracked local/research artifacts remain preserved outside the tracked-source cut; source_freeze=false.",
+        "published_candidate_last_verified": {
+          "sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+          "tree": "32e457c88cf5fe001294aa292156b2a7887cba01",
+          "remote_readback": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
+            "sha256": "2d50b972dc26ada593b8b9189473d5820b01c3d9f05b2616d66a3f64db503771"
+          },
+          "meaning": "Exact remote readback confirms the own branch remains at 5ebf230; local 3a02d5d is not published. This does not establish G acceptance or closure."
+        }
+      },
+      "latest_reconciled_source_cut": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+        "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+        "parents": [
+          "ac42e495f074e209b40d706d337cd851b228f89b"
+        ],
+        "source_freeze": false,
+        "tracked_source_clean_before_receipt_edit": true,
+        "untracked_state": "Pre-existing local/research artifacts remain; no whole-worktree clean claim.",
+        "source_changes": [
+          {
+            "commit": "feccd0cddef394129c66279aef17ea59167b94d0",
+            "tree": "323aeaf44c4b6bef0378e8f57cd742817b1aa39c",
+            "parents": [
+              "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e"
+            ],
+            "subject": "feat(e02): bind lineage and quantity trust to selected run profiles",
+            "changed_path_count": 45,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-phase10-lineage-43-source-admission-feccd0cd.json",
+              "sha256": "88208f1386774864f9e78a3cdfecbdb0f1c4950f1af0984419244492abb4f616",
+              "kind": "source_leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "293afe93c67538cdd0842e1eec6af5c5b740393a",
+            "tree": "ae6750ce18cb30ae27f23fefd2960348bc0596d7",
+            "parents": [
+              "feccd0cddef394129c66279aef17ea59167b94d0"
+            ],
+            "subject": "fix(e02): initialize frozen search owner stopping delegate",
+            "changed_path_count": 3,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-search-frozen-init-293afe93.json",
+              "sha256": "82bd1cedb30641d42c548e0f871ce9f2da9f6b6808fb6c6bb96266a1728d632c",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "2ad2ed93db51ae404ed5064372c90edbff72ea23",
+            "tree": "84e3bf9d99b2c9431f691128ac1af8b2d077fd36",
+            "parents": [
+              "293afe93c67538cdd0842e1eec6af5c5b740393a"
+            ],
+            "subject": "fix(e02): compose certified derivation with read-only CAS",
+            "changed_path_count": 7,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-read-only-cas-consumer-2ad2ed93.json",
+              "sha256": "f561d2557e828b0db16eeaeeec9ff38eddab980dee163e9361ecd25e24506bdb",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "507108e692b6f9bf324c5a2653ab572c942a6d71",
+            "tree": "c2252df757c4c58e78bb760b97b77b2ccee6f12b",
+            "parents": [
+              "2ad2ed93db51ae404ed5064372c90edbff72ea23"
+            ],
+            "subject": "test(e02): verify selected graph transport and fresh refusal controls",
+            "changed_path_count": 3,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-selected-graph-witness-507108e6.json",
+              "sha256": "f20cb4b0c68d20ede869cee2e9b79a83f1aa4d309e1695fa45594841d23ca6f0",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "1eb035af91dbb27cfe0ff3e51ba5de25294a8111",
+            "tree": "83970ba52fdc8d558b3083cde8571a1cd99be40c",
+            "parents": [
+              "507108e692b6f9bf324c5a2653ab572c942a6d71"
+            ],
+            "subject": "fix(e02): preserve unestablished quantity lineage across compare consumers",
+            "changed_path_count": 11,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-quantity-lineage-consumers-1eb035af.json",
+              "sha256": "28c61abe7092552d598441c21f1dacfb1c44cc8329f4caf012f151c976506655",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "e0671f33cdddcbaa77c064f34b086fc6ec3bf9b9",
+            "tree": "ac3e6164b8c351c20367b40978e4cbfeb246a9a7",
+            "parents": [
+              "1eb035af91dbb27cfe0ff3e51ba5de25294a8111"
+            ],
+            "subject": "fix(e02): preserve raw and display inputs in compare math helpers",
+            "changed_path_count": 3,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-compare-math-inputs-e0671f33.json",
+              "sha256": "aaacaf26156829754920bdad3416aad6e993b1d9c20fe460f148721a2b52d5c0",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "89fe2421b4ee908bba24a5a7cbe1e46a61dbbe56",
+            "tree": "4d2c03e03e8e4bbcf14e724ed460dd2e719d65c9",
+            "parents": [
+              "e0671f33cdddcbaa77c064f34b086fc6ec3bf9b9"
+            ],
+            "subject": "fix(e02): register canonical ABI reference document outputs",
+            "changed_path_count": 3,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-output-registry-89fe2421.json",
+              "sha256": "ad163fa3aa63fdd0c0fa2f11c5865e01ab411cd957124b7aba47bc4e3217d760",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "73260b3d171af72e58f6a7bd6b90c8828935010e",
+            "tree": "b3f41b88f580fda0f43915d10d5e36b9df840006",
+            "parents": [
+              "89fe2421b4ee908bba24a5a7cbe1e46a61dbbe56"
+            ],
+            "subject": "test(e02): compose profile lineage fixtures through actual admission routes",
+            "changed_path_count": 8,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-lineage-fixture-composition-73260b3d.json",
+              "sha256": "3f00c7ef49bf6f102dd4315a398d5009200f7124e549e74d8759204af5ff04a0",
+              "kind": "draft",
+              "schema": "policyos.e02.local_source_receipt_draft.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "ef8b1f9a8358c0710a90a1338a8884b870360273",
+            "tree": "3c40c4f59c7688e978d31bfabd0a2de97d3290c6",
+            "parents": [
+              "73260b3d171af72e58f6a7bd6b90c8828935010e"
+            ],
+            "subject": "fix(e02): bind exact CAN profiles across transition producers and readers",
+            "changed_path_count": 18,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-profile-composition-ef8b1f9a.json",
+              "sha256": "a9be06c74bd6ae281e392d794ee02d534f2e29e90bfaa5aab4ab37b89aeaaea9",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "47999cbb4e2826ce5e10bbbe801717e5a9971805",
+            "tree": "97275f7e0f5a157cfc925adcf126d296cf1fb5fb",
+            "parents": [
+              "ef8b1f9a8358c0710a90a1338a8884b870360273"
+            ],
+            "subject": "test(e02): use attested epoch producers and tenant-scoped lineage reads",
+            "changed_path_count": 5,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-test-companions-47999cbb.json",
+              "sha256": "7495c0e30075cbfb03c5985a593612598403a432f6551b963831d126458b1dc8",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "f1b9bb4c0340d10f6db75d06bdfcc8a35701f522",
+            "tree": "a5dfe69633cdb82e4afbf136edbd0cd95ffdc769",
+            "parents": [
+              "47999cbb4e2826ce5e10bbbe801717e5a9971805"
+            ],
+            "subject": "test(e02): separate profile admission from issued trust across lineage consumers",
+            "changed_path_count": 9,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-fixture-composition-f1b9bb4c.json",
+              "sha256": "068ce509a5da8995589607758514fe84b5b16d72c4625c6ce847f352743e9f54",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "06af9e4474733edef6f0bf26add733ded753c01e",
+            "tree": "bde0eaf83c333fd0a217f49678c76fdce8439233",
+            "parents": [
+              "f1b9bb4c0340d10f6db75d06bdfcc8a35701f522"
+            ],
+            "subject": "test(e02): add matched Prepared B execution and worker removal controls",
+            "changed_path_count": 3,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-removal-controls-06af9e44.json",
+              "sha256": "0ec4607ef8d953ddebc84cc38b8049374c04da73dedf57079ccea42b91103d8a",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+            "tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a",
+            "parents": [
+              "06af9e4474733edef6f0bf26add733ded753c01e"
+            ],
+            "subject": "fix(e02): retain verified child profiles for pending recursive roots",
+            "changed_path_count": 5,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-tcp-root-topology-e73a8369.json",
+              "sha256": "cc8bf9f04a7b2652184ec707ee6df9a17363e8bfe028e288644bcb853b42f1ba",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+            "tree": "f65dd3507ce8adc0117af2e3854830beda77f510",
+            "parents": [
+              "e73a8369115dab7dfc0ebcc4274918d246da5215"
+            ],
+            "subject": "build(e02): refresh canonical ABI snapshots and record candidate enum compatibility",
+            "changed_path_count": 18,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-generated-adoption-e9db2006.json",
+              "sha256": "bcf55d05f716bc16430f8becf041d258d69094e425587cea70f992ec27b31b0a",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+            "tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+            "parents": [
+              "e9db2006c028400d6274dcaf4dfbf9d0548769c0"
+            ],
+            "subject": "test(e02): bind cost fixtures early and bound both workload barriers",
+            "changed_path_count": 4,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-r3-r4-tests-e3985584.json",
+              "sha256": "f2b85e38510118da8298b2867a43f66656446b2da1e4ba9a1b8dd6d02bdd7ff2",
+              "kind": "leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "362955d833d0242575e65ab8ca5c6e2840947a12",
+            "tree": "05ea2c5710b7dc6ad663d8786057f0fa98b61752",
+            "parents": [
+              "e3985584b84767629d6eeefe8b032d46a3093b9f"
+            ],
+            "subject": "chore(e02): narrow Fabric and IR mypy suppression to four modules",
+            "changed_path_count": 6,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-native-mypy-specific-module-retirement-362955d8.json",
+              "sha256": "dac01c53c1144da00801de460cbb1d46a30bc929af48465abb20475a2fcdb414",
+              "kind": "source_leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "ac42e495f074e209b40d706d337cd851b228f89b",
+            "tree": "e28e2ef5eecf38e8d5bbe42b2ebdc3500fb7b4fb",
+            "parents": [
+              "362955d833d0242575e65ab8ca5c6e2840947a12"
+            ],
+            "subject": "test(e02): align profile lineage fixtures with typed admission and trust views",
+            "changed_path_count": 10,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-profile-lineage-whole-fixture-r3-ac42e495.json",
+              "sha256": "fc4d0412723cd7427f83c8f45dc5c54cdb5e16e70d7f8e851a11601e18c9c811",
+              "kind": "source_leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          },
+          {
+            "commit": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+            "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+            "parents": [
+              "ac42e495f074e209b40d706d337cd851b228f89b"
+            ],
+            "subject": "test(e02): exercise branch isolation and Decimal controls through real workers",
+            "changed_path_count": 4,
+            "receipt": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-real-async-branch-controls-3a02d5da.json",
+              "sha256": "62825132ef96ddd761c7b05f3a7b919b613e3c754310baaf7426d872b7a0eff7",
+              "kind": "source_leaf",
+              "schema": "policyos.e02.source_leaf_receipt.v1"
+            },
+            "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
+            "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+          }
+        ],
+        "source_commit_count_ahead_of_remote": 18,
+        "source_receipt_packet_count": 18,
+        "source_receipt_coverage": "18 of 18 first-parent source commits from own remote 5ebf230 through candidate 3a02d5d have exact source-bound per-commit receipt packets. This is receipt/footprint coverage only, not independent code acceptance or runtime qualification.",
+        "verification_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-verification-delta-e73-e9db-r3-r4-20261019.json",
+          "sha256": "1534e2bf0c4e5897cea8dcdf824e0388e10c5b0c92543b226b49a676af93c92a",
+          "role": "separate verification delta; not a source receipt"
+        },
+        "published_candidate_last_verified": {
+          "sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+          "tree": "32e457c88cf5fe001294aa292156b2a7887cba01",
+          "remote_readback": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
+            "sha256": "2d50b972dc26ada593b8b9189473d5820b01c3d9f05b2616d66a3f64db503771"
+          },
+          "meaning": "Exact remote readback confirms the own branch remains at 5ebf230; local 3a02d5d is not published. This does not establish G acceptance or closure."
+        },
+        "source_cut_history_entry_sha256": "2ccea2aae026db3c3761869eedb1267c0e54279dea5f4aa7cef0843fedfd2a61",
+        "canonical_denominator_status": "Historical 291 occurrences / 282 IDs / 127 bundles remain unreconciled at this 3a source cut; e73 verification-delta checks are integrity only, not semantic reassessment.",
+        "G_acceptance": false,
+        "formal_G_closure_ids": [],
+        "meaning": "Interim candidate source/readback inventory only. Four newly authored receipts include the phase10 lineage leaf whose limitations retain seven formatter-postimage provenance discrepancies. No production authority/currentness, source freeze, global acceptance, or finding closure is claimed."
+      },
+      "G_acceptance": false,
+      "closure_ids": []
     }
   ],
   "latest_reconciled_source_cut": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
-    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "head": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
     "parents": [
-      "ac42e495f074e209b40d706d337cd851b228f89b"
+      "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
     ],
     "source_freeze": false,
-    "tracked_source_clean_before_receipt_edit": true,
-    "untracked_state": "Pre-existing local/research artifacts remain; no whole-worktree clean claim.",
+    "tracked_source_clean_before_receipt_edit": false,
+    "untracked_state": "Index clean at the 42e readback; two known tracked author test modifications are preserved unchanged; 5416 existing untracked paths remain; no whole-worktree-clean claim.",
     "source_changes": [
       {
         "commit": "feccd0cddef394129c66279aef17ea59167b94d0",
@@ -2114,11 +2677,236 @@
         },
         "receipt_validation": "exact candidate/tree/parent/full no-renames path-status and pre/post blob/byte hashes; evidence refs validated",
         "proposal_status": "source handoff only; no source freeze, G acceptance, or closure"
+      },
+      {
+        "commit": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+        "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+        "parents": [
+          "c2c383dd0b269cd4890a7b0415f14f2d3e270084"
+        ],
+        "subject": "fix(e02): require explicit epoch profile modes and persist attested origin receipts",
+        "changed_path_count": 14,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/53841a0e7eff.json",
+          "sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3"
+        }
+      },
+      {
+        "commit": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+        "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e",
+        "parents": [
+          "53841a0e7effab8aef512198c33ccd3ae2dd0a86"
+        ],
+        "subject": "test(e02): defer CAN ledger CAS construction to isolated runtime fixtures",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/be96782322a1.json",
+          "sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5"
+        }
+      },
+      {
+        "commit": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+        "tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95",
+        "parents": [
+          "be96782322a1bdc0fa0c21761a700d837fcdfe2c"
+        ],
+        "subject": "fix(e02): retain CAS batch results and expose executor abort diagnostics",
+        "changed_path_count": 8,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/fe7817ff30e4.json",
+          "sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1"
+        }
+      },
+      {
+        "commit": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+        "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+        "parents": [
+          "fe7817ff30e42b7a7659db8abf33f55bef40c047"
+        ],
+        "subject": "fix(e02): bind N4 predictive outcomes to the complete owner S10 projection",
+        "changed_path_count": 14,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/791b9c339b28.json",
+          "sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305"
+        }
+      },
+      {
+        "commit": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+        "parents": [
+          "791b9c339b286b03e2d9b3bc23e153c61c091202"
+        ],
+        "subject": "docs(e02): include generated ABI schema documentation in the artifact index",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/ae14dac03b54.json",
+          "sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5"
+        }
+      },
+      {
+        "commit": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+        "tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+        "parents": [
+          "ae14dac03b54346f53b9a4fd214405174856b888"
+        ],
+        "subject": "fix(e02): bind generic module capture and packaging driver inputs",
+        "changed_path_count": 5,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d4061a93d94d.json",
+          "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5"
+        }
+      },
+      {
+        "commit": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+        "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+        "parents": [
+          "d4061a93d94d4add6295f9e5b20b020efa124ea2"
+        ],
+        "subject": "fix(e02): preserve historical bulk abort messages",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/782e9d3cedf7.json",
+          "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7"
+        }
+      },
+      {
+        "commit": "e0462740b468781975ee385922ab0cea18a5d4f6",
+        "tree": "d497c580fb7899e9cb6887e4a3cbac92d222fa39",
+        "parents": [
+          "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55"
+        ],
+        "subject": "test(e02): isolate shared runtime workload fixtures and close failed setups",
+        "changed_path_count": 5,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/e0462740b468.json",
+          "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d"
+        }
+      },
+      {
+        "commit": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+        "parents": [
+          "e0462740b468781975ee385922ab0cea18a5d4f6"
+        ],
+        "subject": "test(e02): use valid schema and contract identifiers in native accessor coverage",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b7709a52da57.json",
+          "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4"
+        }
+      },
+      {
+        "commit": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+        "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+        "parents": [
+          "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+        ],
+        "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d2926941e0f2.json",
+          "sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea"
+        }
+      },
+      {
+        "commit": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+        "tree": "016ddafe6835cdd87d78b3191a39f179ac8f5cd3",
+        "parents": [
+          "d2926941e0f20e15f66e064142fbc4e2787ca9e7"
+        ],
+        "subject": "test(e02): reuse shared runtime fixture graph and publish client lifetime",
+        "changed_path_count": 5,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a7ef7eb9cee4.json",
+          "sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540"
+        }
+      },
+      {
+        "commit": "b26e96f51adb532dd7969a33b672362f157c8714",
+        "tree": "33705ec588cbd5d2716ac5a905944ff4d5bf8626",
+        "parents": [
+          "a7ef7eb9cee4e95daeddddd021c853852f95bc20"
+        ],
+        "subject": "fix(e02): bind module subtype source capture with explicit opaque state",
+        "changed_path_count": 4,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b26e96f51adb.json",
+          "sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092"
+        }
+      },
+      {
+        "commit": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+        "tree": "3032419a1ef9a01623c4083b5e1d74e59665bf78",
+        "parents": [
+          "b26e96f51adb532dd7969a33b672362f157c8714"
+        ],
+        "subject": "test(e02): exercise real federation tie ordering and bounded detail liveness",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a414aa45691e.json",
+          "sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a"
+        }
+      },
+      {
+        "commit": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+        "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+        "parents": [
+          "a414aa45691ec29bc268e2547b7379ebaa6f4d68"
+        ],
+        "subject": "fix(e02): bind resolved scholar targets to actual HTTP connections",
+        "changed_path_count": 11,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b76b4d016738.json",
+          "sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f"
+        }
+      },
+      {
+        "commit": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+        "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+        "parents": [
+          "b76b4d016738e2d71f518fe6fca0bf183137e406"
+        ],
+        "subject": "fix(e02): compose epoch producers and consumers through Core read contract",
+        "changed_path_count": 21,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d59be5b90ac6.json",
+          "sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921"
+        }
+      },
+      {
+        "commit": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+        "tree": "f9fa889de88088b1797d51b17496bff6810885df",
+        "parents": [
+          "d59be5b90ac6e89f4f5cb5baff80b33694ec6458"
+        ],
+        "subject": "test(e02): compare semantic epoch input edges in manifest list representation",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/7c16fc46ff8e.json",
+          "sha256": "27707d2546aee648fc3fb71d684cdbf12462db6b95332452b27d160da39dae1e"
+        }
+      },
+      {
+        "commit": "42e0cf2f00791cf77c284fd1f91f490337614224",
+        "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+        "parents": [
+          "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+        ],
+        "subject": "test(e02): verify selected source cache survives unrelated input changes",
+        "changed_path_count": 3,
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/42e0cf2f0079.json",
+          "sha256": "59a2876c60a30f947b5cec7ff65ca55845e2e243fd9e3a53d5fa5abb8727b849",
+          "kind": "source_leaf",
+          "schema": "policyos.e02.source_leaf_receipt.v1"
+        },
+        "receipt_validation": "Exact candidate/tree/parent/full no-renames path-status and base/postimage Git blob, SHA-256, and byte hashes; readback paths and source-relative evidence pinned.",
+        "proposal_status": "Bounded source/readback evidence only; no source freeze, B61 full-property closure, G acceptance, or formal closure."
       }
     ],
-    "source_commit_count_ahead_of_remote": 18,
-    "source_receipt_packet_count": 18,
-    "source_receipt_coverage": "18 of 18 first-parent source commits from own remote 5ebf230 through candidate 3a02d5d have exact source-bound per-commit receipt packets. This is receipt/footprint coverage only, not independent code acceptance or runtime qualification.",
+    "source_commit_count_ahead_of_remote": 36,
+    "source_receipt_packet_count": 35,
+    "source_receipt_coverage": "35 of 35 source commits in the first-parent interval from own remote 5ebf230 through candidate 42e0cf2 have source-bound per-commit receipt packets. The separate c2c383 metadata-only commit is excluded. This is source provenance/footprint coverage only, not code review, runtime qualification, global freeze, G acceptance, or formal closure.",
     "verification_receipt": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-verification-delta-e73-e9db-r3-r4-20261019.json",
       "sha256": "1534e2bf0c4e5897cea8dcdf824e0388e10c5b0c92543b226b49a676af93c92a",
@@ -2133,11 +2921,29 @@
       },
       "meaning": "Exact remote readback confirms the own branch remains at 5ebf230; local 3a02d5d is not published. This does not establish G acceptance or closure."
     },
-    "source_cut_history_entry_sha256": "2ccea2aae026db3c3761869eedb1267c0e54279dea5f4aa7cef0843fedfd2a61",
-    "canonical_denominator_status": "Historical 291 occurrences / 282 IDs / 127 bundles remain unreconciled at this 3a source cut; e73 verification-delta checks are integrity only, not semantic reassessment.",
+    "source_cut_history_entry_sha256": "f81d724b9bfff4ac3d8a8e68145026979fdf2d4bbf092269c5fd72837b99ab3a",
+    "canonical_denominator_status": "Historical 291 occurrences / 282 IDs / 127 bundles remain unreconciled through the 42e source cut; no current finding membership/span/property adjudication or global closure was performed.",
     "G_acceptance": false,
     "formal_G_closure_ids": [],
-    "meaning": "Interim candidate source/readback inventory only. Four newly authored receipts include the phase10 lineage leaf whose limitations retain seven formatter-postimage provenance discrepancies. No production authority/currentness, source freeze, global acceptance, or finding closure is claimed."
+    "meaning": "Interim candidate source/readback provenance and bounded, separately qualified source-relative observations only. CAN at 7c16 is 11/11 on two requested modules with three named modules unrun. B61 is a limited RAW candidate witness with wrapper aggregate runtime_pair_not_established and a scoped independent behavioral GO; no complete B61, global runtime freeze, source freeze, current external authority, G acceptance, or finding closure is claimed.",
+    "range_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-cut-range-reconciliation.json",
+      "sha256": "6ad7e8d508501e3eb0c17bb1d0ef5f5bf274e6838d5c533add92c60898cf5d46",
+      "first_parent_commits": 18,
+      "source_leaf_commits": 17,
+      "metadata_only_commits": 1,
+      "changed_path_occurrences": 132,
+      "source_path_occurrences": 77,
+      "metadata_path_occurrences": 55,
+      "unique_changed_paths": 87,
+      "unique_source_paths": 65,
+      "unique_metadata_paths": 22,
+      "source_leaves_from_r3_through_r6": 15,
+      "source_freeze": false,
+      "semantic_denominator_recomputed": false,
+      "G_acceptance": false,
+      "closure_ids": []
+    }
   },
-  "next_check": "Independently review the newly appended source-leaf packets, including the phase10 leaf’s seven formatter-postimage provenance limitation; commit and read back the receipt-only index patch on the unchanged 3a source cut. Before a current-source 291-occurrence proposal or G review, reconcile exact membership/spans/hashes and run the remaining composed/native/installed consumer checks. G retains independent code acceptance, integration publication, and formal finding adjudication."
+  "next_check": "Reconcile the source-index receipt proposal against exact current 42e bytes; independently review the full first-parent source leaf footprint and the B61 wrapper/output boundary; then run the remaining composed/native/installed consumer checks. Recompute exact current finding membership/spans and each original property before any closure proposal. G retains independent code acceptance, integration publication, and formal finding adjudication."
 }

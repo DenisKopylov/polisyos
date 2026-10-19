@@ -1,0 +1,237 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "can-cas-test-fixture-be967823",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+    "base_tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+    "candidate": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+    "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e",
+    "parents": [
+      "53841a0e7effab8aef512198c33ccd3ae2dd0a86"
+    ],
+    "subject": "test(e02): defer CAN ledger CAS construction to isolated runtime fixtures",
+    "committed_at": "2026-10-19T21:57:12+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "pre-existing untracked research/work files were present and are not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "can21-collection-runtime-cas-test-companion",
+    "lease_key": "can21-collection-runtime-cas-test-companion-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Defer real filesystem CAS and state-root construction from parametrization import into the test body under tmp_path while preserving the three original negative-injection cases and pytest IDs.",
+  "chain": null,
+  "controls": [
+    "Test fixture resource construction occurs inside isolated test execution; three negative injection cases remain intact."
+  ],
+  "pattern_pass": "P04/P05 status and authority boundary; P10 semantic adequacy; P12 producer/consumer binding; P29 behavioral verification required; P37/P38 gate predicates and proxy risks; P40 same-class or widened mechanism as scoped below; P41 inherited provenance is not_established.",
+  "P40": "NEW class relative to selected-profile failures: import-time test fixture construction writes into repository scratch; complete21module AST census identifies only this eager constructor.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "This leaf does not provide exact-slice-base replay of the complete gate denominator plus zero-intersection proof; no inherited-green/closure claim is made."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "M": 3
+    },
+    "git_preimage_bytes_total_excluding_A_source_scope": 319284,
+    "postimage_bytes_source_scope": 319650,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "e0404a2b65aeed8b8b5f71b490bf352ced11b7b8",
+          "sha256": "0d8b51a83c865f7a44205921257f9a2efc1c08c1330768a80f029f921c1ab767",
+          "bytes": 1699211
+        },
+        "post": {
+          "git_blob_oid": "f09ef7a6694317645625476d27dfa99bffff5cb2",
+          "sha256": "befc2bb6a902a7c337ed241779f6f102f729cfa2d93db2fb43256df3649b5711",
+          "bytes": 1702809
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "13abae9fbd4e0576e1053f0bbcf36fb5a0cd9901",
+          "sha256": "6f0536a29924464719f7f4ee810087a6e780147fad5d955b02bbcb79eccfbd57",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "a1c4b6512f5fb041e6e1596e0a619d68e051d424",
+          "sha256": "5294c852121c2a37387062ad9ee3d59bbc7aa52d0e150c5710e1f74be6a5668a",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "a2e5c00717f522e4537175fa6dd88dc8088ac1a7",
+          "sha256": "e38b990cbb8cf4191c20600e3cc6eec3c062ce0d642981824d7e41cf9d68898c",
+          "bytes": 319284
+        },
+        "post": {
+          "git_blob_oid": "747a96cb1881d4dc0d26d0789c788a8b54c03e99",
+          "sha256": "9a4413ea838dc0679baf3cf86f7916cb63d9b2f69baf38669d8661ebb50c022f",
+          "bytes": 319650
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "proposed_closure_ids": [],
+    "formal_G_closures": [],
+    "finding_proposals": [],
+    "proposal_status": "held/open or source-only as stated; historical report fields are not reassessed by this leaf."
+  },
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/source-application.json",
+      "sha256": "36507474074ba3c62601a114345290b7d70107bd1dffc5a6d4b7d8ad385f99d4"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/plan.json",
+      "sha256": "9893135787f74a0caf244e65fb4cc679a6e9807c0f110bdcf1ddaacc0eb92f79"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/implementation-readback.json",
+      "sha256": "7380d569b8fb022e501cab09fd2b0f337f0ac4efe47a87b6771acc865f55ea4d"
+    },
+    "native_commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/commit-request.json",
+      "sha256": "cb82de238eb4e1f3bec6f833790f8005106328e3339eb9871f701ae3fcb2d85f"
+    },
+    "native_commit_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/native-commit-result.json",
+      "sha256": "cb80fccf4e2bde60e40f16974849307dd831bc8a41aa453fea369b40a77d569c"
+    },
+    "native_commit_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/native-commit.stdout.txt",
+      "sha256": "d87a2e65901424d370f5126b8dbde3bff027eddebb176e6e0dcd667a3601b60e"
+    },
+    "native_commit_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/native-commit.stderr.txt",
+      "sha256": "a86f455309a40e068aa772058e5c2d70d7eeae72df390be0c6537a163ea77608"
+    },
+    "native_lint_format_outputs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.07261233311146498,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "source-level lint/format only; not product runtime qualification"
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04966437490656972,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "source-level lint/format only; not product runtime qualification"
+      }
+    ],
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-fix-proposal-r2-20261019/manifest.json",
+        "sha256": "228982ce86f645593881efe7a160ad98adf416b646763e5f4731c640bd3b16c1",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-fix-proposal-r2-20261019/candidate.patch",
+        "sha256": "882d717e873c1e53a0feffd8f90b161d87487972495c6ad422ea4c425cba11a7",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-independent-review-20261019/review-r2.json",
+        "sha256": "17f9c21189b6f6f99d91fd627221f1b437c803dead78b04b27ca0bf7de6a71f4",
+        "binding": "local-readback"
+      }
+    ],
+    "additional_deciding_evidence": [],
+    "bounded_property_evidence": "Collection on the source 538 origin producer aborted before test bodies; this commit is test-only and no adopted-source runtime or full union pass is established.",
+    "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks."
+  },
+  "limitations": [
+    "Test-only companion. No product implementation, authority, law, profile/history migration or sandbox access expansion.",
+    "CAN21 prior collection aborted before test bodies; actual full21module union and all origin/profileless controls remain required.",
+    "This RAW source leaf records delivered bytes and bounded evidence only; it is not global source freeze, composed-source qualification, product capability acceptance, G code acceptance, integration publication, or formal finding adjudication.",
+    "All proposed closure IDs are empty. Finding/report classifications remain proposals or historical records until independent G adjudication."
+  ],
+  "next_check": "Run complete 21-module union against the composed freeze, ensuring full collection and all signed-origin/profileless controls execute.",
+  "authority": {
+    "source_delivery_only": true,
+    "source_freeze": false,
+    "runtime_qualification": false,
+    "G_acceptance": false,
+    "integration_publication": false,
+    "formal_finding_adjudication": false,
+    "closure_ids": []
+  }
+}

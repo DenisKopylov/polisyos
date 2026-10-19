@@ -1,0 +1,262 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact implementation leaf; source proposal for later tracked composition, not self-acceptance, runtime qualification, G acceptance, or formal closure",
+  "slice": {
+    "id": "r3-r4-shared-fixture-repair",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "base_tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+    "candidate": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+    "tree": "016ddafe6835cdd87d78b3191a39f179ac8f5cd3",
+    "parents": [
+      "d2926941e0f20e15f66e064142fbc4e2787ca9e7"
+    ],
+    "subject": "test(e02): reuse shared runtime fixture graph and publish client lifetime",
+    "committed_at": "2026-10-19T23:53:02+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "tracked_and_index_status": "index clean; two known tracked test edits remain outside these commits and their byte hashes are verified unchanged",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true,
+    "preserved_tracked_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "identity": {
+    "work_item": "root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019",
+    "lease_key": "root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019",
+    "proposal_ids": [],
+    "proposal_status": "not mapped/adjudicated by this source receipt; requires separate original-occurrence G proposal mapping",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime_status": "PENDING in the composed current-source replay; this leaf does not promote pre-adoption or native-hook results to canonical runtime green",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "One fixture materialization feeds two actual Runtime instances sharing CAS/SQLite, and every acquired client/service is published through common cleanup before later setup can fail.",
+  "bounded_pre_adoption_evidence": {
+    "summary": "Independent source review GO fcf21528; native three-path lint/format/apply checks pass. Candidate full runtime remains UNRUN.",
+    "provenance": "verbatim source-plan summary; this leaf does not independently rerun or extend those candidate results",
+    "current_cut_replay": "PENDING"
+  },
+  "P40": "Same second-level fixture composition/resource-publication class; reuse the complete seed graph and common runtime lifetime without weakening CAS, tenant, or capacity guards.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay and full denominator with zero-intersection proof is asserted here."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+    "expected_paths_verified": 5,
+    "source_scope_paths": 3,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "metadata_companion_path_occurrences_repeat_across_slices": true,
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "A": 0,
+      "M": 5,
+      "D": 0
+    },
+    "preimage_bytes_total": 2268810,
+    "postimage_bytes_total": 2282356,
+    "bytes_delta": 13546,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "basis": "Every source-scope pre/post SHA-256 in the pinned source-application record matches the exact Git parent/current blob."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "ad361d8e2919554d6aa5122192223569c48a6533",
+          "sha256": "5012ca968359dacef7a33b61e0508766681f026ccdcc003097d9b00ce1222f0d",
+          "bytes": 1752095
+        },
+        "post": {
+          "git_blob_oid": "4be243b9ffcf8cf4eab3322233fc04379f7d81bf",
+          "sha256": "daad3e6c05d943a7791ed429383ec06a441f9f7a8cdd81d9a467b67ebf880a75",
+          "bytes": 1760054
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "1bcec0355a5d6dcb1877f725fe67069adb2468eb",
+          "sha256": "11c2de6a6871b2a3c5d4e2019cff1a9116fc3d97fac253c7b8b81cd546fea823",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "0a6d67343f9ea65273b6864f8d8da7a85e3d78a1",
+          "sha256": "80b1bf0881b0373954a4dfdde86fd38aa95f454741d45292859ec1569efe1429",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/tests/_helpers/runtime_http.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "6e7822f00058d4f624a661976568a410ae2a3a75",
+          "sha256": "148f42719559b74c36e986d1e416f107b1eebf99235ca6c15b503e154d5e33f4",
+          "bytes": 92545
+        },
+        "post": {
+          "git_blob_oid": "e49a07c5c7fe7df8abd22fbc658758a5d01f41ca",
+          "sha256": "002f424a236b7437972ee0e6b2ea212fc1e7f6a5c7bda5b70336a3036d04fec6",
+          "bytes": 95063
+        }
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "0a0dfddae90172acbc427547d0fb1567c2a478fe",
+          "sha256": "15c47c0fa4dcbbf3e2c91ef1eb709072e2ae598d937525b096fd493cd2c50760",
+          "bytes": 111768
+        },
+        "post": {
+          "git_blob_oid": "92bc4f9836516e046d82a2f1b98fdc5ca6f0ab8c",
+          "sha256": "9f947d706f2fbaa906d6e9813fbd3b6129c6b16a69feed85706fe5b34732263c",
+          "bytes": 113207
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "38ff8351f63748cdab211098fd401e89fde1019e",
+          "sha256": "320abb553d14725dc6bd44fd7c5f6a00a0b88f753b1bf436caad689799445fcd",
+          "bytes": 172996
+        },
+        "post": {
+          "git_blob_oid": "5ce027ad827e54ad7dcb759703005e8d2b13c4d9",
+          "sha256": "65a8c2973bea7672fad67e51d00d0848eb7217bc7c44c040c9f103ae4797b007",
+          "bytes": 174626
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/plan.json",
+      "sha256": "792b8c06da5c60fe7fd3dbe82bd1bef690f1ea4f92548d9b5bb4cb08e44f20d7",
+      "bytes": 7452
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/source-application.json",
+      "sha256": "964564f4fc089cacefc93ab7f6abb415ad76fc8d67320dd1d3fe6040b7427ab2",
+      "bytes": 10987
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/commit-request-preservation-r2.json",
+      "sha256": "20cbfb23a26bc368cf566c03f869a4634b89a3c9bca5cd2a12a122d8f5274358",
+      "bytes": 6490
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/implementation-readback-preservation-r2.json",
+      "sha256": "0250d7972092626ffd15fe31f3b92c66f09fbec829b01a8f69c0c526908206e5",
+      "bytes": 3539
+    },
+    "posthoc_preservation_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276",
+      "bytes": 1833
+    },
+    "native_commit": {
+      "exit_code": 0,
+      "seconds": 4.383102040970698,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/native-commit.stdout.txt",
+        "sha256": "8529957fee731fbcf5fbc6803ef49ae588495641489c199308585e4a9132f03e",
+        "bytes": 173
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/native-commit.stderr.txt",
+        "sha256": "e463352230227bf294a77d5554e2eb2d8eef77d4062771f8b879de60343b6436",
+        "bytes": 653
+      }
+    },
+    "source_checks": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/_helpers/runtime_http.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04420279199257493,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/_helpers/runtime_http.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04679004196077585,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "reviewed_input_refs": "retained in the pinned source plan/application; not copied into this leaf"
+  },
+  "limits": [
+    "All cap-1/cap-2, worker dispatch, ordinary POST/GET, 12-fold and removal claims require the complete fresh two-module replay.",
+    "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+    "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+  ],
+  "next_check": "Run both whole R3/R4 modules on the committed source with real clients/workers and exact existing adversarial controls.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

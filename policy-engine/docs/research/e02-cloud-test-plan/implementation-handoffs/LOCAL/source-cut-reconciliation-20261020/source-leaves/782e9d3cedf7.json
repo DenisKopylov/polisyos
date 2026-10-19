@@ -1,0 +1,297 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "b154-abort-compat-782e9d3c",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+    "base_tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+    "candidate": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+    "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+    "parents": [
+      "d4061a93d94d4add6295f9e5b20b020efa124ea2"
+    ],
+    "subject": "fix(e02): preserve historical bulk abort messages",
+    "committed_at": "2026-10-19T22:51:22+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "pre-existing untracked research/work files were present and not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "b154-legacy-abort-message-compatibility",
+    "lease_key": "b154-legacy-abort-message-compatibility-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Retain typed whole-inventory completion and partial-row preservation while preserving historical inventory-failure and cancellation wording in signing and verification.",
+  "chain": null,
+  "controls": [
+    "Keep historical messages “Batch cancelled; no new artifacts were submitted” and “Batch inventory source failed; results are incomplete” while preserving typed completion semantics."
+  ],
+  "pattern_pass": "P04/P05 status and authority boundary; P10 semantic adequacy; P12 producer/consumer and fixture lifecycle binding; P29 behavioral verification; P37/P38 truthful gate predicates; P40 class-level scope; P41 inherited provenance not_established.",
+  "P40": "Mandatory compatibility companion of the existing B154 executor/inventory outcome class; one shared typed abort mapping, no test relaxation or new authority.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No exact-slice-base replay of the complete gate denominator plus zero-intersection proof is claimed by this source receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames 782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "M": 3
+    },
+    "git_preimage_bytes_total_excluding_A_source_scope": 15475,
+    "postimage_bytes_source_scope": 16022,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "b276c6b82953e79ef7579ebbea21ab1d8aa808b8",
+          "sha256": "0b7a377888a45f91dd87486af54b749bdd68f66bf6b2e25cd749ec4316a5a676",
+          "bytes": 1733487
+        },
+        "post": {
+          "git_blob_oid": "e17cc5e6e27d9a3d34a8f333989687d3fb4eb994",
+          "sha256": "6284096a16e02e5902d1a743cb9f192c25c1f99ee409f621a51dadb23c073d0e",
+          "bytes": 1736691
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "1e39725c192af67b6f6e9de635cd8c10b619de7d",
+          "sha256": "63fd6345bdd2847afd6b81e4aabb9880276d08f38719bb6fef0777b367082b34",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "474a5c801fdf5081c2b6448f9f7f32fa8791c78c",
+          "sha256": "9753378253593ad5193aafa9cd1428fe9448910d95dd9b17d01eaa88940086da",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "08f44701b7d96e01c59779c7194b7c3f1779b46a",
+          "sha256": "9ca96f8de6b55237c20085ef9880d3213a08f484619acb61506763579f8a6f01",
+          "bytes": 15475
+        },
+        "post": {
+          "git_blob_oid": "bbb3d5db75be6f8ca983e0b78da99318e7cca7c2",
+          "sha256": "bdac6260738a7118956f6956e44b6cc994a65645428da6da1aef69229c901acf",
+          "bytes": 16022
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "proposed_closure_ids": [],
+    "formal_G_closures": [],
+    "finding_proposals": [],
+    "proposal_status": "source-only / held or open; historical findings are not reassessed."
+  },
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/source-application.json",
+      "sha256": "885a2de5f875159cf8479dd32a1948e3bbebfe3c4f8a05389b0334b3feed6a5f",
+      "bytes": 5784
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/plan.json",
+      "sha256": "a735a4df3b5539e19b6cc08f6cd0d004bf22873fe57147679a5bb5271848f455",
+      "bytes": 2503
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/implementation-readback.json",
+      "sha256": "415ac9658eb01b1964695d7bbb9032fd33be0f1692e76b274716a001342c5820",
+      "bytes": 1396
+    },
+    "native_commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/commit-request.json",
+      "sha256": "b3476202e6e9a53cb7e230486f7eb5f5feaaa79bb9ff76ecc39b4a80b646680b",
+      "bytes": 1150
+    },
+    "native_commit_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/native-commit-result.json",
+      "sha256": "69ebc961df319aeace62feadc88fae36d96ce50277e2221e48aeaf0a5b11403f",
+      "bytes": 1035
+    },
+    "native_commit_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/native-commit.stdout.txt",
+      "sha256": "0a83cb2c3fe9fd794e935608a78e6f7182c7af30923e6c4fce5b89a13b185c31",
+      "bytes": 146
+    },
+    "native_commit_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/native-commit.stderr.txt",
+      "sha256": "9a72a993576c1a9d6cb98bf206e8d48a0fe13c8b20e667312ab07c325b41c9ff",
+      "bytes": 653
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/manifest.json",
+        "sha256": "8f6f43b5d381c03c92c433154e84b09aff08d7ed148bef8c766c055a5a9bdc2e",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-independent-review-20261019-v1/review.json",
+        "sha256": "b5eeef15572ae002c42db341746d275cac67afc741c01e95e7ac10df8a89bcc9",
+        "binding": "local-readback"
+      }
+    ],
+    "native_lint_format_outputs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03875833400525153,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "lint/format evidence only, not runtime qualification"
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03653795807622373,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "lint/format evidence only, not runtime qualification"
+      }
+    ],
+    "additional_deciding_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/canonical-context-preflight.json",
+        "sha256": "e3ede89bc05312842afc1b2edb7b1f836b1848ff7d1e97ad74892645a71306e9",
+        "bytes": 2610
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/status-before-stage.txt",
+        "sha256": "2abdf4867a0f434010c4f03df22c53ad129b7e27578209f869ee50a6083723e3",
+        "bytes": 375
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-canonical-module-qualification-20261019/attempt-1/actual-run/result.json",
+        "sha256": "ad3f81e1fb1a4580b584640a56dfda33b0cb5a25dfb73c8e8eaa67590b71c4de",
+        "bytes": 14234,
+        "meaning": "Pre-wording-fix 30-case qualification output: 28 PASS / 2 FAIL; failures were the old messages and are not results on this commit."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-canonical-module-qualification-20261019/attempt-1/actual-run/b154-canonical-pytest.stdout.txt",
+        "sha256": "3c46f2a9c5bfd1ba788a15746a474470eb0b41cdbafe298c5ae8761d099e18fd",
+        "bytes": 5691,
+        "meaning": "Pre-wording-fix 30-case qualification output: 28 PASS / 2 FAIL; failures were the old messages and are not results on this commit."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-canonical-module-qualification-20261019/attempt-1/actual-run/b154-canonical-pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "meaning": "Pre-wording-fix 30-case qualification output: 28 PASS / 2 FAIL; failures were the old messages and are not results on this commit."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-canonical-module-qualification-20261019/attempt-1/actual-run/pytest.xml",
+        "sha256": "3abf2da37e3239d61e695819d0645e6481ad40273bb69bc1feb006a787b8d7a4",
+        "bytes": 10114,
+        "meaning": "Pre-wording-fix 30-case qualification output: 28 PASS / 2 FAIL; failures were the old messages and are not results on this commit."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-canonical-module-qualification-20261019/attempt-1/actual-run/pytest-provenance.json",
+        "sha256": "6278e3cd85c5640ce67a8e9ddeb74326b3fba199bfd5a772aa2343235eee5034",
+        "bytes": 880105,
+        "meaning": "Pre-wording-fix 30-case qualification output: 28 PASS / 2 FAIL; failures were the old messages and are not results on this commit."
+      }
+    ],
+    "runtime_on_adopted_canonical_source": "UNRUN except for explicit pending-current-run notes below; do not infer runtime behavior from source-level/native hooks.",
+    "prior_candidate_run": {
+      "status": "prior source only; not candidate qualification",
+      "source_frame": {
+        "branch": "refs/heads/codex/e02-unified-local-20261009",
+        "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "parents": [
+          "791b9c339b286b03e2d9b3bc23e153c61c091202"
+        ],
+        "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535"
+      },
+      "counts": {
+        "cases": 30,
+        "errors": 0,
+        "failed": 2,
+        "passed": 28,
+        "skipped": 0
+      }
+    }
+  },
+  "limitations": [
+    "Previous actual30-case run is not candidate runtime proof; whole three modules must run again after adoption.",
+    "No DTO outcome/count/required-reference/authority semantics changed; B154 remains proposal pending actual qualification and G.",
+    "This RAW source leaf records exact committed bytes and bounded prior/review evidence only; source freeze, current composed qualification and formal finding closure are not claimed.",
+    "All proposed closure IDs are empty; G retains independent source acceptance, integration publication and formal finding adjudication."
+  ],
+  "next_check": "Run unchanged complete B154/CAS03/phase0 CLI modules at committed source with normal autoload, exact input/output and module-origin evidence.",
+  "authority": {
+    "source_delivery_only": true,
+    "source_freeze": false,
+    "runtime_qualification": false,
+    "G_acceptance": false,
+    "integration_publication": false,
+    "formal_finding_adjudication": false,
+    "closure_ids": []
+  }
+}

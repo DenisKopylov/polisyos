@@ -1,0 +1,404 @@
+{
+  "schema": "policyos.e02.current_authorship_map.v2",
+  "created_at_utc": "2026-10-19T20:52:32.083451+00:00",
+  "purpose": "Exact source provenance and coordinator-reported writer roles; lane labels do not assert individual human identity.",
+  "current_local_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "parents": [
+      "e0462740b468781975ee385922ab0cea18a5d4f6"
+    ]
+  },
+  "root_latest_commit": {
+    "sha": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+    "parents": [
+      "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+    ],
+    "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/tests/unit/remediation/test_scm_03.py"
+    ],
+    "role": "ROOT-author source change; later than all b770 runtime observations."
+  },
+  "published_refs": {
+    "own_remote": {
+      "sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+      "tree": "32e457c88cf5fe001294aa292156b2a7887cba01"
+    },
+    "G_remote_readback": {
+      "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+      "parents": [
+        "78be3aff64185e2de24abe710523e14491e36ba6"
+      ],
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-published-checkpoint-readback-b770-20261019/readback.json",
+        "sha256": "96dec67264a3fa75ee6361662aa8e9e76f5aedea1f786c300070cbd64c7f7b39",
+        "bytes": 1660
+      },
+      "observed_at_utc": "2026-10-19T20:26:08.333471+00:00",
+      "delta_from_last_verified_checkpoint": false,
+      "publication_or_acceptance_by_this_task": false
+    }
+  },
+  "writer_roles_reported_by_coordinator": [
+    {
+      "lane": "ROOT",
+      "role": "sole canonical writer/adopter and index integrator per coordinator"
+    },
+    {
+      "lane": "N7",
+      "role": "parallel source author; exact active paths reside in root lease map"
+    },
+    {
+      "lane": "B108",
+      "role": "parallel source author; exact active paths reside in root lease map"
+    },
+    {
+      "lane": "CAN",
+      "role": "source lane",
+      "receipts": [
+        "can-origin-profile-53841a0e",
+        "can-cas-test-fixture-be967823"
+      ]
+    },
+    {
+      "lane": "R3/R4",
+      "role": "source lane",
+      "receipts": [
+        "r3-r4-context-fixture-e0462740",
+        "v7-n4-projection-791b9c339"
+      ]
+    },
+    {
+      "lane": "Q2",
+      "role": "source lane",
+      "receipts": [
+        "q2-capture-driver-d4061a93"
+      ]
+    },
+    {
+      "lane": "B154",
+      "role": "source lane",
+      "receipts": [
+        "b154-executor-completion-fe7817ff",
+        "b154-abort-compat-782e9d3c"
+      ]
+    },
+    {
+      "lane": "G",
+      "role": "independent source acceptance, integration publication and formal finding adjudication"
+    }
+  ],
+  "source_leaf_provenance": [
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-can-origin-profile-53841a0e.json",
+        "sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3",
+        "bytes": 25949
+      },
+      "slice": {
+        "id": "can-origin-profile-53841a0e",
+        "base": "c2c383dd0b269cd4890a7b0415f14f2d3e270084",
+        "candidate": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+        "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+        "parents": [
+          "c2c383dd0b269cd4890a7b0415f14f2d3e270084"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "can-origin-explicit-mode-and-profiled-owner-outputs",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+      "source_scope_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-exact-cas-profile-composition.toml",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+        "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-can-cas-test-fixture-be967823.json",
+        "sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5",
+        "bytes": 12583
+      },
+      "slice": {
+        "id": "can-cas-test-fixture-be967823",
+        "base": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+        "candidate": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+        "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e",
+        "parents": [
+          "53841a0e7effab8aef512198c33ccd3ae2dd0a86"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "can21-collection-runtime-cas-test-companion",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+      "source_scope_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-b154-executor-completion-fe7817ff.json",
+        "sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1",
+        "bytes": 21565
+      },
+      "slice": {
+        "id": "b154-executor-completion-fe7817ff",
+        "base": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+        "candidate": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+        "tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95",
+        "parents": [
+          "be96782322a1bdc0fa0c21761a700d837fcdfe2c"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "b154-bounded-executor-completion-and-retained-results",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+      "source_scope_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-v7-n4-projection-791b9c339.json",
+        "sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305",
+        "bytes": 27503
+      },
+      "slice": {
+        "id": "v7-n4-projection-791b9c339",
+        "base": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+        "candidate": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+        "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+        "parents": [
+          "fe7817ff30e42b7a7659db8abf33f55bef40c047"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "v7-n4-full-s10-owner-projection-r4-20261019-r2",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+      "source_scope_paths": [
+        "policy-engine/docs/reference/api/runs.md",
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+        "policy-engine/src/polisyos/runtime/http/README.md",
+        "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+        "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-abi-generated-doc-ae14dac0.json",
+        "sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5",
+        "bytes": 11516
+      },
+      "slice": {
+        "id": "abi-generated-doc-ae14dac0",
+        "base": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+        "candidate": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+        "parents": [
+          "791b9c339b286b03e2d9b3bc23e153c61c091202"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "abi-generated-index-owner-output-companion",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+      "source_scope_paths": [
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-q2-capture-driver-d4061a93.json",
+        "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5",
+        "bytes": 18077
+      },
+      "slice": {
+        "id": "q2-capture-driver-d4061a93",
+        "base": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "candidate": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+        "tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+        "parents": [
+          "ae14dac03b54346f53b9a4fd214405174856b888"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "q2-generic-module-capture-and-canonical-driver-binding",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+      "source_scope_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-b154-abort-compat-782e9d3c.json",
+        "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7",
+        "bytes": 15713
+      },
+      "slice": {
+        "id": "b154-abort-compat-782e9d3c",
+        "base": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+        "candidate": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+        "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+        "parents": [
+          "d4061a93d94d4add6295f9e5b20b020efa124ea2"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "b154-legacy-abort-message-compatibility",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+      "source_scope_paths": [
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-r3-r4-context-fixture-e0462740.json",
+        "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d",
+        "bytes": 19124
+      },
+      "slice": {
+        "id": "r3-r4-context-fixture-e0462740",
+        "base": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+        "candidate": "e0462740b468781975ee385922ab0cea18a5d4f6",
+        "tree": "d497c580fb7899e9cb6887e4a3cbac92d222fa39",
+        "parents": [
+          "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "r3-r4-shared-context-fixture-and-worker-lifecycle",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+      "source_scope_paths": [
+        "policy-engine/tests/_helpers/runtime_http.py",
+        "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-native-schema-id-fixture-b7709a52.json",
+        "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4",
+        "bytes": 17563
+      },
+      "slice": {
+        "id": "native-schema-id-fixture-b7709a52",
+        "base": "e0462740b468781975ee385922ab0cea18a5d4f6",
+        "candidate": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+        "parents": [
+          "e0462740b468781975ee385922ab0cea18a5d4f6"
+        ],
+        "source_freeze": false,
+        "ancestor_of_current_head": true
+      },
+      "work_item": "native-semantic-fixture-valid-identifiers",
+      "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+      "source_scope_paths": [
+        "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py"
+      ],
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    }
+  ],
+  "this_subtask": "RAW evidence assembly only; no canonical source edits, commits or publication.",
+  "scope": {
+    "receipt_source_cut": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "parents": [
+        "e0462740b468781975ee385922ab0cea18a5d4f6"
+      ]
+    },
+    "later_root_commit": {
+      "sha": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+      "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+      "parents": [
+        "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+      ],
+      "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/remediation/test_scm_03.py"
+      ],
+      "role": "subsequent ROOT source delta; not covered by b770 runtime evidence"
+    },
+    "global_source_freeze": false,
+    "all-up-current-head-review_claim": false
+  },
+  "later_root_source_delta": {
+    "sha": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+    "parents": [
+      "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+    ],
+    "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/tests/unit/remediation/test_scm_03.py"
+    ],
+    "role": "subsequent ROOT source delta; not covered by b770 runtime evidence"
+  },
+  "supersedes_r1": {
+    "path": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-observation-assembly-20261019-r1/current-authorship-map-v1.json",
+      "sha256": "5de3952d7e3463626277d56b95017ea18bd773f748c46e5f1220a14a9358bbdd",
+      "bytes": 16592
+    },
+    "reason": "r1 mixed d292 current source with b770 runtime evidence."
+  }
+}

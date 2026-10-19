@@ -1,0 +1,495 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "can-origin-profile-53841a0e",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "c2c383dd0b269cd4890a7b0415f14f2d3e270084",
+    "base_tree": "e7af1ae6fb46b6056573769872254d81ee2ce3d2",
+    "candidate": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+    "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+    "parents": [
+      "c2c383dd0b269cd4890a7b0415f14f2d3e270084"
+    ],
+    "subject": "fix(e02): require explicit epoch profile modes and persist attested origin receipts",
+    "committed_at": "2026-10-19T21:33:47+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "pre-existing untracked research/work files were present and are not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "can-origin-explicit-mode-and-profiled-owner-outputs",
+    "lease_key": "can-origin-explicit-mode-and-profiled-owner-outputs-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Origin-owner JSON artifacts are producer-attested and returned under the exact selected Core profile before recomputing the signed transition; private persistence-helper callers select profile mode explicitly.",
+  "chain": null,
+  "controls": [
+    "Every profile-sensitive persistence helper now has an explicit profile-mode choice; preserve profileless-owner refusal and signed-origin recomputation."
+  ],
+  "pattern_pass": "P04/P05 status and authority boundary; P10 semantic adequacy; P12 producer/consumer binding; P29 behavioral verification required; P37/P38 gate predicates and proxy risks; P40 same-class or widened mechanism as scoped below; P41 inherited provenance is not_established.",
+  "P40": "Same CAN/profile-composition class one level deeper: remove implicit default mode across complete alias-aware helper callgraph, consolidate three owner outputs through selected-profile owner writer, retain strict profileless refusal and signed-transition default-selector contract.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "This leaf does not provide exact-slice-base replay of the complete gate denominator plus zero-intersection proof; no inherited-green/closure claim is made."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames 53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+    "expected_paths_verified": 14,
+    "source_scope_paths": 12,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "M": 14
+    },
+    "git_preimage_bytes_total_excluding_A_source_scope": 1639706,
+    "postimage_bytes_source_scope": 1643642,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "2df170513becff5e1cc7e77d4da7eb594e593621",
+          "sha256": "b79c01566257fb173d72efd3f666f42787642cb24cec5754b0eb95170918542d",
+          "bytes": 1688346
+        },
+        "post": {
+          "git_blob_oid": "e0404a2b65aeed8b8b5f71b490bf352ced11b7b8",
+          "sha256": "0d8b51a83c865f7a44205921257f9a2efc1c08c1330768a80f029f921c1ab767",
+          "bytes": 1699211
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "75e4eebbce3fc4c8479b5df26d8b157b5e24550f",
+          "sha256": "d7347358beaa06218666a543f3dccea7d7c52531f3f1af6cc1a38ff43a020374",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "13abae9fbd4e0576e1053f0bbcf36fb5a0cd9901",
+          "sha256": "6f0536a29924464719f7f4ee810087a6e780147fad5d955b02bbcb79eccfbd57",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-exact-cas-profile-composition.toml",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "c8ad6df587b68ca9047070b1d30a91f80e3034ee",
+          "sha256": "ca63b2af812d66165e9606033f9c6e49ceae9cb7c6ffad1bd51eb7e1bfb3e4de",
+          "bytes": 3357
+        },
+        "post": {
+          "git_blob_oid": "9da67c1f4d378d558f6519ad50530c5b5a57e571",
+          "sha256": "014d1a7587f4b5d0903514262ea68b9bd671d7a6faa0960c597cf182d8c44ad1",
+          "bytes": 4100
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "4e78d8b2c21aef40653ee362dfa0255faded8cf2",
+          "sha256": "5c810fe35c157eb1ab674c7252f4b5796bcaa24437971f986ce341db6be23abc",
+          "bytes": 25483
+        },
+        "post": {
+          "git_blob_oid": "a5a74c9d8a12216c0f7a87ed1e9382d7c3475868",
+          "sha256": "86f8d94f952f321af51babddfddc32c9a9298b30955d099a1f2010be57ee242f",
+          "bytes": 25555
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "0a8570ab681693279634dd0e02924260d25d318b",
+          "sha256": "9ee1260fc428cd9bc71afa498f09e6560f08e2b54a7dec105f4c9282bec6e274",
+          "bytes": 23856
+        },
+        "post": {
+          "git_blob_oid": "cefc799768258aad612e8e1509de7dbe6218f81c",
+          "sha256": "073579152df0cb4347f26db55ca1fb70a6d5faebf7b1d261d3211a799ce4701f",
+          "bytes": 24372
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "795781cbb94c6bb92eb9029fe305c35ea338c170",
+          "sha256": "ede7b56c41f5ead8126a489df2c0c5f3867442baee9932651b3b7b6f702af4ff",
+          "bytes": 140471
+        },
+        "post": {
+          "git_blob_oid": "01c9a565404d9f14487281df47d1fdd473ef30ec",
+          "sha256": "ae97dd712ef723275ace63273039473a7d9e0482adebedffece9b8985f472c9c",
+          "bytes": 140907
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "7f9e67b7f1689229fa49bdd34ff564c1c70411db",
+          "sha256": "ced4d2a1849b95516f8301a43312180d478624036a3cca38548c97219283bfb0",
+          "bytes": 69174
+        },
+        "post": {
+          "git_blob_oid": "6f88598769faac5c2ea5476ebf50443bb170e59c",
+          "sha256": "15509fb9901c9a1ffefb4f708f971a3d39cbb270dab86934e69a9a6a13163352",
+          "bytes": 69286
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "340dad3c40251fa335088db838131c41e2bb6ca5",
+          "sha256": "fc2465ca502504194846fd2393d4d117254b5b8fee3b3218eb19fb9a7f7a5dbf",
+          "bytes": 307232
+        },
+        "post": {
+          "git_blob_oid": "4761997cec5d30863ee6a6e75f117c62fb5dfee9",
+          "sha256": "81750c5e090946fff6550bcb9fe6fca3a7a31f7bee5f5dc007ed86856750ce8d",
+          "bytes": 307268
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "0e81eef888c63c9af1f1c0a1115f33c9ccbdea53",
+          "sha256": "caf5b550de9ac34202e7ef9b65c0f91e3b7163636238d035e27072d4aaf5b150",
+          "bytes": 17589
+        },
+        "post": {
+          "git_blob_oid": "8d203bb935ca42695cbdc5377af466cc6d33920f",
+          "sha256": "b3b91e2ae99acce85f0e7d0ba0716771f413d670e798dd324649e1662e335a04",
+          "bytes": 18939
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "0efe5f0109e36377b88db34394be9e4f3031d480",
+          "sha256": "52fc7dd0cbc8f2570aaf600e887949e1ba24bb10c61eda0fa6c748652054ac50",
+          "bytes": 481775
+        },
+        "post": {
+          "git_blob_oid": "b477b6a4446ef55d836e9243647b6254df7bd5b7",
+          "sha256": "d946641a51c046b82d3781a892df1c9cbe81589e26945c5c5064acb12c4143d5",
+          "bytes": 481843
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "aa7f118dd8a2293d9d6d72e509ff4dc8360cbc6b",
+          "sha256": "b9f489d3b098a266335e308b27386035da3291e191c368d1f8a6bff0a64553b7",
+          "bytes": 140597
+        },
+        "post": {
+          "git_blob_oid": "e0ea98397ae3e156a17b8760846748bb1c578d53",
+          "sha256": "c4b69e3f9152b7038121805c4a321b66f62750c4e5ff0d7b0cf2ee4c20c63059",
+          "bytes": 140646
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "cc3495e9e51202c75b1347532d70eb9c632ecf40",
+          "sha256": "2d99267ae469d9090467f544cdee00b2769c8f42c166df9867107c804c21bf48",
+          "bytes": 108511
+        },
+        "post": {
+          "git_blob_oid": "ecf7af3233f3a478304cdb0944d81c67c57ec207",
+          "sha256": "6576334a089a2fe7c5f1512ec205a7d87d5bf60a2628e0ce7422f1a71f939c8b",
+          "bytes": 108969
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "742e9161564488b12b060477fe3ecc84a1feca09",
+          "sha256": "b568691c70125e9784699f121f9aa87e8609a065070bf13f6757364dc7952720",
+          "bytes": 2409
+        },
+        "post": {
+          "git_blob_oid": "7e8ffd2ec37a1ea7855b8f1a6e58fb0c69588f47",
+          "sha256": "9f72eec76ccacd9d1cc18981df770b997893f9a33ab4f74769612b1634cba870",
+          "bytes": 2473
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "121d4e292606b120b842384e9a8f329828b48f97",
+          "sha256": "9924979b257a9a1ed041375aff3642a427122c2d18b6247e732adfb9f5e78a02",
+          "bytes": 319252
+        },
+        "post": {
+          "git_blob_oid": "a2e5c00717f522e4537175fa6dd88dc8088ac1a7",
+          "sha256": "e38b990cbb8cf4191c20600e3cc6eec3c062ce0d642981824d7e41cf9d68898c",
+          "bytes": 319284
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "proposed_closure_ids": [],
+    "formal_G_closures": [],
+    "finding_proposals": [],
+    "proposal_status": "held/open or source-only as stated; historical report fields are not reassessed by this leaf."
+  },
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/source-application.json",
+      "sha256": "3abf2770cdfa765e671a3160bf69294dcedc3a7be318e495ccf67097f07b5e05"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/plan.json",
+      "sha256": "71e97fb12e80c3da6857547ad9e370fda19d4a1a54c31a1c6372e2cc9cf26743"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/implementation-readback.json",
+      "sha256": "2cfc21d3ce90d6f0037b8edd6f69cafb00681909d439e8912aaceab6a84e93e0"
+    },
+    "native_commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/commit-request.json",
+      "sha256": "8dd8103a7699e09679734f88e8d4b0640c6262cb00e5c55b4884d1e11eb52031"
+    },
+    "native_commit_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/native-commit-result.json",
+      "sha256": "6b1d131d627ee4a8bc58f407bc6912cb2c1d7b31752de806fd156d4dbf437277"
+    },
+    "native_commit_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/native-commit.stdout.txt",
+      "sha256": "17a685499896606081ee16d65b6867f2a0fa4058988b63e08fda8443be1612bf"
+    },
+    "native_commit_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/native-commit.stderr.txt",
+      "sha256": "5be6a61c204f31532830f2226153ed73d21e12c93a875836a1f18aecb0f86bf6"
+    },
+    "native_lint_format_outputs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+          "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+          "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.056622291915118694,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "source-level lint/format only; not product runtime qualification"
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+          "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+          "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.052180834114551544,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-origin-mode-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "source-level lint/format only; not product runtime qualification"
+      }
+    ],
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-author-r2-20261019/manifest.json",
+        "sha256": "2c288941c26889de5ba28288986ce5c6979a2c1b80e4093e48c2df052df0e007",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-author-r2-20261019/patch.diff",
+        "sha256": "6b97bf365dbd844ee7a71eaed5ece0f0dc1ad7b34cb7c0eb846e8f60799391a5",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-independent-review-20261019/review-v1.json",
+        "sha256": "30417955c17827461a02eae31e39cf4aa0eee296623ced2869fc94a8318fcaa3",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-author-r2-20261019/candidate-callsite-closure.json",
+        "sha256": "f4703dcbe1444964ea3ba636de307c98546b558910785681cb4ae38e5dfa48d9",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-author-r2-20261019/runtime-module-union.json",
+        "sha256": "69eb6078bc1c6e81e356ba1c34fa6a39a7a4fcfa10f4171eaf1ac303abcaad5c",
+        "binding": "local-readback"
+      }
+    ],
+    "additional_deciding_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/result.json",
+        "sha256": "ebfd31aef9aaa336ccbe2584ca72da8c6d3cd1fe80ce39d224a4f31f8b1c207f",
+        "bytes": 11698,
+        "meaning": "Historical pre-adoption 15-module run: 381 passed / 5 failed; source frame e9db2006; not a result on commit 538 or the required 21-module union."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/pytest.stdout.txt",
+        "sha256": "c9b42831c716967aad3fd4a1f0029d45fdc8914b448893db9ce45a089ddb8752",
+        "bytes": 14136,
+        "meaning": "Complete stdout for the historical 15-module run above."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "meaning": "Complete stderr for the historical 15-module run above."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/pytest.xml",
+        "sha256": "06d57304dc08f3dcab50bc3e82de5311d3b02d087de53ec44debb939e4981938",
+        "bytes": 82670,
+        "meaning": "JUnit for the historical 15-module run above."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/runtime-module-origins.json",
+        "sha256": "8a8b82c0dae9cfcb3a9fc381bd497ea86e0bfcfa8548c4a7e86dca6d00fd0304",
+        "bytes": 2036570,
+        "meaning": "Complete runtime module-origin capture for the historical 15-module run; not authority/currentness evidence."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-diagnostic-20261019/actual-run-r2/result.json",
+        "sha256": "5b2129355b0d8f0cab586b880d77a2391df7a01324f41fdbe38511dd42ccbc2e",
+        "bytes": 4263,
+        "meaning": "Pre-patch origin diagnostic, command_failed; not a post-patch runtime result."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-diagnostic-20261019/actual-run-r2/pytest-one.stdout.txt",
+        "sha256": "aa13a0f42076a9fe575ac7cf1baab30afeb1c96b31a8c9d71eca4edc4d21c959",
+        "bytes": 3494,
+        "meaning": "Complete stdout for the pre-patch origin diagnostic."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-diagnostic-20261019/actual-run-r2/pytest-one.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "meaning": "Complete stderr for the pre-patch origin diagnostic."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-diagnostic-20261019/actual-run-r2/pytest.xml",
+        "sha256": "a41c12585b41711e73f7ae3208ce319732c0f1a4be6d2f8d5aecdfbbe66c2568",
+        "bytes": 2552,
+        "meaning": "JUnit for the pre-patch origin diagnostic."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-can-origin-diagnostic-20261019/actual-run-r2/trace.json",
+        "sha256": "c3087f2bb5626561122a0084b916f7fed4e5934254a4b3cc9344beaae4239a29",
+        "bytes": 259060,
+        "meaning": "Complete diagnostic trace for the pre-patch origin diagnostic."
+      }
+    ],
+    "bounded_property_evidence": "Review packet/independent source review reported complete callsite closure; no adopted-cut runtime qualification. Earlier retained 15-module run was 381 PASS / 5 FAIL and does not cover the required 21-module union. At source 538 the CAN21 collection aborted; R3/R4 attempts aborted during setup. These are aborts, not runtime passes or product failures.",
+    "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks."
+  },
+  "limitations": [
+    "No signed transition default-selector or Core/IR canonical law semantics change.",
+    "Historical profileless owner outputs remain refused; no retro-stamping or object migration.",
+    "Surface/API/publication and external signer authority/currentness remain out of this bounded internal repair; no capability or finding is formally closed.",
+    "Existing15-module actual e9 result381PASS5FAIL remains retained; requiredunion21fullmodules not yet replayed.",
+    "This RAW source leaf records delivered bytes and bounded evidence only; it is not global source freeze, composed-source qualification, product capability acceptance, G code acceptance, integration publication, or formal finding adjudication.",
+    "All proposed closure IDs are empty. Finding/report classifications remain proposals or historical records until independent G adjudication."
+  ],
+  "next_check": "Run the complete 21-module union on one frozen composed source/input/profile/backend with collection/execution separation, signed origin, all three owner artifacts, profileless refusal and removal controls; retain full output.",
+  "authority": {
+    "source_delivery_only": true,
+    "source_freeze": false,
+    "runtime_qualification": false,
+    "G_acceptance": false,
+    "integration_publication": false,
+    "formal_finding_adjudication": false,
+    "closure_ids": []
+  }
+}

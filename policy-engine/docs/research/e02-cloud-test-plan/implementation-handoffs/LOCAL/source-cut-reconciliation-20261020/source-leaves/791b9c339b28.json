@@ -1,0 +1,522 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "v7-n4-projection-791b9c339",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+    "base_tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95",
+    "candidate": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+    "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+    "parents": [
+      "fe7817ff30e42b7a7659db8abf33f55bef40c047"
+    ],
+    "subject": "fix(e02): bind N4 predictive outcomes to the complete owner S10 projection",
+    "committed_at": "2026-10-19T22:01:14+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "pre-existing untracked research/work files were present and are not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "v7-n4-full-s10-owner-projection-r4-20261019-r2",
+    "lease_key": "v7-n4-full-s10-owner-projection-r4-20261019-r2",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "For producer-admitted N4 associations with target-to-observed metric relation not_established, persist complete owner S10 projection, require forecast_tier=blocked and assessment=limited, recompute fresh S10 on GET and refuse invalid supplied inputs.",
+  "chain": null,
+  "controls": [
+    "The source boundary candidate had 11 tests; this is not an end-to-end POST→event/CAS→fresh-GET receipt."
+  ],
+  "pattern_pass": "P04/P05 status and authority boundary; P10 semantic adequacy; P12 producer/consumer binding; P29 behavioral verification required; P37/P38 gate predicates and proxy risks; P40 same-class or widened mechanism as scoped below; P41 inherited provenance is not_established.",
+  "P40": "SAME_CLASS_ONE_LEVEL_DEEPER. R4 widens admission/comparison to the complete typed S10 projection for N4 v2/v3 and adds same-tier legacy falsifiers; the former seven-field compatibility comparison remains only for standalone non-N4 v2 sources. A bounded actual route replay is still required; any further same-class escape must widen the complete invariant or become a named residual with a falsifier, never another per-string/per-tier patch.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "This leaf does not provide exact-slice-base replay of the complete gate denominator plus zero-intersection proof; no inherited-green/closure claim is made."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames 791b9c339b286b03e2d9b3bc23e153c61c091202",
+    "expected_paths_verified": 14,
+    "source_scope_paths": 12,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "M": 13,
+      "A": 1
+    },
+    "git_preimage_bytes_total_excluding_A_source_scope": 1675542,
+    "postimage_bytes_source_scope": 1720105,
+    "paths": [
+      {
+        "path": "policy-engine/docs/reference/api/runs.md",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "73ae0b94bde89357b9389954ed67185cc2d3be9a",
+          "sha256": "69876b5c719e8668a333ec5e0c47393683f0a460ec4888dfde8c8bc165aa8c99",
+          "bytes": 24704
+        },
+        "post": {
+          "git_blob_oid": "0f617623b608cc2a82f6dd3bcdcc711e79d0de1b",
+          "sha256": "279a1c8b8f169e8b077bf85e9b4ed86c6b639588fa024f57e6958a3ad48cc38b",
+          "bytes": 25584
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "ce734fe16678c9ae05487d59e2f829e2853ae65f",
+          "sha256": "07b7670491eca0485c787d5733da7b93f26989c306a5f1c1f18226bd0beb925a",
+          "bytes": 1710613
+        },
+        "post": {
+          "git_blob_oid": "789cf167781b73f6ae9004a75b9564047d7befd1",
+          "sha256": "c7e4b1abfd9623d86f2fe0dfdc270b185f865213f3f778f14b0a2000201586b3",
+          "bytes": 1725312
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "15f086409d17483b05c2b704bb69cbfd41acbcf7",
+          "sha256": "74de45eadbf075274858f7ca7f4551ab33fc83d0cc52eb4ba4fb37d60f512b02",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "a085d576c250f053fc4014dbd2d861ed1978d9d9",
+          "sha256": "0b81abb38b8ea636bae6028b5e09e13cb7f443576c61e7bb4319a4aac75f7a48",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "7b1b4ddfb8a159c3fc7dcea9aec35d8aeca5e7bc",
+          "sha256": "61d2b0040411c903ab952750ee3199dbb3d12c3e7866281e8c56de0f447d3859",
+          "bytes": 3865
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/README.md",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "bacad9b9d10199205f0d8d04cbee0f1e38c1cf4f",
+          "sha256": "03cb553891f441c5b9dd0213e3c4c99c3e3b5e24561b8fd9f8e984187fd4ecc0",
+          "bytes": 24989
+        },
+        "post": {
+          "git_blob_oid": "54e6b19bcba43b623d6518aa4ac0d3a2c2322865",
+          "sha256": "00f39183da1b3531d15c9b465c17455416734d1c647d5077c4431a744a04970c",
+          "bytes": 25365
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "dbc9cedc78bd414e6ff565704ea7667637a0656f",
+          "sha256": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989",
+          "bytes": 233070
+        },
+        "post": {
+          "git_blob_oid": "fad1782499dc97263ff9f4af470a14990998a6c5",
+          "sha256": "917b50dddf191790ff1c3d32967e5e0f0af81c5d6769cdf8f6f6e592d60bbb44",
+          "bytes": 235751
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "7dcd97dfd7601a5f71169e0812518dd6db424748",
+          "sha256": "2917c32d52ed6c5d3865f1855e6621586d182cab70edc43dbc0cc79f6a3d5096",
+          "bytes": 68642
+        },
+        "post": {
+          "git_blob_oid": "b0feeede1a2456736e0c9e35e8d6360c4aaed085",
+          "sha256": "729eab313d0183c024ba3c5b688cc4da0711d9bb2d3fcdbe04ebec6dfe56fccc",
+          "bytes": 74744
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "ebd4c3734068486591c3a3022e175876808680b9",
+          "sha256": "ecf296f8739c1adcd9dfb34e3ec0ce205a4e4e1b0640cd85b6f1911a6714d0d2",
+          "bytes": 860627
+        },
+        "post": {
+          "git_blob_oid": "eca72cf7a83acad8c7a84a45fc0c54612185f50c",
+          "sha256": "fa81816f2c025d1899fac91e19a497fe97d077a71ead55a1ebf31671bc64b8c8",
+          "bytes": 862633
+        }
+      },
+      {
+        "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "e14edd3924f894730d45080f655140887068feb8",
+          "sha256": "be2e3681e31af6344dc2d53fb7ee52f41f45fc227058d72f381e400525f5996c",
+          "bytes": 78815
+        },
+        "post": {
+          "git_blob_oid": "3466ce7dab26608297589786a322c8b108c140ff",
+          "sha256": "8fafbf7fb586f8194128f9d1dbc3625fcaa40333b6a2074e49470cb569a0b454",
+          "bytes": 83248
+        }
+      },
+      {
+        "path": "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "0d624ab6bb8601294c47e30260db2f73e2abb95f",
+          "sha256": "724aef33d153d3d508885d6687d9bd42ecc82add037863beff6bd41f722b9217",
+          "bytes": 20518
+        },
+        "post": {
+          "git_blob_oid": "7bad4e76e3576eb8100bb275870a88ba0c599077",
+          "sha256": "ac7ded8cae126ebc22f5cc0f0a3a56b297e6aa452189c059f79da109a5c2b817",
+          "bytes": 24119
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "2dd58a046a6385fe6234cb659c5e99e0293d77d2",
+          "sha256": "e659d299ada3caaf47f6fc9677115bdd412bdc3e578c47b5f6d7b87fb7fbbf99",
+          "bytes": 43145
+        },
+        "post": {
+          "git_blob_oid": "245f6379e0a1e79243ba6235dcd993e302b0966b",
+          "sha256": "1532c8b7e947ca341bcd9d6492fbe0d9b2dc955930c990d18e1b3142a51ba1f7",
+          "bytes": 45785
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "304a36368a71e63c1148f5c7f28b45060e4fe523",
+          "sha256": "9f6088b9560c2095c55aaf63ace560ed9643448c1e5fa5926e784f73859385ac",
+          "bytes": 248303
+        },
+        "post": {
+          "git_blob_oid": "b4122b98bcd3d3be3f8a92f20fd7c8f6f0e3d382",
+          "sha256": "e6b9dc075ca28b4ae7f6602ee76264758b070a351e091cc0c3696c4014403b9b",
+          "bytes": 254597
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "59728638808c1118082c8dadeef202c2eff7aa55",
+          "sha256": "2e90fc2b4ade93671aa49542287e094427ff9bf5fb2b5e1dc65e47d9f9dff5ca",
+          "bytes": 3629
+        },
+        "post": {
+          "git_blob_oid": "42420c8f9f05777ab2ee6615947787b46d957ef3",
+          "sha256": "00b4a425320cc2d3e1cff7936946f93f21d2fc4450ae2aab10204a71e0430ea8",
+          "bytes": 15198
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "0bf919343439ae19b06c8f335132cbd901acd626",
+          "sha256": "50160be954951c1d14229ae0450c3fe6bf370deb3e85c27050a4fefff32d0c79",
+          "bytes": 69100
+        },
+        "post": {
+          "git_blob_oid": "f4abbe377677cbc7fa32619c966d54bd326e0d72",
+          "sha256": "7ba39e7b9e0b4c18ec5b797fcfbb352fe71f491192b9d706833a22ecf33413ba",
+          "bytes": 69216
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "proposed_closure_ids": [],
+    "formal_G_closures": [],
+    "finding_proposals": [
+      {
+        "id": "B16",
+        "occurrence": "canonical occurrence in the V7 denominator",
+        "proposal": "held/open; no formal closure proposed",
+        "next_check": "adjudicate full criterion only with exact metric identity, unit, limit and completeness evidence"
+      },
+      {
+        "id": "B32",
+        "occurrence": "canonical occurrence in the V7 denominator",
+        "proposal": "held/open; no formal closure proposed",
+        "next_check": "adjudicate full temporal-role/currentness criterion from paired authority inputs"
+      },
+      {
+        "id": "LA-051",
+        "occurrence": "1",
+        "proposal": "held/open; no formal closure proposed",
+        "next_check": "verify source-owned purpose/authority projection from actual producer support and consumer readback"
+      },
+      {
+        "id": "LA-051",
+        "occurrence": "2",
+        "proposal": "held/open; no formal closure proposed",
+        "next_check": "verify persisted owner denials are copied/recomputed and compared on fresh GET"
+      }
+    ],
+    "proposal_status": "held/open or source-only as stated; historical report fields are not reassessed by this leaf."
+  },
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/source-application.json",
+      "sha256": "007f4ca70097c9a7605c240463276c3c1c674bf35037f1cc77332e8dfc67bdc9"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/plan.json",
+      "sha256": "d8b938872096031d1c26955dc9864eb3e40bb412a880bc6265e2ebaf323f50ec"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/implementation-readback.json",
+      "sha256": "fe0e8b0c8698422878bc901f1d94ec151b2bca8cf20cd0d8078c31cb7ade2057"
+    },
+    "native_commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/commit-request.json",
+      "sha256": "e47027e16367ea9064abb3910ee07413c70133cb6306b2879d0860666e636bb2"
+    },
+    "native_commit_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/native-commit-result.json",
+      "sha256": "3c342e35a64a6e6f9c2db1c53febfc12ea702414f75f25f05003992c7bc93f96"
+    },
+    "native_commit_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/native-commit.stdout.txt",
+      "sha256": "5f95bf0317c40eb0a1a82f72bef4e6db004b0b9ab4bfec9353131677561c1cc4"
+    },
+    "native_commit_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/native-commit.stderr.txt",
+      "sha256": "59788619ceba2d331abf05f2d3969d60ce59d4d366509cda871f65e24cf178d7"
+    },
+    "native_lint_format_outputs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+          "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+          "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+          "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+          "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+          "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.07288212492130697,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "source-level lint/format only; not product runtime qualification"
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+          "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+          "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+          "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+          "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+          "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.087913041934371,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-v7-r4-owner-projection-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope": "source-level lint/format only; not product runtime qualification"
+      }
+    ],
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/source-manifest.json",
+        "sha256": "bb53f78daaa3ac8a1e4c7cb97915a33276aa016376683b93bcc8d9f0015b83ad",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/candidate.patch",
+        "sha256": "2f3d25a7072d9667c3ecfe8394b3cd803c8ccbdb722c2bcb2cae4f5743075531",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/delta-from-r3.patch",
+        "sha256": "ee6d9806dcfdef91b655d9994dde2d25fb968d408f1229430c1ab388700e0d14",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/patch-check.json",
+        "sha256": "2366e16e4ffbe90a15ae3692670e55deca7158331341b538a8ae8562acd06418",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-r4-independent-review-20261019/review-v2.json",
+        "sha256": "39ac368836dd5e9a4afe0b6517005e88d183cb1bbb489b69761790acc5328a62",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/focused-legacy-v2-full-module-r2/run-result.json",
+        "sha256": "4343dc5f41e70148666460036123597fefddcce66b21e4edef2c9d119649c622",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/static-checks/canonical-root-ruff-r3-20261019/receipt.json",
+        "sha256": "0d3bdabbe29239c8917e66a5143ba22ba93de71f4a106d4c43a9a543df6744a2",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/r4-review-packet.json",
+        "sha256": "3413b6d96293656e07144eac73f53385b085215c3bb4d22b82ce7c1cc6d36031",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "sha256": "cda728719c170185b50b8be6ddbca88410313a25f63306f2f0cecf68f69b3778",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+        "sha256": "2917c32d52ed6c5d3865f1855e6621586d182cab70edc43dbc0cc79f6a3d5096",
+        "binding": "git-object:base"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/supervise.py",
+        "sha256": "a94a662308270ba3aca96c1d9c75e53a05e37a923a6188d0f464f8ac1e90909e",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/e02_wave_capture.py",
+        "sha256": "817e8e294d60002afc459c8494618479521e6de9d4d3d94c74f7a97e104eea6b",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-r4-adoption-companions-independent-review-20261019/review-r3-companions-go.json",
+        "sha256": "14894bd63d16b318294c583400e6c5f0f5b989ffeee5ae4e822e05a27ec720b8",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/root-adoption-prepare-538-20261019-r2/adoption-plan.json",
+        "sha256": "b7438ff65df8c5b2ede9203bead07458a49c1c16d33ced41041c2a520426281e",
+        "binding": "local-readback"
+      }
+    ],
+    "additional_deciding_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/focused-legacy-v2-full-module-r2/run-result.json",
+        "sha256": "4343dc5f41e70148666460036123597fefddcce66b21e4edef2c9d119649c622",
+        "meaning": "candidate boundary / static evidence only; actual POST route remains UNRUN"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/static-checks/canonical-root-ruff-r3-20261019/receipt.json",
+        "sha256": "0d3bdabbe29239c8917e66a5143ba22ba93de71f4a106d4c43a9a543df6744a2",
+        "meaning": "candidate boundary / static evidence only; actual POST route remains UNRUN"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/focused-legacy-v2-full-module-r2/pytest.stdout.txt",
+        "sha256": "08faea39fd19189f6544839f505d91d76ecb1367e219f5db362cdf22916ef869",
+        "bytes": 80,
+        "meaning": "Complete stdout for the 11-test bounded candidate module run; does not qualify POST/persistence/fresh GET."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-outcome-binding-implementation-r4-20261019-3a/focused-legacy-v2-full-module-r2/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "meaning": "Complete stderr for the 11-test bounded candidate module run."
+      }
+    ],
+    "bounded_property_evidence": "Boundary 11 PASS is retained in RAW and Ruff/format evidence covers nine Python paths, but actual POST/persisted event-CAS/retry/fresh GET remains UNRUN. Strict API-5 compatibility review and five generated OpenAPI/client/dashboard companions remain pending. N4 stays blocked/limited; metric relation, authority and currentness are not established.",
+    "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks."
+  },
+  "limitations": [
+    "No R4 route runtime receipt exists. Prior R3 attempt 05 resource-aborted before a test result; this is neither OOM evidence nor a product failure.",
+    "The v3 OpenAPI, runtime client and dashboard generated companions remain pending their N11 owner generation; five generated files must be regenerated and strict old-reader compatibility checked after the source is adopted.",
+    "The selected N4 target-to-observed metric relation remains not_established; N4 outcome stays blocked/limited. No production workload, issuer, custody/currentness, causal calibration or publication authority is established by controlled synthetic fixtures.",
+    "B16, B32 and LA-051 occurrences 1 and 2 remain open against their whole original criteria; this patch makes no formal G closure.",
+    "This is an R4 source candidate only. The source freeze, composed full replay, consumer closeout and G independent code acceptance/publication/adjudication remain pending.",
+    "API docs freshness/source header remains inherited metadata to refresh on final source freeze; this candidate does not claim that header current or the public-surface inventory reviewed.",
+    "This RAW source leaf records delivered bytes and bounded evidence only; it is not global source freeze, composed-source qualification, product capability acceptance, G code acceptance, integration publication, or formal finding adjudication.",
+    "All proposed closure IDs are empty. Finding/report classifications remain proposals or historical records until independent G adjudication."
+  ],
+  "next_check": "Generate the five N11-owned artifacts, check old strict-v1 readers, then run a frozen A94 route group covering POST, event/CAS association, exact-intent retry, fresh GET, legacy-v2 refusal and removal controls. Do not claim production currentness or authority.",
+  "authority": {
+    "source_delivery_only": true,
+    "source_freeze": false,
+    "runtime_qualification": false,
+    "G_acceptance": false,
+    "integration_publication": false,
+    "formal_finding_adjudication": false,
+    "closure_ids": []
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "abi-generated-doc-ae14dac0",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+    "base_tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+    "candidate": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "parents": [
+      "791b9c339b286b03e2d9b3bc23e153c61c091202"
+    ],
+    "subject": "docs(e02): include generated ABI schema documentation in the artifact index",
+    "committed_at": "2026-10-19T22:12:35+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "pre-existing untracked research/work files were present and are not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "abi-generated-index-owner-output-companion",
+    "lease_key": "abi-generated-index-owner-output-companion-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "List the two ABI schema documentation outputs already declared by the ABI owner manifest and produced by the existing schema generator in the canonical generated-artifact reference.",
+  "chain": null,
+  "controls": [
+    "Generated-artifact index documents both declared schema documentation outputs."
+  ],
+  "pattern_pass": "P04/P05 status and authority boundary; P10 semantic adequacy; P12 producer/consumer binding; P29 behavioral verification required; P37/P38 gate predicates and proxy risks; P40 same-class or widened mechanism as scoped below; P41 inherited provenance is not_established.",
+  "P40": "Mandatory generated-doc companion to the current ABI schema family, not a new capability or authority criterion.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "This leaf does not provide exact-slice-base replay of the complete gate denominator plus zero-intersection proof; no inherited-green/closure claim is made."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames ae14dac03b54346f53b9a4fd214405174856b888",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "M": 3
+    },
+    "git_preimage_bytes_total_excluding_A_source_scope": 275354,
+    "postimage_bytes_source_scope": 275502,
+    "paths": [
+      {
+        "path": "policy-engine/docs/reference/generated-artifacts.md",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "be1b4369ef8883d9a1debda93be9ef7dfbb4ad68",
+          "sha256": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588",
+          "bytes": 275354
+        },
+        "post": {
+          "git_blob_oid": "d95dedb8491a8058d4f67e53d849f5ff415f907c",
+          "sha256": "cacbb87cb77c22de066d23331a1551da540118ef8fe12ee31c6123739938ac02",
+          "bytes": 275502
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "789cf167781b73f6ae9004a75b9564047d7befd1",
+          "sha256": "c7e4b1abfd9623d86f2fe0dfdc270b185f865213f3f778f14b0a2000201586b3",
+          "bytes": 1725312
+        },
+        "post": {
+          "git_blob_oid": "d768ebf412df7b7ac001219eea1f57ed7ece0afd",
+          "sha256": "9fa23959269bdbcd0a265d106dde55b66c99b558989bceedd65c747f15486d01",
+          "bytes": 1728369
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "a085d576c250f053fc4014dbd2d861ed1978d9d9",
+          "sha256": "0b81abb38b8ea636bae6028b5e09e13cb7f443576c61e7bb4319a4aac75f7a48",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "7549a6bb72ff4e41a9e65441dced521b236012b3",
+          "sha256": "38b8beae7590e0ae99535fd80a677524fc9ca3feb453ac6edf0c1ca1f907b09c",
+          "bytes": 139406
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "proposed_closure_ids": [],
+    "formal_G_closures": [],
+    "finding_proposals": [],
+    "proposal_status": "held/open or source-only as stated; historical report fields are not reassessed by this leaf."
+  },
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/source-application.json",
+      "sha256": "115dc08ed574ac6547eb20b5e3eafcf9a16eccd548af735d685ea532cf3f15ad"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/plan.json",
+      "sha256": "6b84635cd71dd3ccbe5b56bdea683c5eb134f3ca7611ddd3a2204fad76932601"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/implementation-readback.json",
+      "sha256": "90632107611d53007af5061787dde940ca991a58ce99529b26e8961bf42143e5"
+    },
+    "native_commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/commit-request.json",
+      "sha256": "63bc045fdd7633e8648434712d7937ad0e3373d740ce5efaa9b1b7046a4b7afb"
+    },
+    "native_commit_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/native-commit-result.json",
+      "sha256": "c1394bbf56c2445e53f3890621109e5143382edd0d5e69d9384d7fcf56b913ea"
+    },
+    "native_commit_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/native-commit.stdout.txt",
+      "sha256": "db4ed192e6cf1edea79dee661006c57939818c5651720bd8e8cd5a786fb29c82"
+    },
+    "native_commit_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/native-commit.stderr.txt",
+      "sha256": "48269f1b736851ec47d34cb7217a495323c49514429894baa65ad7210f052790"
+    },
+    "native_lint_format_outputs": [],
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/receipt.json",
+        "sha256": "9576ad80f3bbb1249f117bb8f9610994bedcf1bcd65f10c819ada16c7bcf31a8",
+        "binding": "local-readback"
+      },
+      {
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "sha256": "a751b830630d91ef1fc1bb7cb609326461f1a5d483bd4ca60abfb489db272020",
+        "binding": "local-readback"
+      }
+    ],
+    "additional_deciding_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/receipt.json",
+        "sha256": "9576ad80f3bbb1249f117bb8f9610994bedcf1bcd65f10c819ada16c7bcf31a8",
+        "meaning": "owner sync evidence at parent 791; output byte substitution only, not public export or ABI completeness"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/stdout.txt",
+        "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+        "meaning": "owner sync evidence at parent 791; output byte substitution only, not public export or ABI completeness"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "meaning": "owner sync evidence at parent 791; output byte substitution only, not public export or ABI completeness"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/generated-artifacts-preview.md",
+        "sha256": "cacbb87cb77c22de066d23331a1551da540118ef8fe12ee31c6123739938ac02",
+        "meaning": "owner sync evidence at parent 791; output byte substitution only, not public export or ABI completeness"
+      }
+    ],
+    "bounded_property_evidence": "Official guardrails sync on parent 791 exited 0 and root verified exact output substitution. Public inventory outputs were byte-identical; generated-artifacts content adds the two schema-doc paths. This is not export completeness, API compatibility, ABI model-106 completeness, bulk owner registration, or native backend green. Native docs-commit Python SKIP remains a skip.",
+    "runtime_on_adopted_canonical_source": "UNRUN; do not infer from source-level/native commit hooks."
+  },
+  "limitations": [
+    "Documentation regeneration only; native docs-commit Python SKIP does not establish native backend green.",
+    "Core public export completeness, API breaking compatibility and G architecture review remain unchanged and unresolved.",
+    "This RAW source leaf records delivered bytes and bounded evidence only; it is not global source freeze, composed-source qualification, product capability acceptance, G code acceptance, integration publication, or formal finding adjudication.",
+    "All proposed closure IDs are empty. Finding/report classifications remain proposals or historical records until independent G adjudication."
+  ],
+  "next_check": "At final composed freeze, rerun canonical generated-artifact and ABI generation/check plus corrupt-field drift controls and verify actual installed consumers.",
+  "authority": {
+    "source_delivery_only": true,
+    "source_freeze": false,
+    "runtime_qualification": false,
+    "G_acceptance": false,
+    "integration_publication": false,
+    "formal_finding_adjudication": false,
+    "closure_ids": []
+  }
+}

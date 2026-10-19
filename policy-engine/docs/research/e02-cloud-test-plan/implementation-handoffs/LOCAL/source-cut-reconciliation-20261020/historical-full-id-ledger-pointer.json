@@ -1,0 +1,100 @@
+{
+  "schema": "policyos.e02.historical_full_id_ledger_pointer.v1",
+  "role": "Pointer only to immutable b770 proposal ledger; not rerun/currently adjudicated.",
+  "ledger": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unified-full-id-proposal-ledger-b770-20261019-r2/ledger.json",
+    "sha256": "1d1d313670fd737dcf1c96e39ba78534881287c782342f7b8ba1a47287f57ca7",
+    "bytes": 1569135,
+    "retained_under_ignored_raw": true
+  },
+  "manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unified-full-id-proposal-ledger-b770-20261019-r2/manifest.json",
+    "sha256": "9637db2056bf158ce481c65d1c7d6c6e7b8d9fd5cd6ebcdbb0c027b968d3f65c"
+  },
+  "README": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unified-full-id-proposal-ledger-b770-20261019-r2/README.md",
+    "sha256": "755efae7f58792d49b3175579e40cf889589f19e93bd3c1b5638d7b950b7662f"
+  },
+  "validator": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unified-full-id-proposal-ledger-b770-20261019-r2/validate_ledger.py",
+    "sha256": "dcc8b81d730f48446a1662d975758d5247e8625907686fdfe375ee3b7c48db22",
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unified-full-id-proposal-ledger-b770-20261019-r2/validate_ledger.py --check --self-test-drift",
+    "result": "PASS",
+    "source_or_product_tests_run": false
+  },
+  "as_of_source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "source_freeze": "not claimed"
+  },
+  "denominator": {
+    "finding_ids": 282,
+    "canonical_occurrences": 291,
+    "primary_bundles": 127,
+    "selection": "findings row index modulo four; coverage by ID; all refs/spans preserved",
+    "task_routes_are_not_closures": true
+  },
+  "historical_source_author_proposals": {
+    "closed": {
+      "finding_ids": 198,
+      "occurrences": 202
+    },
+    "other": {
+      "finding_ids": 84,
+      "occurrences": 89
+    },
+    "finding_counts": {
+      "open": 7,
+      "limited": 54,
+      "closed": 198,
+      "held": 23
+    },
+    "occurrence_counts": {
+      "open": 7,
+      "limited": 58,
+      "closed": 202,
+      "held": 24
+    }
+  },
+  "current_status": {
+    "closure_now_by_id": {
+      "not_adjudicated": 282
+    },
+    "runtime_results": {
+      "UNRUN": 291
+    },
+    "formal_G_closure_ids": [],
+    "G_acceptance": false,
+    "note": "All four shard inputs and the four E addenda are static review records. Any prior bounded/partial outputs remain scoped as history; no generic PASS-to-ID closure mapping was applied."
+  },
+  "special_history": {
+    "B198": "Historical bounded CAL-06 rebind in findings[B198].historical_bounded_rebind_only: narrow scope, command not run, b770 adapter/covariance source readback mismatch; do not transfer prior receipts or close.",
+    "B101_B105": "Source-qualified DOE review pointers retained per occurrence in shard0; no current receipt/closure imported.",
+    "four_E_source_addenda": [
+      "B166",
+      "B170",
+      "B186",
+      "B202"
+    ],
+    "future_witnesses_are_not_results": true,
+    "B198_packet_binding": {
+      "name": "shard1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-whole-property-shard1-independent-20261019/review.json",
+      "sha256": "04547ed46230783250f44e8010f46d9b260ac82cf39a63189a2251d72905154a",
+      "pointer": "#/B198_specific_rebind",
+      "source_pin_pointer": "#/B198_specific_rebind/b770_source_pins",
+      "expected_finding_id": "B198",
+      "expected_selector_prefix": "test_",
+      "command_not_run": true
+    }
+  },
+  "limits": [
+    "Historical proposals only; no G closure.",
+    "198-ID/202-occurrence proposed-closed values remain historical and are not auto-promoted.",
+    "84 remaining IDs are not an estimate of work or semantic reassessment.",
+    "B198 historical decision preserved; current semantic review remains separate."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

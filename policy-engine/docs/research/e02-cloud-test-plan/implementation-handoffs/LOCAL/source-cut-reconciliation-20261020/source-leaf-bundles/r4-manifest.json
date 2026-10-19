@@ -1,0 +1,86 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt_bundle.v1",
+  "bundle_role": "RAW-only append-only source receipt assembly for four delivered implementation/test leaves; not canonical adoption, runtime qualification, G acceptance, integration publication, or closure",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "present and not inventoried; no whole-worktree-clean claim"
+  },
+  "counts": {
+    "slices": 4,
+    "changed_path_occurrences": 16,
+    "source_path_occurrences": 8,
+    "metadata_companion_occurrences": 8,
+    "unique_changed_paths": 10
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "historical_denominator_context": {
+    "occurrences": 291,
+    "unique_finding_ids": 282,
+    "historical_ledger_closed_occurrences": 9,
+    "author_proposed_closed_finding_ids": 198,
+    "author_proposed_closed_occurrences": 202,
+    "formal_G_closure_ids": [],
+    "B198": "historical decision retained; no current formal adjudication",
+    "current_source_occurrence_reconciliation": "not_established",
+    "instruction": "Preserve historical values and decisions; addendum counts are source path occurrences only, not findings/closures."
+  },
+  "index_append_plan": {
+    "file": "index-append-plan-r4.json",
+    "sha256": "5843528fa9e0ab01b11c6ae131512ec5e0b5c1bdc4e6f93ccafdccc322ef7510"
+  },
+  "pending_evidence": {
+    "CAN_inner_cause_and_native_semantic_fixture_runs": "in progress per parent; no outcome or candidate runtime pass asserted. Append exact receipts after physical completion, else leave pending.",
+    "Mypy_residuals": "four pre-existing diagnostics remain separately cited; not a runtime result or this leaf’s pass/fail.",
+    "R3_R4_two_module_replay": "in progress per parent; leave pending until physical completion and exact source-bound output readback."
+  },
+  "receipts": [
+    {
+      "file": "receipt-q2-capture-driver-d4061a93.json",
+      "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5",
+      "candidate": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+      "tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+      "parent": "ae14dac03b54346f53b9a4fd214405174856b888",
+      "changed_paths": 5,
+      "source_paths": 3,
+      "metadata_paths": 2,
+      "work_item": "q2-generic-module-capture-and-canonical-driver-binding"
+    },
+    {
+      "file": "receipt-b154-abort-compat-782e9d3c.json",
+      "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7",
+      "candidate": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+      "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+      "parent": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+      "changed_paths": 3,
+      "source_paths": 1,
+      "metadata_paths": 2,
+      "work_item": "b154-legacy-abort-message-compatibility"
+    },
+    {
+      "file": "receipt-r3-r4-context-fixture-e0462740.json",
+      "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d",
+      "candidate": "e0462740b468781975ee385922ab0cea18a5d4f6",
+      "tree": "d497c580fb7899e9cb6887e4a3cbac92d222fa39",
+      "parent": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+      "changed_paths": 5,
+      "source_paths": 3,
+      "metadata_paths": 2,
+      "work_item": "r3-r4-shared-context-fixture-and-worker-lifecycle"
+    },
+    {
+      "file": "receipt-native-schema-id-fixture-b7709a52.json",
+      "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4",
+      "candidate": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "parent": "e0462740b468781975ee385922ab0cea18a5d4f6",
+      "changed_paths": 3,
+      "source_paths": 1,
+      "metadata_paths": 2,
+      "work_item": "native-semantic-fixture-valid-identifiers"
+    }
+  ]
+}

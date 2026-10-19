@@ -1,0 +1,150 @@
+{
+  "schema": "policyos.e02.runtime_followup.v1",
+  "role": "actual source-bound partial runtime evidence; not acceptance or formal closure",
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+    "tree": "2154afafc8206b2dfdd961798a55d497793c722a"
+  },
+  "origin_capture": {
+    "all_file_origin_hashes_match_pre_run_source_pins": true,
+    "all_file_origins_inside_worktree": true,
+    "source_pin_count": 3321,
+    "captured_module_count": 1371,
+    "unloaded_requested_modules": [
+      "polisyos.runtime.quality.epoch_certificate_issuance",
+      "polisyos.runtime.quality.epoch_transition_inputs",
+      "polisyos.runtime.quality.semantic_epoch_qualification"
+    ]
+  },
+  "scope": {
+    "modules": [
+      "tests/unit/runtime/quality/test_epoch_transition_origin.py",
+      "tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+    ],
+    "collected": 11,
+    "executed": 11,
+    "deselected": 0,
+    "junit": {
+      "errors": 0,
+      "failures": 1,
+      "passed": 10,
+      "skipped": 0,
+      "tests": 11
+    },
+    "whole_CAN21_or_E02": false
+  },
+  "result": {
+    "status": "10 passed, 1 failed, 0 skipped; process exited 1",
+    "decision": "HOLD_RUNTIME_TEST_COMPANION_ASSERTION",
+    "failing_nodeid": "tests.unit.runtime.quality.test_semantic_epoch_receipt_compatibility::test_production_receipt_preserves_producer_selected_or_default_manifest_view",
+    "failure_class": "test assertion/type mismatch; not evidence of a production reader/content/profile failure",
+    "assertion": "store.get_manifest(default_receipt.receipt_ref).inputs == epoch_contract._semantic_epoch_production_receipt_input_refs(SemanticEpochProductionReceipt.model_validate(default_statement))",
+    "observed_diff": "persisted manifest inputs are represented as a list; the typed helper returns tuple[InputRef, ...], so Python container equality is false before element-wise comparison. The producer itself converts the same helper result to list at semantic_epoch.py:2509; the failure does not demonstrate differing edge values.",
+    "positive_properties_run_before_failure": "Prior CAN P40 profile-composition class remains unescaped by this run. The targeted positive/default child refs, selected top-level receipt read, typed profileless-history refusal, and legacy wire shape assertions all passed before the final list-versus-tuple assertion.",
+    "next_action": "Repair the test-only sequence container assertion in a separate source-authorized change; request a new one-use runtime grant before rerunning any test."
+  },
+  "runtime_metrics": {
+    "wall_seconds": 17.09731216588989,
+    "max_sampled_process_tree_rss_bytes": 995459072,
+    "minimum_sampled_disk_free_bytes": 19216785408,
+    "rss_cap_bytes": 3221225472,
+    "disk_floor_bytes": 1073741824,
+    "process_group_gone": true,
+    "warning": "joblib could not create a worker under the sandbox and continued in serial mode; numeric worker cap is 1."
+  },
+  "analysis": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/analysis-v1.json",
+    "sha256": "46a2e0f1872ccd76eb95d57cb60f8d5a6d4860321b1fcceb1c75c48593a3f7ff",
+    "bytes": 9225
+  },
+  "inputs": {
+    "environment.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/environment.json",
+      "sha256": "64e906b360085456e70a3383fa9cbea9691b7cbd09c9e4db70fd58fdb5022dc8",
+      "bytes": 3619
+    },
+    "launch.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/launch.json",
+      "sha256": "a4986f2f1e59ef359ff51c10367aaa8a58efca7c517af07ea814f2f6961ef1a3",
+      "bytes": 836
+    },
+    "request.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/request.json",
+      "sha256": "49c11f7edfbf83ddb49abbeaeb24ca56fe7b7275f965c8c2cc128a5bf332a113",
+      "bytes": 631223
+    },
+    "run_can_epoch_two_modules.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/run_can_epoch_two_modules.py",
+      "sha256": "ccb35f6e85cdfaacc92d793eb30c6d94654b77215e146871682a2f120ce09f1a",
+      "bytes": 14103
+    },
+    "sandbox.sb": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/sandbox.sb",
+      "sha256": "09742f2ea57e82db9b445304eff75356eb91b260c4cb9c3cfb89c15b89433120",
+      "bytes": 1025
+    },
+    "setup-failure-001.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/setup-failure-001.json",
+      "sha256": "76d343a0ce615adaf019ec5a985e2549912315c38c719e8f7789998b834a6592",
+      "bytes": 636
+    },
+    "setup-failure-002.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/setup-failure-002.json",
+      "sha256": "777c657356167d2acfdd33708e46c51a8355b26cfd38c738a41c01a7aa261f49",
+      "bytes": 640
+    },
+    "source-before.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/source-before.json",
+      "sha256": "a145232b597d94675580f29e7642bc29a7e6b7bc9684dab521fbff2c92791c27",
+      "bytes": 620309
+    }
+  },
+  "full_deciding_outputs": {
+    "controller-events.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/controller-events.jsonl",
+      "sha256": "456592e8c1856b910597c926f8239757a962e16e4392140c79637097d57655f7",
+      "bytes": 1800
+    },
+    "phase-output.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/phase-output.jsonl",
+      "sha256": "2146973967c227062629e228597c61e149b46eb0ffcd0bd3e0cd94edcd7242e0",
+      "bytes": 1736
+    },
+    "process-tree.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/process-tree.jsonl",
+      "sha256": "1442c93113e261e9b90290190c20c9c2b47a7d036a4aa2dd0a332c3cdc60bcf4",
+      "bytes": 46523
+    },
+    "pytest.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "pytest.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/pytest.stdout.txt",
+      "sha256": "f8c91b3ec017614f016659d1fdb06c13464f649ebc1525f61d3c34d81ace4515",
+      "bytes": 5063
+    },
+    "pytest.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/pytest.xml",
+      "sha256": "47493eb089d9a26b33296214216e8f12a33fdc66de685d54b64c82578eec5f0e",
+      "bytes": 6359
+    },
+    "result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/result.json",
+      "sha256": "d5d345c130ebf862db79ca692631479f218431c2fd9986e5c642bf66542cc8d4",
+      "bytes": 413756
+    },
+    "runtime-module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/actual-run/runtime-module-origins.json",
+      "sha256": "b9120dd99e839bc946ffd445b33665a49cf43556573dd25e68d03ab7cd04faed",
+      "bytes": 1329265
+    }
+  },
+  "limits": [
+    "List-versus-tuple assertion fails before value equality; it does not show different input-edge values or production reader/profile failure.",
+    "Three requested modules were not loaded; ten-module union and final CAN21 remain unrun.",
+    "No G acceptance, formal closure, or global source/input/profile freeze."
+  ]
+}

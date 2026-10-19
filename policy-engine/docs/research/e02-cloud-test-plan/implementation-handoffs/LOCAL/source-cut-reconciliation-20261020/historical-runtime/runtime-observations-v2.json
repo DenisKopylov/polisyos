@@ -1,0 +1,970 @@
+{
+  "schema": "policyos.e02.runtime_observation_assembly.v2",
+  "created_at_utc": "2026-10-19T20:52:32.083451+00:00",
+  "purpose": "Append-only source receipts and bounded runtime observations with complete outputs referenced by path@sha.",
+  "current_source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+    "parents": [
+      "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+    ],
+    "source_freeze": false,
+    "tracked_dirty_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "whole_worktree_clean_claim": false
+  },
+  "runtime_source_frame_for_primary_wave": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "parents": [
+      "e0462740b468781975ee385922ab0cea18a5d4f6"
+    ],
+    "meaning": "Nine source leaves and primary runtime tests bind to b770; later d292 is outside those receipts."
+  },
+  "published_G_checkpoint": {
+    "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+    "parents": [
+      "78be3aff64185e2de24abe710523e14491e36ba6"
+    ],
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-published-checkpoint-readback-b770-20261019/readback.json",
+      "sha256": "96dec67264a3fa75ee6361662aa8e9e76f5aedea1f786c300070cbd64c7f7b39",
+      "bytes": 1660
+    },
+    "observed_at_utc": "2026-10-19T20:26:08.333471+00:00",
+    "later_G_delta_assumed_accepted": false
+  },
+  "source_leaf_addenda": {
+    "r3_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/manifest-addendum-r3.json",
+      "sha256": "3a22a19797d2efad2e02477b66eb7590fc0cfdca3229004dfc2fabf9a7e624df",
+      "bytes": 4022
+    },
+    "r3_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/index-append-plan-r3.json",
+      "sha256": "20702da854000bd478e9dcc0c44959c13bb5a2c5cc1e8f013c4529656daef3c0",
+      "bytes": 5924
+    },
+    "r4_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/manifest-addendum-r4.json",
+      "sha256": "ee5a81fd65e4a85910604421de44477b3bf2db1879d668585f59c847c2d654f6",
+      "bytes": 3995
+    },
+    "r4_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/index-append-plan-r4.json",
+      "sha256": "5843528fa9e0ab01b11c6ae131512ec5e0b5c1bdc4e6f93ccafdccc322ef7510",
+      "bytes": 5818
+    },
+    "receipt_count": 9,
+    "receipts": [
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-can-origin-profile-53841a0e.json",
+          "sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3",
+          "bytes": 25949
+        },
+        "slice": {
+          "id": "can-origin-profile-53841a0e",
+          "base": "c2c383dd0b269cd4890a7b0415f14f2d3e270084",
+          "candidate": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+          "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+          "parents": [
+            "c2c383dd0b269cd4890a7b0415f14f2d3e270084"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "can-origin-explicit-mode-and-profiled-owner-outputs",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+        "source_scope_paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-19-e02-exact-cas-profile-composition.toml",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+          "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+          "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+          "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+          "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-can-cas-test-fixture-be967823.json",
+          "sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5",
+          "bytes": 12583
+        },
+        "slice": {
+          "id": "can-cas-test-fixture-be967823",
+          "base": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+          "candidate": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+          "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e",
+          "parents": [
+            "53841a0e7effab8aef512198c33ccd3ae2dd0a86"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "can21-collection-runtime-cas-test-companion",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+        "source_scope_paths": [
+          "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-b154-executor-completion-fe7817ff.json",
+          "sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1",
+          "bytes": 21565
+        },
+        "slice": {
+          "id": "b154-executor-completion-fe7817ff",
+          "base": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+          "candidate": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+          "tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95",
+          "parents": [
+            "be96782322a1bdc0fa0c21761a700d837fcdfe2c"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "b154-bounded-executor-completion-and-retained-results",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+        "source_scope_paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml",
+          "policy-engine/src/polisyos/core/artifacts/README.md",
+          "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+          "policy-engine/src/polisyos/core/artifacts/signing.py",
+          "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+          "policy-engine/tests/unit/remediation/test_b154_batch_completion.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-v7-n4-projection-791b9c339.json",
+          "sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305",
+          "bytes": 27503
+        },
+        "slice": {
+          "id": "v7-n4-projection-791b9c339",
+          "base": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+          "candidate": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+          "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+          "parents": [
+            "fe7817ff30e42b7a7659db8abf33f55bef40c047"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "v7-n4-full-s10-owner-projection-r4-20261019-r2",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+        "source_scope_paths": [
+          "policy-engine/docs/reference/api/runs.md",
+          "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+          "policy-engine/src/polisyos/runtime/http/README.md",
+          "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+          "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+          "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+          "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+          "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+          "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+          "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r3-20261019/receipt-abi-generated-doc-ae14dac0.json",
+          "sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5",
+          "bytes": 11516
+        },
+        "slice": {
+          "id": "abi-generated-doc-ae14dac0",
+          "base": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+          "candidate": "ae14dac03b54346f53b9a4fd214405174856b888",
+          "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+          "parents": [
+            "791b9c339b286b03e2d9b3bc23e153c61c091202"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "abi-generated-index-owner-output-companion",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN.",
+        "source_scope_paths": [
+          "policy-engine/docs/reference/generated-artifacts.md"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-q2-capture-driver-d4061a93.json",
+          "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5",
+          "bytes": 18077
+        },
+        "slice": {
+          "id": "q2-capture-driver-d4061a93",
+          "base": "ae14dac03b54346f53b9a4fd214405174856b888",
+          "candidate": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+          "tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+          "parents": [
+            "ae14dac03b54346f53b9a4fd214405174856b888"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "q2-generic-module-capture-and-canonical-driver-binding",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+        "source_scope_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-b154-abort-compat-782e9d3c.json",
+          "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7",
+          "bytes": 15713
+        },
+        "slice": {
+          "id": "b154-abort-compat-782e9d3c",
+          "base": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+          "candidate": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+          "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+          "parents": [
+            "d4061a93d94d4add6295f9e5b20b020efa124ea2"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "b154-legacy-abort-message-compatibility",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+        "source_scope_paths": [
+          "policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-r3-r4-context-fixture-e0462740.json",
+          "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d",
+          "bytes": 19124
+        },
+        "slice": {
+          "id": "r3-r4-context-fixture-e0462740",
+          "base": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+          "candidate": "e0462740b468781975ee385922ab0cea18a5d4f6",
+          "tree": "d497c580fb7899e9cb6887e4a3cbac92d222fa39",
+          "parents": [
+            "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "r3-r4-shared-context-fixture-and-worker-lifecycle",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+        "source_scope_paths": [
+          "policy-engine/tests/_helpers/runtime_http.py",
+          "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      },
+      {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-native-schema-id-fixture-b7709a52.json",
+          "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4",
+          "bytes": 17563
+        },
+        "slice": {
+          "id": "native-schema-id-fixture-b7709a52",
+          "base": "e0462740b468781975ee385922ab0cea18a5d4f6",
+          "candidate": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+          "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+          "parents": [
+            "e0462740b468781975ee385922ab0cea18a5d4f6"
+          ],
+          "source_freeze": false,
+          "ancestor_of_current_head": true
+        },
+        "work_item": "native-semantic-fixture-valid-identifiers",
+        "runtime_at_creation": "UNRUN on adopted canonical source; source application explicitly records UNRUN. See separately scoped historical and pending evidence, not as candidate runtime success.",
+        "source_scope_paths": [
+          "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py"
+        ],
+        "G_acceptance": false,
+        "formal_closure_ids": []
+      }
+    ]
+  },
+  "B154_runtime_followup": {
+    "ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-b154-run-20261019/b154-current-runtime-followup-r1.json",
+      "sha256": "930a1ee55603d7edf673ad144a49b9aee6f5add2d5b39f2dcb7a08d5b055815d",
+      "bytes": 11152
+    },
+    "append_only_supplement": true,
+    "rewrites_source_leaf": false
+  },
+  "observations": [
+    {
+      "id": "B154-current-three-module-runtime",
+      "source_frame": {
+        "branch": "refs/heads/codex/e02-unified-local-20261009",
+        "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+        "parents": [
+          "e0462740b468781975ee385922ab0cea18a5d4f6"
+        ],
+        "source_unchanged_during_run": true,
+        "changed_pinned_source_paths": [],
+        "changed_environment_paths": [],
+        "runtime_origin_mismatches": [],
+        "normal_plugin_autoload_ok": true
+      },
+      "outcome": "PASS scoped: three whole modules, 30/30; B154 only",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-b154-run-20261019/b154-current-runtime-followup-r1.json",
+          "sha256": "930a1ee55603d7edf673ad144a49b9aee6f5add2d5b39f2dcb7a08d5b055815d",
+          "bytes": 11152
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/result.json",
+          "sha256": "ad5170b454b3bfc97bea686fcf497741d4df7d8fabce56c8a0316c7d192f15dd",
+          "bytes": 13259,
+          "role": "complete deciding result and source/scope/selection summary"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/run-receipt.json",
+          "sha256": "8ae45de49436cacb78b34841f86f728633768b387bdbad4aa02f92b144d9282a",
+          "bytes": 1108,
+          "role": "runner/request/result binding receipt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/b154-canonical-pytest.stdout.txt",
+          "sha256": "8172b8b415a16c7ccd18d6145725c30f3f042e298b50d8b48171a1b01230a181",
+          "bytes": 636,
+          "role": "complete deciding stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/b154-canonical-pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "complete deciding stderr"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/pytest.xml",
+          "sha256": "2c1d18cc9171902995f962aca19da1ff1e7939da07f58a2405115b6e20f48a2b",
+          "bytes": 4579,
+          "role": "complete JUnit selection/execution record"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/pytest-provenance.json",
+          "sha256": "b3981b4005fc9d6d5dadf8fe3e27aab7594464584f0dba1acba4c8de2ade2013",
+          "bytes": 880105,
+          "role": "full collected/executed pytest provenance"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/source-before.json",
+          "sha256": "f15cdfb36c6480616420439647d8218ee3548a6519ce3980d5e8907fca0a1033",
+          "bytes": 4994,
+          "role": "source frame and pin snapshot"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/request-copy.json",
+          "sha256": "f388385d3e6065a98e6e2e508378d712d5481a4884acedfdadec54220605ac57",
+          "bytes": 9414,
+          "role": "exact controller request used"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/scope-provenance.json",
+          "sha256": "dbb09320cd4d9a73afadfe89533616a865994492682d60db97fc0fcae410a892",
+          "bytes": 3987,
+          "role": "scope/selection and controller binding"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/controller-events.jsonl",
+          "sha256": "3cea1789412c575f528fb55073299be60890930d674fb23087d5a14bcea3fee2",
+          "bytes": 3473,
+          "role": "full controller event log"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/phase-output.jsonl",
+          "sha256": "0e3a2ed39589fca3c1b93e06d3d1bba04a06f85afaf42e80781171d80dc19264",
+          "bytes": 3391,
+          "role": "full phase output log"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/process-tree.jsonl",
+          "sha256": "380ed3699d31c9c82763e116eb4b74a882b455f32cb8ca29241d904a4d8273a0",
+          "bytes": 32985,
+          "role": "full observed process-tree log"
+        }
+      ],
+      "details": {
+        "modules": [
+          "tests/unit/remediation/test_b154_batch_completion.py",
+          "tests/unit/remediation/test_cas_03.py",
+          "tests/unit/core/phase0/test_cli_signing.py"
+        ],
+        "collection_equals_execution": true,
+        "filters_empty": true,
+        "wall_seconds": 11.314205083064735,
+        "max_process_tree_rss_bytes": 672432128,
+        "limitation": "Runtime follow-up supplements, and does not rewrite, the source leaf’s UNRUN-at-creation snapshot; no global/currentness/G/closure claim."
+      },
+      "next_check": "Carry this supplement into whole-ID reconciliation; preserve the source leaf snapshot.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "native-two-module-semantic-replay",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+        "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+        "parents": [
+          "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+        ]
+      },
+      "outcome": "PASS scoped: 47 semantic cases; strict MyPy not established",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/run.json",
+          "sha256": "91bbb9e9e01d77b2e5ec665b87636470d60b8e0f5535ab512f1ce140ecc0cf0c",
+          "bytes": 10682
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/pytest.xml",
+          "sha256": "2f3ef25c1e5c66f5e1a342a4ec0f50311d63412f333d1bef89d6fad74ae96e62",
+          "bytes": 7896
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/whole-two-module-semantic-pytest.stdout.txt",
+          "sha256": "cd94b6a787ccdcd78a2552ea53fa340763bed604c4852d7cd49e5b7f26ca8cc8",
+          "bytes": 8330
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/whole-two-module-semantic-pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        }
+      ],
+      "details": {
+        "counts": {
+          "passed": 47,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "modules": [
+          "tests/unit/fabric/connectors/test_contracts.py",
+          "tests/unit/ir/registry/test_refs.py"
+        ],
+        "normal_plugin_autoload_ok": true,
+        "complete_selection": true,
+        "strict_mypy": "not run"
+      },
+      "next_check": "Run required static/native typing gates separately at final freeze.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "earlier-strict-mypy-diagnostics",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+        "parents": [
+          "791b9c339b286b03e2d9b3bc23e153c61c091202"
+        ]
+      },
+      "outcome": "FAIL at ae14: four strict typing diagnostics; separate semantic run 46P/1F, distinct from b770 47P",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/run.json",
+          "sha256": "ad45883eba7c19f7bd3c707f7102f0fa2c6083439490ca7856d70fdedd5a64cd",
+          "bytes": 27498
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/no-ignore-mypy-fabric.stdout.txt",
+          "sha256": "eae7ce4a6b4831f6dcd04c98a57ca59b01f0577854099f47776388f759630e78",
+          "bytes": 1970
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/no-ignore-mypy-ir.stdout.txt",
+          "sha256": "59919b13d89bfd67aed3a1b5cd309bbfbccb20db9aad57c79d8e20c9e26f8d77",
+          "bytes": 258
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/pytest.xml",
+          "sha256": "10c3f6c50fe17c139b2ebe74b40df9edf767f5965bef646015d25930f472d1e1",
+          "bytes": 9463
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/whole-two-module-semantic-pytest.stdout.txt",
+          "sha256": "7765744040d254a427c5e227aab732096757b3c3f043a6c4ed7b43db94ba8258",
+          "bytes": 9850
+        }
+      ],
+      "details": {
+        "strict_diagnostics": {
+          "fabric": 3,
+          "ir": 1,
+          "summary": [
+            "Fabric BaseModel.schema override",
+            "IR __iter__ override"
+          ]
+        },
+        "semantic_counts": {
+          "passed": 46,
+          "failed": 1
+        }
+      },
+      "next_check": "Reassess current source. P41 inheritance requires exact slice-base replay and zero full-input intersection.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "R3-R4-whole-module-replay",
+      "source_frame": {
+        "before_after_equal": true,
+        "branch": "refs/heads/codex/e02-unified-local-20261009",
+        "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8"
+      },
+      "outcome": "NOT ESTABLISHED: 29P/2F/1SKIP; R3 fixture failure before POST, R4 CAS fixture failure before dispatch/fresh GET",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/postrun-v7-analysis.json",
+          "sha256": "08990dc5305690355d2403096387b1a0d4da648991a19ee68c8adbdfc3b57d41",
+          "bytes": 9943
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v3/pytest.xml",
+          "sha256": "3f7cfac5b346addbea44182d39aa7380f673db20eb12305723ce867cb562c50b",
+          "bytes": 20873
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v3/r3-r4-whole-module-pytest.stdout.txt",
+          "sha256": "4ef2a6163e448950847482bb84a7cd040f5a6fa0f09cbf7be4fab4824e23d541",
+          "bytes": 15797
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v3/controller-result-v7.json",
+          "sha256": "611da0b65386793f5bc35e253d034cc3d116f2b019b06df19882fd1a860e7bf2",
+          "bytes": 8276
+        }
+      ],
+      "details": {
+        "counts": {
+          "errors": 0,
+          "failures": 2,
+          "passed": 29,
+          "path": "actual-run-v3/pytest.xml",
+          "sha256": "3f7cfac5b346addbea44182d39aa7380f673db20eb12305723ce867cb562c50b",
+          "skip": "test_r4_native_child: invoked only by the R4 profile parent",
+          "skipped": 1,
+          "tests": 32
+        },
+        "wall_seconds": 63.608350874856114,
+        "peak_rss_bytes": 1726070784,
+        "R3": {
+          "class": "same fixture-resource lifecycle/publication class as builder-failure cleanup; widen helper invariant to publish acquired client immediately and ensure exception cleanup; do not weaken this semantic POST/reopen test",
+          "failure": "env[\"client\"] is None at test line 989",
+          "outcome": "fixture_setup_output_failure_before_POST",
+          "source_cause": "runtime_http helper initializes env with client None; creates TestClient(app, ...) at helper line 2043, then env.update at lines 2049+ omits client, leaving None",
+          "source_file_sha256": "148f42719559b74c36e986d1e416f107b1eebf99235ca6c15b503e154d5e33f4",
+          "test": "test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+          "test_file_sha256": "320abb553d14725dc6bd44fd7c5f6a00a0b88f753b1bf436caad689799445fcd"
+        },
+        "R4": "No POST/fresh GET established."
+      },
+      "next_check": "Repair shared fixture lifecycle and replay full R3/R4 route on final source freeze.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "CAN21-full-union-attempt",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "parent": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+        "tracked_status": "",
+        "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535"
+      },
+      "outcome": "NOT ESTABLISHED: zero collected/executed and no JUnit at 360s capped attempt; not OOM/product failure",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-2/actual-run/result.json",
+          "sha256": "eb56cc777ca21ccae58a0af95a9f984ed84b0e5ce551cdbf79cd66a1d4395aca",
+          "bytes": 9556
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-2/actual-run/pytest.stdout.txt",
+          "sha256": "5021741fc12a1e25f030b51da1a9580ae8edc4bed9377b8d13c556810a3218ba",
+          "bytes": 331
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-2/actual-run/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-2/actual-run/process-tree.jsonl",
+          "sha256": "7a056cea8b26a1aa100cbd8f9585ec9463acc186dd5e3b3fc438060812e4a874",
+          "bytes": 1849666
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-2/actual-run/controller-events.jsonl",
+          "sha256": "ad3e1fa32587fd67a4d3eee2c974d7518af5ae33fa2633d5f7351da491a355e2",
+          "bytes": 3164
+        }
+      ],
+      "details": {
+        "status": "focused_21_module_runtime_not_established",
+        "counts": {
+          "cases": 0
+        },
+        "resource_limits": {
+          "disk_floor_bytes": 1073741824,
+          "numeric_threads": 1,
+          "rss_cap_bytes": 4294967296,
+          "sample_seconds": 0.5,
+          "sampled_max_process_tree_rss_bytes": 2188115968,
+          "wall_seconds": 360,
+          "workers": 1
+        },
+        "selection_valid": false,
+        "origin_mismatches": [
+          {
+            "reason": "runtime-origin-capture-missing"
+          }
+        ]
+      },
+      "next_check": "Repeat full 21 modules after reviewed source/input/profile freeze and resource budget.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "CAN21-origin-producer-single-case",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "parent": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+        "tracked_status": "",
+        "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535"
+      },
+      "outcome": "FAIL diagnostic: selected producer returned typed nonreceipt; embedded profileless refusal control did not pass",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-3-origin-case/actual-run/result.json",
+          "sha256": "2897315a3e3dbd6000f882cfffb56a9c40d24d51b80d604bbf4111d0d36c588d",
+          "bytes": 13509
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-3-origin-case/actual-run/pytest.xml",
+          "sha256": "94a7cc3633aa7112f0ec8905bbb52394f8dd847bbdfdba088bdd10553689fe0b",
+          "bytes": 2586
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-3-origin-case/actual-run/pytest.stdout.txt",
+          "sha256": "97591660325cc4e45460e5159babb1992825c6e54d7c74afb1bf32fe0d17aba0",
+          "bytes": 2519
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-3-origin-case/actual-run/runtime-module-origins.json",
+          "sha256": "e825f94689abe835fb2f9b578216d290d92ada45d672e924e19ccbdecfa066bd",
+          "bytes": 1311296
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can21-20261019/attempt-3-origin-case/actual-run/incremental-pytest-reports.jsonl",
+          "sha256": "c69b431dcc7bf70003c39e148177595898298972f996a6b2e29e83add9707550",
+          "bytes": 2363
+        }
+      ],
+      "details": {
+        "status": "diagnostic_case_failed",
+        "nodeid": "tests/unit/runtime/quality/test_epoch_transition_origin.py::test_canonical_producer_persists_independently_readable_execution_origin",
+        "producer_result": "EpochTransitionSigningNonReceipt(status=not_established, code=epoch_transition_exact_evidence_unavailable)",
+        "negative_control": "failed",
+        "origins": {
+          "captured_product_namespace_module_count": 1371,
+          "matched_regular_module_origins": 1371,
+          "origin_mismatches": [],
+          "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+          "unhashed_or_namespace_origins": 0
+        }
+      },
+      "next_check": "Resolve retained-origin/profile boundary and rerun positive/refusal cases and full union.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "Q2-canonical-prepare-preflight",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8"
+      },
+      "outcome": "ERROR before build/install/product tests: capture preflight rejects six.moves",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-canonical-prepare-b770-20261019/controller-attempt-1/run-result.json",
+          "sha256": "ac1a5108b19176025c322ac68348228743e97ee126800d9197c1ca242bdadd14",
+          "bytes": 12299
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-canonical-prepare-b770-20261019/controller-attempt-1/q2-source-audit-prepare.stderr.txt",
+          "sha256": "58af980974cf42d9d5c8490266ec65d3a9b7b40286c5849545859a27a09e3106",
+          "bytes": 107
+        }
+      ],
+      "details": {
+        "build_or_install": false,
+        "source_audit_status": "source_preflight_error",
+        "error": "TypeError unsupported runtime data value; RuntimeError sys.modules subtype unsupported: name=six.moves type=six._MovedItems"
+      },
+      "next_check": "Repair runtime module alias provenance capture, then repeat prepare and installed consumers without changing manifest hashes by hand.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "CAL06-full-unit-module",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+        "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+        "parents": [
+          "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+        ]
+      },
+      "outcome": "PASS scoped: complete CAL06 unit module, six passed; Calibrator.run not exercised; B198 remains historical",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cal06-b198-fullmodule-actual-b770-20261019/result.json",
+          "sha256": "e73291e93a1f30e8d0de10ff554492c1785713f963e68a1bbe32bd16d4d3f23a",
+          "bytes": 1305393
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cal06-b198-fullmodule-actual-b770-20261019/manifest.json",
+          "sha256": "a3c24f8d5e4c52b6102e9906a21fbfdbc66f73a320037474311fda842e1f1774",
+          "bytes": 2408
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cal06-b198-fullmodule-actual-b770-20261019/launch.json",
+          "sha256": "7aa69c383598cc396e1221c3d0160bd76d10cd5dbabe357345d2070c26cc8a1e",
+          "bytes": 2364
+        }
+      ],
+      "details": {
+        "counts": {
+          "cases": [
+            {
+              "nodeid": "tests.unit.remediation.test_cal_06.test_hessian_envelope_carries_typed_normal_scale_without_authority_upgrade[0.8]",
+              "status": "passed"
+            },
+            {
+              "nodeid": "tests.unit.remediation.test_cal_06.test_hessian_envelope_carries_typed_normal_scale_without_authority_upgrade[0.95]",
+              "status": "passed"
+            },
+            {
+              "nodeid": "tests.unit.remediation.test_cal_06.test_covariance_prefers_typed_fit_over_mutable_metadata",
+              "status": "passed"
+            },
+            {
+              "nodeid": "tests.unit.remediation.test_cal_06.test_incomplete_normal_fit_fails_closed_without_interval_guess",
+              "status": "passed"
+            },
+            {
+              "nodeid": "tests.unit.remediation.test_cal_06.test_uniform_fit_uses_declared_support_for_std",
+              "status": "passed"
+            },
+            {
+              "nodeid": "tests.unit.remediation.test_cal_06.test_missing_hessian_std_stays_unrepresented",
+              "status": "passed"
+            }
+          ],
+          "errors": 0,
+          "failed": 0,
+          "passed": 6,
+          "skipped": 0,
+          "tests": 6
+        },
+        "origin_capture": "752 module capture valid; four direct-loaded implementation origins matched",
+        "source_unchanged": true,
+        "sampled_process_rss_bytes": 663994368,
+        "B198": "historical decision retained; current criterion not adjudicated"
+      },
+      "next_check": "Exercise the B198 whole property through producer/consumer and independent review.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    },
+    {
+      "id": "B101-B105-native-module-and-SALib-replay",
+      "source_frame": {
+        "branch": "refs/heads/codex/e02-unified-local-20261009",
+        "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+        "parents": [
+          "e0462740b468781975ee385922ab0cea18a5d4f6"
+        ],
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8"
+      },
+      "outcome": "47 module tests and actual SALib 1.5.2 pass; controller NOT ESTABLISHED because expected geometry ID is unparameterized but pytest reports [normal]/[triangular]",
+      "deciding_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b101-b105-salib-native-replay-20261019/controller-v1/attempt-1/actual-run/result.json",
+          "sha256": "f87f63dfa62a686078c17e8c0e561a8b12af41157251d730efa2a165b06e6a8c",
+          "bytes": 18127
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b101-b105-salib-native-replay-20261019/controller-v1/attempt-1/actual-run/pytest.xml",
+          "sha256": "b152101c88f8148f146b8abaef955ab374fd6f39b9f0bc59a6f633de8934e458",
+          "bytes": 7676
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b101-b105-salib-native-replay-20261019/controller-v1/attempt-1/actual-run/doe02-doe03-morris-geometry-whole-modules.stdout.txt",
+          "sha256": "3e10ddf3e59d170741ff5b109f82c053f1bf7a4649a93f5586cf07af1f3e31df",
+          "bytes": 1100
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b101-b105-salib-native-replay-20261019/controller-v1/attempt-1/actual-run/actual-salib-sample-analyzer-probe.stdout.txt",
+          "sha256": "879a910fda44b9df15cc52341633dda4ccf6dfdd92e24620037896a6040a4be8",
+          "bytes": 1587
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b101-b105-salib-native-replay-20261019/controller-v1/nodeid-correction-v1.json",
+          "sha256": "24dcbd95f73258d4e9489fc55c4c92a6874f1dacdf59b57795c2d0e29977d8ff",
+          "bytes": 15432
+        }
+      ],
+      "details": {
+        "status": "doe02_doe03_geometry_and_real_salib_probe_not_established",
+        "counts": {
+          "cases": 47,
+          "errors": 0,
+          "failed": 0,
+          "passed": 47,
+          "skipped": 0
+        },
+        "actual_backend_semantics": [
+          "SALib 1.5.2 actually imported from the preserved venv",
+          "real Morris sampler full-matrix same-seed replay",
+          "real sampler leaves legacy NumPy global RNG unchanged",
+          "real Morris analyzer repeated result/uncertainty and leaves global RNG unchanged",
+          "non-unit [0,10] Morris result matches an independent normalized-coordinate elementary-effect calculation"
+        ],
+        "required_cases_present": false,
+        "actual_geometry_nodeids": [
+          "tests/unit/scientist/methods/doe/test_morris_geometry.py::test_admitted_nonuniform_designs_use_their_actual_source_coordinates[normal]",
+          "tests/unit/scientist/methods/doe/test_morris_geometry.py::test_admitted_nonuniform_designs_use_their_actual_source_coordinates[triangular]"
+        ],
+        "reconciliation": "append-only ID map preserves original status, no closure",
+        "adjacent_sensitivity_bridge": "UNRUN and separately bounded: source audit found no in-repository caller beyond the bridge module and its own tests; this replay does not establish seeded-state semantics for that legacy direct unseeded bridge route."
+      },
+      "next_check": "Correct controller IDs from actual pytest node IDs and rerun; separately execute sensitivity bridge.",
+      "G_acceptance": false,
+      "formal_closure_ids": []
+    }
+  ],
+  "index_readback": {
+    "as_of_source_cut": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "parents": [
+        "e0462740b468781975ee385922ab0cea18a5d4f6"
+      ]
+    },
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "sha256": "480be21559fbb8c5fbea76d149d78c4681fdb1bbf35e16e177bcf6901ad66715",
+    "git_blob_oid": "2044bb69adf40720f319ae1267683f19b7cb4ee2",
+    "component_receipt_rows": 337,
+    "occurrences": 291,
+    "unique_finding_ids": 282,
+    "bundles": 127,
+    "historical_closed_occurrences": 9,
+    "historical_author_proposed_closed": {
+      "finding_ids": 198,
+      "occurrences": 202,
+      "formal_G_closure": false
+    },
+    "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated.",
+    "current_source_cut_reconciliation": "not_established",
+    "formal_G_closure_ids": [],
+    "nine_receipts_absent_at_b770": 9,
+    "B154_followup_absent_at_b770": true,
+    "not_a_current_index_rewrite": true
+  },
+  "limitations": [
+    "All nine source leaf snapshots remain source_freeze=false and have empty formal closure IDs.",
+    "Runtime results bind to b770 and do not verify d292.",
+    "Scoped PASS coexists with failure/error/not-established; no aggregate green.",
+    "No global source freeze, product/G acceptance, publication, or formal adjudication."
+  ],
+  "assembly_status": "r2 supersedes r1: bind evidence to immutable b770 index and separate later ROOT delta.",
+  "supersedes_r1": {
+    "runtime_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-observation-assembly-20261019-r1/runtime-observations-v1.json",
+      "sha256": "2c77b81bf2d4ba047f0b00c0deec2aea08d9253d9349cfae35598a8f714b2e73",
+      "bytes": 48388
+    },
+    "authorship_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-observation-assembly-20261019-r1/current-authorship-map-v1.json",
+      "sha256": "5de3952d7e3463626277d56b95017ea18bd773f748c46e5f1220a14a9358bbdd",
+      "bytes": 16592
+    },
+    "index_instructions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-observation-assembly-20261019-r1/candidate-component-delivery-index-append-instructions-v1.json",
+      "sha256": "d31f7d3f9cb2a1785b1b1d55f8a3892bb1f79318b76dd0df3e15ffa2ca54640f",
+      "bytes": 6087
+    },
+    "reason": "r1 observed mutable post-b770 index while root committed d292; r2 uses immutable b770 index blob."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "parents": [
+      "e0462740b468781975ee385922ab0cea18a5d4f6"
+    ]
+  },
+  "later_root_source_delta": {
+    "sha": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+    "parents": [
+      "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+    ],
+    "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/tests/unit/remediation/test_scm_03.py"
+    ],
+    "role": "subsequent ROOT source delta; not covered by b770 runtime evidence"
+  }
+}

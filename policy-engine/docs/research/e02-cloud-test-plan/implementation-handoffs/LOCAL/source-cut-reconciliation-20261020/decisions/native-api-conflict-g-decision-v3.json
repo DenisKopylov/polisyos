@@ -1,0 +1,301 @@
+{
+  "alternatives": [
+    {
+      "choice": "keep all current Python/wire/export contracts and carry four diagnostics as a bounded, explicit native-gate residual",
+      "evidence": "This retains known runtime behavior and avoids unreviewed API breakage. No residual waiver/sunset is created; status remains limited/unresolved pending G.",
+      "falsifier_or_next_check": "at next source freeze run exact complete Fabric126 + IR46 no-ignore MyPy; preserve four results as distinct residuals and detect new diagnostics separately",
+      "impact": "No source, wire, export, or caller changes. Four no-ignore diagnostics were observed on the earlier ae14 scope; the b770 full no-ignore denominator remains UNRUN, so these are not four fresh b770 FAILs and the current gate result is UNRUN/not_established until replay.",
+      "path": "reuse-existing"
+    },
+    {
+      "choice": "continue a specialized, typed dual-access descriptor for Fabric and/or an explicitly modeled mapping adapter for IR",
+      "evidence": "The existing FetchResult schema descriptor is a partial runtime precedent but has no Pydantic field aliased to schema. Four source-bound small MyPy prototypes failed; none is an implementation candidate.",
+      "falsifier_or_next_check": "Before code, a strict source-bound prototype must typecheck without casts/Any/ignores and pass class-vs-instance, alias, JSON-schema, Mapping, list/keys/dict/normalizer adversarial tests for currently distinguished flows. The full typed generic Mapping consumer set remains not_established; do not infer it from the 367 exact-name-hit files.",
+      "impact": "could preserve public behavior if successful, but affects field typing, constructor alias typing, class schema method, Pydantic validation/serialization, Mapping checks and iterator semantics",
+      "path": "extend-existing"
+    },
+    {
+      "choice": "After G authorization only: Fabric removes .schema properties and migrates reads to existing fields while keeping alias schema; IR uses Pydantic model plus explicit Mapping adapter.",
+      "evidence": "Attached source-frame inventory enumerates the full class hierarchy, exact-name-hit paths, and 28 Fabric typed .schema reads. The 367 IR hit paths include JSON and TS assets and are not a consumer count. Current Fabric fields/constructors coexist with wire alias schema; the IR Mapping contract is inherited by the family. External callers are unavailable and full typed Mapping-flow closure remains not_established.",
+      "falsifier_or_next_check": "G authorizes choice first. Then migrate and prove all 28 enumerated Fabric typed reads plus BaseModel class/instance/wire behavior. For IR, map actual typed flows and generic Mapping boundaries before claiming coverage, prove adapter key/list/keys/items/get/len/index/dict/normalize behavior, and run complete fresh no-ignore denominators.",
+      "impact": "Fabric instance accessor breaks while alias/constructor/model schema remain; class .schema restores. IR raw model stops satisfying Mapping; adapter users need migration.",
+      "path": "consolidate-existing"
+    },
+    {
+      "choice": "introduce a general Pydantic compatibility layer or generic model/mapping framework",
+      "evidence": "No bounded evidence shows it is needed; existing components/prototypes do not solve the alias/iterator contract collision.",
+      "falsifier_or_next_check": "consider only if the same class is shown across additional model families and a consolidated generic design beats localized explicit boundaries",
+      "impact": "widest mechanism, new abstraction and migration surface, likely exceeds a 4-diagnostic local repair",
+      "path": "build-new"
+    }
+  ],
+  "authority": {
+    "author_role": "local candidate author and evidence preparer; not independent G code acceptor or formal adjudicator",
+    "criterion_note": "No exact original criterion ID was found in the canonical task packet files listed below. These are four discovered MyPy gate diagnostics, not an asserted closure or an invented finding ID.",
+    "decision_owner": "G independent code acceptance/integration adjudication",
+    "decision_time": "at independent closeout review; no invented deadline, expiry, waiver, or issuer",
+    "formal_finding_ids": [],
+    "task_packet_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+        "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+        "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+        "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+      }
+    ]
+  },
+  "consumer_inventory": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r5/consumer-inventory-correction-v1.json",
+    "sha256": "772f9a349863a795bd353aad79c6ea12df57d33165fbe1cf5ce44d8a579434dd",
+    "status": "complete pinned class-hierarchy and exact-name-hit inventory; full typed-consumer closure NOT_ESTABLISHED",
+    "base_payload": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r3/consumer-inventory-v2.json",
+      "sha256": "d2812c72d050c2a51a36c365d326db59cdb28da70f4511e5ad0ee401998878e7"
+    },
+    "alias_supplement": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r4/module-alias-followup-v1.json",
+      "sha256": "9d50c83d4b05ae1a454b4ed96de74b42af19f5f016469995bd4c571f6ec1de7c"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-g-packet-independent-review-20261020-r1/review-v1.md",
+      "sha256": "0e4ee5419e2753e75d544366f5b27b5f4f609724e9e40d4967d522c5344ceeb3"
+    }
+  },
+  "correction_note": {
+    "r2_decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r2/api-conflict-g-decision-v2.json",
+      "sha256": "5f7e82a0db801919555c3def0077bb466d98e5077c3b4aa750eaea339a87f900",
+      "status": "superseded by corrected r3"
+    },
+    "r2_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r2/consumer-inventory-v1.json",
+      "sha256": "5931a3df0af77d79270fe5a2b82d1fa331e146bf69b28761f9072fed1ef72190",
+      "status": "not for adoption: mixed class and auxiliary field denominators and parser missed git prefix"
+    },
+    "r3_decision_v2": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r3/api-conflict-g-decision-v2.json",
+      "sha256": "4d38522d0cb7628e3254fdadb2c060b7154e280605dc63f267b259042d6b12b4",
+      "status": "superseded by v3 wording correction; original preserved immutable"
+    }
+  },
+  "decision_status": "Awaiting independent G decision; no implementation or closure.",
+  "kind": "narrow_g_decision_proposal",
+  "observed_diagnostics": {
+    "consumer_inventory_status": "Pinned class-hierarchy and exact-name-hit inventory attached; 367 IR family name-hit paths include 338 .py, 26 .json, and 3 .ts files and are not a consumer denominator. Full typed Mapping-flow closure and external/private flows remain not_established.",
+    "current_semantic_control": "The b770 two-module run passed 47/47 relevant selected semantic tests. This demonstrates runtime behavior in those tests only; it is not a b770 no-ignore MyPy replay and does not resolve the static API conflicts.",
+    "fabric": [
+      {
+        "actual_super_contract": "Pydantic BaseModel.schema is a classmethod returning JSON schema",
+        "kind": "override conflict",
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/contract.py:172",
+        "subclass_contract": "instance property returns DataSchema"
+      },
+      {
+        "actual_super_contract": "Pydantic BaseModel.schema is a classmethod returning JSON schema",
+        "kind": "override conflict",
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_result.py:43",
+        "subclass_contract": "instance property returns DataSchema"
+      },
+      {
+        "actual_super_contract": "Pydantic BaseModel.schema is a classmethod returning JSON schema",
+        "kind": "override conflict",
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/registry.py:105",
+        "subclass_contract": "instance property returns DataSchema"
+      }
+    ],
+    "ir": [
+      {
+        "actual_super_contract": "BaseModel.__iter__ yields (field, value) pairs",
+        "kind": "override conflict",
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py:33",
+        "subclass_contract": "Mapping[str, object] requires key iteration; current override yields Iterator[str]"
+      }
+    ],
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/no-ignore-mypy-fabric.stdout.txt",
+        "sha256": "eae7ce4a6b4831f6dcd04c98a57ca59b01f0577854099f47776388f759630e78"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/no-ignore-mypy-ir.stdout.txt",
+        "sha256": "59919b13d89bfd67aed3a1b5cd309bbfbccb20db9aad57c79d8e20c9e26f8d77"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-qualification-20261019-r1/runs/20261019T194744Z-5973356c/run.json",
+        "sha256": "ad45883eba7c19f7bd3c707f7102f0fa2c6083439490ca7856d70fdedd5a64cd"
+      }
+    ],
+    "source_frame": "Actual full no-ignore MyPy outputs at ae14dac03b54346f53b9a4fd214405174856b888 / tree 25156f2e0eb5ad3c902a9342a3e3634d4f1b2535; not freshly replayed on b770. The four defining source files are byte-identical at b770, but at least core/artifacts/_signature_ops.py changed, so exact current denominator remains UNRUN. The r5 inventory correction does not create a new MyPy run."
+  },
+  "program_surface_and_effect": {
+    "fabric": {
+      "consumer_boundary": "The pinned inventory records 28 AST-resolved typed instance .schema reads plus import/constructor/annotation evidence across 9,405 selected source/schema/config inputs (10,104 total tracked paths). These are internal typed-read findings, not proof of external/private caller compatibility.",
+      "exports": "preserve ConnectorSchemaContract, InferenceResult, SchemaRegistration exports; do not silently rename/remove",
+      "migration_impact": "If G authorizes the public break, remove the three .schema instance properties and use existing connector_schema/inferred_schema/registered_schema. Keep aliases, constructors, model names, serialization/schema output; restore BaseModel.schema class behavior.",
+      "python_surface": "three public model instance .schema attributes yield DataSchema; BaseModel class .schema(...) is shadowed by the properties at runtime",
+      "required_migration_proof": "Resolve and test all 28 enumerated typed instance reads plus BaseModel class-schema behavior; preserve validation/serialization alias and model JSON schema. External/private caller coverage remains not_established; mixed exact-name-hit files are not a caller census. Update release notes and compatibility tests if G authorizes a break.",
+      "wire_proof_required": "Tests prove class schema(...) behavior, each actual instance field, current schema= constructor aliases, model_dump(by_alias=True) and model_json_schema(by_alias=True).",
+      "wire_surface": "each schema-valued field currently serializes/validates with wire alias \"schema\"; model_json_schema is exercised"
+    },
+    "ir": {
+      "consumer_boundary": "Inventory enumerates the 135-class hierarchy (118 registry declarations, 16 production direct descendants, one test descendant) and 367 tracked files with exact family-name hits (338 .py, 26 .json, 3 .ts). Those mixed-type hit rows are not consumers. Mapping/.schema searches are candidate-only; normalizer call locations do not prove argument flow. Complete typed Mapping-consumer, dynamic/reflection, and external/private caller sets remain not_established.",
+      "exports": "preserve ArtifactRefModel export; any new mapping adapter export is additive and requires API review",
+      "migration_impact": "A Pydantic-only ref model changes Mapping identity and key iteration across the shared class hierarchy. The 367 exact-name-hit files are not a Mapping caller denominator. Preserve public names and fields; before claiming migration coverage, resolve the distinguished typed flows and generic Mapping boundaries or retain them as explicitly unresolved. Add an explicit adapter for authorized generic Mapping boundaries; dict(model) or model_dump alone does not prove Mapping compatibility.",
+      "python_surface": "ArtifactRefModel is publicly exported from polisyos.ir and currently implements Mapping with key iteration",
+      "runtime_behavior": "At the base implementation, isinstance(ref, Mapping) is true, list(ref) yields field keys, dict(ref) and normalize_artifact_ref(ref) produce the intended payload; the normalizer checks BaseModel model_dump before generic Mapping. These are known runtime semantics, not a complete caller census.",
+      "wire_surface": "retain existing artifact-ref model field serialization and validation shape"
+    }
+  },
+  "recommendation": {
+    "choice": "Preserve current runtime APIs and retain the four observed type override diagnostics as unresolved native-gate debt. The b770 no-ignore replay is UNRUN; no current green/inherited/closure/waiver/issuer is asserted.",
+    "g_decisions_requested": [
+      "Fabric: preserve .schema instance access and native residual, or authorize migration to existing fields and restore BaseModel.schema(...)?",
+      "IR: preserve Mapping identity/key iteration and native residual, or authorize Pydantic-only ref plus adapter and caller migration?",
+      "If authorized, specify release compatibility ownership and external caller evidence; preserve public exports and wire names."
+    ],
+    "next_check": "G records compatibility choice or bounded residual; then frozen Fabric126 + IR46 no-ignore replay. b770 current result UNRUN; previous four errors are ae14.",
+    "no_waiver_or_expiry": "No blanket expiry, exception, waiver, issuer, or automatic closure is proposed. No law/authority is inferred.",
+    "why": "Fabric preserves three public instance accessors that shadow the superclass classmethod; the 28 pinned typed reads make that internal migration surface concrete, while external callers remain unknown. IR changes Mapping semantics for a shared hierarchy, but exact-name-hit paths are not consumer flows and the complete typed Mapping caller set is not established. G owns the compatibility choice."
+  },
+  "revision": 3,
+  "runtime_and_type_prototype_evidence": {
+    "existing_descriptor_precedent": {
+      "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "sha256": "0dd3e001be9f544b9b35aae8cc403a115130b7ca6977036b3d28c784f69bcea3"
+    },
+    "existing_descriptor_test": {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py",
+      "sha256": "8c234237f005d8c6613dc3d5e5dabdaec51e2ef67073306e6226ebc7c86d869b"
+    },
+    "normalizer": {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7"
+    },
+    "prototype_results": [
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-override-repair-research-20261019-r1/runs/20261019T195701Z-384a8fd1/mypy-generic-descriptor-and-mapping-conflict-prototype.stdout.txt",
+          "sha256": "d8ece2f313bc0c5c3fdbc4b0edd7f2d5ab84d7a68dfa77873c01938419e59a2a"
+        },
+        "method": "generic descriptor + Field(alias=\"schema\")",
+        "result": "failed: no-any-return, Pydantic plugin assignment incompatibility, generated constructor rejects schema=; no usable typed two-sided access"
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-override-repair-research-20261019-r2/descriptor_callable_probe.stdout.txt",
+          "sha256": "2afe0855c02087bf3a224a02d6c2718f12ded231daa19c55eb42de4ac9f3ebcf"
+        },
+        "method": "callable descriptor",
+        "result": "failed: aliased Payload field typing takes precedence; schema= constructor remains rejected"
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-override-repair-research-20261019-r2/validation_serialization_alias_probe.stdout.txt",
+          "sha256": "1f454d8664ef5a4bd3ef26b37918c621c1b7d815c5653e0afbf8855e8c5fe511"
+        },
+        "method": "validation_alias + serialization_alias",
+        "result": "failed: descriptor assignment conflict remains; MyPy constructor signature does not accept schema="
+      },
+      {
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-override-repair-research-20261019-r2/getattribute_probe.stdout.txt",
+          "sha256": "52220effd9131dd74663143d5a94cdca6c12344970f347f8943d5cf12d6d893d"
+        },
+        "method": "overloaded __getattribute__",
+        "result": "failed: rejected as an invalid special method signature; does not provide safe class/instance typing"
+      }
+    ],
+    "ref_behavior_test": {
+      "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+      "sha256": "383df20b1daf7f8fa87a6b7d93acdf5269596e4ffa1448284db175e1e9a8e570"
+    },
+    "report_is_authoritative_for_bounded_research": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-override-repair-research-20261019-r2/findings.md",
+      "sha256": "66047054a4896d2d24c2289f5bfba0a6294f595309323e2a15102f5d892c67a2"
+    },
+    "source_refs": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/contract.py",
+        "sha256": "f3b6695477c5fc107017fb8f5a4446695a2211c03ead6cb297bb1d56fc4c5691"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_result.py",
+        "sha256": "23e30c5a41cb2a60f2d16526683b8ed6cb6f1f6dacdc4e2ef216437f1e923fdd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/registry.py",
+        "sha256": "9aee883cc13c854151f30f6ad095bc9cbd37ed88fddc061ab273d8a44d7104fd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+        "sha256": "0dd3e001be9f544b9b35aae8cc403a115130b7ca6977036b3d28c784f69bcea3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "sha256": "66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+        "sha256": "d6adbad797ae84ae35683439ebf9282e0a356326e0507794d577bee28f236866"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py",
+        "sha256": "9e980210ee823567055bd5c7d5cf8e9d9828365862810e08e2e6103a6942cafb"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/registry/test_refs.py",
+        "sha256": "383df20b1daf7f8fa87a6b7d93acdf5269596e4ffa1448284db175e1e9a8e570"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py",
+        "sha256": "c065afab7146b5211c8e8a21fde6d84f615e0b1912a39743f92241ab78a7601a"
+      }
+    ]
+  },
+  "schema": "policyos.e02.native_typing_api_conflict_decision.v3",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "parents": [
+      "e0462740b468781975ee385922ab0cea18a5d4f6"
+    ],
+    "research_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-override-repair-research-20261019-r2/findings.md",
+      "sha256": "66047054a4896d2d24c2289f5bfba0a6294f595309323e2a15102f5d892c67a2"
+    },
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8"
+  },
+  "status": "PROPOSED_NOT_ADJUDICATED",
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r3/api-conflict-g-decision-v2.json",
+    "sha256": "4d38522d0cb7628e3254fdadb2c060b7154e280605dc63f267b259042d6b12b4",
+    "rule": "Immutable v2 retained; v3 corrects the IR name-hit label and dependent consumer-scope claims."
+  },
+  "r5_correction": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r5/consumer-inventory-correction-v1.json",
+    "sha256": "772f9a349863a795bd353aad79c6ea12df57d33165fbe1cf5ce44d8a579434dd",
+    "review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-g-packet-independent-review-20261020-r1/review-v1.md",
+      "sha256": "0e4ee5419e2753e75d544366f5b27b5f4f609724e9e40d4967d522c5344ceeb3"
+    },
+    "meaning": "Corrects the 367 field label and derived claims. The original r3 inventory/decision and r4 alias supplement remain immutable."
+  }
+}

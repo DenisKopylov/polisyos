@@ -1,0 +1,217 @@
+{
+  "append_only_historical_boundaries": {
+    "B198": "historical decision retained; no current formal adjudication",
+    "author_proposed_closed_finding_ids": 198,
+    "author_proposed_closed_occurrences": 202,
+    "bundles": 127,
+    "current_source_occurrence_reconciliation": "not_established",
+    "formal_G_closure_ids": [],
+    "historical_ledger_closed_occurrences": 9,
+    "instruction": "The r4 path counts are source-path/metadata occurrences, not finding or closure totals. Preserve prior r3 receipts and all historical status fields unchanged.",
+    "occurrences": 291,
+    "unique_finding_ids": 282
+  },
+  "current_followups_read_separately": [
+    {
+      "G_acceptance": false,
+      "closure_ids": [],
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 30,
+        "skipped": 0,
+        "tests": 30
+      },
+      "deciding_result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/controller-v3/attempt-3/actual-run/result.json",
+      "deciding_result_sha256": "ad5170b454b3bfc97bea686fcf497741d4df7d8fabce56c8a0316c7d192f15dd",
+      "item": "B154 current canonical bounded module run",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-b154-run-20261019/manifest-r4-b154-runtime-followup-r1.json",
+      "manifest_sha256": "246bb0b9b0f835b3544b97d9f42e39d23507256d8828d9782a0ffe6d6dc01d32",
+      "modules": [
+        "tests/unit/remediation/test_b154_batch_completion.py",
+        "tests/unit/remediation/test_cas_03.py",
+        "tests/unit/core/phase0/test_cli_signing.py"
+      ],
+      "original_leaf_runtime_unrun_is_historical": true,
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-b154-run-20261019/b154-current-runtime-followup-r1.json",
+      "result_sha256": "930a1ee55603d7edf673ad144a49b9aee6f5add2d5b39f2dcb7a08d5b055815d",
+      "scope_limits": [
+        "three whole modules only",
+        "not global suite or public-surface completeness",
+        "CLI test does not assert exact JSON detail-row identity"
+      ],
+      "source_head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "source_tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "status": "PASS within selected scope only"
+    },
+    {
+      "controller_result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v3/controller-result-v7.json",
+      "controller_result_sha256": "611da0b65386793f5bc35e253d034cc3d116f2b019b06df19882fd1a860e7bf2",
+      "counts": {
+        "errors": 0,
+        "expected_skips": 1,
+        "failed": 2,
+        "passed": 29,
+        "tests": 32
+      },
+      "expected_skip": "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_r4_native_child (invoked by the R4 profile parent)",
+      "failed_tests": [
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_shared_method_admission_and_removal_probe"
+      ],
+      "item": "R3/R4 current two-module replay",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/actual-run-v3/pytest.xml",
+      "junit_sha256": "3f7cfac5b346addbea44182d39aa7380f673db20eb12305723ce867cb562c50b",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/manifest-v7.json",
+      "manifest_sha256": "040d0b8d8075699e515a0b02794be6ea0aca0c65ee27cb9d2f98de4b9a815d7f",
+      "observed_failure_notes": [
+        "R3 assertion fails during fixture setup with client is None before POST.",
+        "R4 child profiles fail; postrun analysis classifies a shared fixture CAS-seeding/ownership context incompatibility, not a measured capacity or bridge-removal result.",
+        "P41 source/failure attribution remains not_established; do not reclassify the failures as inherited without a qualifying replay."
+      ],
+      "postrun_analysis_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-a94-whole-module-replay-20261019/postrun-v7-analysis.json",
+      "postrun_analysis_sha256": "08990dc5305690355d2403096387b1a0d4da648991a19ee68c8adbdfc3b57d41",
+      "source_head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "source_tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "status": "FAIL; source frame unchanged; no capacity, bridge-removal, or closure conclusion"
+    },
+    {
+      "counts": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 47,
+        "skipped": 0,
+        "tests": 47
+      },
+      "item": "native semantic pytest run for schema/contract identifier fixture",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/pytest.xml",
+      "junit_sha256": "2f3ef25c1e5c66f5e1a342a4ec0f50311d63412f333d1bef89d6fad74ae96e62",
+      "modules": [
+        "tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py",
+        "tests/unit/ir/test_semantic_group_imports.py"
+      ],
+      "remaining_type_diagnostics": "The four pre-existing MyPy diagnostics remain separate; this pytest run is not evidence about them.",
+      "run_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/run.json",
+      "run_sha256": "91bbb9e9e01d77b2e5ec665b87636470d60b8e0f5535ab512f1ce140ecc0cf0c",
+      "source_head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "source_tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "status": "PASS for two selected modules; not MyPy/typechecker confirmation",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-typing-semantic-replay-20261019-r1/runs/20261019T200357Z-252a079e/whole-two-module-semantic-pytest.stdout.txt",
+      "stdout_sha256": "cd94b6a787ccdcd78a2552ea53fa340763bed604c4852d7cd49e5b7f26ca8cc8"
+    }
+  ],
+  "decision": {
+    "b154_runtime_followup": "GO as append-only, source-bound evidence for its bounded three-module scope",
+    "closure_ids": [],
+    "current_status_refresh": "REQUIRED before treating the r4 plan pending fields as current; preserve all original r4 files unchanged",
+    "formal_closure": false,
+    "g_acceptance": false,
+    "integration_publication": false,
+    "source_receipts": "GO"
+  },
+  "native_source_checks": {
+    "native_commit_hooks": "All four commits and exact path readbacks are present. Hook transcripts show contrast, reduced-motion, ESLint, and Prettier skipped because there were no matching staged files; this is not evidence those checks ran.",
+    "ruff": "Each source leaf has canonical-path Ruff check and format --check outputs recorded with exit code 0. These are source lint/format evidence only.",
+    "runtime_scope": "No r4 source receipt claims runtime qualification, source freeze, G acceptance, publication, or closure."
+  },
+  "review_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "index_input_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "index_input_sha256": "480be21559fbb8c5fbea76d149d78c4681fdb1bbf35e16e177bcf6901ad66715",
+    "parent": "e0462740b468781975ee385922ab0cea18a5d4f6",
+    "tracked_and_index_status": "clean at review; no whole-worktree-clean claim because untracked research/work files are present and not inventoried",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8"
+  },
+  "review_id": "source-leaf-receipts-addendum-r4-independent-review-r1",
+  "review_method": {
+    "canonical_index_or_lease_mutation": false,
+    "heavy_tests_or_source_writes": false,
+    "operations": [
+      "read-only SHA/path verification for receipt manifests, plan, outputs, and evidence refs",
+      "Git parent/tree/ancestry and full no-renames changed-path denominator verification",
+      "Git blob OID, content SHA-256, and byte-length comparison for every pre/post path"
+    ],
+    "source_or_runtime_execution_by_reviewer": false
+  },
+  "reviewed_packet": {
+    "index_append_plan_not_applied": true,
+    "index_append_plan_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/index-append-plan-r4.json",
+    "index_append_plan_sha256": "5843528fa9e0ab01b11c6ae131512ec5e0b5c1bdc4e6f93ccafdccc322ef7510",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/manifest-addendum-r4.json",
+    "manifest_sha256": "ee5a81fd65e4a85910604421de44477b3bf2db1879d668585f59c847c2d654f6",
+    "receipts": [
+      {
+        "changed_paths": 5,
+        "metadata_paths": 2,
+        "parent": "ae14dac03b54346f53b9a4fd214405174856b888",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-q2-capture-driver-d4061a93.json",
+        "sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5",
+        "source_paths": 3,
+        "tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+        "work_item": "q2-generic-module-capture-and-canonical-driver-binding"
+      },
+      {
+        "changed_paths": 3,
+        "metadata_paths": 2,
+        "parent": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-b154-abort-compat-782e9d3c.json",
+        "sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7",
+        "source_paths": 1,
+        "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+        "work_item": "b154-legacy-abort-message-compatibility"
+      },
+      {
+        "changed_paths": 5,
+        "metadata_paths": 2,
+        "parent": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-r3-r4-context-fixture-e0462740.json",
+        "sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d",
+        "source_paths": 3,
+        "tree": "d497c580fb7899e9cb6887e4a3cbac92d222fa39",
+        "work_item": "r3-r4-shared-context-fixture-and-worker-lifecycle"
+      },
+      {
+        "changed_paths": 3,
+        "metadata_paths": 2,
+        "parent": "e0462740b468781975ee385922ab0cea18a5d4f6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r4-20261019/receipt-native-schema-id-fixture-b7709a52.json",
+        "sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4",
+        "source_paths": 1,
+        "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+        "work_item": "native-semantic-fixture-valid-identifiers"
+      }
+    ],
+    "verified_integrity": {
+      "aggregate_path_arithmetic": {
+        "changed_path_occurrences": 16,
+        "metadata_companion_occurrences": 8,
+        "receipts": 4,
+        "source_path_occurrences": 8,
+        "unique_changed_paths": 10
+      },
+      "artifact_references": {
+        "b154_followup_manifest_refs": 1,
+        "b154_followup_refs": 13,
+        "index_plan_refs": 2,
+        "mismatches": 0,
+        "receipt_evidence_refs": 88
+      },
+      "candidate_parent_tree_and_ancestry": "all four commit parents/trees match; all four are ancestors of current HEAD",
+      "changed_path_denominator": "all four no-renames Git path/status sets match receipt footprints; each path pre/post blob OID, SHA-256, and byte length match",
+      "input_index_sha_matches_live_tracked_index": true
+    }
+  },
+  "role": "independent read-only source receipt integrity review; this file is a RAW review receipt, not a source leaf or closure receipt",
+  "schema": "policyos.e02.source_leaf_receipt_independent_review.v1",
+  "status_reconciliation": {
+    "original_r4_plan_pending_items": "Historical at assembly. B154 is supplemented by an exact current run; R3/R4 completed with two failures and one expected skip; the native semantic two-module pytest completed 47/47. Do not mutate the r4 manifest/plan/leaf receipts.",
+    "still_not_established_or_not_replayed": [
+      "Q2 complete timeout-driver module and canonical packaging prepare",
+      "CAN inner-cause reconciliation",
+      "global E02 suite or source freeze",
+      "four MyPy residuals beyond their prior measured diagnostics",
+      "formal G closure/adjudication"
+    ]
+  }
+}

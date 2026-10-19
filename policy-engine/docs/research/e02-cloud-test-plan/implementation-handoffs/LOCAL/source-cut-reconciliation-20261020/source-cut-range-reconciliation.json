@@ -1,0 +1,887 @@
+{
+  "schema": "policyos.e02.source_cut_reconciliation.v1",
+  "role": "Complete first-parent source provenance only; not semantic review, runtime freeze, native green, G acceptance, or closure adjudication.",
+  "branch": "codex/e02-unified-local-20261009",
+  "from": {
+    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "parent": "ac42e495f074e209b40d706d337cd851b228f89b",
+    "index_sha256_before": "96ae16b25316d2ff24a995dc50101b1165970d0430eff74015c29b1da63028a2",
+    "tracking_index_update_preimage_sha256": "4b5c55d98c88cfd06f5de56265b736900b88ffc3985da4e69b9a9c2ec5e7db7c",
+    "tracking_index_update_preimage_source_frame": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "meaning": "index_sha256_before is the actual Git blob at the 3a02 source boundary; tracking_index_update_preimage_sha256 separately binds the current 42e receipt-update target."
+  },
+  "to": {
+    "head": "42e0cf2f00791cf77c284fd1f91f490337614224",
+    "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+    "parents": [
+      "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+    ],
+    "source_freeze": false,
+    "tracked_index_clean": true,
+    "known_dirty_test_paths_preserved": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "untracked_count": 5416,
+    "whole_worktree_clean_claim": false
+  },
+  "method": "Complete first-parent git log and per-commit git diff-tree; source/metadata classes matched against immutable receipt footprints and exact commit paths.",
+  "counts": {
+    "first_parent_commits": 18,
+    "source_leaf_commits": 17,
+    "metadata_only_commits": 1,
+    "changed_path_occurrences": 132,
+    "source_path_occurrences": 77,
+    "metadata_path_occurrences": 55,
+    "unique_changed_paths": 87,
+    "unique_source_paths": 65,
+    "unique_metadata_paths": 22,
+    "source_leaves_from_r3_through_r6": 15
+  },
+  "commits": [
+    {
+      "commit": "c2c383dd0b269cd4890a7b0415f14f2d3e270084",
+      "tree": "e7af1ae6fb46b6056573769872254d81ee2ce3d2",
+      "parents": [
+        "3a02d5dab8ed064cad4c269c5795624633776d7f"
+      ],
+      "subject": "docs(e02): record eighteen source slices and bounded verification outcomes",
+      "role": "metadata_only",
+      "changed_path_count": 21,
+      "source_path_count": 0,
+      "metadata_path_count": 21,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-generated-adoption-e9db2006.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-output-registry-89fe2421.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-profile-composition-ef8b1f9a.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-test-companions-47999cbb.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-compare-math-inputs-e0671f33.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-fixture-composition-f1b9bb4c.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-lineage-fixture-composition-73260b3d.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-profile-lineage-whole-fixture-r3-ac42e495.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-native-mypy-specific-module-retirement-362955d8.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-phase10-lineage-43-source-admission-feccd0cd.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-real-async-branch-controls-3a02d5da.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-removal-controls-06af9e44.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-quantity-lineage-consumers-1eb035af.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-r3-r4-tests-e3985584.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-read-only-cas-consumer-2ad2ed93.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-search-frozen-init-293afe93.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-selected-graph-witness-507108e6.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-tcp-root-topology-e73a8369.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-verification-delta-e73-e9db-r3-r4-20261019.json"
+      ],
+      "source_paths": [],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-generated-adoption-e9db2006.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-output-registry-89fe2421.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-profile-composition-ef8b1f9a.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-test-companions-47999cbb.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-compare-math-inputs-e0671f33.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-fixture-composition-f1b9bb4c.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-lineage-fixture-composition-73260b3d.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-profile-lineage-whole-fixture-r3-ac42e495.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-native-mypy-specific-module-retirement-362955d8.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-phase10-lineage-43-source-admission-feccd0cd.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-real-async-branch-controls-3a02d5da.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-removal-controls-06af9e44.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-quantity-lineage-consumers-1eb035af.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-r3-r4-tests-e3985584.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-read-only-cas-consumer-2ad2ed93.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-search-frozen-init-293afe93.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-selected-graph-witness-507108e6.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-tcp-root-topology-e73a8369.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-verification-delta-e73-e9db-r3-r4-20261019.json"
+      ],
+      "receipt_path": null,
+      "receipt_sha256": null
+    },
+    {
+      "commit": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+      "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+      "parents": [
+        "c2c383dd0b269cd4890a7b0415f14f2d3e270084"
+      ],
+      "subject": "fix(e02): require explicit epoch profile modes and persist attested origin receipts",
+      "role": "source_leaf",
+      "changed_path_count": 14,
+      "source_path_count": 12,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-exact-cas-profile-composition.toml",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+        "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "source_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-exact-cas-profile-composition.toml",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/open_world_risk.py",
+        "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_evidence_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/53841a0e7eff.json",
+      "receipt_sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3"
+    },
+    {
+      "commit": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+      "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e",
+      "parents": [
+        "53841a0e7effab8aef512198c33ccd3ae2dd0a86"
+      ],
+      "subject": "test(e02): defer CAN ledger CAS construction to isolated runtime fixtures",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/be96782322a1.json",
+      "receipt_sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5"
+    },
+    {
+      "commit": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+      "tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95",
+      "parents": [
+        "be96782322a1bdc0fa0c21761a700d837fcdfe2c"
+      ],
+      "subject": "fix(e02): retain CAS batch results and expose executor abort diagnostics",
+      "role": "source_leaf",
+      "changed_path_count": 8,
+      "source_path_count": 6,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py"
+      ],
+      "source_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml",
+        "policy-engine/src/polisyos/core/artifacts/README.md",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "policy-engine/tests/unit/remediation/test_b154_batch_completion.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/fe7817ff30e4.json",
+      "receipt_sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1"
+    },
+    {
+      "commit": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+      "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+      "parents": [
+        "fe7817ff30e42b7a7659db8abf33f55bef40c047"
+      ],
+      "subject": "fix(e02): bind N4 predictive outcomes to the complete owner S10 projection",
+      "role": "source_leaf",
+      "changed_path_count": 14,
+      "source_path_count": 12,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/reference/api/runs.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+        "policy-engine/src/polisyos/runtime/http/README.md",
+        "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+        "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "source_paths": [
+        "policy-engine/docs/reference/api/runs.md",
+        "policy-engine/release-fragments/unreleased/2026-10-19-e02-n4-outcome-binding.toml",
+        "policy-engine/src/polisyos/runtime/http/README.md",
+        "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+        "policy-engine/tests/unit/remediation/test_frc_02_s10.py",
+        "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+        "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/791b9c339b28.json",
+      "receipt_sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305"
+    },
+    {
+      "commit": "ae14dac03b54346f53b9a4fd214405174856b888",
+      "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+      "parents": [
+        "791b9c339b286b03e2d9b3bc23e153c61c091202"
+      ],
+      "subject": "docs(e02): include generated ABI schema documentation in the artifact index",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/reference/generated-artifacts.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "source_paths": [
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/ae14dac03b54.json",
+      "receipt_sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5"
+    },
+    {
+      "commit": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+      "tree": "5334d990ceed36dbbdc16468e343ed762a7ff81d",
+      "parents": [
+        "ae14dac03b54346f53b9a4fd214405174856b888"
+      ],
+      "subject": "fix(e02): bind generic module capture and packaging driver inputs",
+      "role": "source_leaf",
+      "changed_path_count": 5,
+      "source_path_count": 3,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py"
+      ],
+      "source_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d4061a93d94d.json",
+      "receipt_sha256": "b99389d1807cb9d8142744e375d790d7ea9663793704c66d5494cba0998850a5"
+    },
+    {
+      "commit": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+      "tree": "f10a8cfea1681a1b613e9e1dc431875e8e38980e",
+      "parents": [
+        "d4061a93d94d4add6295f9e5b20b020efa124ea2"
+      ],
+      "subject": "fix(e02): preserve historical bulk abort messages",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+      ],
+      "source_paths": [
+        "policy-engine/src/polisyos/core/artifacts/_signature_ops.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/782e9d3cedf7.json",
+      "receipt_sha256": "7f1ac6c3d50b182ae1090d3de8ccb896311d211eb116444b04903fba8505bac7"
+    },
+    {
+      "commit": "e0462740b468781975ee385922ab0cea18a5d4f6",
+      "tree": "d497c580fb7899e9cb6887e4a3cbac92d222fa39",
+      "parents": [
+        "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55"
+      ],
+      "subject": "test(e02): isolate shared runtime workload fixtures and close failed setups",
+      "role": "source_leaf",
+      "changed_path_count": 5,
+      "source_path_count": 3,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/_helpers/runtime_http.py",
+        "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/_helpers/runtime_http.py",
+        "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/e0462740b468.json",
+      "receipt_sha256": "6d4517732877c72817f92a69ea5a3177e07fff709790f603ed35ffd122595a0d"
+    },
+    {
+      "commit": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+      "parents": [
+        "e0462740b468781975ee385922ab0cea18a5d4f6"
+      ],
+      "subject": "test(e02): use valid schema and contract identifiers in native accessor coverage",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b7709a52da57.json",
+      "receipt_sha256": "14c8c16d8f1300860ff3972afe73632a49df637565381005b9509136372a36d4"
+    },
+    {
+      "commit": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+      "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+      "parents": [
+        "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+      ],
+      "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/remediation/test_scm_03.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/unit/remediation/test_scm_03.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d2926941e0f2.json",
+      "receipt_sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea"
+    },
+    {
+      "commit": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+      "tree": "016ddafe6835cdd87d78b3191a39f179ac8f5cd3",
+      "parents": [
+        "d2926941e0f20e15f66e064142fbc4e2787ca9e7"
+      ],
+      "subject": "test(e02): reuse shared runtime fixture graph and publish client lifetime",
+      "role": "source_leaf",
+      "changed_path_count": 5,
+      "source_path_count": 3,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/_helpers/runtime_http.py",
+        "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/_helpers/runtime_http.py",
+        "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a7ef7eb9cee4.json",
+      "receipt_sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540"
+    },
+    {
+      "commit": "b26e96f51adb532dd7969a33b672362f157c8714",
+      "tree": "33705ec588cbd5d2716ac5a905944ff4d5bf8626",
+      "parents": [
+        "a7ef7eb9cee4e95daeddddd021c853852f95bc20"
+      ],
+      "subject": "fix(e02): bind module subtype source capture with explicit opaque state",
+      "role": "source_leaf",
+      "changed_path_count": 4,
+      "source_path_count": 2,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py"
+      ],
+      "source_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b26e96f51adb.json",
+      "receipt_sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092"
+    },
+    {
+      "commit": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+      "tree": "3032419a1ef9a01623c4083b5e1d74e59665bf78",
+      "parents": [
+        "b26e96f51adb532dd7969a33b672362f157c8714"
+      ],
+      "subject": "test(e02): exercise real federation tie ordering and bounded detail liveness",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/remediation/test_fed_02.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/unit/remediation/test_fed_02.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/a414aa45691e.json",
+      "receipt_sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a"
+    },
+    {
+      "commit": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+      "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+      "parents": [
+        "a414aa45691ec29bc268e2547b7379ebaa6f4d68"
+      ],
+      "subject": "fix(e02): bind resolved scholar targets to actual HTTP connections",
+      "role": "source_leaf",
+      "changed_path_count": 11,
+      "source_path_count": 9,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-19-scholar-resolved-fetch-target-binding.toml",
+        "policy-engine/src/polisyos/scholar/README.md",
+        "policy-engine/src/polisyos/scholar/discover/README.md",
+        "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+        "policy-engine/src/polisyos/scholar/discover/transport.py",
+        "policy-engine/src/polisyos/scholar/search/fetcher.py",
+        "policy-engine/src/polisyos/scholar/search/security.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py"
+      ],
+      "source_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-scholar-resolved-fetch-target-binding.toml",
+        "policy-engine/src/polisyos/scholar/README.md",
+        "policy-engine/src/polisyos/scholar/discover/README.md",
+        "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+        "policy-engine/src/polisyos/scholar/discover/transport.py",
+        "policy-engine/src/polisyos/scholar/search/fetcher.py",
+        "policy-engine/src/polisyos/scholar/search/security.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+        "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/b76b4d016738.json",
+      "receipt_sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f"
+    },
+    {
+      "commit": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+      "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+      "parents": [
+        "b76b4d016738e2d71f518fe6fca0bf183137e406"
+      ],
+      "subject": "fix(e02): compose epoch producers and consumers through Core read contract",
+      "role": "source_leaf",
+      "changed_path_count": 21,
+      "source_path_count": 19,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-19-semantic-epoch-owner-reader-profile-contract.toml",
+        "policy-engine/src/polisyos/core/contracts/README.md",
+        "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "policy-engine/src/polisyos/runtime/quality/README.md",
+        "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+        "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py"
+      ],
+      "source_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-19-semantic-epoch-owner-reader-profile-contract.toml",
+        "policy-engine/src/polisyos/core/contracts/README.md",
+        "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "policy-engine/src/polisyos/runtime/quality/README.md",
+        "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+        "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+        "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/d59be5b90ac6.json",
+      "receipt_sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921"
+    },
+    {
+      "commit": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+      "tree": "f9fa889de88088b1797d51b17496bff6810885df",
+      "parents": [
+        "d59be5b90ac6e89f4f5cb5baff80b33694ec6458"
+      ],
+      "subject": "test(e02): compare semantic epoch input edges in manifest list representation",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/7c16fc46ff8e.json",
+      "receipt_sha256": "27707d2546aee648fc3fb71d684cdbf12462db6b95332452b27d160da39dae1e"
+    },
+    {
+      "commit": "42e0cf2f00791cf77c284fd1f91f490337614224",
+      "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+      "parents": [
+        "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+      ],
+      "subject": "test(e02): verify selected source cache survives unrelated input changes",
+      "role": "source_leaf",
+      "changed_path_count": 3,
+      "source_path_count": 1,
+      "metadata_path_count": 2,
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+      ],
+      "source_paths": [
+        "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+      ],
+      "metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      ],
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/source-leaves/42e0cf2f0079.json",
+      "receipt_sha256": "59a2876c60a30f947b5cec7ff65ca55845e2e243fd9e3a53d5fa5abb8727b849"
+    }
+  ],
+  "metadata_only_commit_postimages": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "status": "M",
+      "base": {
+        "git_blob_oid": "9d2073f9cc4923e08a5271ec20303041db117523",
+        "sha256": "96ae16b25316d2ff24a995dc50101b1165970d0430eff74015c29b1da63028a2",
+        "bytes": 111215
+      },
+      "postimage": {
+        "git_blob_oid": "75e4eebbce3fc4c8479b5df26d8b157b5e24550f",
+        "sha256": "d7347358beaa06218666a543f3dccea7d7c52531f3f1af6cc1a38ff43a020374",
+        "bytes": 139406
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-generated-adoption-e9db2006.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "f0755e3e146b7e419b2d055c2d07d283bb6ada40",
+        "sha256": "bcf55d05f716bc16430f8becf041d258d69094e425587cea70f992ec27b31b0a",
+        "bytes": 23449
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-abi-output-registry-89fe2421.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "60be0dca90aed8c2cbf4874240ab2c1e837e7a97",
+        "sha256": "ad163fa3aa63fdd0c0fa2f11c5865e01ab411cd957124b7aba47bc4e3217d760",
+        "bytes": 3304
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-profile-composition-ef8b1f9a.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "5d380238bddf6a1a0e5b9a2a4adcbf1dc2f53583",
+        "sha256": "a9be06c74bd6ae281e392d794ee02d534f2e29e90bfaa5aab4ab37b89aeaaea9",
+        "bytes": 27449
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-can-test-companions-47999cbb.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "b309d165dcfb40e2933623b35808c009899b310d",
+        "sha256": "7495c0e30075cbfb03c5985a593612598403a432f6551b963831d126458b1dc8",
+        "bytes": 14555
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-compare-math-inputs-e0671f33.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "f176e93b8e4c812cb0770a54c895a97016b4157a",
+        "sha256": "aaacaf26156829754920bdad3416aad6e993b1d9c20fe460f148721a2b52d5c0",
+        "bytes": 3385
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-fixture-composition-f1b9bb4c.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "d08db68276d9c69d66bd07bee8b7553c2b9a7059",
+        "sha256": "068ce509a5da8995589607758514fe84b5b16d72c4625c6ce847f352743e9f54",
+        "bytes": 19299
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-lineage-fixture-composition-73260b3d.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "3e74ca00011e591272e6e4e1624cc5eef6c7e23e",
+        "sha256": "3f00c7ef49bf6f102dd4315a398d5009200f7124e549e74d8759204af5ff04a0",
+        "bytes": 4289
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-frontend-profile-lineage-whole-fixture-r3-ac42e495.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "1c069c5ce8704098254582bf62cb9955d31e745e",
+        "sha256": "fc4d0412723cd7427f83c8f45dc5c54cdb5e16e70d7f8e851a11601e18c9c811",
+        "bytes": 13942
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-native-mypy-specific-module-retirement-362955d8.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "03ce657b4869f61100cb04cc335fcabfc374fbc5",
+        "sha256": "dac01c53c1144da00801de460cbb1d46a30bc929af48465abb20475a2fcdb414",
+        "bytes": 13911
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-phase10-lineage-43-source-admission-feccd0cd.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "8015dcbaae703f6f1511ebb30c9b146c99d1ec9d",
+        "sha256": "88208f1386774864f9e78a3cdfecbdb0f1c4950f1af0984419244492abb4f616",
+        "bytes": 44883
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-real-async-branch-controls-3a02d5da.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "04ec1014e54f0801c19d4dac074439712e39ca30",
+        "sha256": "62825132ef96ddd761c7b05f3a7b919b613e3c754310baaf7426d872b7a0eff7",
+        "bytes": 12551
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-prepared-b-removal-controls-06af9e44.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "a6bf9937da3533d09b57ede406a59b53a9212e68",
+        "sha256": "0ec4607ef8d953ddebc84cc38b8049374c04da73dedf57079ccea42b91103d8a",
+        "bytes": 12716
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-quantity-lineage-consumers-1eb035af.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "5cd6804d953fe1dbc805029f7776be64ca14753b",
+        "sha256": "28c61abe7092552d598441c21f1dacfb1c44cc8329f4caf012f151c976506655",
+        "bytes": 4598
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-r3-r4-tests-e3985584.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "0db607a9640ea2c510440985157da2fb86c3b562",
+        "sha256": "f2b85e38510118da8298b2867a43f66656446b2da1e4ba9a1b8dd6d02bdd7ff2",
+        "bytes": 12232
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-read-only-cas-consumer-2ad2ed93.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "424a62212b48262447ec3ffe2c3fbd8bdbad587d",
+        "sha256": "f561d2557e828b0db16eeaeeec9ff38eddab980dee163e9361ecd25e24506bdb",
+        "bytes": 3913
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-remote-branch-readback-3a02d5da-20261019.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "489cf27106ac42c9cb153ec5a39b6d19a2d71d73",
+        "sha256": "2d50b972dc26ada593b8b9189473d5820b01c3d9f05b2616d66a3f64db503771",
+        "bytes": 1542
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-search-frozen-init-293afe93.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "48b21e324f8a1ef98f534af77b5cdd026f6adab1",
+        "sha256": "82bd1cedb30641d42c548e0f871ce9f2da9f6b6808fb6c6bb96266a1728d632c",
+        "bytes": 3253
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-selected-graph-witness-507108e6.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "e03fe375d5fbf1dc3b19df03151c6412ae5a7682",
+        "sha256": "f20cb4b0c68d20ede869cee2e9b79a83f1aa4d309e1695fa45594841d23ca6f0",
+        "bytes": 3439
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-tcp-root-topology-e73a8369.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "c45d68758adfd0a0efb23aa3fd3b549d7bb2bfe3",
+        "sha256": "cc8bf9f04a7b2652184ec707ee6df9a17363e8bfe028e288644bcb853b42f1ba",
+        "bytes": 14741
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-verification-delta-e73-e9db-r3-r4-20261019.json",
+      "status": "A",
+      "base": null,
+      "postimage": {
+        "git_blob_oid": "f5330442d6920733d814365ee42942843bba632a",
+        "sha256": "1534e2bf0c4e5897cea8dcdf824e0388e10c5b0c92543b226b49a676af93c92a",
+        "bytes": 16577
+      }
+    }
+  ],
+  "dirty_worktree_note": "At 42e readback, the delivery index is clean; two known tracked author test modifications remain preserved unchanged and 5416 pre-existing untracked paths remain. No whole-worktree-clean or source-freeze claim.",
+  "denominator_note": "No 282-ID/291-occurrence denominator recomputation and no ID outcome updates.",
+  "G_acceptance": false,
+  "closure_ids": []
+}

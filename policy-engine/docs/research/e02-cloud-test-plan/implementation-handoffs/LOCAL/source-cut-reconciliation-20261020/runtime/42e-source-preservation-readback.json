@@ -1,0 +1,61 @@
+{
+  "request": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/commit-request-preservation-r2.json",
+    "sha256": "8cc55a6345bdceaf96d6a9c5ca30f0c1956b5d4d0142570c8c6bbde578476829"
+  },
+  "source_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/plan.json",
+    "sha256": "ab15bd3e03a50fd7ff5116fcc8c478380c1fec017373b3de5fe788c9a4ce6722"
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/source-application.json",
+    "sha256": "2e53021d186bb3b204c4d1bc29cf94d34614a9c5c51b9579cc71e9f1ad196e84"
+  },
+  "posthoc_preservation_snapshot": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+    "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+  },
+  "slice_base": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+  "candidate": "42e0cf2f00791cf77c284fd1f91f490337614224",
+  "tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+  "parents": [
+    "7c16fc46ff8e2c739042bb17eb985d6f8099cb20"
+  ],
+  "commit_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+  ],
+  "staged_and_diff_tree_paths_exact": true,
+  "preserved_other_owned_rows": {
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+  },
+  "preserved_other_owned_hashes_unchanged": true,
+  "tracked_dirty_after_commit": [
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "untracked_before_count": 5416,
+  "untracked_after_count": 5416,
+  "native_commit": {
+    "exit_code": 0,
+    "seconds": 2.1659255838021636,
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/native-commit.stdout.txt",
+      "sha256": "5f21f3697fffe7eed500c66ed70555317163d703bdd19874daf55fe1f3a23a9a"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-unconsumed-source-witness-adoption-20261020/native-commit.stderr.txt",
+      "sha256": "724fef59913e1246a82a57d5c0562c0179e2e851777d11e1a56f2557e0db0e01"
+    }
+  },
+  "violations": [],
+  "whole_worktree_clean_claim": false,
+  "index_clean": true,
+  "untracked_state": "Visible untracked path set compared before/after; no whole-worktree cleanliness claimed.",
+  "source_freeze": false,
+  "G_acceptance": false,
+  "integration_publication": false,
+  "closure_ids": []
+}

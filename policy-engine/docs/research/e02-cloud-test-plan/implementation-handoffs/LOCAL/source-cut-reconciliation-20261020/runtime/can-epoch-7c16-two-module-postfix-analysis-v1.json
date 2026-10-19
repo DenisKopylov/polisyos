@@ -1,0 +1,159 @@
+{
+  "schema": "policyos.can.two_module_postfix_runtime_analysis.v1",
+  "decision": "PASS_TWO_MODULE_POSTFIX_SLICE",
+  "authorization": "Single whole-module two-file replay granted by root; no runtime/test rerun included.",
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "tree": "f9fa889de88088b1797d51b17496bff6810885df",
+    "head_after": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "tree_after": "f9fa889de88088b1797d51b17496bff6810885df",
+    "unchanged": true
+  },
+  "preservation": {
+    "tracked_status_before": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tracked_status_after": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tracked_status_unchanged": true,
+    "index_empty_before": true,
+    "index_empty_after": true,
+    "source_pin_count": 3321,
+    "source_pins_unchanged": true,
+    "source_pin_mismatches": [],
+    "known_dirty_paths_unchanged": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": true,
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": true
+    }
+  },
+  "runtime": {
+    "command_result": {
+      "status": "passed",
+      "complete": true,
+      "return_code": 0,
+      "started_at": "2026-10-19T21:30:57.298675+00:00",
+      "finished_at": "2026-10-19T21:31:19.397834+00:00",
+      "wall_seconds": 22.099082375178114,
+      "max_sampled_process_tree_rss_bytes": 991232000,
+      "minimum_sampled_disk_free_bytes": 19162898432,
+      "process_group_gone": true,
+      "sample_count": 41
+    },
+    "limits": {
+      "disk_floor_bytes": 1073741824,
+      "numeric_threads": 1,
+      "rss_bytes": 3221225472,
+      "sample_seconds": 0.5,
+      "wall_seconds": 180,
+      "workers": 1
+    },
+    "junit": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 11,
+      "skipped": 0,
+      "tests": 11
+    },
+    "expected_modules": [
+      "tests/unit/runtime/quality/test_epoch_transition_origin.py",
+      "tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+    ],
+    "actual_collected_modules": [
+      "tests/unit/runtime/quality/test_epoch_transition_origin.py",
+      "tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+    ],
+    "exact_module_set": true,
+    "collected_equals_executed": true,
+    "junit_count_equals_collection": true,
+    "no_deselected_nodeids": true,
+    "selection_validation": {
+      "pytest_args_parsed_after_python_module_entry": true,
+      "explicit_pytest_selection_switches": [],
+      "effective_r8_selection_options": {
+        "collectonly": false,
+        "deselect": null,
+        "ignore": null,
+        "ignore_glob": null,
+        "keyword": "",
+        "markexpr": "",
+        "pyargs": false
+      },
+      "effective_selection_filters": {},
+      "no_selector_flags_or_effective_filters": true
+    },
+    "test_output_warning": "joblib could not create a worker under the sandbox and continued in serial mode; requested numeric cap was 1."
+  },
+  "origin_audit": {
+    "captured_module_count": 1371,
+    "all_file_origins_match_pinned_checkout": true,
+    "requested_module_count": 13,
+    "requested_loaded_count": 10,
+    "requested_but_not_loaded": [
+      "polisyos.runtime.quality.epoch_certificate_issuance",
+      "polisyos.runtime.quality.epoch_transition_inputs",
+      "polisyos.runtime.quality.semantic_epoch_qualification"
+    ],
+    "interpretation": "The two test modules passed, but the three listed modules were not imported by this slice and are not qualified by it."
+  },
+  "artifact_pins": {
+    "run_can_epoch_two_modules.py": {
+      "bytes": 15525,
+      "sha256": "6e2d920d2a3efb185be65c4779f9e37b126c7ad9967f8667df8c287fb651620b"
+    },
+    "request.json": {
+      "bytes": 631353,
+      "sha256": "35109f654aaa10d4566ac166143f9a360cd6c7c6c08b8477e170e90c9eb52751"
+    },
+    "source-before.json": {
+      "bytes": 620309,
+      "sha256": "0a2a368d276d99728b33b8bf03c002c8b46407becc62937909a22217c429c200"
+    },
+    "environment.json": {
+      "bytes": 3693,
+      "sha256": "c36708a4f2bb374483f62df2a389e146af9b4436751c2002a3b095a6fdf76e7a"
+    },
+    "launch.json": {
+      "bytes": 836,
+      "sha256": "7f206ea44e3a335966f8016fd4de726e64a39b19e6fec36255db2aa667b21c28"
+    },
+    "sandbox.sb": {
+      "bytes": 1039,
+      "sha256": "6f01f5a78df7944c01b9e90fa2ba5c181875a5bc2eefc63caf833ad47f8af0c9"
+    },
+    "actual-run/controller-events.jsonl": {
+      "bytes": 1831,
+      "sha256": "fe3c60f74127f023766d0c69c4f544cec673bf22c454b91000815ee78adedc2b"
+    },
+    "actual-run/phase-output.jsonl": {
+      "bytes": 1766,
+      "sha256": "b6975764230521d2557ff3053fe80102f37347078e382169c426f3e83496c47c"
+    },
+    "actual-run/process-tree.jsonl": {
+      "bytes": 61003,
+      "sha256": "4d4e47557cec49f1a206819ccccbcc670f9c003eed3b7e36d89c4639d33e3116"
+    },
+    "actual-run/pytest.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "actual-run/pytest.stdout.txt": {
+      "bytes": 622,
+      "sha256": "7b1c764d5a378c04435e8b681f3a7053509b2c8104230ac95a60402fdf21f785"
+    },
+    "actual-run/pytest.xml": {
+      "bytes": 2167,
+      "sha256": "97b398ee389a9de96d7764dbfc2d93034958461e214de5ee35f935210123644f"
+    },
+    "actual-run/result.json": {
+      "bytes": 415349,
+      "sha256": "8d4fe8ca33c754105787fca99ba3ee7585e4188d365287238f131f040507654f"
+    },
+    "actual-run/runtime-module-origins.json": {
+      "bytes": 1329303,
+      "sha256": "89afb3f1d4bbca05f384a9477e6c2b426342626f890c128bcee848b5b4143faf"
+    }
+  },
+  "scope_limitations": [
+    "This is actual runtime evidence for the two named whole test modules only.",
+    "It does not qualify the broader CAN module union or establish G acceptance or formal closure.",
+    "Three requested runtime modules were not imported; their origin was captured as absent, not inferred."
+  ]
+}

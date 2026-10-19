@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt_bundle.v1",
+  "bundle_role": "RAW-only append-only source receipt assembly for five delivered implementation leaves; not canonical adoption, runtime qualification, G acceptance, integration publication, or closure",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ae14dac03b54346f53b9a4fd214405174856b888",
+    "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+    "tracked_and_index_status": "clean at receipt creation (tracked/index only)",
+    "untracked_state": "present and not inventoried; no whole-worktree-clean assertion"
+  },
+  "counts": {
+    "slices": 5,
+    "changed_path_occurrences": 42,
+    "source_path_occurrences": 32,
+    "metadata_companion_occurrences": 10,
+    "unique_changed_paths": 33
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "historical_denominator_context": {
+    "occurrences": 291,
+    "unique_finding_ids": 282,
+    "historical_ledger_closed_occurrences": 9,
+    "author_proposed_closed_finding_ids": 198,
+    "author_proposed_closed_occurrences": 202,
+    "formal_G_closure_ids": [],
+    "B198": "historical decision retained; no current formal adjudication",
+    "current_source_occurrence_reconciliation": "not_established",
+    "instruction": "Preserve historical counts and decisions; this addendum contributes source commits only and must not append findings, occurrences, or closures."
+  },
+  "index_append_plan": {
+    "file": "index-append-plan-r3.json",
+    "sha256": "20702da854000bd478e9dcc0c44959c13bb5a2c5cc1e8f013c4529656daef3c0"
+  },
+  "receipts": [
+    {
+      "file": "receipt-can-origin-profile-53841a0e.json",
+      "sha256": "82ddafd3df3fdc6b471033e82db55dc9bb26cee51f4e4cc610a9d01ae621a1f3",
+      "candidate": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+      "tree": "05278104dfe6299e65deb1b2e15a2a2dcc9799bd",
+      "parent": "c2c383dd0b269cd4890a7b0415f14f2d3e270084",
+      "changed_paths": 14,
+      "source_paths": 12,
+      "metadata_paths": 2,
+      "work_item": "can-origin-explicit-mode-and-profiled-owner-outputs"
+    },
+    {
+      "file": "receipt-can-cas-test-fixture-be967823.json",
+      "sha256": "d7d467ffb6a8e67bf793abeba185a84a252115efb5d2eb30f09860d4cbd7ada5",
+      "candidate": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+      "tree": "7a1a3f081de5b208850c2ac85f27cf70e8fb877e",
+      "parent": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+      "changed_paths": 3,
+      "source_paths": 1,
+      "metadata_paths": 2,
+      "work_item": "can21-collection-runtime-cas-test-companion"
+    },
+    {
+      "file": "receipt-b154-executor-completion-fe7817ff.json",
+      "sha256": "0b13e4cfe1dc08008f7241e6b317a960b2a94a3a5f1eba3e9010272913c3f1a1",
+      "candidate": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+      "tree": "79535f438bcf4ac4a9859b492f1c0c6a96ba9b95",
+      "parent": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+      "changed_paths": 8,
+      "source_paths": 6,
+      "metadata_paths": 2,
+      "work_item": "b154-bounded-executor-completion-and-retained-results"
+    },
+    {
+      "file": "receipt-v7-n4-projection-791b9c339.json",
+      "sha256": "b7e3e0bd15b0c1489b83827b47bb0882916bdd846b5f56783bc9b879995f9305",
+      "candidate": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+      "tree": "7695f8c1120d9fbe2d2f4e3c48aa07c18f1b1013",
+      "parent": "fe7817ff30e42b7a7659db8abf33f55bef40c047",
+      "changed_paths": 14,
+      "source_paths": 12,
+      "metadata_paths": 2,
+      "work_item": "v7-n4-full-s10-owner-projection-r4-20261019-r2"
+    },
+    {
+      "file": "receipt-abi-generated-doc-ae14dac0.json",
+      "sha256": "a14b7441a70ba23efd90766c1c714a337ce9e7c629ed6b65c20bd2fc9e1592b5",
+      "candidate": "ae14dac03b54346f53b9a4fd214405174856b888",
+      "tree": "25156f2e0eb5ad3c902a9342a3e3634d4f1b2535",
+      "parent": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+      "changed_paths": 3,
+      "source_paths": 1,
+      "metadata_paths": 2,
+      "work_item": "abi-generated-index-owner-output-companion"
+    }
+  ]
+}

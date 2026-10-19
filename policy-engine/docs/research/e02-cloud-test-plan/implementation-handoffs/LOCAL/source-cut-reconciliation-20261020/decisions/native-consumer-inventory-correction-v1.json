@@ -1,0 +1,108 @@
+{
+  "schema": "policyos.e02.native_typing_consumer_inventory_correction.v1",
+  "kind": "immutable_inventory_correction_overlay",
+  "status": "PINNED CLASS-HIERARCHY AND EXACT-NAME-HIT INVENTORY; FULL TYPED-CONSUMER CLOSURE NOT_ESTABLISHED",
+  "source_frame": {
+    "commit": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "branch": "codex/e02-unified-local-20261009",
+    "meaning": "historical analysis frame; not asserted as current HEAD"
+  },
+  "source_inventory": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r3/consumer-inventory-v2.json",
+    "sha256": "d2812c72d050c2a51a36c365d326db59cdb28da70f4511e5ad0ee401998878e7"
+  },
+  "source_decision": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r3/api-conflict-g-decision-v2.json",
+    "sha256": "4d38522d0cb7628e3254fdadb2c060b7154e280605dc63f267b259042d6b12b4"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-g-packet-independent-review-20261020-r1/review-v1.md",
+    "sha256": "0e4ee5419e2753e75d544366f5b27b5f4f609724e9e40d4967d522c5344ceeb3"
+  },
+  "alias_supplement": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-typing-consumer-census-20261019-r4/module-alias-followup-v1.json",
+    "sha256": "9d50c83d4b05ae1a454b4ed96de74b42af19f5f016469995bd4c571f6ec1de7c"
+  },
+  "correction": {
+    "old_path": "ir_artifact_ref_family.exact_family_consumer_files",
+    "old_value": 367,
+    "corrected_path": "ir_artifact_ref_family.exact_family_name_hit_files",
+    "corrected_value": 367,
+    "file_type_breakdown": {
+      ".json": 26,
+      ".py": 338,
+      ".ts": 3
+    },
+    "derivation": "Count each row once from the complete pinned file_inventory list when its line_refs keys intersect ir_artifact_ref_family.family_names. No source-tree rescan or new census framework was run.",
+    "meaning": "Tracked file rows containing exact family-name line references. This includes JSON API/schema snapshots and architecture inventories; an exact text occurrence, including a Python row, is not by itself a proven runtime or typed consumer.",
+    "not_a_meaning": "Not a caller count, not a Mapping consumer denominator, and not evidence of complete internal or external compatibility."
+  },
+  "retained_counts": {
+    "ir_family_types": 135,
+    "registry_declarations": 118,
+    "external_direct_descendants": {
+      "production": 16,
+      "test_only": 1
+    },
+    "all_file_inventory_exact_symbol_name_hit_paths": 404,
+    "all_file_inventory_file_type_breakdown": {
+      ".json": 28,
+      ".py": 373,
+      ".ts": 3
+    },
+    "fabric_typed_instance_schema_reads": 28,
+    "fabric_constructor_call_counts": {
+      "ConnectorSchemaContract": 28,
+      "InferenceResult": 2,
+      "SchemaRegistration": 1
+    },
+    "generic_mapping_candidate_denominator": {
+      "files_intersecting_exact_type_hits": 203,
+      "interpretation": "Mapping is a widespread generic type; this count is a candidate denominator, not proof that every Mapping function receives ArtifactRefModel.",
+      "literal_Mapping_line_matches": 16921,
+      "scope": "src/tests/tools",
+      "unique_files": 1098
+    },
+    "normalizer_call_locations": {
+      "count": 66,
+      "classification": "Includes opaque arguments; does not prove every call receives ArtifactRefModel."
+    }
+  },
+  "closure_limits": {
+    "typed_ir_flows": "A complete typed Mapping-consumer set is not_established. Existing inventory records exact names and selected import, annotation, constructor, normalizer, runtime-protocol, and test evidence; it does not resolve all generic Mapping flows.",
+    "generic_mapping_candidates": "Candidate only. Do not label the 1,098 broad Mapping files or 203 overlapping files as ArtifactRefModel consumers.",
+    "external_private_reflection": "not_established.",
+    "fabric": "The 28 typed .schema reads are a separately resolved internal read set in the pinned inventory; they do not establish external/private caller coverage."
+  },
+  "superseded_claims": [
+    {
+      "artifact": "r3 inventory",
+      "fields": [
+        "kind",
+        "status",
+        "ir_artifact_ref_family.exact_family_consumer_files"
+      ],
+      "correction": "Use class-hierarchy/exact-name-hit inventory semantics and exact_family_name_hit_files. Full typed consumer closure is not_established."
+    },
+    {
+      "artifact": "r3 decision v2",
+      "fields": [
+        "consumer_inventory.status",
+        "observed_diagnostics.consumer_inventory_status",
+        "program_surface_and_effect.ir.consumer_boundary"
+      ],
+      "correction": "Do not present the 367 mixed-type name-hit rows as a complete consumer denominator."
+    },
+    {
+      "artifact": "r4 alias supplement",
+      "field": "impact_on_decision.ir",
+      "correction": "Replace “367 exact-family consumer files” with “367 exact-family-name-hit files”; complete typed Mapping caller set remains not_established."
+    }
+  ],
+  "native_gate_scope": {
+    "historical_diagnostics": "Four no-ignore MyPy override diagnostics were observed on the earlier ae14 scope; retain their original outputs and denominator.",
+    "b770_replay": "Full no-ignore MyPy at b770 remains UNRUN. Do not call it current green or four fresh current FAILs.",
+    "waiver": "No new exception, issuer, expiry, or waiver is proposed."
+  }
+}

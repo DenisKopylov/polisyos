@@ -1,0 +1,232 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact implementation leaf; source proposal for later tracked composition, not self-acceptance, runtime qualification, G acceptance, or formal closure",
+  "slice": {
+    "id": "b224-synthetic-scm-reorder",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "base_tree": "aade34278065576f738ddf352b6560ab4fa70bb8",
+    "candidate": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+    "parents": [
+      "b7709a52da573ca618ed6aef8a0c72923ee4f3b1"
+    ],
+    "subject": "test(e02): bind manual SCM fixtures and verify reordered draw invariance",
+    "committed_at": "2026-10-19T23:50:05+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "tracked_and_index_status": "index clean; two known tracked test edits remain outside these commits and their byte hashes are verified unchanged",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true,
+    "preserved_tracked_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "identity": {
+    "work_item": "b224-truthful-manual-scm-fixture-and-reordered-draw-witness",
+    "lease_key": "b224-truthful-scm-fixture-and-reordered-draw-witness-20261019",
+    "proposal_ids": [],
+    "proposal_status": "not mapped/adjudicated by this source receipt; requires separate original-occurrence G proposal mapping",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime_status": "PENDING in the composed current-source replay; this leaf does not promote pre-adoption or native-hook results to canonical runtime green",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "The public ideal-intervention query is exercised with truthful manual SCM mechanisms and must preserve node-labelled stochastic draws when active sibling order changes; replacing its stream discipline while preserving markers must falsify the witness.",
+  "bounded_pre_adoption_evidence": {
+    "summary": "B220 canonical21 cases PASS atb770; B224 raw postimage wholemodule11PASS plus3public surgery cases PASS. Independent review GO to source test adoption/replay. Canonical priorB224 fixture fails before query under SCM1.2; handcrafted mechanisms are manual/default, not selected source-bound GCM fits.",
+    "provenance": "verbatim source-plan summary; this leaf does not independently rerun or extend those candidate results",
+    "current_cut_replay": "PENDING"
+  },
+  "P40": "Same SCM semantic-verification class deepened to active-sibling reorder after correcting the synthetic fixture contract; one generalized real-query positive/removal control, no production guard or selected-backend substitution.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay and full denominator with zero-intersection proof is asserted here."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "metadata_companion_path_occurrences_repeat_across_slices": true,
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "A": 0,
+      "M": 3,
+      "D": 0
+    },
+    "preimage_bytes_total": 1896278,
+    "postimage_bytes_total": 1905914,
+    "bytes_delta": 9636,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "basis": "Every source-scope pre/post SHA-256 in the pinned source-application record matches the exact Git parent/current blob."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "63cf7f7ba572c53a476e1fa7757067a5d2322153",
+          "sha256": "5a3c578bf97ea1a5ed840fc7f56ba3ff1e68ef875728a00aa8d85a08d7294c57",
+          "bytes": 1745173
+        },
+        "post": {
+          "git_blob_oid": "ad361d8e2919554d6aa5122192223569c48a6533",
+          "sha256": "5012ca968359dacef7a33b61e0508766681f026ccdcc003097d9b00ce1222f0d",
+          "bytes": 1752095
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "2044bb69adf40720f319ae1267683f19b7cb4ee2",
+          "sha256": "480be21559fbb8c5fbea76d149d78c4681fdb1bbf35e16e177bcf6901ad66715",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "1bcec0355a5d6dcb1877f725fe67069adb2468eb",
+          "sha256": "11c2de6a6871b2a3c5d4e2019cff1a9116fc3d97fac253c7b8b81cd546fea823",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_scm_03.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "e46f6dac2a0643b485ed2f6dc4c09724a13bd793",
+          "sha256": "89705540b417ac45c780a7c57478139eaa2c0f59ba9dcb37a1f671afbdb0c6a8",
+          "bytes": 11699
+        },
+        "post": {
+          "git_blob_oid": "601fe8da672b69e6d5f76552750ebfe31c1c95cd",
+          "sha256": "d2b00eca3bbcd0c99d431ebc7ed4bc53938583b95be3f6d0ccdeb13c9763abc4",
+          "bytes": 14413
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/plan.json",
+      "sha256": "cb37857a8d27cde66dc5166ec34d850861c3850238616d9f6ff93b7efea5d72b",
+      "bytes": 6963
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/source-application.json",
+      "sha256": "6e718c3af0f5b82653eea9aa0e47dea36dd70e2b9e9d367f6522adb3689696c5",
+      "bytes": 9320
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/commit-request-preservation-r2.json",
+      "sha256": "0e13458afc70d7be112c3d2dc61c368bbf0b814a87a4549eddbd6b7739beb92b",
+      "bytes": 5680
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/implementation-readback-preservation-r2.json",
+      "sha256": "ef2cee373866ac2d98f13074208e7213a13fab78f118ebea91177b7b5db3a560",
+      "bytes": 3419
+    },
+    "posthoc_preservation_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276",
+      "bytes": 1833
+    },
+    "native_commit": {
+      "exit_code": 0,
+      "seconds": 2.3388055828399956,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/native-commit.stdout.txt",
+        "sha256": "28ef3afc9b35ed158df0b6528807e5f7691fac1dbf182df70dd64fc60ec6c5fc",
+        "bytes": 170
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/native-commit.stderr.txt",
+        "sha256": "c3933cd3301069bffc9c90c280d0dbea34a50faa691515cfe5977b933bcf3e7d",
+        "bytes": 653
+      }
+    },
+    "source_checks": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/remediation/test_scm_03.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.043352833949029446,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/remediation/test_scm_03.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03786000004038215,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/format-native-role-0.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "reviewed_input_refs": "retained in the pinned source plan/application; not copied into this leaf"
+  },
+  "limits": [
+    "Postimage behavior is bounded prototype evidence; adopted canonical wholemodule needs replay.",
+    "Selected source-bound GCM query is Darwin SKIP and still needs supported Linux/Python3.12 DoWhy worker.",
+    "B220 content-key LRU collects source object but retains immutable content until bounded eviction; F-M9/G adjudication remains distinct from immediate per-object entry deletion.",
+    "No formal closure, calibration, production currentness, or G acceptance.",
+    "Two known-owned incomplete N7/B108 test edits remain unchanged outside this commit, with explicit post-hoc preservation provenance. No whole-worktree cleanliness or semantic acceptance of those edits is claimed."
+  ],
+  "next_check": "Replay canonical entire SCM03 module on committed source with current origins and native config; include B220 exact selectors and selected Linux GCM route in final composed/four-base coverage.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

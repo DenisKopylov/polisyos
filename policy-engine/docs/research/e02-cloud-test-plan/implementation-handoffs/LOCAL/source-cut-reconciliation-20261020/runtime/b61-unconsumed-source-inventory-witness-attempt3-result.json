@@ -1,0 +1,961 @@
+{
+  "interpretation": {
+    "G_acceptance": false,
+    "formal_closure": false,
+    "mutant_expected": "one expected failure after adding params.study_source_inventory to actual resolver NodeSpec state_reads, with real markers and consumer path intact.",
+    "normal_expected": "one passing test proves selected A was consumed by the real resolver, B-only source mutation+inventory update preserved real CAS hit and B state, and consumed A mutation missed/recomputed."
+  },
+  "pair_wall_elapsed_seconds": 30.012277208035812,
+  "request_sha256": "7ca1b53d5ef6d376e735eb0f986039066e5591927da7caacf83df001cca3589f",
+  "resource_limits": {
+    "disk_floor_bytes": 1073741824,
+    "numeric_threads": 1,
+    "pair_wall_seconds": 60,
+    "rss_cap_bytes": 2147483648,
+    "workers": 1
+  },
+  "results": [
+    {
+      "capture": {
+        "collected_count": 1,
+        "collected_nodeids": [
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes"
+        ],
+        "executed_count": 1,
+        "executed_nodeids": [
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes"
+        ],
+        "exit_status": 0,
+        "inherited_pytest_addopts": null,
+        "inherited_pytest_disable_plugin_autoload": null,
+        "inherited_pytest_plugins": null,
+        "phase": "test",
+        "plugin_autoload_disabled_by_inherited_setting": false,
+        "plugin_autoload_setting_preserved": true,
+        "requested_runtime_module_origins": {
+          "polisyos.core.artifacts.store": {
+            "file_sha256": "3f5a8f2fac81c5fd20c483deed7c68209a4fcec3f39e7a04f6bde973ddef0d39",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py"
+          },
+          "polisyos.data_forge.domains.academic.knowledge.skg_query": {
+            "file_sha256": "6f3d0a755d0d4e750f0655f5b8fd021e579ac4cbf83dfafe45f00cee7cebfeba",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py"
+          },
+          "polisyos.scientist.nodes.builtins.causal.resolve_parameters": {
+            "file_sha256": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py"
+          },
+          "polisyos.scientist.orchestration.engine.executor": {
+            "file_sha256": "cfddeb423a8deccd412f480134368689c664565ae62eccf966fea95f7685f907",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py"
+          },
+          "polisyos.scientist.orchestration.engine.idempotency": {
+            "file_sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+          },
+          "polisyos.scientist.orchestration.engine.skg_snapshot": {
+            "file_sha256": "a012959277bda9fcbdc5c26c5994c809b6cc4eb53b7bf55f198ff2e1532a68f3",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py"
+          },
+          "polisyos.scientist.orchestration.engine.state": {
+            "file_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py"
+          }
+        },
+        "schema": "policyos.e02.current_composed_wave_pytest_provenance.r2",
+        "selection_capture": {
+          "config_api": "Config.inipath",
+          "config_error": null,
+          "config_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+          "config_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "config_value_type": "pathlib.PosixPath",
+          "environment": {
+            "E02_CAPTURE_PATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/runtime-module-origins.json",
+            "E02_CAPTURE_PHASE": "test",
+            "E02_ORIGIN_MODULES": "[\"polisyos.scientist.nodes.builtins.causal.resolve_parameters\", \"polisyos.scientist.orchestration.engine.executor\", \"polisyos.scientist.orchestration.engine.idempotency\", \"polisyos.scientist.orchestration.engine.state\", \"polisyos.scientist.orchestration.engine.skg_snapshot\", \"polisyos.data_forge.domains.academic.knowledge.skg_query\", \"polisyos.core.artifacts.store\"]",
+            "PYTEST_ADDOPTS": null,
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+            "PYTEST_PLUGINS": null,
+            "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-1:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+          },
+          "ini_errors": [],
+          "ini_values": {
+            "addopts": [
+              "-ra",
+              "-q",
+              "--import-mode=importlib",
+              "--strict-markers",
+              "--benchmark-storage=file://./_cache/benchmarks"
+            ],
+            "norecursedirs": [
+              "*.egg",
+              ".*",
+              "_darcs",
+              "build",
+              "CVS",
+              "dist",
+              "node_modules",
+              "venv",
+              "{arch}"
+            ],
+            "python_classes": [
+              "Test"
+            ],
+            "python_files": [
+              "test_*.py",
+              "*_test.py"
+            ],
+            "python_functions": [
+              "test"
+            ],
+            "testpaths": [
+              "tests"
+            ]
+          },
+          "invocation_args": [
+            "-p",
+            "e02_wave_capture_r8",
+            "-p",
+            "e02_b61_observer",
+            "-c",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest",
+            "-o",
+            "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/pytest-cache",
+            "-o",
+            "tmp_path_retention_policy=all",
+            "-o",
+            "tmp_path_retention_count=1",
+            "--junitxml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/run/pytest.xml",
+            "-k",
+            "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+            "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/benchmark-storage",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+          ],
+          "options": {
+            "collectonly": false,
+            "confcutdir": null,
+            "continue_on_collection_errors": false,
+            "deselect": null,
+            "doctestglob": [],
+            "doctestmodules": false,
+            "exitfirst": null,
+            "ignore": null,
+            "ignore_glob": null,
+            "keepduplicates": false,
+            "keyword": "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+            "markexpr": "",
+            "maxfail": 0,
+            "noconftest": false,
+            "pyargs": false
+          },
+          "requested_runtime_origin_modules": [
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+            "polisyos.scientist.orchestration.engine.executor",
+            "polisyos.scientist.orchestration.engine.idempotency",
+            "polisyos.scientist.orchestration.engine.state",
+            "polisyos.scientist.orchestration.engine.skg_snapshot",
+            "polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.core.artifacts.store"
+          ],
+          "root_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "schema": "policyos.q2.pytest_effective_selection_capture.r2"
+        },
+        "xdist_numprocesses": null
+      },
+      "capture_present": true,
+      "capture_sha256": "cad1e05d1eb987d5743b13233eb466844f538a8be5a52a048fd0b5843ce54677",
+      "capture_size": 1358459,
+      "junit": {
+        "cases": 1,
+        "counts": {
+          "passed": 1
+        },
+        "details": [],
+        "present": true
+      },
+      "mutation": null,
+      "outputs": {
+        "controller-events.jsonl": {
+          "bytes": 2394,
+          "sha256": "b704d2df081ae41e85321f872cf83b6bb4d6ac89ef924b411a715d23263221f1"
+        },
+        "normal.stderr.txt": {
+          "bytes": 311,
+          "sha256": "d318b63b4183c334e78e031ca1afb1c27062e7168dc9a28ddb143d42f10be4a3"
+        },
+        "normal.stdout.txt": {
+          "bytes": 710,
+          "sha256": "4148fb18e32ca4c7481ef6a9c4bd7e6af89b240ea171a30a575bcbc031666633"
+        },
+        "phase-output.jsonl": {
+          "bytes": 2328,
+          "sha256": "ccb92e0a9b24736e7dc1ef52d8d6706d23f57ebc601c8a68b679a4e2e390bdcd"
+        },
+        "process-tree.jsonl": {
+          "bytes": 67118,
+          "sha256": "8b048ee59af36346ce5c3deceb5514f0a491105300dd180f5ef1241ea2447e04"
+        },
+        "pytest.xml": {
+          "bytes": 591,
+          "sha256": "595f09affd969fbdcf43935607e072f0888bf97f96ccba4bd80d7949f197e6e1"
+        }
+      },
+      "phase": "normal",
+      "run": {
+        "aborted_reason": null,
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/sandbox.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_wave_capture_r8",
+          "-p",
+          "e02_b61_observer",
+          "-c",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+          "--basetemp",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/pytest-cache",
+          "-o",
+          "tmp_path_retention_policy=all",
+          "-o",
+          "tmp_path_retention_count=1",
+          "--junitxml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/run/pytest.xml",
+          "-k",
+          "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+          "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/benchmark-storage",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 19115905024,
+        "finished_at": "2026-10-19T21:35:29.554658+00:00",
+        "id": "normal",
+        "max_sampled_process_tree_rss_bytes": 1167294464,
+        "minimum_sampled_disk_free_bytes": 19114487808,
+        "pid": 30247,
+        "process_group_gone": true,
+        "return_code": 0,
+        "sample_count": 33,
+        "started_at": "2026-10-19T21:35:11.909635+00:00",
+        "status": "passed",
+        "stderr_path": "normal.stderr.txt",
+        "stdout_path": "normal.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 17.644961250014603,
+        "wall_total_before_seconds": 0.0006180410273373127
+      },
+      "trace": {
+        "bindings": [
+          {
+            "binding": {
+              "query_version": "skg-query-read.v3",
+              "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5",
+              "source_binding_schema_version": "academic.skg_source_binding.v2",
+              "source_snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+              "source_snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "kind": "prepared_read_cache_binding",
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5"
+          },
+          {
+            "binding": {
+              "query_version": "skg-query-read.v3",
+              "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5",
+              "source_binding_schema_version": "academic.skg_source_binding.v2",
+              "source_snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+              "source_snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "kind": "prepared_read_cache_binding",
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5"
+          },
+          {
+            "binding": {
+              "query_version": "skg-query-read.v3",
+              "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5",
+              "source_binding_schema_version": "academic.skg_source_binding.v2",
+              "source_snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+              "source_snapshot_sha256": "00d0673368f95ef661114de73668a3545e25e884c8a99af700b34b88782141ea"
+            },
+            "kind": "prepared_read_cache_binding",
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5"
+          }
+        ],
+        "kinds": {
+          "prepared_read_cache_binding": 3,
+          "resolve_execute": 2,
+          "runtime_source": 1,
+          "workflow_readback": 2
+        },
+        "mutant": [],
+        "resolve_executes": [
+          {
+            "kind": "resolve_execute",
+            "outcome_status": "ok",
+            "run_id": null,
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+            "snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+          },
+          {
+            "kind": "resolve_execute",
+            "outcome_status": "ok",
+            "run_id": null,
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+            "snapshot_sha256": "00d0673368f95ef661114de73668a3545e25e884c8a99af700b34b88782141ea"
+          }
+        ],
+        "row_count": 8,
+        "trace_sha256": "aa3dda4d5836d8858e8e0dfc3b1b2faae403a122bc250a13a343a2b9da68d545",
+        "workflow_readbacks": [
+          {
+            "cache_events": [
+              {
+                "errors": [],
+                "event": "NODE_CACHE_STORE",
+                "metrics": {
+                  "cache_store": 1,
+                  "duration_ms": 997
+                },
+                "phase": "scientist.node.resolve",
+                "refs": {
+                  "inputs": [],
+                  "outputs": [
+                    {
+                      "artifact_id": "sha256:39f42d7279613d16b3ad6f952c5206359a4d574a4f9f3ad0f2a5fffd286a6d3c",
+                      "kind": "scientist.node_cache_entry",
+                      "media_type": "application/json"
+                    }
+                  ]
+                },
+                "run_id": "R_skg_unconsumed_inventory_source_b",
+                "ts": "2026-10-19T21:35:24Z",
+                "warnings": []
+              }
+            ],
+            "event_names": [
+              "RUN_INPUT_ADDED",
+              "RUN_INPUT_ADDED",
+              "NODE_STARTED",
+              "RUN_CONTEXT_SNAPSHOT",
+              "RUN_CONTEXT_SNAPSHOT",
+              "RUN_INPUT_ADDED",
+              "NODE_CACHE_STORE",
+              "NODE_OK",
+              "RUN_OUTPUT_ADDED",
+              "RUN_OUTPUT_ADDED"
+            ],
+            "kind": "workflow_readback",
+            "other_b": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/other-b.duckdb",
+              "sha256": "cb32a3919e99e7b8e43141a0bf476823fb0ddc55533d759a89f8f91a9be8a25c"
+            },
+            "run_id": "R_skg_unconsumed_inventory_source_b",
+            "selected_a": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+              "sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "status": "ok"
+          },
+          {
+            "cache_events": [
+              {
+                "errors": [],
+                "event": "NODE_CACHE_HIT",
+                "metrics": {
+                  "cache_hit": 1,
+                  "duration_ms": 109
+                },
+                "phase": "scientist.node.resolve",
+                "refs": {
+                  "inputs": [],
+                  "outputs": [
+                    {
+                      "artifact_id": "sha256:b6159216bf9be35de703450b75afee61ef83e9dc98db862b62dc4aca7f350ec1",
+                      "kind": "scientist.skg_cache_read_receipt",
+                      "media_type": "application/json"
+                    }
+                  ]
+                },
+                "run_id": "R_skg_unconsumed_inventory_source_b",
+                "ts": "2026-10-19T21:35:24Z",
+                "warnings": []
+              }
+            ],
+            "event_names": [
+              "RUN_INPUT_ADDED",
+              "RUN_INPUT_ADDED",
+              "NODE_STARTED",
+              "RUN_INPUT_ADDED",
+              "NODE_CACHE_HIT",
+              "NODE_OK",
+              "RUN_OUTPUT_ADDED",
+              "RUN_OUTPUT_ADDED"
+            ],
+            "kind": "workflow_readback",
+            "other_b": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/other-b.duckdb",
+              "sha256": "4f649faf920d571cd8ff38eca80c6d70c8d584e471ac16d9b3d7bf93f43ab432"
+            },
+            "run_id": "R_skg_unconsumed_inventory_source_b",
+            "selected_a": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+              "sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "status": "ok"
+          }
+        ]
+      }
+    },
+    {
+      "capture": {
+        "collected_count": 1,
+        "collected_nodeids": [
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes"
+        ],
+        "executed_count": 1,
+        "executed_nodeids": [
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py::test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes"
+        ],
+        "exit_status": 1,
+        "inherited_pytest_addopts": null,
+        "inherited_pytest_disable_plugin_autoload": null,
+        "inherited_pytest_plugins": null,
+        "phase": "test",
+        "plugin_autoload_disabled_by_inherited_setting": false,
+        "plugin_autoload_setting_preserved": true,
+        "requested_runtime_module_origins": {
+          "polisyos.core.artifacts.store": {
+            "file_sha256": "3f5a8f2fac81c5fd20c483deed7c68209a4fcec3f39e7a04f6bde973ddef0d39",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/store.py"
+          },
+          "polisyos.data_forge.domains.academic.knowledge.skg_query": {
+            "file_sha256": "6f3d0a755d0d4e750f0655f5b8fd021e579ac4cbf83dfafe45f00cee7cebfeba",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py"
+          },
+          "polisyos.scientist.nodes.builtins.causal.resolve_parameters": {
+            "file_sha256": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py"
+          },
+          "polisyos.scientist.orchestration.engine.executor": {
+            "file_sha256": "cfddeb423a8deccd412f480134368689c664565ae62eccf966fea95f7685f907",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py"
+          },
+          "polisyos.scientist.orchestration.engine.idempotency": {
+            "file_sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py"
+          },
+          "polisyos.scientist.orchestration.engine.skg_snapshot": {
+            "file_sha256": "a012959277bda9fcbdc5c26c5994c809b6cc4eb53b7bf55f198ff2e1532a68f3",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py"
+          },
+          "polisyos.scientist.orchestration.engine.state": {
+            "file_sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+            "loaded": true,
+            "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+            "namespace_search_locations": null,
+            "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+            "origin_resolution_error": null,
+            "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+            "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/state.py"
+          }
+        },
+        "schema": "policyos.e02.current_composed_wave_pytest_provenance.r2",
+        "selection_capture": {
+          "config_api": "Config.inipath",
+          "config_error": null,
+          "config_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+          "config_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "config_value_type": "pathlib.PosixPath",
+          "environment": {
+            "E02_CAPTURE_PATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/runtime-module-origins.json",
+            "E02_CAPTURE_PHASE": "test",
+            "E02_ORIGIN_MODULES": "[\"polisyos.scientist.nodes.builtins.causal.resolve_parameters\", \"polisyos.scientist.orchestration.engine.executor\", \"polisyos.scientist.orchestration.engine.idempotency\", \"polisyos.scientist.orchestration.engine.state\", \"polisyos.scientist.orchestration.engine.skg_snapshot\", \"polisyos.data_forge.domains.academic.knowledge.skg_query\", \"polisyos.core.artifacts.store\"]",
+            "PYTEST_ADDOPTS": null,
+            "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+            "PYTEST_PLUGINS": null,
+            "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-1:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+          },
+          "ini_errors": [],
+          "ini_values": {
+            "addopts": [
+              "-ra",
+              "-q",
+              "--import-mode=importlib",
+              "--strict-markers",
+              "--benchmark-storage=file://./_cache/benchmarks"
+            ],
+            "norecursedirs": [
+              "*.egg",
+              ".*",
+              "_darcs",
+              "build",
+              "CVS",
+              "dist",
+              "node_modules",
+              "venv",
+              "{arch}"
+            ],
+            "python_classes": [
+              "Test"
+            ],
+            "python_files": [
+              "test_*.py",
+              "*_test.py"
+            ],
+            "python_functions": [
+              "test"
+            ],
+            "testpaths": [
+              "tests"
+            ]
+          },
+          "invocation_args": [
+            "-p",
+            "e02_wave_capture_r8",
+            "-p",
+            "e02_b61_observer",
+            "-c",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest",
+            "-o",
+            "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/pytest-cache",
+            "-o",
+            "tmp_path_retention_policy=all",
+            "-o",
+            "tmp_path_retention_count=1",
+            "--junitxml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/run/pytest.xml",
+            "-k",
+            "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+            "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/benchmark-storage",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+          ],
+          "options": {
+            "collectonly": false,
+            "confcutdir": null,
+            "continue_on_collection_errors": false,
+            "deselect": null,
+            "doctestglob": [],
+            "doctestmodules": false,
+            "exitfirst": null,
+            "ignore": null,
+            "ignore_glob": null,
+            "keepduplicates": false,
+            "keyword": "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+            "markexpr": "",
+            "maxfail": 0,
+            "noconftest": false,
+            "pyargs": false
+          },
+          "requested_runtime_origin_modules": [
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters",
+            "polisyos.scientist.orchestration.engine.executor",
+            "polisyos.scientist.orchestration.engine.idempotency",
+            "polisyos.scientist.orchestration.engine.state",
+            "polisyos.scientist.orchestration.engine.skg_snapshot",
+            "polisyos.data_forge.domains.academic.knowledge.skg_query",
+            "polisyos.core.artifacts.store"
+          ],
+          "root_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "schema": "policyos.q2.pytest_effective_selection_capture.r2"
+        },
+        "xdist_numprocesses": null
+      },
+      "capture_present": true,
+      "capture_sha256": "67c37b8476df37622c895052990460bbd62a7a46ec5921a6f1ee8f91f49db77d",
+      "capture_size": 1358459,
+      "junit": {
+        "cases": 1,
+        "counts": {
+          "failed": 1
+        },
+        "details": [
+          {
+            "classname": "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.b61-unconsumed-source-inventory-witness-20261020.attempt-3.overlay.tests.integration.scientist.orchestration.engine.test_skg_prepared_read_cache",
+            "message": "AssertionError: assert [(PosixPath('...uckdb'), 1.4)] == [(PosixPath('...uckdb'), 1.4)]\n  \n  Left contains one more item: (PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-c...ry-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb'), 1.4)\n  Use -v to get more diff",
+            "name": "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+            "text": "tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cl...OCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1409dd480>\n\n    def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(\n        tmp_path: Path,\n        monkeypatch: pytest.MonkeyPatch,\n    ) -> None:\n        \"\"\"Changing another inventoried DB preserves A's real cache hit and state.\"\"\"\n        source_dir = tmp_path / \"study-sources\"\n        source_dir.mkdir()\n        selected_a = source_dir / \"selected-a.duckdb\"\n        other_b = source_dir / \"other-b.duckdb\"\n        _seed_skg(selected_a)\n        _seed_skg(other_b)\n        _set_skg_value(other_b, 3.5)\n        initial_inventory = {\n            \"selected_a\": {\"path\": str(selected_a), \"sha256\": _file_sha256(selected_a)},\n            \"other_b\": {\"path\": str(other_b), \"sha256\": _file_sha256(other_b)},\n        }\n        store = FileSystemCAS(tmp_path / \"cas\").for_tenant(\"tenant-a\", \"cell-a\")\n        with tenant_scope(None, tenant_id=\"tenant-a\", cell_id=\"cell-a\"):\n            graph_ref = persist_causal_graph_model(\n                _ensure_ir_artifact_store(store),\n                CausalGraphModel(graph_type=GraphType.DAG, nodes=[\"fiscal_multiplier\"], edges=[]),\n            )\n        state = ExperimentState(\n            run_id=\"R_skg_unconsumed_inventory_source_b\",\n            artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},\n            params={\n                \"target_context\": {\n                    \"context_id\": \"us-2025\",\n                    \"countries\": [\"US\"],\n                    \"publication_year\": 2025,\n                },\n                \"required_parameters\": [\"fiscal_multiplier\"],\n                \"domain\": \"fiscal\",\n                \"skg_db_path\": str(selected_a),\n                \"skg_index_dir\": str(source_dir),\n                # This generic state payload is a test-only inventory of study inputs.\n                \"study_source_inventory\": initial_inventory,\n            },\n        )\n        workflow = _workflow()\n        executions: list[tuple[Path, float]] = []\n        bindings: list[dict[str, str]] = []\n        original_execute = ResolveParametersNode.execute\n        original_binding = PreparedSKGRead.cache_binding\n    \n        def record_real_resolve(\n            node: ResolveParametersNode,\n            context: ExecutionContext,\n            current_state: ExperimentState,\n        ) -> NodeOutcome:\n            assert context.prepared_skg_read is not None\n            prepared_path = context.prepared_skg_read.db_path\n            outcome = original_execute(node, context, current_state)\n            assert outcome.status == \"ok\"\n            executions.append((prepared_path, _resolved_value(store, outcome.state)))\n            return outcome\n    \n        def record_real_binding(\n            prepared: PreparedSKGRead,\n            *,\n            selector_version: str,\n        ) -> dict[str, str]:\n            binding = original_binding(prepared, selector_version=selector_version)\n            bindings.append(binding)\n            return binding\n    \n        monkeypatch.setattr(ResolveParametersNode, \"execute\", record_real_resolve)\n        monkeypatch.setattr(PreparedSKGRead, \"cache_binding\", record_real_binding)\n        first_context, first_registry = _build_run_context(\n            store, state.run_id, selected_registry_profile=True\n        )\n        first_report, first_state, _first_events = _execute_workflow_and_suspend(\n            first_context,\n            first_registry,\n            workflow,\n            state,\n            expected_resumes=0,\n        )\n        assert first_report.status == \"ok\"\n        assert _resolved_value(store, first_state) == 1.4\n    \n        old_b_digest = initial_inventory[\"other_b\"][\"sha256\"]\n        _set_skg_value(other_b, 4.5)\n        new_b_digest = _file_sha256(other_b)\n        assert new_b_digest != old_b_digest\n        with duckdb.connect(str(other_b), read_only=True) as connection:\n            assert connection.execute(\n                \"SELECT point_estimate FROM ac_skg_simulation_parameters \"\n                \"WHERE canonical_name = 'fiscal_multiplier'\"\n            ).fetchone() == (4.5,)\n        inventory_after_b = {key: dict(value) for key, value in initial_inventory.items()}\n        inventory_after_b[\"other_b\"][\"sha256\"] = new_b_digest\n        state_after_b = first_state.model_copy(deep=True)\n        state_after_b.params[\"study_source_inventory\"] = inventory_after_b\n        state_after_b.artifacts_index.pop(ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF, None)\n        b_context, b_registry = _build_run_context(store, state.run_id, resume_from=first_context)\n        b_report, b_state, b_events = _execute_workflow_and_suspend(\n            b_context,\n            b_registry,\n            workflow,\n            state_after_b,\n            expected_resumes=1,\n        )\n        assert b_report.status == \"ok\"\n        assert _resolved_value(store, b_state) == 1.4\n>       assert executions == [(selected_a, 1.4)]\nE       AssertionError: assert [(PosixPath('...uckdb'), 1.4)] == [(PosixPath('...uckdb'), 1.4)]\nE         \nE         Left contains one more item: (PosixPath('/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-c...ry-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb'), 1.4)\nE         Use -v to get more diff\n\ndocs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py:696: AssertionError"
+          }
+        ],
+        "present": true
+      },
+      "mutation": "global_inventory_key",
+      "outputs": {
+        "controller-events.jsonl": {
+          "bytes": 2402,
+          "sha256": "bd06dc5654ee0b9428001260689db1452b95bc145bc3d95261fd3092277f32b6"
+        },
+        "mutant.stderr.txt": {
+          "bytes": 311,
+          "sha256": "d318b63b4183c334e78e031ca1afb1c27062e7168dc9a28ddb143d42f10be4a3"
+        },
+        "mutant.stdout.txt": {
+          "bytes": 7086,
+          "sha256": "10925ea90f0211d08fee1d0ff4cc65adc9252aed45b27f5c6375f1aaf8efb734"
+        },
+        "phase-output.jsonl": {
+          "bytes": 2336,
+          "sha256": "ae38a889fd3ae3f78b09be973dd90eaa0325f53fd1fcd1263646d34fc5ba3446"
+        },
+        "process-tree.jsonl": {
+          "bytes": 46768,
+          "sha256": "720b5d565f207fa223037ee7625f9810f3f159ad33dc5d65753780792c726105"
+        },
+        "pytest.xml": {
+          "bytes": 6880,
+          "sha256": "97bda8dcaf574f471e3ab24ae33dd4749d07cf9cf0652a989b92dc46b0d366c2"
+        }
+      },
+      "phase": "mutant",
+      "run": {
+        "aborted_reason": null,
+        "argv": [
+          "/usr/bin/sandbox-exec",
+          "-f",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/sandbox.sb",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_wave_capture_r8",
+          "-p",
+          "e02_b61_observer",
+          "-c",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+          "--basetemp",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/pytest-cache",
+          "-o",
+          "tmp_path_retention_policy=all",
+          "-o",
+          "tmp_path_retention_count=1",
+          "--junitxml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/run/pytest.xml",
+          "-k",
+          "test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes",
+          "--benchmark-storage=file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/benchmark-storage",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/overlay/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 19114471424,
+        "finished_at": "2026-10-19T21:35:41.910448+00:00",
+        "id": "mutant",
+        "max_sampled_process_tree_rss_bytes": 1164345344,
+        "minimum_sampled_disk_free_bytes": 19109593088,
+        "pid": 30570,
+        "process_group_gone": true,
+        "return_code": 1,
+        "sample_count": 23,
+        "started_at": "2026-10-19T21:35:29.563237+00:00",
+        "status": "command_failed",
+        "stderr_path": "mutant.stderr.txt",
+        "stdout_path": "mutant.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 12.347161500016227,
+        "wall_total_before_seconds": 17.654167165979743
+      },
+      "trace": {
+        "bindings": [
+          {
+            "binding": {
+              "query_version": "skg-query-read.v3",
+              "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5",
+              "source_binding_schema_version": "academic.skg_source_binding.v2",
+              "source_snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+              "source_snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "kind": "prepared_read_cache_binding",
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5"
+          },
+          {
+            "binding": {
+              "query_version": "skg-query-read.v3",
+              "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5",
+              "source_binding_schema_version": "academic.skg_source_binding.v2",
+              "source_snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+              "source_snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "kind": "prepared_read_cache_binding",
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "selector_version": "scientist.node_resolve_parameters@1.0.0:prepared-read-retained-source-v5"
+          }
+        ],
+        "kinds": {
+          "marker_preserving_mutant_applied": 1,
+          "prepared_read_cache_binding": 2,
+          "resolve_execute": 2,
+          "runtime_source": 1,
+          "workflow_readback": 2
+        },
+        "mutant": [
+          {
+            "kind": "marker_preserving_mutant_applied",
+            "state_reads": [
+              "params.target_context",
+              "params.required_parameters",
+              "params.domain",
+              "params.skg_db_path",
+              "params.skg_index_dir",
+              "params.phase15_runtime_backend",
+              "params.phase15_runtime_draws",
+              "params.phase15_runtime_seed",
+              "inputs.skg_source_snapshot",
+              "params.causal_graph_ref",
+              "artifacts_index.context_adaptive_parameter_bundle_ref",
+              "artifacts_index.cross_graph_evidence_profile_ref",
+              "artifacts_index.reconciled_causal_graph_ref",
+              "params.study_source_inventory"
+            ]
+          }
+        ],
+        "resolve_executes": [
+          {
+            "kind": "resolve_execute",
+            "outcome_status": "ok",
+            "run_id": null,
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+            "snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+          },
+          {
+            "kind": "resolve_execute",
+            "outcome_status": "ok",
+            "run_id": null,
+            "selected_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+            "snapshot_ref": "duckdb:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb#v7",
+            "snapshot_sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+          }
+        ],
+        "row_count": 8,
+        "trace_sha256": "34341159a931ea294678332d6d110a4c878e778023a74d7fd882d699d88e3fa8",
+        "workflow_readbacks": [
+          {
+            "cache_events": [
+              {
+                "errors": [],
+                "event": "NODE_CACHE_STORE",
+                "metrics": {
+                  "cache_store": 1,
+                  "duration_ms": 771
+                },
+                "phase": "scientist.node.resolve",
+                "refs": {
+                  "inputs": [],
+                  "outputs": [
+                    {
+                      "artifact_id": "sha256:5966567edd095f70671364202a3509c1f2791d114a78a6babdab1c1d65ed0d9d",
+                      "kind": "scientist.node_cache_entry",
+                      "media_type": "application/json"
+                    }
+                  ]
+                },
+                "run_id": "R_skg_unconsumed_inventory_source_b",
+                "ts": "2026-10-19T21:35:37Z",
+                "warnings": []
+              }
+            ],
+            "event_names": [
+              "RUN_INPUT_ADDED",
+              "RUN_INPUT_ADDED",
+              "NODE_STARTED",
+              "RUN_CONTEXT_SNAPSHOT",
+              "RUN_CONTEXT_SNAPSHOT",
+              "RUN_INPUT_ADDED",
+              "NODE_CACHE_STORE",
+              "NODE_OK",
+              "RUN_OUTPUT_ADDED",
+              "RUN_OUTPUT_ADDED"
+            ],
+            "kind": "workflow_readback",
+            "other_b": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/other-b.duckdb",
+              "sha256": "cb32a3919e99e7b8e43141a0bf476823fb0ddc55533d759a89f8f91a9be8a25c"
+            },
+            "run_id": "R_skg_unconsumed_inventory_source_b",
+            "selected_a": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+              "sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "status": "ok"
+          },
+          {
+            "cache_events": [
+              {
+                "errors": [],
+                "event": "NODE_CACHE_STORE",
+                "metrics": {
+                  "cache_store": 1,
+                  "duration_ms": 720
+                },
+                "phase": "scientist.node.resolve",
+                "refs": {
+                  "inputs": [],
+                  "outputs": [
+                    {
+                      "artifact_id": "sha256:d99e739afb10a0658e4a1a74a3a2fe32729f4e125e6d0c515005c5b257ef90a9",
+                      "kind": "scientist.node_cache_entry",
+                      "media_type": "application/json"
+                    }
+                  ]
+                },
+                "run_id": "R_skg_unconsumed_inventory_source_b",
+                "ts": "2026-10-19T21:35:38Z",
+                "warnings": []
+              }
+            ],
+            "event_names": [
+              "RUN_INPUT_ADDED",
+              "RUN_INPUT_ADDED",
+              "NODE_STARTED",
+              "RUN_CONTEXT_SNAPSHOT",
+              "RUN_CONTEXT_SNAPSHOT",
+              "RUN_INPUT_ADDED",
+              "NODE_CACHE_STORE",
+              "NODE_OK",
+              "RUN_OUTPUT_ADDED",
+              "RUN_OUTPUT_ADDED"
+            ],
+            "kind": "workflow_readback",
+            "other_b": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/other-b.duckdb",
+              "sha256": "4f649faf920d571cd8ff38eca80c6d70c8d584e471ac16d9b3d7bf93f43ab432"
+            },
+            "run_id": "R_skg_unconsumed_inventory_source_b",
+            "selected_a": {
+              "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/tmp/pytest/test_executor_reuses_selected_0/study-sources/selected-a.duckdb",
+              "sha256": "bd2dee3a9835d079e050d3d004321bd7a21e894a9e81751546ca0223a952fb4a"
+            },
+            "status": "ok"
+          }
+        ]
+      }
+    }
+  ],
+  "schema": "policyos.e02.b61_unconsumed_inventory_runtime_result.v2",
+  "scope": "One B61 criterion-level integration test only; no formal closure or broader module/product claim.",
+  "source_frame_before": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "tree": "f9fa889de88088b1797d51b17496bff6810885df"
+  },
+  "source_integrity_after": {
+    "frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+      "tree": "f9fa889de88088b1797d51b17496bff6810885df"
+    },
+    "raw_candidate_unchanged": true,
+    "resolver_sha256_after": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+    "resolver_unchanged": true,
+    "source_frame_unchanged": true,
+    "target_sha256_after": "643ff61936988d30bac6e5ae8814f03660521e5548a77754c41c8a9648c28769",
+    "target_unchanged": true,
+    "tracked_status": [
+      " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      " M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "tracked_status_unchanged": true,
+    "unrelated_dirty_sha256_after": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "status": "runtime_pair_not_established"
+}

@@ -1,0 +1,511 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact implementation leaf plus separate runtime followup; not self-acceptance, source freeze, G acceptance, or formal closure",
+  "slice": {
+    "id": "core-epoch-owner-producer-and-reader-contract-v4",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "base_tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "candidate": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+    "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+    "parents": [
+      "b76b4d016738e2d71f518fe6fca0bf183137e406"
+    ],
+    "subject": "fix(e02): compose epoch producers and consumers through Core read contract",
+    "committed_at": "2026-10-20T00:08:55+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+    "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+    "tracked_and_index_status": "index clean; two known tracked test edits outside this slice remain unchanged and hash-verified",
+    "untracked_state": "not enumerated; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true,
+    "preserved_tracked_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "identity": {
+    "work_item": "core-epoch-owner-producer-and-reader-contract-v4",
+    "lease_key": "core-epoch-owner-producer-and-reader-contract-v4-20261020",
+    "proposal_ids": [],
+    "proposal_status": "not mapped/adjudicated by implementation receipt; requires original-occurrence G proposal mapping",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime_status": "d59 two-module run has 10P/1F; see separate exact analysis-v1 followup. Ten-module union and final CAN21 remain pending.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Actual semantic-epoch producers and all seven typed consumer groups share Core canonical frame/profile, exact kind/media/schema and the existing seven-field producer input-edge derivation; protected activation verifies before writes, and its read protocol includes raw-manifest capability.",
+  "bounded_pre_adoption_evidence": {
+    "summary": "Independent v3 semantic review and v4 read-protocol delta GO. Exact source preimages and postimages verified; canonical runtime is UNRUN.",
+    "provenance": "verbatim author-plan summary; not substituted for current-source runtime receipt"
+  },
+  "P40": "Same profile-composition class widened across the actual full reader set; one Core intake, no reader materialization, restamping or new IR law.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay with full denominator and zero-intersection proof is claimed here."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+    "expected_paths_verified": 21,
+    "source_scope_paths": 19,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "A": 1,
+      "M": 20,
+      "D": 0
+    },
+    "preimage_bytes_total": 2968069,
+    "postimage_bytes_total": 3003149,
+    "bytes_delta": 35080,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "basis": "All source-scoped pre/post SHA-256 values match their exact Git parent/current blobs."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "a66da8691ace1631975ffbb3ca6aa2f70fc6ea46",
+          "sha256": "b8d10d6a80146e4a9cc6440ca4065922e68e6da748a478f9599d9b22abf5719d",
+          "bytes": 1786312
+        },
+        "post": {
+          "git_blob_oid": "6d9525230d7f39ac0c4a32d815c6323c7904ec51",
+          "sha256": "43a4e774fe703bbfee1750d3cd84e9a569bcbd8da1849f4d8a90bc9969a31f54",
+          "bytes": 1804208
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "d58971896f15708f6ae006350089b23d611bc97c",
+          "sha256": "7062f4ee1d81dee92526da48ced0b76316b8674c1aea2140dfa47b0b6a4535b1",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "f4cbdf554c1160756a7272f40f3a21cac844214c",
+          "sha256": "7f5aaa54f3fbef80988dc96523ed82740b33a693d2c425b372ca6665c26015cc",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-semantic-epoch-owner-reader-profile-contract.toml",
+        "status": "A",
+        "base": null,
+        "post": {
+          "git_blob_oid": "db66fd791e50389b0bd2ecc261317a73128a2c9e",
+          "sha256": "610dd561fd68f9ebd06d9e951c53b5674a9f100f9399b5ece2339303dcd0b552",
+          "bytes": 3660
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/README.md",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "123d6e7a3125d4f6ce6a97d934046aecac26d895",
+          "sha256": "cefaca709aff1e698b7147f4b1ca3f8e6da9b5c12047c1766cc0baf5a7694696",
+          "bytes": 10450
+        },
+        "post": {
+          "git_blob_oid": "717c898579047891b7864ee52699e53a7e95f883",
+          "sha256": "9eeea941c4a37c47ab564d173fd328da75d86a7b704ab3e7e1116be09fb91f94",
+          "bytes": 11808
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "a2c32b95991dc55880dcf7946968703dab432d34",
+          "sha256": "a1d151ccee1b539790ec4bda9d25c689f4145acbc860ca6bfeddca51e56d7f09",
+          "bytes": 52261
+        },
+        "post": {
+          "git_blob_oid": "0e8d1772cabb26d7a14e8cc47b12b3c68e6a8fe2",
+          "sha256": "6448347899f1306e2b35f7f50050aa636235b1bfbaa25aaa488f0bde958146b1",
+          "bytes": 55977
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "4cfd9b21a2cf80fdfc25971830b351c81dfdc010",
+          "sha256": "fcc078a7475e4563f4539a0756b96b3c07a8cb98f5aa68e0a25b2632c55d80fe",
+          "bytes": 6571
+        },
+        "post": {
+          "git_blob_oid": "064019ec04fa91dd8f0a1930aa3e29f75043090a",
+          "sha256": "5b3864bb06707935487ea8e71e4efc3f6149b308b60704a4c19a172afc077de0",
+          "bytes": 7941
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "8aa02da788efeaef87e08de7b075b8ce163192eb",
+          "sha256": "af0345fc38a195ef85aee960126e80eb79a2f19c54028dd5ce24b86b7444d152",
+          "bytes": 222752
+        },
+        "post": {
+          "git_blob_oid": "6fe8481f407214ac27a2c9a842a91844f2ddde13",
+          "sha256": "c8b2aa454084e8d889a27b70eaa508568aa7a9a0298e9771d0de0b8ab5d2b451",
+          "bytes": 222408
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "b29107f122fd30fb2edf7024b52c0d1d35b594c9",
+          "sha256": "1b0df1871214eb4f4f3a297adc22bdc064599da23711598f732d9e59a117ec8e",
+          "bytes": 78461
+        },
+        "post": {
+          "git_blob_oid": "c31a655cc15c60dc93ca20da0a5914817c5497bd",
+          "sha256": "f294d4e076d4e553708a1c0216c23266561431bce4bc53cec2d41c91b7002b25",
+          "bytes": 80036
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "98f8b80ba35f31c8b73c48f4a3dc6e9edd0d9c97",
+          "sha256": "0b5fd443010f1b885c07ef742849cd590048f8a28a11c0bd3576054c67795351",
+          "bytes": 39332
+        },
+        "post": {
+          "git_blob_oid": "6993b4f3aa23c42baface9066f53ccf66a3cc65c",
+          "sha256": "0e35cbe46167882b0de7fe1852eb3c7967009b742acd2007c89fe66c5f7fbbf9",
+          "bytes": 38844
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "a5a74c9d8a12216c0f7a87ed1e9382d7c3475868",
+          "sha256": "86f8d94f952f321af51babddfddc32c9a9298b30955d099a1f2010be57ee242f",
+          "bytes": 25555
+        },
+        "post": {
+          "git_blob_oid": "8cf6a0083d735471f7c090d54cf44d100f324e79",
+          "sha256": "0710ff292664fa409304c12edc82f7fdb3f291a562a8513a30250cdc52833bac",
+          "bytes": 25328
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "cefc799768258aad612e8e1509de7dbe6218f81c",
+          "sha256": "073579152df0cb4347f26db55ca1fb70a6d5faebf7b1d261d3211a799ce4701f",
+          "bytes": 24372
+        },
+        "post": {
+          "git_blob_oid": "b34b8c27e9b082cf28a99c7b8262f8acb3615a53",
+          "sha256": "6757f02d7150e3abb16ee053810adf3dfae531f36d6828c30c82d91b661be0b3",
+          "bytes": 22846
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "01c9a565404d9f14487281df47d1fdd473ef30ec",
+          "sha256": "ae97dd712ef723275ace63273039473a7d9e0482adebedffece9b8985f472c9c",
+          "bytes": 140907
+        },
+        "post": {
+          "git_blob_oid": "c75651867d227130706bd76acbf93489a8a3e17e",
+          "sha256": "2d468a397b3c4d8a0a0ae1d7d98e130defd33d36d6c5022917a1bbf81028170a",
+          "bytes": 137365
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "7aca2598d4eb4df5d196e5ccdf3905e663510b4b",
+          "sha256": "0fce8c956b42613777b0cd7dc3dcfb115e7e3bfb457f8440d871d82f44422852",
+          "bytes": 230445
+        },
+        "post": {
+          "git_blob_oid": "b2a178e150889ae23d2ccca6820c85783210e59e",
+          "sha256": "a09f2b9f17ed7923a7313a23ec6d3df141036790a466a51d67f7123b7f6bc0d7",
+          "bytes": 232217
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "f28b2d504eef6cdc75ba967cf04e2d270cfde3ae",
+          "sha256": "4590464873d9b94026d965849a7cd3abfdc35c94119a5e9175372bc6ac8fee55",
+          "bytes": 26538
+        },
+        "post": {
+          "git_blob_oid": "45e38ff5b7ed0fdbf1d286c0bf8cf445acf266d6",
+          "sha256": "e73fd31facfa750d1b8ea5164a465340fbee2b45f80bb41a652028e0c34b85f8",
+          "bytes": 26941
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "c3a7cc684f0773d9c0c50e1e2a8b83abf68bdacc",
+          "sha256": "b84b5151aaf703e968d9d855b8c414bad8e4daf06a62c01eade2c66533fb8c77",
+          "bytes": 21831
+        },
+        "post": {
+          "git_blob_oid": "df83574d98e21c869775f3ae9d4c177546325ee2",
+          "sha256": "f10b10bb7d8b853869a45e619137bb812e45151d96463990956684f11630bde3",
+          "bytes": 21086
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "05dc402814b13c3957f86d801f78954461b4f630",
+          "sha256": "05735b77499fc6eb97a1bff3849aacfcf5b8d7fe3af517e244b48f2786f064ff",
+          "bytes": 98973
+        },
+        "post": {
+          "git_blob_oid": "29537275f4cd3076bbda97ab5ab5bf90abd81122",
+          "sha256": "579c89d5a874fb6379119766a014eaa8875eae3258deaf089b1cfe6fff3f774e",
+          "bytes": 103388
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "2a0270684bf9f14de75c53677d773f1dbce1a87f",
+          "sha256": "e24e75caa3a6cdc42ec9c0230d0fcd56d67d570c58ed71420fe623218dad9f52",
+          "bytes": 10598
+        },
+        "post": {
+          "git_blob_oid": "85940c2ada0c68ebf9513c324ef51b94f027e0d3",
+          "sha256": "ac32a93012a3be970f84c58937b8c62b23ca51779560e8549647114b053c17eb",
+          "bytes": 10731
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "33ef35d79dd72863233a17d3bcae940f0f636a3c",
+          "sha256": "b3d58595c247eb194bf53a0fb9eeda19c932b7184a412e7aa64d5ad640868167",
+          "bytes": 11588
+        },
+        "post": {
+          "git_blob_oid": "827ed91dad03ea4e8f3416038743d3fa3f8161ec",
+          "sha256": "653bbf980aaf2b4ac25f1db4650cb38d93a86cc904182381cf39f4e9a259d6ab",
+          "bytes": 14047
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "8d203bb935ca42695cbdc5377af466cc6d33920f",
+          "sha256": "b3b91e2ae99acce85f0e7d0ba0716771f413d670e798dd324649e1662e335a04",
+          "bytes": 18939
+        },
+        "post": {
+          "git_blob_oid": "e84ead6bcc5e19a3a0731afeeed7032be1d876a5",
+          "sha256": "4dab255236bb93e21b2174c3d6e854b0a07f4fc876eb08859169e5c9206ce934",
+          "bytes": 19303
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "198a5073e1eaf10b2fb2b4d6e5bc70728791bfca",
+          "sha256": "a3c8131d1471ec8301ea7f4adf4d0c218dead217141c387d1102492f81688741",
+          "bytes": 9175
+        },
+        "post": {
+          "git_blob_oid": "40ca7405d8b5e6c74031f9b7cb1399b25f879a15",
+          "sha256": "d6ee3ee698ff013be526582a01593f430fd559f313f1f5f7daaa991c42304b1f",
+          "bytes": 10036
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "0d8de6a2aa9814944135ca60a676e376c6bf71ac",
+          "sha256": "73d3cb61abc2264b0c8ba657c1db611b4d041b59fb5ef4d61e18631b338dff26",
+          "bytes": 13603
+        },
+        "post": {
+          "git_blob_oid": "4793744fc4e90eba252b23b82701ebce7ef34d35",
+          "sha256": "2e91c3d9a61d4fdd3d5e1daea6eb9588c1af517cd25fa4bc21ead8208f1a9bf2",
+          "bytes": 15573
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "source_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/plan.json",
+      "sha256": "f1b566b4b847d5bc7c5f2ce233c0e7cb9385706f2af2c900a21a08588274f5cd",
+      "bytes": 17200
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/source-application.json",
+      "sha256": "6abf9672479c442d1b3499a2ff43a8704f18b314cdd385e1aa8105049d706a70",
+      "bytes": 24024
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/commit-request-preservation-r2.json",
+      "sha256": "fbd0a769db77eb5e1c62d1fd45c05b606dda87d37cd3f5d6ee1c12220cf3665c",
+      "bytes": 9327
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/implementation-readback-preservation-r2.json",
+      "sha256": "75865b22568c4a8eb857e84b0aa0a9255c164d5bfa2bd074da8af1f0d72c997a",
+      "bytes": 4774
+    },
+    "posthoc_preservation_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276",
+      "bytes": 1833
+    },
+    "native_commit": {
+      "exit_code": 0,
+      "seconds": 2.3438099580816925,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/native-commit.stdout.txt",
+        "sha256": "af1e2adbb164cf37bc722e5f6a0651734f95d04f819e58e4793fe9b057e976de",
+        "bytes": 299
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/native-commit.stderr.txt",
+        "sha256": "6d00ab31ca968b088ffdbdc6d2ed62f8caf2ef49c1f861cda88bd5ffa9493509",
+        "bytes": 653
+      }
+    },
+    "source_checks": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/contracts/epoch.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+          "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+          "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+          "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+          "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+          "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+          "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05076566617935896,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/contracts/epoch.py",
+          "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+          "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+          "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+          "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+          "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+          "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+          "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+          "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+          "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+          "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04637395893223584,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/format-native-role-0.stdout.txt",
+          "sha256": "d41ae50829b47e318b0787bc39d2a2ea2d52b518cfc7900d2efd569e6d26ab88",
+          "bytes": 27
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "runtime_followup": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r6-20261020/followup-can-d59-two-modules.json",
+      "sha256": "e5ab6fdff2669bb7326855562d0036a94ae3c33f58dfd9534741634adecb20d7"
+    },
+    "reviewed_input_refs": "remain in exact pinned source plan/application; no duplicate copies"
+  },
+  "limits": [
+    "Valid unselected child refs retain actual default CAN views; protected activation keeps producer-selected top-level receipt requirement.",
+    "Truly profileless historical manifests remain typed refusals; production manifests are not rewritten.",
+    "Core profile admission proves serialization/direct edges, not owner-denominator evidence, causal calibration, issuer or currentness.",
+    "Unreferenced selected-view discovery/index remains unavailable.",
+    "Ten whole affected modules and origin/profileless discriminators require adopted-source replay.",
+    "Existing exports/G resources preserved; public-surface review, release and G acceptance are unestablished.",
+    "Two known-owned incomplete N7/B108 test edits preserved unchanged outside the commit; no whole-worktree clean or complete freeze claim."
+  ],
+  "next_check": "Run actual epoch-origin positive and profileless-history refusal; after all blocking reviews replay pinned ten-module union and final CAN21 with source/profile/input freeze.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

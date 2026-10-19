@@ -1,0 +1,347 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact implementation leaf; source proposal for later tracked composition, not self-acceptance, runtime qualification, G acceptance, or formal closure",
+  "slice": {
+    "id": "la024-dns-dial-binding",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+    "base_tree": "3032419a1ef9a01623c4083b5e1d74e59665bf78",
+    "candidate": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "parents": [
+      "a414aa45691ec29bc268e2547b7379ebaa6f4d68"
+    ],
+    "subject": "fix(e02): bind resolved scholar targets to actual HTTP connections",
+    "committed_at": "2026-10-19T23:53:27+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "tracked_and_index_status": "index clean; two known tracked test edits remain outside these commits and their byte hashes are verified unchanged",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true,
+    "preserved_tracked_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "identity": {
+    "work_item": "root-reviewed-la024-dns-dial-binding-adoption-20261019",
+    "lease_key": "root-reviewed-la024-dns-dial-binding-adoption-20261019",
+    "proposal_ids": [],
+    "proposal_status": "not mapped/adjudicated by this source receipt; requires separate original-occurrence G proposal mapping",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime_status": "PENDING in the composed current-source replay; this leaf does not promote pre-adoption or native-hook results to canonical runtime green",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Each HTTP(S) hop connects to an independently validated resolved address, preserves Host/SNI/certificate semantics, rejects non-global answers by default, verifies peer and enforces bounded redirect cycles through both adapters.",
+  "bounded_pre_adoption_evidence": {
+    "summary": "Independent v3/v4 GO to candidate composition: v3 full52PASS plus v4 three focused loop cases; native nine-path checks passed.",
+    "provenance": "verbatim source-plan summary; this leaf does not independently rerun or extend those candidate results",
+    "current_cut_replay": "PENDING"
+  },
+  "P40": "Shared resolved-target/dial invariant across transport and adapters, including same-class redirect lifecycle controls; no per-host allowlist or production/network-input mutation.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay and full denominator with zero-intersection proof is asserted here."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "expected_paths_verified": 11,
+    "source_scope_paths": 9,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "metadata_companion_path_occurrences_repeat_across_slices": true,
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "A": 2,
+      "M": 9,
+      "D": 0
+    },
+    "preimage_bytes_total": 1954701,
+    "postimage_bytes_total": 2025477,
+    "bytes_delta": 70776,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "basis": "Every source-scope pre/post SHA-256 in the pinned source-application record matches the exact Git parent/current blob."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "159a114b5bf489688fc200958095ae7c2ea2f714",
+          "sha256": "2cc9da2f324837d8c8eba33a21ef2f90b0a00b7a95f2679cd774038cc6237fb3",
+          "bytes": 1774729
+        },
+        "post": {
+          "git_blob_oid": "a66da8691ace1631975ffbb3ca6aa2f70fc6ea46",
+          "sha256": "b8d10d6a80146e4a9cc6440ca4065922e68e6da748a478f9599d9b22abf5719d",
+          "bytes": 1786312
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "e933dab4b2836234ab84530582a954a4fb54b35a",
+          "sha256": "bb175608d01477b1bb69a43fad2e3953a51c6cc6507a9fc8480cae523e3926de",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "d58971896f15708f6ae006350089b23d611bc97c",
+          "sha256": "7062f4ee1d81dee92526da48ced0b76316b8674c1aea2140dfa47b0b6a4535b1",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-scholar-resolved-fetch-target-binding.toml",
+        "status": "A",
+        "base": null,
+        "post": {
+          "git_blob_oid": "a728801f15c3806ba6207111c0b7065280686694",
+          "sha256": "007cb0d4415df58c28f47fdfa565ae8bc560e53478b2316cadf54e3197c570f5",
+          "bytes": 5410
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/README.md",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "a5df8319003a1490e86ec5d45de0c9e8debca1f7",
+          "sha256": "75b17c342fa9a33565ea3a3b079c14b8748225d639801d6814fc83797b6159ce",
+          "bytes": 5911
+        },
+        "post": {
+          "git_blob_oid": "2c2d1aaf214c0c2fe3ebc479f6d5d04adc714885",
+          "sha256": "a1e96211ca96a084c839240e0447552303167462e3c422a20ca932dcafd37f2d",
+          "bytes": 8194
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/discover/README.md",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "23014c3fa909d9431694c073fd3475d3f3b20fe1",
+          "sha256": "e8c61788e1e2a1a09e2d3fa5d38dba0ae21083905c340cf52887a4d4cffb5868",
+          "bytes": 1172
+        },
+        "post": {
+          "git_blob_oid": "6f8395ce4e9d285b1d573fc69abe1db15a03227d",
+          "sha256": "8213726e2a35de8970d9bff9f3c5334ceb0da49e2dfef7330ebbf90ea5bd7308",
+          "bytes": 2160
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "3221c204a8c5e7ee88b180ac76dc25931286b84a",
+          "sha256": "cb48f3636732625fdfa1dc15a64dd24e6812955ca45394592083dcdf417f7c50",
+          "bytes": 4486
+        },
+        "post": {
+          "git_blob_oid": "4131f46c8c2b4aedda9a4217f9d6987ee200d952",
+          "sha256": "29dcb67f926d7a6b7921db82796d8228195164bc6f7dd98caab96185131a49b0",
+          "bytes": 4917
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/discover/transport.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "9b8fb13484e6778785651a5298e64b0b2cdf7571",
+          "sha256": "907517479cb402059c733ccac1e6cb56ee66b3029d4f53a9397e870243aca793",
+          "bytes": 3411
+        },
+        "post": {
+          "git_blob_oid": "2cdf944f5500bf73f8b065edfd3094570865bfdc",
+          "sha256": "e0083955406e8d4b0dac642f2e737764e596de921ada9c565d364d52d44bffd9",
+          "bytes": 13434
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/search/fetcher.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "4a8a6e5e30ec0c0fedbebc18f699a99099e2c0b5",
+          "sha256": "7b547777bb8bd00359e0438f4dd3ea2492077f012e50c06d6d8f31a0739397da",
+          "bytes": 9197
+        },
+        "post": {
+          "git_blob_oid": "918038a23504997b7669213cc99c57b814e8d9af",
+          "sha256": "2dd9e13a8f75cbc66bcd1a751012c7aee67d55f83556c9b6ba448acbbeedfe2f",
+          "bytes": 9374
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/search/security.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "8bc965572e4af8aad06362079adbf9304c713b12",
+          "sha256": "d34053893ee3d52f234fbdd8a637308cd9b4c524fcf64546b4a61dad863ac41b",
+          "bytes": 4217
+        },
+        "post": {
+          "git_blob_oid": "8dd0d82b394db746a32844ca14f89356a90d3eaa",
+          "sha256": "8813f9d6f2f4b78d2f4b3ba2743f60c6ea09d402617800e5056d12eb6503dbe7",
+          "bytes": 8256
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+        "status": "A",
+        "base": null,
+        "post": {
+          "git_blob_oid": "34dbf1c67b2beb0a3ba43e5918bbc5c6a9b3745a",
+          "sha256": "ce304dd405c70d65f7eb5e22387766ce7892e8eef8dfa56815b2cdcd08c3ab4a",
+          "bytes": 34962
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "062e2abaa9015b00e87f9d440898af06009c85fa",
+          "sha256": "556505127e2ef6f7e171529224baef6daea99bd7a66e1737cfe1c9058c8b2b08",
+          "bytes": 12172
+        },
+        "post": {
+          "git_blob_oid": "1ff3363fed500e5024d070d6b83db951e3bd73a7",
+          "sha256": "8b5ddea43d7c70f34ac8b1484bd7062ccca65f789ebdc1bd29a76c33870cbe5c",
+          "bytes": 13052
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/plan.json",
+      "sha256": "1b018ba17358e9392de05043b30ddda591059d5889519b0d970fafc7f189af7b",
+      "bytes": 11119
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/source-application.json",
+      "sha256": "1144b8aec7ec0130c0bd9401ee217fd93e6070be9a741420c2848e8cabaa4789",
+      "bytes": 15273
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/commit-request-preservation-r2.json",
+      "sha256": "8fd5963693ee9d696fd445872e68164a5262f10fbccef636d1b3f95be5addd78",
+      "bytes": 7553
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/implementation-readback-preservation-r2.json",
+      "sha256": "125f8d967a45cd9ea28424b0d20466a1fc59af47d1d521fbdc5a502c13a28003",
+      "bytes": 3895
+    },
+    "posthoc_preservation_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276",
+      "bytes": 1833
+    },
+    "native_commit": {
+      "exit_code": 0,
+      "seconds": 3.6905971250962466,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/native-commit.stdout.txt",
+        "sha256": "decf2289707b05549fc31e975fc159cd840fcc56832737276108cf529e265dda",
+        "bytes": 372
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/native-commit.stderr.txt",
+        "sha256": "b26c7fed54538f28399fec7aa9661b215e90390b74513d55d10a15eb675825c0",
+        "bytes": 653
+      }
+    },
+    "source_checks": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+          "policy-engine/src/polisyos/scholar/discover/transport.py",
+          "policy-engine/src/polisyos/scholar/search/fetcher.py",
+          "policy-engine/src/polisyos/scholar/search/security.py",
+          "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+          "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.07396445795893669,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+          "policy-engine/src/polisyos/scholar/discover/transport.py",
+          "policy-engine/src/polisyos/scholar/search/fetcher.py",
+          "policy-engine/src/polisyos/scholar/search/security.py",
+          "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+          "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.07626629201695323,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "reviewed_input_refs": "retained in the pinned source plan/application; not copied into this leaf"
+  },
+  "limits": [
+    "Fresh whole canonical selected-profile replay is UNRUN.",
+    "Proxy compatibility and release/G adoption remain held; recognized environment NO_PROXY works, while some macOS SystemConfiguration hostname wildcards fail closed with hostname:port.",
+    "V4 loop connected_peers records server-observed client_address, not direct client getpeername.",
+    "Controlled listener evidence does not establish production network currentness.",
+    "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+    "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+  ],
+  "next_check": "Run both complete canonical scholar fetch security/DNS modules and local listener/TLS/removal controls on the exact committed source; keep LA024 limited pending compatibility decision.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

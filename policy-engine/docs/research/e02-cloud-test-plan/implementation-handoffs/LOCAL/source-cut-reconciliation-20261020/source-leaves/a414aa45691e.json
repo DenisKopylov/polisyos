@@ -1,0 +1,232 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact implementation leaf; source proposal for later tracked composition, not self-acceptance, runtime qualification, G acceptance, or formal closure",
+  "slice": {
+    "id": "fed02-join-retention-witness",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "b26e96f51adb532dd7969a33b672362f157c8714",
+    "base_tree": "33705ec588cbd5d2716ac5a905944ff4d5bf8626",
+    "candidate": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+    "tree": "3032419a1ef9a01623c4083b5e1d74e59665bf78",
+    "parents": [
+      "b26e96f51adb532dd7969a33b672362f157c8714"
+    ],
+    "subject": "test(e02): exercise real federation tie ordering and bounded detail liveness",
+    "committed_at": "2026-10-19T23:53:18+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "tracked_and_index_status": "index clean; two known tracked test edits remain outside these commits and their byte hashes are verified unchanged",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true,
+    "preserved_tracked_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    }
+  },
+  "identity": {
+    "work_item": "root-reviewed-fed02-join-retention-witness-adoption-20261019",
+    "lease_key": "root-reviewed-fed02-join-retention-witness-adoption-20261019",
+    "proposal_ids": [],
+    "proposal_status": "not mapped/adjudicated by this source receipt; requires separate original-occurrence G proposal mapping",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime_status": "PENDING in the composed current-source replay; this leaf does not promote pre-adoption or native-hook results to canonical runtime green",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Actual DataComposer JOIN survives equal-priority heap entries with deterministic sampling, and active UNION retains only bounded MergeLogEntry details as measured by live weak references.",
+  "bounded_pre_adoption_evidence": {
+    "summary": "Author whole postimage10PASS and independent whole postimage10PASS; review bb31e7d0 GO for bounded source test adoption.",
+    "provenance": "verbatim source-plan summary; this leaf does not independently rerun or extend those candidate results",
+    "current_cut_replay": "PENDING"
+  },
+  "P40": "Two findings remain distinct: heap tie ordering and transient detail retention. The source adds a real JOIN regression and a live-object control; it does not claim whole-UNION O(1) memory.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay and full denominator with zero-intersection proof is asserted here."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "metadata_companion_path_occurrences_repeat_across_slices": true,
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "A": 0,
+      "M": 3,
+      "D": 0
+    },
+    "preimage_bytes_total": 1915308,
+    "postimage_bytes_total": 1936346,
+    "bytes_delta": 21038,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "basis": "Every source-scope pre/post SHA-256 in the pinned source-application record matches the exact Git parent/current blob."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "d411f15478802f1276411069f01b2137ded8952d",
+          "sha256": "5364cc94fffc1ab03d3817546d2b92e2f064f18ae5ecc809c7e793ce1464e967",
+          "bytes": 1768064
+        },
+        "post": {
+          "git_blob_oid": "159a114b5bf489688fc200958095ae7c2ea2f714",
+          "sha256": "2cc9da2f324837d8c8eba33a21ef2f90b0a00b7a95f2679cd774038cc6237fb3",
+          "bytes": 1774729
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "3e07687e0b7d4db4578e00d8203050d207d15de1",
+          "sha256": "17b5ef87b4f944c8058b63bcaa0542c91925219661e54a43973f9b9ed1b72cc0",
+          "bytes": 139406
+        },
+        "post": {
+          "git_blob_oid": "e933dab4b2836234ab84530582a954a4fb54b35a",
+          "sha256": "bb175608d01477b1bb69a43fad2e3953a51c6cc6507a9fc8480cae523e3926de",
+          "bytes": 139406
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_fed_02.py",
+        "status": "M",
+        "base": {
+          "git_blob_oid": "eea50470fb55d3c1bcfc30c524f15b828ec5ba91",
+          "sha256": "e07c8a63324d07da8de60a350d543c27379acf6cbacd07dcbef45dda3f6ae4e7",
+          "bytes": 7838
+        },
+        "post": {
+          "git_blob_oid": "c029926716eafc4109573434cb082bfe6d439c85",
+          "sha256": "439a344f7cba1a1ebb3765400dc35fdd54c8839aee639e7bda858da145dcec3c",
+          "bytes": 22211
+        }
+      }
+    ]
+  },
+  "evidence": {
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/plan.json",
+      "sha256": "9e2e6e8356ca13566e630f86eb5bf94f8cb35cae5d4f77fb8250d4263140ba26",
+      "bytes": 6166
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/source-application.json",
+      "sha256": "9e82d04874ce358464b0428ab9c2025cc37e1bedfee413b4aace068e4c4da7e3",
+      "bytes": 9183
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/commit-request-preservation-r2.json",
+      "sha256": "e88dc15a37b28297e935c722a3c5c5712cc6b064eafed07579411487d2350b9e",
+      "bytes": 5897
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/implementation-readback-preservation-r2.json",
+      "sha256": "82341779faf23e1f4be4bcf0e73ce09f26c8e0c2708fe1b5a35249c1d7197d63",
+      "bytes": 3363
+    },
+    "posthoc_preservation_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276",
+      "bytes": 1833
+    },
+    "native_commit": {
+      "exit_code": 0,
+      "seconds": 3.956300334073603,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/native-commit.stdout.txt",
+        "sha256": "d7434f9bf1af1ac00dc6ab0584e1224e45c08e15f4729f4f74c81fdd431328e7",
+        "bytes": 173
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/native-commit.stderr.txt",
+        "sha256": "980faad8fbfc3b977fb53c287b8bdcb376169832467768fcf93077cc1a48aba8",
+        "bytes": 653
+      }
+    },
+    "source_checks": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/remediation/test_fed_02.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.0684432911220938,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/remediation/test_fed_02.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05154170887544751,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-fed02-join-retention-witness-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "reviewed_input_refs": "retained in the pinned source plan/application; not copied into this leaf"
+  },
+  "limits": [
+    "Not a whole-UNION O(1) memory claim.",
+    "Extra NONE result parity checks row count and values, not complete frame equality.",
+    "B139 removal sidecar is author-reported unless its exact argv/driver is independently reconciled; new JOIN regression itself is property-sensitive.",
+    "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+    "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+  ],
+  "next_check": "Run the canonical whole FED02 module with current loaded source origins; preserve B139 and B143 as separate proposals.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

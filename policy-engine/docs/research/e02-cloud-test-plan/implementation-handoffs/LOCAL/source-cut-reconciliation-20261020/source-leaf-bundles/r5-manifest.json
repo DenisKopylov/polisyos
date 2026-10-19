@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt_bundle.v1",
+  "bundle_role": "RAW-only source receipt addendum r5; not canonical adoption, runtime qualification, G acceptance, or closure",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+    "tracked_and_index_status": "index clean; two known tracked edits remain, unchanged and hash-verified",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion"
+  },
+  "counts": {
+    "slices": 5,
+    "changed_paths_total": 26,
+    "unique_source_commits": 5,
+    "metadata_companion_path_occurrences": 10
+  },
+  "G_acceptance": false,
+  "source_freeze": false,
+  "closure_ids": [],
+  "receipts": [
+    {
+      "file": "receipt-b224-scm-reorder-d2926941.json",
+      "sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea",
+      "candidate": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+      "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+      "base": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+      "changed_paths": 3,
+      "work_item": "b224-truthful-manual-scm-fixture-and-reordered-draw-witness",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "file": "receipt-r3-r4-fixture-a7ef7eb9.json",
+      "sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540",
+      "candidate": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+      "tree": "016ddafe6835cdd87d78b3191a39f179ac8f5cd3",
+      "base": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+      "changed_paths": 5,
+      "work_item": "root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "file": "receipt-q2-module-subtype-b26e96f5.json",
+      "sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092",
+      "candidate": "b26e96f51adb532dd7969a33b672362f157c8714",
+      "tree": "33705ec588cbd5d2716ac5a905944ff4d5bf8626",
+      "base": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+      "changed_paths": 4,
+      "work_item": "root-reviewed-q2-module-subtype-capture-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "file": "receipt-fed02-join-a414aa45.json",
+      "sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a",
+      "candidate": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+      "tree": "3032419a1ef9a01623c4083b5e1d74e59665bf78",
+      "base": "b26e96f51adb532dd7969a33b672362f157c8714",
+      "changed_paths": 3,
+      "work_item": "root-reviewed-fed02-join-retention-witness-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "file": "receipt-la024-dns-dial-b76b4d01.json",
+      "sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f",
+      "candidate": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+      "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+      "base": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+      "changed_paths": 11,
+      "work_item": "root-reviewed-la024-dns-dial-binding-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    }
+  ]
+}

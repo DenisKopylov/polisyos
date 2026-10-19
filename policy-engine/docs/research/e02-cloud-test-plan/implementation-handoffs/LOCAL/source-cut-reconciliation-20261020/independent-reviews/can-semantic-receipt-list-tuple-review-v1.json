@@ -1,0 +1,51 @@
+{
+  "schema": "independent-raw-delta-review.v1",
+  "decision": "GO_TEST_ONLY_COMPANION",
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-semantic-receipt-list-tuple-test-companion-20261020",
+  "candidate_pins": {
+    "manifest-v1.json": "13b5750dd95b6504b815c846cd4b9cc3dad731b9c04b72828d038cef18e12566",
+    "patch-v1.diff": "e94bd72cfad08d8b0543e7dcfaaf6d99459d2bf215c85ad1e576bc0596bda4d2",
+    "classification-v1.md": "3209527e82655118d44bd4ad53f3409c6433691ecebe1339228b6e78d5baf88d",
+    "verification-v1.json": "168760797db6e11faa734f079ee9907571d5ce3406cb2879d3044d655b83bad2"
+  },
+  "source_frame": {
+    "head": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+    "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+    "worktree_head_and_tree_match": true
+  },
+  "verified_pins": {
+    "manifest": true,
+    "patch": true,
+    "classification": true,
+    "verification_receipt": true,
+    "all_eight_source_references": true,
+    "target_preimage": "d6ee3ee698ff013be526582a01593f430fd559f313f1f5f7daaa991c42304b1f",
+    "target_postimage": "66ed143872e0463b3a7beb42491b88c5d19bbf855ccc8c678174215d94b4346d"
+  },
+  "review": {
+    "changed_path_count": 1,
+    "changed_path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+    "property": "Compare the persisted ordered manifest input list with the complete ordered InputRef sequence produced by the shared helper.",
+    "finding": "The helper returns tuple[InputRef, ...], while ArtifactManifest.inputs and the producer-persisted expected shape are lists. Python list-versus-tuple equality fails before comparing elements.",
+    "repair": "Wrap the helper result in list(...) in the expected expression. This preserves exact sequence order, every InputRef field, and selected-profile digests.",
+    "preserved_controls": [
+      "producer-selected receipt/profile assertion",
+      "default-view receipt assertion",
+      "extra-edge rejection control",
+      "profileless-history refusal control"
+    ],
+    "product_semantics_changed": false,
+    "P40_bucket": "Same assertion-representation class; minimal test companion, no production patch."
+  },
+  "evidence": {
+    "pre_fix_actual_run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-epoch-critical-two-module-actual-d59be5-20261020/analysis-v1.json@46a2e0f1872ccd76eb95d57cb60f8d5a6d4860321b1fcceb1c75c48593a3f7ff",
+    "pre_fix_result": "11 executed; 10 passed; 1 failed solely at the list-vs-tuple equality assertion.",
+    "git_apply_check": "independently rerun against pinned d59 source frame; exit 0.",
+    "ruff_check_and_format": "Author receipts pinned in verification-v1.json and each reports exit 0; not independently rerun.",
+    "post_fix_runtime": "UNRUN; no runtime acceptance claimed."
+  },
+  "limitations": [
+    "This is a candidate review only; adoption and any later runtime qualification are separate decisions.",
+    "No broader CAN closure or G acceptance is established by this test-only delta."
+  ]
+}

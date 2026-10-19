@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.b61_independent_review.v1",
+  "review_mode": "read-only; no test rerun; no canonical source/index edits",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7c16fc46ff8e2c739042bb17eb985d6f8099cb20",
+    "tree": "f9fa889de88088b1797d51b17496bff6810885df",
+    "working_tree_note": "Two unrelated tracked modified files are present; candidate target and resolver match the pinned preimage/runtime hashes. They were not modified."
+  },
+  "candidate": {
+    "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/manifest-r3.json@e34e6848609d0d24f240537fd423e3ca24b9ae2a99760e8bd3f7dddb802d67f5",
+    "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/candidate-r2.patch@0c8ba98fc21190d49096763ac7444ea4cf4af1cb594c689c48ecb99a991461bb",
+    "postimage": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/postimage/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py@2afd256ac12fe78b08e50930f1a4fc3b3a688ce1ad851fff47d8abfceaa521d4",
+    "canonical_target_preimage": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py@643ff61936988d30bac6e5ae8814f03660521e5548a77754c41c8a9648c28769",
+    "product_source_unchanged": true
+  },
+  "verdict": {
+    "bounded_behavioral_witness": "GO",
+    "scope": "selected academic SKG source digest is bound to actual ResolveParameters cache lookup/execution; mutation of a distinct, unconsumed inventoried DB does not evict selected-A cache; mutation of selected-A bytes at the same path forces execution and fresh output",
+    "formal_G_acceptance": false,
+    "full_B61_closure": "not proposed by this witness; historical replayability of old bytes after replacement/removal remains a distinct limited/unestablished subclaim",
+    "aggregate_runner_receipt": "not_established as reported because its final predicate is wrong; underlying normal and marker-preserving mutant JUnit outcomes are independently consistent with the in-test behavioral assertions",
+    "P40": "same B61 read-set/cache-reuse property; the prior attempt-2 failure was a test lifecycle-construction defect repaired in this candidate, not a second product mechanism class"
+  },
+  "behavior_review": {
+    "real_path": [
+      "The test creates two actual DuckDB files, seeds both through DuckDB, mutates B and confirms its stored query value changes.",
+      "It uses actual FileSystemCAS, tenant scope, WorkflowExecutor, ResolveParametersNode, PreparedSKGRead.cache_binding, SKGQuery/ParameterSelector, and normal cache events; no mocked cache result or fake resolver is used.",
+      "Executor builds cache_bind_params from invocation params, inserts prepared_read.cache_binding(), and hashes compute_idempotency_key(spec, state, bind_params). Idempotency payload includes extract_state_slice(state, spec.state_reads).",
+      "Normal trace shows selected-A whole-file digest unchanged across B-only inventory and bytes update, actual NODE_CACHE_HIT, no resolver reexecution/cache store, then changed selected-A whole-file digest and actual resolver execution/cache store with output 2.6."
+    ],
+    "counterfactual": [
+      "A real imported resolver NodeSpec.state_reads is mutated to add params.study_source_inventory while the test markers/assertions are retained.",
+      "Mutant trace shows the B-only update now causes actual NODE_CACHE_STORE and second ResolveParameters execute; JUnit fails at executions == [(selected_a, 1.4)], the intended falsifier."
+    ],
+    "lifecycle": "Candidate final phase uses _execute_workflow and asserts RUN_FINALIZED after exactly two resumes. There are two actual workflow_readback trace records because the initial and intermediate phases suspend; final phase terminates."
+  },
+  "P38_runner_divergence": {
+    "runner_intended_property": "normal candidate completed with the expected real prepared-read/cache observations",
+    "runner_measures": "workflow_readback trace count equals 3",
+    "actual_divergence": "The terminal final phase correctly emits no suspend/readback. Actual trace count is 2; RUN_FINALIZED is asserted in the candidate test. Therefore wrapper returns runtime_pair_not_established although normal JUnit is 1 passed and the marker-preserving mutant is the expected 1 failed.",
+    "decision": "Do not edit the original result or relabel its recorded status. A corrected wrapper adjudication or a fresh corrected receipt is needed before calling the runner aggregate clean."
+  },
+  "evidence": {
+    "interpretation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/runtime-interpretation-r1.json@627808a21cae91a857c06de2a98bbfe4b12e764993a4cfd3aae6214d7fd028ff",
+    "normal_junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/run/pytest.xml@595f09affd969fbdcf43935607e072f0888bf97f96ccba4bd80d7949f197e6e1",
+    "normal_trace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/actual-path-cache-trace.jsonl@aa3dda4d5836d8858e8e0dfc3b1b2faae403a122bc250a13a343a2b9da68d545",
+    "normal_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/normal/runtime-module-origins.json@cad1e05d1eb987d5743b13233eb466844f538a8be5a52a048fd0b5843ce54677",
+    "mutant_junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/run/pytest.xml@97bda8dcaf574f471e3ab24ae33dd4749d07cf9cf0652a989b92dc46b0d366c2",
+    "mutant_trace": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/actual-path-cache-trace.jsonl@34341159a931ea294678332d6d110a4c878e778023a74d7fd882d699d88e3fa8",
+    "mutant_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/mutant/runtime-module-origins.json@67c37b8476df37622c895052990460bbd62a7a46ec5921a6f1ee8f91f49db77d",
+    "mutant_patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/global-inventory-key-mutant.patch@77a9e90535eab1ca70b2bb6a8065ebbfec5b8528fa148ab2798622392af731e8",
+    "runner_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-unconsumed-source-inventory-witness-20261020/attempt-3/result.json@6efc8ef24f2beda738dafc0c2aef8e451ad011fd23507c46e2b72946c6ad27ff",
+    "source_reads": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py@81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+    "cache_binding_impl": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py@6f3d0a755d0d4e750f0655f5b8fd021e579ac4cbf83dfafe45f00cee7cebfeba",
+    "executor": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py@cfddeb423a8deccd412f480134368689c664565ae62eccf966fea95f7685f907",
+    "idempotency": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py@12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+    "prior_B61_scope_decision": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/cache-held-adjudication.md@a33cc40975f21b1076b68d7eb3e9ba609d50945b612df3f5b31850d514f35935"
+  },
+  "limitations_and_next_check": [
+    "This is a selected B61 cache-read contour on synthetic DuckDB fixtures, not a production data/currentness/authority witness.",
+    "study_source_inventory is a test-only state payload; the test does not prove an external inventory producer or an artifact/event bridge for that inventory.",
+    "The test demonstrates replacement bytes for A cause a cache miss/recompute, but does not prove old A bytes remain resolvable after path replacement/removal for the full replay horizon.",
+    "Keep historical replayability limitation separate; G may accept the bounded cache-freshness witness while retaining that subclaim as limited/unestablished."
+  ],
+  "next_check": "Root independently decides whether to adopt the RAW candidate as bounded code-evidence, corrects/records the wrapper P38 predicate separately, then evaluates B61 historical replayability under the existing retained-source criteria. No formal closure is proposed here."
+}

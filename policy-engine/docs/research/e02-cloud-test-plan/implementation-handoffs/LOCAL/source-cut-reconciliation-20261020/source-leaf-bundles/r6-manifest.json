@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt_bundle.v1",
+  "bundle_role": "RAW-only additive r6 source receipt assembly; prior r5 leaves are referenced by exact path@SHA, not copied",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+    "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+    "tracked_and_index_status": "index clean; two known tracked edits remain unchanged/hash-verified",
+    "untracked_state": "not enumerated; no whole-worktree-clean assertion"
+  },
+  "prior_bundle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r5-20261019/manifest.json",
+    "sha256": "2212f3d52eb662ac98711b997300d36fbc4d1ce303b1fb3225618eb3c76c4773",
+    "bytes": 3230
+  },
+  "counts": {
+    "source_leaves": 6,
+    "r5_source_leaves_referenced": 5,
+    "new_source_leaves": 1,
+    "separate_runtime_followups": 3,
+    "changed_paths_total": 47
+  },
+  "G_acceptance": false,
+  "source_freeze": false,
+  "closure_ids": [],
+  "receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r5-20261019/receipt-b224-scm-reorder-d2926941.json",
+      "sha256": "532e3a26b02a1dea38c86a02fe6258dea9753093014767d996c14d8aaa0eb8ea",
+      "candidate": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+      "tree": "0eb473ec6187ffbdcb54b7d0701c50473834ca9f",
+      "changed_paths": 3,
+      "work_item": "b224-truthful-manual-scm-fixture-and-reordered-draw-witness",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r5-20261019/receipt-r3-r4-fixture-a7ef7eb9.json",
+      "sha256": "820e2183057a73226a6816dd74a3843a453b1840c9aa469c3514a81c22c29540",
+      "candidate": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+      "tree": "016ddafe6835cdd87d78b3191a39f179ac8f5cd3",
+      "changed_paths": 5,
+      "work_item": "root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r5-20261019/receipt-q2-module-subtype-b26e96f5.json",
+      "sha256": "5b60f52be6c64547678fcfb33182ed687de2e4b2a031dad85197dc834134f092",
+      "candidate": "b26e96f51adb532dd7969a33b672362f157c8714",
+      "tree": "33705ec588cbd5d2716ac5a905944ff4d5bf8626",
+      "changed_paths": 4,
+      "work_item": "root-reviewed-q2-module-subtype-capture-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r5-20261019/receipt-fed02-join-a414aa45.json",
+      "sha256": "8c1c18df03004499fec7347cd54ae5bb4532f039a5981d02758329f25de4aa7a",
+      "candidate": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+      "tree": "3032419a1ef9a01623c4083b5e1d74e59665bf78",
+      "changed_paths": 3,
+      "work_item": "root-reviewed-fed02-join-retention-witness-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r5-20261019/receipt-la024-dns-dial-b76b4d01.json",
+      "sha256": "d122e49c5570c38cb587c7aa2ed7b83413a9113d9f658193d1ddc4404f943f6f",
+      "candidate": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+      "tree": "a81f579d00faf41f56e8b820b6d75cc7c34fabae",
+      "changed_paths": 11,
+      "work_item": "root-reviewed-la024-dns-dial-binding-adoption-20261019",
+      "proposal_ids": [],
+      "closure_ids": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r6-20261020/receipt-can-epoch-d59be5b9.json",
+      "sha256": "1cf2fdd63a349845571d0428157f04f4df0db7b7d8525f5a5c69a2a227c40921",
+      "candidate": "d59be5b90ac6e89f4f5cb5baff80b33694ec6458",
+      "tree": "2154afafc8206b2dfdd961798a55d497793c722a",
+      "base": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+      "changed_paths": 21,
+      "work_item": "core-epoch-owner-producer-and-reader-contract-v4",
+      "proposal_ids": [],
+      "closure_ids": []
+    }
+  ],
+  "runtime_followups": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r6-20261020/followup-can-d59-two-modules.json",
+      "sha256": "e5ab6fdff2669bb7326855562d0036a94ae3c33f58dfd9534741634adecb20d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r6-20261020/followup-b76-combined-76pass.json",
+      "sha256": "dbdfbbd99c6d7d8f00ca05fef3d56d414ce9bb87857dd6042f7fde4beb12d727"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-r6-20261020/followup-b76-r3-r4-31p1f1s.json",
+      "sha256": "3912b17f6ee87557ccf10717400f60f8c3505b437c43d62a44d5d032beb8e399"
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "record_type": "interim_occurrence_and_actual_evidence_navigation_receipt",
+  "source_frame": {
+    "base_commit": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+    "head_commit": "975bca19daba048fcaaf0cbff64c65aabdf1b9b8",
+    "head_tree": "a8695ce3f9ac1d39c30dbb0ecb71a59cf20fa69a",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit_chain": [
+      {
+        "all_changed_path_entries": 28,
+        "commit": "851600e7c313f0d6e720be9fd3448cc71b11291d",
+        "metadata_path_entries": 2,
+        "parent": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+        "source_or_test_path_entries": 26,
+        "subject": "fix(e02): compose strict nested artifacts, WMR slots and typed Fabric consumers",
+        "tree": "352739ce7f7cd56d12b9ef8ac1731e440fd6da35"
+      },
+      {
+        "all_changed_path_entries": 25,
+        "commit": "192a306501ef40ab8550c7b6766b8bff233126c6",
+        "metadata_path_entries": 2,
+        "parent": "851600e7c313f0d6e720be9fd3448cc71b11291d",
+        "source_or_test_path_entries": 23,
+        "subject": "fix(e02): bind replay input edges and connector execution owners",
+        "tree": "e92bdd7f0b4a8552d4c630b3dcf415199ce82e96"
+      },
+      {
+        "all_changed_path_entries": 4,
+        "commit": "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9",
+        "metadata_path_entries": 4,
+        "parent": "192a306501ef40ab8550c7b6766b8bff233126c6",
+        "source_or_test_path_entries": 0,
+        "subject": "docs(e02): retain composed source receipts and full occurrence navigation",
+        "tree": "5df54fb5b28079655e45d1e508236082d29cd3df"
+      },
+      {
+        "all_changed_path_entries": 39,
+        "commit": "975bca19daba048fcaaf0cbff64c65aabdf1b9b8",
+        "metadata_path_entries": 2,
+        "parent": "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9",
+        "source_or_test_path_entries": 37,
+        "subject": "fix(e02): compose typed owner boundaries and source-bound consumer guards",
+        "tree": "a8695ce3f9ac1d39c30dbb0ecb71a59cf20fa69a"
+      }
+    ],
+    "slice_base_for_975": "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9",
+    "source_freeze": false
+  },
+  "full_occurrence_navigation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-source-impact-975-interim-navigation-20261019/occurrence-navigation-975.json",
+    "sha256": "1524dd8c1633d8024a4eb4cf0b1e4f299f9da7e7931f6ca594cf5c296e32a2de",
+    "occurrence_rows": 291,
+    "original_key_order_preserved": true,
+    "repeated_rows_preserved": true,
+    "task_routes_resolve": true
+  },
+  "manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-source-impact-975-interim-navigation-20261019/manifest.json",
+    "sha256": "43cacc8c7cfca7615b3ce54007f54636afbb38c31bc86e7231575e73a43d600b"
+  },
+  "complete_source_cut": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-source-impact-975-interim-navigation-20261019/complete-source-cut-975.json",
+    "sha256": "418b856aecf0c0ced6c35cfc593aabcab6d6028a645c01a720a4a600089941d3"
+  },
+  "denominator": {
+    "canonical_occurrences": 291,
+    "unique_finding_ids": 282,
+    "repeated_finding_ids": 8,
+    "repeated_occurrence_rows": 17,
+    "task_routes": 331,
+    "task_definitions": 26,
+    "partition_counts": [
+      73,
+      73,
+      73,
+      72
+    ],
+    "all_git_path_entries_724_to_975": 91,
+    "file_type_denominator": {
+      "metadata_or_delivery_record": 5,
+      "product_source_or_in_package_readme": 57,
+      "test": 29
+    },
+    "source_test_readme_paths": 86,
+    "old49_source_paths": 49,
+    "new37_source_test_paths": 37,
+    "old49_new37_intersection": 0,
+    "union_matches_source_set": true,
+    "path_match_only": {
+      "old49_occurrences": 21,
+      "new37_paths": 2,
+      "new37_occurrences": 11,
+      "new37_refs": 21,
+      "combined_occurrences": 32,
+      "meaning": "Navigation only; no-hit does not establish absence of semantic/transitive impact."
+    },
+    "nonformal_closure_history": {
+      "author_proposed_occurrences": 202,
+      "author_proposed_unique_ids": 198,
+      "historical_ledger_rows": 9,
+      "formal_closure_ids": [],
+      "B198_ordinal_118_current_candidate": "UNRUN"
+    }
+  },
+  "current_975_source_application": {
+    "implementation_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-owner-37-final-apply-20261019/source-application.json",
+      "sha256": "ba354bf2eb139d45c77bee712077df3f4e3582fbb3a39b3e20b733d52ce206c7"
+    },
+    "branch_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-owner-37-final-apply-20261019/native-owner-37-reviewed-source-20261019-readback.json",
+      "sha256": "fd3c854759d2c7489260e8e8cd0030b0bd70db58a2f2778cc7089b9e3ef0f192"
+    },
+    "source_paths": 37,
+    "full_commit_paths": 39,
+    "reviewed_inputs": 180,
+    "changed_file_ruff": "PASS",
+    "runtime_receipts": 0
+  },
+  "R14_R15": {
+    "R14_decisive_summary": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-c7-r14-positive724-execution-20261019/decisive-summary.json",
+      "sha256": "7f756f82c2bff791534a6c9a401c8b261aa9b30ef5c3bd6aa28ca37e474b53f5"
+    },
+    "R14_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-c7-r14-positive724-execution-20261019/execution-manifest.json",
+      "sha256": "c050b6665326e84c4e8b4358b58aafa5459b93383fd315523b7ae66b32182955"
+    },
+    "R15_candidate": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-c7-r15-environment-chain-monitor-20261019/manifest.json",
+      "sha256": "1f21ff622d74141ffead065d950d674b5278c1a6939108095d770a9379256676"
+    },
+    "R15_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-c7-r15-environment-chain-independent-review-20261019-01/review.json",
+      "sha256": "c0c403edc20134de96876599dba6cce0239729fad20ac89ed449074811de09b0"
+    },
+    "boundary": "R14 had 3 inner tests and 9 phases pass, but monitor refused admission on PATH-only projection mismatch; not 975. R15 remains unrun."
+  },
+  "N11": {
+    "source_R4_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-source-fqn-resolution-r4-20261019/candidate-manifest-r4.json",
+      "sha256": "8e5563ee1c865e359af9dcf9a15de29428c11bbac98b430d569379f2c60eadde"
+    },
+    "source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-source-fqn-resolution-r4-independent-20261019/review.json",
+      "sha256": "8929e54c97839f9ed4b871ea411a58dc9e51b189f2f8af4f56df5f932998395f"
+    },
+    "owner_probe_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-ds17-owner-verification-route-r1-independent-20261019/review.json",
+      "sha256": "6e0aa51d7b494c313ad8adba9a2eef15373c4fd7ed182a99e8bd753d93ee2f0d"
+    },
+    "state": "Source R4 bounded GO; owner probe HOLD and actual owner run UNRUN; verification_missing."
+  },
+  "current_975_runtime_evidence": {
+    "post_975_runtime_receipts_present": 0,
+    "status": "Not established; no product imports, pytest, runtime or current MyPy in this record."
+  },
+  "qualification_boundary": "All291 occurrences remain individually referenced. The RAW navigation is interim and its historical observation labels are qualified by historical_observation_corrections in this record: prepared-B baseline executed 2d3a, separate724 launcher; LegalR2 overallHOLD. No direct-path join proves zero semantic/transitive impact or formal closure.",
+  "next_check": "Complete the remaining reviewed source companions, then freeze exact source/input/backend. Run selected 172-target MyPy as a bounded static diagnostic with its recorded optional-SDK runtime incompatibility; require a supported profile for full native/runtime admission. Run the affected behavioral union, owner-generator checks/removals, native gates, Linux and installed/rebuilt-sdist consumers. Evaluate each original occurrence separately.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "proposal_outcomes": [],
+  "implementation_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
+    "sha256": "2ca30b54518176bba86feba5c322aa0d2c4bf151856dba15b69a84f8c1f0107c"
+  },
+  "draft_provenance": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-975-implementation-receipt-draft-20261019/occurrence-navigation-progress-975-20261019.json",
+    "sha256": "1bbe5e9255b7d4393280de0592716c3a9c031aae0c3838ebcb5332d7dd7a385f"
+  },
+  "historical_observation_corrections": {
+    "B15": "The baseline executed source is defining commit 2d3a990ff716b46ccf473e229b9de7e009a1d1fb/tree68ae933789c2160911260d769039757c7a142a58; 724 is its separate launcher/current-composition context. It is not a 724 source runtime receipt. Latest R15 is 44 PASS /15 FAIL across59 cases; outer68.953456s.",
+    "C12_LEGAL": "The historical R2 inner selected case passed, but overall source-bound admission remains HOLD: a concurrent NL patch/reversal changed tracked POSIX context; server SIGTERM expectation and child-origin coverage also remain bounded. Later metadata reconciliation is future-only and does not retroqualify that run."
+  },
+  "historical_actuals_with_distinct_source_contexts": [
+    {
+      "id": "C05",
+      "kind": "actual_selected_whole_modules",
+      "source_frame_head": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+      "return_code": 1,
+      "wall_seconds": 238.54947604215704,
+      "junit": {
+        "cases": 388,
+        "errors": 0,
+        "failed": 6,
+        "passed": 382,
+        "skipped": 0
+      },
+      "qualification_for_975": "historical_only; source frame is 724; not a post-975 runtime qualification or closure"
+    },
+    {
+      "id": "C12_LEGAL",
+      "kind": "actual_exact_nodeids",
+      "source_frame_head": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+      "return_code": 0,
+      "wall_seconds": 164.58772454108112,
+      "junit": {
+        "cases": 1,
+        "errors": 0,
+        "failed": 0,
+        "passed": 1,
+        "skipped": 0
+      },
+      "qualification_for_975": "Historical724 inner1PASS; overallHOLD due source-context/POSIX incident and supervision/origin limitations; no975qualification"
+    },
+    {
+      "id": "C12_CATALOG",
+      "kind": "actual_exact_nodeids",
+      "source_frame_head": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+      "return_code": 0,
+      "wall_seconds": 20.54755345801823,
+      "junit": {
+        "cases": 12,
+        "errors": 0,
+        "failed": 0,
+        "passed": 12,
+        "skipped": 0
+      },
+      "qualification_for_975": "historical_only; source frame is 724; not a post-975 runtime qualification or closure"
+    },
+    {
+      "id": "LINUX8",
+      "kind": "isolated_focused_bundle_not_full_repository_freeze",
+      "source_frame_head": null,
+      "return_code": 1,
+      "wall_seconds": 0.378,
+      "junit": null,
+      "qualification_for_975": "historical_only; source frame is 724; not a post-975 runtime qualification or closure"
+    },
+    {
+      "id": "B15_BASELINE",
+      "kind": "actual_historical_baseline_copy",
+      "source_frame_head": "2d3a990ff716b46ccf473e229b9de7e009a1d1fb",
+      "return_code": 1,
+      "wall_seconds": 68.95345616596751,
+      "junit": {
+        "cases": 59,
+        "errors": 0,
+        "failed": 15,
+        "passed": 44,
+        "skipped": 0
+      },
+      "qualification_for_975": "Historical defining baseline only, not724 or975 executed product source; current13contoursUNRUN",
+      "executed_source_tree": "68ae933789c2160911260d769039757c7a142a58",
+      "launcher_context_head": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+      "wall_boundary": "R15 outer supervisor; inner30.41s is separately recorded in the receipt",
+      "latest_actual_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-b-baseline-contextual-runner-r15-actual-receipt-20261019/receipt.json",
+        "sha256": "2f76c19fed3c97cf2eaa3f2f08f192bde398458b5f9a0d023b381d89dc855592"
+      }
+    }
+  ]
+}

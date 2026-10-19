@@ -1136,6 +1136,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-192a-20261019.json",
       "sha256": "15b27ba56ff596c683d01f49a41bdc2d16a7b02cbdf0826066594ecde8c5c387"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
+      "sha256": "2ca30b54518176bba86feba5c322aa0d2c4bf151856dba15b69a84f8c1f0107c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
+      "sha256": "7e37c21af4a27fa5bf8a421e6a678edc1aa64996e9c45aa9f34db590ace0c9ac"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -1187,10 +1195,10 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "192a306501ef40ab8550c7b6766b8bff233126c6",
-    "tree": "e92bdd7f0b4a8552d4c630b3dcf415199ce82e96",
+    "head": "975bca19daba048fcaaf0cbff64c65aabdf1b9b8",
+    "tree": "a8695ce3f9ac1d39c30dbb0ecb71a59cf20fa69a",
     "parents": [
-      "851600e7c313f0d6e720be9fd3448cc71b11291d"
+      "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9"
     ],
     "source_freeze": false,
     "tracked_source_clean_before_receipt_edit": true,
@@ -1202,18 +1210,22 @@
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-192a306501ef.json",
         "sha256": "cb8cf786fe85043c300d941b3abe8f5ff6b2df15fa189510f9a23debb92bf475"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
+        "sha256": "2ca30b54518176bba86feba5c322aa0d2c4bf151856dba15b69a84f8c1f0107c"
       }
     ],
     "occurrence_progress": {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-192a-20261019.json",
-      "sha256": "15b27ba56ff596c683d01f49a41bdc2d16a7b02cbdf0826066594ecde8c5c387"
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
+      "sha256": "7e37c21af4a27fa5bf8a421e6a678edc1aa64996e9c45aa9f34db590ace0c9ac"
     },
     "published_candidate_last_verified": {
-      "sha": "72470bc9cf9734301cfb3b79984517f52b7a4157",
-      "tree": "3d3c1981b5078ebf80566b7f5720888433cf54f2",
+      "sha": "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9",
+      "tree": "5df54fb5b28079655e45d1e508236082d29cd3df",
       "readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-72470bc-20261019/remote-readback.json",
-        "sha256": "361c63d51354fadd5c4e5392041dd7ca69a3b7a45f22167475e68ba181504277"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-fe9b479-20261019/remote-readback.json",
+        "sha256": "24a9bbf62a4b33029fdea30cc5a0060b4cc18ae45b3a532523e414befb52ec12"
       }
     },
     "G_checkpoint_last_remote_verified": {
@@ -1225,8 +1237,12 @@
       "receipt": "raw/root-g-published-readback-20261017/readback.json",
       "meaning": "Fetched G unchanged; read-only, not authorship or automatic acceptance. Own28ba exactremote/tree/10changedpaths verified separately."
     },
+    "G_published_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-published-readback-20261019/readback.json",
+      "sha256": "d57dbd2071647138a682e6d895d3e94bbdefaabdbb691dbf6232b922aade5817"
+    },
     "G_acceptance": false,
-    "meaning": "49 source/test/package-documentation paths plus two shared mandatory record paths committed in two implementation boundaries. Actual changed-file Ruff passed. Full current composed/native/Linux/installed/browser acceptance remains unrun; full291 occurrence navigation preserves limits and historical decisions. No future receipt SHA is asserted."
+    "meaning": "86 source/test/package-documentation paths in three implementation commits since724; all291 occurrences retained. Changed-file Ruff passed. Current composed runtime/native/install/Linux acceptance remains unrun; dependency profile has a real Presidio/Python incompatibility. Historical baseline and Legal qualification corrections are explicit. No future own receipt SHA is asserted."
   },
   "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
 }

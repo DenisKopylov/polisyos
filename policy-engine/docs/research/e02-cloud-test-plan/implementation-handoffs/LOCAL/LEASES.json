@@ -23734,5 +23734,52 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "abi-generated-index-owner-output-companion-20261019": {
+    "slice_base": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/reference/generated-artifacts.md": {
+        "operation": "write",
+        "preimage_sha256": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/generated-artifacts-preview.md",
+        "postimage_sha256": "cacbb87cb77c22de066d23331a1551da540118ef8fe12ee31c6123739938ac02"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/source-application.json",
+      "sha256": "115dc08ed574ac6547eb20b5e3eafcf9a16eccd548af735d685ea532cf3f15ad"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-abi-generated-index-companion-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b154-publicsurface-owner-sync-20261019/receipt.json",
+        "sha256": "9576ad80f3bbb1249f117bb8f9610994bedcf1bcd65f10c819ada16c7bcf31a8"
+      },
+      {
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "sha256": "a751b830630d91ef1fc1bb7cb609326461f1a5d483bd4ca60abfb489db272020"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Mandatory generated-doc companion to the current ABI schema family, not a new capability or authority criterion.",
+    "bounded_proof": "Actual official guardrails sync exit0 at791,21.463s. Both public inventory outputs remain byte-identical; the generated-artifacts output differs solely by the two schema-doc paths in its table and detailed output list. Root verified exact substitution against the full files.",
+    "limitations": [
+      "Documentation regeneration only; native docs-commit Python SKIP does not establish native backend green.",
+      "Core public export completeness, API breaking compatibility and G architecture review remain unchanged and unresolved."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Canonical generated-artifact and ABI regeneration/check/drift controls at the eventual composed freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

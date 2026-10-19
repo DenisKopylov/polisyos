@@ -20435,5 +20435,105 @@
       },
       "class": "root lock metadata closure for an existing locked dependency, not a package/version update"
     }
+  },
+  "root-r4-custody-oracle-admission-20261019": {
+    "slice_base": "0368a2fdcca710fd39bc3f2b3e87c08f6df07c1a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py": {
+        "operation": "modify",
+        "preimage_sha256": "346f42906bce5c9c044568e7200da6d71c1360cdd844da59d104725ac0be8ace",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/postimages/policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+        "postimage_sha256": "83d52d72d1ab9fff55d41897dadf493c74d3532d4bc2eae60514565c1c6c811b",
+        "git_base_preimage_sha256": "346f42906bce5c9c044568e7200da6d71c1360cdd844da59d104725ac0be8ace"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/source-application.json",
+      "sha256": "8f419a2722380f5a316ee1e07f8812ab085d6cb5f18331b7e53bf29e30224bc1"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-negative-oracle-trace-fast-r2-20261019/manifest.json",
+        "sha256": "ccdc4c980d976770094f5e13a3f946d5a7ebaa607d7a5f084d4529de23cb5ecf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-negative-oracle-trace-fast-r2-independent-20261019/review.json",
+        "sha256": "3f8416566f5b2f09cfa239c924cf3c756ca9be30101dd6f93c4bc4ee392300c3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/reviewed-source-docs.patch",
+        "sha256": "3e1095450b8c9a27902c4de06a95334a30153b2fff88b226b85ce14e69ab23fa"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx": "f4fb392e1fe94af0c5b3d9998dc5045020fcf9092fd7189b767280acf3be96a3",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx": "fe81f5a4160c66b58211e0769d3754fe9fcf3de82cd04e17033b83f31fbe19d7",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts": "d87c76c4d94ff7f784ac617b34482208605175f3d9656f56cfeca8b96ee6ef7b",
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts": "f0420e6745e233dd15431c1c431cd20870b97b7e2c736cd47360945f7d073125",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx": "c3e75fc348758c0edabf148989117547f36da50a2293b78467dbe669a54c3786",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx": "6163eac2a953a43191c7ead23e039db6e2494e9da226425cbc88c4fd59c5c7e0",
+      "policy-engine/docs/reference/api/migration-guide.md": "612fe009dd10ac110cd3c665c5e2fabb3ff0d06eb0d3d2f641dfa114ebbf91cc",
+      "policy-engine/docs/runbooks/migration-release-promotion.md": "c55226975e8451319810fdc369804c524c2f644ded048368797b3c09163a8f76",
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml": "b22e592fa074748149f7b7584560d56b3a8516bd0feb25692d3681a45be13a24",
+      "policy-engine/src/polisyos/core/contracts/runtime.py": "8b0d366eca1503e31cf556558b5167ff1b1111e924ef175d3a744a018f382e7d",
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989",
+      "policy-engine/src/polisyos/runtime/http/routes/lineage.py": "4d105d1725d3844ee7e715649c5269217116111404448ae3c0d9b050474ac453",
+      "policy-engine/tests/unit/runtime/http/test_lineage_routes.py": "141c33f919f2b5d8201267b5b034fb1423bf9a005c9c7239fd81d80a9cc3aae8",
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py": "ea183d74a5e3e8445f32d991881151dc4d9601c929be4ff2e4a50c90c10d832d"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx",
+      "policy-engine/docs/reference/api/migration-guide.md",
+      "policy-engine/docs/runbooks/migration-release-promotion.md",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "policy-engine/src/polisyos/runtime/http/routes/lineage.py",
+      "policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py"
+    ],
+    "preserved_other_owned_untracked_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml"
+    ],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same test-oracle wiring class, both actual typed consumers; no production gate weakening.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Test-oracle repair only; all actual new control tests remain UNRUN.",
+      "Two staged-import positive failures remain unresolved, and the prior diagnostic reached its wall cap before the guard."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual full Foundry-consumption module and two selected staged-import predicate discriminators on current source.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

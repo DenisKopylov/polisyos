@@ -957,6 +957,7 @@ def test_method_report_recomputation_is_consulted_at_constraint_admission(
 def test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admission(
     recorded_panel_owner, monkeypatch
 ):
+    from polisyos.core import artifacts as core_artifacts
     from polisyos.core.artifacts import ProducerInfo
 
     _, _, state, consumer, consumption, owner, preflight = _post_method_constraints(
@@ -964,11 +965,21 @@ def test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admissi
     )
     store = owner._store
     original = store.get_manifest
-    changed_id = str(state.artifacts_index["causal_method_evidence_ref"].artifact_id)
+    target_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index["causal_method_evidence_ref"]
+    )
+    changed_selector = (str(target_ref.artifact_id), target_ref.manifest_profile_sha256)
+    assert changed_selector[1] is not None
+    mutation_hits = []
 
-    def changed_manifest(artifact_id):
-        manifest = original(artifact_id)
-        if str(artifact_id) == changed_id:
+    def changed_manifest(artifact_ref):
+        manifest = original(artifact_ref)
+        selector = (
+            str(getattr(artifact_ref, "artifact_id", artifact_ref)),
+            getattr(artifact_ref, "manifest_profile_sha256", None),
+        )
+        if selector == changed_selector:
+            mutation_hits.append(selector)
             return manifest.model_copy(
                 update={
                     "producer": ProducerInfo(
@@ -981,6 +992,78 @@ def test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admissi
     monkeypatch.setattr(store, "get_manifest", changed_manifest)
     with pytest.raises(ValueError, match="foundry_consumption_source_custody_changed"):
         owner.reconcile_method(preflight, method_owner=consumer, consumption=consumption)
+    assert mutation_hits, "the exact selected manifest mutation did not run"
+    assert set(mutation_hits) == {changed_selector}
+
+
+def test_profile_addressed_method_evidence_resolver_returns_typed_fail_closed_basis(
+    recorded_panel_owner, monkeypatch
+):
+    from polisyos.core import artifacts as core_artifacts
+    from polisyos.core.artifacts import ProducerInfo
+    from polisyos.core.canon import from_canonical_bytes
+
+    _, _, state, consumer, consumption, owner, preflight = _post_method_constraints(
+        recorded_panel_owner
+    )
+    store = owner._store
+    original = store.get_manifest_by_profile
+    target_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index["causal_method_evidence_ref"]
+    )
+    changed_selector = (str(target_ref.artifact_id), target_ref.manifest_profile_sha256)
+    assert changed_selector[1] is not None
+    mutation_hits = []
+    marker_preservation = []
+    changed_producer = ProducerInfo(
+        component="c3-profile-resolver-probe", version="unverified-substitution"
+    )
+
+    def changed_profile_manifest(artifact_id, profile_sha256):
+        manifest = original(artifact_id, profile_sha256)
+        selector = (str(getattr(artifact_id, "artifact_id", artifact_id)), profile_sha256)
+        if selector == changed_selector:
+            before = manifest.model_dump(mode="json")
+            altered = manifest.model_copy(update={"producer": changed_producer})
+            after = altered.model_dump(mode="json")
+            mutation_hits.append(selector)
+            marker_preservation.append((before, after))
+            return altered
+        return manifest
+
+    monkeypatch.setattr(store, "get_manifest_by_profile", changed_profile_manifest)
+    admission = owner.reconcile_method(preflight, method_owner=consumer, consumption=consumption)
+    assert mutation_hits, "the exact profile-addressed manifest mutation did not run"
+    assert set(mutation_hits) == {changed_selector}
+    assert marker_preservation
+    for before, after in marker_preservation:
+        assert before["producer"] != after["producer"]
+        assert after["producer"] == changed_producer.model_dump(mode="json")
+        assert {key: value for key, value in before.items() if key != "producer"} == {
+            key: value for key, value in after.items() if key != "producer"
+        }
+
+    assert admission.missing_basis == ("constraint_requirement_basis_unverified",)
+    assert admission.decision.blocks_promotion is True
+    assert admission.decision.downgrades_authority is True
+    packet = from_canonical_bytes(owner.require(admission, workspace_id=admission.workspace_id))
+    assert packet["evaluation_phase"] == "post_execution_reconciliation"
+    assert packet["missing_basis"] == ["constraint_requirement_basis_unverified"]
+    assert packet["failure"] == {
+        "type": "ValueError",
+        "reason": "selected manifest profile digest does not match its lineage edge",
+    }
+    assert packet["method_report_ref"] is None
+    assert packet["method_consumption_hash"] is None
+    assert packet["snapshot"] is None
+    assert packet["population"] is None
+    assert packet["decision"] == {
+        "blocks_promotion": True,
+        "downgrades_authority": True,
+        "blocking_constraint_ids": ["constraint_requirement_basis_unverified"],
+        "limiting_constraint_ids": [],
+        "warning_constraint_ids": [],
+    }
 
 
 def test_method_emission_rechecks_the_bound_constraint_owner(recorded_panel_owner, monkeypatch):

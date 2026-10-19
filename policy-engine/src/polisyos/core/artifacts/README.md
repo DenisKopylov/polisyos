@@ -28,8 +28,11 @@ environment fingerprints.
 ### Read-only local CAS access
 
 `ArtifactReader` is the narrow read-only interface for consumers that need verified artifact
-reads without a write-capable store surface. `FileSystemCAS.open_existing_read_only` returns
-this interface and requires an already-existing CAS root, layout, root transaction lock, and
+reads without a write-capable store surface. `FileSystemCAS.open_existing_read_only` returns a
+`ReadOnlyFileSystemCAS` that implements `ArtifactReader` and additionally exposes
+`get_raw_manifest_bytes()`, `get_manifest_by_profile()`, and `verify()` for profile-aware semantic
+consumers. Those methods delegate to the existing guarded read path; the handle exposes no writer
+operations. The opener requires an already-existing CAS root, layout, root transaction lock, and
 per-artifact stripe lock. It creates no directories or lock files and does not run orphan-stage
 recovery. Use the ordinary `FileSystemCAS` writer for writes and lifecycle management.
 

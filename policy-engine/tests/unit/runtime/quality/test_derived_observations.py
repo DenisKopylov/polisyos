@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import stat
 import subprocess
 import sys
 from dataclasses import dataclass, replace
@@ -731,6 +732,32 @@ def test_selected_source_view_corruption_refuses_recipe_consumer(tmp_path: Path)
     assert refusal.value.code is DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
 
 
+def _cas_tree_state(root: Path) -> tuple[tuple[object, ...], ...]:
+    """Capture exact filesystem members and metadata around read-only consumption."""
+    state: list[tuple[object, ...]] = []
+    for path in (root, *sorted(root.rglob("*"))):
+        info = path.lstat()
+        digest = (
+            hashlib.sha256(path.read_bytes()).hexdigest() if stat.S_ISREG(info.st_mode) else None
+        )
+        relative = "." if path == root else path.relative_to(root).as_posix()
+        target = os.readlink(path) if stat.S_ISLNK(info.st_mode) else None
+        state.append(
+            (
+                relative,
+                stat.S_IFMT(info.st_mode),
+                stat.S_IMODE(info.st_mode),
+                info.st_ino,
+                info.st_nlink,
+                info.st_mtime_ns,
+                info.st_size,
+                digest,
+                target,
+            )
+        )
+    return tuple(state)
+
+
 def test_certificate_retains_selected_derived_output_view(tmp_path: Path) -> None:
     store, refs, output_basis, _, _ = _case_inputs(
         tmp_path / "cas",
@@ -783,13 +810,57 @@ def test_certificate_retains_selected_derived_output_view(tmp_path: Path) -> Non
         == materialized.derived_artifact_ref.manifest_profile_sha256
     )
 
+    root = tmp_path / "cas"
+    reader = artifacts.FileSystemCAS.open_existing_read_only(root)
+    assert isinstance(reader, artifacts.RawManifestBytesReader)
+    before = _cas_tree_state(root)
     consumed = consume_certified_derivation(
-        artifacts.FileSystemCAS(tmp_path / "cas"),
+        reader,
         certificate_ref=materialized.certificate_artifact_ref,
         consumer_method_id="test.selected.derived.consumer@1.0.0",
     )
     assert consumed.derived_artifact_id == materialized.derived_artifact_ref.artifact_id
     assert consumed.cache_verified is True
+    assert _cas_tree_state(root) == before
+
+
+@pytest.mark.parametrize("corruption", ["missing", "malformed"])
+def test_read_only_certified_consumer_refuses_raw_certificate_profile_corruption(
+    tmp_path: Path,
+    corruption: str,
+) -> None:
+    root = tmp_path / "cas"
+    store, refs, output_basis, _, _ = _case_inputs(root, "price_level_rebase")
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(),
+        input_refs=refs,
+        output_variable_id=f"test.read.only.corrupt.{corruption}",
+        output_basis=output_basis,
+    )
+    materialized = materialize_derivation(store, recipe)
+    certificate_ref = materialized.certificate_artifact_ref
+    assert certificate_ref.manifest_profile_sha256 is not None
+    selected_manifest = store._layout.view_manifest_path(
+        certificate_ref.artifact_id,
+        certificate_ref.manifest_profile_sha256,
+    )
+    if corruption == "missing":
+        selected_manifest.unlink()
+    else:
+        selected_manifest.write_bytes(b"{")
+
+    before = _cas_tree_state(root)
+    reader = artifacts.FileSystemCAS.open_existing_read_only(root)
+    with pytest.raises(DerivationRefusalError) as refusal:
+        consume_certified_derivation(
+            reader,
+            certificate_ref=certificate_ref,
+            consumer_method_id=f"test.read.only.corrupt.{corruption}@1.0.0",
+        )
+
+    assert refusal.value.code is DerivationRefusalCode.CERTIFICATE_DRIFT
+    assert _cas_tree_state(root) == before
 
 
 def test_recipe_identity_excludes_only_manifest_created_at(tmp_path: Path) -> None:

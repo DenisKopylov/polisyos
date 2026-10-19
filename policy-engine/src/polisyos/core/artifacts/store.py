@@ -5375,3 +5375,30 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
     ) -> ArtifactManifest:
         """Read and validate the selected typed manifest view."""
         return self.__store.get_manifest(artifact_id)
+
+    def get_manifest_by_profile(
+        self,
+        artifact_id: ArtifactID | str,
+        manifest_profile_sha256: str,
+    ) -> ArtifactManifest:
+        """Resolve one exact selected manifest through the guarded store."""
+        return self.__store.get_manifest_by_profile(artifact_id, manifest_profile_sha256)
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Read exact selected sidecar bytes through the guarded store."""
+        return self.__store.get_raw_manifest_bytes(
+            artifact_id,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+
+    def verify(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> VerificationReport:
+        """Verify the selected artifact view without exposing write operations."""
+        return self.__store.verify(artifact_id)

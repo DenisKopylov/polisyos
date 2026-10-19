@@ -20,7 +20,7 @@ from collections.abc import Iterable, Mapping
 from decimal import Decimal, DivisionByZero, InvalidOperation, localcontext
 from enum import StrEnum
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Literal, Never, Self
+from typing import TYPE_CHECKING, Annotated, Literal, Never, Protocol, Self
 
 from pydantic import (
     BaseModel,
@@ -33,6 +33,7 @@ from pydantic import (
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.protocol import ProfileAddressedManifestStore
 from polisyos.ir import api as ir_api
 
 if TYPE_CHECKING:
@@ -110,6 +111,20 @@ _DEFAULT_UNITS_REGISTRY = ir_api.resolve_lazy_export(
     namespace={},
     exports=ir_api.KERNEL_FACADE_EXPORTS,
 )
+
+
+class _CertifiedDerivationReader(
+    artifacts.ArtifactReader,
+    artifacts.RawManifestBytesReader,
+    ProfileAddressedManifestStore,
+    Protocol,
+):
+    """Read-only store capabilities required to admit and replay a certificate."""
+
+    def verify(
+        self,
+        artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef,
+    ) -> artifacts.VerificationReport: ...
 
 
 def _reject_float(value: object) -> object:
@@ -1106,14 +1121,14 @@ def _require_registered_basis_units(bases: Iterable[BasisSignature]) -> None:
 
 
 def _verify_resolvable_ref(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     artifact_ref: artifacts.ArtifactID | artifacts.ArtifactRef,
     *,
     refusal_code: DerivationRefusalCode = DerivationRefusalCode.INPUT_ARTIFACT_DRIFT,
 ) -> None:
     try:
         resolved = store.has(artifact_ref) and store.verify(artifact_ref).ok
-    except (OSError, ValueError, artifacts.ArtifactOwnershipError):
+    except OSError, ValueError, artifacts.ArtifactOwnershipError:
         resolved = False
     if not resolved:
         artifact_id = (
@@ -1125,7 +1140,7 @@ def _verify_resolvable_ref(
 
 
 def _resolve_input_ref(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     input_ref: artifacts.InputRef,
     *,
     refusal_code: DerivationRefusalCode,
@@ -1155,7 +1170,7 @@ def _resolve_input_ref(
 
 
 def _verify_input_refs(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     input_refs: Sequence[artifacts.InputRef],
     *,
     refusal_code: DerivationRefusalCode,
@@ -1220,7 +1235,7 @@ def _manifest_sha256(manifest: artifacts.ArtifactManifest) -> str:
 
 
 def _manifest_projection(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     artifact_selector: artifacts.ArtifactID | artifacts.ArtifactRef,
 ) -> ArtifactContractProjection:
     artifact_id = (
@@ -1313,7 +1328,7 @@ def _verify_intake_contract(
 
 
 def _load_source(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     projection: ArtifactContractProjection,
     *,
     refusal_code: DerivationRefusalCode,
@@ -1386,7 +1401,7 @@ def persist_transform_family_registry(
 
 
 def _load_transform_family_registry_artifact(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     projection: ArtifactContractProjection,
     *,
     refusal_code: DerivationRefusalCode,
@@ -1690,7 +1705,7 @@ def _evaluate_expression(
 
 
 def _load_recipe_sources(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     recipe: DerivationRecipe,
     *,
     refusal_code: DerivationRefusalCode,
@@ -1715,7 +1730,7 @@ def _load_recipe_sources(
 
 
 def _resolve_recipe_family(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     recipe: DerivationRecipe,
     *,
     refusal_code: DerivationRefusalCode,
@@ -1854,7 +1869,7 @@ def _producer_projection(producer: artifacts.ProducerInfo) -> tuple[str, str]:
 
 
 def _verify_cached_artifact(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     *,
     artifact_ref: artifacts.ArtifactRef,
     expected_bytes: bytes,
@@ -2083,7 +2098,7 @@ def materialize_derivation(
 
 
 def consume_certified_derivation(
-    store: artifacts.FileSystemCAS,
+    store: _CertifiedDerivationReader,
     *,
     certificate_ref: artifacts.ArtifactRef,
     consumer_method_id: str,

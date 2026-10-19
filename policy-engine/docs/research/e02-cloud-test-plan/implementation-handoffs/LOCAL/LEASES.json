@@ -21823,5 +21823,99 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "read-only-cas-selected-consumer-adopted-20261019": {
+    "slice_base": "293afe93c67538cdd0842e1eec6af5c5b740393a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "preimage_sha256": "682e004a77bdaf25ba15b20c6b7a60f61e131ed0d3ae19722b2cf6cda872a949",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/rocas-postimages/policy-engine/src/polisyos/core/artifacts/README.md",
+        "postimage_sha256": "e26f0011f48fa69628c315a68828b7340d4d93e4cfe1e918224c3a982b828e8e",
+        "operation": "write",
+        "git_base_preimage_sha256": "682e004a77bdaf25ba15b20c6b7a60f61e131ed0d3ae19722b2cf6cda872a949"
+      },
+      "policy-engine/src/polisyos/core/artifacts/store.py": {
+        "preimage_sha256": "b60f51062932b08f46e5a3ceb82b5e49cde6dd523ca0445800a34d1a5d7c0f4d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/rocas-postimages/policy-engine/src/polisyos/core/artifacts/store.py",
+        "postimage_sha256": "3f5a8f2fac81c5fd20c483deed7c68209a4fcec3f39e7a04f6bde973ddef0d39",
+        "operation": "write",
+        "git_base_preimage_sha256": "b60f51062932b08f46e5a3ceb82b5e49cde6dd523ca0445800a34d1a5d7c0f4d"
+      },
+      "policy-engine/src/polisyos/runtime/quality/derived_observations.py": {
+        "preimage_sha256": "a2a7dc4ff7404d1250d5a82d78917a56d71fc0eecbe148886ce559983a28c8ed",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/rocas-postimages/policy-engine/src/polisyos/runtime/quality/derived_observations.py",
+        "postimage_sha256": "cbf3c27f0efd703affdcded5b3527b264582e54acda1cd7fd097eeef0a9cc4b6",
+        "operation": "write",
+        "git_base_preimage_sha256": "a2a7dc4ff7404d1250d5a82d78917a56d71fc0eecbe148886ce559983a28c8ed"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_derived_observations.py": {
+        "preimage_sha256": "88a0d458d858cdefa4487a4b738dcb35662dd3118976672e3d983ecd29a8a318",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/rocas-postimages/policy-engine/tests/unit/runtime/quality/test_derived_observations.py",
+        "postimage_sha256": "7850605836f6029125594c14cf75ec7c6be430b6a1b096f136ffc44cf04fcd09",
+        "operation": "write",
+        "git_base_preimage_sha256": "88a0d458d858cdefa4487a4b738dcb35662dd3118976672e3d983ecd29a8a318"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-cas-read-only-public-api.toml": {
+        "preimage_sha256": "6cc13a376e63735d5378fe15c543e0269ec775ee26b726878785a42e5652a242",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-20261019/release-fragment.postimage.toml",
+        "postimage_sha256": "5beab3d2b3679528e7f05d4742e509c2b537e73faabd605a05437ac6bcfa7190",
+        "operation": "write",
+        "git_base_preimage_sha256": "6cc13a376e63735d5378fe15c543e0269ec775ee26b726878785a42e5652a242"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/read-only-cas-consumer/source-application.json",
+      "sha256": "1387caf924875163ba6077eb5051d2fb39d83ed2ec8945ea09a0edb74366ec05"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/read-only-cas-consumer/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-20261019/manifest.json",
+        "sha256": "49e1501d0122b07bc563c70e39eee78456570c379ca124885ae0675fd6efc6b2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-20261019/candidate.patch",
+        "sha256": "983513c97e3fc0046fc3716422fa9b59803ada5986aa22d3f31e9337ca83b9f6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-20261019/bundle-manifest.json",
+        "sha256": "e9b01bb6ab888039a21681e95860ad193f66207b8a088f2cee275ab23110dd92"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-20261019/release-fragment.patch",
+        "sha256": "2f9b1a6a1bb6fb18ae9dc73fda72121944863b578d30ad13f4e6fefa7b50e47e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-20261019/review-addon.json",
+        "sha256": "564988a0f8367eb8047e26f40589bd8cd2010f5f14296d251240290209baffec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/rocas-five-path-independent-20261019/review-v1.json",
+        "sha256": "65ee05f12063243102acfa21a4b95b62facafc431a6b2b37916ad18a6ff2f397"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same read-only capability composition class: compose the full six-read consumer requirement once; do not patch each missing method in a ladder",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime tests unrun on canonical source",
+      "Product runtime opener-to-derivation orchestration not established; library bridge only",
+      "Public inventory regeneration and named team-architecture review pending; review marker false",
+      "No production currentness or G acceptance"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run full derived-observations/core artifact modules, actual readonly diagnostic, and canonical public-surface sync/review after source freeze",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

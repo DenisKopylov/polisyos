@@ -588,6 +588,153 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     assert_one_resumed_terminal_lifecycle(ctx_changed.run, expected_resumes=3)
 
 
+def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Changing another inventoried DB preserves A's real cache hit and state."""
+    source_dir = tmp_path / "study-sources"
+    source_dir.mkdir()
+    selected_a = source_dir / "selected-a.duckdb"
+    other_b = source_dir / "other-b.duckdb"
+    _seed_skg(selected_a)
+    _seed_skg(other_b)
+    _set_skg_value(other_b, 3.5)
+    initial_inventory = {
+        "selected_a": {"path": str(selected_a), "sha256": _file_sha256(selected_a)},
+        "other_b": {"path": str(other_b), "sha256": _file_sha256(other_b)},
+    }
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(store),
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+    state = ExperimentState(
+        run_id="R_skg_unconsumed_inventory_source_b",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "us-2025",
+                "countries": ["US"],
+                "publication_year": 2025,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "domain": "fiscal",
+            "skg_db_path": str(selected_a),
+            "skg_index_dir": str(source_dir),
+            # This generic state payload is a test-only inventory of study inputs.
+            "study_source_inventory": initial_inventory,
+        },
+    )
+    workflow = _workflow()
+    executions: list[tuple[Path, float]] = []
+    bindings: list[dict[str, str]] = []
+    original_execute = ResolveParametersNode.execute
+    original_binding = PreparedSKGRead.cache_binding
+
+    def record_real_resolve(
+        node: ResolveParametersNode,
+        context: ExecutionContext,
+        current_state: ExperimentState,
+    ) -> NodeOutcome:
+        assert context.prepared_skg_read is not None
+        prepared_path = context.prepared_skg_read.db_path
+        outcome = original_execute(node, context, current_state)
+        assert outcome.status == "ok"
+        executions.append((prepared_path, _resolved_value(store, outcome.state)))
+        return outcome
+
+    def record_real_binding(
+        prepared: PreparedSKGRead,
+        *,
+        selector_version: str,
+    ) -> dict[str, str]:
+        binding = original_binding(prepared, selector_version=selector_version)
+        bindings.append(binding)
+        return binding
+
+    monkeypatch.setattr(ResolveParametersNode, "execute", record_real_resolve)
+    monkeypatch.setattr(PreparedSKGRead, "cache_binding", record_real_binding)
+    first_context, first_registry = _build_run_context(
+        store, state.run_id, selected_registry_profile=True
+    )
+    first_report, first_state, _first_events = _execute_workflow_and_suspend(
+        first_context,
+        first_registry,
+        workflow,
+        state,
+        expected_resumes=0,
+    )
+    assert first_report.status == "ok"
+    assert _resolved_value(store, first_state) == 1.4
+
+    old_b_digest = initial_inventory["other_b"]["sha256"]
+    _set_skg_value(other_b, 4.5)
+    new_b_digest = _file_sha256(other_b)
+    assert new_b_digest != old_b_digest
+    with duckdb.connect(str(other_b), read_only=True) as connection:
+        assert connection.execute(
+            "SELECT point_estimate FROM ac_skg_simulation_parameters "
+            "WHERE canonical_name = 'fiscal_multiplier'"
+        ).fetchone() == (4.5,)
+    inventory_after_b = {key: dict(value) for key, value in initial_inventory.items()}
+    inventory_after_b["other_b"]["sha256"] = new_b_digest
+    state_after_b = first_state.model_copy(deep=True)
+    state_after_b.params["study_source_inventory"] = inventory_after_b
+    state_after_b.artifacts_index.pop(ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF, None)
+    b_context, b_registry = _build_run_context(store, state.run_id, resume_from=first_context)
+    b_report, b_state, b_events = _execute_workflow_and_suspend(
+        b_context,
+        b_registry,
+        workflow,
+        state_after_b,
+        expected_resumes=1,
+    )
+    assert b_report.status == "ok"
+    assert _resolved_value(store, b_state) == 1.4
+    assert executions == [(selected_a, 1.4)]
+    assert b_state.params["study_source_inventory"]["other_b"]["sha256"] == new_b_digest
+    assert [event.get("event") for event in b_events].count("NODE_CACHE_HIT") == 1
+    assert not any(event.get("event") == "NODE_CACHE_STORE" for event in b_events)
+
+    old_a_digest = initial_inventory["selected_a"]["sha256"]
+    _set_skg_value(selected_a, 2.6)
+    new_a_digest = _file_sha256(selected_a)
+    assert new_a_digest != old_a_digest
+    inventory_after_a = {
+        key: dict(value) for key, value in b_state.params["study_source_inventory"].items()
+    }
+    inventory_after_a["selected_a"]["sha256"] = new_a_digest
+    state_after_a = b_state.model_copy(deep=True)
+    state_after_a.params["study_source_inventory"] = inventory_after_a
+    state_after_a.artifacts_index.pop(ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF, None)
+    a_context, a_registry = _build_run_context(store, state.run_id, resume_from=b_context)
+    a_trace_start = _trace_event_count(a_context)
+    a_result = _execute_workflow(a_context, a_registry, workflow, state_after_a)
+    a_events = _trace_events(a_context, start_line=a_trace_start)
+    a_report = a_result.report
+    a_state = a_result.state
+
+    assert a_report.status == "ok"
+    assert executions == [(selected_a, 1.4), (selected_a, 2.6)]
+    assert _resolved_value(store, a_state) == 2.6
+    assert a_state.params["study_source_inventory"]["selected_a"]["sha256"] == new_a_digest
+    assert a_state.params["study_source_inventory"]["other_b"]["sha256"] == new_b_digest
+    assert len(bindings) == 3
+    assert all(
+        binding["source_snapshot_ref"].startswith(f"duckdb://{selected_a}") for binding in bindings
+    )
+    assert [binding["source_snapshot_sha256"] for binding in bindings] == [
+        old_a_digest,
+        old_a_digest,
+        new_a_digest,
+    ]
+    assert not any(event.get("event") == "NODE_CACHE_HIT" for event in a_events)
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in a_events) == 1
+    assert_one_resumed_terminal_lifecycle(a_context.run, expected_resumes=2)
+
+
 def test_workflow_executor_scopes_constant_query_as_execution_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

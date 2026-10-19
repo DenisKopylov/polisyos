@@ -957,9 +957,10 @@ team-ukraine-data
   `requirement_to_capability_resolver`, matching this plan's "before" labels.
 - [ ] Record the scenario-family-authority shim in `architecture/shims.toml`
   with a sunset trigger linked to Phase 7 closure.
-- [ ] Confirm `POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED` default is
-  still `true` and add a regression test proving the current runtime still uses
-  the fallback before Phase 4 flips it.
+- [ ] Retire the heuristic family fallback and carry an explicit typed
+  requirement-basis result into scenario normalization and the production-data
+  checker. An unresolved basis remains a candidate limitation and cannot produce
+  a passing scenario gate from zero requirements.
 - [ ] Run docs lifecycle checks:
 
 ```bash
@@ -973,8 +974,8 @@ uv run pytest tests/repo_quality/tools/test_docs_lifecycle.py -q
 cd policy-engine
 uv run pytest tests/repo_quality/tools/test_docs_lifecycle.py -q
 uv run pytest tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py -q
-rg -n "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED.*true|scenario-family-authority" \
-  architecture/shims.toml src/polisyos/data_requirement/compiler.py tests -S
+rg -n "data-requirement-family-fallback-from-hardcoded-heuristic|scenario-family-authority" \
+  architecture/shims.toml src/polisyos/runtime/quality tests -S
 ```
 
 **Hard exit gate (AND):**
@@ -1430,12 +1431,20 @@ uv run pytest tests/unit/runtime/quality/test_policy_design_case_projection_sema
 - [ ] Permit LLM candidates to influence acquisition planning and reviewer
   queues, but never `selected_exact` or `selected_derived` status.
 - [ ] Return acquisition strategies when a construct is unobserved.
-- [ ] Keep feature flag
-  `POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED` available during rollout.
-- [ ] Flip the flag default to false once resolver tests and W12 quick path
-  pass.
-- [ ] Retire hardcoded family branch after the deprecation window recorded in
-  `architecture/shims.toml`.
+- [ ] Remove the executable heuristic family branch and its runtime switch;
+  keep a regression probe with the legacy environment marker set so it cannot
+  restore inferred families.
+- [ ] Emit a typed `requirement_basis` on the actual compiler report, bound to
+  producer report, subject refs, rule refs, and input digest. Grade the basis
+  under P37; explicit family declarations remain candidate-scoped and unknown
+  stays `not_established`.
+- [ ] Keep the report intake versioned: the current producer remains v2; a
+  strict historical v1 read yields `not_established` only in its typed consumer
+  projection, preserves v1 schema/content bytes, and rejects extra, forged, or
+  unsupported report fields without restamping.
+- [ ] Propagate that basis through scenario normalization and the real
+  production-data checker. Zero compiled requirements with unresolved basis
+  must remain candidate/non-passing, without blocking candidate processing.
 - [ ] Update W11.E compilation truthfulness tools to compare in the construct
   vocabulary when evidence requirements are construct-resolved.
 
@@ -1467,11 +1476,12 @@ uv run python tools/quality/validation/run_compilation_truthfulness_audit.py \
 - [ ] Every `CapabilityBindingResult` includes rejected alternatives with
   `rejection_reason` and `rejection_severity` whenever at least two candidates
   exist.
-- [ ] Feature flag default is flipped to `false` in compiler code and asserted
-  by pytest.
-- [ ] `_required_data_families_from_heuristic` is removed from the primary
-  path and remains only as a legacy fallback gated by the feature flag with
-  sunset metadata in `architecture/shims.toml`.
+- [ ] The heuristic implementation and runtime switch are removed; a
+  falsifier with the legacy marker set still produces no inferred family, while
+  explicit candidate and governed resolver controls remain distinct.
+- [ ] The compiler report's typed basis survives serialization, scenario
+  normalization, index binding, and checker consumption. Unknown or
+  consumer-asserted basis cannot produce a passing scenario status.
 - [ ] W12.A quick path has zero `production_data_scenario_contracts_missing`
   blockers; remaining blockers are typed construct/capability blockers.
 - [ ] W11.E truthfulness audit reports construct-vocabulary obligations and

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -12,11 +14,18 @@ import polisyos.data_requirement.compiler as compiler_module
 from polisyos.core.contracts.capability_resolution import RequirementToCapabilityQuery
 from polisyos.core.contracts.runtime import UniversalAuthorityProfile
 from polisyos.data_requirement import (
+    DATA_REQUIREMENT_BASIS_SCHEMA_VERSION,
+    DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION,
     DATA_REQUIREMENT_SPEC_SCHEMA_VERSION,
+    DataRequirementBasisResolution,
+    DataRequirementCompilationReport,
+    DataRequirementCompilationReportV1,
     DataRequirementCompiler,
     DataRequirementScope,
     DataRequirementSpec,
     data_requirement_compilation_audit_surface,
+    data_requirement_compilation_event_ref,
+    parse_data_requirement_compilation_report,
     write_data_requirement_compilation_report,
 )
 from polisyos.ir.governance.policy_composition import PolicyLayerLevel
@@ -101,6 +110,39 @@ class _RecordingCapabilityResolver(_FakeCapabilityResolver):
         )
 
 
+def test_compiler_report_ref_uses_collision_resistant_public_constructor() -> None:
+    report = DataRequirementCompiler().compile_for_claim_ledger(
+        run_id="Scenario_Generic_cycle_problem",
+        scenario_id="generic_cycle_problem",
+        claim_ledger={"claims": []},
+        facet_snapshots=(),
+    )
+
+    expected_ref = data_requirement_compilation_event_ref("Scenario_Generic_cycle_problem")
+    assert expected_ref == "event://data-requirement/Scenario_Generic_cycle_problem"
+    assert report.producer_report_ref == expected_ref
+    assert report.runtime_event_ref == expected_ref
+    assert (
+        DataRequirementCompilationReport(
+            run_id="Scenario_Generic_cycle_problem"
+        ).producer_report_ref
+        == expected_ref
+    )
+    assert data_requirement_compilation_event_ref("run a") == "event://data-requirement/run%20a"
+    assert data_requirement_compilation_event_ref("run/a") == "event://data-requirement/run%2Fa"
+    assert data_requirement_compilation_event_ref(
+        "run/a"
+    ) != data_requirement_compilation_event_ref("run-a")
+    assert data_requirement_compilation_event_ref("café") == "event://data-requirement/caf%C3%A9"
+    assert data_requirement_compilation_event_ref("Run") != data_requirement_compilation_event_ref(
+        "run"
+    )
+    with pytest.raises(ValueError, match="data_requirement_run_id_missing"):
+        data_requirement_compilation_event_ref("")
+    with pytest.raises(ValueError, match="data_requirement_run_id_missing"):
+        data_requirement_compilation_event_ref(None)  # type: ignore[arg-type]
+
+
 def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compilation() -> None:
     case, facets, graph, claim_ledger = _compiled_msme_credit_case()
 
@@ -114,9 +156,20 @@ def test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compil
     )
 
     required_families = {family for spec in report.specs for family in spec.required_data_families}
-    assert report.schema_version == "policyos.data_requirement_compilation.v1"
-    assert report.capability_reality_label == "implemented"
-    assert report.pattern_refs == ("P02", "P05", "P08", "P12", "P14")
+    assert report.schema_version == DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION
+    assert report.requirement_basis.schema_version == DATA_REQUIREMENT_BASIS_SCHEMA_VERSION
+    assert isinstance(report.requirement_basis, DataRequirementBasisResolution)
+    assert report.requirement_basis.state == "not_established"
+    assert report.requirement_basis.source == "governed_capability_resolution"
+    assert report.requirement_basis.basis_grade == "not_established"
+    assert report.requirement_basis.reason_codes == ("governed_capability_resolution_incomplete",)
+    assert report.producer_report_ref == report.runtime_event_ref
+    assert report.producer_report_ref.startswith("event://data-requirement/")
+    assert report.scenario_id in " ".join(report.subject_refs)
+    assert report.input_content_hash.startswith("sha256:")
+    assert report.rule_version_refs
+    assert report.capability_reality_label == "bridge_missing"
+    assert report.pattern_refs == ("P02", "P04", "P05", "P08", "P12", "P14", "P37", "P38")
     assert {
         "production_msme_panel",
         "credit_program_registry",
@@ -225,7 +278,6 @@ def test_source_family_list_is_derived_from_compiled_requirements_not_legacy_fix
 def test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.delenv("POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED", raising=False)
     case, facets, _graph, claim_ledger = _compiled_msme_credit_case()
 
     report = DataRequirementCompiler().compile_for_claim_ledger(
@@ -390,6 +442,9 @@ def test_named_unresolved_profile_binds_requirements_without_promoting_proposals
     report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
 
     assert report.specs
+    assert report.requirement_basis.state == "established"
+    assert report.requirement_basis.source == "explicit_scenario_family_declaration"
+    assert report.requirement_basis.basis_grade == "consumer_asserted"
     queried_constructs = {query.construct for query in resolver.queries}
     assert {
         "firm_survival",
@@ -482,6 +537,49 @@ def test_named_unresolved_profile_binds_requirements_without_promoting_proposals
         for gap in routed_gaps
         if "credit_program_registry" in gap.scenario_requirement_refs
     )
+
+
+def test_governed_resolver_basis_is_recomputed_from_mapped_construct_inputs() -> None:
+    report = DataRequirementCompiler(
+        capability_resolver=_fake_resolver(),
+        scenario_family_construct_rows=(
+            {
+                "scenario_family": "production_msme_panel",
+                "construct": "firm_survival",
+                "producer_ref": "rule://scenario-family/firm-survival",
+            },
+        ),
+    ).compile_for_claim_ledger(
+        run_id="run-governed-basis",
+        scenario_id="governed-basis-case",
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": "claim:firm-survival",
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "Business continuity outcome.",
+                    "metadata": {"required_constructs": ["firm_survival"]},
+                    "facet_refs": [],
+                    "authority_profile_refs": ["authority_profile.test"],
+                    "concept_spine_refs": ["concept://business-continuity"],
+                }
+            ]
+        },
+        facet_snapshots=(),
+        obligation_graph={"blocking_frontier": []},
+        authority_profile_refs=("authority_profile.test",),
+    )
+
+    assert report.requirement_basis.state == "established"
+    assert report.requirement_basis.source == "governed_capability_resolution"
+    assert report.requirement_basis.basis_grade == "recomputed"
+    assert "capability-index:capability-index:test-port" in report.requirement_basis.source_refs
+    assert report.producer_report_ref in report.requirement_basis.source_refs
+    assert report.subject_refs
+    assert report.rule_version_refs
+    assert report.input_content_hash.startswith("sha256:")
 
 
 def test_construct_resolution_inputs_merge_required_sources_without_promoting_proposals() -> None:
@@ -670,57 +768,11 @@ def test_scenario_adapter_accepts_text_request_and_domain_context(
     ]
 
 
-def test_legacy_family_heuristic_only_runs_when_phase4_flag_is_enabled(
+def test_removed_family_heuristic_stays_removed_when_legacy_flag_marker_is_present(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # Keep the old marker as a falsifier: it must not resurrect heuristic families.
     monkeypatch.setenv("POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED", "true")
-    claim_ledger = {
-        "claims": [
-            {
-                "claim_id": "claim:legacy-worker",
-                "claim_family": "implementation",
-                "claim_type": "implementation",
-                "claim_use": "decision_support",
-                "text": "Worker employment outcomes need a labor-force panel.",
-                "facet_refs": ("facet:workers",),
-                "authority_profile_refs": ("authority_profile.legacy",),
-                "concept_spine_refs": ("concept://legacy/workers",),
-            }
-        ]
-    }
-    facets = (
-        {
-            "facet_id": "facet:workers",
-            "facet_type": "population_predicate",
-            "value": "workers",
-            "concept_ref": "concept://legacy/workers",
-            "authority_profile": "authority_profile.legacy",
-        },
-    )
-
-    report = DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_claim_ledger(
-        run_id="run-legacy-worker",
-        scenario_id="legacy_worker_case",
-        claim_ledger=claim_ledger,
-        facet_snapshots=facets,
-        obligation_graph={"blocking_frontier": []},
-        authority_profile_refs=("authority_profile.legacy",),
-    )
-
-    assert {family for spec in report.specs for family in spec.required_data_families} >= {
-        "labor_force_panel",
-        "employment_registry",
-    }
-    assert all(
-        spec.metadata.get("family_derivation") == "legacy_heuristic_fallback"
-        for spec in report.specs
-    )
-
-
-def test_hardcoded_claim_text_fallback_is_not_used_when_phase4_flag_is_disabled(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.delenv("POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED", raising=False)
     claim_ledger = {
         "claims": [
             {
@@ -756,6 +808,86 @@ def test_hardcoded_claim_text_fallback_is_not_used_when_phase4_flag_is_disabled(
 
     assert report.specs == ()
     assert report.legacy_admissible_data_source_families == ()
+    assert report.requirement_basis.state == "not_established"
+    assert report.requirement_basis.reason_codes == ("no_explicit_or_governed_data_basis",)
+
+
+def test_no_family_is_inferred_from_claim_text_without_explicit_basis() -> None:
+    claim_ledger = {
+        "claims": [
+            {
+                "claim_id": "claim:legacy-worker",
+                "claim_family": "implementation",
+                "claim_type": "implementation",
+                "claim_use": "decision_support",
+                "text": "Worker employment outcomes need a labor-force panel.",
+                "facet_refs": ("facet:workers",),
+                "authority_profile_refs": ("authority_profile.legacy",),
+                "concept_spine_refs": ("concept://legacy/workers",),
+            }
+        ]
+    }
+    facets = (
+        {
+            "facet_id": "facet:workers",
+            "facet_type": "population_predicate",
+            "value": "workers",
+            "concept_ref": "concept://legacy/workers",
+            "authority_profile": "authority_profile.legacy",
+        },
+    )
+
+    report = DataRequirementCompiler().compile_for_claim_ledger(
+        run_id="run-legacy-worker",
+        scenario_id="legacy_worker_case",
+        claim_ledger=claim_ledger,
+        facet_snapshots=facets,
+        obligation_graph={"blocking_frontier": []},
+        authority_profile_refs=("authority_profile.legacy",),
+    )
+
+    assert report.specs == ()
+    assert report.legacy_admissible_data_source_families == ()
+    assert report.requirement_basis.state == "not_established"
+
+
+def test_scenario_report_distinguishes_explicit_empty_from_unknown_basis() -> None:
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "empty-data-basis",
+            "text": "A neutral public policy statement.",
+            "domain": "healthcare",
+            "expected_evidence_contract": {"admissible_data_source_families": []},
+        }
+    )
+
+    assert report.specs == ()
+    assert report.requirement_basis.state == "not_established"
+    assert report.requirement_basis.source == "explicit_scenario_family_declaration"
+    assert report.requirement_basis.basis_grade == "not_established"
+    assert "explicit_empty_family_declaration_not_proof" in report.requirement_basis.reason_codes
+    assert "empty_compilation_not_proof_of_no_data" in report.requirement_basis.reason_codes
+    assert report.producer_report_ref in report.requirement_basis.source_refs
+    assert report.input_content_hash.startswith("sha256:")
+
+
+def test_scenario_family_declaration_remains_candidate_scoped() -> None:
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "declared-family-candidate",
+            "text": "A neutral public policy statement.",
+            "domain": "healthcare",
+            "expected_evidence_contract": {"admissible_data_source_families": ["health_panel"]},
+        }
+    )
+
+    assert report.requirement_basis.state == "established"
+    assert report.requirement_basis.source == "explicit_scenario_family_declaration"
+    assert report.requirement_basis.basis_grade == "consumer_asserted"
+    assert (
+        "explicit_scenario_family_declaration_candidate_only"
+        in report.requirement_basis.reason_codes
+    )
 
 
 def test_requirement_spec_rejects_authority_free_or_structural_only_specs() -> None:
@@ -799,8 +931,19 @@ def test_compilation_report_is_persisted_as_replayable_artifact(tmp_path) -> Non
     persisted = json.loads(path.read_text(encoding="utf-8"))
     surface = data_requirement_compilation_audit_surface(report)
 
-    assert path.name == "run-msme-credit-data-requirements.json"
-    assert persisted["schema_version"] == "policyos.data_requirement_compilation.v1"
+    assert (
+        path.name
+        == f"sha256-{hashlib.sha256(path.read_bytes()).hexdigest()}-data-requirements.json"
+    )
+    assert persisted["schema_version"] == "policyos.data_requirement_compilation.v2"
+    assert persisted["producer_report_ref"] == "event://data-requirement/run-msme-credit"
+    # This unit fixture uses the compiler without a governed resolver. Legacy
+    # construct-to-family rows alone cannot establish the basis.
+    assert persisted["requirement_basis"]["state"] == "not_established"
+    assert persisted["requirement_basis"]["basis_grade"] == "not_established"
+    assert persisted["requirement_basis"]["reason_codes"] == [
+        "governed_capability_resolution_incomplete"
+    ]
     assert persisted["runtime_event_ref"] == "event://data-requirement/run-msme-credit"
     assert surface["surface"] == "data_requirement.audit_surface"
     assert surface["summary"]["requirement_count"] == len(report.specs)
@@ -809,6 +952,170 @@ def test_compilation_report_is_persisted_as_replayable_artifact(tmp_path) -> Non
         "fabric_source_selection_preconditions",
         "scenario_evidence_contract_legacy_projection",
     ]
+
+
+def _writer_identity_report(run_id: str) -> DataRequirementCompilationReport:
+    return DataRequirementCompiler().compile_for_claim_ledger(
+        run_id=run_id,
+        scenario_id="writer-identity-test",
+        claim_ledger={"claims": []},
+        facet_snapshots=(),
+        obligation_graph={"blocking_frontier": []},
+    )
+
+
+def test_v2_report_writer_uses_byte_identity_for_run_id_collisions(tmp_path) -> None:
+    run_ids = ("run/a", "run-a", "runA", "runa", "run%a", "café")
+    paths = []
+
+    for run_id in run_ids:
+        report = _writer_identity_report(run_id)
+        path = write_data_requirement_compilation_report(report, tmp_path)
+        raw = path.read_bytes()
+        digest = hashlib.sha256(raw).hexdigest()
+
+        assert path.name == f"sha256-{digest}-data-requirements.json"
+        assert json.loads(raw)["run_id"] == run_id
+        paths.append(path)
+
+    assert len(set(paths)) == len(run_ids)
+
+
+def test_v2_report_writer_reuses_exact_bytes_and_refuses_hash_path_clobber(tmp_path) -> None:
+    report = _writer_identity_report("same-run")
+    path = write_data_requirement_compilation_report(report, tmp_path)
+    original_bytes = path.read_bytes()
+
+    repeated_path = write_data_requirement_compilation_report(report, tmp_path)
+
+    assert repeated_path == path
+    assert repeated_path.read_bytes() == original_bytes
+
+    path.write_bytes(b"different existing bytes")
+    with pytest.raises(ValueError, match="data_requirement_report_content_conflict"):
+        write_data_requirement_compilation_report(report, tmp_path)
+    assert path.read_bytes() == b"different existing bytes"
+
+
+def test_v1_report_writer_preserves_bytes_and_refuses_legacy_name_collision(tmp_path) -> None:
+    payload = json.loads(_historical_v1_compiler_report_path().read_bytes())
+    payload["run_id"] = "run/a"
+    first_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    first_path = write_data_requirement_compilation_report(first_bytes, tmp_path)
+    repeated_path = write_data_requirement_compilation_report(first_bytes, tmp_path)
+
+    assert first_path.name == "run-a-data-requirements.json"
+    assert repeated_path == first_path
+    assert first_path.read_bytes() == first_bytes
+
+    payload["run_id"] = "run-a"
+    collision_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    with pytest.raises(ValueError, match="data_requirement_report_content_conflict"):
+        write_data_requirement_compilation_report(collision_bytes, tmp_path)
+    assert first_path.read_bytes() == first_bytes
+
+
+def test_versioned_report_reader_preserves_tracked_v1_bytes_as_unknown(tmp_path) -> None:
+    artifact_path = _historical_v1_compiler_report_path()
+    original_bytes = artifact_path.read_bytes()
+    payload = json.loads(original_bytes)
+
+    report = parse_data_requirement_compilation_report(original_bytes)
+
+    assert isinstance(report, DataRequirementCompilationReportV1)
+    assert report.schema_version == "policyos.data_requirement_compilation.v1"
+    assert report.run_id == payload["run_id"]
+    assert report.scenario_id == payload["scenario_id"]
+    assert report.metadata == payload["metadata"]
+    assert hashlib.sha256(original_bytes).hexdigest() == (
+        "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2"
+    )
+    assert report.original_bytes == original_bytes
+    assert report.model_dump(mode="json", exclude_unset=True) == payload
+    assert "requirement_basis" not in report.model_dump(mode="json")
+
+    mapping_surface = data_requirement_compilation_audit_surface(payload)
+    mapping_output = write_data_requirement_compilation_report(payload, tmp_path / "mapping")
+    assert mapping_surface["schema_version"] == payload["schema_version"]
+    assert mapping_surface["run_id"] == payload["run_id"]
+    assert mapping_surface["requirement_basis"]["state"] == "not_established"
+    assert json.loads(mapping_output.read_text(encoding="utf-8")) == payload
+
+    basis = report.requirement_basis
+    assert basis.state == "not_established"
+    assert basis.basis_grade == "not_established"
+    assert basis.reason_codes == ("legacy_report_basis_not_carried",)
+    assert basis.source_refs == ()
+
+    surface = data_requirement_compilation_audit_surface(original_bytes)
+    assert surface["schema_version"] == "policyos.data_requirement_compilation.v1"
+    assert surface["run_id"] == payload["run_id"]
+    assert surface["metadata"] == payload["metadata"]
+    assert surface["requirement_basis"] == basis.model_dump(mode="json")
+
+    written_path = write_data_requirement_compilation_report(original_bytes, tmp_path)
+    assert written_path.read_bytes() == original_bytes
+    assert json.loads(written_path.read_bytes()) == payload
+
+
+def test_v1_report_reader_rejects_extra_or_forged_basis_fields() -> None:
+    legacy = json.loads(_historical_v1_compiler_report_path().read_bytes())
+    forged_basis = {
+        "schema_version": "policyos.data_requirement_basis_resolution.v1",
+        "state": "established",
+        "source": "explicit_scenario_family_declaration",
+        "basis_grade": "consumer_asserted",
+        "reason_codes": ["explicit_scenario_family_declaration_candidate_only"],
+        "source_refs": ["scenario:opaque-case-alpha"],
+    }
+
+    with pytest.raises(ValidationError):
+        parse_data_requirement_compilation_report({**legacy, "unrecognized": "value"})
+    with pytest.raises(ValidationError):
+        parse_data_requirement_compilation_report({**legacy, "requirement_basis": forged_basis})
+    with pytest.raises(ValidationError):
+        DataRequirementCompilationReport.model_validate(legacy)
+
+
+def test_report_reader_rejects_unsupported_or_malformed_versions() -> None:
+    legacy = json.loads(_historical_v1_compiler_report_path().read_bytes())
+
+    with pytest.raises(ValueError, match="unsupported_data_requirement_compilation_schema_version"):
+        parse_data_requirement_compilation_report(
+            {key: value for key, value in legacy.items() if key != "schema_version"}
+        )
+    with pytest.raises(ValueError, match="unsupported_data_requirement_compilation_schema_version"):
+        parse_data_requirement_compilation_report(
+            {**legacy, "schema_version": "policyos.data_requirement_compilation.v99"}
+        )
+    with pytest.raises(ValueError, match="duplicate_data_requirement_report_json_key"):
+        parse_data_requirement_compilation_report(
+            b'{"schema_version":"policyos.data_requirement_compilation.v1",'
+            b'"schema_version":"policyos.data_requirement_compilation.v2"}'
+        )
+
+    current_v2 = DataRequirementCompilationReport(run_id="run-current-v2").model_dump(mode="json")
+    malformed_basis = {
+        **current_v2,
+        "requirement_basis": {
+            **current_v2["requirement_basis"],
+            "forged": "present but not in the v2 contract",
+        },
+    }
+    with pytest.raises(ValidationError):
+        parse_data_requirement_compilation_report(malformed_basis)
+
+
+def _historical_v1_compiler_report_path() -> Path:
+    relative_path = Path(
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/"
+        "A/compiler-full/compiler-readback.json"
+    )
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / relative_path
+        if candidate.is_file():
+            return candidate
+    raise AssertionError("tracked historical v1 compiler report not found")
 
 
 def _compiled_msme_credit_case() -> tuple[Any, tuple[dict[str, object], ...], Any, Any]:

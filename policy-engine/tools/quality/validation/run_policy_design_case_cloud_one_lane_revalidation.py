@@ -496,7 +496,6 @@ def _frozen_revision_config(repo_root: Path) -> dict[str, Any]:
         "git_revision": _git_revision(repo_root),
         "selected_lane_id": DEFAULT_CLOUD_LANE_ID,
         "feature_flags": {
-            "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED": "runtime",
             "POLISYOS_SCIENTIST_V2_ENABLED": "runtime",
         },
         "tuned_config_refs": ["w12.runtime.default"],

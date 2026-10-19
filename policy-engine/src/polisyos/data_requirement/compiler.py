@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
-import os
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,14 +35,19 @@ if TYPE_CHECKING:
 
 from ._impl.models import (
     CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
+    DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION,
+    DATA_REQUIREMENT_COMPILATION_V1_SCHEMA_VERSION,
     CapabilityBindingSnapshot,
     CapabilityRequirementResolution,
     DataQualityMinimums,
+    DataRequirementBasisResolution,
     DataRequirementCompilationReport,
+    DataRequirementCompilationReportV1,
     DataRequirementScope,
     DataRequirementSpec,
     DataRequirementTimeRole,
     data_requirement_authority_boundary,
+    data_requirement_compilation_event_ref,
 )
 
 UniversalAuthorityProfile = contracts.UniversalAuthorityProfile
@@ -109,14 +113,6 @@ _DECISION_CLAIM_FAMILIES = {
     "legitimacy",
 }
 
-# Track A1/Phase 4 feature flag. When ``true``, missing construct-capability
-# bindings may still fall back to the legacy hardcoded heuristic in
-# ``_required_data_families_from_heuristic``. The default is now ``false``:
-# the primary path resolves constructs through an injected CapabilityResolverPort.
-# Architecture/shims.toml carries the sunset trigger.
-_DATA_REQUIREMENT_FAMILY_FALLBACK_ENV = "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED"
-# POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED default false.
-_DATA_REQUIREMENT_FAMILY_FALLBACK_DEFAULT = "false"
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _GOVERNED_CAPABILITY_ROWS_PATH = (
     _REPO_ROOT / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
@@ -198,14 +194,6 @@ class _ConstructResolutionInputs:
 
     required_constructs: tuple[str, ...] = ()
     candidate_construct_proposals: tuple[str, ...] = ()
-
-
-def _data_requirement_family_fallback_enabled() -> bool:
-    raw = os.environ.get(
-        _DATA_REQUIREMENT_FAMILY_FALLBACK_ENV,
-        _DATA_REQUIREMENT_FAMILY_FALLBACK_DEFAULT,
-    )
-    return str(raw).strip().casefold() in {"1", "true", "yes", "on"}
 
 
 def _load_governed_scenario_family_construct_rows() -> tuple[
@@ -343,15 +331,7 @@ class DataRequirementCompiler:
             if family
         }
         family_derivation = "capability_resolver" if family_rules else None
-        if not family_rules and _data_requirement_family_fallback_enabled():
-            family_rules = _required_data_families_from_heuristic(
-                facets=facets,
-                claims=claims,
-                scenario_id=scenario_id,
-            )
-            family_derivation = "legacy_heuristic_fallback"
-        else:
-            family_rules = family_rules or ()
+        family_rules = family_rules or ()
         obligation_refs = _data_obligation_refs(obligation_graph)
         specs: list[DataRequirementSpec] = []
         for claim in claims:
@@ -391,12 +371,50 @@ class DataRequirementCompiler:
                 for family in family_rules
             )
         deduped = tuple(_dedupe_specs(specs))
+        producer_report_ref = data_requirement_compilation_event_ref(run_id)
+        subject_refs = _data_requirement_subject_refs(
+            run_id=run_id,
+            scenario_id=scenario_id,
+            claims=claims,
+            facets=facets,
+            obligation_graph=obligation_graph,
+        )
+        rule_version_refs = _data_requirement_rule_refs(
+            specs=deduped,
+            capability_resolutions=capability_resolutions,
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
+        )
+        input_content_hash = _data_requirement_input_content_hash(
+            run_id=run_id,
+            scenario_id=scenario_id,
+            claims=claims,
+            facets=facets,
+            obligation_graph=obligation_graph,
+            authority_profile_refs=authority_profile_refs,
+            scope_profile=scope_profile,
+            resolution_inputs=resolution_inputs,
+            capability_resolutions=capability_resolutions,
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
+        )
+        requirement_basis = _capability_requirement_basis(
+            producer_report_ref=producer_report_ref,
+            subject_refs=subject_refs,
+            rule_version_refs=rule_version_refs,
+            capability_resolutions=capability_resolutions,
+            family_rules=family_rules,
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
+        )
         return DataRequirementCompilationReport(
             run_id=run_id,
             scenario_id=scenario_id,
             specs=deduped,
             capability_resolution_schema_version=(CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION),
             capability_requirement_resolutions=capability_resolutions,
+            requirement_basis=requirement_basis,
+            producer_report_ref=producer_report_ref,
+            subject_refs=subject_refs,
+            rule_version_refs=rule_version_refs,
+            input_content_hash=input_content_hash,
             authority_boundary=data_requirement_authority_boundary(),
             metadata={
                 "producer": "data_requirement_compiler",
@@ -492,11 +510,12 @@ class DataRequirementCompiler:
             ),
         )
         if case.facets is None:
-            return self._compile_from_legacy_scenario_fallback(
+            report = self._compile_from_legacy_scenario_fallback(
                 scenario=scenario,
                 scenario_id=scenario_id,
                 scope_profile=adapter_input.scope_profile,
             )
+            return _bind_scenario_compilation_inputs(report, scenario=scenario)
         facets = facet_snapshots_for_obligation_graph(case)
         graph = compile_obligation_graph(
             run_id=f"scenario-{scenario_id}",
@@ -541,7 +560,7 @@ class DataRequirementCompiler:
                 "authority_profile_refs": [case.authority_profile.profile_id],
             }
         )
-        return self.compile_for_claim_ledger(
+        report = self.compile_for_claim_ledger(
             run_id=f"scenario-{scenario_id}",
             scenario_id=scenario_id,
             claim_ledger=claim_ledger,
@@ -550,6 +569,7 @@ class DataRequirementCompiler:
             authority_profile_refs=(case.authority_profile.profile_id,),
             scope_profile=adapter_input.scope_profile,
         )
+        return _bind_scenario_compilation_inputs(report, scenario=scenario)
 
     def _compile_from_legacy_scenario_fallback(
         self,
@@ -628,17 +648,74 @@ def compile_data_requirements_for_scenario(
     return DataRequirementCompiler().compile_for_scenario(scenario)
 
 
+def _strict_report_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject duplicate keys before a versioned report is dispatched."""
+
+    payload: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in payload:
+            raise ValueError(f"duplicate_data_requirement_report_json_key:{key}")
+        payload[key] = value
+    return payload
+
+
+def parse_data_requirement_compilation_report(
+    report: (
+        DataRequirementCompilationReport
+        | DataRequirementCompilationReportV1
+        | Mapping[str, Any]
+        | bytes
+        | str
+    ),
+) -> DataRequirementCompilationReport | DataRequirementCompilationReportV1:
+    """Read one strict versioned compiler report without promoting legacy bytes."""
+
+    if isinstance(report, DataRequirementCompilationReport | DataRequirementCompilationReportV1):
+        return report
+
+    original_bytes: bytes | None = None
+    if isinstance(report, bytes):
+        original_bytes = report
+        payload = json.loads(report, object_pairs_hook=_strict_report_json_object)
+    elif isinstance(report, str):
+        original_bytes = report.encode("utf-8")
+        payload = json.loads(report, object_pairs_hook=_strict_report_json_object)
+    elif isinstance(report, Mapping):
+        payload = dict(report)
+    else:
+        raise TypeError("data_requirement_report_input_type_invalid")
+
+    if not isinstance(payload, Mapping):
+        raise ValueError("data_requirement_report_payload_must_be_object")
+
+    schema_version = payload.get("schema_version")
+    if schema_version == DATA_REQUIREMENT_COMPILATION_V1_SCHEMA_VERSION:
+        legacy = DataRequirementCompilationReportV1.model_validate(dict(payload))
+        if original_bytes is not None:
+            object.__setattr__(legacy, "_source_bytes", original_bytes)
+        return legacy
+    if schema_version == DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION:
+        return DataRequirementCompilationReport.model_validate(dict(payload))
+    raise ValueError(f"unsupported_data_requirement_compilation_schema_version:{schema_version}")
+
+
 def data_requirement_compilation_audit_surface(
-    report: DataRequirementCompilationReport | Mapping[str, Any],
+    report: (
+        DataRequirementCompilationReport
+        | DataRequirementCompilationReportV1
+        | Mapping[str, Any]
+        | bytes
+        | str
+    ),
 ) -> dict[str, Any]:
     """Return an audit/API projection of compiled data requirements."""
 
-    model = (
-        report
-        if isinstance(report, DataRequirementCompilationReport)
-        else DataRequirementCompilationReport.model_validate(dict(report))
+    model = parse_data_requirement_compilation_report(report)
+    payload = model.model_dump(
+        mode="json",
+        exclude_unset=isinstance(model, DataRequirementCompilationReportV1),
     )
-    payload = model.model_dump(mode="json")
+    payload["requirement_basis"] = model.requirement_basis.model_dump(mode="json")
     payload["surface"] = "data_requirement.audit_surface"
     payload["summary"] = {
         "requirement_count": len(model.specs),
@@ -654,23 +731,52 @@ def data_requirement_compilation_audit_surface(
 
 
 def write_data_requirement_compilation_report(
-    report: DataRequirementCompilationReport | Mapping[str, Any],
+    report: (
+        DataRequirementCompilationReport
+        | DataRequirementCompilationReportV1
+        | Mapping[str, Any]
+        | bytes
+        | str
+    ),
     output_dir: str | Path,
 ) -> Path:
-    """Persist a data requirement compilation report as deterministic JSON."""
+    """Persist immutable versioned report bytes without changing historical v1 bytes.
 
-    model = (
-        report
-        if isinstance(report, DataRequirementCompilationReport)
-        else DataRequirementCompilationReport.model_validate(dict(report))
-    )
+    V2 report files are addressed by the digest of their exact serialized bytes.
+    Historical V1 files retain their legacy run-based filename, but publication
+    is write-once: exact existing bytes are reused and conflicting bytes refuse.
+    """
+
+    model = parse_data_requirement_compilation_report(report)
     directory = Path(output_dir)
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{_slug(model.run_id)}-data-requirements.json"
-    path.write_text(
-        json.dumps(model.model_dump(mode="json"), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    if isinstance(model, DataRequirementCompilationReportV1) and model.original_bytes is not None:
+        report_bytes = model.original_bytes
+    else:
+        payload = model.model_dump(
+            mode="json",
+            exclude_unset=isinstance(model, DataRequirementCompilationReportV1),
+        )
+        report_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+    if isinstance(model, DataRequirementCompilationReportV1):
+        path = directory / f"{_slug(model.run_id)}-data-requirements.json"
+    else:
+        digest = hashlib.sha256(report_bytes).hexdigest()
+        path = directory / f"sha256-{digest}-data-requirements.json"
+
+    from polisyos.core.artifacts import write_bytes_once
+
+    created = write_bytes_once(path, report_bytes, durable_parent=True)
+    if not created:
+        if path.is_symlink() or not path.is_file():
+            raise ValueError("data_requirement_report_content_conflict")
+        try:
+            existing_bytes = path.read_bytes()
+        except OSError as exc:
+            raise ValueError("data_requirement_report_content_conflict") from exc
+        if existing_bytes != report_bytes:
+            raise ValueError("data_requirement_report_content_conflict")
     return path
 
 
@@ -1269,83 +1375,346 @@ def _capability_binding_metadata(binding: CapabilityBindingLike) -> dict[str, An
     }
 
 
-def _required_data_families_from_heuristic(
+def _capability_requirement_basis(
     *,
-    facets: Sequence[Mapping[str, Any]],
-    claims: Sequence[Any],
+    producer_report_ref: str,
+    subject_refs: tuple[str, ...],
+    rule_version_refs: tuple[str, ...],
+    capability_resolutions: tuple[CapabilityRequirementResolution, ...],
+    family_rules: Sequence[str],
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows,
+) -> DataRequirementBasisResolution:
+    """Grade only the source basis actually emitted by the producer."""
+
+    source_refs = [producer_report_ref, *subject_refs, *rule_version_refs]
+    if capability_resolutions:
+        source_refs.extend(
+            f"capability-requirement:{item.query.requirement_id}" for item in capability_resolutions
+        )
+        source_refs.extend(
+            f"capability-index:{item.binding.capability_index_ref}"
+            for item in capability_resolutions
+            if item.binding is not None and item.binding.capability_index_ref
+        )
+        source_refs.extend(
+            f"resolver-rule:{item.binding.rule_version_ref}"
+            for item in capability_resolutions
+            if item.binding is not None
+        )
+        every_query_resolved_and_mapped = all(
+            item.state == "binding_returned"
+            and legacy_family_for_construct(
+                item.query.construct, rows=scenario_family_construct_rows
+            )
+            for item in capability_resolutions
+        )
+        if family_rules and every_query_resolved_and_mapped:
+            return DataRequirementBasisResolution(
+                state="established",
+                source="governed_capability_resolution",
+                basis_grade="recomputed",
+                reason_codes=("governed_capability_basis_resolved",),
+                source_refs=tuple(dict.fromkeys(source_refs)),
+            )
+        return DataRequirementBasisResolution(
+            state="not_established",
+            source="governed_capability_resolution",
+            basis_grade="not_established",
+            reason_codes=("governed_capability_resolution_incomplete",),
+            source_refs=tuple(dict.fromkeys(source_refs)),
+        )
+    return DataRequirementBasisResolution(
+        state="not_established",
+        source="not_established",
+        basis_grade="not_established",
+        reason_codes=("no_explicit_or_governed_data_basis",),
+        source_refs=tuple(dict.fromkeys(source_refs)),
+    )
+
+
+def _bind_scenario_compilation_inputs(
+    report: DataRequirementCompilationReport,
+    *,
+    scenario: Mapping[str, Any],
+) -> DataRequirementCompilationReport:
+    """Bind the scenario's declared candidate basis to its actual report."""
+
+    scenario_id = _text(scenario.get("scenario_id")) or report.scenario_id or "scenario"
+    families, declaration = _legacy_scenario_family_declaration(scenario)
+    scenario_ref = f"scenario:{scenario_id}"
+    declaration_ref = (
+        f"scenario:{scenario_id}/expected_evidence_contract/admissible_data_source_families"
+    )
+    has_declaration_path = declaration != "not_supplied"
+    subject_refs = tuple(
+        dict.fromkeys(
+            (
+                *report.subject_refs,
+                f"run:{report.run_id}",
+                scenario_ref,
+                *((declaration_ref,) if has_declaration_path else ()),
+            )
+        )
+    )
+    rule_version_refs = tuple(
+        dict.fromkeys(
+            (
+                *report.rule_version_refs,
+                "policyos.data_requirement.compiler.v2",
+                *(spec.rule_version_ref for spec in report.specs),
+                *(
+                    item.binding.rule_version_ref
+                    for item in report.capability_requirement_resolutions or ()
+                    if item.binding is not None
+                ),
+            )
+        )
+    )
+    input_content_hash = _sha256_json_value(
+        {
+            "compiler_input_content_hash": report.input_content_hash,
+            "scenario_input": scenario,
+        }
+    )
+    source_refs = list(report.requirement_basis.source_refs)
+    source_refs.extend(
+        (
+            report.producer_report_ref or report.runtime_event_ref or "",
+            *subject_refs,
+            *rule_version_refs,
+        )
+    )
+    if has_declaration_path:
+        source_refs.append(declaration_ref)
+    source_refs = list(dict.fromkeys(item for item in source_refs if item))
+
+    if report.requirement_basis.state == "established":
+        reasons = list(report.requirement_basis.reason_codes)
+        if declaration == "declared" and families:
+            reasons.append("explicit_scenario_family_declaration_candidate_only")
+        elif declaration == "explicit_empty":
+            reasons.append("explicit_empty_family_declaration_not_proof")
+        basis = report.requirement_basis.model_copy(
+            update={
+                "reason_codes": tuple(dict.fromkeys(reasons)),
+                "source_refs": tuple(source_refs),
+            }
+        )
+    elif declaration == "declared" and families:
+        basis = DataRequirementBasisResolution(
+            state="established",
+            source="explicit_scenario_family_declaration",
+            basis_grade="consumer_asserted",
+            reason_codes=("explicit_scenario_family_declaration_candidate_only",),
+            source_refs=tuple(source_refs),
+        )
+    elif declaration == "explicit_empty":
+        basis = DataRequirementBasisResolution(
+            state="not_established",
+            source="explicit_scenario_family_declaration",
+            basis_grade="not_established",
+            reason_codes=(
+                "explicit_empty_family_declaration_not_proof",
+                "empty_compilation_not_proof_of_no_data",
+            ),
+            source_refs=tuple(source_refs),
+        )
+    else:
+        reasons = list(report.requirement_basis.reason_codes)
+        if declaration == "explicit_empty":
+            reasons.append("explicit_empty_family_declaration_not_proof")
+        basis = report.requirement_basis.model_copy(
+            update={
+                "reason_codes": tuple(dict.fromkeys(reasons)),
+                "source_refs": tuple(source_refs),
+            }
+        )
+
+    payload = report.model_dump(mode="python")
+    payload.update(
+        {
+            "requirement_basis": basis,
+            "subject_refs": subject_refs,
+            "rule_version_refs": rule_version_refs,
+            "input_content_hash": input_content_hash,
+        }
+    )
+    return DataRequirementCompilationReport.model_validate(payload)
+
+
+def _data_requirement_subject_refs(
+    *,
+    run_id: str,
     scenario_id: str | None,
+    claims: Sequence[Any],
+    facets: Sequence[Mapping[str, Any]],
+    obligation_graph: object | Mapping[str, Any] | None,
 ) -> tuple[str, ...]:
-    values = {str(facet.get("facet_type")): _enum_text(facet.get("value")) for facet in facets}
-    haystack = " ".join(
-        [
-            *values.values(),
-            *[claim.text for claim in claims],
-            *[
-                " ".join(str(value) for value in claim.metadata.values())
-                for claim in claims
-                if isinstance(claim.metadata, Mapping)
-            ],
-            scenario_id or "",
-        ]
-    ).casefold()
-    families: list[str] = []
+    refs = [f"run:{run_id}"]
+    if scenario_id:
+        refs.append(f"scenario:{scenario_id}")
+    refs.extend(
+        f"claim:{_text(getattr(claim, 'claim_id', None))}"
+        for claim in claims
+        if _text(getattr(claim, "claim_id", None))
+    )
+    refs.extend(
+        f"facet:{_text(facet.get('facet_id'))}" for facet in facets if _text(facet.get("facet_id"))
+    )
+    refs.extend(f"obligation:{item}" for item in _data_obligation_refs(obligation_graph))
+    return tuple(dict.fromkeys(refs))
 
-    def add_if(condition: bool, family: str) -> None:
-        if condition and family not in families:
-            families.append(family)
 
-    add_if(values.get("population_predicate") == "msmes", "production_msme_panel")
-    add_if(
-        values.get("instrument_type") == "credit"
-        or values.get("delivery_channel") == "credit_registry",
-        "credit_program_registry",
+def _data_requirement_rule_refs(
+    *,
+    specs: Sequence[DataRequirementSpec],
+    capability_resolutions: Sequence[CapabilityRequirementResolution],
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows,
+) -> tuple[str, ...]:
+    refs = ["policyos.data_requirement.compiler.v2"]
+    refs.extend(spec.rule_version_ref for spec in specs)
+    refs.extend(
+        item.binding.rule_version_ref for item in capability_resolutions if item.binding is not None
     )
-    add_if(
-        "displaced" in haystack
-        or "displacement" in haystack
-        or values.get("geography_predicate") == "displacement_affected",
-        "regional_displacement_indicators",
+    used_constructs = {item.query.construct for item in capability_resolutions}
+    refs.extend(
+        f"scenario-family-construct-row:{row.producer_ref}"
+        for row in scenario_family_construct_rows
+        if row.construct in used_constructs
     )
-    add_if(
-        values.get("population_predicate") == "msmes"
-        and values.get("instrument_type") == "credit"
-        and values.get("geography_predicate") == "state_or_region",
-        "regional_displacement_indicators",
+    return tuple(dict.fromkeys(refs))
+
+
+def _data_requirement_input_content_hash(
+    *,
+    run_id: str,
+    scenario_id: str | None,
+    claims: Sequence[Any],
+    facets: Sequence[Mapping[str, Any]],
+    obligation_graph: object | Mapping[str, Any] | None,
+    authority_profile_refs: Sequence[str],
+    scope_profile: _ScenarioScopeProfile | None,
+    resolution_inputs: _ConstructResolutionInputs,
+    capability_resolutions: Sequence[CapabilityRequirementResolution],
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows,
+) -> str:
+    """Hash the normalized source inputs and rules used by the compiler."""
+
+    claim_fields = (
+        "claim_id",
+        "claim_family",
+        "claim_type",
+        "claim_use",
+        "text",
+        "facet_refs",
+        "obligation_refs",
+        "authority_profile_refs",
+        "concept_spine_refs",
+        "source_attribution",
+        "metadata",
     )
-    add_if(values.get("population_predicate") == "workers", "labor_force_panel")
-    add_if(values.get("population_predicate") == "workers", "employment_registry")
-    add_if(
-        values.get("risk_facet") in {"equity_harm", "fairness_threshold_reversal"}
-        and values.get("geography_predicate") in {"state_or_region", "rural", "municipal"}
-        and not (
-            values.get("population_predicate") == "msmes"
-            and values.get("instrument_type") == "credit"
-        ),
-        "regional_vulnerability_index",
+    claim_rows = [
+        {field: getattr(claim, field, None) for field in claim_fields} for claim in claims
+    ]
+    frontier = (
+        getattr(obligation_graph, "blocking_frontier", None)
+        if not isinstance(obligation_graph, Mapping)
+        else obligation_graph.get("blocking_frontier")
     )
-    add_if(values.get("instrument_type") == "tax", "tax_admin_panel")
-    add_if(values.get("instrument_type") == "tax", "fiscal_revenue_series")
-    add_if(
-        values.get("instrument_type") == "subsidy"
-        and values.get("population_predicate") == "low_income_renters",
-        "housing_beneficiary_registry",
+    obligation_rows = []
+    for item in frontier or ():
+        metadata = (
+            item.get("metadata") if isinstance(item, Mapping) else getattr(item, "metadata", {})
+        )
+        bundle_key = (
+            item.get("bundle_key")
+            if isinstance(item, Mapping)
+            else getattr(item, "bundle_key", None)
+        )
+        family = (
+            bundle_key.get("family")
+            if isinstance(bundle_key, Mapping)
+            else getattr(bundle_key, "family", None)
+        )
+        obligation_rows.append(
+            {
+                "frontier_id": (
+                    item.get("frontier_id")
+                    if isinstance(item, Mapping)
+                    else getattr(item, "frontier_id", None)
+                ),
+                "family": family,
+                "metadata": metadata,
+            }
+        )
+    scope = (
+        {
+            "profile_id": scope_profile.profile_id,
+            "jurisdiction": scope_profile.jurisdiction,
+            "time_start": scope_profile.time_start,
+            "time_end": scope_profile.time_end,
+            "time_role": scope_profile.time_role,
+            "granularity": scope_profile.granularity,
+            "unrepresented_fields": scope_profile.unrepresented_fields,
+            "required_constructs": scope_profile.required_constructs,
+            "candidate_construct_proposals": scope_profile.candidate_construct_proposals,
+        }
+        if scope_profile is not None
+        else None
     )
-    add_if(
-        values.get("instrument_type") == "subsidy"
-        and values.get("population_predicate") == "low_income_renters",
-        "rent_market_panel",
-    )
-    add_if(
-        values.get("delivery_channel") == "public_service"
-        and values.get("population_predicate") in {"children", "patients"},
-        "service_delivery_registry",
-    )
-    add_if(
-        "vaccination" in haystack or "vaccine" in haystack,
-        "vaccination_coverage_panel",
-    )
-    add_if(values.get("geography_predicate") == "rural", "rural_access_indicators")
-    return tuple(families)
+    rows = [row.model_dump(mode="json", by_alias=True) for row in scenario_family_construct_rows]
+    capability_rows = [
+        item.model_dump(mode="json", by_alias=True) for item in capability_resolutions
+    ]
+    payload = {
+        "run_id": run_id,
+        "scenario_id": scenario_id,
+        "claims": claim_rows,
+        "facets": facets,
+        "obligation_frontier": obligation_rows,
+        "authority_profile_refs": authority_profile_refs,
+        "scope_profile": scope,
+        "required_constructs": resolution_inputs.required_constructs,
+        "candidate_construct_proposals": resolution_inputs.candidate_construct_proposals,
+        "capability_resolutions": capability_rows,
+        "scenario_family_construct_rows": rows,
+    }
+    return _sha256_json_value(payload)
+
+
+def _sha256_json_value(value: object) -> str:
+    encoded = json.dumps(
+        _json_binding_value(value),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
+
+
+def _json_binding_value(value: object) -> object:
+    """Convert typed compiler inputs to deterministic JSON without string fallback."""
+
+    if value is None or isinstance(value, str | int | float | bool):
+        return value
+    if isinstance(value, Mapping):
+        return {str(key): _json_binding_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_binding_value(item) for item in value]
+    if isinstance(value, set | frozenset):
+        converted = [_json_binding_value(item) for item in value]
+        return sorted(converted, key=lambda item: json.dumps(item, sort_keys=True))
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return _json_binding_value(model_dump(mode="json", by_alias=True))
+    isoformat = getattr(value, "isoformat", None)
+    if callable(isoformat):
+        return isoformat()
+    enum_value = getattr(value, "value", None)
+    if isinstance(enum_value, str | int | float | bool):
+        return enum_value
+    raise TypeError(f"unsupported_data_requirement_input_value:{type(value).__name__}")
 
 
 def _claim_requires_data(claim: Any) -> bool:
@@ -2000,13 +2369,16 @@ def _text_tuple(value: object) -> tuple[str, ...]:
 
 
 def _slug(value: str) -> str:
-    slug = "".join(ch if ch.isalnum() or ch in {".", "_", "-"} else "-" for ch in value)
-    return slug.strip("-") or "run"
+    text = str(value or "").strip().casefold()
+    chars = [char if char.isalnum() else "-" for char in text]
+    slug = "-".join(part for part in "".join(chars).split("-") if part)
+    return slug or "unknown"
 
 
 __all__ = [
     "DataRequirementCompiler",
     "compile_data_requirements_for_scenario",
     "data_requirement_compilation_audit_surface",
+    "parse_data_requirement_compilation_report",
     "write_data_requirement_compilation_report",
 ]

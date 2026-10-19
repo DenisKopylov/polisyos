@@ -77,6 +77,36 @@ def test_contract_index_maps_curated_source_binding_to_scenario_family(
     assert finding["claim_bindability_status"] == "claim_bound"
 
 
+def test_contract_index_carries_bound_requirement_basis_without_authority_promotion(
+    tmp_path: Path,
+) -> None:
+    root = _production_root(tmp_path, contracts=[], bindings=[])
+    scenario = _scenario_contract(_requirement("credit_program_registry"))
+    scenario.update(
+        {
+            "requirement_basis": {
+                "state": "established",
+                "source": "governed_capability_resolution",
+                "basis_grade": "recomputed",
+                "reason_codes": ["governed_capability_basis_resolved"],
+                "source_refs": ["event://data-requirement/scenario-credit"],
+            },
+            "producer_report_ref": "event://data-requirement/scenario-credit",
+            "subject_refs": ["scenario:scenario-credit"],
+            "rule_version_refs": ["policyos.data_requirement.compiler.v2"],
+            "input_content_hash": "sha256:" + "a" * 64,
+        }
+    )
+
+    report = ProductionDataContractIndex.load(root).build_scenario_binding_report(scenario)
+
+    assert report["requirement_basis"]["basis_grade"] == "recomputed"
+    assert report["producer_report_ref"] == "event://data-requirement/scenario-credit"
+    assert report["subject_refs"] == ["scenario:scenario-credit"]
+    assert report["input_content_hash"] == "sha256:" + "a" * 64
+    assert report["authority_eligible"] is False
+
+
 def test_contract_index_requires_source_contract_backing_for_scenario_family(
     tmp_path: Path,
 ) -> None:

@@ -6,15 +6,20 @@ from typing import TYPE_CHECKING
 
 from ._impl.models import (
     CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
+    DATA_REQUIREMENT_BASIS_SCHEMA_VERSION,
     DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION,
+    DATA_REQUIREMENT_COMPILATION_V1_SCHEMA_VERSION,
     DATA_REQUIREMENT_SPEC_SCHEMA_VERSION,
     CapabilityBindingSnapshot,
     CapabilityRequirementResolution,
     DataQualityMinimums,
+    DataRequirementBasisResolution,
     DataRequirementCompilationReport,
+    DataRequirementCompilationReportV1,
     DataRequirementScope,
     DataRequirementSpec,
     data_requirement_authority_boundary,
+    data_requirement_compilation_event_ref,
 )
 
 if TYPE_CHECKING:
@@ -55,6 +60,7 @@ def __getattr__(name: str) -> object:
     if name in {
         "DataRequirementCompiler",
         "compile_data_requirements_for_scenario",
+        "parse_data_requirement_compilation_report",
         "data_requirement_compilation_audit_surface",
         "write_data_requirement_compilation_report",
     }:
@@ -62,12 +68,14 @@ def __getattr__(name: str) -> object:
             DataRequirementCompiler,
             compile_data_requirements_for_scenario,
             data_requirement_compilation_audit_surface,
+            parse_data_requirement_compilation_report,
             write_data_requirement_compilation_report,
         )
 
         exports = {
             "DataRequirementCompiler": DataRequirementCompiler,
             "compile_data_requirements_for_scenario": compile_data_requirements_for_scenario,
+            "parse_data_requirement_compilation_report": parse_data_requirement_compilation_report,
             "data_requirement_compilation_audit_surface": (
                 data_requirement_compilation_audit_surface
             ),
@@ -81,17 +89,23 @@ def __getattr__(name: str) -> object:
 
 __all__ = [
     "CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION",
+    "DATA_REQUIREMENT_BASIS_SCHEMA_VERSION",
     "DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION",
+    "DATA_REQUIREMENT_COMPILATION_V1_SCHEMA_VERSION",
     "DATA_REQUIREMENT_SPEC_SCHEMA_VERSION",
     "CapabilityBindingSnapshot",
     "CapabilityRequirementResolution",
     "DataQualityMinimums",
+    "DataRequirementBasisResolution",
     "DataRequirementCompilationReport",
+    "DataRequirementCompilationReportV1",
     "DataRequirementCompiler",
     "DataRequirementScope",
     "DataRequirementSpec",
     "compile_data_requirements_for_scenario",
     "data_requirement_authority_boundary",
     "data_requirement_compilation_audit_surface",
+    "data_requirement_compilation_event_ref",
+    "parse_data_requirement_compilation_report",
     "write_data_requirement_compilation_report",
 ]

@@ -297,11 +297,6 @@ def rollback_and_kill_switches() -> list[dict[str, str]]:
 
     return [
         {
-            "flag": "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED",
-            "rollback_action": "restore fallback while catalog-derived data rules are repaired",
-            "owner": "team-data-requirements",
-        },
-        {
             "flag": "POLISYOS_SCIENTIST_V2_ENABLED",
             "rollback_action": "disable universal PDC runtime path at entrypoint",
             "owner": "team-runtime-quality",

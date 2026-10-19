@@ -26,7 +26,7 @@ from tools.ops_runners.runtime.quality_scenarios import (
     load_quality_scenario_contract,
 )
 
-SCHEMA_VERSION = "policyos.production_data_scenario_contract_check.v1"
+SCHEMA_VERSION = "policyos.production_data_scenario_contract_check.v2"
 DEFAULT_SCENARIO_ALIAS = "scenario-public_golden"
 
 
@@ -58,6 +58,8 @@ def build_report(
             "finding_count": 0,
         },
         "requirement_source": None,
+        "requirement_basis": None,
+        "authority_eligible": False,
         "compiled_data_requirement_specs": [],
         "source_contract_bindings": [],
         "missing_scenario_source_families": [],
@@ -128,16 +130,33 @@ def build_report(
         scenario_contract
     )
     construct_findings = _construct_capability_findings(contract_report)
-    findings = [*construct_findings, *_diagnostic_findings(contract_report)]
-    status = "pass" if not findings else "fail"
+    contract_findings = [*construct_findings, *_diagnostic_findings(contract_report)]
+    basis_findings = _requirement_basis_findings(contract_report)
+    hard_basis_findings = [item for item in basis_findings if item["severity"] == "error"]
+    candidate_findings = [item for item in basis_findings if item["severity"] != "error"]
+    findings = [*contract_findings, *hard_basis_findings, *candidate_findings]
+    if contract_findings or hard_basis_findings:
+        status = "fail"
+    elif candidate_findings:
+        status = "candidate"
+    else:
+        status = "pass"
     summary = dict(contract_report.get("summary") or {})
     summary["construct_capability_blockers"] = len(construct_findings)
+    summary["candidate_limitations"] = len(candidate_findings)
     summary["finding_count"] = len(findings)
     return {
         **base_report,
         "status": status,
         "scenario_contract_id": contract_report.get("scenario_contract_id"),
         "requirement_source": contract_report.get("requirement_source"),
+        "requirement_basis": contract_report.get("requirement_basis"),
+        "requirement_basis_error": contract_report.get("requirement_basis_error"),
+        "producer_report_ref": contract_report.get("producer_report_ref"),
+        "subject_refs": list(contract_report.get("subject_refs") or []),
+        "rule_version_refs": list(contract_report.get("rule_version_refs") or []),
+        "input_content_hash": contract_report.get("input_content_hash"),
+        "authority_eligible": False,
         "compiled_data_requirement_specs": list(
             contract_report.get("compiled_data_requirement_specs") or []
         ),
@@ -151,6 +170,83 @@ def build_report(
         "scenario_binding_findings": list(contract_report.get("scenario_binding_findings") or []),
         "findings": findings,
     }
+
+
+def _requirement_basis_findings(report: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Preserve unknown or consumer-asserted basis as non-passing candidate status."""
+
+    basis_error = report.get("requirement_basis_error")
+    if basis_error:
+        return [
+            _finding(
+                code="production_data_requirement_basis_invalid",
+                message="Scenario requirement basis is malformed or lacks producer binding.",
+                next_action=(
+                    "Recompile and persist the typed producer report with its subject/rule/content "
+                    "binding."
+                ),
+                root_cause_class="production_data_requirement_basis",
+                details={"basis_error": str(basis_error)},
+            )
+        ]
+    basis = report.get("requirement_basis")
+    if not isinstance(basis, Mapping):
+        finding = _finding(
+            code="production_data_requirement_basis_not_carried",
+            message="Scenario contract has no validated producer-owned requirement basis.",
+            next_action=(
+                "Carry the typed compiler basis and its report/input bindings through "
+                "normalization."
+            ),
+            root_cause_class="production_data_requirement_basis",
+            severity="warning",
+        )
+        finding["status"] = "candidate"
+        return [finding]
+    state = str(basis.get("state") or "")
+    grade = str(basis.get("basis_grade") or "")
+    if state == "not_established":
+        finding = _finding(
+            code="production_data_requirement_basis_not_established",
+            message="No complete data-requirement basis was established for this scenario.",
+            next_action=(
+                "Keep the result candidate with this limitation; provide governed requirements "
+                "before any positive gate."
+            ),
+            root_cause_class="production_data_requirement_basis",
+            severity="warning",
+            details={
+                "basis_source": basis.get("source"),
+                "basis_grade": grade,
+                "reason_codes": list(basis.get("reason_codes") or []),
+                "source_refs": list(basis.get("source_refs") or []),
+            },
+        )
+        finding["status"] = "candidate"
+        return [finding]
+    if state != "established" or grade != "recomputed":
+        finding = _finding(
+            code="production_data_requirement_basis_candidate_only",
+            message=(
+                "The declared requirement basis is candidate-scoped and cannot support a "
+                "passing gate."
+            ),
+            next_action=(
+                "Resolve the basis from governed, content-bound producer inputs before a positive "
+                "scenario status."
+            ),
+            root_cause_class="production_data_requirement_basis",
+            severity="warning",
+            details={
+                "basis_source": basis.get("source"),
+                "basis_grade": grade,
+                "reason_codes": list(basis.get("reason_codes") or []),
+                "source_refs": list(basis.get("source_refs") or []),
+            },
+        )
+        finding["status"] = "candidate"
+        return [finding]
+    return []
 
 
 def _compiled_construct_bindings(report: Mapping[str, Any]) -> list[dict[str, Any]]:

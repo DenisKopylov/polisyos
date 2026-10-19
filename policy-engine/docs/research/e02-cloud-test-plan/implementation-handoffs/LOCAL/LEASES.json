@@ -26546,5 +26546,241 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "n13-source-bound-compilation-and-immutable-reports-v4-20261020": {
+    "slice_base": "3e22ce028fb4280c9fcfb6129c963e6b33b9dbdd",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/policy_design_case/wave12g_rollout_decision_manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "5f1f7956a383b3348b2f00c45459719c473d4dd7476e1658eebd86ba8e62b207",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/architecture/policy_design_case/wave12g_rollout_decision_manifest.json",
+        "postimage_sha256": "bddd765f62469bfa20821d4de76367facca58cdf2a8e2ec2dd25188874a02211"
+      },
+      "policy-engine/architecture/shims.toml": {
+        "operation": "write",
+        "preimage_sha256": "ff9e4a377a05a791f8f8e1b849586ee38c04b2c3fa08ca48e21d86a97303abfa",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/architecture/shims.toml",
+        "postimage_sha256": "181a86d98e42fc0c57cdbae21c81a62c9a1dc4fb4fb3d4e5a09fe631bfede4a2"
+      },
+      "policy-engine/docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md": {
+        "operation": "write",
+        "preimage_sha256": "7c0c8c80727bdebbf9933eb4aacbab21d917542e6c363a26eed9fb150636e6bb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md",
+        "postimage_sha256": "87c7ff9b024c5fb6c2cb7dfc91ee9c162079e3d91bca5c0d5146262afdcfa105"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-immutable-data-requirement-report-publication.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-immutable-data-requirement-report-publication.toml",
+        "postimage_sha256": "edfc818d7aea43d4741e5b072d295944a34ae2828260c2555b46754f422d98b6"
+      },
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "operation": "write",
+        "preimage_sha256": "dd9ce7afbf7b87497984bf56332f80097e88dede7e9f3c7d00933a2d782f7da7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/core/artifacts/README.md",
+        "postimage_sha256": "638586b05d34cfb465cfb7f64e5b8f1d1384c3c0283198c7d11a137f949b29d1"
+      },
+      "policy-engine/src/polisyos/core/artifacts/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "postimage_sha256": "fafb621e27f7929409a906e68cc91079e968fb7fe76e4cbb0d44bd672da1c177"
+      },
+      "policy-engine/src/polisyos/data_requirement/README.md": {
+        "operation": "write",
+        "preimage_sha256": "39f0e54bdc25c5d1b04389be18eccaeb5a8812d28f69be5bb1da82de00b4a5ae",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/data_requirement/README.md",
+        "postimage_sha256": "722300b960feec112c2267c0dc91155343febb5197471d4e4114663b00d92a18"
+      },
+      "policy-engine/src/polisyos/data_requirement/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "38d5404f49cca89690a27d51ce88b4565498b1c45b902bb7809c503ef30c7547",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/data_requirement/__init__.py",
+        "postimage_sha256": "57f3b92cebe9b6539e582cb0501862b589a8e6009f6be6413825cd810cce64c2"
+      },
+      "policy-engine/src/polisyos/data_requirement/_impl/models.py": {
+        "operation": "write",
+        "preimage_sha256": "c26f4eeb00e74937334b647ea95792f82839cbf2c3f2108c02478a29bd245426",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/data_requirement/_impl/models.py",
+        "postimage_sha256": "af3dcf8122d93badd0974feb439bf25d3295bb507721cdb2ef4fbd26e614596a"
+      },
+      "policy-engine/src/polisyos/data_requirement/compiler.py": {
+        "operation": "write",
+        "preimage_sha256": "fce7969fd7298e02868621084a09affbf47d3216a8528f4427a64998c7d4568b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/data_requirement/compiler.py",
+        "postimage_sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509"
+      },
+      "policy-engine/src/polisyos/runtime/quality/production_data_contract_index.py": {
+        "operation": "write",
+        "preimage_sha256": "ae3ba31462ab23dfd538efbb41c39bb74382ad069cd47e9afe594effc24a8c1f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/runtime/quality/production_data_contract_index.py",
+        "postimage_sha256": "4bbcccfeb1209581dc33f3d7ceb9858132a4333586c4ded1abbc6ea341156c74"
+      },
+      "policy-engine/src/polisyos/runtime/quality/scenario_evidence_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "cbba69398fa40015322ee7e3c91e4a48268f4a63c72d6af2b3d40b217d8d0d56",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/src/polisyos/runtime/quality/scenario_evidence_contract.py",
+        "postimage_sha256": "e40ed6132226364db9b08c2e83602532fc68ce605d01a8c912d6c8c808749b66"
+      },
+      "policy-engine/tests/repo_quality/tools/test_check_production_data_scenario_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/repo_quality/tools/test_check_production_data_scenario_contracts.py",
+        "postimage_sha256": "25540ec67d103613808f9aaa1ba5b7c33d080fef6939beb7fb7836aa5ac96fac"
+      },
+      "policy-engine/tests/repo_quality/tools/test_w12g_rollout_decision.py": {
+        "operation": "write",
+        "preimage_sha256": "5d80702fb43099dec6e75a5288d611054ac48724e3f03b14f3888b5e28c1316a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/repo_quality/tools/test_w12g_rollout_decision.py",
+        "postimage_sha256": "6926800bd60ca9b4dc61001f54c3a6dc94cf8ccbdc09943d7c2e427f60d19fb2"
+      },
+      "policy-engine/tests/unit/core/artifacts/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/core/artifacts/__init__.py",
+        "postimage_sha256": "2c77c51134921ee4a57f4751f593d99722d429eaf9e73813110fd3fe74916f0f"
+      },
+      "policy-engine/tests/unit/core/artifacts/test_write_bytes_once.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/core/artifacts/test_write_bytes_once.py",
+        "postimage_sha256": "7d2dc27d7e7715e1fd2f2e384f7b051239d8632d3e14c72067a7c8e91781f1ac"
+      },
+      "policy-engine/tests/unit/data_requirement/test_compiler.py": {
+        "operation": "write",
+        "preimage_sha256": "490e871d04c207cf6e9b9a46038753a33eb9d729e77931a6134ee2a0daa9a2e7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/data_requirement/test_compiler.py",
+        "postimage_sha256": "61d3ca8af4245ba9853e20d59b4d867415491112e1bde77edd259cb6a25ea0a0"
+      },
+      "policy-engine/tests/unit/remediation/test_req_01_installed.py": {
+        "operation": "write",
+        "preimage_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/remediation/test_req_01_installed.py",
+        "postimage_sha256": "4968046b50a257ef1d65a757003f22f6885177a93163662d8fea060f7c375c56"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_production_data_contract_index.py": {
+        "operation": "write",
+        "preimage_sha256": "6bb2ea556c84c8cdb0e93d75312aec38e5fd26230cde2b14d8ed6335cb5744f9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/runtime/quality/test_production_data_contract_index.py",
+        "postimage_sha256": "b1cf186aee17183c8ffeb9ddf0a6139a8d76d152f728f8b58ac866e85738b246"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_scenario_evidence_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "fa1ab24bb393a16f14e86e1d0af93875b53ce086839410f170971bb279fffedc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/runtime/quality/test_scenario_evidence_contract.py",
+        "postimage_sha256": "ccc6ad816ff1bd01a4095897c73630aaf3ee53c21ac147f74f52c37dcfb1e7ec"
+      },
+      "policy-engine/tests/unit/tools/test_quality_scenarios.py": {
+        "operation": "write",
+        "preimage_sha256": "ef75aaada4e1a83f537fe88ecc57fb613defa26d10cfcfac0b45d185af717d63",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tests/unit/tools/test_quality_scenarios.py",
+        "postimage_sha256": "ccc847dad060ff2f8b0ebda3a90c5c23f973ac2ac868567d342f7c699939e0f1"
+      },
+      "policy-engine/tools/quality/validation/check_production_data_scenario_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": "3ccd12be298aed819c6ca09fc6e76879ba9850f3f2121602994ce3f45c4c3b6b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tools/quality/validation/check_production_data_scenario_contracts.py",
+        "postimage_sha256": "741f10533ce2476a1fd6601168a89db5278b5b8723c8244bfc8f8c65b6611087"
+      },
+      "policy-engine/tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py": {
+        "operation": "write",
+        "preimage_sha256": "fae9695071e81872ea9f09e40856483def00b98913da67860a33ccdea95f79a0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py",
+        "postimage_sha256": "483a285e7bdd70005aac683e37696e064a38cd874e5e588414079aba4eb0250b"
+      },
+      "policy-engine/tools/quality/validation/run_policy_design_case_rollout_decision.py": {
+        "operation": "write",
+        "preimage_sha256": "6ba6a1a228fdeafe821fe44b9c0b779c15acef085ee4975400b3b9a2b72aa794",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/postimages/policy-engine/tools/quality/validation/run_policy_design_case_rollout_decision.py",
+        "postimage_sha256": "54222e1f6677dce1ded46ded54bb5b93ba1925f529343f5d81133246b8bcc2b3"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n13-immutable-report-v4-adoption-20261020/source-application.json",
+      "sha256": "30c840224ad2ae1b1c8a7afb6d0dc6f695083cdf581d30bb87618dbe4497721d"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n13-immutable-report-v4-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/candidate-v4-manifest.json",
+        "sha256": "bb9ca46b4e96a390da30fb06dbbac1bdbaf511b79d842393751dffe183f7517a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/candidate-v4.patch",
+        "sha256": "8dc7bc5e981203eb294027245b4c5073e9abd809ddcb9131e7b1c377f0e140cc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/independent-review-v4-root-r1/review.json",
+        "sha256": "7273d7fb52b5cb89609d5342f080a32710a87ba1363064b7ed670401198d6f5d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-data-requirement-family-fallback-retirement-20261020-v4/independent-review-v4-root-r1/postimage-denominator-addendum.json",
+        "sha256": "8263b120f0337a41201b89be243ce27e658e871e2930c4052526503baa1c8e64"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same P38/P40 identity class widened across event references and full V1/V2 immutable publication; no per-slug patch or heuristic family-to-construct authority.",
+    "bounded_proof": "Independent V4 source GO, all 24 current and candidate SHA/byte counts match. Complete canonical native preflight required. Author 140-pass seven-module overlay remains separate; installed wheel test UNRUN after harness root error.",
+    "limitations": [
+      "Source proposal only; G Option A/basis semantics and formal finding adjudication remain pending.",
+      "Explicit candidate family declarations remain consumer_asserted; no governed-positive resolver inputs or default mapping are invented.",
+      "Actual N7 ArtifactStore custody, completed-run/native acquisition route, fresh context and same-candidate handoff remain separate required work.",
+      "Installed wheel/rebuilt-sdist, public inventory generation and complete native SOTA gates remain pending.",
+      "Core durable_parent syncs when this call publishes a new name; existing-name False returns before parent fsync and requires caller byte comparison. This documentation caveat is recorded debt.",
+      "Two known-owned incomplete N7/B108 test edits remain unchanged."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Canonical complete compiler/schema/runtime-quality/Core facade replay with normal configuration and removal controls; compose actual N7 CAS/native multi-job bridge; regenerate/check/corrupt public artifacts and run installed consumers at final freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -136,7 +136,6 @@ def test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers(
     child_environment["PYTHONPATH"] = os.pathsep.join((str(installed_site), *dependency_paths))
     child_environment["PYTHONNOUSERSITE"] = "1"
     child_environment["PYTHONDONTWRITEBYTECODE"] = "1"
-    child_environment["POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED"] = "false"
     child_environment["REQ01_INSTALLED_SITE"] = str(installed_site)
     child_environment["REQ01_PRODUCT_ROOT"] = str(PRODUCT_ROOT.resolve())
     child_environment["REQ01_REPORT_DIR"] = str(outside_checkout / "compiler-reports")
@@ -297,7 +296,7 @@ persisted_path = write_data_requirement_compilation_report(
     Path(os.environ["REQ01_REPORT_DIR"]),
 )
 persisted = json.loads(persisted_path.read_text(encoding="utf-8"))
-assert persisted["schema_version"] == "policyos.data_requirement_compilation.v1"
+assert persisted["schema_version"] == "policyos.data_requirement_compilation.v2"
 assert persisted["specs"][0]["required_data_families"] == ["employment_panel"]
 assert persisted["specs"][0]["metadata"]["construct_ref"] == "employment_status"
 assert persisted["metadata"]["capability_index_refs"] == [

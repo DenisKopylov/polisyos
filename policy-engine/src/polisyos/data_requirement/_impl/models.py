@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from typing import Any, Literal
+from urllib.parse import quote
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    PrivateAttr,
     SerializerFunctionWrapHandler,
     field_validator,
     model_serializer,
@@ -17,7 +19,9 @@ from pydantic import (
 from polisyos.core.contracts import RequirementToCapabilityQuery
 
 DATA_REQUIREMENT_SPEC_SCHEMA_VERSION = "policyos.data_requirement_spec.v1"
-DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION = "policyos.data_requirement_compilation.v1"
+DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION = "policyos.data_requirement_compilation.v2"
+DATA_REQUIREMENT_COMPILATION_V1_SCHEMA_VERSION = "policyos.data_requirement_compilation.v1"
+DATA_REQUIREMENT_BASIS_SCHEMA_VERSION = "policyos.data_requirement_basis_resolution.v1"
 CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION = (
     "policyos.data_requirement.capability_requirement_resolution.v1"
 )
@@ -58,6 +62,24 @@ def data_requirement_authority_boundary() -> dict[str, list[str]]:
             "closeout_pass",
         ],
     }
+
+
+def data_requirement_compilation_event_ref(run_id: str) -> str:
+    """Return a collision-resistant event ref for one compiler run ID.
+
+    Args:
+        run_id: Exact run identifier to encode as one URI path component.
+
+    Returns:
+        The stable producer event reference for the run.
+
+    Raises:
+        ValueError: If the run ID is not a non-empty string.
+    """
+
+    if not isinstance(run_id, str) or not run_id:
+        raise ValueError("data_requirement_run_id_missing")
+    return f"event://data-requirement/{quote(run_id, safe='-._~')}"
 
 
 class DataRequirementScope(BaseModel):
@@ -121,7 +143,7 @@ class DataRequirementSpec(BaseModel):
     obligation_refs: tuple[str, ...] = Field(default=())
     concept_spine_refs: tuple[str, ...] = Field(min_length=1)
     authority_profile_refs: tuple[str, ...] = Field(min_length=1)
-    rule_version_ref: str = "policyos.data_requirement.compiler.v1"
+    rule_version_ref: str = "policyos.data_requirement.compiler.v2"
     producer: str = "polisyos.data_requirement.compiler.DataRequirementCompiler"
     source_requirement_refs: tuple[str, ...] = Field(default=())
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -259,14 +281,169 @@ class CapabilityRequirementResolution(BaseModel):
         return self
 
 
-class DataRequirementCompilationReport(BaseModel):
-    """Compiler report carrying specs plus legacy bridge projection fields."""
+class DataRequirementBasisResolution(BaseModel):
+    """Producer-owned status for the admitted data-requirement basis.
+
+    ``established`` means that the compiler can point to a present candidate
+    basis. The ``basis_grade`` states how that predicate was established; in
+    particular, a consumer-declared family list is never upgraded to authority.
+    This model carries references and reasons, not a family or construct.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["policyos.data_requirement_compilation.v1"] = (
+    schema_version: Literal["policyos.data_requirement_basis_resolution.v1"] = (
+        DATA_REQUIREMENT_BASIS_SCHEMA_VERSION
+    )
+    state: Literal["established", "not_established"]
+    source: Literal[
+        "governed_capability_resolution",
+        "explicit_scenario_family_declaration",
+        "not_established",
+    ]
+    basis_grade: Literal[
+        "recomputed",
+        "independently_reconciled",
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    ]
+    reason_codes: tuple[
+        Literal[
+            "governed_capability_basis_resolved",
+            "governed_capability_resolution_incomplete",
+            "explicit_scenario_family_declaration_candidate_only",
+            "explicit_empty_family_declaration_not_proof",
+            "no_explicit_or_governed_data_basis",
+            "legacy_report_basis_not_carried",
+            "empty_compilation_not_proof_of_no_data",
+        ],
+        ...,
+    ] = Field(default=())
+    source_refs: tuple[str, ...] = Field(default=())
+
+    @field_validator("reason_codes", "source_refs", mode="before")
+    @classmethod
+    def _clean_basis_tuple(cls, value: object) -> tuple[str, ...]:
+        return _text_tuple(value)
+
+    @model_validator(mode="after")
+    def _validate_basis_grade(self) -> DataRequirementBasisResolution:
+        if not self.reason_codes:
+            raise ValueError("data_requirement_basis_reason_missing")
+        if self.state == "established":
+            if not self.source_refs or self.source == "not_established":
+                raise ValueError("data_requirement_basis_source_missing")
+            if self.basis_grade == "not_established":
+                raise ValueError("data_requirement_basis_grade_mismatch")
+            if (
+                self.source == "explicit_scenario_family_declaration"
+                and self.basis_grade != "consumer_asserted"
+            ):
+                raise ValueError("explicit_family_basis_must_remain_consumer_asserted")
+            if self.source == "governed_capability_resolution" and self.basis_grade != "recomputed":
+                raise ValueError("governed_capability_basis_must_be_recomputed")
+        elif self.basis_grade != "not_established":
+            raise ValueError("unestablished_basis_grade_mismatch")
+        return self
+
+
+def _legacy_unestablished_basis() -> DataRequirementBasisResolution:
+    """Fail closed when an older producer did not carry a basis assessment."""
+
+    return DataRequirementBasisResolution(
+        state="not_established",
+        source="not_established",
+        basis_grade="not_established",
+        reason_codes=("legacy_report_basis_not_carried",),
+    )
+
+
+class DataRequirementCompilationReport(BaseModel):
+    """Compiler report carrying specs, basis status, and legacy projections."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.data_requirement_compilation.v2"] = (
         DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION
     )
+    run_id: str = Field(min_length=1)
+    scenario_id: str | None = None
+    specs: tuple[DataRequirementSpec, ...] = Field(default=())
+    capability_resolution_schema_version: (
+        Literal["policyos.data_requirement.capability_requirement_resolution.v1"] | None
+    ) = None
+    capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
+    legacy_admissible_data_source_families: tuple[str, ...] = Field(default=())
+    requirement_basis: DataRequirementBasisResolution = Field(
+        default_factory=_legacy_unestablished_basis
+    )
+    producer_report_ref: str | None = Field(default=None, min_length=1)
+    subject_refs: tuple[str, ...] = Field(default=())
+    rule_version_refs: tuple[str, ...] = Field(default=())
+    input_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    capability_reality_label: Literal["implemented", "bridge_missing"] = "bridge_missing"
+    pattern_refs: tuple[str, ...] = ("P02", "P04", "P05", "P08", "P12", "P14", "P37", "P38")
+    runtime_event_ref: str | None = Field(default=None, min_length=1)
+    authority_boundary: dict[str, Any] = Field(default_factory=data_requirement_authority_boundary)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("legacy_admissible_data_source_families", mode="before")
+    @classmethod
+    def _clean_family_tuple(cls, value: object) -> tuple[str, ...]:
+        return _text_tuple(value)
+
+    @model_validator(mode="after")
+    def _derive_legacy_families(self) -> DataRequirementCompilationReport:
+        if not self.legacy_admissible_data_source_families:
+            families = tuple(
+                dict.fromkeys(
+                    family for spec in self.specs for family in spec.required_data_families
+                )
+            )
+            object.__setattr__(self, "legacy_admissible_data_source_families", families)
+        expected_report_ref = data_requirement_compilation_event_ref(self.run_id)
+        report_ref = self.producer_report_ref or self.runtime_event_ref or expected_report_ref
+        if self.producer_report_ref not in (None, report_ref) or self.runtime_event_ref not in (
+            None,
+            report_ref,
+        ):
+            raise ValueError("data_requirement_report_ref_mismatch")
+        object.__setattr__(self, "producer_report_ref", report_ref)
+        object.__setattr__(self, "runtime_event_ref", report_ref)
+        if self.requirement_basis.state == "established":
+            if not self.subject_refs or not self.rule_version_refs or not self.input_content_hash:
+                raise ValueError("established_requirement_basis_input_binding_missing")
+            if report_ref not in self.requirement_basis.source_refs:
+                raise ValueError("requirement_basis_report_ref_missing")
+            object.__setattr__(self, "capability_reality_label", "implemented")
+        else:
+            object.__setattr__(self, "capability_reality_label", "bridge_missing")
+        if not self.authority_boundary:
+            object.__setattr__(
+                self,
+                "authority_boundary",
+                data_requirement_authority_boundary(),
+            )
+        if (self.capability_resolution_schema_version is None) != (
+            self.capability_requirement_resolutions is None
+        ):
+            raise ValueError("capability_resolution_carrier_version_mismatch")
+        return self
+
+
+class DataRequirementCompilationReportV1(BaseModel):
+    """Strict reader for the historical v1 report wire shape.
+
+    The original report has no basis field. The typed property therefore
+    reports an unestablished basis without changing the serialized v1 payload.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    _source_bytes: bytes | None = PrivateAttr(default=None)
+
+    schema_version: Literal["policyos.data_requirement_compilation.v1"]
     run_id: str = Field(min_length=1)
     scenario_id: str | None = None
     specs: tuple[DataRequirementSpec, ...] = Field(default=())
@@ -283,11 +460,11 @@ class DataRequirementCompilationReport(BaseModel):
 
     @field_validator("legacy_admissible_data_source_families", mode="before")
     @classmethod
-    def _clean_family_tuple(cls, value: object) -> tuple[str, ...]:
+    def _clean_legacy_family_tuple(cls, value: object) -> tuple[str, ...]:
         return _text_tuple(value)
 
     @model_validator(mode="after")
-    def _derive_legacy_families(self) -> DataRequirementCompilationReport:
+    def _derive_legacy_families(self) -> DataRequirementCompilationReportV1:
         if not self.legacy_admissible_data_source_families:
             families = tuple(
                 dict.fromkeys(
@@ -313,6 +490,18 @@ class DataRequirementCompilationReport(BaseModel):
             raise ValueError("capability_resolution_carrier_version_mismatch")
         return self
 
+    @property
+    def requirement_basis(self) -> DataRequirementBasisResolution:
+        """Return the typed absence status without restamping the v1 report."""
+
+        return _legacy_unestablished_basis()
+
+    @property
+    def original_bytes(self) -> bytes | None:
+        """Return the original JSON bytes when this report was read from bytes."""
+
+        return self._source_bytes
+
 
 def _text_tuple(value: object) -> tuple[str, ...]:
     if value is None:
@@ -336,16 +525,21 @@ def _slug(value: str) -> str:
 
 __all__ = [
     "CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION",
+    "DATA_REQUIREMENT_BASIS_SCHEMA_VERSION",
     "DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION",
+    "DATA_REQUIREMENT_COMPILATION_V1_SCHEMA_VERSION",
     "DATA_REQUIREMENT_SPEC_SCHEMA_VERSION",
     "CapabilityBindingSnapshot",
     "CapabilityRequirementResolution",
     "DataQualityMinimums",
+    "DataRequirementBasisResolution",
     "DataRequirementCompilationReport",
+    "DataRequirementCompilationReportV1",
     "DataRequirementScope",
     "DataRequirementSpec",
     "DataRequirementTimeRole",
     "LineageStrictness",
     "TransformationTolerance",
     "data_requirement_authority_boundary",
+    "data_requirement_compilation_event_ref",
 ]

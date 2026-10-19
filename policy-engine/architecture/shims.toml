@@ -39,26 +39,9 @@ issue = "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_
 
 
 [[shim]]
-id = "data-requirement-family-fallback-from-hardcoded-heuristic"
-source_path = "src/polisyos/data_requirement/compiler.py#_required_data_families_from_heuristic"
-target_path = "src/polisyos/obligation_rules/catalog.py"
-type = "feature_flagged_semantic_fallback"
-source_fqn = "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED"
-target_fqn = "polisyos.obligation_rules.vertical_data_family_seed"
-flag_default = "false"
-reason = "Phase 4 keeps the legacy W7.A data-family heuristic behind an opt-in feature flag while RequirementToCapabilityResolver supplies construct-resolved compatibility family projections on the primary path."
-owner = "team-universal-compilation"
-created = "2026-05-25"
-sunset_date = "2026-06-30"
-sunset_trigger = "Remove after Policy Evidence Capability Graph Phase 7 closes: frozen legacy replay can read old scenario-family projections, W12.A quick path keeps production_data_scenario_contracts_missing at zero, and W11.E reports construct-vocabulary obligations without regression."
-planned_target_symbol = "RequirementToCapabilityResolver"
-issue = "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#phase-4---requirement-to-capability-resolver"
-
-
-[[shim]]
 id = "scenario-family-authority"
 status = "sunset"
-source_path = "src/polisyos/data_requirement/compiler.py#_required_data_families_from_heuristic"
+source_path = "src/polisyos/runtime/quality/scenario_evidence_contract.py#_legacy_scenario_family_projection"
 target_path = "docs/adr/0174-policy-evidence-capability-graph.md"
 type = "authority_compatibility_projection"
 source_fqn = "policyos.scenario_family.compatibility_projection"
@@ -76,7 +59,7 @@ issue = "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#pha
 [[shim]]
 id = "scenario_family_authority_lookup"
 status = "sunset"
-source_path = "src/polisyos/data_requirement/compiler.py#_required_data_families_from_heuristic"
+source_path = "src/polisyos/runtime/quality/production_data_contract_index.py#_requirements_from_data_requirement_specs"
 target_path = "src/polisyos/runtime/quality/capability_resolver.py"
 type = "sunset_authority_lookup"
 source_fqn = "policyos.scenario_family.authority_lookup"

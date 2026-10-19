@@ -25,6 +25,18 @@ environment fingerprints.
 
 ## Public API
 
+### Immutable local byte publication
+
+`write_bytes_once(path, data, durable_parent=False)` is the narrow facade for an
+atomic create-if-absent write. It returns `True` when this call created the
+destination and `False` when a name already existed. A `False` result does not
+prove that the stored bytes match the requested bytes; a caller that supports
+idempotent reuse must compare exact bytes and refuse a content conflict.
+`durable_parent=True` requires the parent-directory fsync and raises
+`AtomicFileDurabilityError` if it fails after publication. The helper delegates
+to the existing atomic writer and does not provide CAS identity, provenance,
+authority, or currentness.
+
 ### Read-only local CAS access
 
 `ArtifactReader` is the narrow read-only interface for consumers that need verified artifact

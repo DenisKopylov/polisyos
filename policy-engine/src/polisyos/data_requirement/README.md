@@ -8,7 +8,7 @@ and claim ledgers into claim-bound `DataRequirementSpec` artifacts for Fabric.
 - **Consumes:** `policy_grammar`, `obligation_graph`, `obligation_rules`, and
   `scientist.policy_design.claim_decomposition`.
 - **Produces:** typed `DataRequirementSpec` rows plus the
-  `policyos.data_requirement_compilation.v1` bridge report.
+  `policyos.data_requirement_compilation.v2` bridge report.
 - **Used by:** Fabric source-contract binding, runtime-quality scenario contracts,
   and production-data static checks.
 
@@ -19,18 +19,41 @@ scope, recency horizon, lineage strictness, quality minima, missingness toleranc
 transformation tolerance, admissibility predicates, mandatory facets, concept refs,
 and authority-profile refs.
 
-The legacy `scenario_evidence_contract.admissible_data_source_families` surface is a
-compatibility projection from compiled specs. New consumers should read
-`data_requirement_specs`; closeout compatibility may continue to read the projected
-family list until its shim sunset.
+The legacy `scenario_evidence_contract.admissible_data_source_families` surface remains a
+candidate compatibility projection. New consumers should read `data_requirement_specs` and the
+producer-owned `requirement_basis`. Compilation reports bind the basis to an event reference,
+subject refs, rule-version refs, and a SHA-256 input digest. A consumer-declared family is
+`consumer_asserted`, never an authority-grade resolver result. Missing or explicit-empty
+frontiers produce a typed `not_established` basis, not a fabricated family or a no-data success.
+The public `data_requirement_compilation_event_ref(run_id)` helper constructs the v2 event
+reference by reversible UTF-8 URI-component encoding, preserving case and underscores while
+keeping distinct run IDs distinct.
+
+The current producer emits the strict `policyos.data_requirement_compilation.v2`
+schema. The explicit `parse_data_requirement_compilation_report` reader also
+accepts the strict historical v1 report shape as
+`DataRequirementCompilationReportV1`. Its typed `requirement_basis` property is
+`not_established` with reason `legacy_report_basis_not_carried`; it is not part
+of the v1 payload and is never serialized back into that report. The audit
+projection exposes that typed unknown separately, while a byte-input report
+writer preserves the original v1 bytes. V1 reports carrying any extra field,
+including a forged basis, are refused. V2 report filenames use the SHA-256 of
+their exact serialized bytes, avoiding run-ID slug collisions; repeated exact
+bytes are idempotent, while a mismatched existing destination refuses. The v1
+legacy filename remains unchanged and conflicting bytes at that name refuse
+instead of replacing the prior record. Use the versioned reader for persisted
+reports; direct `DataRequirementCompilationReport.model_validate` remains the
+strict v2 producer contract.
+
+The normalized scenario evidence contract is v2. Its public scenario loader
+consumer must match that schema while retaining v1 `contract_id` values as
+scenario identity, not as the contract schema version.
 
 Scenario construct aliases may be omitted, supplied as a non-empty string, or supplied as a
 sequence of strings; an empty sequence contributes no constructs. A present `null`, wrong type,
 blank string, or invalid sequence item is malformed and returns a typed input refusal instead of
 falling through to a default. Synonymous aliases in one profile must agree. Candidate construct
-aliases remain proposals and are not promoted to required inputs. The legacy scenario-family
-fallback keeps missing, explicit-empty, and declared frontiers distinct. Missing or explicit-empty
-frontiers produce no fabricated source family; malformed declarations return a typed refusal.
+aliases remain proposals and are not promoted to required inputs.
 
 
 ## Runtime Constraint Compilation

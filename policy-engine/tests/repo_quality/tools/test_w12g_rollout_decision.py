@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# ruff: noqa: S101
 import json
 from pathlib import Path
 
@@ -25,7 +24,7 @@ def test_w12g_manifest_is_deterministic_and_consumes_w12_evidence_chain() -> Non
         "W12.F",
     ]
     assert manifest["metric_policy"]["rollout_decision_cites_three_metrics"] is True
-    assert "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED" in {
+    assert "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED" not in {
         item["flag"] for item in manifest["rollback_and_kill_switches"]
     }
 

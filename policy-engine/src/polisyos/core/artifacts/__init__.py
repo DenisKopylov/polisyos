@@ -8,12 +8,16 @@ this facade instead of importing private artifact internals.
 
 from datetime import datetime
 from importlib import import_module
+from pathlib import Path as _Path
 from typing import TYPE_CHECKING, Any
 
 from ._atomic_write import (
     AtomicFileDurabilityError,
     ensure_directory_durable,
     fsync_directory,
+)
+from ._atomic_write import (
+    AtomicFileWriter as _AtomicFileWriter,
 )
 from ._integrity_ops import ArtifactIntegrityError, VerificationReport
 from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
@@ -221,6 +225,31 @@ def expected_artifact_manifest_for_write(
     )
 
 
+def write_bytes_once(
+    path: _Path,
+    data: bytes,
+    *,
+    durable_parent: bool = False,
+) -> bool:
+    """Atomically create a file without replacing an existing path.
+
+    Args:
+        path: Destination path to create.
+        data: Exact bytes to publish.
+        durable_parent: Whether to require a successful parent-directory fsync.
+
+    Returns:
+        ``True`` when this call created the path, or ``False`` when the path
+        already existed. A false result does not establish that existing bytes
+        equal ``data``; callers that require idempotent reuse must compare them.
+
+    Raises:
+        AtomicFileDurabilityError: If durable parent synchronization fails after
+            the file has been published.
+    """
+    return _AtomicFileWriter.write_once(path, data, durable_parent=durable_parent)
+
+
 __all__ = [
     "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
     "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -323,4 +352,5 @@ __all__ = [
     "validate_owned_core_model_json_artifact",
     "validate_return_selected_profile",
     "with_ambient_ownership_enforcement_if_supported",
+    "write_bytes_once",
 ]

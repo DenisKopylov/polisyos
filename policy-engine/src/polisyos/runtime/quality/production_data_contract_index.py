@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from polisyos.data_requirement import DataRequirementSpec
+from polisyos.data_requirement import DataRequirementBasisResolution, DataRequirementSpec
 
-PRODUCTION_DATA_CONTRACT_INDEX_SCHEMA_VERSION = "policyos.production_data_contract_index.v1"
+PRODUCTION_DATA_CONTRACT_INDEX_SCHEMA_VERSION = "policyos.production_data_contract_index.v2"
 
 SCENARIO_ADMISSIBLE_REQUIRED_FACETS = (
     "dataset_identity",
@@ -346,10 +346,51 @@ class ProductionDataContractIndex:
                 _data_requirement_spec_from_legacy_requirement(item) for item in legacy_requirements
             ]
         )
+        basis_value = scenario_evidence_contract.get("requirement_basis")
+        basis_error: str | None = None
+        if basis_value is None:
+            basis = _unestablished_requirement_basis()
+        else:
+            try:
+                basis = DataRequirementBasisResolution.model_validate(basis_value)
+            except (TypeError, ValueError) as exc:
+                basis = None
+                basis_error = f"requirement_basis_invalid:{type(exc).__name__}"
+        producer_report_ref = _text(scenario_evidence_contract.get("producer_report_ref"))
+        subject_refs = tuple(
+            _text(item)
+            for item in scenario_evidence_contract.get("subject_refs") or ()
+            if _text(item)
+        )
+        rule_version_refs = tuple(
+            _text(item)
+            for item in scenario_evidence_contract.get("rule_version_refs") or ()
+            if _text(item)
+        )
+        input_content_hash = _text(scenario_evidence_contract.get("input_content_hash"))
+        if (
+            basis is not None
+            and basis.state == "established"
+            and (
+                not producer_report_ref
+                or not subject_refs
+                or not rule_version_refs
+                or not input_content_hash.startswith("sha256:")
+                or producer_report_ref not in basis.source_refs
+            )
+        ):
+            basis_error = "requirement_basis_producer_binding_missing"
+            basis = None
         return self.build_data_requirement_binding_report(
             specs,
             scenario_contract_id=scenario_evidence_contract.get("contract_id"),
             scenario_id=scenario_evidence_contract.get("scenario_id"),
+            requirement_basis=basis,
+            requirement_basis_error=basis_error,
+            producer_report_ref=producer_report_ref,
+            subject_refs=subject_refs,
+            rule_version_refs=rule_version_refs,
+            input_content_hash=input_content_hash,
         )
 
     def build_data_requirement_binding_report(
@@ -358,6 +399,12 @@ class ProductionDataContractIndex:
         *,
         scenario_contract_id: object | None = None,
         scenario_id: object | None = None,
+        requirement_basis: DataRequirementBasisResolution | None = None,
+        requirement_basis_error: str | None = None,
+        producer_report_ref: str | None = None,
+        subject_refs: Sequence[str] = (),
+        rule_version_refs: Sequence[str] = (),
+        input_content_hash: str | None = None,
     ) -> dict[str, Any]:
         """Bind compiled data requirement specs to production-data candidates."""
 
@@ -396,6 +443,15 @@ class ProductionDataContractIndex:
                 ],
             },
             "requirement_source": "compiled_data_requirement_spec",
+            "requirement_basis": (
+                requirement_basis.model_dump(mode="json") if requirement_basis is not None else None
+            ),
+            "requirement_basis_error": requirement_basis_error,
+            "producer_report_ref": producer_report_ref,
+            "subject_refs": list(subject_refs),
+            "rule_version_refs": list(rule_version_refs),
+            "input_content_hash": input_content_hash,
+            "authority_eligible": False,
             "root": str(self.root),
             "manifest_path": str(self.root / "manifest.json"),
             "data_contracts_path": str(self.data_contracts_path)
@@ -544,6 +600,17 @@ class ProductionDataContractIndex:
             ),
             "claim_bound_limitations": limitations,
         }
+
+
+def _unestablished_requirement_basis() -> DataRequirementBasisResolution:
+    """Fail closed when a legacy scenario contract omitted its producer basis."""
+
+    return DataRequirementBasisResolution(
+        state="not_established",
+        source="not_established",
+        basis_grade="not_established",
+        reason_codes=("legacy_report_basis_not_carried",),
+    )
 
 
 def _coerce_data_requirement_spec(

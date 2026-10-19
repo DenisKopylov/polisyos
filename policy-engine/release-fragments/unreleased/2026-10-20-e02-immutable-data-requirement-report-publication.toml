@@ -1,0 +1,23 @@
+id = "2026-10-20-e02-immutable-data-requirement-report-publication"
+title = "Publish versioned data requirement reports without identity collisions"
+type = "changed"
+component = "core"
+owner = "team-policyos-runtime"
+summary = "Expose a narrow atomic create-once byte publisher through the core.artifacts facade and use exact serialized-byte SHA-256 filenames for V2 data requirement reports. Historical V1 bytes and names remain readable; a conflicting V1 name refuses instead of replacing prior content."
+evidence = [
+  "src/polisyos/core/artifacts/__init__.py",
+  "src/polisyos/core/artifacts/README.md",
+  "src/polisyos/data_requirement/compiler.py",
+  "tests/unit/core/artifacts/test_write_bytes_once.py",
+  "tests/unit/data_requirement/test_compiler.py",
+]
+compatibility = "The new write_bytes_once facade is additive. V2 report filename identity changes from lossy run-id slugs to SHA-256 of exact serialized report bytes. V1 historical report schema, original bytes, and legacy filename convention are preserved; conflicting publication now raises instead of overwriting."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.write_bytes_once; public_experimental: polisyos.data_requirement versioned report writer"
+migration = "V2 report consumers should discover reports by the returned path rather than reconstructing a path from run_id. Re-issuing identical V1 bytes remains idempotent; distinct bytes targeting the same historical V1 filename now fail with data_requirement_report_content_conflict."
+api = "polisyos.core.artifacts.write_bytes_once(path, data, durable_parent=False) atomically creates a file only when absent and reports whether this call created it. V2 data requirement report writers derive filenames from exact serialized-byte SHA-256; V1 keeps its original filename and bytes but rejects conflicting reuse."
+limitations = "The file writer establishes immutable local publication, not artifact authority, report provenance, CAS identity, currentness, or producer verification. Public-surface generated inventory and reference documentation remain pending the root-owned guardrail sync."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -31,7 +31,12 @@ def test_default_quality_scenarios_have_expected_evidence_contracts() -> None:
     assert expected["conflict_checks"]
     assert expected["unacceptable_recommendations"]
     scenario_contract = contract["scenario_evidence_contract"]
-    assert scenario_contract["schema_version"] == "policyos.scenario_evidence_contract.v1"
+    assert scenario_contract["schema_version"] == "policyos.scenario_evidence_contract.v2"
+    assert scenario_contract["requirement_basis"]["state"] == "established"
+    assert scenario_contract["requirement_basis"]["source"] == (
+        "explicit_scenario_family_declaration"
+    )
+    assert scenario_contract["requirement_basis"]["basis_grade"] == "consumer_asserted"
     assert scenario_contract["contract_id"] == (
         "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1"
     )

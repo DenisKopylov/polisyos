@@ -6,9 +6,13 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from polisyos.data_requirement import DataRequirementCompiler, DataRequirementSpec
+from polisyos.data_requirement import (
+    DataRequirementBasisResolution,
+    DataRequirementCompiler,
+    DataRequirementSpec,
+)
 
-SCENARIO_EVIDENCE_CONTRACT_SCHEMA_VERSION = "policyos.scenario_evidence_contract.v1"
+SCENARIO_EVIDENCE_CONTRACT_SCHEMA_VERSION = "policyos.scenario_evidence_contract.v2"
 
 RequirementDomain = Literal["data", "legal", "method", "claim", "governance"]
 
@@ -132,6 +136,11 @@ class ScenarioEvidenceContract:
     requirements: tuple[ScenarioEvidenceRequirement, ...]
     admissible_data_source_families: tuple[str, ...]
     data_requirement_specs: tuple[DataRequirementSpec, ...]
+    requirement_basis: DataRequirementBasisResolution
+    producer_report_ref: str
+    subject_refs: tuple[str, ...]
+    rule_version_refs: tuple[str, ...]
+    input_content_hash: str
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable representation."""
@@ -148,6 +157,11 @@ class ScenarioEvidenceContract:
             "data_requirement_specs": [
                 item.model_dump(mode="json") for item in self.data_requirement_specs
             ],
+            "requirement_basis": self.requirement_basis.model_dump(mode="json"),
+            "producer_report_ref": self.producer_report_ref,
+            "subject_refs": list(self.subject_refs),
+            "rule_version_refs": list(self.rule_version_refs),
+            "input_content_hash": self.input_content_hash,
         }
 
 
@@ -275,6 +289,11 @@ def normalize_scenario_evidence_contract(
         requirements=tuple(requirements),
         admissible_data_source_families=admissible_data_source_families,
         data_requirement_specs=data_requirement_specs,
+        requirement_basis=data_requirement_report.requirement_basis,
+        producer_report_ref=data_requirement_report.producer_report_ref or "",
+        subject_refs=data_requirement_report.subject_refs,
+        rule_version_refs=data_requirement_report.rule_version_refs,
+        input_content_hash=data_requirement_report.input_content_hash or "",
     )
 
 

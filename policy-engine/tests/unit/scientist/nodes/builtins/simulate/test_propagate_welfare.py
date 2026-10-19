@@ -1184,6 +1184,7 @@ def _run_b197_tied_calibrator(
     store: FileSystemCAS,
     *,
     incomplete_projection: bool = False,
+    hessian_enabled: bool = True,
     seed_competing_profile: bool = False,
     caller_configs: list[CalibrationConfig] | None = None,
 ) -> tuple[ArtifactRef, CalibrationReport]:
@@ -1240,7 +1241,7 @@ def _run_b197_tied_calibrator(
         max_steps=2,
         learning_rate=0.01,
         seed=0,
-        hessian={"enabled": True, "damping": 1e-6},
+        hessian={"enabled": hessian_enabled, "damping": 1e-6},
     )
     config_before_run = config.model_copy(deep=True)
     if caller_configs is not None:
@@ -1283,23 +1284,31 @@ def _run_b197_tied_calibrator(
 
     artifact_ids_before_run = {str(item) for item in store.iter_artifact_ids()}
     report, report_ref = Calibrator(inputs).run_and_persist(store)
-    assert report.uncertainties is not None
-    if incomplete_projection:
+    if not hessian_enabled:
+        assert report.uncertainties is None
         assert report.coordinate_projection is None
-        assert report.coordinate_projection_status == "incomplete"
+        assert report.coordinate_projection_status == "not_established"
         assert report.uncertainty_envelopes is None
     else:
-        assert report.coordinate_projection_status == "complete"
-        assert report.coordinate_projection is not None
-        assert report.coordinate_projection.field_order == ("A.rate", "B.rate")
-        assert report.coordinate_projection.coordinate_order == ("shared_rate",)
-        assert report.coordinate_projection.matrix == ((1.0,), (1.0,))
+        assert report.uncertainties is not None
+        if incomplete_projection:
+            assert report.coordinate_projection is None
+            assert report.coordinate_projection_status == "incomplete"
+            assert report.uncertainty_envelopes is None
+        else:
+            assert report.coordinate_projection_status == "complete"
+            assert report.coordinate_projection is not None
+            assert report.coordinate_projection.field_order == ("A.rate", "B.rate")
+            assert report.coordinate_projection.coordinate_order == ("shared_rate",)
+            assert report.coordinate_projection.matrix == ((1.0,), (1.0,))
     assert report.target_weights["gov_balance"] == pytest.approx(0.005)
-    expected_coordinate_variance = 0.01 if incomplete_projection else 0.0025
-    assert report.uncertainties.covariance[0][0] == pytest.approx(
-        expected_coordinate_variance,
-        rel=1e-4,
-    )
+    if hessian_enabled:
+        expected_coordinate_variance = 0.01 if incomplete_projection else 0.0025
+        assert report.uncertainties is not None
+        assert report.uncertainties.covariance[0][0] == pytest.approx(
+            expected_coordinate_variance,
+            rel=1e-4,
+        )
 
     report_manifest = store.get_manifest(report_ref)
     assert report_manifest.artifact_schema.version == "2.0"
@@ -1330,7 +1339,12 @@ def _run_b197_tied_calibrator(
     persisted = CalibrationReport.model_validate(persisted_payload)
     assert persisted == report
     assert persisted.schema_version == "2.0"
-    if incomplete_projection:
+    if not hessian_enabled:
+        assert persisted.uncertainties is None
+        assert persisted.coordinate_projection is None
+        assert persisted.coordinate_projection_status == "not_established"
+        assert persisted.uncertainty_envelopes is None
+    elif incomplete_projection:
         assert persisted.coordinate_projection is None
         assert persisted.coordinate_projection_status == "incomplete"
         assert persisted.uncertainty_envelopes is None
@@ -1660,10 +1674,30 @@ def _run_b194_draw_execution_case(
     return store, outcome, bundle
 
 
-def _manifest_has_input(store: FileSystemCAS, target_ref, source_ref, role: str) -> bool:
-    manifest = store.get_manifest(target_ref.artifact_id)
+def _core_artifact_ref(ref: ArtifactRef | ArtifactRefModel) -> ArtifactRef:
+    """Normalize an IR reference while retaining its selected manifest view."""
+    if isinstance(ref, ArtifactRef):
+        return ref
+    return ArtifactRef.model_validate(ref.model_dump(mode="python"))
+
+
+def _manifest_has_input(
+    store: FileSystemCAS,
+    target_ref: ArtifactRef | ArtifactRefModel | ArtifactID | str,
+    source_ref: ArtifactRef | ArtifactRefModel | InputRef,
+    role: str,
+) -> bool:
+    manifest_ref = (
+        _core_artifact_ref(target_ref)
+        if isinstance(target_ref, (ArtifactRef, ArtifactRefModel))
+        else target_ref
+    )
+    manifest = store.get_manifest(manifest_ref)
+    source_profile = source_ref.manifest_profile_sha256
     return any(
-        item.role == role and str(item.artifact_id) == str(source_ref.artifact_id)
+        item.role == role
+        and str(item.artifact_id) == str(source_ref.artifact_id)
+        and item.manifest_profile_sha256 == source_profile
         for item in manifest.inputs
     )
 
@@ -1840,6 +1874,253 @@ def test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare(tmp_path) 
     fresh_mc_bundle = load_welfare_bundle(fresh_ir_store, fresh_mc_bundle_ref)
     assert fresh_mc_bundle.status == mc_bundle.status
     assert _manifest_has_input(fresh_store, fresh_mc_bundle_ref, report_ref, "calibration_report")
+
+
+def test_real_calibration_display_level_preserves_persisted_welfare_law(
+    tmp_path,
+) -> None:
+    """Display-only Hessian ranges preserve the persisted law and remain non-authoritative."""
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    report_ref, produced_report = _run_b197_tied_calibrator(store)
+    assert produced_report.coordinate_projection_status == "complete"
+    assert produced_report.uncertainty_envelopes is not None
+    produced_envelope = produced_report.uncertainty_envelopes["A.rate"]
+    assert isinstance(produced_envelope.distribution_payload, ParametricFitCarrier)
+    producer_std = float(produced_envelope.distribution_payload.parameters["std"])
+
+    # The adapter starts from the real persisted Calibrator report, not a hand-built report.
+    fresh_store = FileSystemCAS(tmp_path)
+    report_manifest = fresh_store.get_manifest(report_ref)
+    config_inputs = [item for item in report_manifest.inputs if item.role == "calibration_config"]
+    assert len(config_inputs) == 1
+    persisted_config = CalibrationConfig.model_validate(
+        from_canonical_bytes(fresh_store.get_bytes(config_inputs[0].artifact_id))
+    )
+    assert persisted_config.hessian.enabled is True
+    persisted_report = CalibrationReport.model_validate(
+        from_canonical_bytes(fresh_store.get_bytes(report_ref.artifact_id))
+    )
+    assert persisted_report == produced_report
+    assert persisted_report.coordinate_projection_status == "complete"
+    assert persisted_report.coordinate_projection is not None
+    assert persisted_report.uncertainties is not None
+    assert _manifest_has_input(fresh_store, report_ref, config_inputs[0], "calibration_config")
+
+    sim_ref = _b197_simulation_result(fresh_store)
+    observations: list[tuple[float, float, tuple[float, float], str, tuple[str, ...]]] = []
+    display_widths: list[float] = []
+    carrier_parameters: list[dict[str, float]] = []
+    display_envelope_refs: list[UncertaintyEnvelopeRef] = []
+    for display_level in (0.8, 0.95):
+        envelope = envelope_from_calibration_param(
+            persisted_report,
+            "A.rate",
+            confidence_level=display_level,
+        )
+        assert envelope is not None
+        assert isinstance(envelope.distribution_payload, ParametricFitCarrier)
+        assert envelope.distribution_payload.family is DistributionFamily.NORMAL
+        numeric_policy = envelope.numeric_policy
+        expected_mean = numeric_policy.canonicalize(persisted_report.calibrated_params["A.rate"])
+        expected_std = numeric_policy.canonicalize(producer_std)
+        assert expected_mean is not None
+        assert expected_std is not None
+        assert envelope.distribution_payload.parameters == {
+            "mean": expected_mean,
+            "std": expected_std,
+        }
+        metadata_std = envelope.metadata["std"]
+        assert isinstance(metadata_std, float)
+        assert numeric_policy.canonicalize(metadata_std) == expected_std
+        carrier_parameters.append(dict(envelope.distribution_payload.parameters))
+        assert envelope.metadata["requested_confidence_level"] == display_level
+        assert envelope.confidence_level is None
+        assert envelope.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
+        assert envelope.is_heuristic_ci is True
+        assert envelope.gate_eligible is False
+        display_widths.append(envelope.ci_width)
+
+        envelope_ref = persist_uncertainty_envelope(
+            _ensure_ir_artifact_store(fresh_store),
+            envelope,
+            inputs=[input_ref_from_artifact_ref(report_ref, role="calibration_report")],
+        )
+        persisted_envelope = load_uncertainty_envelope(
+            _ensure_ir_artifact_store(fresh_store),
+            envelope_ref,
+        )
+        assert persisted_envelope == envelope
+        display_envelope_refs.append(envelope_ref)
+        assert _manifest_has_input(
+            fresh_store,
+            envelope_ref,
+            report_ref,
+            "calibration_report",
+        )
+
+        outcome, bundle = _run_b197_welfare(
+            fresh_store,
+            registry_ref,
+            sim_ref,
+            None,
+            run_id=f"R_b198_display_level_{int(display_level * 100)}",
+            method="delta",
+            weights=[1.0],
+            labels=["A"],
+            input_envelopes={"A.rate": envelope_ref.model_dump(mode="json")},
+        )
+        assert outcome.status == "ok"
+        assert bundle is not None
+        assert bundle.credible_interval is not None
+        assert bundle.status.value == "partial"
+        assert bundle.warnings == [
+            "ge_operator_missing_pe_only",
+            "input_uncertainty_not_gate_eligible",
+        ]
+        propagation_report_id = ArtifactID.model_validate(
+            bundle.diagnostics["propagation_report_ref"]
+        )
+        report_refs = [
+            ref
+            for ref in outcome.artifacts
+            if str(ref.artifact_id) == str(propagation_report_id)
+            and ref.kind == "foundry.welfare_propagation_report"
+        ]
+        assert len(report_refs) == 1
+        propagation_report_ref = report_refs[0]
+        selected_report_manifest = fresh_store.get_manifest(
+            _core_artifact_ref(propagation_report_ref)
+        )
+        selected_envelope_inputs = [
+            item for item in selected_report_manifest.inputs if item.role == "input_envelope.A.rate"
+        ]
+        assert len(selected_envelope_inputs) == 1
+        assert str(selected_envelope_inputs[0].artifact_id) == str(envelope_ref.artifact_id)
+        assert (
+            selected_envelope_inputs[0].manifest_profile_sha256
+            == envelope_ref.manifest_profile_sha256
+        )
+        assert _manifest_has_input(
+            fresh_store,
+            propagation_report_ref,
+            envelope_ref,
+            "input_envelope.A.rate",
+        )
+
+        bundle_ref = outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+        selected_bundle_manifest = fresh_store.get_manifest(_core_artifact_ref(bundle_ref))
+        selected_report_inputs = [
+            item for item in selected_bundle_manifest.inputs if item.role == "propagation_report"
+        ]
+        assert len(selected_report_inputs) == 1
+        assert str(selected_report_inputs[0].artifact_id) == str(propagation_report_ref.artifact_id)
+        assert (
+            selected_report_inputs[0].manifest_profile_sha256
+            == propagation_report_ref.manifest_profile_sha256
+        )
+
+        if display_level == 0.95:
+            default_report_ref = ArtifactRef(
+                artifact_id=propagation_report_ref.artifact_id,
+                kind=propagation_report_ref.kind,
+                media_type=propagation_report_ref.media_type,
+            )
+            assert default_report_ref.manifest_profile_sha256 is None
+            default_report_manifest = fresh_store.get_manifest(default_report_ref)
+            default_envelope_inputs = [
+                item
+                for item in default_report_manifest.inputs
+                if item.role == "input_envelope.A.rate"
+            ]
+            assert len(default_envelope_inputs) == 1
+            assert str(default_envelope_inputs[0].artifact_id) == str(
+                display_envelope_refs[0].artifact_id
+            )
+            assert (
+                default_envelope_inputs[0].manifest_profile_sha256
+                == display_envelope_refs[0].manifest_profile_sha256
+            )
+            assert str(default_envelope_inputs[0].artifact_id) != str(envelope_ref.artifact_id)
+            assert not _manifest_has_input(
+                fresh_store,
+                default_report_ref,
+                envelope_ref,
+                "input_envelope.A.rate",
+            )
+        observations.append(
+            (
+                float(bundle.diagnostics["delta_std"]),
+                bundle.point_estimate,
+                bundle.credible_interval,
+                bundle.status.value,
+                tuple(bundle.warnings),
+            )
+        )
+
+    assert display_widths[0] < display_widths[1]
+    assert carrier_parameters[0] == carrier_parameters[1]
+    assert observations[0][0] == pytest.approx(observations[1][0], rel=1e-12, abs=1e-12)
+    assert observations[0][1] == pytest.approx(observations[1][1], rel=1e-12, abs=1e-12)
+    np.testing.assert_allclose(observations[0][2], observations[1][2], rtol=1e-12, atol=1e-12)
+    assert observations[0][3:] == observations[1][3:]
+
+
+def test_hessian_disabled_producer_refuses_welfare_without_inventing_interval(
+    tmp_path,
+) -> None:
+    """A genuine no-carrier report yields the observed explicit skip, never a guessed interval."""
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    report_ref, produced_report = _run_b197_tied_calibrator(store, hessian_enabled=False)
+    assert produced_report.uncertainties is None
+    assert produced_report.coordinate_projection is None
+    assert produced_report.coordinate_projection_status == "not_established"
+    assert produced_report.uncertainty_envelopes is None
+
+    fresh_store = FileSystemCAS(tmp_path)
+    report_manifest = fresh_store.get_manifest(report_ref)
+    config_inputs = [item for item in report_manifest.inputs if item.role == "calibration_config"]
+    assert len(config_inputs) == 1
+    persisted_config = CalibrationConfig.model_validate(
+        from_canonical_bytes(fresh_store.get_bytes(config_inputs[0].artifact_id))
+    )
+    assert persisted_config.hessian.enabled is False
+    assert _manifest_has_input(fresh_store, report_ref, config_inputs[0], "calibration_config")
+    persisted_report = CalibrationReport.model_validate(
+        from_canonical_bytes(fresh_store.get_bytes(report_ref.artifact_id))
+    )
+    assert persisted_report.uncertainties is None
+    assert persisted_report.coordinate_projection is None
+    assert persisted_report.coordinate_projection_status == "not_established"
+    assert persisted_report.uncertainty_envelopes is None
+
+    outcome, bundle = _run_b197_welfare(
+        fresh_store,
+        registry_ref,
+        _b197_simulation_result(fresh_store),
+        report_ref,
+        run_id="R_b198_hessian_disabled_no_carrier",
+        method="delta",
+        weights=[1.0, 1.0],
+        require_success=False,
+    )
+
+    assert outcome.status == "skip"
+    assert outcome.error is None
+    assert outcome.skip_blocker is None
+    assert len(outcome.events) == 1
+    event = outcome.events[0]
+    assert event.level == "info"
+    assert event.code is None
+    assert event.attrs == {}
+    assert event.message == "No PE or GE uncertainty supplied; skip welfare propagation"
+    assert outcome.artifacts == []
+    assert bundle is None
+    assert ARTIFACT_WELFARE_BUNDLE_REF not in outcome.state.artifacts_index
+    assert ARTIFACT_SIMULATION_RESULT_REF in outcome.state.artifacts_index
+    retained_report_ref = outcome.state.inputs[INPUT_CALIBRATION_REPORT_REF]
+    assert retained_report_ref == report_ref
 
 
 @pytest.mark.parametrize("method", ["delta", "monte_carlo"])

@@ -25784,5 +25784,118 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b198-real-producer-display-and-selected-profile-witness-20261020": {
+    "slice_base": "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py": {
+        "operation": "write",
+        "preimage_sha256": "04a24f4959a8c8b3fde34642cf73da528332e831503242d46088bc2ddc80b50a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/candidate_test_module.py",
+        "postimage_sha256": "1667a30e24eb78996b459a9d16d87a4f59b910c60a99a020b9d8ec30a5c2a2a3"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b198-profile-witness-adoption-20261020/source-application.json",
+      "sha256": "e44942755cbf69298faa96c548d2d9753f7e3dc2d1df1153c80eafd00814eb85"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b198-profile-witness-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/manifest.json",
+        "sha256": "1820106ca3902eaa84b0de3ae5fc9679028326e1d4946f3f9f3a3d02d81de5a4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/independent-review-r1.json",
+        "sha256": "d2186f62a0b24413af43f0868bb5f0b583a32358dece4d89d6991e0d63698e63"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/candidate.patch",
+        "sha256": "3625358a16a19bee18a3bed39d492db3f1cbbce32caf4472e2c2f9d495e767e2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/r6-to-r7.delta.patch",
+        "sha256": "adf0e09d316258a0e009021db13057b7a4f0fac3d51437a486560b62b172ff62"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/candidate_test_module.py",
+        "sha256": "1667a30e24eb78996b459a9d16d87a4f59b910c60a99a020b9d8ec30a5c2a2a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-profile-view-replay-audit-r1-20261020/audit.json",
+        "sha256": "6cd767bf557ad265b358bc5d5b7678b9e397f45bd04dad0fef407c52e7863728"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/qualification-observation.json",
+        "sha256": "6f8345dfd0bf7415a21894d050b4a8fedfbd391afeba32e2a6dbadf0c49d810c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/manifest-profile-boundary-oracle-r1-20261020.json",
+        "sha256": "fadb88164e0e2b802b69924cb559a415fc6f7557bc559d7662f8163fe9b328a6"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same selected-profile identity-loss class: widen the shared lineage helper to full role/ID/profile identity and bind the emitted typed report through fresh bundle/report reads; retain same-content wrong-default-view falsifier.",
+    "bounded_proof": "Independent R7 static GO; all22 prior helper calls and37 positive checks retained, disabled-Hessian negative unchanged. R6 runtime1FAIL1PASS remains preserved; R7 adopted runtime UNRUN.",
+    "limitations": [
+      "Test-only witness; producer law remains explicitly heuristic/non-gate-eligible, not calibrated external authority.",
+      "HistoricalB198 closure remains unchanged; no new formal B198/B197 closure or G acceptance proposed.",
+      "The diagnostic string is ID-only and cannot itself select a report view; typed NodeOutcome artifact/bundle manifest carries the exact profile.",
+      "Stricter helper touches22 existing call sites; full module replay is required.",
+      "Two known-owned N7/B108 test edits remain outside this commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the complete welfare module with the complete owner-corrected SKG cache module under measured resource controls, then repeat affected consumers on final composed freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

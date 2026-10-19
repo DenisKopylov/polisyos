@@ -95,6 +95,7 @@ from polisyos.runtime.quality.data_forge_binding import (
     MeasurementRootBindingError,
     MeasurementRootExecutionBinding,
     MeasurementRootProducer,
+    MeasurementRootProfileWitness,
     _is_artifact_store,
     _search_catalog_with_status,
     build_default_workspace_catalog_graph,
@@ -1610,6 +1611,7 @@ class WorkspaceLoop:
         ):
             raise TypeError("measurement_root_execution_binding_invalid")
         self._execution_scope_binding = execution_scope_binding
+        self._producer_profile_witnesses: list[MeasurementRootProfileWitness] = []
         self._staged_foundry_inputs = staged_foundry_inputs
         self._eval_safety_execution_context = eval_safety_execution_context
         self._eval_safety_verifier = eval_safety_verifier
@@ -1636,6 +1638,11 @@ class WorkspaceLoop:
         """Return the registry consumed by this workspace loop."""
 
         return self._registry
+
+    @property
+    def producer_profile_witnesses(self) -> tuple[MeasurementRootProfileWitness, ...]:
+        """Return frozen Core profile refs captured before exit-contract assembly."""
+        return tuple(self._producer_profile_witnesses)
 
     def execute_registered_s2_design_search_operation(
         self,
@@ -2788,6 +2795,7 @@ class WorkspaceLoop:
     ) -> WorkspaceSearchExitContract:
         """Run the committed Slice-0 fixture through BIND -> ESTIMATE -> VERIFY."""
 
+        self._producer_profile_witnesses = []
         if planner_kind != "seed_trajectory":
             raise WorkspaceInvariantError("Slice 0 must use SeedTrajectoryPlanner only.")
         manifest = load_workspace_fixture_manifest(fixture_id)
@@ -3332,6 +3340,9 @@ class WorkspaceLoop:
                 manifest=manifest,
                 catalog_graph=self._catalog_graph,
             )
+            selected_profile_witness = producer.selected_profile_witness
+            if selected_profile_witness is not None:
+                self._producer_profile_witnesses.append(selected_profile_witness)
             dataset_payload = self._dataset_payload_for_estimate(manifest, dataset_envelope)
         else:
             dataset_payload = {

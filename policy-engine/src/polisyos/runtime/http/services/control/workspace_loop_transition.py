@@ -168,9 +168,11 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         execution_scope_binding: MeasurementRootExecutionBinding,
     ) -> dict[str, Any]:
         from polisyos.runtime.quality.authority import (
+            OutputCASManifestProfileRefusalError,
             ProductionLoopRunProof,
             build_outcome_replay_proof,
             output_cas_manifest_profiles_from_contract,
+            output_cas_payload_refs_from_contract,
         )
         from polisyos.runtime.quality.workspace.s2_design_search_operation import (
             S2_DESIGN_SEARCH_OPERATION_ID,
@@ -201,6 +203,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 params=params,
                 job=job,
             )
+        producer_profile_witnesses: tuple[object, ...] = ()
         try:
             if production_case_ref is not None:
                 if legacy_production_case_ref is not None:
@@ -237,11 +240,39 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                     fixture_id=fixture_id,
                 )
             else:
-                contract = self._run_workspace_loop_fixture(
+                contract, producer_profile_witnesses = self._run_workspace_loop_fixture(
                     job=job,
                     fixture_id=fixture_id,
                     execution_scope_binding=execution_scope_binding,
                 )
+            contract_payload = contract.model_dump(mode="json")
+            output_profile_views = output_cas_manifest_profiles_from_contract(
+                contract_payload,
+                artifact_store=self._artifact_store,
+                require_resolution=True,
+                producer_profile_witnesses=producer_profile_witnesses,
+                expected_run_id=str(job.run_id or state_payload.get("run_id") or ""),
+                expected_job_id=job.job_id,
+                require_producer_witness=True,
+            )
+            output_payload_refs = output_cas_payload_refs_from_contract(contract_payload)
+        except OutputCASManifestProfileRefusalError as exc:
+            failure_code = "workspace_loop_selected_output_profile_not_established"
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="workspace_loop_selected_profile_admission",
+                reason=(
+                    "The producer-selected output profile could not be resolved "
+                    "and content-bound "
+                    f"through Core CAS ({exc.code})."
+                ),
+                failure_code=failure_code,
+                failure_message=str(exc),
+            )
+            raise _WorkflowExecutionNonAuthorityError(
+                str(exc),
+                progress=progress,
+            ) from exc
         except _WorkflowExecutionNonAuthorityError as exc:
             progress = self._attach_failed_workspace_loop_proof(
                 dict(exc.progress),
@@ -264,8 +295,53 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             contract,
             execution_scope_status=execution_scope_status,
         )
-        output_schema_version = workspace_exit_schema_version(contract)
         contract_payload = contract.model_dump(mode="json")
+        try:
+            admitted_profile_views = output_cas_manifest_profiles_from_contract(
+                contract_payload,
+                artifact_store=self._artifact_store,
+                require_resolution=True,
+                producer_profile_witnesses=producer_profile_witnesses,
+                expected_run_id=str(job.run_id or state_payload.get("run_id") or ""),
+                expected_job_id=job.job_id,
+                require_producer_witness=True,
+            )
+        except OutputCASManifestProfileRefusalError as exc:
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="workspace_loop_selected_profile_admission",
+                reason=("The admitted output contract changed after selected-profile resolution."),
+                failure_code="workspace_loop_selected_output_profile_not_established",
+                failure_message=str(exc),
+            )
+            raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
+        if admitted_profile_views != output_profile_views:
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="workspace_loop_selected_profile_admission",
+                reason=("The admitted output contract changed its producer-selected profile set."),
+                failure_code="workspace_loop_selected_output_profile_not_established",
+                failure_message="selected_output_profile_set_changed_after_resolution",
+            )
+            raise _WorkflowExecutionNonAuthorityError(
+                "selected_output_profile_set_changed_after_resolution",
+                progress=progress,
+            )
+        output_profile_views = admitted_profile_views
+        admitted_payload_refs = output_cas_payload_refs_from_contract(contract_payload)
+        if admitted_payload_refs != output_payload_refs:
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="workspace_loop_selected_profile_admission",
+                reason=("The admitted output contract changed its declared output payload set."),
+                failure_code="workspace_loop_selected_output_profile_not_established",
+                failure_message="selected_output_payload_set_changed_after_resolution",
+            )
+            raise _WorkflowExecutionNonAuthorityError(
+                "selected_output_payload_set_changed_after_resolution",
+                progress=progress,
+            )
+        output_schema_version = workspace_exit_schema_version(contract)
         search_exit_ref = self._put_json_artifact(
             contract_payload,
             kind="pdc.gy.search_exit_contract",
@@ -286,12 +362,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             )
             for trace in contract.authority_derivation_traces
         ]
-        artifact_payload_refs = [
-            envelope.payload_ref
-            for envelope in contract.artifact_envelopes
-            if str(envelope.payload_ref).startswith("sha256:")
-        ]
-        output_profile_views = output_cas_manifest_profiles_from_contract(contract_payload)
+        artifact_payload_refs = output_payload_refs
         output_cas_refs = [
             search_exit_ref,
             ledger_ref,
@@ -307,6 +378,11 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             input_payloads=self._resolved_input_artifact_payloads(state_payload),
             search_exit_contract=contract_payload,
             output_cas_refs=output_cas_refs,
+            artifact_store=self._artifact_store,
+            producer_profile_witnesses=producer_profile_witnesses,
+            expected_run_id=str(job.run_id or state_payload.get("run_id") or ""),
+            expected_job_id=job.job_id,
+            require_producer_witness=True,
         )
         replay_payload = replay_proof.model_dump(mode="json")
         replay_ref = self._put_json_artifact(
@@ -685,15 +761,17 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         job: ControlJobRecord,
         fixture_id: str,
         execution_scope_binding: MeasurementRootExecutionBinding,
-    ) -> WorkspaceSearchExitContract:
+    ) -> tuple[WorkspaceSearchExitContract, tuple[object, ...]]:
         from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 
         try:
-            return WorkspaceLoop(
+            loop = WorkspaceLoop(
                 catalog_graph=getattr(self._registry_providers, "gy_catalog_graph", None),
                 artifact_store=self._artifact_store,
                 execution_scope_binding=execution_scope_binding,
-            ).run_control_plane_fixture(fixture_id)
+            )
+            contract = loop.run_control_plane_fixture(fixture_id)
+            return contract, loop.producer_profile_witnesses
         except Exception as exc:
             progress = self._workflow_failure_progress(
                 job=job,

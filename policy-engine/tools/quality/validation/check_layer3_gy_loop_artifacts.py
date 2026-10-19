@@ -1079,20 +1079,13 @@ def _verify_live_loop_observation(
     exit_capture: _LiveLoopExitCapture,
 ) -> _VerifiedLoopObservation:
     """Reconcile the actual request/job/CAS/replay before the store is closed."""
-    from polisyos.core.artifacts import (
-        ArtifactID,
-        artifact_manifest_profile_sha256,
-        load_core_json_artifact,
-    )
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.contracts.control import WorkflowRunRequest
-    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.services.control import run_lifecycle
     from polisyos.runtime.quality.authority import (
         OutcomeReplayProof,
         ProductionLoopRunProof,
         build_outcome_replay_proof,
-        output_cas_manifest_profiles_from_contract,
     )
 
     frozen = json.loads(serialize_loop_artifact(observation))
@@ -1235,58 +1228,12 @@ def _verify_live_loop_observation(
         output_cas_refs=[
             ref for ref in proof.output_cas_refs if ref != proof.output_replay_proof_ref
         ],
+        artifact_store=store,
+        expected_run_id=proof.run_id,
+        expected_job_id=proof.job_id,
     )
     if expected_replay != replay:
         raise LoopFamilyCustodyError("live_loop_replay_recomputation_drift")
-    selected_profiles = output_cas_manifest_profiles_from_contract(contract)
-    selected_by_payload = {str(item.payload_artifact_id): item for item in selected_profiles}
-    if len(selected_by_payload) != len(selected_profiles):
-        raise LoopFamilyCustodyError("live_loop_selected_profile_payload_identity_duplicate")
-    for item in selected_profiles:
-        envelope = next(
-            (
-                row
-                for row in contract.get("artifact_envelopes", [])
-                if isinstance(row, Mapping)
-                and isinstance(row.get("ref"), Mapping)
-                and row["ref"].get("artifact_id") == item.envelope_artifact_id
-                and row["ref"].get("artifact_type") == item.envelope_artifact_type
-            ),
-            None,
-        )
-        roots = envelope.get("producer_roots") if isinstance(envelope, Mapping) else None
-        if not (
-            isinstance(envelope, Mapping)
-            and item.envelope_artifact_type == "BaseDataset"
-            and isinstance(roots, list)
-            and any(
-                isinstance(root, Mapping) and root.get("artifact_type") == "MeasurementRoot"
-                for root in roots
-            )
-        ):
-            raise LoopFamilyCustodyError("live_loop_selected_profile_owner_not_supported")
-        selected_ref = ArtifactRef(
-            artifact_id=ArtifactID(str(item.payload_artifact_id)),
-            kind="policyos.gy.measurement_root_payload",
-            media_type="application/json",
-            manifest_profile_sha256=item.manifest_profile_sha256,
-        )
-        selected_manifest = store.get_manifest(selected_ref)
-        if (
-            artifact_manifest_profile_sha256(selected_manifest) != item.manifest_profile_sha256
-            or selected_manifest.artifact_schema is None
-            or selected_manifest.artifact_schema.name != item.payload_schema_ref
-        ):
-            raise LoopFamilyCustodyError("live_loop_selected_profile_manifest_drift")
-        selected_payload = load_core_json_artifact(
-            store,
-            selected_ref,
-            manifest_profile_sha256=item.manifest_profile_sha256,
-        )
-        if not isinstance(selected_payload, dict) or gy_content_hash(selected_payload) != envelope[
-            "ref"
-        ].get("content_hash"):
-            raise LoopFamilyCustodyError("live_loop_selected_profile_payload_drift")
     readback_receipt = frozen.get("http_receipts", {}).get("readback")
     chain_issues = _selected_output_profile_chain_issues(
         contract,
@@ -1296,6 +1243,7 @@ def _verify_live_loop_observation(
         frozen.get("artifacts_index")
         if isinstance(frozen.get("artifacts_index"), Mapping)
         else None,
+        artifact_store=store,
     )
     if chain_issues:
         raise LoopFamilyCustodyError(
@@ -3408,6 +3356,9 @@ def _recompute_j_family_semantics(
             ref for ref in proof["output_cas_refs"] if ref != proof["output_replay_proof_ref"]
         ],
         schema_version=typed_replay.schema_version,
+        artifact_store=store,
+        expected_run_id=typed_proof.run_id,
+        expected_job_id=typed_proof.job_id,
     )
     if not _runtime_proof_shape_matches_history(expected_replay, replay["replay_proof"]):
         raise LoopFamilyCustodyError("production_recorded_replay_owner_drift")
@@ -3481,6 +3432,7 @@ def _recompute_j_family_semantics(
                     references[item] for item in proof["output_cas_refs"] if item != ref
                 ],
                 schema_version=typed_replay.schema_version,
+                profile_resolution_required=False,
             ).model_dump(mode="json")
         normalized = _j_reference_projection(body, references)
         digest = "semantic:" + _gx_digest(serialize_loop_artifact(normalized))
@@ -4220,40 +4172,37 @@ def _selected_output_profile_chain_issues(
     replay: Mapping[str, Any],
     readback: Mapping[str, Any] | None,
     artifacts_index: Mapping[str, Any] | None = None,
+    *,
+    artifact_store: object | None = None,
 ) -> list[dict[str, str]]:
     """Require the producer-selected output view to survive proof and fresh GET."""
 
     from pydantic import ValidationError
 
-    from polisyos.runtime.quality.authority import output_cas_manifest_profiles_from_contract
+    from polisyos.runtime.quality.authority import (
+        OutputCASManifestProfileRefusalError,
+        output_cas_manifest_profiles_from_contract,
+    )
 
     try:
-        selected = output_cas_manifest_profiles_from_contract(contract)
+        selected = output_cas_manifest_profiles_from_contract(
+            contract,
+            artifact_store=artifact_store,
+            require_resolution=True,
+            expected_run_id=(proof.get("run_id") if isinstance(proof.get("run_id"), str) else None),
+            expected_job_id=(proof.get("job_id") if isinstance(proof.get("job_id"), str) else None),
+        )
         expected = [item.model_dump(mode="json") for item in selected]
+    except OutputCASManifestProfileRefusalError as exc:
+        if exc.code == "measurement_root_selected_profile_missing":
+            return [{"code": "layer3_gy_measurement_root_selected_profile_missing"}]
+        return [{"code": "layer3_gy_selected_output_profile_contract_invalid"}]
     except (TypeError, ValueError, ValidationError):
         return [{"code": "layer3_gy_selected_output_profile_contract_invalid"}]
 
     issues: list[dict[str, str]] = []
-    envelopes = contract.get("artifact_envelopes")
-    if not isinstance(envelopes, list):
+    if not isinstance(contract.get("artifact_envelopes"), list):
         return [{"code": "layer3_gy_selected_output_profile_contract_invalid"}]
-    for envelope in envelopes:
-        if not isinstance(envelope, Mapping):
-            continue
-        ref = envelope.get("ref")
-        roots = envelope.get("producer_roots")
-        is_measurement_root = (
-            isinstance(ref, Mapping)
-            and ref.get("artifact_type") == "BaseDataset"
-            and isinstance(roots, list)
-            and any(
-                isinstance(root, Mapping) and root.get("artifact_type") == "MeasurementRoot"
-                for root in roots
-            )
-        )
-        if is_measurement_root and not envelope.get("payload_manifest_profile_sha256"):
-            issues.append({"code": "layer3_gy_measurement_root_selected_profile_missing"})
-
     proof_version = proof.get("schema_version")
     replay_version = replay.get("schema_version")
     proof_profiles = proof.get("output_cas_manifest_profiles")
@@ -4745,13 +4694,19 @@ def _run_durable_workspace_loop_observation(
                         )
                     progress = dict(response_payload["progress"])
                     served_contract = progress.get("search_exit_contract")
+                    proof_payload = progress.get("production_loop_run_proof")
+                    proof = ProductionLoopRunProof.model_validate(proof_payload)
                     served_profiles = (
-                        output_cas_manifest_profiles_from_contract(served_contract)
+                        output_cas_manifest_profiles_from_contract(
+                            served_contract,
+                            artifact_store=store,
+                            require_resolution=True,
+                            expected_run_id=proof.run_id,
+                            expected_job_id=proof.job_id,
+                        )
                         if isinstance(served_contract, Mapping)
                         else []
                     )
-                    proof_payload = progress.get("production_loop_run_proof")
-                    proof = ProductionLoopRunProof.model_validate(proof_payload)
                     contract_payload = progress.get("search_exit_contract")
                     replay_payload = progress.get("outcome_replay_proof")
                     replay = OutcomeReplayProof.model_validate(replay_payload)

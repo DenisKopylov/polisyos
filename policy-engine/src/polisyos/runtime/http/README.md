@@ -146,6 +146,33 @@ Persisted compiler/preflight and model-variant events project to their own steps
 sources and rejects conflicting payloads. The local ledger acknowledges local settlement only; it
 does not establish an external invoice or provider billing receipt.
 
+## Selected MeasurementRoot output profiles
+
+The workspace-loop producer captures the exact Core CAS `ArtifactRef` profile
+selected during each MeasurementRoot write before the mutable SearchExit
+contract is assembled. Before emitting the run and replay proofs, the control
+transition joins every declared `output_artifacts` ref to exactly one
+`artifact_envelopes` member by the complete typed ref. Intermediate envelopes
+remain available to the workflow but do not enter the output-profile proof;
+missing, duplicate, or substituted output refs make the result
+`repair_required` before the V2 proof artifacts are written.
+
+For a MeasurementRoot output, resolution reads the selected immutable Core
+manifest and payload. Unscoped writes must match the source-owned producer
+`PutOptions` over the exact stored bytes. Scoped writes additionally resolve
+the existing authority envelope and diagnostic event, bind them to the current
+run/job and selected CAS ref, and call the existing runtime identity verifier.
+The checker repeats this durable CAS resolution from the stored contract and
+proofs; it does not treat a profile string, producer label, or in-memory
+invocation witness as historical evidence. A missing or mismatched selected
+view is a typed refusal, while legacy V1 replay history remains parseable and
+does not gain a V2 profile claim. This verifies a producer-selected content
+view only. An unscoped Core profile binds its bytes and complete producer
+configuration, but not a run/job authority subject; the existing execution-scope
+gate remains responsible for withholding authority when that subject is not
+established. Neither path establishes source authenticity, currentness,
+recommendation admissibility, or publication authority.
+
 ## Depends on / depended on by
 
 Depends on: `polisyos.common.async_tools`, `polisyos.core.artifacts`,
@@ -280,12 +307,20 @@ Every natural-language launch with requested models first records its immutable 
 
 ## WorkspaceLoop selected MeasurementRoot profile
 
-`MeasurementRootProducer.produce_from_catalog` persists the payload and returns its
-selected CAS manifest profile with the `BaseDataset` envelope. WorkspaceLoop reads
-that payload through the exact typed Core artifact reference; it refuses a missing
-profile, a missing store, or a payload whose content differs from the envelope. The
-selected profile and payload identity are then bound into `OutcomeReplayProof.v2`
-and `ProductionLoopRunProof.v2`.
+`MeasurementRootProducer` persists the payload and returns the selected CAS manifest
+profile with its `BaseDataset` envelope. Before writing the ordinary V2 exit-contract
+and replay-proof artifacts, WorkspaceLoop resolves that exact profile through the
+Core artifact store. The shared authority helper checks the selected manifest digest,
+kind, schema, producer component, payload integrity, envelope content hash, and the
+`MeasurementRoot` reference derived from the selected payload. A missing selector,
+unavailable manifest, substituted profile, or mismatched root becomes a typed
+non-authority workflow failure with `repair_required`; it cannot produce a verifier
+stamped V2 proof. The offline live-observation verifier calls the same resolver on
+the actual CAS store before comparing the proof and GET projection.
+
+These checks bind the emitted CAS view and its producer-declared root to exact stored
+bytes. They do not independently establish producer signing authority, custody beyond
+this CAS, legal authority, source truth, freshness, or production currentness.
 
 The completed job keeps the contract and both versioned proofs in the existing open
 `ControlJobResponse.progress` projection. `ControlPlaneStore` persists the full progress

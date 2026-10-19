@@ -569,6 +569,186 @@ def _measurement_root_scope_obligation(
     return [code or "control_job_execution_scope_not_established"]
 
 
+def resolve_measurement_root_selected_profile(
+    *,
+    store: artifacts.ArtifactStore,
+    payload_ref: str,
+    payload_schema_ref: str,
+    manifest_profile_sha256: str,
+    envelope_content_hash: str,
+    expected_run_id: str | None,
+    expected_job_id: str | None,
+) -> tuple[artifacts.ArtifactManifest, Mapping[str, Any]]:
+    """Reconcile one selected output profile against the actual producer write.
+
+    The immutable Core manifest is the durable witness. Candidate writes are
+    recomputed from the source-owned write options; scoped writes reuse the
+    existing CAS authority-envelope and diagnostic-event verifier.
+    """
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_sha256,
+        expected_artifact_manifest_for_write,
+        read_core_json_artifact,
+        read_core_manifest_profile,
+    )
+    from polisyos.pdc import gy_content_hash
+
+    try:
+        artifact_id = artifacts.ArtifactID(payload_ref)
+        manifest, _declaration = read_core_manifest_profile(
+            store, artifact_id, manifest_profile_sha256=manifest_profile_sha256
+        )
+        selected_ref = artifacts.ArtifactRef(
+            artifact_id=artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        raw = store.get_bytes(selected_ref)
+        if not store.verify(selected_ref).ok:
+            raise ValueError("measurement_root_selected_profile_integrity_failed")
+        payload_read = read_core_json_artifact(
+            store,
+            selected_ref,
+            raw_payload_bytes=raw,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        payload = payload_read.value
+        if not isinstance(payload, Mapping):
+            raise ValueError("measurement_root_selected_payload_not_object")
+
+        if payload_schema_ref == WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION:
+            if manifest.authority is None:
+                options = _measurement_root_put_options(fabric_fetch_ref=None)
+                expected_manifest = expected_artifact_manifest_for_write(
+                    artifact_id=artifact_id,
+                    data=raw,
+                    opts=options,
+                    created_at=manifest.created_at,
+                )
+                expected_profile = artifact_manifest_profile_sha256(expected_manifest)
+                if expected_profile != manifest_profile_sha256:
+                    raise ValueError("measurement_root_selected_profile_producer_contract_mismatch")
+            else:
+                options = _measurement_root_put_options(fabric_fetch_ref=None)
+                _verify_scoped_measurement_root_profile(
+                    store=store,
+                    selected_ref=selected_ref,
+                    manifest=manifest,
+                    options=options,
+                    expected_run_id=expected_run_id,
+                    expected_job_id=expected_job_id,
+                )
+        elif payload_schema_ref == FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION:
+            fabric_payload = FabricMeasurementRootPayload.model_validate(payload)
+            options = _measurement_root_put_options(
+                fabric_fetch_ref=fabric_payload.fetch_receipt_ref
+            )
+            if manifest.authority is None:
+                raise ValueError("measurement_root_fabric_authority_profile_missing")
+            _verify_scoped_measurement_root_profile(
+                store=store,
+                selected_ref=selected_ref,
+                manifest=manifest,
+                options=options,
+                expected_run_id=expected_run_id,
+                expected_job_id=expected_job_id,
+            )
+        else:
+            raise ValueError("measurement_root_selected_profile_schema_mismatch")
+
+        final_manifest, _final_declaration = read_core_manifest_profile(
+            store, selected_ref, manifest_profile_sha256=manifest_profile_sha256
+        )
+        final_raw = store.get_bytes(selected_ref)
+        if (
+            final_manifest != manifest
+            or final_raw != raw
+            or hashlib.sha256(raw).hexdigest() != artifact_id.hex
+            or not store.verify(selected_ref).ok
+            or gy_content_hash(payload) != envelope_content_hash
+        ):
+            raise ValueError("measurement_root_selected_profile_changed_after_read")
+        return manifest, payload
+    except MeasurementRootBindingError:
+        raise
+    except (AttributeError, OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise MeasurementRootBindingError(
+            "measurement_root_selected_profile_producer_contract_mismatch"
+        ) from exc
+
+
+def _verify_scoped_measurement_root_profile(
+    *,
+    store: artifacts.ArtifactStore,
+    selected_ref: artifacts.ArtifactRef,
+    manifest: artifacts.ArtifactManifest,
+    options: artifacts.PutOptions,
+    expected_run_id: str | None,
+    expected_job_id: str | None,
+) -> None:
+    """Reuse the existing authority writer verifier for scoped CAS views."""
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.canon import CanonSpec
+    from polisyos.runtime.http.services.control.artifacts import (
+        _identity_context_from_fields,
+        verify_runtime_authority_artifact_identity,
+    )
+    from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+
+    authority = manifest.authority
+    if authority is None or expected_run_id is None or expected_job_id is None:
+        raise ValueError("measurement_root_authority_subject_not_established")
+    producer = manifest.producer
+    authority_ref = artifacts.resolve_authority_envelope_ref(store, authority)
+    authority_payload = read_core_json_artifact(store, authority_ref).value
+    envelope = EvidenceAuthorityEnvelope.model_validate(authority_payload)
+    event_ref = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID(authority.diagnostic_event_ref),
+        kind="runtime_quality.diagnostic_event",
+        media_type="application/json",
+        manifest_profile_sha256=authority.diagnostic_event_manifest_profile_sha256,
+    )
+    event = DiagnosticEvent.model_validate(read_core_json_artifact(store, event_ref).value)
+    if (
+        envelope.run_id != expected_run_id
+        or envelope.job_id != expected_job_id
+        or envelope.artifact_ref != str(selected_ref.artifact_id)
+        or envelope.cas_ref != str(selected_ref.artifact_id)
+        or envelope.payload_sha256 != selected_ref.artifact_id.hex
+        or envelope.producer_component != (producer.component if producer is not None else None)
+        or envelope.producer_version != (producer.version if producer is not None else None)
+        or event.run_id != expected_run_id
+        or event.job_id != expected_job_id
+        or event.payload_ref != str(selected_ref.artifact_id)
+        or event.artifact_refs != (str(selected_ref.artifact_id),)
+    ):
+        raise ValueError("measurement_root_authority_subject_or_profile_mismatch")
+    values = envelope.model_dump(mode="python")
+    values.update(
+        {
+            "event_id": event.event_id,
+            "event_source": event.event_source,
+            "event_type": event.event_type,
+            "event_subject": event.event_subject,
+            "state_before": event.state_before,
+            "state_after": event.state_after,
+        }
+    )
+    expected_context = _identity_context_from_fields(
+        options, values, CanonSpec(forbid_floats=False)
+    )
+    verified = verify_runtime_authority_artifact_identity(
+        store,
+        artifact_id=selected_ref,
+        opts=options,
+        expected_context=expected_context,
+    )
+    if verified.cas_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256:
+        raise ValueError("measurement_root_authority_selected_profile_drift")
+
+
 def _measurement_root_put_options(
     *, fabric_fetch_ref: artifacts.ArtifactRef | None
 ) -> artifacts.PutOptions:
@@ -596,6 +776,24 @@ def _measurement_root_put_options(
     )
 
 
+@dataclass(frozen=True, slots=True)
+class MeasurementRootProfileWitness:
+    """Freeze one exact Core profile selected by an actual producer invocation."""
+
+    envelope_artifact_id: str
+    envelope_artifact_type: str
+    envelope_content_hash: str
+    payload_artifact_id: str
+    payload_kind: str
+    payload_media_type: str
+    payload_manifest_profile_sha256: str
+    payload_schema_ref: str
+    producer_component: str
+    producer_version: str
+    run_id: str | None
+    job_id: str | None
+
+
 class MeasurementRootProducer:
     """Produce CAS-backed BaseDataset artifacts from DatasetCatalogGraph bindings."""
 
@@ -614,6 +812,12 @@ class MeasurementRootProducer:
             raise TypeError("measurement_root_execution_binding_invalid")
         self._artifact_store = artifact_store
         self._execution_scope_binding = execution_scope_binding
+        self._selected_profile_witness: MeasurementRootProfileWitness | None = None
+
+    @property
+    def selected_profile_witness(self) -> MeasurementRootProfileWitness | None:
+        """Return the immutable profile captured by the latest producer invocation."""
+        return self._selected_profile_witness
 
     def produce_from_catalog(
         self,
@@ -621,7 +825,22 @@ class MeasurementRootProducer:
         catalog_graph: CatalogGraphProtocol,
     ) -> ArtifactEnvelope:
         """Resolve a pinned construct through DatasetCatalogGraph and persist its root."""
+        envelope, witness = self._produce_from_catalog_with_profile_witness(
+            manifest=manifest,
+            catalog_graph=catalog_graph,
+        )
+        self._selected_profile_witness = witness
+        return envelope
 
+    def _produce_from_catalog_with_profile_witness(
+        self,
+        *,
+        manifest: _WorkspaceFixtureManifestProtocol,
+        catalog_graph: CatalogGraphProtocol,
+    ) -> tuple[ArtifactEnvelope, MeasurementRootProfileWitness]:
+        """Return the envelope and immutable selector captured from its CAS write."""
+
+        self._selected_profile_witness = None
         if self._artifact_store is None:
             raise MeasurementRootBindingError("measurement_root_store_not_established")
         binding = self._execution_scope_binding
@@ -720,9 +939,11 @@ class MeasurementRootProducer:
             "data_requirement_spec": data_requirement_spec.model_dump(mode="json"),
             "source_contract_requirement": source_contract_requirement,
         }
-        payload_ref, payload_manifest_profile_sha256 = self._persist_payload(
-            payload, execution_scope_binding=binding
-        )
+        selected_payload_ref = self._persist_payload(payload, execution_scope_binding=binding)
+        if selected_payload_ref.manifest_profile_sha256 is None:
+            raise ValueError("measurement_root_selected_profile_missing")
+        payload_ref = str(selected_payload_ref.artifact_id)
+        payload_manifest_profile_sha256 = selected_payload_ref.manifest_profile_sha256
         artifact_slug = _gy_slug(manifest.fixture_id)
         producer_root = ArtifactRef.from_payload(
             artifact_id=f"measurement-root-{artifact_slug}",
@@ -746,7 +967,7 @@ class MeasurementRootProducer:
             uri=f"gy://slice0/{manifest.fixture_id}/base-dataset",
             version="v1",
         )
-        return ArtifactEnvelope(
+        envelope = ArtifactEnvelope(
             ref=ref,
             payload_ref=payload_ref,
             payload_manifest_profile_sha256=payload_manifest_profile_sha256,
@@ -766,6 +987,23 @@ class MeasurementRootProducer:
             obligations=_measurement_root_scope_obligation(binding),
             verification={"latest_applicability_result": source_contract_gate.result_id},
         )
+        options = _measurement_root_put_options(fabric_fetch_ref=None)
+        admission = binding.admission if type(binding) is MeasurementRootExecutionBinding else None
+        selected_witness = MeasurementRootProfileWitness(
+            envelope_artifact_id=envelope.ref.artifact_id,
+            envelope_artifact_type=envelope.ref.artifact_type,
+            envelope_content_hash=envelope.ref.content_hash,
+            payload_artifact_id=payload_ref,
+            payload_kind=options.kind,
+            payload_media_type=options.media_type,
+            payload_manifest_profile_sha256=payload_manifest_profile_sha256,
+            payload_schema_ref=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            producer_component=options.producer.component,
+            producer_version=options.producer.version,
+            run_id=admission.job.run_id if admission is not None else None,
+            job_id=admission.job.job_id if admission is not None else None,
+        )
+        return envelope, selected_witness
 
     def produce_from_fabric_fetch(
         self,
@@ -800,6 +1038,7 @@ class MeasurementRootProducer:
             catalog=catalog,
             providers=active_providers,
         )
+        self._selected_profile_witness = None
         payload = _fabric_measurement_payload(
             resolved,
             catalog=catalog,
@@ -807,18 +1046,34 @@ class MeasurementRootProducer:
             source_requirement=requirement,
             providers=active_providers,
         )
-        payload_ref, payload_manifest_profile_sha256 = self._persist_payload(
+        selected_payload_ref = self._persist_payload(
             payload.model_dump(mode="json"),
             fabric_fetch_ref=resolved.fetch_receipt_ref,
             source_checked_at=resolved.checked_at,
             execution_scope_binding=execution_scope_binding,
         )
-        return _fabric_measurement_envelope(
+        envelope = _fabric_measurement_envelope(
             payload,
-            payload_ref,
-            payload_manifest_profile_sha256=payload_manifest_profile_sha256,
+            str(selected_payload_ref.artifact_id),
+            payload_manifest_profile_sha256=selected_payload_ref.manifest_profile_sha256,
             execution_scope_binding=execution_scope_binding,
         )
+        options = _measurement_root_put_options(fabric_fetch_ref=resolved.fetch_receipt_ref)
+        self._selected_profile_witness = MeasurementRootProfileWitness(
+            envelope_artifact_id=envelope.ref.artifact_id,
+            envelope_artifact_type=envelope.ref.artifact_type,
+            envelope_content_hash=envelope.ref.content_hash,
+            payload_artifact_id=str(selected_payload_ref.artifact_id),
+            payload_kind=options.kind,
+            payload_media_type=options.media_type,
+            payload_manifest_profile_sha256=(selected_payload_ref.manifest_profile_sha256 or ""),
+            payload_schema_ref=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            producer_component=options.producer.component,
+            producer_version=options.producer.version or "",
+            run_id=execution_scope_binding.admission.job.run_id,
+            job_id=execution_scope_binding.admission.job.job_id,
+        )
+        return envelope
 
     def _persist_payload(
         self,
@@ -827,7 +1082,7 @@ class MeasurementRootProducer:
         fabric_fetch_ref: artifacts.ArtifactRef | None = None,
         source_checked_at: datetime | None = None,
         execution_scope_binding: MeasurementRootExecutionBinding | None = None,
-    ) -> tuple[str, str | None]:
+    ) -> artifacts.ArtifactRef:
         if self._artifact_store is None:
             raise MeasurementRootBindingError("measurement_root_store_not_established")
         scan = scan_secret_and_pii(
@@ -857,7 +1112,7 @@ class MeasurementRootProducer:
                 )
             if candidate_ref.manifest_profile_sha256 is None:
                 raise ValueError("measurement_root_selected_profile_missing")
-            return str(candidate_ref.artifact_id), candidate_ref.manifest_profile_sha256
+            return candidate_ref
 
         from polisyos.runtime.http.services.control.artifacts import (
             write_authority_artifact,
@@ -878,7 +1133,7 @@ class MeasurementRootProducer:
         )
         if result.cas_ref.manifest_profile_sha256 is None:
             raise ValueError("measurement_root_selected_profile_missing")
-        return str(result.cas_ref.artifact_id), result.cas_ref.manifest_profile_sha256
+        return result.cas_ref
 
 
 def _measurement_root_authority_configuration(

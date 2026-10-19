@@ -10,7 +10,13 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    FileSystemCAS,
+    ProducerInfo,
+    PutOptions,
+    SchemaInfo,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.runtime.http.services.temporal import (
     build_time_source_consistency_audit_projection,
 )
@@ -20,6 +26,7 @@ from polisyos.runtime.quality.authority import (
     EvidenceAuthorityEnvelope,
     OutcomeReplayProof,
     OutputCASManifestProfile,
+    OutputCASManifestProfileRefusalError,
     ProducerIdentity,
     SameInputClosure,
     assert_authority_bearing,
@@ -851,22 +858,88 @@ def test_requested_profile_null_is_explicit_and_malformed_or_missing_refuses() -
             EvidenceAuthorityEnvelope.model_validate(invalid)
 
 
-def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history() -> None:
-    artifact_id = "sha256:" + "a" * 64
-    envelope_ref = {
-        "artifact_id": "base-selected-view",
-        "artifact_type": "BaseDataset",
+def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import InputRef
+    from polisyos.pdc import ArtifactRef as PDCArtifactRef
+    from polisyos.runtime.quality.authority import (
+        declared_output_envelopes_from_contract,
+        output_cas_manifest_profiles_from_contract,
+        output_cas_payload_refs_from_contract,
+    )
+    from polisyos.runtime.quality.data_forge_binding import (
+        MeasurementRootBindingError,
+        resolve_measurement_root_selected_profile,
+    )
+
+    artifact_store = FileSystemCAS(tmp_path / "selected-output-cas")
+    payload = {
+        "fixture_id": "selected-view",
+        "catalog_binding_refs": ["dataset-selected-view"],
+        "catalog_result": {"connector_type": "fixture"},
+        "distributions": [],
+        "producer_root_kind": "measurement",
+        "measurement_rows": [{"row_id": "row-selected-view"}],
     }
+    payload_schema_ref = "policyos.policy_design_case.layer3_gy_loop.v1"
+    core_ref = artifact_store.put_json(
+        payload,
+        PutOptions(
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name=payload_schema_ref, version="v1"),
+            producer=ProducerInfo(
+                component=("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
+                version="1.0.0",
+            ),
+            inputs=[],
+        ),
+    )
+    manifest_profile_sha256 = artifact_manifest_profile_sha256(
+        artifact_store.get_manifest(core_ref.artifact_id)
+    )
+    artifact_id = str(core_ref.artifact_id)
+    envelope_ref = PDCArtifactRef.from_payload(
+        artifact_id="base-selected-view",
+        artifact_type="BaseDataset",
+        payload=payload,
+        schema_ref=payload_schema_ref,
+        uri="gy://slice0/selected-view/base-dataset",
+        version="v1",
+    )
+    root_ref = PDCArtifactRef.from_payload(
+        artifact_id="measurement-root-selected-view",
+        artifact_type="MeasurementRoot",
+        payload={
+            "dataset_id": "dataset-selected-view",
+            "connector_type": "fixture",
+            "producer_root_kind": "measurement",
+            "measurement_row_count": 1,
+            "measurement_row_refs": ["row-selected-view"],
+        },
+        schema_ref=payload_schema_ref,
+        uri="gy://slice0/selected-view/measurement-root",
+        version="v1",
+    )
     contract = {
         "terminal_state": {"kind": "search_ceiling_repair_required"},
         "search_ledger": {"invocations": [], "events": []},
         "incompleteness_record": {},
+        "output_artifacts": [envelope_ref.model_dump(mode="json")],
         "artifact_envelopes": [
             {
-                "ref": envelope_ref,
+                "ref": envelope_ref.model_dump(mode="json"),
                 "payload_ref": artifact_id,
-                "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
-                "payload_manifest_profile_sha256": "sha256:" + "b" * 64,
+                "payload_schema_ref": payload_schema_ref,
+                "payload_manifest_profile_sha256": manifest_profile_sha256,
+                "created_by": {
+                    "kind": "producer",
+                    "component": (
+                        "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+                    ),
+                },
+                "producer_roots": [root_ref.model_dump(mode="json")],
             }
         ],
     }
@@ -878,6 +951,7 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
     current = build_outcome_replay_proof(
         **arguments,
         search_exit_contract=contract,
+        artifact_store=artifact_store,
     )
     assert current.schema_version == "policyos.runtime.outcome_replay_proof.v2"
     assert current.output_cas_manifest_profiles == [
@@ -885,21 +959,174 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
             envelope_artifact_id="base-selected-view",
             envelope_artifact_type="BaseDataset",
             payload_artifact_id=artifact_id,
-            payload_schema_ref="policyos.policy_design_case.layer3_gy_loop.v1",
-            manifest_profile_sha256="sha256:" + "b" * 64,
+            payload_schema_ref=payload_schema_ref,
+            manifest_profile_sha256=manifest_profile_sha256,
         )
     ]
+
+    alternate_core_ref = artifact_store.put_json(
+        payload,
+        PutOptions(
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name=payload_schema_ref, version="v1"),
+            producer=ProducerInfo(
+                component=("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
+                version="1.0.0",
+            ),
+            inputs=[InputRef(artifact_id="sha256:" + "9" * 64, role="alternate-source")],
+        ),
+        return_selected_profile=True,
+    )
+    alternate_profile = alternate_core_ref.manifest_profile_sha256
+    assert str(alternate_core_ref.artifact_id) == artifact_id
+    assert alternate_profile is not None
+    assert alternate_profile != manifest_profile_sha256
+    alternate_manifest_contract = deepcopy(contract)
+    alternate_manifest_contract["artifact_envelopes"][0]["payload_manifest_profile_sha256"] = (
+        alternate_profile
+    )
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="measurement_root_selected_profile_producer_contract_mismatch",
+    ):
+        build_outcome_replay_proof(
+            **arguments,
+            search_exit_contract=alternate_manifest_contract,
+            artifact_store=artifact_store,
+        )
 
     alternate_contract = json.loads(json.dumps(contract))
     alternate_contract["artifact_envelopes"][0]["payload_manifest_profile_sha256"] = (
         "sha256:" + "d" * 64
     )
-    alternate = build_outcome_replay_proof(
-        **arguments,
-        search_exit_contract=alternate_contract,
+    with pytest.raises(OutputCASManifestProfileRefusalError, match="selected_output_profile"):
+        build_outcome_replay_proof(
+            **arguments,
+            search_exit_contract=alternate_contract,
+            artifact_store=artifact_store,
+        )
+
+    missing_selector = deepcopy(contract)
+    missing_selector["artifact_envelopes"][0].pop("payload_manifest_profile_sha256")
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="measurement_root_selected_profile_missing",
+    ):
+        build_outcome_replay_proof(
+            **arguments,
+            search_exit_contract=missing_selector,
+            artifact_store=artifact_store,
+        )
+
+    substituted_root = deepcopy(contract)
+    substituted_root["artifact_envelopes"][0]["producer_roots"][0]["content_hash"] = (
+        "sha256:" + "f" * 64
     )
-    assert current.output_hash != alternate.output_hash
-    assert current.level_proofs[2].input_hash != alternate.level_proofs[2].input_hash
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="measurement_root_producer_root_binding_mismatch",
+    ):
+        build_outcome_replay_proof(
+            **arguments,
+            search_exit_contract=substituted_root,
+            artifact_store=artifact_store,
+        )
+
+    removed_envelope = deepcopy(contract)
+    removed_envelope["artifact_envelopes"] = []
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="selected_output_profile_output_envelope_cardinality_mismatch",
+    ):
+        build_outcome_replay_proof(
+            **arguments,
+            search_exit_contract=removed_envelope,
+            artifact_store=artifact_store,
+        )
+
+    omitted_output = deepcopy(contract)
+    omitted_output["output_artifacts"] = []
+    assert declared_output_envelopes_from_contract(omitted_output) == []
+    assert output_cas_payload_refs_from_contract(omitted_output) == []
+    omitted_proof = build_outcome_replay_proof(
+        case_id="selected-view",
+        input_payloads=arguments["input_payloads"],
+        search_exit_contract=omitted_output,
+        output_cas_refs=[],
+        artifact_store=artifact_store,
+    )
+    assert omitted_proof.output_cas_manifest_profiles == []
+
+    intermediate = deepcopy(contract["artifact_envelopes"][0])
+    intermediate_ref = PDCArtifactRef.from_payload(
+        artifact_id="intermediate-not-output",
+        artifact_type="BaseDataset",
+        payload={"stage": "intermediate"},
+        schema_ref=payload_schema_ref,
+        uri="gy://slice0/selected-view/intermediate",
+        version="v1",
+    )
+    intermediate["ref"] = intermediate_ref.model_dump(mode="json")
+    intermediate["payload_ref"] = "sha256:" + "b" * 64
+    with_intermediate = deepcopy(contract)
+    with_intermediate["artifact_envelopes"].append(intermediate)
+    assert len(declared_output_envelopes_from_contract(with_intermediate)) == 1
+    assert (
+        len(
+            output_cas_manifest_profiles_from_contract(
+                with_intermediate, artifact_store=artifact_store, require_resolution=True
+            )
+        )
+        == 1
+    )
+
+    substituted_output = deepcopy(contract)
+    substituted_ref = dict(substituted_output["output_artifacts"][0])
+    substituted_ref["content_hash"] = "sha256:" + "e" * 64
+    substituted_output["output_artifacts"] = [substituted_ref]
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="selected_output_profile_output_envelope_identity_mismatch",
+    ):
+        output_cas_manifest_profiles_from_contract(
+            substituted_output, artifact_store=artifact_store, require_resolution=True
+        )
+
+    duplicate_output = deepcopy(contract)
+    duplicate_output["output_artifacts"].append(deepcopy(duplicate_output["output_artifacts"][0]))
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="selected_output_profile_output_duplicate",
+    ):
+        output_cas_manifest_profiles_from_contract(duplicate_output)
+
+    class MutatingReadStore:
+        def __init__(self, base_store: FileSystemCAS) -> None:
+            self.base_store = base_store
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str):
+            return getattr(self.base_store, name)
+
+        def get_bytes(self, artifact_ref: object) -> bytes:
+            payload_bytes = self.base_store.get_bytes(artifact_ref)
+            self.payload_reads += 1
+            return payload_bytes if self.payload_reads == 1 else payload_bytes + b"\n"
+
+    with pytest.raises(
+        MeasurementRootBindingError,
+        match="measurement_root_selected_profile_changed_after_read",
+    ):
+        resolve_measurement_root_selected_profile(
+            store=MutatingReadStore(artifact_store),
+            payload_ref=artifact_id,
+            payload_schema_ref=payload_schema_ref,
+            manifest_profile_sha256=manifest_profile_sha256,
+            envelope_content_hash=envelope_ref.content_hash,
+            expected_run_id=None,
+            expected_job_id=None,
+        )
 
     legacy_contract = deepcopy(contract)
     legacy_contract["artifact_envelopes"][0].pop("payload_manifest_profile_sha256")
@@ -914,13 +1141,22 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
     assert parsed_history.schema_version == "policyos.runtime.outcome_replay_proof.v1"
     assert parsed_history.output_cas_manifest_profiles == []
 
+    empty_candidate = build_outcome_replay_proof(
+        **arguments,
+        search_exit_contract={
+            "terminal_state": {"kind": "repair_required"},
+            "artifact_envelopes": [],
+        },
+    )
+    assert empty_candidate.output_cas_manifest_profiles == []
+
     with pytest.raises(ValidationError, match="manifest_profile_sha256"):
         OutputCASManifestProfile.model_validate(
             {
                 "envelope_artifact_id": "base-selected-view",
                 "envelope_artifact_type": "BaseDataset",
                 "payload_artifact_id": artifact_id,
-                "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+                "payload_schema_ref": payload_schema_ref,
                 "manifest_profile_sha256": "present-but-malformed",
             }
         )

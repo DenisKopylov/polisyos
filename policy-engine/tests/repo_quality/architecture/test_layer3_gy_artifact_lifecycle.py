@@ -3450,13 +3450,68 @@ def test_gy_j_history_guards_every_completed_predecessor_epoch(monkeypatch, hist
     assert {"code": "layer3_gy_loop_epoch_history_changed", "path": historical_path} in issues
 
 
-def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() -> None:
+def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import (
+        FileSystemCAS,
+        ProducerInfo,
+        PutOptions,
+        SchemaInfo,
+        artifact_manifest_profile_sha256,
+    )
+    from polisyos.pdc import ArtifactRef as PDCArtifactRef
     from tools.quality.validation.check_layer3_gy_loop_artifacts import (
         _selected_output_profile_chain_issues,
     )
 
-    payload_ref = "sha256:" + "a" * 64
-    profile = "sha256:" + "b" * 64
+    store = FileSystemCAS(tmp_path / "selected-output-cas")
+    payload = {
+        "fixture_id": "selected-measurement",
+        "catalog_binding_refs": ["dataset-selected-measurement"],
+        "catalog_result": {"connector_type": "fixture"},
+        "distributions": [],
+        "producer_root_kind": "measurement",
+        "measurement_rows": [{"row_id": "row-selected-measurement"}],
+    }
+    payload_schema_ref = "policyos.policy_design_case.layer3_gy_loop.v1"
+    core_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name=payload_schema_ref, version="v1"),
+            producer=ProducerInfo(
+                component=("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
+                version="1.0.0",
+            ),
+            inputs=[],
+        ),
+    )
+    payload_ref = str(core_ref.artifact_id)
+    profile = artifact_manifest_profile_sha256(store.get_manifest(core_ref.artifact_id))
+    envelope_ref = PDCArtifactRef.from_payload(
+        artifact_id="base-selected-measurement",
+        artifact_type="BaseDataset",
+        payload=payload,
+        schema_ref=payload_schema_ref,
+        uri="gy://slice0/selected-measurement/base-dataset",
+        version="v1",
+    )
+    root_ref = PDCArtifactRef.from_payload(
+        artifact_id="measurement-root-selected-measurement",
+        artifact_type="MeasurementRoot",
+        payload={
+            "dataset_id": "dataset-selected-measurement",
+            "connector_type": "fixture",
+            "producer_root_kind": "measurement",
+            "measurement_row_count": 1,
+            "measurement_row_refs": ["row-selected-measurement"],
+        },
+        schema_ref=payload_schema_ref,
+        uri="gy://slice0/selected-measurement/measurement-root",
+        version="v1",
+    )
     contract_ref = "sha256:" + "c" * 64
     output_hash = "sha256:" + "d" * 64
     selected = {
@@ -3467,19 +3522,22 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() ->
         "manifest_profile_sha256": profile,
     }
     contract = {
+        "output_artifacts": [envelope_ref.model_dump(mode="json")],
         "artifact_envelopes": [
             {
-                "ref": {
-                    "artifact_id": "base-selected-measurement",
-                    "artifact_type": "BaseDataset",
-                    "content_hash": "sha256:" + "e" * 64,
-                },
+                "ref": envelope_ref.model_dump(mode="json"),
                 "payload_ref": payload_ref,
-                "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+                "payload_schema_ref": payload_schema_ref,
                 "payload_manifest_profile_sha256": profile,
-                "producer_roots": [{"artifact_type": "MeasurementRoot"}],
+                "created_by": {
+                    "kind": "producer",
+                    "component": (
+                        "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+                    ),
+                },
+                "producer_roots": [root_ref.model_dump(mode="json")],
             }
-        ]
+        ],
     }
     proof = {
         "schema_version": "policyos.policy_design_case.layer3_gy_loop.v2",
@@ -3506,6 +3564,7 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() ->
             replay,
             readback,
             artifacts_index,
+            artifact_store=store,
         )
         == []
     )
@@ -3520,6 +3579,7 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() ->
         replay,
         substituted_get,
         artifacts_index,
+        artifact_store=store,
     )
     assert {item["code"] for item in get_issues} == {
         "layer3_gy_selected_output_profile_get_projection_drift"
@@ -3533,6 +3593,7 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() ->
         replay,
         readback,
         artifacts_index,
+        artifact_store=store,
     )
     assert "layer3_gy_selected_output_profile_run_proof_drift" in {
         item["code"] for item in removed_proof_issues
@@ -3548,12 +3609,27 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() ->
         replay,
         readback,
         artifacts_index,
+        artifact_store=store,
     )
-    assert {
-        "layer3_gy_selected_output_profile_run_proof_drift",
-        "layer3_gy_selected_output_profile_replay_drift",
-        "layer3_gy_selected_output_profile_get_projection_drift",
-    } <= {item["code"] for item in contract_issues}
+    assert {item["code"] for item in contract_issues} == {
+        "layer3_gy_selected_output_profile_contract_invalid"
+    }
+
+    substituted_root = deepcopy(contract)
+    substituted_root["artifact_envelopes"][0]["producer_roots"][0]["content_hash"] = (
+        "sha256:" + "f" * 64
+    )
+    root_issues = _selected_output_profile_chain_issues(
+        substituted_root,
+        proof,
+        replay,
+        readback,
+        artifacts_index,
+        artifact_store=store,
+    )
+    assert {item["code"] for item in root_issues} == {
+        "layer3_gy_selected_output_profile_contract_invalid"
+    }
 
     missing_selector = deepcopy(contract)
     missing_selector["artifact_envelopes"][0].pop("payload_manifest_profile_sha256")
@@ -3563,6 +3639,7 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection() ->
         replay,
         readback,
         artifacts_index,
+        artifact_store=store,
     )
     assert "layer3_gy_measurement_root_selected_profile_missing" in {
         item["code"] for item in missing_issues

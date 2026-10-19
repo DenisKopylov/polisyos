@@ -26035,5 +26035,178 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "la021-producer-selected-profile-and-output-membership-v5-20261020": {
+    "slice_base": "523d50e2a305b8bc0db4fca960a9a6ac5990c66e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/authority.py": {
+        "operation": "write",
+        "preimage_sha256": "508a732f0c85bf3b5c3289c6be0343b1c6b8bd8f5728d6a68cda8016ef02baec",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/src/polisyos/runtime/quality/authority.py",
+        "postimage_sha256": "31f3480493a1e9b0b7c75c606655a97f522186fa0efccce6dc30c88f9a957f24"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py": {
+        "operation": "write",
+        "preimage_sha256": "1eacc8e379211bda4e170e57e190cb905a2c2a8c366e8b371aedbd91ff7c9894",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+        "postimage_sha256": "e839a59971023b4e2f271eb94664438eec247fdd8d7169ad00dc08b72d8229d3"
+      },
+      "policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py": {
+        "operation": "write",
+        "preimage_sha256": "ef36bf06d60b48a551cd8ab6a004af4c98ed418541630e635ab3abfdf29236b1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py",
+        "postimage_sha256": "54ba558c4860c478d5959a22d77c45bcd018d6ca524617fe261ab2250d533663"
+      },
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py": {
+        "operation": "write",
+        "preimage_sha256": "26963606391349ec59593bcdba2927ecdd99cb548a62623d52b2fa800b47fc86",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+        "postimage_sha256": "88eddfd8c8d0687f9bf33fb30a0035a80405cce37687c15259c790c5a25b0abc"
+      },
+      "policy-engine/src/polisyos/runtime/quality/workspace/loop.py": {
+        "operation": "write",
+        "preimage_sha256": "a5036cfbd6d9afab909fc6d3483cba02e708921ec5e568a8eae74075afba6f4f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+        "postimage_sha256": "6174886af5214606fc59ec21b7a288dce5a101949dfea6ca726d8ff1f6357604"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_authority.py": {
+        "operation": "write",
+        "preimage_sha256": "9cb89d0e07119a58ed7a784d7916bc446d5828f9f45da2c3fe1572dc8526a883",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/tests/unit/runtime/quality/test_authority.py",
+        "postimage_sha256": "4b3b127b1d3ba2234377237d9f1b173b72569fd0a661045bf1841a971e5fcbc1"
+      },
+      "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py": {
+        "operation": "write",
+        "preimage_sha256": "a2844e9b5c6966ff97935badf2345f34d8a64fdc618f312f2376e22c71242c6a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+        "postimage_sha256": "24a0902035ce20d12a74c62f37e5648d51a969adea728389c8c7af31d94c97fc"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py": {
+        "operation": "write",
+        "preimage_sha256": "2c95ba56ecf138dd4ead96ee4251cf452589f6f428d8c57da8b2c3fcb3b11661",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py",
+        "postimage_sha256": "bc146a837b1dd0565e16a095163ff87fa519d4518a392475a7bdf6ef118277a1"
+      },
+      "policy-engine/src/polisyos/runtime/http/README.md": {
+        "operation": "write",
+        "preimage_sha256": "00f39183da1b3531d15c9b465c17455416734d1c647d5077c4431a744a04970c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/candidate/policy-engine/src/polisyos/runtime/http/README.md",
+        "postimage_sha256": "10a09fdd426e860ae69abc04e800293f5de65347721c04283ac957fab2202163"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-profile-authority-v5-adoption-20261020/source-application.json",
+      "sha256": "4e3e1143d9952a6e43c6694dfa5e560f61a9bf11c9786cd33c35dbfce4838055"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-profile-authority-v5-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v4/freeze-v4-20261020/manifest-v4.json",
+        "sha256": "619ae154fb98ecbf5939b38c89a59b5238a548a30801dc3390ff78ba2d3d498e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v4/freeze-v4-20261020/patch-v4.diff",
+        "sha256": "67e186266483da79db55210b4e722b1875331da12e3b2b48d3f5ecf6cdf287c2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v4/freeze-v4-20261020/checks-v4.json",
+        "sha256": "ea7feb171d53cd0580424990916920a7f10dc37f0d56336c0b6e7b07a96d41da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-profile-authority-independent-review-v4-r1-20261020/review.json",
+        "sha256": "0c018d63935caa152b7efa9e451b6a36d2c8b3c0c74c107feee9f88b790e9011"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-profile-authority-independent-review-r1-20261020/review.json",
+        "sha256": "c7513b90003a499142b665e228dce264efc52e1e367582fc68ccb21655337387"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la021-v3-native-role-preflight-20261020/result.json",
+        "sha256": "755b3606061d562e67e3e4f6629f018e1938e6985c670b29191015b9ac4e0b48"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/manifest-v5.json",
+        "sha256": "8ab9e1811a51a55b14bce38f300e872ec487b3abcc5336e01f54b2be8cac62e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/checks-v5.json",
+        "sha256": "e51cf6a37c36ade8cca22c137a3a5d421d0efaf5c8aabe8f71bac9c98090e73d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la021-profile-authority-repair-20261020/implementation-v5/format-only-v5-20261020/patch-v5-vs-v4.diff",
+        "sha256": "b4559574e546805b459e372f109cd6312c2f43dc52681a956ca335e38b7a5c1c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-profile-authority-independent-v5-delta-r1-20261020/review-v5.json",
+        "sha256": "93e77f918277e776b879992d4f863db532a3b03bac4be60eb02ca926c907fbca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-profile-authority-v4-adoption-20261020/canonical-context-preflight.json",
+        "sha256": "37f24f684efc9eba8e16470ad69dba577f86446d4e4455e9c60c9bd245bf705f"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same profile-identity class widened to exact producer invocation and durable source-owned profile verification; separate output-membership class widened to strict full-ref declared-output join.",
+    "bounded_proof": "V4 independent semantic source GO, V5 independent AST-equal format-only delta GO, and full final canonical Ruff check/format. V4 R7 preflight stopped safely before source writes on four format failures. Runtime on adopted source remains UNRUN.",
+    "limitations": [
+      "Source adoption is an author candidate, not G acceptance or formal adjudication.",
+      "Unscoped exact profile validation establishes byte integrity and source-owned write configuration, not run/job authority, production currentness or admissibility.",
+      "Scoped paths reuse persisted authority envelope/event identity; legacy V1/profileless candidate history remains parseable and cannot be promoted by reader defaults.",
+      "Two known-owned incomplete N7/B108 test edits are preserved byte-for-byte outside this commit.",
+      "V5 author manifest incorrectly says it inherits V4 HOLD; exact V4 independent review 0c018d63 is source GO with runtime pending, and V5 review 93e77f91 confirms that source disposition. Frozen author/reviewer bytes are preserved; G acceptance remains false."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the three complete affected test modules and real producer-to-POST/proof/CAS/fresh-GET/removal controls at the adopted source; final composition/native/installed replay after source/input/backend freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

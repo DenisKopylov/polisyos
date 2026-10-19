@@ -1613,7 +1613,7 @@ def test_workspace_loop_non_authority_terminal_is_not_verifier_stamped(
     original_fixture = service._run_workspace_loop_fixture  # noqa: SLF001
 
     def run_non_authority_fixture(**kwargs):
-        contract = original_fixture(**kwargs)
+        contract, profile_witnesses = original_fixture(**kwargs)
         assert (contract.authority_boundary is not None) is boundary_present
         if boundary_present or terminal_kind == "search_ceiling_repair_required":
             # Inject a typed search-repair result at the owner/consumer boundary;
@@ -1628,7 +1628,7 @@ def test_workspace_loop_non_authority_terminal_is_not_verifier_stamped(
             # their Ring-2 fields from JSON would rightly fail writer admission
             # before reaching the terminal/authority composition under test.
             contract = contract.model_copy(update={"terminal_state": terminal})
-        return contract
+        return contract, profile_witnesses
 
     monkeypatch.setattr(service, "_run_workspace_loop_fixture", run_non_authority_fixture)
     request = WorkflowRunRequest(
@@ -1856,6 +1856,91 @@ def test_workflow_transition_uses_injected_catalog_and_persists_measurement_payl
         item.get("surface") == "/api/v1/control/jobs/{job_id}" for item in proof.surface_readbacks
     )
     client.close()
+
+
+@pytest.mark.parametrize(
+    "selector_mutation",
+    ["missing", "unknown_well_formed", "wrong_run", "wrong_subject"],
+)
+def test_workspace_loop_refuses_unresolved_selected_profile_before_v2_writes(
+    runtime_api_env: dict[str, object],
+    monkeypatch: pytest.MonkeyPatch,
+    selector_mutation: str,
+) -> None:
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    original_fixture = service._run_workspace_loop_fixture  # noqa: SLF001
+
+    def mutate_selected_profile(
+        *,
+        job: object,
+        fixture_id: str,
+        execution_scope_binding: object,
+    ) -> tuple[workspace_loop_module.WorkspaceSearchExitContract, tuple[object, ...]]:
+        from dataclasses import replace
+
+        contract, profile_witnesses = original_fixture(
+            job=job,
+            fixture_id=fixture_id,
+            execution_scope_binding=execution_scope_binding,
+        )
+        if selector_mutation in {"wrong_run", "wrong_subject"}:
+            field = "run_id" if selector_mutation == "wrong_run" else "job_id"
+            profile_witnesses = tuple(
+                replace(witness, **{field: "wrong-selected-output-owner"})
+                for witness in profile_witnesses
+            )
+            return contract, profile_witnesses
+        envelopes = list(contract.artifact_envelopes)
+        selected_index = next(
+            index
+            for index, envelope in enumerate(envelopes)
+            if envelope.ref.artifact_type == "BaseDataset"
+            and envelope.payload_schema_ref == "policyos.policy_design_case.layer3_gy_loop.v1"
+        )
+        selected = envelopes[selected_index]
+        if selector_mutation == "missing":
+            changed = selected.model_copy(update={"payload_manifest_profile_sha256": None})
+        else:
+            changed = selected.model_copy(
+                update={"payload_manifest_profile_sha256": "sha256:" + "f" * 64}
+            )
+        envelopes[selected_index] = changed
+        return (
+            contract.model_copy(update={"artifact_envelopes": envelopes}),
+            profile_witnesses,
+        )
+
+    monkeypatch.setattr(service, "_run_workspace_loop_fixture", mutate_selected_profile)
+    before_ids = {str(item) for item in service._artifact_store.iter_artifact_ids()}  # noqa: SLF001
+    request = WorkflowRunRequest(
+        data_source={"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+        params={"slice0_fixture_id": "ua_msme_credit_worldbank_measurement"},
+    )
+    launch = _launch_owner_bound_workflow(runtime_api_env, request)
+    assert service._worker is not None
+    service._worker.dispatch_once()
+
+    response = _await_terminal_job(service, launch.job_id)
+    assert response.state == "failed"
+    assert response.progress["authority_result"] == "repair_required"
+    assert response.progress["failure"]["code"] == (
+        "workspace_loop_selected_output_profile_not_established"
+    )
+    assert response.progress["approval_projection"]["eligible"] is False
+    assert response.progress["approval_projection"]["state"] == "candidate_only"
+    assert "search_exit_contract_ref" not in response.progress
+    assert "outcome_replay_proof_ref" not in response.progress
+
+    new_ids = {
+        str(item)
+        for item in service._artifact_store.iter_artifact_ids()  # noqa: SLF001
+    } - before_ids
+    new_kinds = {
+        service._artifact_store.get_manifest(item).kind  # noqa: SLF001
+        for item in new_ids
+    }
+    assert "pdc.gy.search_exit_contract" not in new_kinds
+    assert "pdc.gy.outcome_replay_proof" not in new_kinds
 
 
 def test_legacy_workflow_shadow_cannot_emit_authority_completed_result(

@@ -442,38 +442,465 @@ class ProductionLoopRunProof(BaseModel):
         return self
 
 
-def output_cas_manifest_profiles_from_contract(
-    search_exit_contract: Mapping[str, Any],
-) -> list[OutputCASManifestProfile]:
-    """Project producer-selected payload profiles from the emitted envelopes."""
+_MEASUREMENT_ROOT_PRODUCER = "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+_MEASUREMENT_ROOT_PAYLOAD_KIND = "policyos.gy.measurement_root_payload"
 
+
+class OutputCASManifestProfileRefusalError(ValueError):
+    """Refuse a selected output profile that is absent or not Core-bound."""
+
+    def __init__(self, code: str) -> None:
+        super().__init__(code)
+        self.code = code
+
+
+def _resolve_output_cas_manifest_profile(
+    *,
+    artifact_store: object,
+    payload_ref: str,
+    payload_schema_ref: str,
+    manifest_profile_sha256: str,
+    envelope_content_hash: object,
+    require_measurement_root_owner: bool,
+) -> tuple[core_artifacts.ArtifactManifest, Mapping[str, Any]]:
+    """Resolve one exact selected output view and bind it to its envelope."""
+
+    from polisyos.core.artifacts import read_core_manifest_profile
+    from polisyos.pdc import gy_content_hash
+
+    try:
+        artifact_id = core_artifacts.ArtifactID(payload_ref)
+        manifest, _declaration = read_core_manifest_profile(
+            artifact_store,
+            artifact_id,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        selected_ref = core_artifacts.ArtifactRef(
+            artifact_id=artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        verification = artifact_store.verify(selected_ref)
+        payload_read = read_core_json_artifact(
+            artifact_store,
+            selected_ref,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+    except (AttributeError, OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise OutputCASManifestProfileRefusalError(
+            "selected_output_profile_core_resolution_failed"
+        ) from exc
+
+    if (
+        not getattr(verification, "ok", False)
+        or manifest.artifact_id != artifact_id
+        or core_artifacts.artifact_manifest_profile_sha256(manifest) != manifest_profile_sha256
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != payload_schema_ref
+    ):
+        raise OutputCASManifestProfileRefusalError("selected_output_profile_manifest_mismatch")
+
+    producer = manifest.producer
+    if require_measurement_root_owner and (
+        manifest.kind != _MEASUREMENT_ROOT_PAYLOAD_KIND
+        or producer is None
+        or producer.component != _MEASUREMENT_ROOT_PRODUCER
+    ):
+        raise OutputCASManifestProfileRefusalError(
+            "measurement_root_producer_manifest_binding_mismatch"
+        )
+    payload = payload_read.value
+    if (
+        not isinstance(payload, Mapping)
+        or not isinstance(envelope_content_hash, str)
+        or gy_content_hash(payload) != envelope_content_hash
+    ):
+        raise OutputCASManifestProfileRefusalError(
+            "selected_output_profile_content_binding_mismatch"
+        )
+    return manifest, payload
+
+
+def _measurement_root_ref_matches_payload(
+    root_value: Mapping[str, Any],
+    payload: Mapping[str, Any],
+    *,
+    payload_ref: str,
+    payload_schema_ref: str,
+) -> bool:
+    """Recompute the selected MeasurementRoot projection from its CAS payload."""
+
+    from polisyos.pdc import ArtifactRef as PDCArtifactRef
+
+    try:
+        if payload_schema_ref == "policyos.policy_design_case.layer3_gy_loop.v1":
+            fixture_id = payload.get("fixture_id")
+            catalog_binding_refs = payload.get("catalog_binding_refs")
+            catalog_result = payload.get("catalog_result")
+            distributions = payload.get("distributions")
+            rows = payload.get("measurement_rows")
+            producer_root_kind = payload.get("producer_root_kind")
+            if (
+                not isinstance(fixture_id, str)
+                or not isinstance(catalog_binding_refs, list)
+                or not catalog_binding_refs
+                or not isinstance(catalog_binding_refs[0], str)
+                or not isinstance(catalog_result, Mapping)
+                or not isinstance(distributions, list)
+                or not isinstance(rows, list)
+                or any(
+                    not isinstance(row, Mapping) or not isinstance(row.get("row_id"), str)
+                    for row in rows
+                )
+                or not isinstance(producer_root_kind, str)
+            ):
+                return False
+            connector_type = catalog_result.get("connector_type") or (
+                str(distributions[0].get("connector_type")) if distributions else ""
+            )
+            normalized = "".join(char.lower() if char.isalnum() else "-" for char in fixture_id)
+            slug = "-".join(part for part in normalized.split("-") if part) or "item"
+            root_payload = {
+                "dataset_id": catalog_binding_refs[0],
+                "connector_type": connector_type,
+                "producer_root_kind": producer_root_kind,
+                "measurement_row_count": len(rows),
+                "measurement_row_refs": [row["row_id"] for row in rows],
+            }
+            expected = PDCArtifactRef.from_payload(
+                artifact_id=f"measurement-root-{slug}",
+                artifact_type="MeasurementRoot",
+                payload=root_payload,
+                schema_ref=payload_schema_ref,
+                uri=f"gy://slice0/{fixture_id}/measurement-root",
+                version="v1",
+            )
+        elif payload_schema_ref == "policyos.gy.fabric_measurement_root.v2":
+            if not payload_ref.startswith("sha256:"):
+                return False
+            expected = PDCArtifactRef.from_payload(
+                artifact_id=f"measurement-root-{payload_ref.removeprefix('sha256:')}",
+                artifact_type="MeasurementRoot",
+                payload=dict(payload),
+                schema_ref=payload_schema_ref,
+                uri=f"cas://{payload_ref}",
+                version="v2",
+            )
+        else:
+            return False
+        actual = PDCArtifactRef.model_validate(root_value)
+    except (TypeError, ValueError, KeyError):
+        return False
+    return actual == expected
+
+
+def declared_output_envelopes_from_contract(
+    search_exit_contract: Mapping[str, Any],
+) -> list[Mapping[str, Any]]:
+    """Join each declared output to exactly one envelope by its complete PDC ref."""
+    from polisyos.pdc import ArtifactRef as PDCArtifactRef
+
+    outputs = search_exit_contract.get("output_artifacts")
     envelopes = search_exit_contract.get("artifact_envelopes")
-    if not isinstance(envelopes, list):
-        raise ValueError("selected CAS profile contract envelopes are missing")
-    selected: list[OutputCASManifestProfile] = []
+    if outputs is None and envelopes == []:
+        return []
+    if not isinstance(outputs, list) or not isinstance(envelopes, list):
+        raise OutputCASManifestProfileRefusalError("selected_output_profile_output_set_missing")
+
+    normalized_outputs: list[dict[str, Any]] = []
+    output_ids: set[str] = set()
+    for output in outputs:
+        try:
+            normalized = PDCArtifactRef.model_validate(output).model_dump(mode="json")
+        except (TypeError, ValueError) as exc:
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_output_ref_invalid"
+            ) from exc
+        artifact_id = normalized["artifact_id"]
+        if artifact_id in output_ids:
+            raise OutputCASManifestProfileRefusalError("selected_output_profile_output_duplicate")
+        output_ids.add(artifact_id)
+        normalized_outputs.append(normalized)
+
+    envelope_by_id: dict[str, list[tuple[dict[str, Any], Mapping[str, Any]]]] = {}
     for envelope in envelopes:
         if not isinstance(envelope, Mapping):
-            raise ValueError("selected CAS profile envelope is not an object")
+            raise OutputCASManifestProfileRefusalError("selected_output_profile_envelope_invalid")
+        try:
+            ref = PDCArtifactRef.model_validate(envelope.get("ref"))
+        except (TypeError, ValueError) as exc:
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_envelope_ref_invalid"
+            ) from exc
+        envelope_by_id.setdefault(ref.artifact_id, []).append(
+            (ref.model_dump(mode="json"), envelope)
+        )
+
+    selected: list[Mapping[str, Any]] = []
+    for output_ref in normalized_outputs:
+        matches = envelope_by_id.get(output_ref["artifact_id"], [])
+        if len(matches) != 1:
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_output_envelope_cardinality_mismatch"
+            )
+        envelope_ref, envelope = matches[0]
+        if envelope_ref != output_ref:
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_output_envelope_identity_mismatch"
+            )
+        selected.append(envelope)
+    return selected
+
+
+def output_cas_payload_refs_from_contract(
+    search_exit_contract: Mapping[str, Any],
+) -> list[str]:
+    """Return only CAS payloads belonging to the declared output envelope set."""
+    refs: list[str] = []
+    for envelope in declared_output_envelopes_from_contract(search_exit_contract):
+        payload_ref = envelope.get("payload_ref")
+        if (
+            isinstance(payload_ref, str)
+            and payload_ref.startswith("sha256:")
+            and payload_ref not in refs
+        ):
+            refs.append(payload_ref)
+    return refs
+
+
+def _producer_profile_witness_matches(
+    witness: object,
+    *,
+    ref: Mapping[str, Any],
+    payload_ref: str,
+    payload_schema_ref: str,
+    profile: str,
+    expected_run_id: str | None,
+    expected_job_id: str | None,
+) -> bool:
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootProfileWitness
+
+    return (
+        type(witness) is MeasurementRootProfileWitness
+        and witness.envelope_artifact_id == ref.get("artifact_id")
+        and witness.envelope_artifact_type == ref.get("artifact_type")
+        and witness.envelope_content_hash == ref.get("content_hash")
+        and witness.payload_artifact_id == payload_ref
+        and witness.payload_manifest_profile_sha256 == profile
+        and witness.payload_schema_ref == payload_schema_ref
+        and witness.payload_kind == _MEASUREMENT_ROOT_PAYLOAD_KIND
+        and witness.payload_media_type == "application/json"
+        and witness.producer_component == _MEASUREMENT_ROOT_PRODUCER
+        and witness.producer_version
+        == ("2.0.0" if payload_schema_ref == "policyos.gy.fabric_measurement_root.v2" else "1.0.0")
+        and witness.run_id == expected_run_id
+        and witness.job_id == expected_job_id
+    )
+
+
+def output_cas_manifest_profiles_from_contract(
+    search_exit_contract: Mapping[str, Any],
+    *,
+    artifact_store: object | None = None,
+    require_resolution: bool = False,
+    producer_profile_witnesses: Iterable[object] = (),
+    expected_run_id: str | None = None,
+    expected_job_id: str | None = None,
+    require_producer_witness: bool = False,
+) -> list[OutputCASManifestProfile]:
+    """Resolve producer-selected CAS profiles for declared outputs only."""
+    from polisyos.core.artifacts import read_core_manifest_profile
+    from polisyos.pdc import gy_content_hash
+
+    if require_producer_witness and (
+        artifact_store is None or not expected_run_id or not expected_job_id
+    ):
+        raise OutputCASManifestProfileRefusalError(
+            "measurement_root_actual_producer_subject_not_established"
+        )
+    contract_snapshot_hash = gy_content_hash(search_exit_contract)
+    selected: list[OutputCASManifestProfile] = []
+    seen_payloads: set[str] = set()
+    witnesses = tuple(producer_profile_witnesses)
+    declared_envelopes = declared_output_envelopes_from_contract(search_exit_contract)
+    for envelope in declared_envelopes:
+        ref = envelope["ref"]
+        envelope_type = ref["artifact_type"]
+        payload_ref = envelope.get("payload_ref")
         profile = envelope.get("payload_manifest_profile_sha256")
+        payload_schema_ref = envelope.get("payload_schema_ref")
+        creator = envelope.get("created_by")
+        creator_component = creator.get("component") if isinstance(creator, Mapping) else None
+        roots = envelope.get("producer_roots")
+        root_rows = (
+            [
+                root
+                for root in roots
+                if isinstance(root, Mapping) and root.get("artifact_type") == "MeasurementRoot"
+            ]
+            if isinstance(roots, list)
+            else []
+        )
+        marker_claims_measurement_root = envelope_type == "BaseDataset" and (
+            creator_component == _MEASUREMENT_ROOT_PRODUCER or bool(root_rows)
+        )
+        measurement_root = envelope_type == "BaseDataset" and payload_schema_ref in {
+            "policyos.policy_design_case.layer3_gy_loop.v1",
+            "policyos.gy.fabric_measurement_root.v2",
+        }
+        if (
+            envelope_type == "BaseDataset"
+            and isinstance(payload_ref, str)
+            and payload_ref.startswith("sha256:")
+            and artifact_store is not None
+        ):
+            try:
+                selected_manifest, _declaration = read_core_manifest_profile(
+                    artifact_store,
+                    core_artifacts.ArtifactID(payload_ref),
+                    manifest_profile_sha256=profile if isinstance(profile, str) else None,
+                )
+            except (AttributeError, OSError, TypeError, ValueError, RuntimeError) as exc:
+                if (
+                    marker_claims_measurement_root
+                    or measurement_root
+                    or profile is not None
+                    or require_resolution
+                ):
+                    raise OutputCASManifestProfileRefusalError(
+                        "selected_output_profile_owner_manifest_unavailable"
+                    ) from exc
+            else:
+                persisted_producer = selected_manifest.producer
+                measurement_root = measurement_root or (
+                    selected_manifest.kind == _MEASUREMENT_ROOT_PAYLOAD_KIND
+                    or (
+                        persisted_producer is not None
+                        and persisted_producer.component == _MEASUREMENT_ROOT_PRODUCER
+                    )
+                )
+        if marker_claims_measurement_root and not measurement_root and artifact_store is not None:
+            raise OutputCASManifestProfileRefusalError(
+                "measurement_root_producer_manifest_binding_mismatch"
+            )
+        if measurement_root or marker_claims_measurement_root:
+            if profile is None:
+                raise OutputCASManifestProfileRefusalError(
+                    "measurement_root_selected_profile_missing"
+                )
+            if (
+                envelope_type != "BaseDataset"
+                or not isinstance(creator, Mapping)
+                or creator.get("kind") != "producer"
+                or creator_component != _MEASUREMENT_ROOT_PRODUCER
+                or not isinstance(roots, list)
+                or len(roots) != 1
+                or len(root_rows) != 1
+            ):
+                raise OutputCASManifestProfileRefusalError(
+                    "measurement_root_producer_root_binding_mismatch"
+                )
         if profile is None:
             continue
-        ref = envelope.get("ref")
-        if not isinstance(ref, Mapping):
-            raise ValueError("selected CAS profile envelope ref is missing")
-        payload_ref = envelope.get("payload_ref")
-        if not isinstance(payload_ref, str) or not payload_ref:
-            raise ValueError("selected CAS profile payload ref is missing")
-        payload_schema_ref = envelope.get("payload_schema_ref")
-        if not isinstance(payload_schema_ref, str) or not payload_schema_ref:
-            raise ValueError("selected CAS profile payload schema ref is missing")
-        selected.append(
-            OutputCASManifestProfile(
+        if (
+            not isinstance(payload_ref, str)
+            or not payload_ref.startswith("sha256:")
+            or not isinstance(payload_schema_ref, str)
+            or not payload_schema_ref
+            or not isinstance(ref.get("content_hash"), str)
+            or (measurement_root and ref.get("schema_ref") != payload_schema_ref)
+        ):
+            raise OutputCASManifestProfileRefusalError("selected_output_profile_envelope_invalid")
+        try:
+            item = OutputCASManifestProfile(
                 envelope_artifact_id=str(ref.get("artifact_id") or ""),
-                envelope_artifact_type=str(ref.get("artifact_type") or ""),
+                envelope_artifact_type=str(envelope_type),
                 payload_artifact_id=payload_ref,
                 payload_schema_ref=payload_schema_ref,
                 manifest_profile_sha256=profile,
             )
+        except (TypeError, ValueError) as exc:
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_selector_invalid"
+            ) from exc
+        if str(item.payload_artifact_id) in seen_payloads:
+            raise OutputCASManifestProfileRefusalError("selected_output_profile_payload_duplicate")
+        seen_payloads.add(str(item.payload_artifact_id))
+        if require_resolution and artifact_store is None:
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_store_not_established"
+            )
+        if artifact_store is not None:
+            if measurement_root:
+                try:
+                    from polisyos.runtime.quality.data_forge_binding import (
+                        MeasurementRootBindingError,
+                        resolve_measurement_root_selected_profile,
+                    )
+
+                    resolved_manifest, resolved_payload = resolve_measurement_root_selected_profile(
+                        store=artifact_store,
+                        payload_ref=str(item.payload_artifact_id),
+                        payload_schema_ref=item.payload_schema_ref,
+                        manifest_profile_sha256=item.manifest_profile_sha256,
+                        envelope_content_hash=str(ref["content_hash"]),
+                        expected_run_id=expected_run_id,
+                        expected_job_id=expected_job_id,
+                    )
+                except (AttributeError, OSError, TypeError, ValueError, RuntimeError) as exc:
+                    if isinstance(exc, MeasurementRootBindingError):
+                        reason = str(exc)
+                    else:
+                        reason = "measurement_root_producer_profile_unresolved"
+                    raise OutputCASManifestProfileRefusalError(reason) from exc
+                persisted_producer = resolved_manifest.producer
+                if (
+                    resolved_manifest.kind != _MEASUREMENT_ROOT_PAYLOAD_KIND
+                    or persisted_producer is None
+                    or persisted_producer.component != _MEASUREMENT_ROOT_PRODUCER
+                ):
+                    raise OutputCASManifestProfileRefusalError(
+                        "measurement_root_producer_manifest_binding_mismatch"
+                    )
+                if not _measurement_root_ref_matches_payload(
+                    root_rows[0],
+                    resolved_payload,
+                    payload_ref=str(item.payload_artifact_id),
+                    payload_schema_ref=item.payload_schema_ref,
+                ):
+                    raise OutputCASManifestProfileRefusalError(
+                        "measurement_root_producer_root_binding_mismatch"
+                    )
+                if require_producer_witness and not any(
+                    _producer_profile_witness_matches(
+                        witness,
+                        ref=ref,
+                        payload_ref=str(item.payload_artifact_id),
+                        payload_schema_ref=item.payload_schema_ref,
+                        profile=item.manifest_profile_sha256,
+                        expected_run_id=expected_run_id,
+                        expected_job_id=expected_job_id,
+                    )
+                    for witness in witnesses
+                ):
+                    raise OutputCASManifestProfileRefusalError(
+                        "measurement_root_actual_producer_witness_missing_or_mismatched"
+                    )
+            else:
+                _resolve_output_cas_manifest_profile(
+                    artifact_store=artifact_store,
+                    payload_ref=str(item.payload_artifact_id),
+                    payload_schema_ref=item.payload_schema_ref,
+                    manifest_profile_sha256=item.manifest_profile_sha256,
+                    envelope_content_hash=ref.get("content_hash"),
+                    require_measurement_root_owner=False,
+                )
+        selected.append(item)
+    if gy_content_hash(search_exit_contract) != contract_snapshot_hash:
+        raise OutputCASManifestProfileRefusalError(
+            "selected_output_profile_contract_changed_after_resolution"
         )
     return selected
 
@@ -485,6 +912,12 @@ def build_outcome_replay_proof(
     search_exit_contract: Mapping[str, Any],
     output_cas_refs: Iterable[str],
     schema_version: Literal[_OUTCOME_REPLAY_V1, _OUTCOME_REPLAY_V2] = _OUTCOME_REPLAY_V2,
+    artifact_store: object | None = None,
+    profile_resolution_required: bool = True,
+    producer_profile_witnesses: Iterable[object] = (),
+    expected_run_id: str | None = None,
+    expected_job_id: str | None = None,
+    require_producer_witness: bool = False,
 ) -> OutcomeReplayProof:
     """Build the F16 A/B/C proof from run inputs and the emitted exit contract."""
 
@@ -517,7 +950,15 @@ def build_outcome_replay_proof(
         "incompleteness_record": incompleteness,
     }
     output_profiles = (
-        output_cas_manifest_profiles_from_contract(contract)
+        output_cas_manifest_profiles_from_contract(
+            contract,
+            artifact_store=artifact_store,
+            require_resolution=profile_resolution_required,
+            producer_profile_witnesses=producer_profile_witnesses,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            require_producer_witness=require_producer_witness,
+        )
         if schema_version == _OUTCOME_REPLAY_V2
         else []
     )
@@ -2868,6 +3309,7 @@ __all__ = [
     "OutcomeReplayLevelProof",
     "OutcomeReplayProof",
     "OutputCASManifestProfile",
+    "OutputCASManifestProfileRefusalError",
     "PredicateProvenanceClass",
     "ProducerIdentity",
     "ProductionLoopRunProof",
@@ -2895,8 +3337,10 @@ __all__ = [
     "capability_binding_purpose_blockers",
     "classify_authority_failure",
     "classify_authority_role",
+    "declared_output_envelopes_from_contract",
     "deserialize_authority_envelope",
     "output_cas_manifest_profiles_from_contract",
+    "output_cas_payload_refs_from_contract",
     "resolve_time_source_consistency_disposition",
     "seal_consumed_input_set",
     "serialize_authority_envelope",

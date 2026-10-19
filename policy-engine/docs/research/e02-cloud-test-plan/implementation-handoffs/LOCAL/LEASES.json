@@ -24418,5 +24418,159 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-reviewed-la024-dns-dial-binding-adoption-20261019": {
+    "slice_base": "a414aa45691ec29bc268e2547b7379ebaa6f4d68",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-19-scholar-resolved-fetch-target-binding.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/release-fragments/unreleased/2026-10-19-scholar-resolved-fetch-target-binding.toml",
+        "postimage_sha256": "007cb0d4415df58c28f47fdfa565ae8bc560e53478b2316cadf54e3197c570f5"
+      },
+      "policy-engine/src/polisyos/scholar/README.md": {
+        "operation": "write",
+        "preimage_sha256": "75b17c342fa9a33565ea3a3b079c14b8748225d639801d6814fc83797b6159ce",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/src/polisyos/scholar/README.md",
+        "postimage_sha256": "a1e96211ca96a084c839240e0447552303167462e3c422a20ca932dcafd37f2d"
+      },
+      "policy-engine/src/polisyos/scholar/discover/README.md": {
+        "operation": "write",
+        "preimage_sha256": "e8c61788e1e2a1a09e2d3fa5d38dba0ae21083905c340cf52887a4d4cffb5868",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/src/polisyos/scholar/discover/README.md",
+        "postimage_sha256": "8213726e2a35de8970d9bff9f3c5334ceb0da49e2dfef7330ebbf90ea5bd7308"
+      },
+      "policy-engine/src/polisyos/scholar/discover/http_fetch.py": {
+        "operation": "write",
+        "preimage_sha256": "cb48f3636732625fdfa1dc15a64dd24e6812955ca45394592083dcdf417f7c50",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/src/polisyos/scholar/discover/http_fetch.py",
+        "postimage_sha256": "29dcb67f926d7a6b7921db82796d8228195164bc6f7dd98caab96185131a49b0"
+      },
+      "policy-engine/src/polisyos/scholar/discover/transport.py": {
+        "operation": "write",
+        "preimage_sha256": "907517479cb402059c733ccac1e6cb56ee66b3029d4f53a9397e870243aca793",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/src/polisyos/scholar/discover/transport.py",
+        "postimage_sha256": "e0083955406e8d4b0dac642f2e737764e596de921ada9c565d364d52d44bffd9"
+      },
+      "policy-engine/src/polisyos/scholar/search/fetcher.py": {
+        "operation": "write",
+        "preimage_sha256": "7b547777bb8bd00359e0438f4dd3ea2492077f012e50c06d6d8f31a0739397da",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/src/polisyos/scholar/search/fetcher.py",
+        "postimage_sha256": "2dd9e13a8f75cbc66bcd1a751012c7aee67d55f83556c9b6ba448acbbeedfe2f"
+      },
+      "policy-engine/src/polisyos/scholar/search/security.py": {
+        "operation": "write",
+        "preimage_sha256": "d34053893ee3d52f234fbdd8a637308cd9b4c524fcf64546b4a61dad863ac41b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/src/polisyos/scholar/search/security.py",
+        "postimage_sha256": "8813f9d6f2f4b78d2f4b3ba2743f60c6ea09d402617800e5056d12eb6503dbe7"
+      },
+      "policy-engine/tests/unit/scholar/search/test_fetcher_dns_pinning.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+        "postimage_sha256": "ce304dd405c70d65f7eb5e22387766ce7892e8eef8dfa56815b2cdcd08c3ab4a"
+      },
+      "policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py": {
+        "operation": "write",
+        "preimage_sha256": "556505127e2ef6f7e171529224baef6daea99bd7a66e1737cfe1c9058c8b2b08",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate/tests/unit/scholar/search/test_fetcher_security_cache.py",
+        "postimage_sha256": "8b5ddea43d7c70f34ac8b1484bd7062ccca65f789ebdc1bd29a76c33870cbe5c"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/source-application.json",
+      "sha256": "1144b8aec7ec0130c0bd9401ee217fd93e6070be9a741420c2848e8cabaa4789"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la024-dns-dial-binding-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/manifest.json",
+        "sha256": "933c09ebc36e436c862933a4a15e484bdf81f3b0d41008ed08ecf8dcd57b148e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/source-manifest.json",
+        "sha256": "5c5c5c9dca672db422871ec7f506ecaeda5c2ebca46cf08d8bb9bb714f472767"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/candidate.patch",
+        "sha256": "762cde0e594d430f71dcb52972a7d3a15f005478ac24d6da08d889636882f2a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la024-dns-dial-implementation-20261019-v4/decision-packet.md",
+        "sha256": "e2e596b35647834679b20b8b79da977e4000b582497c95d968f21b8d29300afd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-retirement-independent-la024-v3-review-20261019/la024-v3-independent-review.json",
+        "sha256": "93e169a5740e1f9050c6c3c3c79c33d86e8230e4fb8d5b32724de2d60de614df"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-retirement-independent-la024-v4-review-20261019/la024-v4-delta-review.json",
+        "sha256": "9c3eb0e209c88b4fdf580fe7a17768e934cb0c7a10ce9674de7f5e55e2fcf9b4"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Shared resolved-target/dial invariant across transport and adapters, with same-class redirect lifecycle controls; no per-host allowlist or production/network-input mutation.",
+    "bounded_proof": "Independent v3/v4 GO to candidate composition: v3 full52PASS plus v4 three focused loop cases; native nine-path checks passed.",
+    "limitations": [
+      "Fresh whole canonical selected-profile replay is UNRUN.",
+      "Proxy compatibility and release/G adoption remain held; recognized environment NO_PROXY works, while some macOS SystemConfiguration hostname wildcards fail closed with hostname:port.",
+      "V4 loop connected_peers records server-observed client_address, not direct client getpeername.",
+      "Controlled listener evidence does not establish production network currentness.",
+      "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+      "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both complete canonical scholar fetch security/DNS modules and local listener/TLS/removal controls on the exact committed source; keep LA024 limited pending compatibility decision.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

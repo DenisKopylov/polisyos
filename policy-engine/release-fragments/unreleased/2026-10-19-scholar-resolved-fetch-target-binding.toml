@@ -1,0 +1,54 @@
+id = "2026-10-19-scholar-resolved-fetch-target-binding"
+title = "Bind Scholar HTTP fetches to validated socket peers"
+type = "changed"
+component = "scholar"
+owner = "team-policyos-runtime"
+summary = "The shared Scholar seed and page-fetch transport accepts globally routable resolver addresses by default, carries the selected numeric address through every direct request and redirect hop, preserves the original Host and TLS SNI identity, verifies the connected peer, and refuses redirect cycles at urllib's bounded loop guard. The existing explicit private-network option remains available. Recognized NO_PROXY environment bypasses remain supported; some Python 3.14/macOS SystemConfiguration wildcard bypasses fail closed because urllib receives hostname:port. Configured non-bypassed HTTP proxy routes fail closed until an admitted proxy destination-binding contract exists."
+evidence = [
+  "src/polisyos/scholar/search/security.py",
+  "src/polisyos/scholar/discover/transport.py",
+  "src/polisyos/scholar/discover/http_fetch.py",
+  "src/polisyos/scholar/search/fetcher.py",
+  "tests/unit/scholar/search/test_fetcher_dns_pinning.py",
+  "tests/unit/scholar/search/test_fetcher_security_cache.py",
+  "src/polisyos/scholar/discover/README.md",
+  "src/polisyos/scholar/README.md",
+]
+compatibility = "No request, response, persisted-schema, or public Python symbol changes. Default fetches now reject resolver answers that are not globally routable, including shared 100.64.0.0/10 addresses; deployments that intentionally fetch private or shared networks must use the existing explicit allow_private_networks option. Recognized NO_PROXY environment bypasses remain supported. On Python 3.14/macOS, urllib receives hostname:port for SystemConfiguration wildcard matching, so some legitimate host-only wildcard bypasses fail closed. Non-bypassed environment-configured HTTP proxy routes fail closed; owners must verify their direct-route bypass behavior or select a separately admitted trusted-proxy destination-binding contract before rollout."
+change_class = "internal"
+surface_classification = "public_experimental: polisyos.scholar"
+migration = "Before rollout, identify deployments that depend on HTTP_PROXY/HTTPS_PROXY/ALL_PROXY and verify the actual NO_PROXY or system-configured bypass behavior on the deployed Python/platform combination; a recognized NO_PROXY bypass is supported, while some Python 3.14/macOS SystemConfiguration wildcard exceptions fail closed. A trusted proxy requires a separately admitted contract that binds the origin target at the proxy and verifies the relevant peer; this candidate does not supply that fact."
+api = "The existing discover and search facade inputs and DTOs remain unchanged. By default, each resolved address must be globally routable; the explicit allow_private_networks option preserves the current private-network override, while multicast, reserved, and unspecified guards remain explicit. The shared transport refuses redirect cycles through urllib's bounded loop guard. URL restrictions, raw-byte behavior, MIME metadata, redirect metadata, timeouts, and byte budgets stay at their current boundaries; the transport pins each accepted direct hop to its selected numeric address and checks the socket peer."
+limitations = "No production proxy topology, production network behavior, external peer, source currentness, or formal G acceptance is established. Recognized NO_PROXY bypass is covered; some Python 3.14/macOS SystemConfiguration wildcard bypasses fail closed on the hostname:port comparison. The included local fixture uses controlled test-only resolver answers and is not runtime authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scholar/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scholar-fetch-non-global-address-default-block"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: Scholar fetch behavior for non-globally-routable resolver answers"
+owner = "team-policyos-runtime"
+version_owner = "team-polisyos"
+deprecation_window = "No grace period is proposed; rollout requires review of deployments that intentionally fetch private or shared networks."
+release_note = "Default Scholar fetches require globally routable resolver addresses; intentional private-network use must opt in through allow_private_networks."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scholar/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scholar-fetch-proxy-route-destination-binding"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: Scholar fetch behavior for configured proxy routes and bypasses"
+owner = "team-policyos-runtime"
+version_owner = "team-polisyos"
+deprecation_window = "No grace period is proposed; adoption requires an explicit proxy-route decision and migration review."
+release_note = "Configured non-bypassed proxy routes fail closed until an admitted destination-binding contract exists. Recognized NO_PROXY environment bypasses work; some Python 3.14/macOS SystemConfiguration wildcard bypasses fail closed because matching receives hostname:port."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scholar/README.md"]
+runbook_docs = []

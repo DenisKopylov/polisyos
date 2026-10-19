@@ -11,20 +11,21 @@ from typing import TYPE_CHECKING
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.canon import content_hash
-from polisyos.scholar.discover.transport import RawFetchSizeError, fetch_raw
+from polisyos.scholar.discover.transport import RawFetchSizeError, _fetch_raw_with_target
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceSnippet
 from polisyos.scholar.search.scoring import compress_page_to_snippets
 from polisyos.scholar.search.security import (
+    _resolve_fetch_target,
     detect_paywall,
     sanitize_untrusted_text,
     validate_content_type,
-    validate_fetch_url,
 )
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from polisyos.scholar.search.cache import UrlFetchCache
+    from polisyos.scholar.search.security import _ResolvedFetchTarget
 
 
 async def fetch_open_page(
@@ -38,7 +39,7 @@ async def fetch_open_page(
     source_type_hint: str = "web",
 ) -> FetchResult:
     """Fetch one URL safely, reuse cache when fresh, and extract normalized page text."""
-    validate_fetch_url(url, constraints)
+    resolved_target = _resolve_fetch_target(url, constraints)
     cached = cache.get(url) if cache is not None else None
     if cached is not None:
         return cached.to_fetch_result()
@@ -54,12 +55,12 @@ async def fetch_open_page(
             _fetch_url_bytes_sync,
             url,
             constraints,
+            resolved_target,
             timeout_s,
             user_agent,
             max_bytes,
             timeout_seconds=timeout_s,
         )
-        validate_fetch_url(final_url, constraints)
         mime = validate_content_type(content_type, constraints)
         title, text = _extract_title_and_text(raw_bytes, mime=mime, final_url=final_url)
         text = sanitize_untrusted_text(text)
@@ -167,17 +168,19 @@ def source_id_from_url(url: str, content_sha256: str | None = None) -> str:
 def _fetch_url_bytes_sync(
     url: str,
     constraints: SearchConstraints,
+    resolved_target: _ResolvedFetchTarget,
     timeout_s: float,
     user_agent: str,
     max_bytes: int,
 ) -> tuple[bytes, str, str, dict[str, str], list[str]]:
     try:
-        raw = fetch_raw(
+        raw = _fetch_raw_with_target(
             url,
             constraints=constraints,
             timeout_s=timeout_s,
             user_agent=user_agent,
             max_bytes=max_bytes,
+            target=resolved_target,
         )
     except RawFetchSizeError as exc:
         raise ValueError(f"page exceeds max_bytes={exc.max_bytes}") from exc

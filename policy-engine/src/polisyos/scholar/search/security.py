@@ -6,10 +6,12 @@ import ipaddress
 import re
 import socket
 import urllib.parse
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from polisyos.scholar.search.models import SearchConstraints
+
 
 _LOCAL_HOSTS = {
     "localhost",
@@ -34,6 +36,29 @@ _PROMPT_INJECTION_PATTERNS = [
 ]
 
 
+@dataclass(frozen=True, slots=True)
+class _ResolvedSocketAddress:
+    """One resolver-returned numeric address suitable for a TCP connection."""
+
+    address: str
+    family: int
+    socket_type: int
+    protocol: int
+    sockaddr: tuple[str, int] | tuple[str, int, int, int]
+
+
+@dataclass(frozen=True, slots=True)
+class _ResolvedFetchTarget:
+    """A URL validated against constraints and bound to approved TCP addresses."""
+
+    request_url: str = field(repr=False)
+    scheme: str
+    hostname: str
+    port: int
+    addresses: tuple[_ResolvedSocketAddress, ...]
+    constraints_signature: tuple[tuple[str, ...], tuple[str, ...], bool] = field(repr=False)
+
+
 def sanitize_untrusted_text(text: str, *, max_chars: int = 400_000) -> str:
     """Normalize text and neutralize common prompt-injection control strings."""
 
@@ -48,13 +73,23 @@ def sanitize_untrusted_text(text: str, *, max_chars: int = 400_000) -> str:
     return cleaned
 
 
-def validate_fetch_url(url: str, constraints: SearchConstraints) -> None:
-    """Reject non-http, blocked-domain, and private-network URLs."""
+def _resolve_fetch_target(url: str, constraints: SearchConstraints) -> _ResolvedFetchTarget:
+    """Validate a fetch URL and retain every approved numeric TCP destination.
+
+    The returned target is an internal handoff to the shared transport. It binds the
+    checked URL and policy inputs to the exact resolver answers that the transport
+    must use for its socket connection.
+    """
     parsed = urllib.parse.urlparse(url)
     scheme = parsed.scheme.lower()
     host = (parsed.hostname or "").strip().lower()
     if scheme not in {"http", "https"} or not host:
         raise ValueError(f"unsupported fetch URL: {url!r}")
+    try:
+        explicit_port = parsed.port
+    except ValueError as exc:
+        raise ValueError(f"unsupported fetch URL port: {url!r}") from exc
+    port = explicit_port if explicit_port is not None else (443 if scheme == "https" else 80)
 
     if constraints.allowed_domains and not any(
         _domain_matches(host, allowed) for allowed in constraints.allowed_domains
@@ -65,21 +100,86 @@ def validate_fetch_url(url: str, constraints: SearchConstraints) -> None:
     ):
         raise ValueError(f"domain blocked: {host}")
 
-    if constraints.allow_private_networks:
-        return
-
-    if host in _LOCAL_HOSTS or host.endswith(".localhost") or host.endswith(".local"):
+    if not constraints.allow_private_networks and (
+        host in _LOCAL_HOSTS or host.endswith(".localhost") or host.endswith(".local")
+    ):
         raise ValueError(f"private network address blocked: {host}")
 
     try:
-        ip_obj = ipaddress.ip_address(host)
-    except ValueError:
-        infos = socket.getaddrinfo(host, parsed.port or 443, proto=socket.IPPROTO_TCP)
-        for info in infos:
-            address = info[4][0]
-            _ensure_public_address(address)
-    else:
-        _ensure_public_address(str(ip_obj))
+        infos = socket.getaddrinfo(
+            host,
+            port,
+            type=socket.SOCK_STREAM,
+            proto=socket.IPPROTO_TCP,
+        )
+    except OSError as exc:
+        raise ValueError(f"fetch hostname could not be resolved: {host}") from exc
+
+    addresses: list[_ResolvedSocketAddress] = []
+    seen: set[tuple[int, str, tuple[str, int] | tuple[str, int, int, int]]] = set()
+    for family, socket_type, protocol, _canonical_name, sockaddr_value in infos:
+        if family not in {socket.AF_INET, socket.AF_INET6} or socket_type != socket.SOCK_STREAM:
+            continue
+        if not isinstance(sockaddr_value, tuple) or not sockaddr_value:
+            raise ValueError(f"resolver returned a malformed address for {host}")
+        if not isinstance(sockaddr_value[0], str):
+            raise ValueError(f"resolver returned a non-numeric address for {host}")
+        try:
+            ip_obj = ipaddress.ip_address(sockaddr_value[0])
+        except ValueError as exc:
+            raise ValueError(f"resolver returned a non-numeric address for {host}") from exc
+        expected_version = 4 if family == socket.AF_INET else 6
+        if ip_obj.version != expected_version:
+            raise ValueError(f"resolver returned an address-family mismatch for {host}")
+        if family == socket.AF_INET:
+            if len(sockaddr_value) != 2 or sockaddr_value[1] != port:
+                raise ValueError(f"resolver returned a mismatched port for {host}")
+            sockaddr: tuple[str, int] | tuple[str, int, int, int] = (str(ip_obj), port)
+        else:
+            if (
+                len(sockaddr_value) != 4
+                or sockaddr_value[1] != port
+                or not isinstance(sockaddr_value[2], int)
+                or not isinstance(sockaddr_value[3], int)
+            ):
+                raise ValueError(f"resolver returned a malformed IPv6 address for {host}")
+            sockaddr = (str(ip_obj), port, sockaddr_value[2], sockaddr_value[3])
+        if not constraints.allow_private_networks:
+            _ensure_public_address(str(ip_obj))
+        identity = (family, str(ip_obj), sockaddr)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        addresses.append(
+            _ResolvedSocketAddress(
+                address=str(ip_obj),
+                family=family,
+                socket_type=socket_type,
+                protocol=protocol,
+                sockaddr=sockaddr,
+            )
+        )
+
+    if not addresses:
+        raise ValueError(f"fetch hostname returned no TCP addresses: {host}")
+
+    return _ResolvedFetchTarget(
+        request_url=url,
+        scheme=scheme,
+        hostname=host,
+        port=port,
+        addresses=tuple(addresses),
+        constraints_signature=(
+            tuple(constraints.allowed_domains),
+            tuple(constraints.blocked_domains),
+            constraints.allow_private_networks,
+        ),
+    )
+
+
+def validate_fetch_url(url: str, constraints: SearchConstraints) -> None:
+    """Reject unsupported, disallowed, or private-network fetch URLs."""
+    _resolve_fetch_target(url, constraints)
 
 
 def validate_content_type(content_type: str, constraints: SearchConstraints) -> str:
@@ -109,6 +209,7 @@ def _ensure_public_address(address: str) -> None:
         or ip_obj.is_multicast
         or ip_obj.is_reserved
         or ip_obj.is_unspecified
+        or not ip_obj.is_global
     ):
         raise ValueError(f"private network address blocked: {address}")
 

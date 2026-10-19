@@ -6,11 +6,15 @@ from typing import TYPE_CHECKING
 from urllib.error import HTTPError, URLError
 
 from polisyos.fabric.docs import DocSourceSpec
-from polisyos.scholar.discover.transport import RawFetchSizeError, fetch_raw
+from polisyos.scholar.discover.transport import (
+    RawFetchSizeError,
+    _fetch_raw_with_target,
+    _UnsupportedProxyRouteError,
+)
 from polisyos.scholar.orchestrator.errors import ScholarAcquireError, ScholarValidationError
 from polisyos.scholar.orchestrator.types import AcquireResult
 from polisyos.scholar.search.models import SearchConstraints
-from polisyos.scholar.search.security import validate_content_type, validate_fetch_url
+from polisyos.scholar.search.security import _resolve_fetch_target, validate_content_type
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.scholar import SourceSpec
@@ -64,8 +68,9 @@ def fetch_url(
             source_identity=source.canonical_url,
         )
 
+    fetch_constraints = constraints or SearchConstraints()
     try:
-        validate_fetch_url(request_url, constraints or SearchConstraints())
+        resolved_target = _resolve_fetch_target(request_url, fetch_constraints)
     except ValueError as exc:
         raise ScholarAcquireError(
             f"blocked URL fetch: {exc}",
@@ -74,12 +79,13 @@ def fetch_url(
         ) from exc
 
     try:
-        raw = fetch_raw(
+        raw = _fetch_raw_with_target(
             request_url,
-            constraints=constraints or SearchConstraints(),
+            constraints=fetch_constraints,
             timeout_s=timeout_s,
             user_agent=user_agent,
             max_bytes=max_bytes,
+            target=resolved_target,
         )
         raw_bytes = raw.raw_bytes
         content_type = raw.content_type
@@ -88,6 +94,12 @@ def fetch_url(
             "URL payload exceeds max_bytes_per_doc",
             source_identity=canonical_url,
             details={"bytes": exc.observed_bytes, "max_bytes": exc.max_bytes},
+        ) from exc
+    except _UnsupportedProxyRouteError as exc:
+        raise ScholarAcquireError(
+            "URL fetch refused: unsupported proxy route",
+            source_identity=canonical_url,
+            details={"url": request_url, "route": "proxy_unsupported"},
         ) from exc
     except HTTPError as exc:
         raise ScholarAcquireError(

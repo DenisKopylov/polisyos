@@ -19,6 +19,7 @@ staying CAS-first and freshness-aware.
 - **Deterministic pipeline** - the bundle id is derived from intent, document versions, claims, and policy ids.
 - **Freshness** - freshness metadata and sidecar state keep bundles refresh-aware.
 - **Discovery/acquire** - seed sources are normalized, canonicalized, and fetched from local files, URLs, or bytes.
+- **HTTP destination binding** - public seed and search fetch facades share `discover.transport.fetch_raw`; by default, every URL and redirect hop must resolve only to globally routable addresses, is resolved once, dialed through its selected numeric address, and checked against the connected socket peer while retaining hostname-based Host/SNI identity. The existing `allow_private_networks=True` opt-in preserves private-network use; multicast, reserved, and unspecified checks remain explicit. Controlled redirect cycles are refused by urllib's bounded redirect lifecycle through the shared transport and both adapters. Proxy routes with no destination-binding proof fail closed. A recognized `NO_PROXY` environment bypass is supported; on Python 3.14/macOS, SystemConfiguration wildcard exceptions may fail closed because urllib receives `hostname:port`. No broader proxy-bypass behavior is claimed.
 - **Search citation spans** - snippet text may trim boundary whitespace; its start/end character offsets select exactly the returned text from the input page string.
 - **Search source binding** - bundle consumers re-resolve the selected raw-page CAS view, check its manifest and content digest, re-run Scholar's extractor/sanitizer, and require each citation span to equal its exact source substring. Legacy artifact-ID-only bundles use the default manifest view with a profileless warning; unavailable or mismatched raw snapshots cannot verify snippets.
 - **Docs/claims/reconcile** - document ingestion and claim extraction feed into conflict resolution and filtering.
@@ -56,9 +57,26 @@ payloads are not persisted. Legacy public search calls retain their error text.
 This does not add a supported Python facade symbol or HTTP endpoint. It is not evidence of a complete provider roster,
 global search exhaustion, or absence of relevant knowledge.
 
+## Shared HTTP Fetch Route
+
+Candidate behavior: `polisyos.scholar.discover.fetch_url` and `polisyos.scholar.search.fetch_open_page` retain their
+existing inputs and result types. Both converge on the same redirect-aware transport. With the
+default constraints, every hop must resolve to globally routable addresses; explicit private,
+loopback, link-local, multicast, reserved, and unspecified guards remain at the shared address
+intake. The existing `allow_private_networks=True` option continues to opt into private-network
+addresses. Direct routes bind each validated hop to its selected numeric address and verify
+`getpeername()`; HTTP Host and TLS SNI continue to use the requested hostname. The shared route
+refuses a controlled A/B/A redirect cycle at urllib's bounded loop guard; the v4 RAW tests exercise
+the shared primitive and both public adapters. Ambient proxy routes cannot prove the proxy's
+resolution of the target, so configured non-bypassed proxy routes fail closed. A `NO_PROXY`
+environment bypass is supported when urllib recognizes the supplied `hostname:port`. On Python
+3.14/macOS, some SystemConfiguration wildcard exceptions match a hostname but not the
+`hostname:port` value passed to urllib, so those legitimate bypasses fail closed. This compatibility
+limitation requires owner/G rollout review; the runtime does not infer a trusted proxy contract.
+
 ## Current State
 
-- Last updated: 2026-10-17
+- Last updated: 2026-10-19
 - Discovery remains under `discover/`; enrichment policies, freshness evaluation/state, staged errors, and pipeline support DTOs are owned by `orchestrator/`.
 - Persisted Scholar bundle/report contracts are defined in `core.contracts.scholar` and re-exported from this facade.
 

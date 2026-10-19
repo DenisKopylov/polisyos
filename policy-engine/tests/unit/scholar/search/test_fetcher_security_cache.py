@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import socket
 
 import pytest
 
@@ -13,6 +14,14 @@ from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import fetch_open_page, find_in_page
 from polisyos.scholar.search.models import SearchConstraints
 from polisyos.scholar.search.security import sanitize_untrusted_text, validate_fetch_url
+
+
+@pytest.fixture(autouse=True)
+def _disable_environment_proxy_for_direct_transport_tests(monkeypatch):
+    monkeypatch.setattr(
+        "polisyos.scholar.discover.transport.urllib.request.getproxies",
+        lambda: {},
+    )
 
 
 class _FakeHeaders(dict):
@@ -68,7 +77,9 @@ async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_pat
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     cache = UrlFetchCache(index_path=tmp_path / "index.json", ttl_seconds=3600)
@@ -97,7 +108,9 @@ async def test_fetch_open_page_extracts_text_and_uses_cache(monkeypatch, tmp_pat
 async def test_find_in_page_returns_stable_spans(monkeypatch):
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
     monkeypatch.setattr(
         "polisyos.scholar.discover.transport.urllib.request.build_opener",
@@ -149,7 +162,9 @@ async def test_fetch_open_page_blocks_private_redirect_targets(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     result = await fetch_open_page(
@@ -165,7 +180,9 @@ async def test_fetch_open_page_blocks_private_redirect_targets(monkeypatch):
 def test_validate_fetch_url_blocks_private_hosts(monkeypatch):
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("127.0.0.1", 80))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("127.0.0.1", 80))
+        ],
     )
 
     with pytest.raises(ValueError, match="private network address blocked"):
@@ -184,7 +201,9 @@ def test_sanitize_untrusted_text_removes_instruction_markers():
 def test_legacy_fetch_url_rejects_blocked_private_network(monkeypatch):
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("127.0.0.1", 80))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("127.0.0.1", 80))
+        ],
     )
     source = SourceSpec(
         kind="url",
@@ -211,7 +230,9 @@ def test_shared_raw_transport_preserves_bytes_headers_and_identity(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     raw = fetch_raw(
@@ -242,7 +263,9 @@ def test_seed_fetch_uses_shared_raw_transport(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
     source = SourceSpec(
         kind="url",
@@ -273,7 +296,9 @@ async def test_fetch_open_page_preserves_size_budget_failure(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     result = await fetch_open_page(
@@ -296,7 +321,9 @@ async def test_fetch_open_page_preserves_mime_guard_failure(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     result = await fetch_open_page(
@@ -325,7 +352,9 @@ async def test_fetch_open_page_preserves_timeout_failure(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     result = await fetch_open_page(
@@ -359,7 +388,9 @@ async def test_fetch_open_page_uses_shared_executor_bridge(monkeypatch):
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *a, **kw: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *a, **kw: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
 
     result = await fetch_open_page(

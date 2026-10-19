@@ -1,0 +1,276 @@
+{
+  "actual_finished_at": "2026-10-19T09:31:26.598332+00:00",
+  "attempt_history": {
+    "R1": {
+      "outcome": "Stopped before pytest or external-state creation because the initial adapted runner compared the current commit against a historical source-application hash. The earlier runner bytes were not captured before replacement, so that attempt has a runner-custody gap and is not used as execution evidence.",
+      "reference": {
+        "bytes": 1700,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-actual-20261019/preflight-error.json",
+        "sha256": "4f7178b3077197c7e141bbedf66323d7b8ea2b18a2ab5b25f7c69f98f560e18c"
+      }
+    },
+    "R2": {
+      "outcome": "Preflight stopped because the R10 tracked-status snapshot differed from the reconciled overlay. This attempt is not counted as a completed product test run.",
+      "reference": {
+        "bytes": 204,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r2-actual-20261019/preflight-error.json",
+        "sha256": "236713423684ec759aa38f43c9784c669c1e2fb99ebcfa02975360f1d2b74bbe"
+      },
+      "runner_file_reference": {
+        "bytes": 19501,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r2-actual-20261019/run-core-owner-tests.py",
+        "sha256": "bc1d4526cab4a487223b7f8c76d7e392aa8b7a2ffddca53ec22fd8119e9ef162"
+      }
+    },
+    "R3": {
+      "outcome": "The wrapper recorded SystemExit(\"0\") as a preflight error, while the independently retained R3 command result, capture output, stdout and JUnit show pytest completed with return code 0 and 161 passed. This is a wrapper error-reporting false positive, not a pytest or product failure.",
+      "preflight_error_reference": {
+        "bytes": 140,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/preflight-error.json",
+        "sha256": "2e4778c6cfbbab4cde87eb1506d730fd0032501da5e813910ad24226efd43b42"
+      }
+    }
+  },
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "current_branch_claim": false,
+    "formal_closure_status": "none_proposed_or_established",
+    "public_release_approval": false
+  },
+  "collection_execution_junit_crosswalk": {
+    "collected_count": 161,
+    "complete_node_id_sets_reference": [
+      {
+        "bytes": 91563,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/result.json",
+        "sha256": "6ea37fcae738b4069996f4da67373c015e3fa04fb3a2fb75d36b51f954d8376e"
+      },
+      {
+        "bytes": 284858,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/runtime-module-origins.json",
+        "sha256": "2e7caf48fa3aba9479b3f93197c5817589a539674f9a065e864ee324bb355acf"
+      },
+      {
+        "bytes": 28344,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/pytest.xml",
+        "sha256": "19b27e637220507b1a1240c249c281c5e459e490cb44283a92b166fc118503f4"
+      }
+    ],
+    "errors": 0,
+    "executed_count": 161,
+    "failed": 0,
+    "interpretation": "All 161 collected node IDs equal all 161 executed node IDs; result and capture-plugin lists agree exactly. The complete node IDs and JUnit cases are retained in the cited artifacts rather than duplicated here.",
+    "junit_case_count": 161,
+    "passed": 161,
+    "result_and_capture_node_ids_all_equal": true,
+    "result_collected_equals_result_executed": true,
+    "result_collection_equals_capture_plugin_collection": true,
+    "result_execution_equals_capture_plugin_execution": true,
+    "result_junit_case_statuses_all_pass": true,
+    "skipped": 0,
+    "xml_counts": {
+      "case_count": 161,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "execution": {
+    "aborted_reason": null,
+    "actual_outputs": {
+      "controller_events": {
+        "bytes": 2025,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/controller-events.jsonl",
+        "sha256": "b1e2a413116e25d6712625833cfcb3a22a31f1716aa3419270da6b58ef6f7885"
+      },
+      "junit_xml": {
+        "bytes": 28344,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/pytest.xml",
+        "sha256": "19b27e637220507b1a1240c249c281c5e459e490cb44283a92b166fc118503f4"
+      },
+      "phase_output": {
+        "bytes": 1960,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/phase-output.jsonl",
+        "sha256": "621ef8fe8f3c3ee376e83fafbd9b0b09a98df75915518b20d2d11547b1492cef"
+      },
+      "process_tree": {
+        "bytes": 11692,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/process-tree.jsonl",
+        "sha256": "3bec33bcab610f61bdbfe6c9ee4ac3e0611849b047cf358d5f95d115b28f3e16"
+      },
+      "request": {
+        "bytes": 14028,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/request.json",
+        "sha256": "417d223274e600b56098e22c4482fb8b1589c37edcc70d9765de68e028e487eb"
+      },
+      "result": {
+        "bytes": 91563,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/result.json",
+        "sha256": "6ea37fcae738b4069996f4da67373c015e3fa04fb3a2fb75d36b51f954d8376e"
+      },
+      "runner": {
+        "bytes": 19371,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/run-core-owner-tests.py",
+        "sha256": "cab843c86d6361ca57097d62aa1f13980e16ed9ef284c858275ce9473970172a"
+      },
+      "sandbox": {
+        "bytes": 1154,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/sandbox.sb",
+        "sha256": "6b48b6db974378150a2f52fdf72ccaa5722229aa42e7110f56dd34672142dc9f"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 260,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/pytest.stdout.txt",
+        "sha256": "eca2bbd943030285e787d62619870c0a90b48454b5348bcb57b64a0c4eec5b35"
+      }
+    },
+    "completed": true,
+    "max_sampled_process_tree_rss_bytes": 132399104,
+    "process_group_gone": true,
+    "resource_limits": {
+      "explicit_numeric_thread_environment": {
+        "ARROW_NUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMBA_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "POLARS_MAX_THREADS": "1",
+        "TF_NUM_INTEROP_THREADS": "1",
+        "TF_NUM_INTRAOP_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "minimum_free_disk_bytes": 1073741824,
+      "numeric_threads": 1,
+      "rlimit_as": false,
+      "sample_seconds": 0.5,
+      "sampled_process_tree_rss_cap_bytes": 2147483648,
+      "wall_seconds": 180,
+      "workers": 1
+    },
+    "return_code": 0,
+    "runtime": {
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "full_argv_and_environment": "See hash-pinned result.json and request.json.",
+      "pytest": "9.0.2",
+      "python": "Python 3.14.3"
+    },
+    "selected_complete_modules": [
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "tests/unit/core/artifacts/test_ir_adapter.py"
+    ],
+    "status": "passed",
+    "wall_seconds": 3.7435460828710347
+  },
+  "identity": "core-artifact-facade-273-final-source-r3-actual-verification",
+  "implementation_receipt": {
+    "reference": {
+      "bytes": 30877,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273f-handoff-prepare-r2-20261019/implementation-273f38697-core-artifact-intake-facade-20261019.json",
+      "sha256": "60dfbeb74eedbcb7d4384b14917d4499f2fb3ed0ff56325a79242874a8e8481f"
+    },
+    "relationship": "Separate verification evidence for the final exact 273 test bytes; does not replace or mutate the historical implementation receipt."
+  },
+  "independent_review": {
+    "finalization_delta": "This final file adds the independent-review link and disposition; the reviewed execution evidence and embedded references are unchanged.",
+    "qualification": "The underlying bounded actual is independently reconciled for exactly the two full Core artifact owner modules. Preserve the issued R3 wrapper SystemExit/preflight artifact and this qualification; do not treat that wrapper artifact as evidence of a failed pytest run. This receipt does not establish global test status, capability closure, G acceptance, release approval, or later source state.",
+    "reference": {
+      "bytes": 10142,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-verification-independent-20261019/review.json",
+      "sha256": "2d92a6293192e7aeb1e1f639ae541e3aaa98fc4be35c12fafbebc38fdca03f87"
+    },
+    "reviewed_preparation_candidate_sha256": "34022a79be6edfe32b15d14823b871b3ec5a66579c3e8176d46198cda2020de7",
+    "scope": "Independent metadata reconciliation of the exact two-module historical run on immutable 273 source frame.",
+    "status": "GO_BOUNDED_ACTUAL_WITH_WRAPPER_REPORTING_QUALIFICATION"
+  },
+  "limits": [
+    "Only the two complete Core artifact owner test modules were executed.",
+    "No whole-project/global suite, installed/rebuilt consumer chain, caller-migration completeness, exhaustive runtime export census, public release, formal G acceptance, or capability closure is established.",
+    "The origin capture covers the polisyos/tools namespaces and does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+    "The tracked source snapshots do not enumerate historical untracked files.",
+    "The evidence is bound to commit 273f386970f233811ae023926ae4fb3daa7673ea and must not be represented as a replay of later source commits."
+  ],
+  "origin_reconciliation": {
+    "all_requested_origins_loaded_path_and_hash_match": true,
+    "captured_product_namespace_module_count": 91,
+    "full_origin_data_reference": {
+      "bytes": 284858,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/runtime-module-origins.json",
+      "sha256": "2e7caf48fa3aba9479b3f93197c5817589a539674f9a065e864ee324bb355acf"
+    },
+    "matched_regular_module_origins": 91,
+    "origin_mismatches": [],
+    "requested_origin_check_count": 9,
+    "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+    "unhashed_or_namespace_origins": 0
+  },
+  "prepared_at": "2026-10-19",
+  "prior_format_context": {
+    "format_check_context_reference": {
+      "bytes": 12969,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/canonical-context-preflight.json",
+      "sha256": "1ffd18f6443b3882930e40b9aded7ba86b5ea220854c79a693843cff45b9e3a7"
+    },
+    "format_delta_reference": {
+      "bytes": 1105,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-canonical-format-delta-20261019/manifest.json",
+      "sha256": "20cca189bf29525222a17179f03f28df32e8764360775723ff62853a6236302d"
+    },
+    "qualification": "R3 ran against the final committed test_artifact_store_protocol.py bytes recorded in selected_source_and_harness_pins, so this result is a post-format replay. It supersedes the earlier pre-format 161-case run as the exact-byte runtime evidence; it does not alter that historical record."
+  },
+  "record_type": "separate_bounded_runtime_verification_receipt",
+  "schema": "policyos.e02.core_artifact_facade_bounded_actual_verification.r1",
+  "source_frame": {
+    "branch_at_run": "codex/e02-unified-local-20261009",
+    "commit": "273f386970f233811ae023926ae4fb3daa7673ea",
+    "commit_object_verified_read_only": true,
+    "frame_note": "This is an immutable historical run on commit 273f386970f233811ae023926ae4fb3daa7673ea. It makes no claim about later branch state or later root source composition.",
+    "parent": "28be3206c60785231e07a7ceca713129306a14e3",
+    "slice_base": "28be3206c60785231e07a7ceca713129306a14e3",
+    "source_frame_artifact": {
+      "bytes": 215,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/source-frame.json",
+      "sha256": "8fb039ccb4c4b80f9a540efc8acb659dd5fffecf9f809e4abfe3ae8c8cd72f46"
+    },
+    "tree": "b62a317e4cc2f85d422df2b7e048a118c8f56bf3"
+  },
+  "source_freeze_and_selected_input_binding": {
+    "before_after_full_tracked_map_equal": true,
+    "before_equals_after_artifact_hash": true,
+    "commit_blob_pins_reconciled_read_only": true,
+    "full_tracked_entry_count": 25711,
+    "scope_limit": "The snapshots bind the complete tracked map, not historical untracked files. This does not qualify subsequent source changes or the later current branch.",
+    "selected_source_and_harness_pins": {
+      "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "tests/conftest.py": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py": "02db800f2a6cdd6ebf809efda8515e7727a8d6ab0eea260a4d097d51193a84a9",
+      "tests/unit/core/artifacts/test_ir_adapter.py": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339"
+    },
+    "snapshot_helper": {
+      "bytes": 27669,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-prepare-20261018/run.py",
+      "sha256": "7586c0851993d8c75e0bd9cd5b1485ee7c056b96898ab3e6506075c3099fc4c6"
+    },
+    "snapshot_references": [
+      {
+        "bytes": 19386946,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/source-before.json",
+        "sha256": "3b4801e94c0104cff4ed014c97aee2de79fa06dee4eb8ff7dc814994c46df7e4"
+      },
+      {
+        "bytes": 19386946,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273-final-source-r3-actual-20261019/source-after.json",
+        "sha256": "3b4801e94c0104cff4ed014c97aee2de79fa06dee4eb8ff7dc814994c46df7e4"
+      }
+    ],
+    "tracked_status_path_count_at_capture": 13
+  },
+  "verification_status": "bounded_two_full_module_replay_pass"
+}

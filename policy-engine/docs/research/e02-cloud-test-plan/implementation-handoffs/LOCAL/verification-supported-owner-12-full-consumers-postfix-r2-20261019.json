@@ -1,0 +1,177 @@
+{
+  "actual_artifacts": {
+    "actual_request": {
+      "bytes": 27151,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/request.json",
+      "sha256": "1d0743dff16f2528d6d6045e4ed8c12867e908d19e9cb9c2b58be38e2fcd818b"
+    },
+    "actual_result": {
+      "bytes": 78792,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/result.json",
+      "sha256": "2a80906cf450ff58897c911a38eef15a25bc50f4db02598737f23c5c7da05380"
+    },
+    "actual_runner": {
+      "bytes": 9464,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/run.py",
+      "sha256": "08d3016886fd9c47910a8a5aa2ee8c7a67282a5eae83a56ae243409292560803"
+    },
+    "controller_events": {
+      "bytes": 2658,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/controller-events.jsonl",
+      "sha256": "be7b6a574ab9cc28d8d3bf6efade31a131245aec1a430d38bfe872db36251b55"
+    },
+    "junit": {
+      "bytes": 26112,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.xml",
+      "sha256": "7b98596f5da6252ec259c6c5d8420b1ccfdbae7dee937add932e93dad2ca3d7e"
+    },
+    "phase_output": {
+      "bytes": 2592,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/phase-output.jsonl",
+      "sha256": "334e03b271f7f0d99064d530faf83edb7b13c976f1c759102ecc7cb173d37f58"
+    },
+    "preparation": {
+      "bytes": 881,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/preparation.json",
+      "sha256": "49fd9e01044ca01a3884ea5a5e4ff554c92dc1db6a4b1c55be0a284491d33bd3"
+    },
+    "process_tree": {
+      "bytes": 573689,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/process-tree.jsonl",
+      "sha256": "54d627b7204c4284ec135ae309f3348054cb1fa11bff412196e7814eec2fc32f"
+    },
+    "runtime_origins": {
+      "bytes": 1309247,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/runtime-module-origins.json",
+      "sha256": "c4d5fe105890b78c74e0dbd1c32f8f85834a1db6fa9043cc23d46fe0fc0a0b0f"
+    },
+    "sandbox": {
+      "bytes": 954,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/sandbox.sb",
+      "sha256": "296b26b427f596d29c1b59ac0a1882ec8e0ae51b110c0c933303d79fd3faef8b"
+    },
+    "source_after": {
+      "bytes": 19396061,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/source-after.json",
+      "sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca"
+    },
+    "source_before": {
+      "bytes": 19396061,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/source-before.json",
+      "sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca"
+    },
+    "stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 745,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.stdout.txt",
+      "sha256": "d557cfa4c0677bc58cdbb338c316263381feda521d9b78aa39a11f1973ab8573"
+    }
+  },
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure": false
+  },
+  "history": {
+    "previous_actual": "135 pass, 6 fail across the same 141 cases; the five source-targeted cases and separate semaphore-permission case all pass in this postfix run.",
+    "semaphore_sandbox": "Specific posix semaphore IPC name rule ^/?mp-; not a filesystem-write expansion."
+  },
+  "identity": "supported-owner-12-full-consumers-postfix-r2-actual-20261019",
+  "independent_review": {
+    "actual_result_reference": {
+      "bytes": 78792,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/result.json",
+      "sha256": "2a80906cf450ff58897c911a38eef15a25bc50f4db02598737f23c5c7da05380"
+    },
+    "candidate_link": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-independent-20261019/verification-receipt-candidate.json",
+      "relationship": "The peer review reconciles the actual run artifacts and does not directly cite this candidate-receipt file. This final receipt links that peer evidence without representing the peer as having reviewed this JSON payload.",
+      "sha256": "d1ea0e20cade1c2ea839077ba037d98c5e17fc56b70580051473bd5e380425df"
+    },
+    "historical_frame_note": "Peer readback matched de2136/tree 24f76d3 at review time. No claim is made about branch state after the imminent main source commit.",
+    "limits": [
+      "Only the named 12 complete modules; no global/native/installed or G closure.",
+      "Selected-profile/source identity admission does not grant external policy, causal, legal or billing authority."
+    ],
+    "reference": {
+      "bytes": 14701,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-independent-20261019/review.json",
+      "sha256": "94416dca45f3730480986e1ff3102583f0351d65249567225f353567f86cf8bc"
+    },
+    "scope": "Independent reconciliation of the underlying actual run artifacts, exact 12-module selection, node crosswalk, origins, resource limits, and historical source frame.",
+    "status": "GO_BOUNDED_ACTUAL_12_FULL_MODULES"
+  },
+  "limitations": [
+    "This receipt covers only the twelve named full modules and their 141 collected cases.",
+    "It does not establish global, native, installed-consumer, release, capability-closure, G-acceptance, or external authority claims.",
+    "Origin capture covers polisyos/tools namespaces and does not attest third-party imports or pre-sitecustomize interpreter startup."
+  ],
+  "limits": {
+    "RLIMIT_AS": false,
+    "actual_minimum_sampled_disk_free_bytes": 6542958592,
+    "actual_peak_rss_bytes": 1320501248,
+    "actual_wall_seconds": 105.33491366705857,
+    "disk_floor_bytes": 1073741824,
+    "numeric_threads": 1,
+    "rss_bytes": 4294967296,
+    "wall_seconds": 600,
+    "workers": 1
+  },
+  "originating_source_fix_review": {
+    "independent_source_review_sha256": "b7694b56688344d8ffe55a77ac837e494768440ff7fb9a41480cd3b4af37003a",
+    "source_application_sha256": "208f9de43e477f7b34479c8c1b62f4ef26f3b295c554eebb7fc5464b5e415b63",
+    "source_five_failure_manifest_sha256": "6a6de9f183ed8aebd0e7de1f10e5c70c247fb76e65ce84786d056220892720e5"
+  },
+  "outcome": {
+    "collection_execution_capture_junit_sets_equal": true,
+    "errors": 0,
+    "failed": 0,
+    "passed": 141,
+    "skipped": 0,
+    "unique_nodeids": 141
+  },
+  "record_type": "bounded_actual_verification_receipt_candidate",
+  "runtime_origin_binding": {
+    "captured": 1220,
+    "matched": 1220,
+    "mismatches": 0,
+    "scope": "polisyos/tools namespaces only",
+    "unhashed_or_namespace_only": 0
+  },
+  "schema": "policyos.e02.supported_owner_facades.bounded_actual_verification_receipt.r1",
+  "selected_complete_modules": [
+    "tests/unit/core/test_supported_route_facade_identities.py",
+    "tests/unit/data_forge/read_api/test_supported_route_facade_identities.py",
+    "tests/unit/fabric/test_supported_route_facade_identities.py",
+    "tests/unit/foundry/methods/test_supported_route_facade_identities.py",
+    "tests/unit/ir/test_supported_facade_route_identities.py",
+    "tests/unit/scientist/test_supported_route_facade_identities.py",
+    "tests/unit/core/security/test_facade.py",
+    "tests/unit/core/security/test_quota_enforcer.py",
+    "tests/unit/fabric/storage/test_tenant_storage_quota_admission.py",
+    "tests/unit/foundry/facade/test_execution_source_admission_facade.py",
+    "tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py"
+  ],
+  "source_binding": {
+    "all_107_source_application_pins_match_current": true,
+    "all_14_frontend_preservation_pins_match_current": true,
+    "all_14_test_and_harness_pins_match_current": true,
+    "source_snapshot_sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca",
+    "tracked_entry_count": 25714,
+    "tracked_source_snapshot_before_equals_after": true,
+    "two_generated_public_surface_outputs_match_after_snapshot_and_current": true,
+    "untracked_boundary": "Tracked snapshots do not contain 11 source-application paths and 1 frontend path, nor 7 selected test modules; these are separately request-pinned and runner rechecks their hashes before/after."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+    "parent": "273f386970f233811ae023926ae4fb3daa7673ea",
+    "tree": "24f76d3277a79433f02c42e1798c03415a9dddb9"
+  },
+  "status": "bounded_composed_consumer_pass"
+}

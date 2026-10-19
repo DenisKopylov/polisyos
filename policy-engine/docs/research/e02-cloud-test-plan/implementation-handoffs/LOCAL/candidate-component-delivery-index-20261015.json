@@ -1271,6 +1271,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/supported-owner-source-composition-attestation-20261019.json",
       "sha256": "010be4a0b617ca562a12a90eff5a2d1e34b2670e02751ac90ac3891464b708ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-core-artifact-facade-273-final-r3-20261019.json",
+      "sha256": "1ebf551f943cfbd86c916ea5b9a49e6f0b5aff4c29242eba4e281ca719b185ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-supported-owner-12-full-consumers-postfix-r2-20261019.json",
+      "sha256": "a7da2d1a16a8279597a8519063dc5f6db4806951618693b1d0f203aefb53b5a9"
     }
   ],
   "canonical_denominator_recomputed": {

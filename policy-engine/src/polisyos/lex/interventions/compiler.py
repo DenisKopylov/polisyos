@@ -13,10 +13,11 @@ from polisyos.ir import (
 )
 from polisyos.ir import IdentificationMode, ParameterSpec, StrategicResponseChannel
 from polisyos.ir.governance import InterventionSpec, ScheduleSpec, SelectorExpr
-from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.kernel.values import (
+from polisyos.ir.kernel import (
+    ID_PATTERN,
     CountValue,
     DurationValue,
+    KernelModel,
     MoneyValue,
     ParamValue,
     RateValue,

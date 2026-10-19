@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    from polisyos.scientist.agent.protocols import (
+    from polisyos.scientist.agent import (
         CriticAgent,
         DataNeedExtractorAgent,
         DrafterAgent,

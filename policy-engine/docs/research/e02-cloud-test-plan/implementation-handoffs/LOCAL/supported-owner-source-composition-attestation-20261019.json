@@ -1,0 +1,198 @@
+{
+  "G_acceptance": false,
+  "P40": "Same local generated-surface review/status class widened over the full four-fragment set plus mandatory tracked attestation. No new gate. Residuals are 82 unresolved route-export identities and the pending final current-composition deep-import recomputation and native baseline refresh; any current generated-output hash mismatch or route-set delta falsifies this scoped review and leaves the marker false pending a fresh complete surface review.",
+  "closure_ids": [],
+  "foundry_api_source_boundary": {
+    "current_source_sha256": "582576549b3d219d339234d9dc7818585b347a99a639a0905c6f62d4348bf006",
+    "preserved_semantics": "Only exact built-in ValueError owner-relation failures become ExecutionSourceAdmissionRefusal; typed CAS integrity/Pydantic validation ValueErrors retain their original classes.",
+    "repair_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-failure-boundary-repair-r1-20261019/manifest.json",
+      "sha256": "6a6de9f183ed8aebd0e7de1f10e5c70c247fb76e65ce84786d056220892720e5"
+    },
+    "repair_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-failure-boundary-repair-r1-20261019/candidate.patch",
+      "sha256": "14283000965cab115a3a2ac944e6bc1bf9bc2354afc7ae09795c5fa15039f6bf"
+    },
+    "repair_peer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-failure-boundary-independent-r1-20261019/review.json",
+      "sha256": "b7694b56688344d8ffe55a77ac837e494768440ff7fb9a41480cd3b4af37003a"
+    },
+    "reviewed_source_sha256": "d030b40fdf183e3fd777a78367269dce1a36f8f5f85ce0f99bb5bebeacf8ba5a"
+  },
+  "independent_surface_review": {
+    "G_acceptance": false,
+    "complete_export_resolution": 0,
+    "current_owner_source_pin_matches": 12,
+    "decision": "GO for generated surface; release markers after stale limitations corrected and exact outputs composed",
+    "generated_contract_inventory_reference_match_reviewed_hashes": true,
+    "generated_families": 13,
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-surface-independent-20261019/review.json",
+      "sha256": "3011e20da526cc758f4152b775e310e98c4cd8d7c5cf9ab587415185b538857b"
+    },
+    "known_export_count": "unknown; zero known names does not mean empty namespace",
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-surface-independent-20261019/review.md",
+      "sha256": "b1590376241d03b9e2a2a3ea23d9241e6600556ed9b9ea6ed7312ddf85cce8fd"
+    },
+    "one_current_pin_delta": [
+      {
+        "current_sha256": "582576549b3d219d339234d9dc7818585b347a99a639a0905c6f62d4348bf006",
+        "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+        "reviewed_sha256": "d030b40fdf183e3fd777a78367269dce1a36f8f5f85ce0f99bb5bebeacf8ba5a"
+      }
+    ],
+    "owner_source_pin_count": 13,
+    "package_count": 20,
+    "review_head": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+    "review_tree": "24f76d3277a79433f02c42e1798c03415a9dddb9",
+    "route_count": 82,
+    "team_architecture_reviewer_identity": "not_established",
+    "unresolved_route_export_identities": 82
+  },
+  "limits": [
+    "Static review does not establish runtime export identities; 82 route exports remain unresolved and package known_export_count remains unknown.",
+    "The independent surface review source pin for foundry/execute/api.py predates the current typed-error correction; current generated outputs match reviewed hashes and the correction has separate pinned evidence.",
+    "The 141-pass run applies only to the 12 named modules and source snapshot hash 76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca; it predates all four release metadata changes.",
+    "Final current-composition deep-import recomputation and native baseline refresh remain pending; earlier complete collectors apply only to their pinned source frames. No team-architecture approval, G acceptance, or formal closure is claimed."
+  ],
+  "marker_semantics": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "meaning": "Local consumer assertion for the scoped generated-surface review only.",
+    "reviewer_identity": "not authenticated or established",
+    "semantics_reference": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+      "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725"
+    },
+    "team_architecture_approval": "not established"
+  },
+  "proposed_release_metadata_postimages": [
+    {
+      "nested_public_surface_inventory_reviewed": null,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-supported-owner-facades.toml",
+      "postimage_sha256": "efcd5f999cf534999f44a2465be73215e496abf14e82287522051c6f8cd3db31",
+      "preimage_sha256": "149652dff86236f65804f60cbad7149b6d1e83976efd91c669e6d98cd7b88c1c",
+      "public_surface_inventory_reviewed": true
+    },
+    {
+      "nested_public_surface_inventory_reviewed": true,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-security-quota-owner-facade.toml",
+      "postimage_sha256": "72ab665ce597591d6d03bcd87a76e5a81157f0932d2e3cd5a7e081b657610ea8",
+      "preimage_sha256": "d71895b5ec8de13cc29b03c58b900e056bafc02584da06e8d829ff4461401717",
+      "public_surface_inventory_reviewed": true
+    },
+    {
+      "nested_public_surface_inventory_reviewed": null,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-foundry-execution-source-admission-api.toml",
+      "postimage_sha256": "f2f8a81207dd9865e2e92a89720b46399b0a96e029efed654cf1f07bc6a0ff3b",
+      "preimage_sha256": "e924005b55016a56e14d0dd955a12e9be8010c461196292c08c69b9f0ef9bd80",
+      "public_surface_inventory_reviewed": true
+    },
+    {
+      "nested_public_surface_inventory_reviewed": null,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-foundry-execution-source-error-identities.toml",
+      "postimage_sha256": "7da6340fb2ac13689aeef916ef0f851713c23fc115d5546f12f387df9118a3c3",
+      "preimage_sha256": "0e7e9336da2fcabab0169f8bbfbbf0fbabba87cc8437e70754bb680d858f8584",
+      "public_surface_inventory_reviewed": true
+    }
+  ],
+  "purpose": "Implementation record for the exact source composition and bounded generated public-surface review; this is not a test verification receipt.",
+  "record_id": "supported-owner-source-composition-attestation-20261019",
+  "record_type": "local_technical_source_composition_attestation_proposal",
+  "schema": "policyos.local_source_composition_attestation_proposal.v1",
+  "separate_consumer_verification": {
+    "complete_modules": 12,
+    "deciding_outputs": {
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.xml",
+        "sha256": "7b98596f5da6252ec259c6c5d8420b1ccfdbae7dee937add932e93dad2ca3d7e"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.stdout.txt",
+        "sha256": "d557cfa4c0677bc58cdbb338c316263381feda521d9b78aa39a11f1973ab8573"
+      }
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-independent-20261019/review.json",
+      "sha256": "94416dca45f3730480986e1ff3102583f0351d65249567225f353567f86cf8bc"
+    },
+    "metadata_boundary": "The four release metadata postimages and this attestation were created after the run; none is claimed to be present in or verified by that run.",
+    "passed": 141,
+    "record_type": "separate bounded actual test receipt and independent reconciliation; not this attestation",
+    "result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/result.json",
+      "sha256": "2a80906cf450ff58897c911a38eef15a25bc50f4db02598737f23c5c7da05380"
+    },
+    "return_code": 0,
+    "runtime_origins_matched": 1220,
+    "source_snapshot_after": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/source-after.json",
+      "sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca"
+    },
+    "source_snapshot_before": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/source-before.json",
+      "sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca"
+    },
+    "source_snapshot_hash_after": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca",
+    "source_snapshot_hash_before": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca",
+    "status": "bounded_composed_consumer_pass",
+    "unhashed_or_namespace_origins": 0,
+    "whole_modules_reconciled": true
+  },
+  "source_composition": {
+    "changed_generated_outputs": [
+      {
+        "base_sha256": "9b40b2bc6dcd54527733941ad83a9c6940ef295ee99af02680d8e69c51caa0f8",
+        "current_sha256": "92152a83defe1533e933bd0da3e3bbcfe19ab29688b5dd2a96c5062932d8daae",
+        "path": "policy-engine/architecture/public_surface/inventory.json"
+      },
+      {
+        "base_sha256": "0ef1d0af325c78d81effc52315caeee00f984a043710c833a944e1372b7be166",
+        "current_sha256": "0763cd658afb430269a0d2514ed0ff1e8cb5a0caaf8fec412b4a2ddeca93830e",
+        "path": "policy-engine/docs/reference/public-surface.md"
+      }
+    ],
+    "current_three_generator_outputs": {
+      "policy-engine/architecture/public_surface/inventory.json": "92152a83defe1533e933bd0da3e3bbcfe19ab29688b5dd2a96c5062932d8daae",
+      "policy-engine/docs/reference/generated-artifacts.md": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588",
+      "policy-engine/docs/reference/public-surface.md": "0763cd658afb430269a0d2514ed0ff1e8cb5a0caaf8fec412b4a2ddeca93830e"
+    },
+    "generation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-composition-apply-generate-20261019/generation-readback.json",
+      "sha256": "c5c38ecca7c7c1d0fc04de33c66b7502db76ee37539f680774f56fb38c6725ae"
+    },
+    "postfix_sync_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-postfix-public-owner-sync-20261019/readback.json",
+      "sha256": "c5b0cfbeeee2bf7f88fbf66f6b2659b19bfc430a0eafc56c2cf2b71fbe589b30"
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-five-failure-fix-source-application-20261019/source-application.json",
+      "sha256": "208f9de43e477f7b34479c8c1b62f4ef26f3b295c554eebb7fc5464b5e415b63"
+    },
+    "source_application_paths": 107
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+    "parent": "273f386970f233811ae023926ae4fb3daa7673ea",
+    "source_freeze": false,
+    "tree": "24f76d3277a79433f02c42e1798c03415a9dddb9"
+  },
+  "status": "proposed_for_tracked_local_handoff",
+  "root_record_corrections": {
+    "superseded_preparation_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-composition-attestation-r2-20261019/plan.json",
+      "sha256": "0d4739109dae79bb458eb42e841de88b371907c9f0aa79b9ae360f20d43f3754"
+    },
+    "changes": [
+      "State that quota and Foundry admission companions are part of this composed source; retain the separate pending Fabric/worker/cache boundary.",
+      "Distinguish pending final-source deep-import recomputation from earlier completed collectors on their pinned frames."
+    ],
+    "test_result_or_product_source_changes": false
+  }
+}

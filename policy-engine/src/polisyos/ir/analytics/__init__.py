@@ -10,9 +10,20 @@ imported from their defining submodules.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.partial_identification import (
+        BoundMethod as BoundMethod,
+    )
+    from polisyos.ir.analytics.partial_identification import (
+        BoundsBundle as BoundsBundle,
+    )
+    from polisyos.ir.analytics.partial_identification import (
+        BoundSoundnessLevel as BoundSoundnessLevel,
+    )
 
 __all__ = sorted(ANALYTICS_FACADE_EXPORTS)
 

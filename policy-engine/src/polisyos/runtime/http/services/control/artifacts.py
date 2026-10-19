@@ -12,6 +12,9 @@ from uuid import NAMESPACE_URL, uuid5
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
+from polisyos.core.artifacts import (
+    require_return_selected_profile_writer as _require_return_selected_profile_writer,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactGovernanceInfo,
@@ -22,7 +25,6 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
     CanonSpec,

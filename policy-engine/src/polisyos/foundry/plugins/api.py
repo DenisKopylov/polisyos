@@ -15,8 +15,6 @@ from polisyos.core.artifacts import (
     ArtifactStore,
     ArtifactStoreConfig,
     build_artifact_store,
-)
-from polisyos.core.artifacts.backends.config import (
     with_ambient_ownership_enforcement_if_supported,
 )
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic

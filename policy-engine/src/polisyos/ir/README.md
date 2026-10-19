@@ -42,6 +42,10 @@ through the root facade; linker entry points are in
 | `polisyos.ir.linker.link_trinity()`                                       | Link a Trinity payload to the registry surface before compilation/runtime    | [`linker/README.md`](./linker/README.md)                 |
 
 ## Internal Layout
+## Supported owner facets
+
+The supported subpackage facades are grouped by contract owner: `polisyos.ir.kernel` and `polisyos.ir.world` for their lazy owner maps; `polisyos.ir.connectors` for connector contracts; `polisyos.ir.loading` for fact-log and citation contracts; `polisyos.ir.registry` for typed artifact references; `polisyos.ir.model_layer` for shared model vocabulary; and `polisyos.ir.trinity` for Trinity contracts and its selected-CAS artifact loader. These routes preserve defining-object identity. The artifact loader validates the selected IR CAS view, manifest owner metadata, and payload schema; it does not establish issuer authority or currentness.
+
 
 ### Structural causal result compatibility
 

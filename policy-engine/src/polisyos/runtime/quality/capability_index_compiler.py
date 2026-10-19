@@ -26,7 +26,7 @@ from polisyos.core.contracts import (
     CapabilityResourceKind,
     CapabilityTimeSemantics,
 )
-from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
+from polisyos.data_forge.read_api import build_generation_basis
 from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL,
     LEGAL_SOURCE_RELATION_REFUSAL_CODE,

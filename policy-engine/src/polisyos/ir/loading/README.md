@@ -11,3 +11,5 @@ turning external payloads into IR contracts. It contains:
 
 Schema wrapper code remains under `polisyos.ir.schemas`; this package only
 exposes the loading-side view.
+
+The `polisyos.ir.loading` facade exposes the owner-listed `Fact` / `FactBatch` / `FactSegmentManifest` family, deterministic fact IDs, and the citation contract family (`AnchorKind`, `CitationRef`, `DocumentRef`, and `FragmentLocator`) without changing their owner implementations.

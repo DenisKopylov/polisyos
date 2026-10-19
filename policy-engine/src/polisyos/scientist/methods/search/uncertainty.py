@@ -25,15 +25,11 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     DataSnapshot,
-    FoundryExecutionInputBasis,
     FoundryExecutionInputBasisRef,
     SimulationResult,
     SimulationResultRef,
 )
-from polisyos.foundry.execute.api import (
-    _admit_execution_source,
-    _execution_input_basis_inventory,
-)
+from polisyos.foundry.execute import admit_execution_source
 from polisyos.foundry.uncertainty import PropagationConfig
 from polisyos.ir import (
     ArtifactRefModel,
@@ -796,15 +792,7 @@ def _source_identity_relation(
     raise ValueError("source-bound risk refs share a profile but differ in kind or media type")
 
 
-def _source_inventory_for_basis(
-    store: ArtifactStore,
-    basis: FoundryExecutionInputBasis,
-) -> list[InputRef]:
-    """Recompute the exact basis manifest inputs from its typed refs and their parents."""
-    return _execution_input_basis_inventory(store, basis)
-
-
-def _source_inventory_key(items: list[InputRef]) -> list[tuple[str, str, str | None]]:
+def _source_inventory_key(items: Iterable[InputRef]) -> list[tuple[str, str, str | None]]:
     return sorted(
         (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in items
     )
@@ -935,7 +923,7 @@ def _recompute_execution_source(
         simulation_ref.model_dump(mode="python")
     )
     try:
-        source_context = _admit_execution_source(store, typed_simulation_ref)
+        source_context = admit_execution_source(store, typed_simulation_ref)
     except ValueError as exc:
         mapped_reason = reason_mapping.get(str(exc))
         if mapped_reason is None:
@@ -951,6 +939,13 @@ def _recompute_execution_source(
     basis_manifest = source_context.basis_manifest
     if basis_ref is None or basis is None or basis_manifest is None:
         raise ValueError("source-bound risk single-step execution basis is missing")
+    basis_inventory = source_context.basis_inventory
+    if basis_inventory is None:
+        raise ValueError("source-bound risk selected execution basis has no recomputed inventory")
+    if _source_inventory_key(basis_inventory) != _source_inventory_key(basis_manifest.inputs):
+        raise ValueError(
+            "source-bound risk admitted basis inventory differs from selected manifest"
+        )
     if not _source_refs_equal(_source_core_ref(basis.candidate_ref), candidate_ref):
         raise ValueError("source-bound risk execution basis request refs disagree")
 

@@ -6,6 +6,10 @@ and world events.
 
 Last updated: 2026-04-17.
 
+## Supported facade
+
+`polisyos.fabric.docs` is the documented owner facade for document pipeline options and results.
+
 ## Purpose
 
 Use this package when you need the first half of the document-to-claims flow:

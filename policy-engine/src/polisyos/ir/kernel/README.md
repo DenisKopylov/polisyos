@@ -19,6 +19,8 @@ types, merge rules, units, metrics, constraints, and time semantics.
 - To assemble a registry bundle, see [`../registry/registry_fragments.py`](../registry/registry_fragments.py); for downstream linking, see [`../linker/README.md`](../linker/README.md).
 
 ## Public entrypoints
+`ParamValue` is included in the lazy kernel value facade with the existing count, duration, money, and rate value types.
+
 
 | Entrypoint                                                                    | Use when                                                          | Defined in                                                                                   |
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |

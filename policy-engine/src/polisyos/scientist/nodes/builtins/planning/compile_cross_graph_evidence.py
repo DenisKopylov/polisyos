@@ -176,7 +176,7 @@ class CompileCrossGraphEvidenceNode:
         return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+        from polisyos.ir.trinity import load_trinity_bundle_artifact
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         config_payload = state.params.get("cross_graph_evidence_config")

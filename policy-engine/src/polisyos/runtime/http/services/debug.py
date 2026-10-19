@@ -29,8 +29,7 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.contracts import SimulationResult
-from polisyos.core.contracts.control import ControlJobResponse
+from polisyos.core.contracts import ControlJobResponse, SimulationResult
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineCostEvent,

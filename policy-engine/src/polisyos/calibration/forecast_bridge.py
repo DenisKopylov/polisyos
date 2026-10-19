@@ -30,6 +30,7 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts import ArtifactManifest as _CoreArtifactManifest
+from polisyos.core.artifacts import CoreToIRArtifactStoreAdapter as _CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256 as _artifact_manifest_profile_sha256,
 )
@@ -38,9 +39,6 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts import (
     resolve_manifest_by_profile as _resolve_manifest_by_profile,
-)
-from polisyos.core.artifacts.ir_adapter import (
-    CoreToIRArtifactStoreAdapter as _CoreToIRArtifactStoreAdapter,
 )
 from polisyos.ir import (
     ArtifactID,

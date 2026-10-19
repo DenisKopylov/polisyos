@@ -6,9 +6,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import CoreJSONArtifactStore
+from polisyos.core.artifacts import CoreJSONArtifactStore, matches_artifact_store_protocol
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content

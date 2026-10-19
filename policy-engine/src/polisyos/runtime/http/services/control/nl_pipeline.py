@@ -175,18 +175,18 @@ def _cost_number(value: object) -> float | None:
 
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore, AsyncArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.fabric.retrieval.providers import RetrievalProviders
+    from polisyos.fabric.retrieval import RetrievalProviders
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.runtime.quality.epoch_certificate_issuance import (
         DecisionPacketEpochIssuanceOwner,
     )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
-    from polisyos.scientist.agent.protocols import (
+    from polisyos.scientist.agent import (
         CriticAgent,
         DataNeedExtractorAgent,
         DrafterAgent,
@@ -1681,7 +1681,7 @@ def _persisted_runtime_quality_publication_times(
     before reusing this candidate. Input roles and manifest-profile pins are matched
     here so a same-payload artifact with changed lineage cannot seed replay fields.
     """
-    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts import ArtifactID
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
 
@@ -1777,7 +1777,7 @@ def _persisted_runtime_quality_publication_times(
 
 def _validated_runtime_quality_reference(value: object, *, field_name: str) -> str:
     """Validate one current reference without treating malformed presence as absent."""
-    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts import ArtifactID
 
     if not isinstance(value, str) or not value or value.strip() != value:
         raise NaturalLanguagePipelineRefusalError(
@@ -2152,10 +2152,10 @@ def _resolve_selected_materialization_ref(
     the run has no such view, the exact Core manifest and payload must resolve, and
     any supplied parent edge must name that same artifact/profile pair.
     """
-    from polisyos.core.artifacts import resolve_manifest_by_profile
-    from polisyos.core.artifacts.canonical_profile import (
+    from polisyos.core.artifacts import (
         artifact_ref_for_manifest,
         read_core_manifest_profile,
+        resolve_manifest_by_profile,
     )
     from polisyos.core.artifacts.manifest import ArtifactRef as RuntimeArtifactRef
 
@@ -3637,9 +3637,7 @@ class NaturalLanguageRunMixin:
                         "fabric.data_snapshot",
                     )
                     try:
-                        from polisyos.core.artifacts.canonical_profile import (
-                            read_core_manifest_profile,
-                        )
+                        from polisyos.core.artifacts import read_core_manifest_profile
 
                         snapshot_manifest, _declaration = read_core_manifest_profile(
                             store,
@@ -5549,7 +5547,7 @@ class NaturalLanguageRunMixin:
                 _remember_selected_materialization_ref(snapshot_ref)
                 registry_ref = await _ensure_registry_bundle_ref()
                 try:
-                    from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+                    from polisyos.core.artifacts import ensure_ir_artifact_store
                     from polisyos.foundry.data_plane import build_input_bindings
 
                     bindings_result = await run_blocking_async(
@@ -5824,7 +5822,7 @@ class NaturalLanguageRunMixin:
                 _remember_selected_materialization_ref(snapshot_ref)
                 registry_ref = await _ensure_registry_bundle_ref()
                 try:
-                    from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+                    from polisyos.core.artifacts import ensure_ir_artifact_store
                     from polisyos.foundry.data_plane import build_input_bindings
 
                     bindings_result = await run_blocking_async(

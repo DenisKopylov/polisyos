@@ -15,10 +15,10 @@ from polisyos.core import canon
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
+    matches_runtime_protocol,
     read_core_json_artifact,
     read_core_manifest_profile,
 )
-from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.control.artifacts import (

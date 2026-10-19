@@ -23,7 +23,7 @@ from polisyos.core.contracts.scientist import (
 from polisyos.ir.analytics.metric_validation_report import (
     load_metric_validation_report,
 )
-from polisyos.ir.registry.refs import MetricValidationReportRef as IRMetricValidationReportRef
+from polisyos.ir.registry import MetricValidationReportRef as IRMetricValidationReportRef
 from polisyos.scientist.evidence.claims.head_index import ClaimLedgerHeadAdvanced
 from polisyos.scientist.evidence.claims.validators import (
     is_fail_on_naked_claims_enabled,

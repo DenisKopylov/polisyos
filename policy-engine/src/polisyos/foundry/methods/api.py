@@ -266,6 +266,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.selection",
         "MethodSelectionCriteria",
     ),
+    "MethodSelectionReceipt": ("polisyos.foundry.methods.selection", "MethodSelectionReceipt"),
     "MethodSignature": ("polisyos.foundry.methods.base", "MethodSignature"),
     "MethodTiming": ("polisyos.foundry.methods.backends", "MethodTiming"),
     "estimate_method_execution_cost_usd": (

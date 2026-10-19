@@ -77,6 +77,9 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.legal.batch.xml_parser import (
         iter_documents as iter_documents,
     )
+    from polisyos.data_forge.domains.legal.contracts import (
+        ThresholdAtom as ThresholdAtom,
+    )
     from polisyos.data_forge.domains.legal.corpus.index import (
         DocSourcePropsV1 as DocSourcePropsV1,
     )
@@ -214,6 +217,7 @@ _EXPORTS = {
     "DocSourcePropsV1": "polisyos.data_forge.domains.legal.corpus.index",
     "GonkaClientPool": "polisyos.data_forge.domains.legal.batch.spo_client",
     "LEGAL_BATCH_RUNTIME_MODULE": _LEGAL_DOMAIN,
+    "ThresholdAtom": "polisyos.data_forge.domains.legal.contracts",
     "LegalShadowArtifact": _LEGAL_DOMAIN,
     "LegalShadowBundle": _LEGAL_DOMAIN,
     "LegalShadowDiff": _LEGAL_DOMAIN,

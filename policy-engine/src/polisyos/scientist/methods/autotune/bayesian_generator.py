@@ -16,14 +16,14 @@ from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
     ArtifactWriteOptions,
+    CoreJSONArtifactStore,
     ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
-)
-from polisyos.core.artifacts.protocol import (
-    CoreJSONArtifactStore,
-    _require_return_selected_profile_writer,
     matches_runtime_protocol_definition,
+)
+from polisyos.core.artifacts import (
+    require_return_selected_profile_writer as _require_return_selected_profile_writer,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.strategies.space import (

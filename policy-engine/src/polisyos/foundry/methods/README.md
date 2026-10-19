@@ -56,7 +56,8 @@ typed discovery, versioning, dispatch, and evidence.
 | Entrypoint                         | Description                                                               |
 | ---------------------------------- | ------------------------------------------------------------------------- |
 | `FoundryMethod`                    | Base protocol for typed methods.                                          |
-| `MethodRegistry`                   | Registry with version resolution and scoped isolation helpers.            |
+| `MethodRegistry` | Registry with version resolution and scoped isolation helpers. |
+| `MethodSelectionReceipt` | Immutable receipt for the selected method and its declared selection basis. |
 | `MethodComposer`                   | Builds method DAGs and ordered execution chains.                          |
 | `SlotLinker`                       | Checks slot compatibility before composing methods.                       |
 | `MethodDispatcher`                 | Dispatches methods to supported runtimes/backends.                        |

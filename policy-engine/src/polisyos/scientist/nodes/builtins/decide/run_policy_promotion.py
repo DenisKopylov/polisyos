@@ -24,7 +24,7 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.ir.registry.refs import (
+from polisyos.ir.registry import (
     CrossGraphEvidenceProfileRef,
     DistributionalReportRef,
     UncertaintyEnvelopeRef,

@@ -16,8 +16,7 @@ from polisyos.ir import (
     TemporalInterventionSequence,
     TemporalInterventionStep,
 )
-from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.kernel.values import ParamValue
+from polisyos.ir.kernel import ID_PATTERN, KernelModel, ParamValue
 
 
 class TemporalInterventionStepInput(KernelModel):

@@ -5,7 +5,7 @@ CAS-backed execution plans, binds runtime state, executes patch-first program
 graphs, and hands off to methods, calibration, uncertainty, and agent-based
 simulation surfaces.
 
-- Last updated: 2026-10-15
+- Last updated: 2026-10-19
 
 ## Purpose
 
@@ -70,6 +70,7 @@ agent-sim tooling.
 | `compile()`                   | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
 | `compile_program()`           | Compatibility alias for `compile()` on the package facade.                                                 |
 | `execute()`                   | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence.                    |
+| `admit_execution_source()`     | Recompute a persisted simulation result's source mode and complete selected basis inventory.               |
 | `SnapshotStateLayoutError`   | Stable exception identity for valid state bytes that do not reconstruct the canonical `GlobalState`; legacy consumers may handle this specific compatibility case. |
 | `EmbedderProtocol`            | Structural contract for fixed-dimensional text embedders.                                                 |
 | `TFIDFEmbedder`               | Dependency-free fitted TF-IDF text embedder.                                                               |
@@ -108,6 +109,26 @@ deep-importing ad hoc internals.
 
 The former private `polisyos.foundry._registry` module is removed; mechanism
 runtime descriptors belong to the catalog owner linked above.
+
+## Execution-source admission
+
+`polisyos.foundry.execute.admit_execution_source()` reopens the selected
+simulation result and recomputes its source mode through the Foundry owner. It
+returns `legacy_profileless`, `single_step_basis`, or `feedback_uncomposed` with
+the exact selected refs and manifests. A single-step result also carries the
+complete source inventory that the owner just recomputed and matched to the
+persisted basis manifest; the other two modes carry no basis inventory.
+
+Owner-detected source-mode, profile, edge, and inventory refusals raise
+`ExecutionSourceAdmissionRefusal`, a `ValueError` subtype whose `reason` is the
+existing owner refusal string. Other typed `ValueError` subclasses pass through
+unchanged; this preserves CAS `ArtifactIntegrityError` and malformed-payload
+`pydantic.ValidationError` identities, distinguishing corrupt bytes and invalid
+payloads from a well-formed source that fails an owner relation. The
+result describes source identity and mode only. It does not establish causal
+validity, risk meaning, legal admissibility, policy effects, or promotion
+authority. Consumers that need a replayable single-step source continue to
+withhold `feedback_uncomposed` results.
 
 ## Candidate-only welfare execution-source identity (B161)
 

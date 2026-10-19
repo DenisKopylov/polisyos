@@ -26,8 +26,7 @@ from polisyos.ir import (
     TrinityBundle,
 )
 from polisyos.ir.governance import ScheduleSpec, SelectorExpr
-from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
-from polisyos.ir.kernel.values import ParamValue
+from polisyos.ir.kernel import ID_PATTERN, KernelModel, ParamValue
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence

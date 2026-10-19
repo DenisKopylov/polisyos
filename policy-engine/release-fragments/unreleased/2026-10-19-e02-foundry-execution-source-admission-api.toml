@@ -1,0 +1,17 @@
+id = "2026-10-19-e02-foundry-execution-source-admission-api"
+title = "Expose Foundry execution-source admission through its owner facade"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Expose the existing Foundry source-mode and complete selected-basis recomputation through polisyos.foundry.execute.admit_execution_source()."
+evidence = ["src/polisyos/foundry/execute/api.py", "src/polisyos/foundry/execute/__init__.py", "src/polisyos/foundry/README.md", "tests/unit/foundry/calibration/test_identifiability_response_basis.py", "tests/unit/foundry/facade/test_execution_source_admission_facade.py", "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py"]
+compatibility = "Additive Python facade only; ExecuteRequest, SimulationResult, FoundryExecutionInputBasis, persisted schemas, and existing refusal reason strings are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.execute.admit_execution_source, ExecutionSourceAdmission, ExecutionSourceAdmissionRefusal"
+migration = "Cross-owner consumers should use the execute facade operation instead of importing Foundry's private admission and inventory helpers. No artifact rewrite or caller request change is required."
+api = "The operation returns one of the existing legacy_profileless, single_step_basis, or feedback_uncomposed modes. For single_step_basis it returns the exact inventory that Foundry recomputed and matched against the selected basis manifest. Exact built-in ValueError owner-relation failures are exposed as ExecutionSourceAdmissionRefusal with the original reason text; typed ValueError subclasses from storage-integrity or payload-validation failures propagate unchanged."
+limitations = "The exact public-surface contract, inventory, and reference outputs were regenerated and independently reviewed; the 82 routes still have unresolved export identities. The later typed-error correction in foundry/execute/api.py is separately pinned and replayed; the surface review source pin predates it, although the current generated outputs exactly match the reviewed bytes. The bounded 12-module consumer run passed 141 tests on its cited source snapshot before these release-metadata updates. No causal, risk, legal, policy-effect, admissibility, or promotion authority, team-architecture approval, or G acceptance is established; the full deep-import baseline remains unresolved."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []

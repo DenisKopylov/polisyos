@@ -31,8 +31,8 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
+    matches_artifact_store_protocol,
 )
-from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     ExecPlanRef,

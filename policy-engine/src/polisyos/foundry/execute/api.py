@@ -23,6 +23,9 @@ from polisyos.core.artifacts import (
     resolve_manifest_by_profile,
     validate_core_model_json_artifact,
 )
+from polisyos.core.artifacts import (
+    require_return_selected_profile_writer as _require_return_selected_profile_writer,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -30,7 +33,6 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataSnapshot
@@ -107,7 +109,7 @@ from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
     MissingRuntimeMechanismSupportError,
 )
 from polisyos.ir import TrinityBundle
-from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+from polisyos.ir.trinity import load_trinity_bundle_artifact
 
 
 @dataclass(frozen=True)
@@ -127,17 +129,33 @@ class _FeedbackExecutionEvaluation:
     final_state: GlobalState
 
 
-@dataclass(frozen=True)
-class _AdmittedExecutionSource:
-    """Typed execution-source mode and exact owner artifacts admitted from CAS."""
+ExecutionSourceMode = Literal["legacy_profileless", "single_step_basis", "feedback_uncomposed"]
 
-    mode: Literal["legacy_profileless", "single_step_basis", "feedback_uncomposed"]
+
+@dataclass(frozen=True)
+class ExecutionSourceAdmission:
+    """Source mode and exact owner artifacts recomputed from the selected CAS view.
+
+    The frozen dataclass and tuple inventory prevent top-level reassignment. The
+    contained Pydantic models retain their existing mutability contract.
+    """
+
+    mode: ExecutionSourceMode
     simulation_result_ref: SimulationResultRef
     simulation_result: SimulationResult
     simulation_manifest: ArtifactManifest
     basis_ref: FoundryExecutionInputBasisRef | None = None
     basis: FoundryExecutionInputBasis | None = None
     basis_manifest: ArtifactManifest | None = None
+    basis_inventory: tuple[InputRef, ...] | None = None
+
+
+class ExecutionSourceAdmissionRefusal(ValueError):
+    """A source-admission refusal carrying the unchanged owner reason string."""
+
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
 
 
 def _selected_manifest(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManifest:
@@ -319,7 +337,7 @@ def _verify_execution_data_snapshot_edges(
 def _admit_execution_source(
     store: ArtifactStore,
     simulation_result_ref: SimulationResultRef,
-) -> _AdmittedExecutionSource:
+) -> ExecutionSourceAdmission:
     """Admit a result's explicit source mode and, when selected, its exact basis.
 
     The reference field alone does not select replay behavior. Only an exact
@@ -352,7 +370,7 @@ def _admit_execution_source(
     ):
         if basis_edges:
             raise ValueError("execution_source_legacy_result_has_basis_edge")
-        return _AdmittedExecutionSource(
+        return ExecutionSourceAdmission(
             mode="legacy_profileless",
             simulation_result_ref=simulation_result_ref,
             simulation_result=simulation_result,
@@ -392,7 +410,7 @@ def _admit_execution_source(
         )
         if feedback_config.mode != "fixed_point":
             raise ValueError("execution_source_feedback_config_does_not_match_refusal_mode")
-        return _AdmittedExecutionSource(
+        return ExecutionSourceAdmission(
             mode="feedback_uncomposed",
             simulation_result_ref=simulation_result_ref,
             simulation_result=simulation_result,
@@ -694,7 +712,7 @@ def _admit_execution_source(
         expected_inventory
     ):
         raise ValueError("execution_source_basis_manifest_does_not_bind_complete_source_graph")
-    return _AdmittedExecutionSource(
+    return ExecutionSourceAdmission(
         mode="single_step_basis",
         simulation_result_ref=simulation_result_ref,
         simulation_result=simulation_result,
@@ -702,7 +720,29 @@ def _admit_execution_source(
         basis_ref=basis_ref,
         basis=basis,
         basis_manifest=basis_manifest,
+        basis_inventory=tuple(expected_inventory),
     )
+
+
+def admit_execution_source(
+    store: ArtifactStore,
+    simulation_result_ref: SimulationResultRef,
+) -> ExecutionSourceAdmission:
+    """Recompute the selected execution-source mode and its complete CAS basis.
+
+    Refusal text is the existing owner reason string; the subtype only adds a
+    typed facade boundary. Only a single-step basis carries an inventory.
+    """
+    try:
+        return _admit_execution_source(store, simulation_result_ref)
+    except ExecutionSourceAdmissionRefusal:
+        raise
+    except ValueError as exc:
+        # Only plain owner reason strings become admission refusals. Preserve
+        # typed storage and payload-validation errors as their original classes.
+        if type(exc) is not ValueError:
+            raise
+        raise ExecutionSourceAdmissionRefusal(str(exc)) from exc
 
 
 def _build_execution_input_basis(

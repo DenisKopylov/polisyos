@@ -398,7 +398,7 @@ class CASRAGIndex:
             ensure_ir_artifact_store,
             load_core_json_artifact,
         )
-        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+        from polisyos.ir.trinity import load_trinity_bundle_artifact
 
         if not isinstance(payload, dict):
             return None

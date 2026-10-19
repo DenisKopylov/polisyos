@@ -151,3 +151,15 @@ class FactSegmentManifest(KernelModel):
     duplicate_count: int | None = None
     stats: dict[str, int | float | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
+
+__all__ = [
+    "Fact",
+    "FactBatch",
+    "FactLegal",
+    "FactPIIEntity",
+    "FactProvenance",
+    "FactSegmentManifest",
+    "FactTrust",
+    "build_fact_id",
+]

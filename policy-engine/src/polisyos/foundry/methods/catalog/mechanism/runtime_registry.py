@@ -209,12 +209,7 @@ def _coerce_runtime_fidelity(
 def _coerce_params(value: Any) -> Any:
     from decimal import Decimal, InvalidOperation
 
-    from polisyos.ir.kernel.values import (
-        CountValue,
-        DurationValue,
-        MoneyValue,
-        RateValue,
-    )
+    from polisyos.ir.kernel import CountValue, DurationValue, MoneyValue, RateValue
 
     if isinstance(value, RateValue):
         return float(value.as_ratio())

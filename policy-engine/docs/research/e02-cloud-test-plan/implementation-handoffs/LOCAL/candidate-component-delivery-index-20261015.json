@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "a709384398e3321eeeddb9b85d7e142e76a6545cb83140e1081baeceb08cf5d7",
+      "sha256": "c621f9b6caa5b8aa1691004bd4ecf7db936891c4982993917abc343a3ad8adcf",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1267,6 +1267,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-can-r9-full-owner-modules-28be-overlay-20261019.json",
       "sha256": "81f2c65ceaf900678652ac991d3c035710e3f1cdc49783fce8d9bb40a8ba1aff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/supported-owner-source-composition-attestation-20261019.json",
+      "sha256": "010be4a0b617ca562a12a90eff5a2d1e34b2670e02751ac90ac3891464b708ab"
     }
   ],
   "canonical_denominator_recomputed": {

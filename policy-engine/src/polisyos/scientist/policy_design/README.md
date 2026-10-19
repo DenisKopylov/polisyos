@@ -4,6 +4,7 @@ This package contains Scientist-side policy design helpers for formulation,
 critique, search, translation, and adversarial review. Runtime authority remains
 outside this package: outputs here are candidate or analytic material until
 they are bound by governed runtime-quality producers and closeout gates.
+The `polisyos.scientist.policy_design` package facade is the supported import path for policy candidate schemas and builders. LLM-authored values remain candidate-grade until grounded and separately admitted.
 
 ## Persisted Frontier Artifacts
 

@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.core.registry.generic import GenericRegistry
+from polisyos.core.registry import GenericRegistry
 from polisyos.fabric.connectors._registry_errors import (
     ConnectorAlreadyRegisteredError,
     ConnectorConfigError,

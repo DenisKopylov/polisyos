@@ -16,7 +16,7 @@ from polisyos.fabric.docs import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.ir.loading.fact_log import FactSegmentManifest
+    from polisyos.ir.loading import FactSegmentManifest
 
 
 @dataclass(frozen=True)

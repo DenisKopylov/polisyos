@@ -14,9 +14,13 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import validate_core_model_json_artifact
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
+from polisyos.core.artifacts import (
+    ArtifactManifest,
+    ArtifactRef,
+    CoreJSONArtifactStore,
+    SchemaInfo,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec

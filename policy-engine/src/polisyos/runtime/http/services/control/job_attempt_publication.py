@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
@@ -36,17 +38,20 @@ from ..control_plane_store import (
     ControlJobRecord,
 )
 
+
+class _DebugLogger(Protocol):
+    """Minimal debug call accepted by this failure-publication helper."""
+
+    def debug(self, message: object, *args: object, **kwargs: object) -> object: ...
+
+
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from polisyos.common.logger import _CompatLogger
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.quality.agent_action_authority import AgentActionPermissionSnapshot
 
     from ..control_plane_store import ControlPlaneStore
-import hashlib
-import json
-
 _EXECUTION_INTENT_BINDING_SCHEMA = "polisyos.runtime.control_execution_intent.v2"
 _NL_AUTHORIZATION_RECEIPT_KEY = "nl_authorization_receipt"
 _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
@@ -998,7 +1003,7 @@ class ControlJobAttemptPublicationMixin:
         core_run_id: str | None,
         core_run_context: run.RunContext | None,
         exc: Exception,
-        logger: _CompatLogger,
+        logger: _DebugLogger,
     ) -> None:
         """Finalize any open Core attempt and persist the job's failure state."""
         failure_core_progress: dict[str, object] = {}

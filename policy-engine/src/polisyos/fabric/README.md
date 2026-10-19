@@ -57,6 +57,10 @@ discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
 retrieval README rather than being part of the root facade contract.
 
 ## Semantic Groups
+Supported subpackage routes include `polisyos.fabric.api`, `polisyos.fabric.connectors`, `polisyos.fabric.docs`, `polisyos.fabric.ingestion`, and `polisyos.fabric.retrieval`.
+The temporary product evidence-path bridge remains at the documented module route `polisyos.fabric.product_integration` with its existing 2026-11-30 sunset. Registering that route does not add adapter names to the stable root `__all__` or extend the sunset.
+Ingestion and retrieval names remain typed operational contracts; their presence does not grant source authority or establish a successful fetch.
+
 
 - [`api.py`](api.py) and [`__init__.py`](__init__.py) own the stable lazy root
   facade and public-surface helper metadata.

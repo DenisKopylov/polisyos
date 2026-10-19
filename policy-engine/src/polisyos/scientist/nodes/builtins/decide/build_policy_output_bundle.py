@@ -16,7 +16,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+from polisyos.ir.trinity import load_trinity_bundle_artifact
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )

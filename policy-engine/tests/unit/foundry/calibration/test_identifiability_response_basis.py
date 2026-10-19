@@ -33,6 +33,10 @@ from polisyos.foundry.calibration.identifiability import (
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane.bindings import build_input_bindings
+from polisyos.foundry.execute import (
+    ExecutionSourceAdmissionRefusal,
+    admit_execution_source,
+)
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
 from polisyos.ir.governance.policy_spec import PolicySpec
@@ -225,9 +229,11 @@ def test_explicit_profileless_execute_optout_remains_legacy(tmp_path):
     assert source_payload.schema_version == SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
     assert source_payload.execution_input_basis_ref is None
 
-    from polisyos.foundry.execute.api import _admit_execution_source
+    from polisyos.foundry.execute import admit_execution_source
 
-    assert _admit_execution_source(store, source).mode == "legacy_profileless"
+    legacy = admit_execution_source(store, source)
+    assert legacy.mode == "legacy_profileless"
+    assert legacy.basis_inventory is None
 
     diagnostic = _diagnostic(store, source, parameter)
     assert diagnostic.sensitivity_matrix_ref is not None
@@ -260,11 +266,11 @@ def test_selected_summary_and_state_routes_replay_the_admitted_request(tmp_path,
         _build_execute_summary_evaluator,
         _ExecuteResponseEvaluator,
     )
-    from polisyos.foundry.execute.api import _admit_execution_source, execute
+    from polisyos.foundry.execute import admit_execution_source, execute
 
     store, source, parameter = _native_fixture(tmp_path)
     source_payload = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source)))
-    assert _admit_execution_source(store, source).mode == "single_step_basis"
+    assert admit_execution_source(store, source).mode == "single_step_basis"
     requests = []
 
     def capture_execute(store_arg, request):
@@ -303,19 +309,21 @@ def test_selected_summary_and_state_routes_replay_the_admitted_request(tmp_path,
     assert all(request.input_bindings_ref == requests[0].input_bindings_ref for request in requests)
 
 
-def test_uncertainty_basis_inventory_delegates_to_foundry_source_owner(tmp_path):
-    from polisyos.foundry.execute.api import (
-        _admit_execution_source,
-        _execution_input_basis_inventory,
-    )
-    from polisyos.scientist.methods.search.uncertainty import _source_inventory_for_basis
-
+def test_foundry_admission_returns_exact_basis_inventory(tmp_path):
     store, source, _ = _native_fixture(tmp_path)
-    admitted = _admit_execution_source(store, source)
+    admitted = admit_execution_source(store, source)
+    assert admitted.mode == "single_step_basis"
     assert admitted.basis is not None
-    assert _source_inventory_for_basis(store, admitted.basis) == (
-        _execution_input_basis_inventory(store, admitted.basis)
-    )
+    assert admitted.basis_manifest is not None
+    assert admitted.basis_inventory is not None
+    assert isinstance(admitted.basis_inventory, tuple)
+
+    def inventory_key(items):
+        return sorted(
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in items
+        )
+
+    assert inventory_key(admitted.basis_inventory) == inventory_key(admitted.basis_manifest.inputs)
 
 
 @pytest.mark.parametrize(
@@ -337,6 +345,7 @@ def test_selected_source_admission_rejects_present_malformed_basis_before_state_
     from polisyos.foundry.calibration.identifiability import _response_context
 
     _, store, source, parameter, _ = response_case
+    assert admit_execution_source(store, source).mode == "single_step_basis"
     source_payload = from_canonical_bytes(store.get_bytes(source))
     source_manifest = store.get_manifest(source)
     inputs = list(source_manifest.inputs)
@@ -399,6 +408,13 @@ def test_selected_source_admission_rejects_present_malformed_basis_before_state_
         pytest.fail("malformed selected source reached state loading")
 
     monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
+    with pytest.raises(ExecutionSourceAdmissionRefusal) as refusal:
+        admit_execution_source(store, malformed_ref)
+    assert type(refusal.value) is ExecutionSourceAdmissionRefusal
+    assert refusal.value.reason == expected_error
+    assert type(refusal.value.__cause__) is ValueError
+    assert str(refusal.value.__cause__) == expected_error
+
     with pytest.raises(ValueError, match=expected_error):
         _response_context(
             store,
@@ -421,12 +437,13 @@ def test_feedback_selected_source_is_typed_uncomposed_refusal(tmp_path, monkeypa
         _build_execute_summary_evaluator,
         _response_context,
     )
-    from polisyos.foundry.execute.api import _admit_execution_source
+    from polisyos.foundry.execute import admit_execution_source
 
     store, source, parameter = _native_fixture(tmp_path, feedback=True)
-    admitted = _admit_execution_source(store, source)
+    admitted = admit_execution_source(store, source)
     assert admitted.mode == "feedback_uncomposed"
     assert admitted.basis is None
+    assert admitted.basis_inventory is None
     assert admitted.simulation_result.execution_source_status == "feedback_uncomposed"
 
     def no_replay(*args, **kwargs):
@@ -918,7 +935,8 @@ def test_actual_altered_source_bytes_refuse_before_state_load(response_case, tmp
 
     from polisyos.core.artifacts.store import ArtifactIntegrityError
 
-    path, _, source, parameter, matrix = response_case
+    path, original_store, source, parameter, matrix = response_case
+    assert admit_execution_source(original_store, source).mode == "single_step_basis"
     copied = tmp_path / "cas"
     shutil.copytree(path / "cas", copied)
     store = FileSystemCAS(copied)
@@ -929,7 +947,7 @@ def test_actual_altered_source_bytes_refuse_before_state_load(response_case, tmp
         pytest.fail("altered CAS source reached state load")
 
     monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
-    with pytest.raises(ArtifactIntegrityError):
+    with pytest.raises(ArtifactIntegrityError) as refusal:
         _load_execute_response_matrix(
             store,
             matrix,
@@ -944,6 +962,7 @@ def test_actual_altered_source_bytes_refuse_before_state_load(response_case, tmp
                 finite_diff_rel_step=0.01,
             ),
         )
+    assert type(refusal.value) is ArtifactIntegrityError
 
 
 def test_selected_replay_basis_view_cannot_be_downgraded(response_case, monkeypatch):
@@ -1104,6 +1123,7 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
     copied = tmp_path / "cas"
     shutil.copytree(path / "cas", copied)
     store = FileSystemCAS(copied)
+    assert admit_execution_source(store, source).mode == "single_step_basis"
     payload = from_canonical_bytes(store.get_bytes(matrix))
     if target == "initial":
         wrapper_ref = ArtifactRef.model_validate(
@@ -1123,7 +1143,7 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
         pytest.fail("unverified nested state blob reached state interpretation")
 
     monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
-    with pytest.raises(ArtifactIntegrityError):
+    with pytest.raises(ArtifactIntegrityError) as refusal:
         _load_execute_response_matrix(
             store,
             matrix,
@@ -1138,3 +1158,4 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
                 finite_diff_rel_step=0.01,
             ),
         )
+    assert type(refusal.value) is ArtifactIntegrityError

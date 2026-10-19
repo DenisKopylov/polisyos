@@ -1228,7 +1228,7 @@ def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalib
     if not store.verify(ref).ok:
         raise PredictiveCalibrationError("predictive_calibration_association_integrity_failed")
     from polisyos.ir import CanonViolation
-    from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
+    from polisyos.ir import get_json_artifact_with_bytes as _get_json_artifact_with_bytes
 
     try:
         payload, _raw_payload = _get_json_artifact_with_bytes(

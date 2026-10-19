@@ -22,9 +22,9 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DataSnapshot
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
     CompileRequest,
+    DataSnapshot,
     ExecPlan,
     ExecuteRequest,
     FeedbackConfig,
@@ -50,7 +50,7 @@ from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir import ModelSpec, PolicySpec, ProblemDomain, ProblemFrame, TrinityBundle
 from polisyos.ir.governance import InterventionSpec, ScheduleSpec, SelectorPredicate
-from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.model_layer import SelectorOperator
 
 build_default_registry_bundle = _core_registry_facade.build_default_registry_bundle
 load_registry_bundle_content = _core_registry_facade.load_registry_bundle_content

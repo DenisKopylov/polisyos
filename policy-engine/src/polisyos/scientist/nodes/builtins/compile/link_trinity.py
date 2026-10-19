@@ -73,7 +73,7 @@ class LinkTrinityNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+        from polisyos.ir.trinity import load_trinity_bundle_artifact
 
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)

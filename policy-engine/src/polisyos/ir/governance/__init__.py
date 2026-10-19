@@ -9,7 +9,10 @@ surface available without importing every governance submodule at package load.
 from __future__ import annotations
 
 import importlib
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from polisyos.ir.governance.policy_spec import PolicySearchLevel as PolicySearchLevel
 
 __all__ = [
     "BayesianTypeSpec",
@@ -61,6 +64,7 @@ __all__ = [
     "PolicyLayerSpec",
     "PolicyOverrideMode",
     "PolicyOverrideRule",
+    "PolicySearchLevel",
     "PolicySpec",
     "PolicyVersioningMode",
     "ProblemDomain",
@@ -350,6 +354,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     ),
     "ParameterSpec": ("polisyos.ir.governance.policy_spec", "ParameterSpec"),
     "PolicySpec": ("polisyos.ir.governance.policy_spec", "PolicySpec"),
+    "PolicySearchLevel": ("polisyos.ir.governance.policy_spec", "PolicySearchLevel"),
     "ScheduleSpec": ("polisyos.ir.governance.schedule", "ScheduleSpec"),
     "schedule_range": ("polisyos.ir.governance.schedule", "schedule_range"),
     "SelectorScalar": ("polisyos.ir.governance.selector_expr", "SelectorScalar"),

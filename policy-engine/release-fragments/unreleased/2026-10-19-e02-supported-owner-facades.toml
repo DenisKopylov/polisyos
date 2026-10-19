@@ -1,0 +1,32 @@
+id = "2026-10-19-e02-supported-owner-facades"
+title = "Route cross-package consumers through documented owner facades"
+type = "changed"
+component = "architecture"
+owner = "team-polisyos"
+summary = "Cross-package callers use existing or owner-curated supported facades for IR loading, references, model contracts, Fabric, Foundry methods, Scientist protocols, and Data Forge read contracts. The temporary Fabric product evidence-path bridge remains on its documented module route with its existing 2026-11-30 sunset; adapter names are not added to the stable Fabric root."
+evidence = [
+  "architecture/public_surface/contract.toml",
+  "src/polisyos/ir/api.py",
+  "src/polisyos/ir/loading/__init__.py",
+  "src/polisyos/ir/registry/__init__.py",
+  "src/polisyos/ir/model_layer/__init__.py",
+  "src/polisyos/fabric/product_integration/__init__.py",
+  "src/polisyos/fabric/connectors/__init__.py",
+  "src/polisyos/foundry/methods/api.py",
+  "src/polisyos/data_forge/read_api/__init__.py",
+  "tests/unit/ir/test_supported_facade_route_identities.py",
+  "tests/unit/fabric/test_supported_route_facade_identities.py",
+  "tests/unit/data_forge/read_api/test_supported_route_facade_identities.py",
+  "tests/unit/foundry/methods/test_supported_route_facade_identities.py",
+  "tests/unit/scientist/test_supported_route_facade_identities.py",
+]
+compatibility = "Additive Python import routes only. Existing owner modules, serialized artifacts, DTOs, and status/authority semantics retain their behavior. The Fabric root __all__ remains stable; the product evidence-path bridge stays at its existing module route and keeps the 2026-11-30 sunset. Profile and generation-basis producers compute identity from supplied bytes or inputs; the new aliases do not assert issuer authority, external custody, or persisted currentness."
+change_class = "python-public-api"
+surface_classification = "public_stable: documented owner facades in IR, Fabric, Foundry, and Scientist; temporary Fabric product_integration bridge keeps its existing sunset; public_experimental: Data Forge read_api"
+migration = "No caller migration is required for compatibility. Cross-package consumers may move to the supported facade paths after the corresponding committed owner aliases and generated public-surface inventory are reviewed. This composed source also includes the separately reviewed Core quota aliases and Foundry execution-source admission operation. The Fabric fetch owner operation, RunContext worker lifecycle, and Core cache-settlement session remain separate pending companion work."
+api = "Preserve identity for existing aliases; add grouped lazy facades for IR loading, the complete typed-reference owner family, and model-layer types; expose selected Trinity artifact loading, analytics/kernel/governance aliases, the documented module-level Fabric product-integration route plus retrieval/docs/ingestion and connector-profile contracts, Foundry MethodSelectionReceipt, and Data Forge GenerationBasis/ThresholdAtom through existing or documented owner facades."
+limitations = "The applied 107-path source composition and exact public-surface contract, inventory, and reference outputs were regenerated and independently reviewed. The reviewed surface contains 82 routes across 20 packages, but all 82 route export identities remain unresolved. A bounded 12-module consumer replay passed 141 tests on the cited unchanged source snapshot before these release-metadata updates; it does not qualify these fragment postimages or the full deep-import baseline. This local marker records a scoped review only, not team-architecture approval or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

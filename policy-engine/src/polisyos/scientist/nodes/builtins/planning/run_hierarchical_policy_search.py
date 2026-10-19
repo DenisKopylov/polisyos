@@ -932,7 +932,7 @@ def _resolve_search_candidate(
     state: ExperimentState,
 ) -> PolicyCandidateSchema | None:
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+    from polisyos.ir.trinity import load_trinity_bundle_artifact
 
     explicit = _coerce_policy_candidate(state.params.get("policy_candidate_schema"))
     lex_bundle = _coerce_lex_bundle(state.params.get("lex_policy_bundle_input"))

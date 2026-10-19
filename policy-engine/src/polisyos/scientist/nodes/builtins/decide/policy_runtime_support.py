@@ -22,13 +22,15 @@ from typing import (
 from pydantic import ValidationError
 
 from polisyos.core import components as core_components
-from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore, RootedArtifactStore
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.protocol import (
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    CoreJSONArtifactStore,
+    RootedArtifactStore,
     matches_runtime_protocol,
     matches_runtime_protocol_definition,
 )
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
@@ -48,7 +50,7 @@ from polisyos.ir.analytics.distributional import (
     load_distributional_report,
 )
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.ir.registry.refs import DataReadinessReportRef
+from polisyos.ir.registry import DataReadinessReportRef
 from polisyos.pdc import (
     EvalSafetyAdmissionChallenge,
     EvalSafetyVerifierPort,

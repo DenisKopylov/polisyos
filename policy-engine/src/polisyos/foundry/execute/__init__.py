@@ -8,8 +8,11 @@ import types
 from typing import Any
 
 __all__ = [
+    "ExecutionSourceAdmission",
+    "ExecutionSourceAdmissionRefusal",
     "ResolvedExecutionPosture",
     "SnapshotStateLayoutError",
+    "admit_execution_source",
     "execute",
     "get_state_path",
     "load_state_snapshot",
@@ -17,6 +20,14 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "ExecutionSourceAdmission": (
+        "polisyos.foundry.execute.api",
+        "ExecutionSourceAdmission",
+    ),
+    "ExecutionSourceAdmissionRefusal": (
+        "polisyos.foundry.execute.api",
+        "ExecutionSourceAdmissionRefusal",
+    ),
     "ResolvedExecutionPosture": (
         "polisyos.foundry.execute.api",
         "ResolvedExecutionPosture",
@@ -24,6 +35,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SnapshotStateLayoutError": (
         "polisyos.foundry.execute._internal.snapshots",
         "_SnapshotStateLayoutError",
+    ),
+    "admit_execution_source": (
+        "polisyos.foundry.execute.api",
+        "admit_execution_source",
     ),
     "execute": ("polisyos.foundry.execute.api", "execute"),
     "get_state_path": ("polisyos.foundry.execute._internal.models", "get_state_path"),

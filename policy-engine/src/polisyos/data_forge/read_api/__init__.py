@@ -15,6 +15,12 @@ from .surfaces import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.data_forge.kernel.io.generation_basis import (
+        GenerationBasis as GenerationBasis,
+    )
+    from polisyos.data_forge.kernel.io.generation_basis import (
+        build_generation_basis as build_generation_basis,
+    )
     from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
     from polisyos.data_forge.kernel.snapshot import finalize_snapshot
     from polisyos.data_forge.read_api.compliance import (
@@ -32,6 +38,11 @@ _EXPORTS = {
     "OfficialSnapshotAnswer": (
         "polisyos.data_forge.read_api.provenance",
         "OfficialSnapshotAnswer",
+    ),
+    "GenerationBasis": ("polisyos.data_forge.kernel.io.generation_basis", "GenerationBasis"),
+    "build_generation_basis": (
+        "polisyos.data_forge.kernel.io.generation_basis",
+        "build_generation_basis",
     ),
     "build_privacy_compliance_report": (
         "polisyos.data_forge.read_api.compliance",
@@ -98,10 +109,12 @@ def pipeline_binding_surface(pipeline: str) -> tuple[str, str] | None:
 
 __all__ = [
     "READ_API_SURFACES",
+    "GenerationBasis",
     "OfficialSnapshotAnswer",
     "ReadApiSurface",
     "academic",
     "available_surfaces",
+    "build_generation_basis",
     "build_privacy_compliance_report",
     "catalog",
     "compliance",

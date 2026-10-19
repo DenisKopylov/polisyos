@@ -16,6 +16,8 @@ before they enter the main workflow runtime.
 - Reasoning and worker tools: [`reasoning.py`](reasoning.py) and [`tools/`](tools/)
 
 ## Public Entrypoints
+The stable `polisyos.scientist.agent` facade also owns the five workflow protocols (`CriticAgent`, `DataNeedExtractorAgent`, `DrafterAgent`, `FormalizerAgent`, and `PIAgent`) used by Runtime callers. Protocol conformance is structural and does not itself grant execution authority.
+
 
 - Typed contracts in [`protocols.py`](protocols.py): `ProblemFrame`, `DraftResult`, `CritiqueReport`, `DataNeedSpec`, and `DelegationResult`
 - Factories in [`drafter_factory.py`](drafter_factory.py) and [`critic.py`](critic.py): `create_drafter_agent(...)` and `create_critic_agent(...)`

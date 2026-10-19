@@ -98,7 +98,7 @@ from polisyos.data_requirement.compiler import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.selection.receipt import MethodSelectionReceipt
+    from polisyos.foundry.methods import MethodSelectionReceipt
 else:
     from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import (
@@ -3901,9 +3901,11 @@ class JointSimulationPort:
             raise WorldModelRecordError("n5_runtime_store_not_established")
 
         from polisyos.core import registry as core_registry
-        from polisyos.core.artifacts import artifact_ref_identity_key
-        from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
-        from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
+        from polisyos.core.artifacts import (
+            CoreJSONArtifactStore,
+            artifact_ref_identity_key,
+            matches_artifact_store_protocol,
+        )
         from polisyos.core.contracts import (
             ExecPlan,
             ExecPlanRef,
@@ -8656,7 +8658,7 @@ class GenerationCycleController:
         )
 
     def _n7_owner_gateway(self, problem: DesignProblem) -> AcquisitionOwnerGateway | None:
-        from polisyos.core.artifacts.protocol import matches_runtime_protocol
+        from polisyos.core.artifacts import matches_runtime_protocol
 
         hinted = problem.runtime_hints.get("n7_owner_gateway")
         if hinted is not None:
@@ -18481,11 +18483,7 @@ def _value_source_bounds_bundle(
 ) -> object:
     """Run the existing BoundsEngine with caller-declared finite outcome support."""
     from polisyos.foundry.methods.causal import BoundsEngineMethod
-    from polisyos.ir.analytics.partial_identification import (
-        BoundMethod,
-        BoundsBundle,
-        BoundSoundnessLevel,
-    )
+    from polisyos.ir.analytics import BoundMethod, BoundsBundle, BoundSoundnessLevel
 
     outcome = panel.outcome if hasattr(panel, "outcome") else panel["outcome"]
     treatment = panel.treatment if hasattr(panel, "treatment") else panel["treatment"]
@@ -18730,7 +18728,7 @@ def _produce_value_owner_method_run_basis(
         return_selected_profile=True,
     )
     panel_ref = _value_artifact_ref(panel_ref_raw)
-    from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
+    from polisyos.ir import get_json_artifact_with_bytes as _get_json_artifact_with_bytes
 
     panel_payload, runner_input_bytes = _get_json_artifact_with_bytes(
         ir_store,
@@ -19178,7 +19176,7 @@ def _value_outer_set_from_owner_method_run_basis(
         from polisyos.core.artifacts import ensure_ir_artifact_store
         from polisyos.foundry.methods import MethodRegistry
         from polisyos.foundry.methods.backends import NumpyRunner
-        from polisyos.ir.analytics.partial_identification import BoundsBundle
+        from polisyos.ir.analytics import BoundsBundle
 
         report_metadata = dict(report.metadata)
         raw_bounds_ref = report_metadata.get("identification_bounds_ref")
@@ -19345,7 +19343,7 @@ def _value_outer_set_from_owner_method_run_basis(
         raise ValueError("value_owner_method_candidate_scope_mismatch")
     world_hash = str(_object_get(world_record, "content_hash"))
     if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
-        from polisyos.ir.analytics.partial_identification import BoundMethod
+        from polisyos.ir.analytics import BoundMethod
 
         manski = next(
             (

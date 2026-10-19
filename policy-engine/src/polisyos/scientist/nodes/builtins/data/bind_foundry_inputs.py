@@ -377,7 +377,7 @@ def _check_model_spec_consistency(
     effective_data_snapshot_hex: str,
 ) -> dict[str, str] | None:
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+    from polisyos.ir.trinity import load_trinity_bundle_artifact
 
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:

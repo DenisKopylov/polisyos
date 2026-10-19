@@ -1,0 +1,40 @@
+id = "2026-10-19-e02-core-security-quota-owner-facade"
+title = "Expose quota owner types through the Core security facade"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Expose the existing quota enforcer and its refusal exceptions through the lazy Core security facade."
+evidence = [
+  "src/polisyos/core/security/__init__.py",
+  "src/polisyos/core/security/quota_enforcer.py",
+  "src/polisyos/core/security/quota_registry.py",
+  "src/polisyos/core/security/README.md",
+  "src/polisyos/fabric/storage/tenant_cas.py",
+  "tests/unit/core/security/test_facade.py",
+  "tests/unit/core/security/test_quota_enforcer.py",
+  "tests/unit/fabric/storage/test_tenant_storage_quota_admission.py",
+]
+compatibility = "Additive Python aliases on the supported polisyos.core.security lazy facade. Each alias resolves to the existing defining object; existing direct owner-module imports remain valid. No quota limit, enforcement, accounting, state, or exception behavior changes."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.security"
+migration = "No migration is required. New consumers may import QuotaEnforcer, QuotaExceededError, and QuotaAccountingError from polisyos.core.security. Existing owner-module imports continue to resolve."
+api = "Add QuotaEnforcer, QuotaExceededError, and QuotaAccountingError to the Core security lazy export map, type-checking imports, and __all__. The Fabric TenantScopedCAS module uses those exact facade aliases for its runtime accounting exception and type-only enforcer annotation."
+limitations = "The source application and exact public-surface outputs were regenerated and independently reviewed; they show 82 routes across 20 packages, with route export identities still unresolved. The bounded 12-module consumer replay passed 141 tests on the cited unchanged source snapshot before these release-metadata updates. It verifies selected aliases and behavior, not every runtime export or the full deep-import collector. The local marker is not team-architecture approval or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/security/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-core-security-quota-owner-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.security"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing QuotaEnforcer, QuotaExceededError, and QuotaAccountingError objects through the lazy Core security facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/security/README.md"]
+runbook_docs = []

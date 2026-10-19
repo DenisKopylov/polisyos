@@ -11,10 +11,10 @@ from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactRef,
     VerificationReport,
+    artifact_reference_parts,
     resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import artifact_reference_parts
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     DIAGNOSTIC_EVENT_SCHEMA_NAME,

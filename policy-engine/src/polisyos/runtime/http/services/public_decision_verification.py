@@ -24,8 +24,7 @@ from polisyos.common.canonical_profile import (
     require_declared_profile,
 )
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts import read_core_json_artifact
-from polisyos.core.artifacts.canonical_profile import decode_core_json_payload
+from polisyos.core.artifacts import decode_core_json_payload, read_core_json_artifact
 from polisyos.runtime.http.services.public_decision_verification_contracts import (
     PUBLIC_VERIFICATION_PURPOSE,
     PUBLIC_VERIFICATION_RECORD_KIND,

@@ -8,7 +8,7 @@ loading, validation, and migration-safe persistence.
 
 from __future__ import annotations
 
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import Field
 
@@ -16,6 +16,11 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
 from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.model_layer.model_spec import ModelSpec
+
+if TYPE_CHECKING:
+    from polisyos.ir.trinity.loaders import (
+        load_trinity_bundle_artifact as load_trinity_bundle_artifact,
+    )
 
 TRINITY_BUNDLE_SCHEMA_VERSION = "1.0"
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
@@ -41,4 +46,14 @@ __all__ = [
     "PolicySpec",
     "ProblemFrame",
     "TrinityBundle",
+    "load_trinity_bundle_artifact",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    if name == "load_trinity_bundle_artifact":
+        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
+        globals()[name] = load_trinity_bundle_artifact
+        return load_trinity_bundle_artifact
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

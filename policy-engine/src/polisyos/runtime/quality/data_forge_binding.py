@@ -106,7 +106,7 @@ def _require_core_json_artifact_store(
     store: artifacts.ArtifactStore,
 ) -> artifacts.CoreJSONArtifactStore:
     """Require the raw-manifest capability before reading semantic Core JSON."""
-    from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
+    from polisyos.core.artifacts import matches_artifact_store_protocol
 
     if not matches_artifact_store_protocol(store, artifacts.CoreJSONArtifactStore):
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")

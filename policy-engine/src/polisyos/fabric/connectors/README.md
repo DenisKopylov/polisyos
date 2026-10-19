@@ -33,6 +33,8 @@ retrieval, and streaming.
   current contributor workflow.
 
 ## Public Entrypoints
+The supported facade exposes `SourceProfile` as an exact alias to the profile owner. A profile is configuration evidence, not verification of the configured source.
+
 
 | Entrypoint                                                     | Description                                                                        |
 | -------------------------------------------------------------- | ---------------------------------------------------------------------------------- |

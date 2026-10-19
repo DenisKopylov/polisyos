@@ -92,7 +92,7 @@ from polisyos.fabric.connectors.pool import (
     PoolExhaustedError,
     PoolStats,
 )
-from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+from polisyos.fabric.connectors.profiles import SourceProfile, SourceProfileRegistry
 from polisyos.fabric.connectors.profiles.resolver import (
     resolve_connection_config,
     resolve_execution_policy,
@@ -281,6 +281,7 @@ __all__ = [
     "SourceConnector",
     "SourceConnectorInstance",
     "SourceConnectorValue",
+    "SourceProfile",
     "SourceProfileRegistry",
     "StaticDataPolicy",
     "TTLPolicy",

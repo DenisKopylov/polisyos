@@ -1,0 +1,17 @@
+id = "2026-10-19-e02-foundry-execution-source-error-identities"
+title = "Preserve typed errors during Foundry source admission"
+type = "fixed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Execution-source admission now preserves typed ValueError subclasses such as CAS integrity and Pydantic validation errors instead of converting them to owner relation refusals."
+evidence = ["src/polisyos/foundry/execute/api.py", "src/polisyos/foundry/README.md", "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py", "tests/unit/foundry/calibration/test_identifiability_response_basis.py"]
+compatibility = "Owner-detected source relation refusal strings and persisted artifact schemas are unchanged; typed ValueError subclasses remain ValueError-compatible and keep their original types."
+change_class = "python-runtime-behavior"
+surface_classification = "public_stable: polisyos.foundry.execute.admit_execution_source error identities"
+migration = "Callers that distinguish source relation refusals, CAS corruption, or malformed typed artifacts can handle ExecutionSourceAdmissionRefusal, ArtifactIntegrityError, and pydantic.ValidationError separately."
+api = "A source is admitted only after the existing exact-profile, edge, and complete inventory checks. Typed ValueError subclasses such as CAS ArtifactIntegrityError and Pydantic ValidationError propagate unchanged; plain owner relation failures use ExecutionSourceAdmissionRefusal."
+limitations = "The generated-surface review found no additional entrypoint from typed-error preservation, and the current generated public-surface bytes match the reviewed postimages. The independent review source pin for foundry/execute/api.py predates this correction; the correction has its own pinned repair evidence and bounded consumer run. The 141-case replay predates these release-metadata deltas and does not verify them. This local marker is not team-architecture approval or G acceptance, and no source authority, causal validity, legal admissibility, policy-effect, or promotion claim is made."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/README.md"]
+runbook_docs = []

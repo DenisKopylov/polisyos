@@ -14,3 +14,5 @@ must not be recreated as a physical `registry/references.py` module.
 
 Keep concern adapters out of this package. Cross-cutting integration code must
 live under `polisyos.ir._adapters`.
+
+`polisyos.ir.registry` lazily re-exports the complete `refs.py` `__all__` family by identity. `MetricValidationReportRef` here is the IR registry ref; same-named Core contracts are distinct objects and are not substitutes.

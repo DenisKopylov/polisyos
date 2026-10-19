@@ -15,14 +15,15 @@ import jax.numpy as jnp
 import numpy as np
 from pydantic import BaseModel
 
+from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts import (
+    require_return_selected_profile_writer as _require_return_selected_profile_writer,
+)
+from polisyos.core.artifacts import (
+    validate_return_selected_profile as _validate_return_selected_profile,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import (
-    ArtifactStore,
-    CoreJSONArtifactStore,
-    _require_return_selected_profile_writer,
-    _validate_return_selected_profile,
-)
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.core.contracts.value_outer_set import ValueOuterSet

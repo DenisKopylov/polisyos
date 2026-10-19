@@ -15,7 +15,7 @@ from polisyos.fabric.io.atomic import append_text_locked, file_lock
 from polisyos.ir.artifacts.io import get_json_artifact
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts.contracts import ArtifactSelector
+    from polisyos.ir import ArtifactSelector
 
 from .models import (
     EntityMatchBatch,

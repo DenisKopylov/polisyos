@@ -7,14 +7,14 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
 
 
-logger = get_logger("polisyos.scientist.methods.search.controller")
+logger = common_logger.get_logger("polisyos.scientist.methods.search.controller")
 _IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
 _SEARCH_DEGRADED_ERRORS = (AttributeError, TypeError, ValidationError, ValueError)
 

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import ArtifactID
 from polisyos.fabric.world import validate_doc_meta_ids
-from polisyos.ir.world.doc import DocMeta
+from polisyos.ir.world import DocMeta
 from polisyos.lex.exception_taxonomy import LexValidationError
 
 if TYPE_CHECKING:

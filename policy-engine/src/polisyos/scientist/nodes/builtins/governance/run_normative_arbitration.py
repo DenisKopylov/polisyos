@@ -47,7 +47,7 @@ from polisyos.ir.governance.problem_frame import (
     UtilityDirection,
 )
 from polisyos.ir.registry.refs import DistributionalReportRef
-from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+from polisyos.ir.trinity import load_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISTRIBUTIONAL_REPORT_REF,

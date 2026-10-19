@@ -10,3 +10,5 @@ payload semantics rather than loading or registry composition. It contains:
 
 Do not add loading, registry, observability, or other cross-cutting
 implementations here. Adapter code belongs under `polisyos.ir._adapters`.
+
+`polisyos.ir.model_layer` lazily re-exports the documented `types.py` vocabulary, including `SelectorOperator`, by identity. It remains a value/type facade and does not decide policy admissibility.

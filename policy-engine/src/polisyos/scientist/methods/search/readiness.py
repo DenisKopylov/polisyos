@@ -18,7 +18,7 @@ from polisyos.foundry.validation import (
 from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.causal import DataReadinessReport, load_data_readiness_report
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceState
-from polisyos.ir.registry.refs import DataReadinessReportRef
+from polisyos.ir.registry import DataReadinessReportRef
 from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.methods.search.artifact_minimality import (

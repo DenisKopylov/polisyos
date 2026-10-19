@@ -32,7 +32,7 @@ from polisyos.ir import (
     load_uncertainty_envelope,
 )
 from polisyos.ir.analytics import CausalEffectReport
-from polisyos.ir.registry.refs import (
+from polisyos.ir.registry import (
     CrossGraphEvidenceProfileRef,
     DistributionalReportRef,
     UncertaintyEnvelopeRef,

@@ -13,10 +13,10 @@ from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts import (
     ArtifactWriteOptions,
+    CoreJSONArtifactStore,
+    matches_runtime_protocol_definition,
     resolve_manifest_by_profile,
     validate_core_model_json_artifact,
-)
-from polisyos.core.artifacts.backends.config import (
     with_ambient_ownership_enforcement_if_supported,
 )
 from polisyos.core.artifacts.manifest import (
@@ -26,10 +26,6 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
-)
-from polisyos.core.artifacts.protocol import (
-    CoreJSONArtifactStore,
-    matches_runtime_protocol_definition,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
@@ -110,7 +106,7 @@ from .source_profile_verification import (
 if TYPE_CHECKING:
     from typing import TypeGuard
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRunBinding,
     )

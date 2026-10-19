@@ -20,6 +20,8 @@ governance constraints must hold?" before compilation or runtime.
 - [`validation.py`](./validation.py) — validation diagnostics and report builders.
 
 ## Public entrypoints
+The lazy governance facade includes `PolicySearchLevel` from the canonical `PolicySpec` owner. It is a policy-declared search setting, not an authority grant.
+
 
 | Entrypoint                                                                              | Use when                                                 | Defined in                               |
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------- |

@@ -38,7 +38,7 @@ from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope as IRUncertaintyEnvelope,
 )
-from polisyos.ir.registry.refs import BoundsBundleRef, DataReadinessReportRef, ProofBundleRef
+from polisyos.ir.registry import BoundsBundleRef, DataReadinessReportRef, ProofBundleRef
 from polisyos.ir.trinity import TrinityBundle
 
 # Governance pass implementations are lazy-imported via judge_passes to keep

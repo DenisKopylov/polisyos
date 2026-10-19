@@ -49,7 +49,7 @@ from polisyos.ir.registry.refs import ABMResultRef
 
 if TYPE_CHECKING:
     from polisyos.foundry.calibration.hessian import HessianResult
-    from polisyos.foundry.execute.api import _AdmittedExecutionSource
+    from polisyos.foundry.execute import ExecutionSourceAdmission
 else:  # pragma: no cover - import guard for environments without JAX
     HessianResult = Any
 
@@ -1356,9 +1356,9 @@ def _build_execute_summary_evaluator(
     simulation_result_ref: SimulationResultRef,
     simulation_result: SimulationResult,
 ) -> SummaryEvaluator:
-    from polisyos.foundry.execute.api import _admit_execution_source
+    from polisyos.foundry.execute import admit_execution_source
 
-    source_context = _admit_execution_source(store, simulation_result_ref)
+    source_context = admit_execution_source(store, simulation_result_ref)
     source = source_context.simulation_result
     if source.model_dump(mode="json") != simulation_result.model_dump(mode="json"):
         raise ValueError("execute-backed source object differs from its admitted CAS view")
@@ -1466,11 +1466,11 @@ def _require_execution_replay_result(
     *,
     request: ExecuteRequest,
     expected_mode: Literal["legacy_profileless", "single_step_basis"],
-) -> _AdmittedExecutionSource:
+) -> ExecutionSourceAdmission:
     """Read a child result through the Foundry owner and bind it to the sent request."""
-    from polisyos.foundry.execute.api import _admit_execution_source
+    from polisyos.foundry.execute import admit_execution_source
 
-    child = _admit_execution_source(store, simulation_result_ref)
+    child = admit_execution_source(store, simulation_result_ref)
     if child.mode != expected_mode:
         raise ValueError("execute-backed replay result mode differs from its admitted request")
     if expected_mode == "single_step_basis" and (
@@ -1644,7 +1644,7 @@ def _response_context(
     ExecuteRequest,
 ]:
     from polisyos.core import registry as core_registry
-    from polisyos.foundry.execute.api import _admit_execution_source
+    from polisyos.foundry.execute import admit_execution_source
 
     if config.bootstrap_reps or config.profile_grid_size or not config.persist_sensitivity_matrix:
         raise ValueError("state response basis requires a persisted local Jacobian-only profile")
@@ -1654,7 +1654,7 @@ def _response_context(
         raise ValueError("response slots must match the unique ordered moment axis")
     if not center or len(set(center)) != len(center):
         raise ValueError("response parameter axis must be nonempty and unique")
-    source_context = _admit_execution_source(store, source_ref)
+    source_context = admit_execution_source(store, source_ref)
     if source_context.mode == "feedback_uncomposed":
         raise ValueError(
             "state response cannot replay feedback_uncomposed source "

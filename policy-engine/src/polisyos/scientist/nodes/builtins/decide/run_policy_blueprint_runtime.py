@@ -18,11 +18,11 @@ from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     CoreJSONArtifactStore,
     artifact_ref_identity_key,
+    matches_artifact_store_protocol,
 )
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,

@@ -1,4 +1,4 @@
-"""Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs."""
+"""Lazy facade for tenant routing, quota, audit, identity, authz, TEE, and SBOM APIs."""
 
 from __future__ import annotations
 
@@ -203,6 +203,18 @@ _EXPORTS: Mapping[str, tuple[str, str]] = MappingProxyType(
             "polisyos.core.security.quality_gates",
             "security_gates_from_report",
         ),
+        "QuotaAccountingError": (
+            "polisyos.core.security.quota_enforcer",
+            "QuotaAccountingError",
+        ),
+        "QuotaEnforcer": (
+            "polisyos.core.security.quota_enforcer",
+            "QuotaEnforcer",
+        ),
+        "QuotaExceededError": (
+            "polisyos.core.security.quota_enforcer",
+            "QuotaExceededError",
+        ),
         "TenantQuotaRegistry": (
             "polisyos.core.security.quota_registry",
             "TenantQuotaRegistry",
@@ -377,6 +389,11 @@ if TYPE_CHECKING:
         build_security_assurance_report,
         security_gates_from_report,
     )
+    from polisyos.core.security.quota_enforcer import (
+        QuotaAccountingError,
+        QuotaEnforcer,
+        QuotaExceededError,
+    )
     from polisyos.core.security.quota_registry import TenantQuotaRegistry
     from polisyos.core.security.registry import (
         CellRegistry,
@@ -488,6 +505,9 @@ __all__ = [
     "PIIAccessLevel",
     "PolicyOSRole",
     "PostgresBackend",
+    "QuotaAccountingError",
+    "QuotaEnforcer",
+    "QuotaExceededError",
     "RoutingResult",
     "SBOMGenerator",
     "SBOMMetadata",

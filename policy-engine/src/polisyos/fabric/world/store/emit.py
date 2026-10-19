@@ -6,7 +6,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from polisyos.ir.loading.citations import CitationRef
+    from polisyos.ir.loading import CitationRef
 
 from polisyos.fabric.evidence.fact_writer import build_fact
 from polisyos.ir.loading.fact_log import Fact, FactLegal, FactProvenance

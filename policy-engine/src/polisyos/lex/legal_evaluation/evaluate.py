@@ -96,7 +96,7 @@ def _load_trinity_bundle_refs(
     trinity_bundle_ref: Any,
 ) -> tuple[PolicySpecRef, ModelSpecRef | None]:
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+    from polisyos.ir.trinity import load_trinity_bundle_artifact
 
     artifact_id = str(trinity_bundle_ref.artifact_id)
     try:

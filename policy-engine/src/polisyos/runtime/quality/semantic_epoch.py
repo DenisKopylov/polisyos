@@ -1029,7 +1029,7 @@ def _live_source_candidate_graph_matches(
             return False
 
         if selected_quality_ref.kind == "fabric.retrieval_summary":
-            from polisyos.core.contracts.fabric import RetrievalSummary
+            from polisyos.core.contracts import RetrievalSummary
 
             summary = RetrievalSummary.model_validate(quality)
             return (

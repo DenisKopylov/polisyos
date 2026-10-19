@@ -30,6 +30,8 @@ from which loader, linker, migration, and downstream compilation flows begin.
 | `polisyos.ir.trinity.loaders.load_trinity_bundle()` | Load and validate a complete Trinity payload          | [`loaders.py`](./loaders.py)   |
 
 ## Depends on / depended on by
+The `polisyos.ir.trinity` facade also exposes `load_trinity_bundle_artifact()` as the consumer-facing selected-CAS loader. It resolves the selected profile and validates owner kind/media/schema plus payload version before returning a bundle.
+
 
 - Depends on: [`../governance/README.md`](../governance/README.md), [`../model_spec.py`](../model_layer/model_spec.py), `polisyos.ir.kernel.base`.
 - Depended on by: `polisyos.ir.loading.loaders`, `polisyos.ir.migrations`, `polisyos.ir.linker`, `polisyos.foundry.compile`, `polisyos.scientist.agent`, `polisyos.lex`.

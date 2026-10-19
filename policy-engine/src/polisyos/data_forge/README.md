@@ -15,6 +15,8 @@ The public __version__ value is owned by the package root and tested against
 the installed policy-engine distribution metadata; no private version module
 is part of the supported import surface.
 
+`polisyos.data_forge.read_api` exposes the pure byte-derived `GenerationBasis` producer and `build_generation_basis()` alongside the existing legal read contracts. It hashes caller-provided member bytes to produce a deterministic basis digest; it performs no file access and does not assert persisted-basis currentness. `polisyos.data_forge.read_api.legal.ThresholdAtom` remains candidate evidence.
+
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,
 quality checks, provenance manifests, and golden/differential migration tests.

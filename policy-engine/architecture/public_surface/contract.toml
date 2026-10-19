@@ -165,6 +165,8 @@ supported_entrypoints = [
   "polisyos.core.observability",
   "polisyos.core.security",
   "polisyos.core.trace",
+
+  "polisyos.core.registry",
 ]
 major_subsystem = true
 notes = "Cross-layer contracts, CAS, registry, observability, and security primitives."
@@ -183,6 +185,14 @@ supported_entrypoints = [
   "polisyos.ir.api",
   "polisyos.ir.governance",
   "polisyos.ir.observation",
+
+  "polisyos.ir.connectors",
+  "polisyos.ir.kernel",
+  "polisyos.ir.loading",
+  "polisyos.ir.model_layer",
+  "polisyos.ir.registry",
+  "polisyos.ir.trinity",
+  "polisyos.ir.world",
 ]
 major_subsystem = true
 notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
@@ -244,6 +254,10 @@ supported_entrypoints = [
   "polisyos.fabric.connectors",
   "polisyos.fabric.data_plane",
   "polisyos.fabric.world",
+  "polisyos.fabric.docs",
+  "polisyos.fabric.ingestion",
+  "polisyos.fabric.retrieval",
+  "polisyos.fabric.product_integration",
 ]
 major_subsystem = true
 notes = "Connector-backed ingestion, world queries, and catalog surfaces."
@@ -288,6 +302,9 @@ supported_entrypoints = [
   "polisyos.scientist.replay",
   "polisyos.scientist.replay.deterministic",
   "polisyos.scientist.validation.policy_verified",
+
+  "polisyos.scientist.agent",
+  "polisyos.scientist.policy_design",
 ]
 major_subsystem = true
 notes = "Workflow orchestration and policy-verified artifact facades, including typed legal retrieval status on candidate packs."

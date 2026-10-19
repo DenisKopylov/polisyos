@@ -18,8 +18,11 @@ from polisyos.core.artifacts.backends.config import (
     build_artifact_store,
 )
 from polisyos.core.canon import CanonSpec, CanonViolation
-from polisyos.core.security import TenantQuotaRegistry, validate_tenant_id
-from polisyos.core.security.quota_enforcer import QuotaAccountingError
+from polisyos.core.security import (
+    QuotaAccountingError,
+    TenantQuotaRegistry,
+    validate_tenant_id,
+)
 
 _TENANT_STORAGE_LOCKS: dict[str, threading.RLock] = {}
 _TENANT_STORAGE_LOCKS_GUARD = threading.Lock()
@@ -110,8 +113,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore, _CASStorageMember
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.core.security import TenantQuotaLimits
-    from polisyos.core.security.quota_enforcer import QuotaEnforcer
+    from polisyos.core.security import QuotaEnforcer, TenantQuotaLimits
 
 
 def tenant_scoped_cas_root(root: str | Path, tenant_id: str) -> Path:

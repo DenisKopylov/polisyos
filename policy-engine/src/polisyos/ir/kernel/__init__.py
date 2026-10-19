@@ -8,9 +8,12 @@ for registry-aware runtime code.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.ir.api import KERNEL_FACADE_EXPORTS, lazy_dir, resolve_lazy_export
+
+if TYPE_CHECKING:
+    from polisyos.ir.kernel.values import ParamValue as ParamValue
 
 __all__ = sorted(KERNEL_FACADE_EXPORTS)
 

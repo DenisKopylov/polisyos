@@ -2381,7 +2381,7 @@ def _source_profile_registry_capability_record(
     """Project one schema-validated owner profile without persisting header values."""
     from collections.abc import Mapping
 
-    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors import SourceProfile
 
     try:
         if isinstance(profile, Mapping):

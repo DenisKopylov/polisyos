@@ -33,6 +33,8 @@ specialized surfaces remain in their defining modules.
 - For upstream/downstream context, see [`../observation/README.md`](../observation/README.md) and [`../artifacts/README.md`](../artifacts/README.md).
 
 ## Public entrypoints
+`BoundSoundnessLevel` is exposed through this curated analytics facade alongside `BoundMethod` and `BoundsBundle`; it records the declared soundness grade and does not independently establish that grade.
+
 
 | Entrypoint                                                                                             | Use when                                                                                 | Defined in                                                   |
 | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------ |

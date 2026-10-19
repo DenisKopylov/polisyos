@@ -10,6 +10,7 @@ from typing import Any, TypeVar
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
     ArtifactRef,
@@ -53,6 +54,10 @@ from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import build_input_bindings, load_input_bindings
 from polisyos.foundry.data_plane.bindings import load_ukraine_foundry_intake
+from polisyos.foundry.execute import (
+    ExecutionSourceAdmissionRefusal,
+    admit_execution_source,
+)
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.foundry.methods.catalog.simulation.dynamics import build_abm_result_from_simulation
@@ -2039,6 +2044,160 @@ def test_real_delta_producer_is_withheld_even_with_monte_carlo_sample_shape(
     )
 
 
+def test_removed_basis_inventory_edge_is_not_rescued_by_source_markers(source_bundle) -> None:
+    store, candidate_ref, welfare_ref = source_bundle
+    bundle = load_welfare_bundle(ensure_ir_artifact_store(store), welfare_ref)
+    _, welfare_manifest = _selected_manifest(store, welfare_ref)
+    simulation_edge = next(
+        edge for edge in welfare_manifest.inputs if edge.role == "simulation_result"
+    )
+    simulation_ref = _selected_ref_from_edge(store, simulation_edge)
+    _, simulation_manifest = _selected_manifest(store, simulation_ref)
+    simulation_payload = dict(_get_json_artifact(store, simulation_ref))
+    simulation = SimulationResult.model_validate(simulation_payload)
+    assert simulation.execution_source_status == "single_step_basis"
+    assert simulation.execution_input_basis_ref is not None
+    basis_ref = ArtifactRef.model_validate(
+        simulation.execution_input_basis_ref.model_dump(mode="python")
+    )
+    basis_ref, basis_manifest = _selected_manifest(store, basis_ref)
+    assert basis_manifest.inputs
+    assert basis_manifest.artifact_schema is not None
+    assert basis_manifest.canon is not None
+    removed_edge = basis_manifest.inputs[0]
+    reduced_basis_inputs = [edge for edge in basis_manifest.inputs if edge != removed_edge]
+    reduced_basis_ref = store.put_bytes(
+        store.get_bytes(basis_ref),
+        PutOptions(
+            kind=basis_manifest.kind,
+            media_type=basis_manifest.media_type,
+            schema=basis_manifest.artifact_schema,
+            producer=basis_manifest.producer,
+            env=basis_manifest.env,
+            inputs=reduced_basis_inputs,
+            canon=basis_manifest.canon,
+            governance=basis_manifest.governance,
+            tenant_context=basis_manifest.tenant_context,
+            same_input_closure=basis_manifest.same_input_closure,
+            authority=basis_manifest.authority,
+            warnings=basis_manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    assert reduced_basis_ref.artifact_id == basis_ref.artifact_id
+    assert reduced_basis_ref.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+    assert store.get_bytes(reduced_basis_ref) == store.get_bytes(basis_ref)
+
+    simulation_payload["execution_input_basis_ref"] = reduced_basis_ref.model_dump(mode="json")
+
+    def put_json_variant(
+        ref: ArtifactRef, payload: Mapping[str, Any], inputs: list[InputRef]
+    ) -> ArtifactRef:
+        manifest = store.get_manifest(ref)
+        assert manifest.artifact_schema is not None
+        assert manifest.canon is not None
+        return store.put_json(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                env=manifest.env,
+                inputs=inputs,
+                canon=manifest.canon,
+                governance=manifest.governance,
+                tenant_context=manifest.tenant_context,
+                same_input_closure=manifest.same_input_closure,
+                authority=manifest.authority,
+                warnings=manifest.warnings,
+            ),
+            canon_spec=CanonSpec(**manifest.canon.model_dump(mode="python")),
+            return_selected_profile=True,
+        )
+
+    # Keep both direct output profiles aligned so the source inventory check,
+    # rather than an earlier edge-identity check, is the first failed relation.
+    def rebind_output_basis_edge(role: str) -> ArtifactRef:
+        output_edges = [edge for edge in simulation_manifest.inputs if edge.role == role]
+        assert len(output_edges) == 1, f"expected one {role} edge, found {len(output_edges)}"
+        output_ref = _selected_ref_from_edge(store, output_edges[0])
+        output_manifest = store.get_manifest(output_ref)
+        output_basis_edges = [
+            edge for edge in output_manifest.inputs if edge.role == "execution_input_basis"
+        ]
+        assert len(output_basis_edges) == 1, (
+            f"expected one {role}.execution_input_basis edge, found {len(output_basis_edges)}"
+        )
+        updated_inputs = [
+            _input_edge(reduced_basis_ref, role=edge.role)
+            if edge.role == "execution_input_basis"
+            else edge
+            for edge in output_manifest.inputs
+        ]
+        output_payload = _get_json_artifact(store, output_ref)
+        assert isinstance(output_payload, Mapping)
+        updated_ref = put_json_variant(output_ref, output_payload, updated_inputs)
+        assert updated_ref.artifact_id == output_ref.artifact_id
+        assert updated_ref.manifest_profile_sha256 != output_ref.manifest_profile_sha256
+        assert store.get_bytes(updated_ref) == store.get_bytes(output_ref)
+        updated_manifest = store.get_manifest(updated_ref)
+        updated_basis_edge = next(
+            edge for edge in updated_manifest.inputs if edge.role == "execution_input_basis"
+        )
+        assert _ref_key(_selected_ref_from_edge(store, updated_basis_edge)) == _ref_key(
+            reduced_basis_ref
+        )
+        return updated_ref
+
+    reduced_metrics_ref = rebind_output_basis_edge("metrics")
+    reduced_state_delta_ref = rebind_output_basis_edge("state_delta")
+    simulation_payload["metrics_ref"] = reduced_metrics_ref.model_dump(mode="json")
+    updated_simulation_refs = {
+        "execution_input_basis": reduced_basis_ref,
+        "metrics": reduced_metrics_ref,
+        "state_delta": reduced_state_delta_ref,
+    }
+    simulation_inputs = [
+        _input_edge(updated_simulation_refs[edge.role], role=edge.role)
+        if edge.role in updated_simulation_refs
+        else edge
+        for edge in simulation_manifest.inputs
+    ]
+    assert all(
+        sum(edge.role == role for edge in simulation_inputs) == 1
+        for role in updated_simulation_refs
+    )
+    reduced_simulation_ref = put_json_variant(simulation_ref, simulation_payload, simulation_inputs)
+    reduced_simulation = SimulationResult.model_validate(
+        _get_json_artifact(store, reduced_simulation_ref)
+    )
+    assert reduced_simulation.execution_source_status == "single_step_basis"
+    assert _ref_key(reduced_simulation.execution_input_basis_ref) == _ref_key(reduced_basis_ref)
+    welfare_inputs = [
+        _input_edge(reduced_simulation_ref, role=edge.role)
+        if edge.role == "simulation_result"
+        else _input_edge(reduced_basis_ref, role=edge.role)
+        if edge.role == "execution_input_basis"
+        else edge
+        for edge in welfare_manifest.inputs
+    ]
+    reduced_welfare_ref = _persist_welfare_bundle_view(store, bundle, welfare_inputs)
+
+    with pytest.raises(ExecutionSourceAdmissionRefusal) as refusal:
+        admit_execution_source(store, reduced_simulation_ref)
+    assert refusal.value.reason == (
+        "execution_source_basis_manifest_does_not_bind_complete_source_graph"
+    )
+
+    outcome = _funnel_outcome(store, candidate_ref, reduced_welfare_ref)
+    assert all(ref.kind != _SOURCE_KIND for ref in outcome.audit_refs)
+    assert outcome.current_uncertainty_envelope is None
+    assert all(
+        estimate.level == 1.0 for estimate in outcome.uncertainty_envelope.uncertainties.values()
+    )
+
+
 def test_missing_execution_basis_edge_is_not_rescued_by_source_markers(source_bundle) -> None:
     store, candidate_ref, welfare_ref = source_bundle
     bundle = load_welfare_bundle(ensure_ir_artifact_store(store), welfare_ref)
@@ -2679,13 +2838,29 @@ def test_fresh_observation_consumer_rejects_mutated_execution_basis_ref(
     assert bad_observation_manifest.media_type == observation_manifest.media_type
     assert store.verify(bad_observation_ref).ok
 
-    expected_failure = {
-        "kind": r"execution_input_basis_ref\.kind",
-        "media_type": r"execution_input_basis_ref\.media_type",
-        "schema_version": "source-bound risk execution basis schema mismatch",
-    }[basis_mutation]
-    with pytest.raises(ValueError, match=expected_failure):
-        load_source_bound_risk_observation(store, bad_observation_ref, candidate_ref)
+    if basis_mutation in {"kind", "media_type"}:
+        # These identity fields are declared Literals, so decoding rejects the
+        # malformed value before the consumer can report a nested field path.
+        expected_literal, invalid_input = {
+            "kind": (
+                "foundry.execution_input_basis",
+                "foundry.invalid_execution_input_basis",
+            ),
+            "media_type": (
+                "application/json",
+                "application/vnd.invalid-execution-basis+json",
+            ),
+        }[basis_mutation]
+        with pytest.raises(ValidationError) as refusal:
+            load_source_bound_risk_observation(store, bad_observation_ref, candidate_ref)
+        assert type(refusal.value) is ValidationError
+        literal_error = refusal.value.errors()[0]
+        assert literal_error["type"] == "literal_error"
+        assert literal_error["input"] == invalid_input
+        assert expected_literal in literal_error["msg"]
+    else:
+        with pytest.raises(ValueError, match="source-bound risk execution basis schema mismatch"):
+            load_source_bound_risk_observation(store, bad_observation_ref, candidate_ref)
 
 
 @pytest.mark.parametrize("edge_role", ["simulation_result", "state_delta"])

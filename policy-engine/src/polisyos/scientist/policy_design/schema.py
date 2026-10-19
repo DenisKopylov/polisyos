@@ -7,8 +7,11 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import Field, model_validator
 
+from polisyos.core.artifacts import ArtifactStore
+from polisyos.core.artifacts import (
+    require_return_selected_profile_writer as _require_return_selected_profile_writer,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore, _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.ir.governance.problem_frame import KPISpec, ProblemFrame

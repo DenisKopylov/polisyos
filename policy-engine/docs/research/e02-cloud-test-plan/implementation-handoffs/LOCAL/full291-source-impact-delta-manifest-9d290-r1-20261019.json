@@ -1,0 +1,117 @@
+{
+  "schema": "policyos.e02.current_full291_source_impact_delta_manifest.r1",
+  "record_type": "immutable RAW evidence packet manifest",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "9d290eadcf40696dff9e0865dca7a7409117271a",
+    "tree": "48a95220c79f8ec560a8ac43bdf11717e9ab97e5",
+    "parent": "0368a2fdcca710fd39bc3f2b3e87c08f6df07c1a",
+    "known_frontend_overlay": 14,
+    "source_frame_source": "the R4 remote commit readback, cross-checked against all three current R6 source frames; no Git command was run by this ledger author"
+  },
+  "comparison_base": {
+    "head": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+    "tree": "a866732f7ee37a73a5702494828d46283b73a101"
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3906,
+      "sha256": "e784d156940d6882ea8fb56bf9c67719b1eff3c27ab04861b1a9824d7c807748"
+    },
+    {
+      "path": "derive_delta.py",
+      "bytes": 43139,
+      "sha256": "aa7ec1fdf8a71e9337d94393f62028d3ab460bd86d5846e5949801fcfab5d352"
+    },
+    {
+      "path": "source-impact-delta.json",
+      "bytes": 260686,
+      "sha256": "f7dc01e3be984a3e6034c09ff8e91f0b31ed2e73aea7e8567cae6974665da36d"
+    }
+  ],
+  "denominator": {
+    "original_coverage_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "original_connected_findings_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+    },
+    "canonical_tasks_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "canonical_inputs_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+    },
+    "canonical_decisions_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+    },
+    "matrix_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-full282-occurrence-gap-matrix-r1-20261019/matrix.json",
+      "sha256": "48474e0d193f81bf6ba5f7439610d45c5e13e7d3e11e7c2c759314be58f4c1bb"
+    },
+    "partition_sources": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/whole-property-audit-partitions-20261015/part-1-assessment.json",
+        "sha256": "20f33a0568139fd5e9f5c34dc92055919258db4d9ce7f2e9447bd818e4457932",
+        "file_type": ".json",
+        "row_count": 73
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/whole-property-audit-partitions-20261015/part-2-assessment.json",
+        "sha256": "435f5bf3c16a2b3b995a85aa477325209c23c0d2dd55b316677edcc5378ff0cf",
+        "file_type": ".json",
+        "row_count": 73
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/whole-property-audit-partitions-20261015/part-3-assessment.json",
+        "sha256": "298b0351467340c8e120701f9d6109280cb9d194939350cfa28410fdd96b6be9",
+        "file_type": ".json",
+        "row_count": 73
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/whole-property-audit-partitions-20261015/part-4-assessment.json",
+        "sha256": "56109cb380174f17714e33a50cec5927e661738fd29927d2819fae85d2556c3e",
+        "file_type": ".json",
+        "row_count": 72
+      }
+    ],
+    "source_file_type_denominator": {
+      ".json": 4
+    },
+    "complete_partition_rows_walked": 291,
+    "unique_finding_ids_in_walk": 282,
+    "canonical_occurrence_keys_checked_in_order": 291,
+    "canonical_occurrence_task_route_edges_in_source_matrix": 331,
+    "exact_changed_path_string_reference_count": 60,
+    "occurrences_with_exact_changed_path_locator": 28,
+    "unique_changed_paths_with_exact_locator": 5,
+    "unique_changed_paths_without_exact_occurrence_locator": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/owner-repairs-technical-attestation-20261019.json",
+      "policy-engine/pyproject.toml",
+      "policy-engine/src/polisyos/fabric/retrieval/README.md",
+      "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+      "policy-engine/tests/unit/core/test_supported_route_facade_identities.py",
+      "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+      "policy-engine/uv.lock"
+    ],
+    "occurrences_without_exact_changed_path_locator": 263,
+    "interpretation": "The complete 291-row set was scanned for exact changed-path string references. Exact path matches are stale locators requiring rebinding; absence of a direct path locator does not prove no transitive effect. No status or closure is inferred from the path scan."
+  },
+  "closure_ids": [],
+  "G_acceptance": false
+}

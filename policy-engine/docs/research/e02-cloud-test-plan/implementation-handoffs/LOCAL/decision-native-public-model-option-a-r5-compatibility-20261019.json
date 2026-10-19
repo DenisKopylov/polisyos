@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "disposition": "G_DECISION_REQUIRED; do_not_adopt_option_a_as_compatibility_neutral",
+  "scope": "ArtifactRefModel Mapping versus Pydantic iteration; independent of Option B schema-property migration",
+  "r5_actual": {
+    "head": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+    "tree": "a866732f7ee37a73a5702494828d46283b73a101",
+    "candidate_source_qualified": true,
+    "candidate_tests_qualified": true,
+    "source_frame_stable": true,
+    "collection_count": 56,
+    "passed": 55,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0,
+    "pytest_seconds": 0.45,
+    "outer_rc": 1,
+    "outer_wall_seconds": 3.2343612499535084,
+    "outer_max_sampled_process_tree_rss_bytes": 164904960,
+    "failure_nodeid": "tests/unit/ir/registry/test_refs.py::test_normalize_artifact_ref_uses_the_strict_shared_ref_schema",
+    "failure_line": 209,
+    "failure_meaning": "Candidate normalizer returns string selector mapping with optional profile omitted; dict(plain_pydantic_model) returns typed ArtifactID and manifest_profile_sha256=None. Later two same-test structural-selector comparisons did not execute.",
+    "failing_test_is_harness_error": false,
+    "failing_test_alone_decides_public_compatibility": false
+  },
+  "existing_contract": {
+    "class": "polisyos.ir.registry.refs.ArtifactRefModel",
+    "export": "polisyos.ir.ArtifactRefModel",
+    "base_protocols": ["pydantic.BaseModel", "collections.abc.Mapping[str, object]"],
+    "profileless_mapping": ["artifact_id:string", "kind:string", "media_type:string"],
+    "selected_mapping": ["artifact_id:string", "kind:string", "media_type:string", "manifest_profile_sha256:string"],
+    "profileless_mapping_edge": "__iter__ omits optional profile but __getitem__ returns None; Mapping mixin membership may disagree with keys/dict",
+    "source_doc_claim": "refs.py describes refs as mapping-compatible stable handles"
+  },
+  "option_a": {
+    "changes_mapping_identity": true,
+    "adds": "to_ref_mapping()",
+    "preserves_normalized_selector_shape": true,
+    "changes_dict_model_semantics": true,
+    "drops_mapping_operations": ["isinstance(Mapping)", "len", "getitem", "keys", "items", "get", "mapping mixins", "custom key iteration"],
+    "release_or_version_decision_required": true,
+    "r5_candidate_sources": [
+      {"path": "policy-engine/src/polisyos/ir/artifacts/contracts.py", "sha256": "a97f6fc22ad16bddb04e22144dcabf2d1bcb6353f09ac3cfc3ecd2541eeb6411"},
+      {"path": "policy-engine/src/polisyos/ir/registry/refs.py", "sha256": "732714f0d6f97ba6ddbc5428f4bcb4d42fac925a652e9bec4b9755b96992b5d0"}
+    ],
+    "r5_candidate_tests": [
+      {"path": "policy-engine/tests/unit/ir/registry/test_refs.py", "sha256": "363d23aa5d3d8cf074df6e42dfb20faa53858988dec14af106a07266217e47b4"},
+      {"path": "policy-engine/tests/unit/ir/test_semantic_group_imports.py", "sha256": "0c3ec5015cf3628af33e03158c4371b12b84cf49ae5bfc0f50241ffc41b6549c"}
+    ]
+  },
+  "consumer_census": {
+    "tracked_policy_engine_py": 7746,
+    "parsed_src_tests_tools_py": 6386,
+    "src_py": 2785,
+    "tests_py": 3100,
+    "tools_py": 501,
+    "src_tests_tools_parse_errors": 0,
+    "direct_source_subclasses": 133,
+    "ArtifactRefModel_reference_paths_src_tests_tools": 107,
+    "syntactic_dict_len_mapping_get_candidates": 51,
+    "paths_with_syntactic_candidates": 20,
+    "phase4_ref_or_mapping_union_annotations": 5,
+    "inference_limit": "Name-based operation rows are not receiver-type inference; external consumers and all dynamic Mapping use are not established."
+  },
+  "confirmed_internal_route_notes": [
+    "normalize_artifact_ref handles model_dump before Mapping and preserves its strict validation path",
+    "ArtifactSelector also accepts the field-based ArtifactViewRef protocol",
+    "simulation_proof_bridge and phase4 ref coercers handle typed models before Mapping fallback",
+    "Foundry serializer checks model_dump before plain-dict fallback",
+    "ExperimentState stores Core ArtifactRef, distinct from IR ArtifactRefModel"
+  ],
+  "g_alternatives": [
+    {
+      "id": "A",
+      "choice": "Versioned migration to plain Pydantic model plus explicit to_ref_mapping projection",
+      "cost": "Audit and migrate internal Mapping consumers; document public source break; external Mapping clients not covered by current census",
+      "must_preserve": "Strict validation, exact normalized three/four-key shape, profile selection and fresh-reader refusal"
+    },
+    {
+      "id": "B",
+      "choice": "Preserve Mapping identity through the current contract temporarily or a distinct validated-model/mapping facade",
+      "cost": "Facade route is broader across the 133-subclass family; cannot misrepresent BaseModel iteration or weaken validation",
+      "must_preserve": "Profileless three-key selector and selected four-key identity, strict admission, real CAS/fresh reader behavior"
+    }
+  ],
+  "falsifiers": [
+    "Option A: actual profileless and selected refs through model_validate -> normalize_artifact_ref -> FileSystemCAS -> fresh reader; assert exact projection and selected-view refusal, plus explicit dict(ref) Pydantic semantics and not-Mapping result.",
+    "Option A: whole consumer audit and removal probe showing consumers fail if to_ref_mapping is removed while model/test markers remain.",
+    "Mapping-preserving route: Mapping runtime identity and exact three/four-key behavior through the real normalizer and selected-profile fresh-reader path; strict unknown/malformed refs still refuse.",
+    "Decide explicitly whether to retain or correct the profileless __contains__ inconsistency."
+  ],
+  "closure_ids": [],
+  "capability_state": "verification_missing"
+}

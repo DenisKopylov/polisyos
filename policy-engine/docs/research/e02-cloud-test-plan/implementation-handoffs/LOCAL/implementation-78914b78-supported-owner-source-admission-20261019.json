@@ -1,0 +1,539 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "identity": "implementation-78914b78-supported-owner-source-admission-20261019",
+  "created_on": "2026-10-19",
+  "canonical_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-78914b78-supported-owner-source-admission-20261019.json",
+  "status": "Historical source implementation committed and read back. The bounded 12-module run is separately reconciled on its pre-final-metadata source candidate; it does not qualify the complete 112-path commit, current checkout, native baseline, public export completeness, or G acceptance.",
+  "property": "Route supported public facades through canonical owners while preserving object identity. Foundry source admission recomputes the complete selected-basis inventory and exposes existing single-step/legacy/refusal outcomes; the selected-basis path is documented for SimulationResult schema 1.4. The source routes CAS-backed reads into fresh Scientist-side source-bound consumers and retains shared cross-process tenant-quota admission. This is a bounded local implementation and test witness, not a whole-capability or authority claim.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+    "base_tree": "24f76d3277a79433f02c42e1798c03415a9dddb9",
+    "commit": "78914b78cc4e59711827bb3fb3c5f213a6c595c8",
+    "tree": "ffca82e7961616e5ed20f1219f5e71e55a276737",
+    "parents": [
+      "de2136a397f3b40cea5d10fda4ec31d509a9e3db"
+    ],
+    "commit_subject": "feat(e02): route consumers through supported owners and source admission",
+    "commit_readback_ref": "commit_readback",
+    "remote_readback_ref": "remote_readback",
+    "observed_worktree_head_at_preparation": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+    "observed_worktree_scope_note": "Current worktree contains later root-owned source changes. This record is for historical commit 789; no current-head or whole-tree claim follows."
+  },
+  "source_application_ref": "final_source_application",
+  "adoption_plan_ref": "final_source_plan",
+  "source_and_generation_chain_refs": {
+    "pre_final_metadata_107_path_source_application": "pre_metadata_source_application",
+    "source_fix_manifest": "source_fix_manifest",
+    "source_fix_peer": "source_fix_peer",
+    "prior_generator_source_application": "prior_generator_source_application",
+    "generation_result": "generation_result",
+    "generation_readback": "generation_readback",
+    "postfix_sync_readback": "postfix_sync",
+    "protected_RAW_aliases_unchanged": 302
+  },
+  "full_footprint": {
+    "path_count": 112,
+    "main_source_test_documentation_and_release_rows": 107,
+    "release_fragments_in_main_rows": 4,
+    "generated_surface_outputs": [
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "sha256": "92152a83defe1533e933bd0da3e3bbcfe19ab29688b5dd2a96c5062932d8daae",
+        "git_mode": "100644"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "sha256": "0763cd658afb430269a0d2514ed0ff1e8cb5a0caaf8fec412b4a2ddeca93830e",
+        "git_mode": "100644"
+      }
+    ],
+    "local_source_composition_attestation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/supported-owner-source-composition-attestation-20261019.json",
+      "sha256": "010be4a0b617ca562a12a90eff5a2d1e34b2670e02751ac90ac3891464b708ab",
+      "git_mode": "100644"
+    },
+    "delivery_metadata": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256": "c621f9b6caa5b8aa1691004bd4ecf7db936891c4982993917abc343a3ad8adcf",
+        "git_mode": "100644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "sha256": "244573463952e22e601da1261d8b43575548d6b5d165dfc9129f3d09dad2199a",
+        "git_mode": "100644"
+      }
+    ],
+    "release_fragments": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-security-quota-owner-facade.toml",
+        "sha256": "72ab665ce597591d6d03bcd87a76e5a81157f0932d2e3cd5a7e081b657610ea8",
+        "git_mode": "100644"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-foundry-execution-source-admission-api.toml",
+        "sha256": "f2f8a81207dd9865e2e92a89720b46399b0a96e029efed654cf1f07bc6a0ff3b",
+        "git_mode": "100644"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-foundry-execution-source-error-identities.toml",
+        "sha256": "7da6340fb2ac13689aeef916ef0f851713c23fc115d5546f12f387df9118a3c3",
+        "git_mode": "100644"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-supported-owner-facades.toml",
+        "sha256": "efcd5f999cf534999f44a2465be73215e496abf14e82287522051c6f8cd3db31",
+        "git_mode": "100644"
+      }
+    ],
+    "deleted_paths": 0,
+    "all_git_modes": {
+      "100644": 112
+    },
+    "exact_path_hash_map_ref": "commit_request",
+    "local_readback_ref": "commit_readback",
+    "remote_changed_bytes_and_modes_match_request": true,
+    "pathset_reconciliation": {
+      "commit_request": 112,
+      "local_readback": 112,
+      "git_diff": 112,
+      "remote": 112,
+      "all_equal": true
+    }
+  },
+  "canonical_python_quality": {
+    "scope": "Changed Python files in the source application only; not a native package-wide verification.",
+    "ruff_check_exit_code": 0,
+    "ruff_check_stdout_ref": "ruff_check_out",
+    "ruff_check_stderr_ref": "ruff_check_err",
+    "ruff_format_exit_code": 0,
+    "ruff_format_stdout_ref": "ruff_format_out",
+    "ruff_format_stderr_ref": "ruff_format_err",
+    "native_preflight_plan_ref": "native_preflight_plan",
+    "native_preflight_result_ref": "native_preflight_result",
+    "native_13_package_baseline": "not_established by scoped Ruff results"
+  },
+  "bounded_runtime_evidence": {
+    "status": "bounded_composed_consumer_pass",
+    "independent_decision": "GO_BOUNDED_ACTUAL_12_FULL_MODULES",
+    "run_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+      "tree": "24f76d3277a79433f02c42e1798c03415a9dddb9",
+      "parent": "273f386970f233811ae023926ae4fb3daa7673ea"
+    },
+    "selected_interpreter_profile": {
+      "executable": "policy-engine/.venv/bin/python",
+      "profile": "selected Python 3.14 venv for this run only",
+      "request_ref": "actual_request",
+      "no_future_profile_claim": true
+    },
+    "selected_complete_modules": [
+      "tests/unit/core/test_supported_route_facade_identities.py",
+      "tests/unit/data_forge/read_api/test_supported_route_facade_identities.py",
+      "tests/unit/fabric/test_supported_route_facade_identities.py",
+      "tests/unit/foundry/methods/test_supported_route_facade_identities.py",
+      "tests/unit/ir/test_supported_facade_route_identities.py",
+      "tests/unit/scientist/test_supported_route_facade_identities.py",
+      "tests/unit/core/security/test_facade.py",
+      "tests/unit/core/security/test_quota_enforcer.py",
+      "tests/unit/fabric/storage/test_tenant_storage_quota_admission.py",
+      "tests/unit/foundry/facade/test_execution_source_admission_facade.py",
+      "tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py"
+    ],
+    "counts": {
+      "collected": 141,
+      "executed": 141,
+      "passed": 141,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "unique_nodeids": 141,
+      "collection/execution/result/JUnit reconciled": true
+    },
+    "measurement": {
+      "return_code": 0,
+      "complete": true,
+      "aborted_reason": null,
+      "wall_seconds": 105.33491366705857,
+      "peak_sampled_process_tree_rss_bytes": 1320501248,
+      "minimum_sampled_disk_free_bytes": 6542958592,
+      "disk_floor_bytes": 1073741824,
+      "numeric_threads": 1,
+      "workers": 1,
+      "RLIMIT_AS": false,
+      "process_group_gone": true
+    },
+    "origins": {
+      "captured_and_matched_polisyos_tools_modules": 1220,
+      "mismatches": 0,
+      "unhashed_or_namespace_only": 0,
+      "scope": "polisyos/tools namespaces only; third-party and pre-sitecustomize imports are outside this claim.",
+      "artifact_ref": "actual_origins"
+    },
+    "deciding_output_refs": {
+      "request/full argv": "actual_request",
+      "result/command": "actual_result",
+      "stdout": "actual_stdout",
+      "stderr": "actual_stderr",
+      "JUnit": "actual_junit",
+      "source_before": "actual_source_before",
+      "source_after": "actual_source_after",
+      "process_tree": "actual_process_tree",
+      "sandbox": "actual_sandbox",
+      "controller_events": "actual_controller_events",
+      "phase_output": "actual_phase_output",
+      "preparation": "actual_preparation",
+      "runner": "actual_runner",
+      "independent_review": "actual_peer",
+      "companion_verification_candidate": "actual_receipt_candidate"
+    },
+    "source_snapshot_sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca",
+    "selected_inputs_unchanged": true,
+    "pre_fix_history": "135 pass, 6 fail on the same 141 cases; later actual peer reconciles all six as passing.",
+    "prior_red_result_ref": "prior_red_result",
+    "prior_red_JUnit_ref": "prior_red_junit",
+    "pre_final_commit_comparison": {
+      "source_application_paths": 107,
+      "source_application_paths_matching_commit_789": 103,
+      "source_application_paths_different_from_commit_789": 4,
+      "preserved_frontend_overlay_paths": 14,
+      "frontend_paths_matching_commit_789": 0,
+      "frontend_paths_different_from_commit_789": 13,
+      "frontend_paths_absent_from_commit_789": 1,
+      "selected_test_and_harness_paths_matching_commit_789": 14,
+      "selected_test_and_harness_paths_total": 14,
+      "interpretation": "All 12 selected test modules plus pytest.ini and tests/conftest.py match commit 789. Of 107 pre-final source-application pins, 103 match and four release-fragment postimages differ. The run also used a 14-path preserved frontend overlay outside this commit: 13 tracked bytes differ and one path is absent. This bounded run is not a test of the exact final 112-path commit."
+    },
+    "run_source_application_ref": "pre_metadata_source_application",
+    "final_commit_application_ref": "final_source_application",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "bounded_route_and_boundary": {
+    "owner_facade_identity": "Full-module tests include façade identity checks; the Foundry execute façade test asserts canonical owner object identity in both import orders.",
+    "Foundry_selected_basis": "The source recomputes a complete selected inventory against the selected basis manifest; Foundry docs describe schema 1.4 for captured single_step_basis.",
+    "CAS_and_Scientist_consumer": "The source routes CAS-backed reads into fresh Scientist source-bound consumers; named consumer modules are in the bounded run.",
+    "shared_quota": "The bounded storage-quota module contains shared cross-process admission, reported passing by the independent actual review.",
+    "producer_selected_vs_consumer_materialized": {
+      "P37": "not_established as a complete producer -> persisted CAS bytes -> fresh consumer binding",
+      "limitation": "Facade identity and selected-basis checks alone do not prove the exact bytes materialized by a fresh consumer after persistence.",
+      "smallest_falsifier": "Keep selection metadata fixed, alter the CAS-materialized bytes/artifact, and require the fresh reader to refuse."
+    },
+    "capability_state": "Local routes and bounded consumers are present. Complete end-to-end acceptance remains incomplete: producer-to-materialized-consumer content proof, current native/profile baseline, deep-import reconciliation, and full public export identities are unestablished."
+  },
+  "independent_reviews": {
+    "source_candidate": {
+      "decision": "GO_SOURCE_CANDIDATE; RUNTIME_UNRUN at that review point",
+      "ref": "source_fix_peer"
+    },
+    "generated_surface": {
+      "ref": "surface_peer",
+      "markdown_ref": "surface_peer_md",
+      "limit": "Bounded generated-surface review; reviewer identity/G acceptance are unestablished and 82 route export identities remain unresolved."
+    },
+    "bounded_actual": {
+      "decision": "GO_BOUNDED_ACTUAL_12_FULL_MODULES",
+      "ref": "actual_peer",
+      "scope": "Independent source/result/JUnit/origin reconciliation; reviewer ran no product imports or tests."
+    }
+  },
+  "verification_boundary": {
+    "112-path commit/remote byte-mode set": "independently_reconciled",
+    "141-case actual result": "independently_reconciled for its historical candidate and inputs",
+    "82 route exports": "not_established; package known_export_count unknown, not zero",
+    "producer-selected to consumer-materialized bytes": "not_established",
+    "deep import recomputation": "not_established",
+    "native13 and Q2 deep baseline": "not_established / not closed",
+    "final release metadata runtime": "not established by pre-metadata run",
+    "team reviewer identity": "not_established",
+    "external policy/causal/legal/promotion/billing/publication authority": "not_established"
+  },
+  "P37_predicate_basis": {
+    "commit path identity": "independently_reconciled",
+    "remote bytes and modes": "independently_reconciled",
+    "bounded test counts/JUnit": "independently_reconciled for historical run",
+    "route export completeness": "not_established",
+    "fresh consumer content identity": "not_established",
+    "native13/Q2 baseline": "not_established",
+    "G/formal closure": "not accepted; closure_ids empty"
+  },
+  "P38_property_vs_proxy": {
+    "property": "Fresh consumer gets the exact persisted artifact selected/admitted by producer under the selected profile.",
+    "measured": "Facade object identity, bounded selected-basis/admission modules, named source-bound consumers, shared-process quota admission.",
+    "divergence": "Facade/selection checks can pass while a different or altered CAS artifact is materialized for the consumer.",
+    "disposition": "Keep whole producer-selected versus consumer-materialized equality not_established until content-bound mismatch refusal is exercised."
+  },
+  "P39_path_accounting": {
+    "main_source_and_release_rows": 107,
+    "release_fragments_included": 4,
+    "mandatory_companions": [
+      {
+        "kind": "generated surface",
+        "count": 2
+      },
+      {
+        "kind": "source-composition attestation",
+        "count": 1
+      },
+      {
+        "kind": "LEASES plus delivery index",
+        "count": 2
+      }
+    ],
+    "total_paths": 112,
+    "note": "All mandatory companions are in the committed footprint; no split to fit a cap."
+  },
+  "P40_bucket": {
+    "bucket": "Same producer-selection/consumer-materialization class at the whole-chain level; do not promote per-facade assertions to closure.",
+    "smallest_next_move": "One source-bound producer -> CAS persisted bytes -> independent fresh-reader/Scientist consumer test with mismatch refusal."
+  },
+  "P41_red_provenance": {
+    "slice_base": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+    "runtime_base": "de2136a397f3b40cea5d10fda4ec31d509a9e3db",
+    "note": "Actual run is a separately pinned predecessor candidate, not a run of exact commit 789 or the current checkout; known metadata/overlay differences are recorded above."
+  },
+  "public_checkpoint_context": {
+    "historical_remote_G_checkpoint": {
+      "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+      "parents": [
+        "78be3aff64185e2de24abe710523e14491e36ba6"
+      ],
+      "delta_from_prior_93d6": false
+    },
+    "note": "From historical remote readback only; no G acceptance."
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P03",
+      "P05",
+      "P10",
+      "P14",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P39",
+      "P41"
+    ],
+    "existing_risks": [
+      "P01/P03/P05: local facade and generated surface is not complete public identity or authority.",
+      "P10/P29/P37/P38: selection assertions and facade identity must not substitute for content-bound consumer behavior.",
+      "P14: namespace origin matching does not establish third-party independence.",
+      "P41: retain historical run frame and post-run metadata delta."
+    ],
+    "target": "Keep implementation, surface review, and actual run as separately source-bound records; fail closed on unestablished end-to-end and authority predicates.",
+    "missing_labels": [
+      "verification_missing: full native/current-source baseline",
+      "surface_missing: 82 unresolved route identities",
+      "verification_missing: producer-selected to consumer-materialized content binding"
+    ],
+    "acceptance_signal": "A future frozen run must bind final postimages, reconcile route identities, and prove persisted selected bytes reach a fresh consumer with adversarial mismatch refusal."
+  },
+  "proposals": {
+    "G_acceptance_proposed": false,
+    "formal_closures": [],
+    "per_id_whole_property_proposal": "Pending final freeze; any full 282-item navigation matrix remains routing context only and creates no per-ID closure here.",
+    "note": "Implementation and bounded tests are not a formal G decision."
+  },
+  "next_check": "At final source freeze, reconcile source and generated/public metadata together; run complete supported-owner/native baseline and deep-import recomputation; and prove producer-selected inventory -> persisted CAS content -> fresh consumer equality plus mismatch refusal. Keep 82 route identities and authority/publication decisions open until independently reconciled.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "formal_closure_status": "none; any G decision remains separately proposed and unadjudicated",
+  "evidence_references": {
+    "final_source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/source-application.json",
+      "sha256": "bc8d1c59ee6adeb5ebad69e88d1d29dca9c575342c4dec4b33548ff2bdd5d7c2",
+      "bytes": 110905
+    },
+    "final_source_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/plan.json",
+      "sha256": "9b1092fbf2531ef210f99625b1586ab78ceff35dbeb72107bf8e89f3270730d5",
+      "bytes": 87390
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/commit-request-final-index.json",
+      "sha256": "e802c3d68d7967a53ea93a43877189b2cca61c48da051947274128aa7618f878",
+      "bytes": 17606
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/root-supported-owner-source-final-boundary-r2-20261019-readback.json",
+      "sha256": "1d4762ce80c84d0866141cc376dac43a119ea3f5f194341a152b9045399d4d49",
+      "bytes": 24402
+    },
+    "remote_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/remote-readback.json",
+      "sha256": "e5074102a5feade0ee315e5445a3887a4497276c7db8cc9e14ca7820bc79006c",
+      "bytes": 806
+    },
+    "pre_metadata_source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-five-failure-fix-source-application-20261019/source-application.json",
+      "sha256": "208f9de43e477f7b34479c8c1b62f4ef26f3b295c554eebb7fc5464b5e415b63",
+      "bytes": 32913
+    },
+    "prior_generator_source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-composition-apply-generate-20261019/source-application.json",
+      "sha256": "fa553513ce126dbce89eee18b88cf814eca38305c6be3900c1ffe6c889a1b5f7",
+      "bytes": 31557
+    },
+    "generation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-composition-apply-generate-20261019/generation-readback.json",
+      "sha256": "c5c38ecca7c7c1d0fc04de33c66b7502db76ee37539f680774f56fb38c6725ae",
+      "bytes": 36995
+    },
+    "generation_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-composition-apply-generate-20261019/generation-result.json",
+      "sha256": "fbca790955214d595c42881e62dba15edb4a515f4ac8728d7d04adad6d09f421",
+      "bytes": 1003
+    },
+    "postfix_sync": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-postfix-public-owner-sync-20261019/readback.json",
+      "sha256": "c5b0cfbeeee2bf7f88fbf66f6b2659b19bfc430a0eafc56c2cf2b71fbe589b30",
+      "bytes": 2111
+    },
+    "source_fix_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-failure-boundary-repair-r1-20261019/manifest.json",
+      "sha256": "6a6de9f183ed8aebd0e7de1f10e5c70c247fb76e65ce84786d056220892720e5",
+      "bytes": 13277
+    },
+    "source_fix_peer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-failure-boundary-independent-r1-20261019/review.json",
+      "sha256": "b7694b56688344d8ffe55a77ac837e494768440ff7fb9a41480cd3b4af37003a",
+      "bytes": 12409
+    },
+    "surface_peer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-surface-independent-20261019/review.json",
+      "sha256": "3011e20da526cc758f4152b775e310e98c4cd8d7c5cf9ab587415185b538857b",
+      "bytes": 13394
+    },
+    "surface_peer_md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-surface-independent-20261019/review.md",
+      "sha256": "b1590376241d03b9e2a2a3ea23d9241e6600556ed9b9ea6ed7312ddf85cce8fd",
+      "bytes": 3376
+    },
+    "native_preflight_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-composition-native-preflight-20261019/plan.json",
+      "sha256": "f71de6b81f7e5fcb78569a99251af8c40e9289d41fee2ecd6d2a7877c4a706da",
+      "bytes": 66419
+    },
+    "native_preflight_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-composition-native-preflight-20261019/canonical-context-preflight.json",
+      "sha256": "a05e8f5a430a6dc14db67b63f0c02bfb30fd568e309a20ed375354170133dd4c",
+      "bytes": 193190
+    },
+    "actual_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/request.json",
+      "sha256": "1d0743dff16f2528d6d6045e4ed8c12867e908d19e9cb9c2b58be38e2fcd818b",
+      "bytes": 27151
+    },
+    "actual_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/result.json",
+      "sha256": "2a80906cf450ff58897c911a38eef15a25bc50f4db02598737f23c5c7da05380",
+      "bytes": 78792
+    },
+    "actual_runner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/run.py",
+      "sha256": "08d3016886fd9c47910a8a5aa2ee8c7a67282a5eae83a56ae243409292560803",
+      "bytes": 9464
+    },
+    "actual_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.stdout.txt",
+      "sha256": "d557cfa4c0677bc58cdbb338c316263381feda521d9b78aa39a11f1973ab8573",
+      "bytes": 745
+    },
+    "actual_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "actual_junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/pytest.xml",
+      "sha256": "7b98596f5da6252ec259c6c5d8420b1ccfdbae7dee937add932e93dad2ca3d7e",
+      "bytes": 26112
+    },
+    "actual_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/runtime-module-origins.json",
+      "sha256": "c4d5fe105890b78c74e0dbd1c32f8f85834a1db6fa9043cc23d46fe0fc0a0b0f",
+      "bytes": 1309247
+    },
+    "actual_source_before": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/source-before.json",
+      "sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca",
+      "bytes": 19396061
+    },
+    "actual_source_after": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/source-after.json",
+      "sha256": "76389e9905ac1773f7ed9ba6f039b3d8606e353f0b8b9b50065a718c54127cca",
+      "bytes": 19396061
+    },
+    "actual_process_tree": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/process-tree.jsonl",
+      "sha256": "54d627b7204c4284ec135ae309f3348054cb1fa11bff412196e7814eec2fc32f",
+      "bytes": 573689
+    },
+    "actual_sandbox": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/sandbox.sb",
+      "sha256": "296b26b427f596d29c1b59ac0a1882ec8e0ae51b110c0c933303d79fd3faef8b",
+      "bytes": 954
+    },
+    "actual_controller": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/controller-events.jsonl",
+      "sha256": "be7b6a574ab9cc28d8d3bf6efade31a131245aec1a430d38bfe872db36251b55",
+      "bytes": 2658
+    },
+    "actual_phase_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/phase-output.jsonl",
+      "sha256": "334e03b271f7f0d99064d530faf83edb7b13c976f1c759102ecc7cb173d37f58",
+      "bytes": 2592
+    },
+    "actual_preparation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-actual-20261019/preparation.json",
+      "sha256": "49fd9e01044ca01a3884ea5a5e4ff554c92dc1db6a4b1c55be0a284491d33bd3",
+      "bytes": 881
+    },
+    "actual_peer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-independent-20261019/review.json",
+      "sha256": "94416dca45f3730480986e1ff3102583f0351d65249567225f353567f86cf8bc",
+      "bytes": 14701
+    },
+    "actual_receipt_candidate": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-postfix-r2-independent-20261019/verification-receipt-candidate.json",
+      "sha256": "d1ea0e20cade1c2ea839077ba037d98c5e17fc56b70580051473bd5e380425df",
+      "bytes": 8357
+    },
+    "prior_red_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-actual-20261019/result.json",
+      "sha256": "bbef2d32460c67f86f457f7c9bfd0f909fc9ee8a078f81a335609b1ea5ec5f41",
+      "bytes": 78740
+    },
+    "prior_red_junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-12-full-consumers-actual-20261019/pytest.xml",
+      "sha256": "d6dd41cc5b1fe3a4f25fb17d46399afa29b0cd63b09886c5bde3755bc246a4e3",
+      "bytes": 111139
+    },
+    "ruff_check_out": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "ruff_check_err": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "ruff_format_out": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/format-native-role-0.stdout.txt",
+      "sha256": "9768eed49a8831ae7da21738b4579c3aac21cbeffe482ca40611c554624f1cde",
+      "bytes": 27
+    },
+    "ruff_format_err": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-supported-owner-source-final-boundary-r2-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

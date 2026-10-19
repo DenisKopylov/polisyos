@@ -1,0 +1,378 @@
+{
+  "capability_boundary": {
+    "no_global_suite_or_native_export_closure": true,
+    "reason": "The existing source/test/consumer paths are present, but the selected whole-owner run is interrupted, has reported failures, and its result/stdout/JUnit counts disagree by one. Generated native exports and institutional inventory owner identity are also not established.",
+    "status": "verification_missing"
+  },
+  "created_on": "2026-10-19",
+  "full_footprint": {
+    "complete_source_test_config_and_companion_footprint": "The 64 postimage rows and their full hashes are retained in the cited source application and commit request; exact Git/readback matching was recomputed for this receipt.",
+    "path_count": 66,
+    "path_hash_map_ref": {
+      "bytes": 11276,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/commit-request-final-index.json",
+      "sha256": "49ddd52238142bf6e478b693f2eb8ca97c32f01d70915d14258c74e21aa405a3"
+    },
+    "preserved_other_owned_overlay": {
+      "count": 14,
+      "included_in_commit": false,
+      "tracked_count": 13,
+      "unchanged_during_source_application": true,
+      "untracked_count": 1
+    },
+    "readback_maps_refs": [
+      {
+        "bytes": 14928,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/root-source61-final-admission-r2-20261019-readback.json",
+        "sha256": "24d017bef4d230bea6cdb9795700c67b2ad2f9421172518d9d5772a43542e090"
+      },
+      {
+        "bytes": 13101,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/remote-readback.json",
+        "sha256": "27a728474b6b2fc903546ab16e2a412dbb2c9e7d08e9db74cbb0740dcbd39fb2"
+      }
+    ],
+    "source_postimage_map_ref": {
+      "bytes": 78342,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/source-application.json",
+      "sha256": "6c13b14fb66fc45eca7eba3e8bcb7c1f9ea224cc44f05e88d42bdef4e706abb3"
+    }
+  },
+  "next_checks": [
+    "Reconcile the R5 result JSON, stdout, raw JUnit XML and interrupted active case; use the pending independent audit before attributing the 17 reported failures.",
+    "If the audit supports a repeat, run the exact 23 complete modules on a reviewed frozen source frame and require collection/execution/JUnit reconciliation.",
+    "Complete the two full R4 owner modules and three actual child runs specified by the source application, separately from this R5 result.",
+    "Resolve native generated-export parsing and institutional public-surface owner identity before making a public-surface capability claim.",
+    "Keep facade/Fabric/CAN/import/native/installed verification separate until each has its own source-bound evidence."
+  ],
+  "pattern_pass": {
+    "observed_risks": [
+      "A composed source implementation does not by itself prove producer-to-consumer runtime behavior.",
+      "The R5 runner exit and reported pass count are insufficient proxies for complete module/property execution because the attempt was interrupted and the three count representations do not reconcile.",
+      "Generated inventory metadata is only locally reviewed; institutional owner identity and bounded native exports remain unresolved."
+    ],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P14",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Retain the existing typed owner and consumer wiring, then admit capability claims only from a reconciled, complete, source-bound consumer replay and resolved public-surface authority evidence."
+  },
+  "proposals": {
+    "G_acceptance_proposed": false,
+    "closure_mapping_status": "No closure IDs proposed; a complete property-to-ID crosswalk is required before proposing individual closures.",
+    "formal_closures": [],
+    "individual_closure_proposals": [],
+    "public_release_approval_proposed": false,
+    "source_candidate_admission": "The commit is published and path-hash verified; this handoff records implementation evidence without accepting the broader capability."
+  },
+  "published_commit_verification": {
+    "G_acceptance": false,
+    "G_checkpoint": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "G_delta_since_previous_checkpoint": false,
+    "closure_ids": [],
+    "commit_request": {
+      "bytes": 11276,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/commit-request-final-index.json",
+      "sha256": "49ddd52238142bf6e478b693f2eb8ca97c32f01d70915d14258c74e21aa405a3"
+    },
+    "exact_git_commit_frame": {
+      "commit": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+      "parents": [
+        "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6"
+      ],
+      "subject": "feat(e02): compose worker custody and profile-preserving consumers",
+      "tree": "a866732f7ee37a73a5702494828d46283b73a101"
+    },
+    "local_readback": {
+      "bytes": 14928,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/root-source61-final-admission-r2-20261019-readback.json",
+      "sha256": "24d017bef4d230bea6cdb9795700c67b2ad2f9421172518d9d5772a43542e090"
+    },
+    "path_hash_readback": {
+      "accounting_note": "64 source-application rows plus the two required delivery metadata files account for the exact 66-path commit; the complete path/hash maps remain in the cited request/readbacks rather than being copied here.",
+      "all_64_source_application_postimages_match_commit": true,
+      "all_git_blob_hashes_match_local_and_remote_readbacks": true,
+      "commit_paths": 66,
+      "metadata_separate_from_source_application_path_count": true,
+      "path_sets_match_commit_request_local_readback_and_remote_readback": true,
+      "required_delivery_metadata_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      ],
+      "reviewed_input_hashes_rechecked": true,
+      "reviewed_input_ref_count": 63,
+      "source_application_rows": 64
+    },
+    "remote_readback": {
+      "bytes": 13101,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/remote-readback.json",
+      "sha256": "27a728474b6b2fc903546ab16e2a412dbb2c9e7d08e9db74cbb0740dcbd39fb2"
+    }
+  },
+  "record_type": "source_implementation_handoff_candidate",
+  "runtime_evidence": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "count_reconciliation": {
+      "count_reconciled": false,
+      "interpretation": "The result JSON reports 617 passes and 712 cases, while the captured stdout reports 616 passes and the raw JUnit XML reports 711 tests (17 failures, 78 skipped). One interrupted active case remains unproven; do not convert this into a completed whole-module verdict.",
+      "junit_xml_attributes": {
+        "errors": 0,
+        "failures": 17,
+        "skipped": 78,
+        "tests": 711
+      },
+      "result_json": {
+        "case_count": 712,
+        "collected_count": 781,
+        "counts": {
+          "failed": 17,
+          "passed": 617,
+          "skipped": 78
+        },
+        "executed_count": 712
+      },
+      "stdout_summary": "17 failed, 616 passed, 78 skipped in 290.73s",
+      "unproven_interrupted_case_count": 1
+    },
+    "deciding_artifacts": [
+      {
+        "bytes": 395635,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/result.json",
+        "sha256": "b97de710ed0123444ded0e047158a091cacc13c79c9426ca0fd09db68a7a95dd"
+      },
+      {
+        "bytes": 19021,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/request.json",
+        "sha256": "2c0b9de5fb23ea7549f367b4860222af3a758b6ae2c180e53143481604bf7017"
+      },
+      {
+        "bytes": 12782,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/run.py",
+        "sha256": "26d4dcd0bc2254c396e21fe71fbe4c03c811b5f123248a3e1a1bd843af44376d"
+      },
+      {
+        "bytes": 919,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/sandbox.sb",
+        "sha256": "ab5c1ecb25dee56e3009b22fb61965c9baf769d4b4ee612b59f6815ff74e31fa"
+      },
+      {
+        "bytes": 300153,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/pytest.stdout.txt",
+        "sha256": "486665c67791955c9f9e5064fe86a8e23ded8db785dc4ad94019e4bce8b2b7d4"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 430592,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/pytest.xml",
+        "sha256": "df10eb3828cdf564b3f6c2ee49ddacbcf60516a9f088d0d20c26b0ed7181477f"
+      },
+      {
+        "bytes": 2457726,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/runtime-module-origins.json",
+        "sha256": "f258ae215970cb638b97d4da1a071452aa35fb8ef63e4e8c4af32debbccf0468"
+      },
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/source-before.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/source-after.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      {
+        "bytes": 10143,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/final-source-binding.json",
+        "sha256": "dde8f46b04ada0e2af9a11f8803c049a70ea9df891449f9f89dd7aef7f7d66c5"
+      },
+      {
+        "bytes": 3052,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/root-graceful-interrupt.json",
+        "sha256": "942cb3a14cba8c60f78e8bd42da8984b7661220d3ae4f115fc5ac92034e3430d"
+      },
+      {
+        "bytes": 1601077,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/process-tree.jsonl",
+        "sha256": "b92bc9e8fda266b521099bca3383534caa36ba8ab5c4b60645683a1328934eab"
+      },
+      {
+        "bytes": 3151,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/controller-events.jsonl",
+        "sha256": "c90f35e0df67820dc185f6186cdaa464d2b3efac4dc6f36ea1d29bf207d1bfc4"
+      },
+      {
+        "bytes": 3086,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/phase-output.jsonl",
+        "sha256": "85d664395ae916623fa3c2f34a80496a61e92bb40ad7ff1b202a744824d5d7b7"
+      }
+    ],
+    "execution": {
+      "OOM_claim": false,
+      "command_status": "command_failed",
+      "max_sampled_process_tree_rss_bytes": 1937670144,
+      "minimum_sampled_disk_free_bytes": 6340337664,
+      "process_group_gone": true,
+      "return_code": 2,
+      "termination_reason": "No output progress through several observations; completed failures need graceful pytest report flush before supervisor SIGTERM cutoff. Source inspection identifies unbounded started.wait() fixture paths in selected budget module, but exact active test is not yet established. This interrupts the attempt for diagnosis, not a whole-module completion or capability result.",
+      "termination_signal": "SIGINT",
+      "wall_seconds": 295.6074472919572
+    },
+    "kind": "bounded whole-owner module replay; interrupted and count-inconsistent",
+    "result_status": "bounded_b13_worker_cache_r5_whole_owner_not_established",
+    "runtime_origins": {
+      "captured_product_namespace_module_count": 1838,
+      "matched_regular_module_origins": 1838,
+      "origin_mismatches": 0,
+      "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup."
+    },
+    "selected_complete_modules": {
+      "count": 23,
+      "path_list_ref": {
+        "bytes": 395635,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/result.json",
+        "sha256": "b97de710ed0123444ded0e047158a091cacc13c79c9426ca0fd09db68a7a95dd"
+      },
+      "request_ref": {
+        "bytes": 19021,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/request.json",
+        "sha256": "2c0b9de5fb23ea7549f367b4860222af3a758b6ae2c180e53143481604bf7017"
+      }
+    },
+    "source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+      "parent": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+      "tree": "a866732f7ee37a73a5702494828d46283b73a101"
+    },
+    "source_unchanged_during_attempt": {
+      "identical_sha256": true,
+      "r10_snapshot_unchanged": true,
+      "selected_module_and_harness_pins_unchanged": true,
+      "snapshot_after": {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/source-after.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      "snapshot_before": {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/source-before.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      }
+    },
+    "verdict": "RED/CENSORED; 17 failures were reported in the interrupted attempt, the active-case accounting is not reconciled, and no complete 23-module result is established."
+  },
+  "schema": "policyos.e02.source_implementation_handoff_candidate.v1",
+  "scope": {
+    "composed_areas": [
+      "B13 worker/cache custody and lifecycle",
+      "wire-value ownership, worker parent/child boundaries and reuse settlement",
+      "Fabric connector/retrieval and persisted-fetch helper/facade paths",
+      "R4 method identity/profile and persisted-input reader/test path",
+      "CAN fixture and mandatory source/test/config/document/release companions",
+      "generated public-surface inventory and supported helper facades"
+    ],
+    "property": "One existing owner for wire values, worker parent/child lifecycle and reuse settlement; exact selected CAS views through intake, method consumers and local fetch; preserve all documented compatibility boundaries.",
+    "source_status": "source candidate committed and read back; source-only reviews do not establish runtime acceptance, institutional inventory ownership, or G acceptance"
+  },
+  "source_application": {
+    "bytes": 78342,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/source-application.json",
+    "sha256": "6c13b14fb66fc45eca7eba3e8bcb7c1f9ea224cc44f05e88d42bdef4e706abb3"
+  },
+  "source_frame": {
+    "base_tree": "090507e88e53d81bc89af3645ecf81ff6fae406d",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+    "commit_subject": "feat(e02): compose worker custody and profile-preserving consumers",
+    "current_worktree_cleanliness_claimed": false,
+    "historical_frame_only": true,
+    "parents": [
+      "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6"
+    ],
+    "published_remote_sha": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+    "slice_base": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+    "tree": "a866732f7ee37a73a5702494828d46283b73a101"
+  },
+  "source_plan": {
+    "bytes": 63632,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/plan.json",
+    "sha256": "26eba73c90be473eb4f1efdd23a2401f1d634d4527676540773af41a8874ebf6"
+  },
+  "source_reviews_and_static_qualification": {
+    "B13_composition_source_packet": {
+      "bytes": 5461,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-composition-r5-20261019/manifest.json",
+      "sha256": "0cdcea506f04d0122057307ea14012d8db95228905eab03512774ebba296cc3b"
+    },
+    "B13_typed_owner_independent_review": {
+      "bytes": 5030,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-typed-owner-whole-class-r8-independent-20261019/review.json",
+      "sha256": "badfa5654ee8b2f95399c185bcceabe455729facce8d72035c409de99cf5a63f"
+    },
+    "generated_surface_independent_review": {
+      "bytes": 2097,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-generated-public-surface-independent-20261019/review.json",
+      "sha256": "f6dc17e0e4fe652235bdf1a5d4f9c1ce5f973943fbcebd34af43b5dfce9720c1"
+    },
+    "public_surface_boundary": {
+      "generated_surface_review_limit": "native exports and owner identity are not established",
+      "institutional_inventory_owner_identity": "not_established",
+      "public_surface_inventory_reviewed_predicate": "consumer_asserted local technical acknowledgement only; exact generated inventory independently reconciled",
+      "runtime_exports": "not_established; bounded native static parser remains unresolved"
+    },
+    "ruff": {
+      "argv_and_canonical_config_ref": {
+        "bytes": 78342,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/source-application.json",
+        "sha256": "6c13b14fb66fc45eca7eba3e8bcb7c1f9ea224cc44f05e88d42bdef4e706abb3"
+      },
+      "check_exit_code": 0,
+      "check_seconds": 0.06493095820769668,
+      "format_check_exit_code": 0,
+      "format_check_seconds": 0.05696712504141033
+    },
+    "source_application_limits": [
+      "Source-only independent GOs; actual full affected consumer replay is pending.",
+      "No external authority/currentness or global closure; bounded chronology and filesystem-object race limitations stay explicit.",
+      "The new R4 persisted-input test successor is source-reviewed with AST-preserving native-format correction; actual replay remains UNRUN.",
+      "The regenerated inventory remains parser-bounded; local technical review is not institutional owner approval or G acceptance."
+    ],
+    "source_application_reviewed_inputs": {
+      "all_present_and_hash_matched": true,
+      "complete_list_ref": {
+        "bytes": 78342,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-r2-20261019/source-application.json",
+        "sha256": "6c13b14fb66fc45eca7eba3e8bcb7c1f9ea224cc44f05e88d42bdef4e706abb3"
+      },
+      "count": 63
+    },
+    "source_format_release_independent_review": {
+      "bytes": 4714,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-coherent-owner-source61-format-release-independent-r2-20261019/review.json",
+      "sha256": "0df276de88fc55f812692b09f702c3aa411e19df550289440467b8894bd0fc0b"
+    },
+    "source_freeze": false,
+    "source_technical_attestation": {
+      "bytes": 3581,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-final-admission-20261019/source61-technical-attestation.json",
+      "sha256": "52ed1c831c3499578d56f9bfa179357ea39002bf4135166bb928b3bfbac45866"
+    }
+  },
+  "status": "Published source commit is verified; the whole-owner runtime replay is RED/CENSORED and not established."
+}

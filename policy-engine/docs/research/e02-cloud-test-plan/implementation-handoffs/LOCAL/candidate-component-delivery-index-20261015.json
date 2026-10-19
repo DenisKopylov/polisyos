@@ -1287,6 +1287,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/owner-repairs-technical-attestation-20261019.json",
       "sha256": "a3aa3f81a319da6cd6fe65857b121f7ad56812d4098aea3de178dea430b1df9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-78914b78-supported-owner-source-admission-20261019.json",
+      "sha256": "04a27661cc2ddbb2e4bff1adc08a04093b27a3c2042044546fc8d2d25a5dfefd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-238c715b-core-worker-cache-fabric-r4-20261019.json",
+      "sha256": "e45311c254fd2684435dd8b99fdf688850dbd88b21b4801807cc9dc23b8ce995"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-0368a2fd-current238-owner-repair-20261019.json",
+      "sha256": "548d570f64a2d8cc4bea5f93d245610539c6030185faef07c8d5fb440de378a8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-9d290ead-r4-custody-oracle-20261019.json",
+      "sha256": "983af9ec6e1c4f4fd525676cca58c5433fb33c6f23cb1d908cf5905040e7ec08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-current238-composed-consumers-20261019.json",
+      "sha256": "b968392edbdbb8bef0e30d7f1e9093783e07d3f6c5fc32f164d78157d0051e4a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-phase0-current9d-r6-composed-actual-20261019.json",
+      "sha256": "1a39825d7d9c3a28251d3d2774aeab13c2b4f1e5a27b6d4300f59f3dd049945f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-native-public-model-option-a-r5-compatibility-20261019.json",
+      "sha256": "4b2eb4f7886193ecfafeaf3c8cee2fdccea3b41e053b3b5d13480ce20629f930"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-source-impact-delta-manifest-9d290-r1-20261019.json",
+      "sha256": "ff6efe6066535a3d91906f8e9275c852d1a8507639ea7c59198550cfbce05fd9"
     }
   ],
   "canonical_denominator_recomputed": {

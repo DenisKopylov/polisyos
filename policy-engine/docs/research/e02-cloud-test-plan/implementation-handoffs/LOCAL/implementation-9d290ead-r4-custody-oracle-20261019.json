@@ -1,0 +1,267 @@
+{
+  "capability_boundary": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "reason": "This source handoff does not accept whole-property runtime behavior or formal closure. Current full runs remain separate evidence and are not attached here.",
+    "status": "verification_missing"
+  },
+  "created_on": "2026-10-19",
+  "full_footprint": {
+    "commit_path_count": 3,
+    "mandatory_delivery_metadata_count": 2,
+    "mechanism_path_count": 1,
+    "paths": [
+      {
+        "bytes": 1482600,
+        "change": "M",
+        "git_blob_oid": "5932f452f53885ca132eb23513377ac169f22c64",
+        "git_content_sha256": "2ee90b4c43ff50e5f510c93a33accb2db18ae3e040a54108276b984346d42c48",
+        "mode": "100644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "role": "mandatory_delivery_metadata"
+      },
+      {
+        "bytes": 109183,
+        "change": "M",
+        "git_blob_oid": "36ff4b2e9bcb6164fbfa25a5f220e90898e8f0c4",
+        "git_content_sha256": "3dcfaf025d5b8c172d974b67bae1c98d5d3e8ed5bedaf951841f3f8f678dd990",
+        "mode": "100644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "role": "mandatory_delivery_metadata"
+      },
+      {
+        "bytes": 88526,
+        "change": "M",
+        "git_blob_oid": "4752b12be69ed5bc1fa21a9301556e9ea9da8604",
+        "git_content_sha256": "83d52d72d1ab9fff55d41897dadf493c74d3532d4bc2eae60514565c1c6c811b",
+        "mode": "100644",
+        "path": "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+        "role": "existing_test_companion"
+      }
+    ]
+  },
+  "identity": "implementation-9d290ead-r4-custody-oracle-20261019",
+  "pattern_pass": {
+    "observed_risk": "A source commit, static review, or passing Ruff/lock check is not a complete current source-bound producer-to-consumer replay.",
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P14",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Reuse existing typed Core persistence and owners; bind fail-closed consumer results to exact identity/profile and retain meaningful negative controls; accept only source-bound, complete, reconciled execution."
+  },
+  "proposals": {
+    "closure_ids": [],
+    "formal_acceptance": false,
+    "individual_closure_proposals": [],
+    "source_candidate_only": true
+  },
+  "published_commit_verification": {
+    "commit_request": {
+      "bytes": 2240,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/commit-request.json",
+      "sha256": "1115ce5fa98e7713463e0a1528e102adc3e29a39bcb1192aebdb36ec0fd4e8e0"
+    },
+    "local_readback": {
+      "bytes": 1140,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/root-r4-custody-oracle-admission-20261019-readback.json",
+      "sha256": "494a64284665bf8db5d9e9303dbe8e75a46b791bb95efe4d1f3975461b409435"
+    },
+    "path_hash_mode_reconciliation": {
+      "G_acceptance": false,
+      "G_checkpoint": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "all_SHA256_content_hashes_and_modes_match": true,
+      "closure_ids": [],
+      "commit_paths_equal_request_and_remote_readback": true
+    },
+    "plan": {
+      "bytes": 5705,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/plan.json",
+      "sha256": "8c7fbe9e88e2be78bcf4920bd6cb4877ab6c0012f90b9398b83f636fac4bb713"
+    },
+    "remote_readback": {
+      "bytes": 1037,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/remote-readback.json",
+      "sha256": "0c961a5d81b5184da9fb124b8853182cc04617a0f07852d340f2d0f8dac3fa61"
+    },
+    "source_application": {
+      "bytes": 10339,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/source-application.json",
+      "sha256": "8f419a2722380f5a316ee1e07f8812ab085d6cb5f18331b7e53bf29e30224bc1"
+    }
+  },
+  "record_type": "source_implementation_handoff_candidate",
+  "reviews_and_static_qualification": {
+    "final_test_postimage_sha256": "83d52d72d1ab9fff55d41897dadf493c74d3532d4bc2eae60514565c1c6c811b",
+    "independent_review_refs": [
+      {
+        "artifact": {
+          "bytes": 3860,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-negative-oracle-trace-fast-r2-independent-20261019/review.json",
+          "sha256": "3f8416566f5b2f09cfa239c924cf3c756ca9be30101dd6f93c4bc4ee392300c3"
+        },
+        "disposition": "GO_WITH_MECHANICAL_FORMATTING_REQUIRED; semantic review predates final formatting",
+        "role": "typed_selector_negative_oracle"
+      },
+      {
+        "artifact": {
+          "bytes": 25042,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-r2-full-two-module-independent-review-20261019/review.json",
+          "sha256": "30eb2560fb97c55c4581c69f8ee9ba8ad330cba197d71c76c4fd9035b750ac25"
+        },
+        "disposition": "historical source238 actual only; not evidence for commit 9d290",
+        "role": "historical_full_r4_replay_review"
+      }
+    ],
+    "lock_metadata_check": null,
+    "native_checks_are_not_runtime_acceptance": true,
+    "native_ruff_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+    ],
+    "native_ruff_python_path_count": 1,
+    "native_ruff_records": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+        ],
+        "exit_code": 0,
+        "outputs": {
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/check-native-role-0.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 19,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/check-native-role-0.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        "seconds": 0.04054137505590916
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+        ],
+        "exit_code": 0,
+        "outputs": {
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/format-native-role-0.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 25,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/format-native-role-0.stdout.txt",
+            "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+          }
+        },
+        "seconds": 0.03844062495045364
+      }
+    ],
+    "r4_format_companion": {
+      "bytes": 25,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-custody-oracle-admission-20261019/format-native-role-0.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    "reviewed_input_refs": [
+      {
+        "bytes": 2023,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-negative-oracle-trace-fast-r2-20261019/manifest.json",
+        "sha256": "ccdc4c980d976770094f5e13a3f946d5a7ebaa607d7a5f084d4529de23cb5ecf"
+      },
+      {
+        "bytes": 3860,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-negative-oracle-trace-fast-r2-independent-20261019/review.json",
+        "sha256": "3f8416566f5b2f09cfa239c924cf3c756ca9be30101dd6f93c4bc4ee392300c3"
+      },
+      {
+        "bytes": 30522,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      {
+        "bytes": 893,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      },
+      {
+        "bytes": 38017,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/reviewed-source-docs.patch",
+        "sha256": "3e1095450b8c9a27902c4de06a95334a30153b2fff88b226b85ce14e69ab23fa"
+      }
+    ],
+    "ruff_final_postimage_status": "Canonical check and format check exit 0 on the final test postimage, as recorded in the source application."
+  },
+  "runtime_evidence": {
+    "G_acceptance": false,
+    "current_source_waves": {
+      "locator_note": "No post-9d290 actual result path or hash was supplied with the source-adoption packet. Keep this evidence UNRUN until a separate receipt is sealed.",
+      "raw_result_locator": null,
+      "source_head": "9d290eadcf40696dff9e0865dca7a7409117271a",
+      "status": "RUNNING_REPORTED_AT_HEAD_9d290; no sealed result is incorporated"
+    },
+    "formal_closure_status": "none; closure_ids remain empty",
+    "status": "UNRUN on this exact source implementation handoff"
+  },
+  "schema": "policyos.e02.source_implementation_handoff_candidate.v1",
+  "scope": {
+    "property": "Exercise both typed custody read seams and assert that the resolver seam is consumed as the owner-issued typed fail-closed refusal.",
+    "selected_profile": {
+      "postimage_sha256": "83d52d72d1ab9fff55d41897dadf493c74d3532d4bc2eae60514565c1c6c811b",
+      "status": "UNRUN on the new source frame; do not infer current-wave outcome.",
+      "test_module": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+    },
+    "source_application_runtime_status": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+    "summary": "A one-test mechanism edit and two mandatory delivery metadata paths repair the negative oracle at both read boundaries. The tested production APIs remain unchanged in this commit."
+  },
+  "source_application_qualification": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "limits": [
+      "Test-oracle repair only; all actual new control tests remain UNRUN.",
+      "Two staged-import positive failures remain unresolved, and the prior diagnostic reached its wall cap before the guard."
+    ],
+    "next_check": "Actual full Foundry-consumption module and two selected staged-import predicate discriminators on current source.",
+    "property": "Both real custody read seams are mutated using their typed ID/profile selector and must be observed; the resolver seam is consumed as the owner-issued typed fail-closed refusal.",
+    "source_freeze_status_in_application": false
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "9d290eadcf40696dff9e0865dca7a7409117271a",
+    "current_branch_head_claimed": false,
+    "exact_frame_is_historical": true,
+    "parents": [
+      "0368a2fdcca710fd39bc3f2b3e87c08f6df07c1a"
+    ],
+    "slice_base": "0368a2fdcca710fd39bc3f2b3e87c08f6df07c1a",
+    "subject": "test(e02): exercise typed custody refusals at both read boundaries",
+    "tree": "48a95220c79f8ec560a8ac43bdf11717e9ab97e5"
+  }
+}

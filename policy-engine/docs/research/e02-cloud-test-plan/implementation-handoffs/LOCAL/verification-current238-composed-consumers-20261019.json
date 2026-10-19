@@ -1,0 +1,891 @@
+{
+  "G_acceptance": false,
+  "G_checkpoint": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "aggregate_limits": {
+    "current_capability_state": "verification_missing",
+    "failure_causality": "Only the R4 and R5 independent reviewers provide the bounded attributions captured above; this aggregate does not generalize those attributions to sibling consumers.",
+    "no_cross_run_sum": true,
+    "no_global_or_native_closeout": true,
+    "older_141_161_evidence": "Any earlier 141/161 evidence remains bound to its own historical source frame and is not inherited as current238 green evidence.",
+    "reason": "The four complete bounded actuals cover distinct but overlapping owner slices. Their case counts and pass/fail totals are not summed or treated as a single whole-property replay."
+  },
+  "bounded_actuals": [
+    {
+      "attribution_limit": "21 failures remain as recorded by this bounded actual; this aggregate does not assign causes or closure IDs.",
+      "collection_execution_junit_reconciled": true,
+      "command": {
+        "max_sampled_process_tree_rss_bytes": 1118142464,
+        "minimum_sampled_disk_free_bytes": 5755154432,
+        "process_group_gone": true,
+        "return_code": 1,
+        "status": "command_failed",
+        "wall_seconds": 76.7844507500995
+      },
+      "counts": {
+        "failed": 21,
+        "passed": 151,
+        "skipped": 1
+      },
+      "deciding_artifacts": [
+        {
+          "bytes": 2016,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/controller-events.jsonl",
+          "sha256": "f2ebc858c944dace2acecf07a10fdaefe4914f8259ec95f5d99871808c9a7197"
+        },
+        {
+          "bytes": 7494,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/final-source-binding.json",
+          "sha256": "505a7ebd033d357e08e73eaf29a09979ba655628a4aab9e024b7e8ba36c7deea"
+        },
+        {
+          "bytes": 1952,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/phase-output.jsonl",
+          "sha256": "ed627bf70649dd7fd2021ea0ce4498e9890f854df23d8cb1348d6d2387b731df"
+        },
+        {
+          "bytes": 598,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/preparation.json",
+          "sha256": "708ab3a88418c41de67d0615b9a78c69fd524c14f0fb8e05018ddbf0cc40200a"
+        },
+        {
+          "bytes": 238447,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/process-tree.jsonl",
+          "sha256": "9f064ffa0f8741036dd3142691a383d4eef82128db42baf041c43e4dc71c468b"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 124692,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/pytest.stdout.txt",
+          "sha256": "298078f1d2df2b9ce5d65374b69af23e8a39435e765ecacfa14728c87ae9ae5a"
+        },
+        {
+          "bytes": 152919,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/pytest.xml",
+          "sha256": "42eae523a761cbfc5543f51da93f6a6cb031bea473c248aecef8df259c83a373"
+        },
+        {
+          "bytes": 14008,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/request.json",
+          "sha256": "2b279f8ff8e57cb239e42bd22d1656b6c1c9dee6920dd191599a37e962db69ea"
+        },
+        {
+          "bytes": 94297,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/result.json",
+          "sha256": "e8d1e088a454ff44f33397770d5a795f03698020618584cec0da9ba936f6673a"
+        },
+        {
+          "bytes": 11638,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/run.py",
+          "sha256": "c4af0c9f286133c1b14c94ee4ceecd02ab8f71488b321f961cd9c376c9f998a6"
+        },
+        {
+          "bytes": 1546812,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/runtime-module-origins.json",
+          "sha256": "8676d3582932c7354806f36e355ff61b3d2627c7c138074288ef1e2c684677d8"
+        },
+        {
+          "bytes": 938,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/sandbox.sb",
+          "sha256": "5f2882ea8b9fa44300f24a54744840c45a01184cf687dcda4d65a6fa8482170b"
+        },
+        {
+          "bytes": 19406955,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/source-after.json",
+          "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+        },
+        {
+          "bytes": 19406955,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/source-before.json",
+          "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+        }
+      ],
+      "id": "fabric_can_n13b",
+      "modules": [
+        "tests/unit/fabric/test_retrieval_fetch_custody.py",
+        "tests/unit/runtime/quality/test_acquisition_planner.py",
+        "tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py"
+      ],
+      "runtime_origins": {
+        "captured_product_namespace_module_count": 1459,
+        "matched_regular_module_origins": 1459,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "scope": "The exact 3 complete selected modules only; no global suite, generated-surface closure, G acceptance, or formal closure.",
+      "status": "bounded_fabric_can_three_current238_not_established"
+    },
+    {
+      "attribution_limit": "Two failures remain scoped to the named modules; no cause or formal closure is assigned here.",
+      "collection_execution_junit_reconciled": true,
+      "command": {
+        "max_sampled_process_tree_rss_bytes": 1986412544,
+        "minimum_sampled_disk_free_bytes": 5666045952,
+        "process_group_gone": true,
+        "return_code": 1,
+        "status": "command_failed",
+        "wall_seconds": 32.33742837514728
+      },
+      "counts": {
+        "failed": 2,
+        "passed": 73
+      },
+      "deciding_artifacts": [
+        {
+          "bytes": 1946,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/controller-events.jsonl",
+          "sha256": "5c2ed10c3462c3d6b124507584d29fad191a714e494bb5ae3b0662e3170e220e"
+        },
+        {
+          "bytes": 7444,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/final-source-binding.json",
+          "sha256": "e929ded3f2df972c4832548b32cccdffd05a7d359ec2a8af2ff5a149f89a34b1"
+        },
+        {
+          "bytes": 1881,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/phase-output.jsonl",
+          "sha256": "0033c1841e60c136ce2fbe9440ae4e02dc924da3ada2e6cfcf05f06482b9b7c6"
+        },
+        {
+          "bytes": 114591,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/process-tree.jsonl",
+          "sha256": "b08c9f4e3e698c8000f0ed5fd6c9d09235242959cfb76735a05b987459aa8afb"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 7355,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/pytest.stdout.txt",
+          "sha256": "f078916f33a09e2d8802636af7c6c27eabdfa6f04797b893cbd88b59c17f3cc3"
+        },
+        {
+          "bytes": 20314,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/pytest.xml",
+          "sha256": "b6db01850c87d35f329e2b0575a44461ba9d3fab2d055f6404c9df4612d5ef53"
+        },
+        {
+          "bytes": 13736,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/request.json",
+          "sha256": "39430b83c4e284466cc4e885d00cf852a6e0a3c14976291327389760bf1d62ce"
+        },
+        {
+          "bytes": 47455,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/result.json",
+          "sha256": "f06c046982a487ed693da324b0304bb73aad9905ad293dd981b91d095a98f902"
+        },
+        {
+          "bytes": 11611,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/run.py",
+          "sha256": "405709b5159d1a0c81c14046a0afc27ad9754bb87de7c0b2325de8590cdbce37"
+        },
+        {
+          "bytes": 1561325,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/runtime-module-origins.json",
+          "sha256": "e43010bd8b46371ecdcfb7708c67a69a35cc7fc6ea5b7e5589a8310976357fd4"
+        },
+        {
+          "bytes": 961,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/sandbox.sb",
+          "sha256": "517d5d6cf4a8568365eecbf48827f0afc7d505b6d0c6c01a06cfe49faf494acd"
+        },
+        {
+          "bytes": 19406955,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/source-after.json",
+          "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+        },
+        {
+          "bytes": 19406955,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/source-before.json",
+          "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+        }
+      ],
+      "id": "worker_two_modules",
+      "modules": [
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"
+      ],
+      "runtime_origins": {
+        "captured_product_namespace_module_count": 1552,
+        "matched_regular_module_origins": 1552,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "scope": "The exact 2 complete selected modules only; no global suite, generated-surface closure, G acceptance, or formal closure.",
+      "status": "bounded_worker_two_signal_current238_not_established"
+    },
+    {
+      "attribution_limit": "One failure remains scoped to the named modules; no cause or formal closure is assigned here.",
+      "collection_execution_junit_reconciled": true,
+      "command": {
+        "max_sampled_process_tree_rss_bytes": 922763264,
+        "minimum_sampled_disk_free_bytes": 5625401344,
+        "process_group_gone": true,
+        "return_code": 1,
+        "status": "command_failed",
+        "wall_seconds": 8.573136624880135
+      },
+      "counts": {
+        "failed": 1,
+        "passed": 3
+      },
+      "deciding_artifacts": [
+        {
+          "bytes": 1876,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/controller-events.jsonl",
+          "sha256": "41ecbb9d22f50bd7e4bd77ac8c9b356ab65919f43a32ac6c39eedd3d7160fd9d"
+        },
+        {
+          "bytes": 7359,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/final-source-binding.json",
+          "sha256": "200afb1c5829a2449ba8a042ef482343a799cac67c9be11c97a1c32db7e5026d"
+        },
+        {
+          "bytes": 1812,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/phase-output.jsonl",
+          "sha256": "28810d4b86a1dd004d5ad7ccd9c5279f0feb2df9dd869597eaa020593998c7e6"
+        },
+        {
+          "bytes": 24517,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/process-tree.jsonl",
+          "sha256": "75d545f9f7be595ba399d0bdb9110f33e10571cb7344c09b2df7face3a58969d"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 4089,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/pytest.stdout.txt",
+          "sha256": "bf75a4976982657fb4a4dfeea6a68d1214ec8a7cb60d314a448d1f052f613535"
+        },
+        {
+          "bytes": 4049,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/pytest.xml",
+          "sha256": "3113141b7fd447b4111d7bba5619146efc8e0d128f0c52ffaa5362410c0f5bfc"
+        },
+        {
+          "bytes": 13550,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/request.json",
+          "sha256": "133ec4d4a9209150c3cd33fe6b8d0923b03b337a531b95e51326031afa4cfd91"
+        },
+        {
+          "bytes": 6525,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/result.json",
+          "sha256": "1029ce9c1e6c06038d15e5248f15461e3b16a3d169660c7aef747a1432a4a23b"
+        },
+        {
+          "bytes": 11435,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/run.py",
+          "sha256": "20b66e2399c2094e3e183ec0276529e2e0505a4f5f0ee12136e70d64a7bfeb72"
+        },
+        {
+          "bytes": 1154137,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/runtime-module-origins.json",
+          "sha256": "e194ec273966d62a8d2a592e052c2e67ebcda15ff9337b6c097786d0609bdbc2"
+        },
+        {
+          "bytes": 910,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/sandbox.sb",
+          "sha256": "0796d0d225f26f65c1aed6f9b56cbf305732ba191a9b0069f74b83e3f57a596d"
+        },
+        {
+          "bytes": 19406955,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/source-after.json",
+          "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+        },
+        {
+          "bytes": 19406955,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/source-before.json",
+          "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+        }
+      ],
+      "id": "facade_two_modules",
+      "modules": [
+        "tests/unit/core/test_supported_route_facade_identities.py",
+        "tests/unit/scientist/test_supported_route_facade_identities.py"
+      ],
+      "runtime_origins": {
+        "captured_product_namespace_module_count": 1193,
+        "matched_regular_module_origins": 1193,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "scope": "The exact 2 complete selected modules only; no global suite, generated-surface closure, G acceptance, or formal closure.",
+      "status": "bounded_facade_two_current238_not_established"
+    },
+    {
+      "collection_execution_junit_reconciled": true,
+      "command": {
+        "max_sampled_process_tree_rss_bytes": 2056781824,
+        "minimum_sampled_disk_free_bytes": 5308481536,
+        "process_group_gone": true,
+        "return_code": 1,
+        "status": "command_failed",
+        "stderr_path": "r4-full-two-module-pytest.stderr.txt",
+        "stdout_path": "r4-full-two-module-pytest.stdout.txt",
+        "wall_seconds": 208.93387449998409
+      },
+      "counterfactual_boundary": {
+        "bridge_removal": "With capacity 1 and bypass enabled, dispatch peak remained 2 while shared worker dispatches and physical shared-worker peak were 0; no queue wait rows were observed. This is an actual removal counterfactual, not a marker-only success.",
+        "configured_capacity_1_vs_2": "The real configured profiles produced dispatch peaks 1 and 2 respectively, observed physical SharedExecutor worker peaks 1 and 2, both completed two jobs and 12/12 folds, and both retained state/evidence-linked admitted-scope results.",
+        "semantic_equivalence": "For each study, result ref and semantic_evidence_sha256 match across the three runs; attempt evidence refs differ and attempt cost attribution is per run. The two named semantic tests passed.",
+        "smallest_follow_up": "For staged snapshot view selection, report which import predicate failed and make one paired test use the same persisted generated closure: valid profileless parent selector must succeed; only substituting the alternate profile for that exact parent must refuse. Preserve import integrity, identity, and closure checks.",
+        "staged_profile_negative": "test_staged_intake_refuses_other_view_for_profileless_parent_selector passed by expecting the same snapshot_import_incomplete error that also rejects the valid positive baseline. It is therefore non-discriminating in this run and does not prove the alternate profile is the cause."
+      },
+      "counts": {
+        "expected_skipped": 1,
+        "failed": 3,
+        "passed": 91,
+        "total_junit_cases": 95
+      },
+      "deciding_artifacts": [
+        {
+          "bytes": 1820591,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/e02-provenance.json",
+          "sha256": "5cd67d6480beb6afce57bd97b63e3382afe3ae9c40744641fad21972643a7260"
+        },
+        {
+          "bytes": 235211,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/hypothesis-cache-after.json",
+          "sha256": "4c7059c9890b0455b4219e1b9494e252b1b42443d9d0668e44bdfc1b59846fbc"
+        },
+        {
+          "bytes": 235211,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/hypothesis-cache-before.json",
+          "sha256": "4c7059c9890b0455b4219e1b9494e252b1b42443d9d0668e44bdfc1b59846fbc"
+        },
+        {
+          "bytes": 61563,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/parent.junit.xml",
+          "sha256": "0b77bb321647c1499e19a056f86daca148f5fe168da5952c0f06112d0e782fca"
+        },
+        {
+          "bytes": 15648,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/request.json",
+          "sha256": "b19a18a05bb7e3547a418dccd32dd50b2ab627fa787da2ac9e11322db10b9e06"
+        },
+        {
+          "bytes": 77907,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/result.json",
+          "sha256": "f589c02e84ef3dabe7af83d9acf8ea2a8ef9725ea3b94040df5dc7ef39378d15"
+        },
+        {
+          "bytes": 19406955,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/source-after.json",
+          "sha256": "91fcdda63d218925a040445755900915f58499f59a432587509ea97056a015d6"
+        },
+        {
+          "bytes": 19406955,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/source-before.json",
+          "sha256": "91fcdda63d218925a040445755900915f58499f59a432587509ea97056a015d6"
+        },
+        {
+          "bytes": 1968,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/run/controller-events.jsonl",
+          "sha256": "abc1f31f4c53ee0ba15a93e2a292c8dfa44b4240b7c5de1a90aa6d0ee83c39cb"
+        },
+        {
+          "bytes": 1940,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/run/phase-output.jsonl",
+          "sha256": "c9622b96f3bc99f83575ce9775806e9567a3456f7662abfc7765342d1d73ec40"
+        },
+        {
+          "bytes": 740931,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/run/process-tree.jsonl",
+          "sha256": "804e25ccc20ff979f26fb69d162038df9e81666c7a4d8435806ec9d373b85a92"
+        },
+        {
+          "bytes": 64,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/run/r4-full-two-module-pytest.stderr.txt",
+          "sha256": "cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64"
+        },
+        {
+          "bytes": 15972281,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/run/r4-full-two-module-pytest.stdout.txt",
+          "sha256": "a649e368e1caadade24712630792b202c7c9d4c3f8879ced1252528944331d55"
+        },
+        {
+          "bytes": 1207,
+          "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/run/sandbox.sb",
+          "sha256": "86fe6ccbe73ba46761c4957ef9b5efe43e156378a23de7056b29fe89b52cae3e"
+        },
+        {
+          "bytes": 64,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-bridge-removal/cap-1-removal.stderr.txt",
+          "sha256": "cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64"
+        },
+        {
+          "bytes": 10562717,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-bridge-removal/cap-1-removal.stdout.txt",
+          "sha256": "c9f87e2eb8d0a882ad71029033c2af2c3e212b4fc8aa5be6d9eeac82843eb6fd"
+        },
+        {
+          "bytes": 4281864,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-bridge-removal/slow-put-json-01-guard-0659-450d2b6951b4.canonical.json",
+          "sha256": "450d2b6951b4ff60018757037b2ea7928393292e4d43d0d0adf7f7f05ecb15f5"
+        },
+        {
+          "bytes": 1783,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-bridge-removal/slow-put-json-01-guard-0659-450d2b6951b4.metadata.json",
+          "sha256": "498b7edce65f8cee76a5480ef6fd6277220b6a13b368d4fb873a6e471c4ebea6"
+        },
+        {
+          "bytes": 4281864,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-bridge-removal/slow-put-json-02-guard-0660-bdd5590c2289.canonical.json",
+          "sha256": "bdd5590c2289563affdb65c815159a3cecd4af85d4f677214f9e91866398067d"
+        },
+        {
+          "bytes": 1783,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-bridge-removal/slow-put-json-02-guard-0660-bdd5590c2289.metadata.json",
+          "sha256": "443f4dad3289fb5a001192012b87e05659a7c86e57526fb29896a87cbba7702e"
+        },
+        {
+          "bytes": 64,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-configured/cap-1-configured.stderr.txt",
+          "sha256": "cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64"
+        },
+        {
+          "bytes": 10614194,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-configured/cap-1-configured.stdout.txt",
+          "sha256": "04c827a9c4d80989bebae66a4be6db788cbfc0adc63a80722275bf2a1eefa726"
+        },
+        {
+          "bytes": 4281864,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-configured/slow-put-json-01-guard-0659-c7a33358e20e.canonical.json",
+          "sha256": "c7a33358e20e25fb0069cc96d5a530e13357c4357559ba3ba2f791420542458c"
+        },
+        {
+          "bytes": 1783,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-configured/slow-put-json-01-guard-0659-c7a33358e20e.metadata.json",
+          "sha256": "2b98503c3967f3685c51d226acdf2775abb69d73a14e0bfd1feb174d6e55230b"
+        },
+        {
+          "bytes": 453,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-configured/slow-put-json-02-guard-0855-ba4d91eaa218.canonical.json",
+          "sha256": "ba4d91eaa218e56456cfe43365b13441513b95b593a01389a790a0845d97f9c3"
+        },
+        {
+          "bytes": 2066,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-1-configured/slow-put-json-02-guard-0855-ba4d91eaa218.metadata.json",
+          "sha256": "3dca962b5c1171b7d65f0604320df5f18550e53d8d27242f8152b980c48dd4a6"
+        },
+        {
+          "bytes": 64,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-2-configured/cap-2-configured.stderr.txt",
+          "sha256": "cac246557f41f69633f58d838e666821f128a69865a37bdf25e835258563db64"
+        },
+        {
+          "bytes": 10574521,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-2-configured/cap-2-configured.stdout.txt",
+          "sha256": "538e2eb9edbdeb2b643c5cfd935e95e7a8747e1b84505cf8f71d6da233d27787"
+        },
+        {
+          "bytes": 4281864,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-2-configured/slow-put-json-01-guard-0659-76b855f23405.canonical.json",
+          "sha256": "76b855f23405890813236c466a706c8f3cfde76f2d4c6980592919c727c1b637"
+        },
+        {
+          "bytes": 1784,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-2-configured/slow-put-json-01-guard-0659-76b855f23405.metadata.json",
+          "sha256": "c29f1129cde9e428b91be69f2fceb80d42a9e6160e114ec3232d91704fe50eff"
+        },
+        {
+          "bytes": 453,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-2-configured/slow-put-json-02-guard-0849-a963a6186043.canonical.json",
+          "sha256": "a963a61860439c1aa0300cb6a72e3a3244fe5f9bbd208ecfa63f56149d203f9c"
+        },
+        {
+          "bytes": 2066,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-r2-full-two-module-actual-20261019-04/cap-2-configured/slow-put-json-02-guard-0849-a963a6186043.metadata.json",
+          "sha256": "4a88204b59bfe9f07e12d3f2ad3017564451fbedd1cdafa4211acae80c9ecf41"
+        }
+      ],
+      "expected_skip": {
+        "expected_nodeid": "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_r4_native_child",
+        "observed": [
+          {
+            "classname": "tests.integration.scientist.orchestration.workflows.test_r4_shared_study_admission",
+            "name": "test_r4_native_child",
+            "skip_reason": "invoked only by the R4 profile parent",
+            "status": "skipped",
+            "time": "0.004"
+          }
+        ],
+        "valid": true
+      },
+      "failure_classes": [
+        {
+          "classification": "The runtime test is red, but the intended mutation is not established. Static seam inspection shows store.get_manifest is called with an ArtifactRef by _read_binding, while the test compares str(artifact_id) to the bare ArtifactID string; ArtifactRef has no custom __str__. This likely prevents the mutated producer branch from firing. Treat as a test-probe/discriminator defect until a focused observation proves the mutation was applied; it is not evidence by itself that the production recheck is absent.",
+          "nodeid": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_method_manifest_drift_cannot_be_reinterpreted_during_constraint_admission"
+        },
+        {
+          "classification": "A selected, persisted staged snapshot positive path is refused at the post-import integrity/identity/closure guard. This is an actual selected behavior failure. The receipt does not expose which member of the compound import predicate failed, so it does not identify whether implementation or fixture contract is responsible.",
+          "nodeid": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_staged_intake_real_owner_is_consumed_without_weakening_measurement"
+        },
+        {
+          "classification": "Same staged snapshot import/closure failure class as the direct positive consumer test above; phase2 transport reaches and is rejected by the same import validation guard. Count as one P40 class observed by two consumers, not two independent root causes.",
+          "nodeid": "tests/unit/runtime/quality/test_workspace_foundry_consumption.py::test_workspace_phase2_transports_verified_staged_input_owner_refs"
+        }
+      ],
+      "id": "r4_full_two_module_owner_replay",
+      "independent_review": {
+        "bytes": 25042,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-r2-full-two-module-independent-review-20261019/review.json",
+        "sha256": "30eb2560fb97c55c4581c69f8ee9ba8ad330cba197d71c76c4fd9035b750ac25"
+      },
+      "interpretation": "The two targeted runtime-control and semantic-projection tests passed, and the capacity/removal counterfactual was observed. Three other failures remain: the manifest-drift mutation probe did not establish that its intended branch ran, while two consumers reject a valid staged snapshot with the same import/closure error and the underlying predicate is not identified. The alternate-profile negative test is non-discriminating because it sees the same refusal as the positive path.",
+      "modules": [
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+      ],
+      "required_semantic_cases": {
+        "test_method_evidence_semantic_projection_retains_attempt_cost_and_provenance": [
+          "passed"
+        ],
+        "test_runtime_control_worker_shared_method_admission_and_removal_probe": [
+          "passed"
+        ]
+      },
+      "review_verdict": {
+        "g_acceptance": false,
+        "global_e02_closeout": false,
+        "state": "COMPLETE_BOUNDED_REPLAY_WITH_TEST_FAILURES",
+        "statement": "The requested complete two-module R4 replay is source-bound and fully collected/executed, but failed 3 tests. The two targeted runtime-control semantic tests passed. This is not G acceptance or global E02 closure."
+      },
+      "runtime_origins": {
+        "captured_product_namespace_module_count": 1808,
+        "matched_regular_module_origins": 1808,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "scope": [
+        "Two complete named modules only.",
+        "This run does not establish G acceptance or global E02 closure."
+      ],
+      "status": "actual_full_replay_failed_or_not_established"
+    }
+  ],
+  "closure_ids": [],
+  "created_on": "2026-10-19",
+  "formal_closure_status": "none; proposals and any later G adjudication remain separate",
+  "historical_r5_whole_owner_attempt": {
+    "active_case": "not_established; interrupt record explicitly declines exact attribution",
+    "anonymous_junit_case": {
+      "count": 1,
+      "has_pass_outcome": false,
+      "reporter_bug": "run.py assigns status=passed when JUnit classname/name are absent and no failure/error/skip node exists. Its result.json reports 617 passed by counting the anonymous blank testcase; named XML/stdout support 616 passed. Preserve original outputs; independent counts exclude the unnamed case."
+    },
+    "audited_outcomes": {
+      "failed": 17,
+      "passed": 616,
+      "skipped": 78
+    },
+    "captured_nodeids_with_first_logreport": 712,
+    "collected_nodeids": 781,
+    "collected_without_first_capture_report": 69,
+    "deciding_artifacts": [
+      {
+        "bytes": 3151,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/controller-events.jsonl",
+        "sha256": "c90f35e0df67820dc185f6186cdaa464d2b3efac4dc6f36ea1d29bf207d1bfc4"
+      },
+      {
+        "bytes": 10143,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/final-source-binding.json",
+        "sha256": "dde8f46b04ada0e2af9a11f8803c049a70ea9df891449f9f89dd7aef7f7d66c5"
+      },
+      {
+        "bytes": 3086,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/phase-output.jsonl",
+        "sha256": "85d664395ae916623fa3c2f34a80496a61e92bb40ad7ff1b202a744824d5d7b7"
+      },
+      {
+        "bytes": 1601077,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/process-tree.jsonl",
+        "sha256": "b92bc9e8fda266b521099bca3383534caa36ba8ab5c4b60645683a1328934eab"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 300153,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/pytest.stdout.txt",
+        "sha256": "486665c67791955c9f9e5064fe86a8e23ded8db785dc4ad94019e4bce8b2b7d4"
+      },
+      {
+        "bytes": 430592,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/pytest.xml",
+        "sha256": "df10eb3828cdf564b3f6c2ee49ddacbcf60516a9f088d0d20c26b0ed7181477f"
+      },
+      {
+        "bytes": 19021,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/request.json",
+        "sha256": "2c0b9de5fb23ea7549f367b4860222af3a758b6ae2c180e53143481604bf7017"
+      },
+      {
+        "bytes": 395635,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/result.json",
+        "sha256": "b97de710ed0123444ded0e047158a091cacc13c79c9426ca0fd09db68a7a95dd"
+      },
+      {
+        "bytes": 3052,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/root-graceful-interrupt.json",
+        "sha256": "942cb3a14cba8c60f78e8bd42da8984b7661220d3ae4f115fc5ac92034e3430d"
+      },
+      {
+        "bytes": 12782,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/run.py",
+        "sha256": "26d4dcd0bc2254c396e21fe71fbe4c03c811b5f123248a3e1a1bd843af44376d"
+      },
+      {
+        "bytes": 2457726,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/runtime-module-origins.json",
+        "sha256": "f258ae215970cb638b97d4da1a071452aa35fb8ef63e4e8c4af32debbccf0468"
+      },
+      {
+        "bytes": 919,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/sandbox.sb",
+        "sha256": "ab5c1ecb25dee56e3009b22fb61965c9baf769d4b4ee612b59f6815ff74e31fa"
+      },
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/source-after.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-replay-actual-20261019/source-before.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      }
+    ],
+    "execution": {
+      "OOM_claim": false,
+      "command_return_code": 2,
+      "command_status": "command_failed",
+      "disk_floor_bytes": 1073741824,
+      "finished_at": "2026-10-19T11:14:32.187631+00:00",
+      "interpretation": "Interrupted well before the 600-second wall cap, below RSS cap, and with process group gone. This is censored by deliberate SIGINT, not a timeout/OOM conclusion.",
+      "interrupt_pid": 9224,
+      "interrupt_reason_scope": "operator SIGINT to preserve reports; exact active test explicitly not established",
+      "max_sampled_process_tree_rss_bytes": 1937670144,
+      "minimum_sampled_disk_free_bytes": 6340337664,
+      "process_group_gone": true,
+      "root_sigint_at": "2026-10-19T11:14:27.807136+00:00",
+      "rss_cap_bytes": 4294967296,
+      "started_at": "2026-10-19T11:09:36.581569+00:00",
+      "status": "bounded_b13_worker_cache_r5_whole_owner_not_established",
+      "wall_cap_seconds": 600,
+      "wall_seconds": 295.6074472919572
+    },
+    "failure_observations": {
+      "families": {
+        "external_tiktoken_encoding_fetch_DNS_errors": 7,
+        "sandbox_process_permission_errors": 2,
+        "serialization_wire_and_journal_assertions": 6,
+        "worker_retry_and_ray_assertions": 2
+      },
+      "interpretation": "Six serialization/journal assertions and two worker/Ray assertions are actual red tests with cause not adjudicated here. Two worker subprocess cases hit sandbox PermissionError. Seven budget-enforcer cases could not fetch tiktoken encoding data because DNS for openaipublic.blob.core.windows.net failed; this is not evidence of a budget-source defect.",
+      "total_named_failures": 17
+    },
+    "independent_audit": {
+      "bytes": 10182,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-worker-cache-r5-whole-owner-independent-20261019/review.json",
+      "sha256": "38ecb718498889fd15dfcd0bd4bcd5bda56ef170aa99ccac5547c06d639cdcb3"
+    },
+    "independent_disposition": "HOLD_AS_SUCCESSFUL_VERIFICATION; CENSORED_PARTIAL_ACTUAL_EVIDENCE",
+    "interpretation": "CENSORED/PARTIAL: 711 named outcomes (616 passed, 17 failed, 78 skipped), one anonymous JUnit case with no pass outcome, 781 collected nodes with 69 lacking a first capture report, and an operator SIGINT before a complete whole-owner result. The result writer counted the anonymous case as a pass; the independent audit excludes it. Do not label this a green 23-module replay.",
+    "modules_with_capture_report": 20,
+    "modules_without_capture_report": [
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_portfolio_search.py"
+    ],
+    "platform_skips": {
+      "interpretation": "Native Linux fork, subreaper, RLIMIT, process-transport and Darwin-vs-thread route constraints; these cases are skipped, not passed.",
+      "reason_counts": {
+        "Darwin timed execution admits canonical spawn nodes, not thread fallback": 23,
+        "Linux child subreaper contract": 6,
+        "actual Linux RLIMIT descriptor oracle": 6,
+        "arbitrary-node timeout is verified on the native Linux fork route": 2,
+        "control-exception transport is verified on the native Linux fork route": 6,
+        "native Linux fork timeout worker required": 16,
+        "native Linux fork worker required": 1,
+        "native Linux fork worker unavailable": 16,
+        "process-start failure transport is verified on the native Linux fork route": 1,
+        "run execution lease inheritance requires Linux fork/flock semantics": 1
+      },
+      "test_retry_module": 77,
+      "test_run_context_module": 1,
+      "total": 78
+    },
+    "runtime_origins": {
+      "captured_polisyos_modules": 1838,
+      "independently_counted_regular_file_origins": 1838,
+      "limits": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+      "matched_regular_module_origins": 1838,
+      "origin_mismatches": 0,
+      "unhashed_or_namespace_origins": 0
+    },
+    "selected_modules": [
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "tests/unit/core/run/test_worker_lifecycle.py",
+      "tests/unit/core/phase0/test_run_context.py",
+      "tests/unit/scientist/orchestration/engine/test_retry.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/mirror_contracts/test_local_pool.py",
+      "tests/unit/core/llm/test_cache_settlement.py",
+      "tests/unit/core/llm/test_traced_client_settlement.py",
+      "tests/unit/core/llm/test_response.py",
+      "tests/unit/core/test_llm_core.py",
+      "tests/unit/scientist/orchestration/llm/test_gateway_client_retry.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+      "tests/unit/scientist/orchestration/llm/test_factory.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_portfolio_search.py"
+    ],
+    "source_boundary": {
+      "before_after_full_json_equal": true,
+      "bounded_exception": "One of 14 frontend overlay pins (policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml) is untracked and absent from the before/after tracked snapshot. Its request-time hash matches, but run.py does not recheck this overlay pin after the run; do not claim every untracked input was snapshot-compared.",
+      "index_worktree_posix_maps_equal": true,
+      "pin_sets": {
+        "frontend_overlay_pins": {
+          "count": 14,
+          "tracked_snapshot_matches": 13,
+          "untracked_snapshot_excluded": 1
+        },
+        "r5_applied_source_pins": {
+          "count": 28,
+          "matches_snapshot": true
+        },
+        "selected_test_and_harness_pins": {
+          "count": 25,
+          "matches_snapshot": true
+        }
+      },
+      "source_comparison_flags": {
+        "after": "source-after.json",
+        "before": "source-before.json",
+        "full_r10_snapshot_unchanged": true,
+        "parent_in_separate_frame": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+        "r5_source_pins_unchanged": true,
+        "selected_module_and_harness_pins_unchanged": true
+      },
+      "source_snapshot_sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888",
+      "tracked_entry_count": 25739
+    },
+    "source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+      "parent": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+      "tree": "a866732f7ee37a73a5702494828d46283b73a101"
+    },
+    "status": "bounded_b13_worker_cache_r5_whole_owner_not_established"
+  },
+  "next_checks": [
+    "Resolve the staged snapshot positive-path failure class and repair the R4 manifest-drift mutation discriminator, then repeat the full R4 modules with the same capacity and removal controls.",
+    "Classify and repair the observed failures in the Fabric/CAN, worker, and facade slices with each owning reviewer, then rerun their complete named modules on a frozen source frame.",
+    "Correct the R5 reporter so an anonymous JUnit case cannot become a pass; reconcile collection, first-capture reports, named JUnit outcomes, and execution before any whole-owner verdict.",
+    "Re-run the complete 23-module R5 owner cohort only after source and harness review; preserve Linux-only skips as limitations, not successes.",
+    "Resolve native generated-export parsing and institutional inventory owner identity as separate surface evidence; do not infer them from the current actuals."
+  ],
+  "record_type": "verification_handoff_candidate",
+  "schema": "policyos.e02.current238.composed_consumer_verification_handoff.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+    "historical_source_frame": true,
+    "parent": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+    "published_source_commit_readback": {
+      "bytes": 21609,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-238c715b-implementation-handoff-prepare-20261019/implementation-238c715b-core-worker-cache-fabric-r4-20261019.json",
+      "sha256": "e45311c254fd2684435dd8b99fdf688850dbd88b21b4801807cc9dc23b8ce995"
+    },
+    "tree": "a866732f7ee37a73a5702494828d46283b73a101"
+  },
+  "source_implementation_handoff": {
+    "bytes": 21609,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source61-238c715b-implementation-handoff-prepare-20261019/implementation-238c715b-core-worker-cache-fabric-r4-20261019.json",
+    "sha256": "e45311c254fd2684435dd8b99fdf688850dbd88b21b4801807cc9dc23b8ce995"
+  },
+  "source_overlay": {
+    "description": "The actual requests are bound to the published 238 source commit plus the known frontend working-tree overlay recorded in their requests.",
+    "four_actual_tracked_snapshot_maps_identical": true,
+    "frontend_overlay_pin_count_in_three_current238_requests": 14,
+    "limitation": "The R5 auditor found one of the 14 frontend pins—2026-10-19-e02-lineage-batch-resolution.toml—was untracked and absent from the tracked before/after snapshot; its request-time hash matched, but the runner did not recheck it after the run. Do not claim all untracked inputs were snapshot-compared.",
+    "r5_independent_boundary": {
+      "before_after_full_json_equal": true,
+      "bounded_exception": "One of 14 frontend overlay pins (policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml) is untracked and absent from the before/after tracked snapshot. Its request-time hash matches, but run.py does not recheck this overlay pin after the run; do not claim every untracked input was snapshot-compared.",
+      "index_worktree_posix_maps_equal": true,
+      "pin_sets": {
+        "frontend_overlay_pins": {
+          "count": 14,
+          "tracked_snapshot_matches": 13,
+          "untracked_snapshot_excluded": 1
+        },
+        "r5_applied_source_pins": {
+          "count": 28,
+          "matches_snapshot": true
+        },
+        "selected_test_and_harness_pins": {
+          "count": 25,
+          "matches_snapshot": true
+        }
+      },
+      "source_comparison_flags": {
+        "after": "source-after.json",
+        "before": "source-before.json",
+        "full_r10_snapshot_unchanged": true,
+        "parent_in_separate_frame": "fce2154e50a89ea0ecf57fcc1ce1ba6171dcd2f6",
+        "r5_source_pins_unchanged": true,
+        "selected_module_and_harness_pins_unchanged": true
+      },
+      "source_snapshot_sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888",
+      "tracked_entry_count": 25739
+    },
+    "source_snapshot_refs": [
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-fabric-can-three-actual-r2-root-20261019/source-before.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-worker-two-actual-signal-20261019/source-before.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      {
+        "bytes": 19406955,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-two-actual-20261019/source-before.json",
+        "sha256": "9e511688f867e3641d2d7a5ec817000f136ccdc4e1c1547966203a4676a29888"
+      },
+      {
+        "bytes": 19406955,
+        "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/r4-r2-full-two-module-owner-replay-20261019-04/receipt/source-before.json",
+        "sha256": "91fcdda63d218925a040445755900915f58499f59a432587509ea97056a015d6"
+      }
+    ],
+    "three_request_frontend_pin_maps_identical": true,
+    "tracked_snapshot_path_count": 25739
+  }
+}

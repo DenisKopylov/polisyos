@@ -17890,5 +17890,206 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_native_imports_r5_public_intake_generated_companions_20261019": {
+    "slice_base": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/imports/policy.toml": {
+        "operation": "write",
+        "preimage_sha256": "a233241dd0b8999b8b124c775fbd0bcd3b9bf480e23cff8a0e5df98c2d9acafa",
+        "git_base_preimage_sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+        "postimage_path": "policy-engine/architecture/imports/policy.toml",
+        "postimage_sha256": "a233241dd0b8999b8b124c775fbd0bcd3b9bf480e23cff8a0e5df98c2d9acafa",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/architecture/public_surface/inventory.json": {
+        "operation": "write",
+        "preimage_sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f",
+        "git_base_preimage_sha256": "75274a04b38421580c9aae15d4fd4a1d299d1eb3e8040149c35782cb294e685f",
+        "postimage_path": "policy-engine/architecture/public_surface/inventory.json",
+        "postimage_sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/docs/reference/public-surface.md": {
+        "operation": "write",
+        "preimage_sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf",
+        "git_base_preimage_sha256": "888bf6c1733d3e569195603cef9468c6e5217815a03d0905dee9a35e3c3f3f4b",
+        "postimage_path": "policy-engine/docs/reference/public-surface.md",
+        "postimage_sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/common/README.md": {
+        "operation": "write",
+        "preimage_sha256": "202bd96e0f11c32b505f04a945329554724a34e8b1335a462183388ad6a4d31f",
+        "git_base_preimage_sha256": "9baf6433685730223958295e0974d294c2081b1f990b90752fd102d3252d5911",
+        "postimage_path": "policy-engine/src/polisyos/common/README.md",
+        "postimage_sha256": "202bd96e0f11c32b505f04a945329554724a34e8b1335a462183388ad6a4d31f",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/common/_selected_artifact_intake.py": {
+        "operation": "write",
+        "preimage_sha256": "73d3f08349b0d6f995db3c6aa8f4fe5c94f46d30809a99742633486e08373ab6",
+        "git_base_preimage_sha256": "ae7db1ee9255d13dba678296a46befa7d478279ba07365d3a65b50bc3c746021",
+        "postimage_path": "policy-engine/src/polisyos/common/_selected_artifact_intake.py",
+        "postimage_sha256": "73d3f08349b0d6f995db3c6aa8f4fe5c94f46d30809a99742633486e08373ab6",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/common/canonical_profile.py": {
+        "operation": "write",
+        "preimage_sha256": "ae5c4a431a91b290a4babf28a9a99f9675a8d7801d13524b39d453a613169bc6",
+        "git_base_preimage_sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f",
+        "postimage_path": "policy-engine/src/polisyos/common/canonical_profile.py",
+        "postimage_sha256": "ae5c4a431a91b290a4babf28a9a99f9675a8d7801d13524b39d453a613169bc6",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/ir/analytics/parameters.py": {
+        "operation": "write",
+        "preimage_sha256": "c27300d4a66516b0f582d64392f3b30dbec987c88094a90b68373e9a6cd981bd",
+        "git_base_preimage_sha256": "c70cdc594ab8866f028ec32d9c9a262ad15d9f0f50f122b0668580278465a957",
+        "postimage_path": "policy-engine/src/polisyos/ir/analytics/parameters.py",
+        "postimage_sha256": "c27300d4a66516b0f582d64392f3b30dbec987c88094a90b68373e9a6cd981bd",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py": {
+        "operation": "write",
+        "preimage_sha256": "0bc064bbec2d82397586b80f13dec9ed8ea346d4934503c4082dc96e9f7128a9",
+        "git_base_preimage_sha256": "46a202784523c8aecc1c53f2a8bab13f810374733703f29955bbb9af68e68536",
+        "postimage_path": "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py",
+        "postimage_sha256": "0bc064bbec2d82397586b80f13dec9ed8ea346d4934503c4082dc96e9f7128a9",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py": {
+        "operation": "write",
+        "preimage_sha256": "60363a1a5cdea71c95f678311d7b7e18e0e8f74e066b726d50f08b8853f21e60",
+        "git_base_preimage_sha256": "25c784506b5dfede484da0475a2137e25cfedb94d57c4b40c4fca1dc63e463a6",
+        "postimage_path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "postimage_sha256": "60363a1a5cdea71c95f678311d7b7e18e0e8f74e066b726d50f08b8853f21e60",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/src/polisyos/scientist/policy_design/phase3.py": {
+        "operation": "write",
+        "preimage_sha256": "322d21903ae6fff1be624ffd268141999e21affa6c7ec36817c4f7ff13a001b5",
+        "git_base_preimage_sha256": "f8cb8adbae9de9865c74b4dd66b8232347254b9cca55a3575b5dd68d48b6d770",
+        "postimage_path": "policy-engine/src/polisyos/scientist/policy_design/phase3.py",
+        "postimage_sha256": "322d21903ae6fff1be624ffd268141999e21affa6c7ec36817c4f7ff13a001b5",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/tests/unit/common/test__selected_artifact_intake.py": {
+        "operation": "write",
+        "preimage_sha256": "8e86b4922708ef30942fe9665e8fb60dde6c22f1035f42aeec78824cbfc13efb",
+        "git_base_preimage_sha256": "b0fddd645903f21c110d0825782ffbc11e480f4cd42d002105a02864f42ff333",
+        "postimage_path": "policy-engine/tests/unit/common/test__selected_artifact_intake.py",
+        "postimage_sha256": "8e86b4922708ef30942fe9665e8fb60dde6c22f1035f42aeec78824cbfc13efb",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "711d41704bb53cadf2aa1b06444aa00b632e9b44f4c57c8582f474a3c63d4f8a",
+        "git_base_preimage_sha256": "5bf8882cc829545f06a40b903878abefdfdf677cfebfd50fcbc7eb44eef2afca",
+        "postimage_path": "policy-engine/tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+        "postimage_sha256": "711d41704bb53cadf2aa1b06444aa00b632e9b44f4c57c8582f474a3c63d4f8a",
+        "P39_role": "Reviewed canonical mechanism/test/config or real owner-generated mandatory companion, already root-applied under exact retained source/generator receipts."
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-cas-read-only-public-api.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/core-fragment.toml",
+        "postimage_sha256": "6cc13a376e63735d5378fe15c543e0269ec775ee26b726878785a42e5652a242",
+        "P39_role": "Additive public API release companion with scoped actual local technical review only."
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-common-selected-artifact-reader-api.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/common-fragment.toml",
+        "postimage_sha256": "f29bd3a5ea3e480088825e38ca4186aea0e2a792ce86a21478ebdc394a2a2980",
+        "P39_role": "Additive public API release companion with scoped actual local technical review only."
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261019-core-common.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/local-technical-review-attestation.json",
+        "postimage_sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8",
+        "P39_role": "Mandatory truthful provenance companion to release inventory-review markers."
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/source-application.json",
+      "sha256": "0200899775f0635eea155ea6660f1e16bc4b239bc80cf818408c19763e963f10"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-import-violations-systemic-author-20261019/r5-final/candidate-source-pins-r5-final.json",
+        "sha256": "c219efb08183e04351cde1ad91f47eabbfb9e3010c4263e94662499f059c827f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-import-violations-systemic-author-20261019/r4/candidate-source-pins-r4.json",
+        "sha256": "7ba16ebd6092b3b95e727ce05cdbfb7ce57f55a681f8b567a1a637d79af9c1d4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-import-violations-systemic-author-20261019/r5-final/independent-review-r5-final-20261019.md",
+        "sha256": "7c7f8d47c1369cb1621b26df28d8038686be0fc575457856a5bbb9b2cee050a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-imports-r4-independent-20261019.md",
+        "sha256": "3f8b05472ea47f4446d6ec2e90fb1fac86755037e8f57097d52c104790371d13"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-public-api-release-companions-prepare-20261019/manifest.json",
+        "sha256": "ecf4d1acd67f9d4d066209a5970077cdef70c467c2ffa4c2e15d41924fa523c6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+        "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/review.json",
+        "sha256": "cb980bc97646c304c4f2a2e495875bbd80068ecd5914f472019c838f041ffe05"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/source-input-base-comparison-erratum.md",
+        "sha256": "8cfa28645f2ef9be93c31ae93af364ddd35dd4c6c1040236dbfd3f5029109706"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-readback.json",
+        "sha256": "0a5d625d49b32676142d7fd3b8829e4eaa429567f68a7c57ae3febc05510ed1d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/receipt.json",
+        "sha256": "53435fc05dd1b032f6f1ab98e8100b2398b6a82c29c5030d2e0e1ef0ec6aa9de"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/local-technical-review-attestation.json",
+        "sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8"
+      }
+    ],
+    "owned_applied_provenance": {
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/source-applied.json",
+        "sha256": "5397172305e8b9dc6edadb86df34b58d1b276f1ef844ce45701aac0ec7c90a94"
+      },
+      "generator_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-readback.json",
+        "sha256": "0a5d625d49b32676142d7fd3b8829e4eaa429567f68a7c57ae3febc05510ed1d"
+      }
+    },
+    "P40": "SAME selected-view/content-binding and boundary-owner classes, widened through typed store adapter/public shared owner, complete sibling and blob-corruption falsifiers plus mandatory generated/release/attestation companions. Do not instance-patch or launder technical projection into owner authority.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Focused full import owner script now PASS zero violations without exceptions; the exact13native SOTA profile remains pending final freeze.",
+      "Scoped guardrails actual FAIL deep-import baseline drift. Baseline was deliberately NOT rewritten by owner sync; full complete delta investigation proceeds separately, no inherited/P41 claim or automatic acceptance.",
+      "RealCAS wrong-sibling and corrupted-blob negatives are adopted but product tests/removal execution remain UNRUN after composition.",
+      "Generated inventory and docs are source-derived projections, independently reviewed over complete delta. Source-declared Core candidates stay unresolved runtime exports; row-level release marker is consumer-asserted technical-review evidence only, not team-architecture owner approval or G code acceptance.",
+      "legal_requirement remains unappointed/ungoverned root; direction matrix permits existing Runtime consumption without an ownership/governance appointment. Historical June public API snapshot is unchanged and has a separate concrete G decision packet."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete Common and IR consumer test modules, remove-selected-profile and remove-byte-read behavioral controls, importer tests; after final code/input/profile freeze run exact native13row and generated drift controls. Independently review full deep-import delta before any baseline decision; G acceptance and formal ID adjudication remain separate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -3,11 +3,22 @@ from __future__ import annotations
 import pytest
 
 
-def test_optional_selected_artifact_distinguishes_absence_and_refusal() -> None:
+def test_private_selected_artifact_path_reexports_the_public_owner() -> None:
     from polisyos.common._selected_artifact_intake import (
+        read_optional_selected_artifact as compatibility_export,
+    )
+    from polisyos.common.canonical_profile import (
+        read_optional_selected_artifact as public_export,
+    )
+
+    assert compatibility_export is public_export
+
+
+def test_optional_selected_artifact_distinguishes_absence_and_refusal() -> None:
+    from polisyos.common.canonical_profile import (
+        CanonicalProfileRefusalError,
         read_optional_selected_artifact,
     )
-    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 
     assert (
         read_optional_selected_artifact(
@@ -46,9 +57,7 @@ def test_optional_selected_artifact_distinguishes_absence_and_refusal() -> None:
 
 
 def test_optional_selected_artifact_does_not_relabel_unexpected_internal_errors() -> None:
-    from polisyos.common._selected_artifact_intake import (
-        read_optional_selected_artifact,
-    )
+    from polisyos.common.canonical_profile import read_optional_selected_artifact
 
     class InternalInvariantError(Exception):
         pass

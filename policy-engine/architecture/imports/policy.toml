@@ -104,7 +104,9 @@ scientist = [
 ]
 data_requirement = ["data_requirement", "obligation_graph", "obligation_rules", "policy_grammar", "scientist", "core", "ir", "common"]
 corpus = ["corpus", "common"]
-runtime = ["runtime", "pdc", "evidence", "scholar_requirement", "scholar", "berl", "scientist", "lex", "data_requirement", "data_forge", "foundry", "method_requirement", "participation_requirement", "fabric", "core", "ir", "common"]
+# Runtime consumes the existing public calibration facade and legal-requirement root.
+# legal_requirement remains deliberately ungoverned in packages/boundaries.toml.
+runtime = ["runtime", "pdc", "evidence", "scholar_requirement", "scholar", "berl", "calibration", "scientist", "lex", "legal_requirement", "data_requirement", "data_forge", "foundry", "method_requirement", "participation_requirement", "fabric", "core", "ir", "common"]
 obligation_graph = ["obligation_graph", "core", "ir", "common"]
 scholar_requirement = ["scholar_requirement", "core", "common"]
 pdc = ["pdc", "core", "ir", "common"]

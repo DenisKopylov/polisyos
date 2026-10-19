@@ -9,8 +9,10 @@ from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
-from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.common.canonical_profile import (
+    CanonicalProfileRefusalError,
+    read_optional_selected_artifact,
+)
 from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,

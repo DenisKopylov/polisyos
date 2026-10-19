@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.scoped_local_inventory_technical_review.r1",
+  "reviewed_source_base": {
+    "commit": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "tree": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa"
+  },
+  "known_source_composition": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/source-applied.json",
+    "sha256": "5397172305e8b9dc6edadb86df34b58d1b276f1ef844ce45701aac0ec7c90a94"
+  },
+  "generator_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-readback.json",
+    "sha256": "0a5d625d49b32676142d7fd3b8829e4eaa429567f68a7c57ae3febc05510ed1d"
+  },
+  "reviewer": "/root/directory_factor_independent",
+  "independent_technical_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/review.json",
+    "sha256": "cb980bc97646c304c4f2a2e495875bbd80068ecd5914f472019c838f041ffe05"
+  },
+  "scope_clarification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/source-input-base-comparison-erratum.md",
+    "sha256": "8cfa28645f2ef9be93c31ae93af364ddd35dd4c6c1040236dbfd3f5029109706"
+  },
+  "exact_owner_outputs": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f"
+    },
+    {
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "sha256": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588"
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf"
+    }
+  ],
+  "reviewed_api_rows": [
+    "e02-core-cas-read-only-public-api",
+    "e02-common-selected-artifact-reader-public-api"
+  ],
+  "technical_projection_property": "Complete current source-derived inventory/reference delta and owner input basis reconciled. Core candidates remain source declarations with unresolved runtime export resolution; private compatibility module is not appointed as a public entrypoint.",
+  "predicate_basis": {
+    "generated_projection": "independently_reconciled",
+    "runtime_export_enumeration": "not_established",
+    "team_architecture_inventory_owner_approval": "not_established",
+    "G_code_acceptance": "not_established"
+  },
+  "marker_semantics": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+    "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725",
+    "label": "consumer_asserted marker supported by this pinned local technical review; not an owner credential or authority-grade gate"
+  },
+  "native_verification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/receipt.json",
+    "sha256": "53435fc05dd1b032f6f1ab98e8100b2398b6a82c29c5030d2e0e1ef0ec6aa9de",
+    "limits": "Full import owner script PASS total0; scoped guardrails FAIL deep-import baseline drift. Exact13row native profile and source consumer tests remain unrun after adoption."
+  },
+  "source_freeze": false,
+  "integration_publication": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

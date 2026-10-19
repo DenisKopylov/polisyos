@@ -70,14 +70,13 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   body. Cohesive children hold only extracted helper concerns: logging sinks, JAX backend selection,
   strict JSON intake, and latest-fact ordering. New helpers stay private when they were not old module
   bindings.
-- `canonical_profile.py` is a supported, storage-agnostic helper: it parses the exact raw selected
-  manifest, distinguishes a missing declaration from malformed-present data, and applies
-  caller-supplied codecs to verify declared payload bytes. The caller keeps its own typed tags and
-  exceptions. The internal `common/_selected_artifact_intake.py` wrapper preserves `None` only for a
-  missing selector; once selected, expected storage, decoding, and validation failures or a
-  reader-returned `None` become an owner-coded `CanonicalProfileRefusalError`, while unexpected
-  exceptions propagate unchanged. It is not exported by either Common facade or the supported
-  profile module. The intake wrapper establishes no writer identity or producer authority.
+- `canonical_profile.py` is a supported, storage-agnostic owner: it parses the exact raw selected
+  manifest, distinguishes a missing declaration from malformed-present data, verifies declared
+  payload bytes with caller-supplied codecs, and preserves the shared selected-read distinction
+  between true absence and owner-coded refusal. Callers retain their own typed tags, exception codes,
+  and admission rules. `common/_selected_artifact_intake.py` is an identity-preserving compatibility
+  import path to the same selected-read helper. Neither helper establishes writer identity or producer
+  authority.
 - `migrations/` owns package-local migration manifest helpers.
 
 ## Extension Points

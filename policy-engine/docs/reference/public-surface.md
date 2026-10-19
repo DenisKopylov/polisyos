@@ -110,7 +110,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 ## `polisyos.common`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.common`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.hashing`, `polisyos.common.migrations`
+- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.hashing`, `polisyos.common.migrations`
 - Facade policy: expected `lazy_facade`, observed `unresolved_exports`
 - Owner: `team-polisyos`
 - README: `src/polisyos/common/README.md`
@@ -123,7 +123,8 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.common` | `src/polisyos/common/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.common.config` | `src/polisyos/common/config.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.common.text` | `src/polisyos/common/text.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.common.config` | `src/polisyos/common/config/__init__.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.common.canonical` | `src/polisyos/common/canonical.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.common.canonical_profile` | `src/polisyos/common/canonical_profile.py` | `unresolved_exports` | unknown (no names proven) |
 | `polisyos.common.hashing` | `src/polisyos/common/hashing.py` | `unresolved_exports` | unknown (no names proven) |
@@ -139,7 +140,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 2 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (7; native exports unproved)</summary>
+<details><summary>Source-declared candidates (8; native exports unproved)</summary>
 
 ```text
 async_tools
@@ -148,14 +149,33 @@ jax_env
 logger
 migrations
 serialization
+text
 timestamps
+```
+
+</details>
+
+#### `polisyos.common.text`
+
+- Source: `src/polisyos/common/text.py`
+- Facade: `unresolved_exports`
+- Summary: Pure text normalization helpers shared across PolicyOS packages.
+- Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib`.
+- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
+- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
+- Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
+
+<details><summary>Source-declared candidates (1; native exports unproved)</summary>
+
+```text
+collapse_ws
 ```
 
 </details>
 
 #### `polisyos.common.config`
 
-- Source: `src/polisyos/common/config.py`
+- Source: `src/polisyos/common/config/__init__.py`
 - Facade: `unresolved_exports`
 - Summary: Explicit process bootstrap helpers for env defaults, validation, and logging.
 - Export resolution incomplete: `Unresolved import-time Import outside pure-declaration grammar: src/polisyos/common/__init__.py:import importlib`.
@@ -210,7 +230,7 @@ to_canonical_bytes
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (8; native exports unproved)</summary>
+<details><summary>Source-declared candidates (9; native exports unproved)</summary>
 
 ```text
 CanonicalProfileDeclaration
@@ -220,6 +240,7 @@ CanonicalProfileStatus
 decode_profiled_canonical_bytes
 parse_canonical_profile
 read_canonical_profiled_bytes
+read_optional_selected_artifact
 require_declared_profile
 ```
 
@@ -458,7 +479,7 @@ security
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (89; native exports unproved)</summary>
+<details><summary>Source-declared candidates (92; native exports unproved)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -474,6 +495,8 @@ ArtifactManifest
 ArtifactMemberReceipt
 ArtifactOwnershipError
 ArtifactOwnershipIndex
+ArtifactReadOnlyUnavailableError
+ArtifactReader
 ArtifactRef
 ArtifactSameInputClosureInfo
 ArtifactSigner
@@ -513,6 +536,7 @@ NodeStatus
 ProducerInfo
 PutOptions
 RawManifestBytesReader
+ReadOnlyFileSystemCAS
 RegistryBundle
 RegistryBundlePayload
 RootedArtifactStore

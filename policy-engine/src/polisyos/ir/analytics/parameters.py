@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts import ArtifactStore as CoreArtifactStore
-from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import (
     ArtifactStore,
@@ -17,6 +15,7 @@ from polisyos.ir.artifacts import (
 )
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
     ContextAdaptiveParameterBundleRef,
     CrossGraphEvidenceProfileRef,
 )
@@ -190,11 +189,16 @@ def _validate_v1_1_input_lineage(
     if source_profile is None:
         raise ValueError("A selected SKG source requires its exact manifest profile")
     try:
-        manifest = resolve_manifest_by_profile(
-            cast("CoreArtifactStore", store),
-            str(source_input.artifact_id),
-            source_profile,
+        selected_source_ref = ArtifactRefModel(
+            artifact_id=source_input.artifact_id,
+            kind=_SKG_SOURCE_SNAPSHOT_KIND,
+            media_type=_SKG_SOURCE_SNAPSHOT_MEDIA_TYPE,
+            manifest_profile_sha256=source_profile,
         )
+        manifest = store.get_manifest(selected_source_ref)
+        # A profile digest identifies manifest metadata, not the current blob bytes.
+        # Keep the IR store's selected-view read so profile and payload stay bound.
+        store.get_bytes(selected_source_ref)
     except (OSError, TypeError, ValueError) as exc:
         raise ValueError("Selected SKG source profile could not be resolved") from exc
     schema = manifest.artifact_schema

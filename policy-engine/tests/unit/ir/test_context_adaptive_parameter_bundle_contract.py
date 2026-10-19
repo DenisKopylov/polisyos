@@ -4,9 +4,11 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
     ArtifactWriteOptions,
     ProducerInfo,
     SchemaInfo,
+    artifact_manifest_profile_sha256,
     input_ref_from_artifact_ref,
     profile_bound_ref,
 )
@@ -27,7 +29,7 @@ from polisyos.ir.analytics.parameters import (
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import ArtifactID, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.registry.refs import ContextAdaptiveParameterBundleRef
+from polisyos.ir.registry.refs import ArtifactRefModel, ContextAdaptiveParameterBundleRef
 
 
 def test_context_adaptive_parameter_bundle_artifact_roundtrip(tmp_path) -> None:
@@ -105,6 +107,114 @@ def _profiled_source_input(
     )
     selected = profile_bound_ref(store, ref)
     return input_ref_from_artifact_ref(selected, role="skg_source_snapshot")
+
+
+def test_context_adaptive_parameter_bundle_v1_1_resolves_the_exact_skg_source_view(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ir_store = _ensure_ir_artifact_store(store)
+
+    def put_source_view(kind: str):
+        ref = store.put_bytes(
+            b"{}",
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=kind, version="1.0"),
+                producer=ProducerInfo(component="tests.ir.parameters", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        return ref, input_ref_from_artifact_ref(ref, role="skg_source_snapshot")
+
+    sibling_ref, sibling = put_source_view("other.snapshot")
+    selected_source_ref, selected = put_source_view("scientist.skg_source_snapshot")
+
+    assert selected.artifact_id == sibling.artifact_id
+    assert selected.manifest_profile_sha256 is not None
+    assert sibling.manifest_profile_sha256 is not None
+    assert selected.manifest_profile_sha256 != sibling.manifest_profile_sha256
+    selected_selector = ArtifactRefModel(
+        artifact_id=selected.artifact_id,
+        kind="scientist.skg_source_snapshot",
+        media_type="application/json",
+        manifest_profile_sha256=selected.manifest_profile_sha256,
+    )
+    sibling_selector = ArtifactRefModel(
+        artifact_id=sibling.artifact_id,
+        kind="other.snapshot",
+        media_type="application/json",
+        manifest_profile_sha256=sibling.manifest_profile_sha256,
+    )
+    assert ir_store.get_manifest(selected_selector).kind == "scientist.skg_source_snapshot"
+    assert ir_store.get_manifest(sibling_selector).kind == "other.snapshot"
+    assert ir_store.get_manifest(selected.artifact_id).kind == "other.snapshot"
+    assert store.get_bytes(selected_source_ref) == b"{}"
+    assert store.get_bytes(sibling_ref) == b"{}"
+
+    ref = persist_context_adaptive_parameter_bundle_v1_1(
+        ir_store,
+        _bundle_v1_1(),
+        inputs=[_graph_input(), selected],
+    )
+
+    assert ir_store.get_manifest(ref).inputs[1] == selected
+
+
+def test_context_adaptive_parameter_bundle_v1_1_rejects_corrupt_selected_skg_bytes(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ir_store = _ensure_ir_artifact_store(store)
+
+    def put_source_view(kind: str):
+        ref = store.put_bytes(
+            b"{}",
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=kind, version="1.0"),
+                producer=ProducerInfo(component="tests.ir.parameters", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        return ref, input_ref_from_artifact_ref(ref, role="skg_source_snapshot")
+
+    _sibling_ref, _sibling = put_source_view("other.snapshot")
+    selected_ref, selected = put_source_view("scientist.skg_source_snapshot")
+    assert selected.manifest_profile_sha256 is not None
+    selected_selector = ArtifactRefModel(
+        artifact_id=selected.artifact_id,
+        kind="scientist.skg_source_snapshot",
+        media_type="application/json",
+        manifest_profile_sha256=selected.manifest_profile_sha256,
+    )
+    manifest_before_corruption = ir_store.get_manifest(selected_selector)
+    assert manifest_before_corruption.kind == "scientist.skg_source_snapshot"
+    assert manifest_before_corruption.media_type == "application/json"
+    assert manifest_before_corruption.artifact_schema is not None
+    assert manifest_before_corruption.artifact_schema.name == "scientist.skg_source_snapshot"
+    assert manifest_before_corruption.artifact_schema.version == "1.0"
+    assert artifact_manifest_profile_sha256(manifest_before_corruption) == (
+        selected.manifest_profile_sha256
+    )
+    assert ir_store.get_manifest(selected.artifact_id).kind == "other.snapshot"
+
+    blob_path, _manifest_path = store._paths(selected.artifact_id)
+    blob_path.write_bytes(b'{"tampered":true}')
+    assert ir_store.get_manifest(selected_selector) == manifest_before_corruption
+
+    with pytest.raises(
+        ValueError, match="Selected SKG source profile could not be resolved"
+    ) as error:
+        persist_context_adaptive_parameter_bundle_v1_1(
+            ir_store,
+            _bundle_v1_1(),
+            inputs=[_graph_input(), selected],
+        )
+    assert isinstance(error.value.__cause__, ArtifactIntegrityError)
+    assert selected_ref.manifest_profile_sha256 == selected.manifest_profile_sha256
 
 
 def test_context_adaptive_parameter_bundle_v1_1_resolves_selected_skg_source_profile(

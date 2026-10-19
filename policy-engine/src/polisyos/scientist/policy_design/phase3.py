@@ -7,8 +7,10 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
-from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.common.canonical_profile import (
+    CanonicalProfileRefusalError,
+    read_optional_selected_artifact,
+)
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes

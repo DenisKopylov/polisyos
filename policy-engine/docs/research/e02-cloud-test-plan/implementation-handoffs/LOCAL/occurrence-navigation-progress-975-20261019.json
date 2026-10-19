@@ -244,7 +244,7 @@
       "qualification_for_975": "Historical defining baseline only, not724 or975 executed product source; current13contoursUNRUN",
       "executed_source_tree": "68ae933789c2160911260d769039757c7a142a58",
       "launcher_context_head": "72470bc9cf9734301cfb3b79984517f52b7a4157",
-      "wall_boundary": "R15 outer supervisor; inner30.41s is separately recorded in the receipt",
+      "wall_boundary": "R15 outer supervisor; the referenced receipt retains inner-process and JUnit timings as distinct measurements",
       "latest_actual_receipt": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-b-baseline-contextual-runner-r15-actual-receipt-20261019/receipt.json",
         "sha256": "2f76c19fed3c97cf2eaa3f2f08f192bde398458b5f9a0d023b381d89dc855592"

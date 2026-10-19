@@ -1143,7 +1143,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
-      "sha256": "7e37c21af4a27fa5bf8a421e6a678edc1aa64996e9c45aa9f34db590ace0c9ac"
+      "sha256": "0788f5af53f5f0ff7886212bd8a58650874d34fa5ecb69cec365461df63f5a55"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -1218,7 +1218,7 @@
     ],
     "occurrence_progress": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
-      "sha256": "7e37c21af4a27fa5bf8a421e6a678edc1aa64996e9c45aa9f34db590ace0c9ac"
+      "sha256": "0788f5af53f5f0ff7886212bd8a58650874d34fa5ecb69cec365461df63f5a55"
     },
     "published_candidate_last_verified": {
       "sha": "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9",

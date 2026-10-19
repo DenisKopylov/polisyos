@@ -50,7 +50,7 @@ def _linear(
             "coefficients": coefficients or {},
             "noise_std": noise_std,
         },
-        source=MechanismSource.DATA_FITTED,
+        source=MechanismSource.DEFAULT,
     )
 
 
@@ -60,12 +60,12 @@ def _scm(
     edges: list[tuple[str, str]],
     mechanisms: list[NodeMechanism],
 ) -> StructuralCausalModelSpec:
-    """Build a fitted SCM fixture accepted by the public query entrypoint."""
+    """Build a synthetic, explicitly declared SCM for the public query entrypoint."""
     return StructuralCausalModelSpec(
         graph=_graph(*edges, nodes=nodes),
         mechanisms=mechanisms,
         fitted=True,
-        fit_method="gcm",
+        fit_method="manual",
     )
 
 
@@ -221,6 +221,72 @@ def test_scm03_b224_pruning_preserves_logical_draws_for_relevant_chain(
     assert with_irrelevant["query_result"].result_distribution == pytest.approx(
         without_irrelevant["query_result"].result_distribution
     )
+
+
+def _b224_reordered_active_models() -> tuple[StructuralCausalModelSpec, StructuralCausalModelSpec]:
+    """Build one same-DAG profile whose independent active siblings swap order."""
+    mechanisms = [
+        _linear("R", noise_std=1.0),
+        _linear("B", parents=["R"], coefficients={"R": 0.5}, noise_std=0.8),
+        _linear("C", parents=["R"], coefficients={"R": -0.25}, noise_std=1.2),
+        _linear("X", intercept=91.0, noise_std=8.0),
+        _linear(
+            "Y",
+            parents=["B", "C", "X"],
+            intercept=1.0,
+            coefficients={"B": 2.0, "C": -3.0, "X": 1.0},
+            noise_std=0.2,
+        ),
+    ]
+    common_edges = [("B", "Y"), ("C", "Y"), ("X", "Y")]
+    first = _scm(
+        nodes=["R", "B", "C", "X", "Y"],
+        edges=[("R", "B"), ("R", "C"), *common_edges],
+        mechanisms=mechanisms,
+    )
+    reversed_siblings = _scm(
+        nodes=["R", "B", "C", "X", "Y"],
+        edges=[("R", "C"), ("R", "B"), *common_edges],
+        mechanisms=mechanisms,
+    )
+    return first, reversed_siblings
+
+
+def test_scm03_b224_reordered_active_ancestors_keep_per_node_draws() -> None:
+    """Reordering real active siblings cannot remap their seeded random streams."""
+    first, reversed_siblings = _b224_reordered_active_models()
+    first_order = gcm_query_module._topological_order(first)
+    reversed_order = gcm_query_module._topological_order(reversed_siblings)
+    assert first_order.index("B") < first_order.index("C")
+    assert reversed_order.index("C") < reversed_order.index("B")
+
+    query = _interventional_query(treatment_value=2.0, n_samples=64)
+    first_result = _run(first, query, seed=31)["query_result"].result_distribution
+    reordered_result = _run(reversed_siblings, query, seed=31)["query_result"].result_distribution
+
+    assert first_result == reordered_result
+
+
+def test_scm03_b224_reordered_draws_detect_shared_rng_mutant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A marker-preserving shared-RNG mutant makes the reordered witness diverge."""
+    first, reversed_siblings = _b224_reordered_active_models()
+    query = _interventional_query(treatment_value=2.0, n_samples=64)
+
+    def run_with_shared_rng(model: StructuralCausalModelSpec) -> list[float]:
+        shared_rng = np.random.default_rng(31)
+        monkeypatch.setattr(
+            gcm_query_module._LogicalStreamFactory,
+            "generator",
+            lambda _factory, *, namespace, label: shared_rng,
+        )
+        return _run(model, query, seed=31)["query_result"].result_distribution
+
+    first_mutant = run_with_shared_rng(first)
+    reordered_mutant = run_with_shared_rng(reversed_siblings)
+
+    assert first_mutant != reordered_mutant
 
 
 def test_scm03_b224_shift_intervention_retains_natural_dependency() -> None:

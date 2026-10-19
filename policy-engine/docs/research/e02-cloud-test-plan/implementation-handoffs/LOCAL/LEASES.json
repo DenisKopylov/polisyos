@@ -24010,5 +24010,98 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b224-truthful-scm-fixture-and-reordered-draw-witness-20261019": {
+    "slice_base": "b7709a52da573ca618ed6aef8a0c72923ee4f3b1",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_scm_03.py": {
+        "operation": "write",
+        "preimage_sha256": "89705540b417ac45c780a7c57478139eaa2c0f59ba9dcb37a1f671afbdb0c6a8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b220-b224-current-selector-audit-20261019/test_scm_03_overlay.py",
+        "postimage_sha256": "d2b00eca3bbcd0c99d431ebc7ed4bc53938583b95be3f6d0ccdeb13c9763abc4"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/source-application.json",
+      "sha256": "6e718c3af0f5b82653eea9aa0e47dea36dd70e2b9e9d367f6522adb3689696c5"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b224-synthetic-scm-reorder-companion-adoption-v3-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b220-b224-current-selector-audit-20261019/assessment.json",
+        "sha256": "669abc0659e5b6b72a6158dc94ca1dc4ef12c29fecd517b3de86992276f20f7b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-retirement-independent-b220-b224-review-20261019/review-r2.json",
+        "sha256": "655b67b74ac13709f5c6968da51141acfba5db3d2f5914d4276ecca51961e6da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b220-b224-current-selector-audit-20261019/fixture-and-reorder-witness.patch",
+        "sha256": "d1a32e1f0935119ad076f5a727feadc6b4c47040373de2deefe0864304262e4a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r3-ancestor-20261019/apply-and-commit.py",
+        "sha256": "e6b55994646f5342dc83d674fecdfeee79faeeabc77200eaf50f1342e03d10d1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same SCM semantic-verification class deepened to active-sibling reorder, after correcting the synthetic fixture contract; one generalized real-query positive/removal control, no production guard or selected-backend substitution.",
+    "bounded_proof": "B220 canonical21 cases PASS atb770; B224 raw postimage wholemodule11PASS plus3public surgery cases PASS. Independent review GO to source test adoption/replay. Canonical priorB224 fixture fails before query under SCM1.2; handcrafted mechanisms are manual/default, not selected source-bound GCM fits.",
+    "limitations": [
+      "Postimage behavior is bounded prototype evidence; adopted canonical wholemodule needs replay.",
+      "Selected source-bound GCM query is Darwin SKIP and still needs supported Linux/Python3.12 DoWhy worker.",
+      "B220 content-key LRU collects source object but retains immutable content until bounded eviction; F-M9/G adjudication remains distinct from immediate per-object entry deletion.",
+      "No formal closure, calibration, production currentness, or G acceptance.",
+      "Two known-owned incomplete N7/B108 test edits remain unchanged outside this commit, with explicit post-hoc preservation provenance. No whole-worktree cleanliness or semantic acceptance of those edits is claimed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay canonical entire SCM03 module on committed source with current origins and native config; include B220 exact selectors and selected Linux GCM route in final composed/four-base coverage.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

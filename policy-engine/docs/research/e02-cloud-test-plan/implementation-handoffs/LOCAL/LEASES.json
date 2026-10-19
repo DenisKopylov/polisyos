@@ -23127,5 +23127,104 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "frontend-profile-lineage-whole-fixture-r3-20261019": {
+    "slice_base": "362955d833d0242575e65ab8ca5c6e2840947a12",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/test/fixtures/profileLineageBatch.ts": {
+        "operation": "write",
+        "preimage_sha256": "226eb92b96f20539ee8b5b0798cb1b94ec9537bfcc80cb64a139215692dfdb4b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/test/fixtures/profileLineageBatch.ts",
+        "postimage_sha256": "bafb602d09110c8e84b8f01d86a6a7104873cc7d9a2615c3198065f891813a40"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "7286f522b8d767e6cfe2a40bb8568d90a8079a199de0bffa5a858d7935c8113f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "postimage_sha256": "e4c57431f21cd81881726d5e176c5b36cd5d6772424f4bcf84cbb95bb99fd733"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "9b1c65dbcf749210c3f4dbca91b96bea916186af799eefbd0ec03b399a8de91e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+        "postimage_sha256": "5218f4e08941dc186d259ed2f8d9b7115961978c952ffde2e835eb73125dd74b"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "052ac3e021ae9bc997728a66e31b495fd79e6bb83364c9a7c9666e63570f1d59",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+        "postimage_sha256": "4808d9d14001221cfb05ca362bed2baad12dcab0ca02e0c11be7a4675424d938"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "bd6b9e05a246cc58a1b7175172c64f4ec3d005b5674dc7058653810d8fe2e965",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+        "postimage_sha256": "5b3cad8e62aab20c52a1f74e7808ada51c98a75decf325ed04bbc5adbcd708e3"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "904b453d78d1f91c62db342cffcdc0108bf8f5728af9ac5d08470bd0418e33f6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+        "postimage_sha256": "3907df6ec982a9e67ddf0bc12c084230e0659c4191a83510edc06ef5947aab8c"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "e47e21256eaeb305ff5425c924f18c8115739ae4bdb6121e4c67b2a2103f7185",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx",
+        "postimage_sha256": "e7a0fe50355fc08cd5b78d963cf87dcff0d8f784035142f36340817577eb39d3"
+      },
+      "policy-engine/apps/runtime-dashboard/src/test/trustViewQueries.ts": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/postimage-r3/policy-engine/apps/runtime-dashboard/src/test/trustViewQueries.ts",
+        "postimage_sha256": "cfbec3c67ab852848fbe4b6ecfa23aa9ef8bdae4b6f538a434a60073d69b6416"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/source-application.json",
+      "sha256": "55347d45da5bea305cb47c4e55b7adcc68f2fe521e0ef537fff45090e7e068b8"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/manifest.json",
+        "sha256": "315efe450e0c6fdc8a72bcfdf0caa6a7deb4a74bea290fc5e3640b4f26766a1b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-whole-class-repair-20261019/r3/r3-v3.patch",
+        "sha256": "d5eaba7dee1dbbd0c2a243c018a18260a6d970924c7c91ca6c395ea4cfebbcb3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-seven-delta-independent-20261019/review-r3-delta-v1.json",
+        "sha256": "3bb807c28b05d60a0b95ff4855f9a7a8ab2796db0b6ddf99ea5d9eef732c535a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-seven-delta-independent-20261019/review-v1.json",
+        "sha256": "45248c64a3b866f9a801ea2473c3991c1a7cd70c38d7250cfc3e1ce90bd745cb"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same fixture/oracle class widened across complete 24-module frontend scope; R3 removes two independent-review-confirmed unused imports without changing any of43 affected test titles or production code.",
+    "bounded_proof": "Independent R2 semantics review plus R3 exact two-import delta review; native ESLint.lintText configured on all8 postimages, with helper filename mapping disclosed.",
+    "limitations": [
+      "No runtime acceptance or formal finding closure.",
+      "Most recent whole24-module source-e73 run:90PASS7FAIL; wholeapp TypeScript9diagnostics, seven generatedAPI and two fixture diagnostics.",
+      "Configured lint of new helper mapped to existing typed fixture filename; canonical native hooks still required.",
+      "Seven generated API TypeScript diagnostics remain pending admitted N11 owner source; no manual generated edits or suppressed typechecks."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Full24-module ordinary Vitest and wholeapp TypeScript once after composed upstream/generated freeze; retain all actual FAIL/ERROR/SKIP and profile/status removal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -6,6 +6,10 @@ import { createQueryHookHarness } from "@/test/queryHook";
 import {
   lineageBatchFixture,
   lineageGraphFixture,
+  profileBoundLineageGraphFixture,
+  profileTrustMetadataFixture,
+  type LineageBatchMetaFixture,
+  type LineageTrustMetadataFixture,
 } from "@/test/fixtures/profileLineageBatch";
 
 import {
@@ -33,9 +37,7 @@ import {
   useLineageBatch,
 } from "./useLineageBatch";
 
-const meta: LineageResponsePayload["meta"] & {
-  source_kinds: "core_run"[];
-} = {
+const meta: LineageBatchMetaFixture = {
   generated_at: "2026-04-24T12:00:00Z",
   request_id: "req-lineage-hook",
   source_kinds: ["core_run"],
@@ -130,10 +132,13 @@ describe("lineage hooks", () => {
   it("keeps same-byte artifact views with different profiles as separate batch selectors", async () => {
     const bridge = runtimeBridge();
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
-      batchResponse([
-        profileGraph(profileA, "verified"),
-        profileGraph(profileB, "verified"),
-      ]),
+      batchResponse(
+        [
+          profileGraph(profileA, "verified"),
+          profileGraph(profileB, "verified"),
+        ],
+        [selectorA.lineageId, selectorB.lineageId],
+      ),
     );
 
     const harness = bridgeWrapper(bridge);
@@ -171,7 +176,7 @@ describe("lineage hooks", () => {
     const bridge = runtimeBridge();
     const graph = profileGraph(profileA, "verified");
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
-      batchResponse([graph]),
+      batchResponse([graph], [selectorA.lineageId]),
     );
 
     const harness = bridgeWrapper(bridge);
@@ -207,7 +212,10 @@ describe("lineage hooks", () => {
     const bridge = runtimeBridge();
     vi.mocked(bridge.fetchLineageBatch)
       .mockResolvedValueOnce(
-        batchResponse([profileGraph(profileA, "verified")]),
+        batchResponse(
+          [profileGraph(profileA, "verified")],
+          [selectorA.lineageId],
+        ),
       )
       .mockRejectedValueOnce(new Error("profile batch revalidation failed"));
 
@@ -353,7 +361,9 @@ describe("lineage hooks", () => {
       trustMetadata: null,
     });
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
-      batchResponse([legacyGraph], { responseScope: undefined }),
+      batchResponse([legacyGraph], [legacySelector.lineageId], {
+        responseScope: undefined,
+      }),
     );
     const harness = bridgeWrapper(bridge);
 
@@ -379,7 +389,10 @@ describe("lineage hooks", () => {
   });
 
   it("rejects a same-id response carrying the sibling profile", () => {
-    const response = batchResponse([profileGraph(profileB, "verified")]);
+    const response = batchResponse(
+      [profileGraph(profileB, "verified")],
+      [selectorA.lineageId],
+    );
     expect(() =>
       alignLineageBatchResponses([selectorA], response, {
         runId: "run-1",
@@ -399,7 +412,7 @@ describe("lineage hooks", () => {
       sourceRunId: null,
       trustMetadata: null,
     });
-    const response = batchResponse([legacy]);
+    const response = batchResponse([legacy], [selectorA.lineageId]);
 
     expect(
       alignLineageBatchResponses(
@@ -423,7 +436,7 @@ describe("lineage hooks", () => {
       trustMetadata: null,
     });
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
-      batchResponse([undeclared]),
+      batchResponse([undeclared], [selectorA.lineageId]),
     );
 
     const harness = bridgeWrapper(bridge);
@@ -447,7 +460,7 @@ describe("lineage hooks", () => {
 
   it("requires every profile/run/origin/time selector member", () => {
     const graph = profileGraph(profileA, "verified");
-    const response = batchResponse([graph]);
+    const response = batchResponse([graph], [selectorA.lineageId]);
 
     expect(() =>
       alignLineageBatchResponses(
@@ -475,18 +488,24 @@ describe("lineage hooks", () => {
       artifact_ref_provenance: "run_output_ref",
     };
     expect(() =>
-      alignLineageBatchResponses([selectorA], batchResponse([siblingOrigin]), {
-        runId: "run-1",
-        temporalScope,
-      }),
+      alignLineageBatchResponses(
+        [selectorA],
+        batchResponse([siblingOrigin], [selectorA.lineageId]),
+        {
+          runId: "run-1",
+          temporalScope,
+        },
+      ),
     ).toThrow(/unrequested or unbound item/);
   });
 
   it("keeps explicit null time distinct from omitted time and follows cursor changes", async () => {
     const nullScopedGraph = profileGraph(profileA, "verified");
-    const nullScopedResponse = batchResponse([nullScopedGraph], {
-      responseScope: null,
-    });
+    const nullScopedResponse = batchResponse(
+      [nullScopedGraph],
+      [selectorA.lineageId],
+      { responseScope: null },
+    );
     expect(
       alignLineageBatchResponses([selectorA], nullScopedResponse, {
         runId: "run-1",
@@ -504,10 +523,12 @@ describe("lineage hooks", () => {
     const firstScope = temporalScope;
     const secondScope = { ...temporalScope, branch: "cursor-next" };
     vi.mocked(bridge.fetchLineageBatch).mockImplementation(
-      async (_selectors, _runId, scope) =>
-        batchResponse([profileGraph(profileA, "verified")], {
-          responseScope: scope,
-        }),
+      async (selectors, _runId, scope) =>
+        batchResponse(
+          [profileGraph(profileA, "verified")],
+          selectors.map((selector) => selector.lineageId),
+          { responseScope: scope },
+        ),
     );
     const harness = createQueryHookHarness();
     let activeScope: TemporalRef | null = firstScope;
@@ -559,7 +580,7 @@ describe("lineage hooks", () => {
     );
     const bridge = runtimeBridge();
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
-      batchResponse([wrongScope]),
+      batchResponse([wrongScope], [selectorA.lineageId]),
     );
     const harness = bridgeWrapper(bridge);
     const { result } = renderHook(
@@ -569,7 +590,7 @@ describe("lineage hooks", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error?.message).toBe(
-      "Lineage trust metadata has a different temporal scope",
+      "Lineage batch response contains an unrequested or unbound item",
     );
     expect(bridge.fetchLineageBatch).toHaveBeenCalledWith(
       [selectorA],
@@ -594,12 +615,11 @@ function profileGraph(
   status: LineageGraphView["status"],
   trustMetadata?: LineageGraphView["trust_metadata"],
 ): LineageGraphView {
-  return lineageGraphFixture({
+  return profileBoundLineageGraphFixture({
     lineageId: selectorA.lineageId,
     status,
     freshness: "current",
     selectedArtifactRef: ref,
-    profileBindingStatus: "verified",
     artifactRefProvenance: "reader_materialized",
     sourceRunId: "run-1",
     ...(trustMetadata === undefined ? {} : { trustMetadata }),
@@ -608,21 +628,13 @@ function profileGraph(
 
 function declaredTrustMetadata(
   scope: TemporalRef | null | undefined,
-): NonNullable<LineageGraphView["trust_metadata"]> {
-  return {
-    hash: "sha256:selected-profile-lineage-fixture",
-    verification_status: "verified",
-    freshness: "current",
-    dispute_status: "none",
-    verified_by: "selected-profile-reader-fixture",
-    verified_at: "2026-04-15T12:00:00Z",
-    verification_method: "selected-profile-reader",
-    temporal_scope: scope,
-  };
+): LineageTrustMetadataFixture {
+  return profileTrustMetadataFixture({ temporalScope: scope });
 }
 
 function batchResponse(
   lineages: LineageGraphView[],
+  requestedLineageIds: readonly string[],
   options?: { responseScope: TemporalRef | null | undefined },
 ): LineageBatchResponsePayload {
   return lineageBatchFixture({
@@ -630,6 +642,7 @@ function batchResponse(
     responseTemporalScope:
       options === undefined ? temporalScope : options.responseScope,
     lineages,
+    requestedLineageIds,
   });
 }
 

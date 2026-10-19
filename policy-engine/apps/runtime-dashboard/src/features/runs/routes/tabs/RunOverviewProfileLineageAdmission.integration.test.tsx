@@ -8,16 +8,19 @@ import {
   mockRuntimePostSuccess,
 } from "@/test/runtimeApi";
 import { TrustInspector } from "@/shared/ui/trust-view";
+import { unknownTrustViewStatusButton } from "@/test/trustViewQueries";
 import {
   lineageBatchFixture,
-  lineageGraphFixture,
+  profileBoundLineageGraphFixture,
+  profileTrustMetadataFixture,
+  type LineageBatchMetaFixture,
+  type LineageTrustMetadataFixture,
 } from "@/test/fixtures/profileLineageBatch";
 import {
   boundLineageQueryKey,
   profileBindingAdmissionQueryKey,
 } from "@/shared/ui/quantity/useLineageBatch";
 import type {
-  LineageBatchResponsePayload,
   LineageBatchSelector,
   LineageGraphView,
   SelectedArtifactRef,
@@ -41,23 +44,18 @@ const temporalScope: TemporalRef = {
   snapshot_id: null,
   scenario_id: null,
 };
-const meta: LineageBatchResponsePayload["meta"] & {
-  source_kinds: "core_run"[];
-} = {
+const meta: LineageBatchMetaFixture = {
   generated_at: "2026-04-15T12:05:00Z",
   request_id: "run-profile-admission-integration-lineage",
   source_kinds: ["core_run"],
 };
-const declaredTrustMetadata: NonNullable<LineageGraphView["trust_metadata"]> = {
-  hash: "sha256:lineage-proof",
-  verification_status: "verified",
-  freshness: "current",
-  dispute_status: "none",
-  verified_by: "canonical-profile-reader",
-  verified_at: "2026-04-15T12:00:00Z",
-  verification_method: "selected-profile-reader",
-  temporal_scope: temporalScope,
-};
+const declaredTrustMetadata: LineageTrustMetadataFixture =
+  profileTrustMetadataFixture({
+    temporalScope,
+    hash: "sha256:lineage-proof",
+    verifiedBy: "canonical-profile-reader",
+    verifiedAt: "2026-04-15T12:00:00Z",
+  });
 const lineageId = `artifact:${artifactId}`;
 const selector: LineageBatchSelector = {
   lineageId,
@@ -108,7 +106,7 @@ describe("run overview profile lineage admission", () => {
       ),
     ).toMatchObject({ profileBindingGeneration: 1 });
 
-    const statusButton = screen.getByRole("button", { name: /unknown/i });
+    const statusButton = unknownTrustViewStatusButton();
     await user.click(statusButton);
     expect(
       await screen.findByTestId("trust-inspector-profile-context"),
@@ -284,7 +282,7 @@ describe("run overview profile lineage admission", () => {
       "data-profile-binding-status",
       "verified",
     );
-    const statusButton = screen.getByRole("button", { name: /unknown/i });
+    const statusButton = unknownTrustViewStatusButton();
     await user.click(statusButton);
     expect(
       await screen.findByTestId("trust-inspector-profile-context"),
@@ -439,7 +437,7 @@ function mismatchedBatchResponse(
 }
 
 function batchResponse(status: LineageGraphView["status"]) {
-  const lineage = lineageGraphFixture({
+  const lineage = profileBoundLineageGraphFixture({
     lineageId,
     status,
     freshness: "current",
@@ -449,7 +447,6 @@ function batchResponse(status: LineageGraphView["status"]) {
     nodes: [],
     edges: [],
     selectedArtifactRef,
-    profileBindingStatus: "verified",
     artifactRefProvenance: "reader_materialized",
     sourceRunId: runId,
     trustMetadata: declaredTrustMetadata,
@@ -458,5 +455,6 @@ function batchResponse(status: LineageGraphView["status"]) {
     meta,
     responseTemporalScope: temporalScope,
     lineages: [lineage],
+    requestedLineageIds: [selector.lineageId],
   });
 }

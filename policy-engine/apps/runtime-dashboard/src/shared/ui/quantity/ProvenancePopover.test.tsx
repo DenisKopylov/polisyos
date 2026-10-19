@@ -10,6 +10,10 @@ import { renderWithProviders } from "@/test/render";
 import {
   lineageBatchFixture,
   lineageGraphFixture,
+  profileBoundLineageGraphFixture,
+  profileTrustMetadataFixture,
+  type LineageBatchMetaFixture,
+  type LineageTrustMetadataFixture,
 } from "@/test/fixtures/profileLineageBatch";
 
 import { ProvenancePopover } from "./ProvenancePopover";
@@ -22,9 +26,7 @@ import type {
   TemporalRef,
 } from "./quantity.types";
 
-const meta: LineageBatchResponsePayload["meta"] & {
-  source_kinds: "core_run"[];
-} = {
+const meta: LineageBatchMetaFixture = {
   generated_at: "2026-04-24T12:00:00Z",
   request_id: "req-popover",
   source_kinds: ["core_run"],
@@ -282,8 +284,8 @@ describe("ProvenancePopover", () => {
       params: {
         query: {
           branch: temporalScope.branch,
-          scenario_id: temporalScope.scenario_id,
-          snapshot_id: temporalScope.snapshot_id,
+          scenario_id: undefined,
+          snapshot_id: undefined,
           tx_at: temporalScope.tx_at,
           valid_at: temporalScope.valid_at,
         },
@@ -464,12 +466,11 @@ function profileBatch(
   if (!selectedRef || !sourceRunId) {
     throw new Error("Profile batch fixture requires its selected ref and run");
   }
-  const graph = lineageGraphFixture({
+  const graph = profileBoundLineageGraphFixture({
     lineageId: value.lineage.id,
     status: options.status,
     freshness: "current",
     selectedArtifactRef: selectedRef,
-    profileBindingStatus: "verified",
     artifactRefProvenance: options.response_origin ?? "reader_materialized",
     sourceRunId,
     ...(options.trustMetadata === undefined
@@ -480,20 +481,12 @@ function profileBatch(
     meta,
     responseTemporalScope: options.temporal_scope,
     lineages: [graph],
+    requestedLineageIds: [value.lineage.id],
   });
 }
 
 function declaredTrustMetadata(
   temporal_scope: TemporalRef | null | undefined,
-): NonNullable<LineageGraphView["trust_metadata"]> {
-  return {
-    hash: "sha256:selected-profile-lineage-fixture",
-    verification_status: "verified",
-    freshness: "current",
-    dispute_status: "none",
-    verified_by: "selected-profile-reader-fixture",
-    verified_at: "2026-04-15T12:00:00Z",
-    verification_method: "selected-profile-reader",
-    temporal_scope,
-  };
+): LineageTrustMetadataFixture {
+  return profileTrustMetadataFixture({ temporalScope: temporal_scope });
 }

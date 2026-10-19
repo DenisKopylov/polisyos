@@ -4,28 +4,54 @@ import {
 } from "@/api/validators";
 import type {
   ArtifactRefProvenance,
-  LineageBatchResponsePayload,
-  LineageGraphView,
   SelectedArtifactRef,
   TemporalRef,
 } from "@/shared/ui/quantity/quantity.types";
 
-/** Build one schema-validated lineage graph for consumer tests. */
-export function lineageGraphFixture(options: {
+export type LineageGraphFixture = ReturnType<
+  typeof lineageGraphViewSchema.parse
+>;
+export type LineageBatchMetaFixture = ReturnType<
+  typeof lineageBatchResponseSchema.parse
+>["meta"];
+export type LineageTrustMetadataFixture = NonNullable<
+  LineageGraphFixture["trust_metadata"]
+>;
+
+type ParsedLineageBatch = ReturnType<typeof lineageBatchResponseSchema.parse>;
+
+type LineageGraphFixtureOptions = {
   lineageId: string;
-  status: LineageGraphView["status"];
-  freshness: LineageGraphView["freshness"];
-  hash?: string | null;
-  compactSummary?: LineageGraphView["compact_summary"];
-  nodes?: LineageGraphView["nodes"];
-  edges?: LineageGraphView["edges"];
+  status: LineageGraphFixture["status"];
+  freshness: LineageGraphFixture["freshness"];
+  hash?: LineageGraphFixture["hash"];
+  compactSummary?: LineageGraphFixture["compact_summary"];
+  nodes?: LineageGraphFixture["nodes"];
+  edges?: LineageGraphFixture["edges"];
   metadata?: Record<string, unknown>;
   selectedArtifactRef?: SelectedArtifactRef | null;
-  profileBindingStatus?: LineageGraphView["profile_binding_status"];
+  profileBindingStatus?: LineageGraphFixture["profile_binding_status"];
   artifactRefProvenance?: ArtifactRefProvenance | null;
   sourceRunId?: string | null;
-  trustMetadata?: LineageGraphView["trust_metadata"];
-}): LineageGraphView {
+  trustMetadata?: LineageGraphFixture["trust_metadata"];
+};
+
+type ProfileBoundLineageGraphFixtureOptions = Omit<
+  LineageGraphFixtureOptions,
+  | "selectedArtifactRef"
+  | "profileBindingStatus"
+  | "artifactRefProvenance"
+  | "sourceRunId"
+> & {
+  selectedArtifactRef: SelectedArtifactRef;
+  artifactRefProvenance: ArtifactRefProvenance;
+  sourceRunId: string;
+};
+
+/** Build one schema-validated lineage graph for consumer tests. */
+export function lineageGraphFixture(
+  options: LineageGraphFixtureOptions,
+): LineageGraphFixture {
   const graph: Record<string, unknown> = {
     id: options.lineageId,
     status: options.status,
@@ -59,37 +85,100 @@ export function lineageGraphFixture(options: {
     graph.trust_metadata = options.trustMetadata;
   }
 
-  return lineageGraphViewSchema.parse(graph) as LineageGraphView;
+  return lineageGraphViewSchema.parse(graph);
 }
 
-/** Build a schema-validated batch reply with one explicit resolution per graph. */
-export type CompleteLineageBatchFixture = LineageBatchResponsePayload & {
-  lineages: LineageGraphView[];
-  lineage_resolutions: NonNullable<
-    LineageBatchResponsePayload["lineage_resolutions"]
-  >;
+/**
+ * Build a profile-bound graph from the exact selector fields tested by consumers.
+ * The constructor checks binding metadata without deriving it from the graph's
+ * own ID or adding trust metadata.
+ */
+export function profileBoundLineageGraphFixture(
+  options: ProfileBoundLineageGraphFixtureOptions,
+): LineageGraphFixture {
+  if (!options.sourceRunId.trim()) {
+    throw new Error("Profile graph fixtures require an explicit source run");
+  }
+  const graph = lineageGraphFixture({
+    ...options,
+    profileBindingStatus: "verified",
+  });
+  if (
+    graph.profile_binding_status !== "verified" ||
+    !graph.selected_artifact_ref ||
+    graph.artifact_ref_provenance !== options.artifactRefProvenance ||
+    graph.source_run_id !== options.sourceRunId
+  ) {
+    throw new Error("The profile graph fixture failed its selected tuple");
+  }
+  return graph;
+}
+
+/** Build declared fixture metadata while keeping its temporal scope explicit. */
+export function profileTrustMetadataFixture(options: {
+  temporalScope: TemporalRef | null | undefined;
+  hash?: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  verificationMethod?: string;
+}): LineageTrustMetadataFixture {
+  return {
+    hash: options.hash ?? "sha256:selected-profile-lineage-fixture",
+    verification_status: "verified",
+    freshness: "current",
+    dispute_status: "none",
+    verified_by: options.verifiedBy ?? "selected-profile-reader-fixture",
+    verified_at: options.verifiedAt ?? "2026-04-15T12:00:00Z",
+    verification_method:
+      options.verificationMethod ?? "selected-profile-reader",
+    temporal_scope: options.temporalScope,
+  };
+}
+
+/** Build a schema-validated batch reply from the caller's explicit request tuple. */
+export type CompleteLineageBatchFixture = Omit<
+  ParsedLineageBatch,
+  "lineages" | "lineage_resolutions"
+> & {
+  lineages: LineageGraphFixture[];
+  lineage_resolutions: NonNullable<ParsedLineageBatch["lineage_resolutions"]>;
 };
 
 export function lineageBatchFixture(options: {
-  meta: LineageBatchResponsePayload["meta"];
+  meta: LineageBatchMetaFixture;
   responseTemporalScope: TemporalRef | null | undefined;
-  lineages: readonly LineageGraphView[];
-  requestedLineageIds?: readonly string[];
+  lineages: readonly LineageGraphFixture[];
+  requestedLineageIds: readonly string[];
 }): CompleteLineageBatchFixture {
-  const requestedLineageIds =
-    options.requestedLineageIds ??
-    options.lineages.map((lineage) => lineage.id);
-  if (requestedLineageIds.length !== options.lineages.length) {
-    throw new Error("Each lineage fixture needs one requested lineage ID");
+  if (options.requestedLineageIds.length !== options.lineages.length) {
+    throw new Error(
+      "Each response graph needs one explicit requested lineage ID",
+    );
   }
+  const lineageResolutions = options.lineages.map((lineage, index) => {
+    const requestedLineageId = options.requestedLineageIds[index];
+    if (requestedLineageId === undefined) {
+      throw new Error("A batch resolution is missing its requested lineage ID");
+    }
+    return {
+      requested_lineage_id: requestedLineageId,
+      resolved_lineage_id: lineage.id,
+    };
+  });
   const response = lineageBatchResponseSchema.parse({
     meta: options.meta,
     temporal_scope: options.responseTemporalScope,
     lineages: options.lineages,
-    lineage_resolutions: options.lineages.map((lineage, index) => ({
-      requested_lineage_id: requestedLineageIds[index],
-      resolved_lineage_id: lineage.id,
-    })),
+    lineage_resolutions: lineageResolutions,
   });
-  return response as CompleteLineageBatchFixture;
+  if (!response.lineages || !response.lineage_resolutions) {
+    throw new Error(
+      "The parsed batch fixture must retain every response member",
+    );
+  }
+  return {
+    ...response,
+    lineages: response.lineages,
+    lineage_resolutions: response.lineage_resolutions,
+  };
 }

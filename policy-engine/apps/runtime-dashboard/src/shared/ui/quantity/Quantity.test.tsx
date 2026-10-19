@@ -2,7 +2,10 @@ import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { lineageGraphFixture } from "@/test/fixtures/profileLineageBatch";
+import {
+  lineageGraphFixture,
+  profileTrustMetadataFixture,
+} from "@/test/fixtures/profileLineageBatch";
 import { mockRuntimeGetSuccess } from "@/test/runtimeApi";
 import { renderWithProviders } from "@/test/render";
 import { TrustInspector } from "@/shared/ui/trust-view";
@@ -229,16 +232,13 @@ describe("Quantity", () => {
             lineage: {
               ...verifiedQuantity.lineage,
               hash: "sha256:abcdef0123456789",
-              trust_metadata: {
-                dispute_status: "none",
-                freshness: "current",
+              trust_metadata: profileTrustMetadataFixture({
+                temporalScope: verifiedQuantity.time,
                 hash: "sha256:abcdef0123456789",
-                temporal_scope: verifiedQuantity.time,
-                verification_method: "lineage_hash_match",
-                verification_status: "verified",
-                verified_at: "2026-04-16T09:20:00Z",
-                verified_by: "RiskReviewBot@2.0",
-              },
+                verificationMethod: "lineage_hash_match",
+                verifiedAt: "2026-04-16T09:20:00Z",
+                verifiedBy: "RiskReviewBot@2.0",
+              }),
             },
           }}
           precision={2}

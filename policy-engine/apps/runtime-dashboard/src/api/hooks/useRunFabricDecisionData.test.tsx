@@ -11,7 +11,6 @@ import {
   profileBindingIdentityKey,
 } from "@/shared/ui/quantity/useLineageBatch";
 import type {
-  LineageBatchResponsePayload,
   LineageBatchSelector,
   LineageGraphView,
   SelectedArtifactRef,
@@ -22,6 +21,10 @@ import { renderWithProviders } from "@/test/render";
 import {
   lineageBatchFixture,
   lineageGraphFixture,
+  profileBoundLineageGraphFixture,
+  profileTrustMetadataFixture,
+  type LineageBatchMetaFixture,
+  type LineageTrustMetadataFixture,
 } from "@/test/fixtures/profileLineageBatch";
 import {
   mockRuntimeGetSuccess,
@@ -54,9 +57,7 @@ const selector: LineageBatchSelector = {
   artifactRefProvenance: "reader_materialized",
   sourceRunId: runId,
 };
-const meta: LineageBatchResponsePayload["meta"] & {
-  source_kinds: "core_run"[];
-} = {
+const meta: LineageBatchMetaFixture = {
   generated_at: "2026-02-11T12:05:00.000Z",
   request_id: "req_fixture",
   source_kinds: ["core_run"],
@@ -68,16 +69,13 @@ const temporalScope: TemporalRef = {
   snapshot_id: "snapshot-a",
   scenario_id: "scenario-a",
 };
-const declaredTrustMetadata: NonNullable<LineageGraphView["trust_metadata"]> = {
-  hash: "sha256:abc",
-  verification_status: "verified",
-  freshness: "current",
-  dispute_status: "none",
-  verified_by: "selected-profile-reader-fixture",
-  verified_at: "2026-02-11T12:02:00.000Z",
-  verification_method: "selected-profile-reader",
-  temporal_scope: temporalScope,
-};
+const declaredTrustMetadata: LineageTrustMetadataFixture =
+  profileTrustMetadataFixture({
+    temporalScope,
+    hash: "sha256:abc",
+    verifiedBy: "selected-profile-reader-fixture",
+    verifiedAt: "2026-02-11T12:02:00.000Z",
+  });
 const payload = {
   meta,
   run_id: runId,
@@ -205,6 +203,7 @@ describe("useRunFabricDecisionData", () => {
           status: "verified",
           trustMetadata: declaredTrustMetadata,
         }),
+        selector.lineageId,
       ),
     );
 
@@ -254,7 +253,7 @@ describe("useRunFabricDecisionData", () => {
     });
 
     const quantity = within(row).getByTestId("quantity");
-    expect(quantity).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantity).toHaveAttribute("data-lineage-status", "verified");
     expect(quantity).toHaveAttribute("data-profile-binding-status", "verified");
     await user.click(quantity);
     expect(
@@ -271,7 +270,7 @@ describe("useRunFabricDecisionData", () => {
     const postSpy = mockRuntimePostSuccess(
       batchPayload(
         profileGraph({ status: "verified", id: "lin_foreign" }),
-        "lin_foreign",
+        selector.lineageId,
       ),
     );
 
@@ -303,7 +302,9 @@ describe("useRunFabricDecisionData", () => {
       status: "verified",
       selectedArtifactRef: siblingArtifactRef,
     });
-    const postSpy = mockRuntimePostSuccess(batchPayload(siblingGraph));
+    const postSpy = mockRuntimePostSuccess(
+      batchPayload(siblingGraph, selector.lineageId),
+    );
 
     const { queryClient } = renderWithProviders(
       <RunOverviewProfileLineage runId={runId} />,
@@ -339,7 +340,9 @@ describe("useRunFabricDecisionData", () => {
       sourceRunId: null,
       trustMetadata: null,
     });
-    const postSpy = mockRuntimePostSuccess(batchPayload(undeclaredGraph));
+    const postSpy = mockRuntimePostSuccess(
+      batchPayload(undeclaredGraph, selector.lineageId),
+    );
 
     const { queryClient } = renderWithProviders(
       <RunOverviewProfileLineage runId={runId} />,
@@ -367,7 +370,7 @@ describe("useRunFabricDecisionData", () => {
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
     const postSpy = mockRuntimePostSuccess(
-      batchPayload(profileGraph({ status: "verified" })),
+      batchPayload(profileGraph({ status: "verified" }), selector.lineageId),
     );
 
     renderWithProviders(<RunOverviewProfileLineage runId={runId} />);
@@ -474,12 +477,11 @@ function profileGraph(options: {
   selectedArtifactRef?: SelectedArtifactRef;
   trustMetadata?: LineageGraphView["trust_metadata"];
 }): LineageGraphView {
-  return lineageGraphFixture({
+  return profileBoundLineageGraphFixture({
     lineageId: options.id ?? selector.lineageId,
     status: options.status,
     freshness: "current",
     selectedArtifactRef: options.selectedArtifactRef ?? selectedArtifactRef,
-    profileBindingStatus: "verified",
     artifactRefProvenance: "reader_materialized",
     sourceRunId: runId,
     ...(options.trustMetadata === undefined
@@ -488,10 +490,7 @@ function profileGraph(options: {
   });
 }
 
-function batchPayload(
-  graph: LineageGraphView,
-  requestedLineageId = selector.lineageId,
-) {
+function batchPayload(graph: LineageGraphView, requestedLineageId: string) {
   return lineageBatchFixture({
     meta,
     responseTemporalScope: temporalScope,

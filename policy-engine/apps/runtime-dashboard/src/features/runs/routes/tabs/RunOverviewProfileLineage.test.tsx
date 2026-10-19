@@ -6,8 +6,13 @@ import { renderWithProviders } from "@/test/render";
 import {
   lineageBatchFixture,
   lineageGraphFixture,
+  profileBoundLineageGraphFixture,
+  profileTrustMetadataFixture,
+  type LineageBatchMetaFixture,
+  type LineageTrustMetadataFixture,
 } from "@/test/fixtures/profileLineageBatch";
 import { TrustInspector } from "@/shared/ui/trust-view";
+import { unknownTrustViewStatusButton } from "@/test/trustViewQueries";
 import {
   boundLineageQueryKey,
   profileBindingAdmissionQueryKey,
@@ -72,23 +77,18 @@ const quantity = {
 
 const verifiedBy = "CanonicalProfileReader@1";
 const trustScope = { ...temporalScope };
-const meta: LineageBatchResponsePayload["meta"] & {
-  source_kinds: "core_run"[];
-} = {
+const meta: LineageBatchMetaFixture = {
   generated_at: "2026-04-15T12:05:00Z",
   request_id: "run-profile-lineage-test",
   source_kinds: ["core_run"],
 };
-const declaredTrustMetadata: NonNullable<LineageGraphView["trust_metadata"]> = {
-  hash: "sha256:selected-profile-lineage-fixture",
-  verification_status: "verified",
-  freshness: "current",
-  dispute_status: "none",
-  verified_by: verifiedBy,
-  verified_at: "2026-04-15T12:00:00Z",
-  verification_method: "selected-profile-reader",
-  temporal_scope: trustScope,
-};
+const declaredTrustMetadata: LineageTrustMetadataFixture =
+  profileTrustMetadataFixture({
+    temporalScope: trustScope,
+    hash: "sha256:selected-profile-lineage-fixture",
+    verifiedBy,
+    verifiedAt: "2026-04-15T12:00:00Z",
+  });
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -133,7 +133,7 @@ describe("RunOverviewProfileLineage", () => {
     expect(
       await screen.findByTestId("trust-verification-status"),
     ).toHaveTextContent("verified");
-    const statusButton = screen.getByRole("button", { name: /unknown/i });
+    const statusButton = unknownTrustViewStatusButton();
     await user.click(statusButton);
     expect(await screen.findByRole("dialog")).toHaveTextContent(verifiedBy);
     expect(
@@ -196,7 +196,10 @@ describe("RunOverviewProfileLineage", () => {
   it("suppresses cached bound trust when the current batch query is rejected", async () => {
     configureQueries(profileGraph(selectedRef, "verified"));
     mocks.useLineageBatch.mockReturnValue({
-      data: batchResponse(profileGraph(selectedRef, "verified")),
+      data: batchResponse(
+        profileGraph(selectedRef, "verified"),
+        quantity.lineage.id,
+      ),
       error: new Error("profile binding refused"),
       isError: true,
       isLoading: false,
@@ -284,7 +287,10 @@ describe("RunOverviewProfileLineage", () => {
       isLoading: false,
     });
     mocks.useLineageBatch.mockReturnValue({
-      data: batchResponse(unestablishedGraph(unprofiledQuantity.lineage.id)),
+      data: batchResponse(
+        unestablishedGraph(unprofiledQuantity.lineage.id),
+        unprofiledQuantity.lineage.id,
+      ),
       isError: false,
       isLoading: false,
     });
@@ -359,7 +365,13 @@ describe("RunOverviewProfileLineage", () => {
     expect(
       within(quantityRow).queryByRole("button", { name: /sha256:/ }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/Lineage details are unavailable/)).toBeVisible();
+    expect(
+      within(screen.getByTestId("overview-decision-quantities")).getByRole(
+        "status",
+      ),
+    ).toHaveTextContent(
+      "Profile binding is not established; quantity values remain visible.",
+    );
   });
 });
 
@@ -374,7 +386,7 @@ function configureQueries(graph: LineageGraphView) {
     isLoading: false,
   });
   mocks.useLineageBatch.mockReturnValue({
-    data: batchResponse(graph),
+    data: batchResponse(graph, quantity.lineage.id),
     isError: false,
     isLoading: false,
   });
@@ -385,23 +397,26 @@ function profileGraph(
   status: LineageGraphView["status"],
   trustMetadata?: LineageGraphView["trust_metadata"],
 ): LineageGraphView {
-  return lineageGraphFixture({
+  return profileBoundLineageGraphFixture({
     lineageId: `artifact:${artifactId}`,
     status,
     freshness: "current",
     selectedArtifactRef: ref,
-    profileBindingStatus: "verified",
     artifactRefProvenance: "reader_materialized",
     sourceRunId: runId,
     ...(trustMetadata === undefined ? {} : { trustMetadata }),
   });
 }
 
-function batchResponse(graph: LineageGraphView): LineageBatchResponsePayload {
+function batchResponse(
+  graph: LineageGraphView,
+  requestedLineageId: string,
+): LineageBatchResponsePayload {
   return lineageBatchFixture({
     meta,
     responseTemporalScope: temporalScope,
     lineages: [graph],
+    requestedLineageIds: [requestedLineageId],
   });
 }
 

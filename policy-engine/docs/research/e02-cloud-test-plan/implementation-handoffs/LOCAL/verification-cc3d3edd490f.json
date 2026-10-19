@@ -1,0 +1,107 @@
+{
+  "actuals": [
+    {
+      "bounded_outcome": "33 passed, 0 failed/errors/skipped; 33 collected and executed; all 1,374 recorded project/tool runtime origins reconciled to the frozen complete source map and current bytes; before/after source snapshots matched.",
+      "id": "n13-two-module-runtime-diagnostic",
+      "independent_verdict": "GO_FOR_THIS_BOUNDED_TWO_MODULE_DIAGNOSTIC_ONLY",
+      "not_established": [
+        "Full native test-wave completion",
+        "G closure or formal capability acceptance",
+        "Tests outside the two selected modules",
+        "Model/runtime capability beyond these module behaviors"
+      ],
+      "references": [
+        {
+          "bytes": 8124,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13-cc3d-actual-independent-20261019/manifest.json",
+          "sha256": "79dd599344fdeac5dbe56517be50cbe72b5d67a9c4813d3b5515aeea9ae0e250"
+        },
+        {
+          "bytes": 17978,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13-cc3d-actual-independent-20261019/review.json",
+          "sha256": "d7f383b8b61e1f140eb1ae783381f4e529d66461c701c1b983959abb15824a71"
+        },
+        {
+          "bytes": 9164,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc3d-actual-verification-receipt-20261019/verification-cc3d3edd.json",
+          "sha256": "5fec556fd5481fb96720699b713105914ac53dae50f3a9f1bd41881d3e712587"
+        }
+      ],
+      "scope": "Two complete module paths only: tests/unit/runtime/quality/test_data_state_substrate.py and tests/unit/fabric/test_world_write.py. Peer independently reconciled evidence and did not rerun pytest."
+    },
+    {
+      "bounded_outcome": "MyPy remains red: 36 diagnostic occurrences in 15 of 172 target files, with 28 unique signatures; 157 target files had no diagnostics.",
+      "delta_vs_prior_a0e": {
+        "added": {
+          "occurrences": 25,
+          "signatures": 19
+        },
+        "interpretation": "Navigation-only full multiset delta. Both source HEAD/tree and SDK profile changed between runs; no causal attribution or P41 inherited-red claim.",
+        "removed": {
+          "occurrences": 111,
+          "signatures": 90
+        },
+        "unchanged": {
+          "occurrences": 11,
+          "signatures": 9
+        }
+      },
+      "id": "canonical-mypy-172-diagnostic",
+      "independent_verdict": "receipt_reconciles; static_diagnostic_red",
+      "limitations": [
+        "No MyPy rerun or product import was performed for this review.",
+        "No pytest or runtime compatibility test is established by this static diagnostic.",
+        "No source-change or dependency-change causal attribution is made."
+      ],
+      "references": [
+        {
+          "bytes": 7074,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-cc3d-actual-independent-20261019/manifest.json",
+          "sha256": "9fa16336bdcec5b25d6b885c759acb966a4d6c6c957e46136d39fff9c714bc99"
+        },
+        {
+          "bytes": 28345,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-cc3d-actual-independent-20261019/review.json",
+          "sha256": "3fcf776b2930ac478255c1f4cf5d3f46759126ec9ae58e8d7c13e94cdcd692b2"
+        },
+        {
+          "bytes": 44587,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-cc3d-actual-independent-20261019/a0e-to-cc3d-diagnostic-delta.json",
+          "sha256": "26a96f4edf2c635eaf2039cc35a3ab595c3df8a9bd6b9b6143a390ad047d2aa6"
+        },
+        {
+          "bytes": 9164,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc3d-actual-verification-receipt-20261019/verification-cc3d3edd.json",
+          "sha256": "5fec556fd5481fb96720699b713105914ac53dae50f3a9f1bd41881d3e712587"
+        }
+      ]
+    }
+  ],
+  "claim_boundary": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "state": "The two selected runtime modules pass; canonical MyPy is red. No full native, PII capability, or G closure is established."
+  },
+  "earlier_failure_preserved": {
+    "bytes": 18698,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-d7ad-actual-verification-receipt-20261019/verification-d7ad6b0b.json",
+    "sha256": "0585bc754b17fc1bb806740b0421d6a3cd6701308ef99e147af0c5308e04ac3e"
+  },
+  "environment_boundary": {
+    "model_boundary": "No Python/PII model was downloaded or tested by the cited install or these two-module tests.",
+    "security_lint_install_receipt": "Prior bounded R5 installation established a 296-distribution environment with exact approved package delta; these actuals do not assert a fresh full inventory capture."
+  },
+  "receipt_id": "cc3d3edd490ff1e674ff996338422c6694f361b0",
+  "recorded_at_utc": "2026-10-19T04:29:23.802702+00:00",
+  "run_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "cc3d3edd490ff1e674ff996338422c6694f361b0",
+    "tree": "5b39e3588dfb0f60ee43637a22d5630517addb38"
+  },
+  "schema": "e02-actual-verification-receipt/v2",
+  "supersedes": {
+    "bytes": 9164,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc3d-actual-verification-receipt-20261019/verification-cc3d3edd.json",
+    "sha256": "5fec556fd5481fb96720699b713105914ac53dae50f3a9f1bd41881d3e712587"
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "G_acceptance": false,
+  "P40": "Same input-custody evidence class; the new companion retains typed refs and getter-returned bytes at existing Core boundaries. It does not add a parallel integrity gate or claim cross-profile comparison.",
+  "canonical_ruff_preflight": {
+    "check_exit_code": 0,
+    "check_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "check_stdout": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "format_check_exit_code": 0,
+    "format_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "format_stdout": {
+      "bytes": 25,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/format-native-role-0.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    "preflight_context": {
+      "bytes": 2502,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "aef402de99cdcaa11eee28e8ed055a7b82a632437644401b8964b46cf7e94284"
+    },
+    "profile": "product-root .venv, workspace_root.toml, canonical product cwd"
+  },
+  "closure_ids": [],
+  "created_on": "2026-10-19",
+  "environment_boundary": {
+    "SDK_inventory": "Prior R5 installation receipt records 296 distributions and the approved package delta; source commit 318430 only changes the integration test and delivery records.",
+    "models": "No Python model download or PII model behavior is established."
+  },
+  "full_footprint": {
+    "complete_commit_path_and_sha256_map": {
+      "bytes": 1182,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/r4-actual-input-custody-test-companion-source-20261019-readback.json",
+      "sha256": "e6d3983d05ea724c714bb04243d22920a9602f34d75b0ae192ab80ed910610db"
+    },
+    "mechanism_paths": 1,
+    "path_count": 3,
+    "paths": [
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "postimage_sha256": "52dd22108824b4f967de434acbb085a24f5c0cd3440d242655e398455691b200",
+        "role": "input custody integration test"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "ae06768cdfdf7381fd2acc13599de7c4d0e977d8061569c4d62ecb8f3a940ff8",
+        "role": "delivery metadata"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "postimage_sha256": "4b7d663211373908809d8944b5416c95c876063cbfc641036b13e51240128c5f",
+        "role": "delivery metadata"
+      }
+    ],
+    "required_delivery_metadata_paths": 2
+  },
+  "independent_review": {
+    "bounded_findings": [
+      "ArtifactRef.manifest_profile_sha256 is typed Optional[str] with default None and exclude_if; JSON serialization may omit the key. The typed None value is preserved by typed reconstruction. No literal-null-key claim is made.",
+      "The test retains input refs, fresh returned manifests/profiles, and getter-returned byte digests; it does not introduce a cross-profile comparison gate."
+    ],
+    "decision": "GO_SCOPED_STATIC_ONLY",
+    "reference": {
+      "bytes": 8536,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-independent-20261019/review.json",
+      "sha256": "b082c3189fa3f2c3c7bbb9a20721e944213abe10b1d03046b307b2a782cb8df6"
+    },
+    "scope": "Static review only; no product import, collection, pytest, environment or canonical source mutation by reviewer."
+  },
+  "other_open_reviews": "Core, FBC, and native-facade RAW reviews remain pending; this source/test receipt does not make the overall gate green.",
+  "property": "Retain the exact selected input ArtifactRef, fresh authorized manifest/profile and digest of actual getter-returned bytes for each shared Runtime study and run/job binding; preserve existing numerical output comparison and bridge-removal behavior.",
+  "record_type": "source_implementation_receipt_candidate",
+  "reviewed_inputs": [
+    {
+      "bytes": 4232,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/plan.json",
+      "sha256": "9afcff7d49692f0dc64ae92f2d5c3f7574ec1373219b5549edf1a0f73fa15ff2"
+    },
+    {
+      "bytes": 6882,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/source-application.json",
+      "sha256": "0baf2a4f67f9dbfe536a9f1f22e80e252d258646e183c37024123f7a36981256"
+    },
+    {
+      "bytes": 4919,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-20261019/r4/manifest.json",
+      "sha256": "f8a1cef8deb621218cfd7d57021501ff780896d076aecbf0aed876df118823c8"
+    },
+    {
+      "bytes": 4239,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-20261019/r4/candidate.patch",
+      "sha256": "d7ba57310d03708ad70da6397fa4bcc82a1c02f56077d6e6fc307da4ab9c3b12"
+    },
+    {
+      "bytes": 8536,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-independent-20261019/review.json",
+      "sha256": "b082c3189fa3f2c3c7bbb9a20721e944213abe10b1d03046b307b2a782cb8df6"
+    },
+    {
+      "bytes": 2502,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "aef402de99cdcaa11eee28e8ed055a7b82a632437644401b8964b46cf7e94284"
+    }
+  ],
+  "source_application": {
+    "bytes": 6882,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/source-application.json",
+    "sha256": "0baf2a4f67f9dbfe536a9f1f22e80e252d258646e183c37024123f7a36981256"
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "318430fac36ae14bf5406debf4942dc375da597b",
+    "commit_subject": "test(e02): retain actual input custody in shared workload receipts",
+    "parents": [
+      "cc3d3edd490ff1e674ff996338422c6694f361b0"
+    ],
+    "slice_base": "cc3d3edd490ff1e674ff996338422c6694f361b0",
+    "source_commit_readback": {
+      "bytes": 1182,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/r4-actual-input-custody-test-companion-source-20261019-readback.json",
+      "sha256": "e6d3983d05ea724c714bb04243d22920a9602f34d75b0ae192ab80ed910610db"
+    },
+    "tree": "a80288711690214f6e81f3f013bba96a6ebf2fcc"
+  },
+  "verification_boundary": {
+    "B56": "Full B56 shared-workload runtime remains UNRUN. Current candidate is a test-only input-custody companion.",
+    "runtime": "UNRUN on the 318430 source frame. The separate cc3d N13 33-pass run predates this test-only commit and does not execute the newly added R4 test.",
+    "unrun_semantics": [
+      "Fresh actual bytes-digest retention/comparison across the R4 competing workload selector is unrun.",
+      "The candidate does not prove production capacity authority, public admission, external services, publishability, or full runtime behavior."
+    ]
+  }
+}

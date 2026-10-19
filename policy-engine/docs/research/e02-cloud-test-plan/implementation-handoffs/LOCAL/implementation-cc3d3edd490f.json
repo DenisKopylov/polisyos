@@ -1,0 +1,186 @@
+{
+  "actual_verification": {
+    "bounded_result": "Two selected whole modules: 33 passed, 0 failed/errors/skipped. Separate canonical MyPy result is red: 36 diagnostic occurrences, 28 unique signatures. These are run outcomes, not closure or G acceptance.",
+    "no_receipt_merge": "Pre-fix d7ad failure and post-fix cc3d actual are maintained as separate immutable verification receipts.",
+    "post_fix_receipt": {
+      "bytes": 9164,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc3d-actual-verification-receipt-20261019/verification-cc3d3edd.json",
+      "sha256": "5fec556fd5481fb96720699b713105914ac53dae50f3a9f1bd41881d3e712587"
+    },
+    "post_fix_run_frame": {
+      "head": "cc3d3edd490ff1e674ff996338422c6694f361b0",
+      "tree": "5b39e3588dfb0f60ee43637a22d5630517addb38"
+    },
+    "pre_fix_failure_receipt": {
+      "bytes": 18698,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-d7ad-actual-verification-receipt-20261019/verification-d7ad6b0b.json",
+      "sha256": "0585bc754b17fc1bb806740b0421d6a3cd6701308ef99e147af0c5308e04ac3e"
+    }
+  },
+  "canonical_ruff_preflight": {
+    "check_exit_code": 0,
+    "check_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "check_stdout": {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "format_check_exit_code": 0,
+    "format_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "format_stdout": {
+      "bytes": 25,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/format-native-role-0.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    "preflight_context": {
+      "bytes": 2420,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "7dc6380b7ec2d33dc0ff1126b7ec0db77d1f510e8adbcb70788524ae449e8195"
+    },
+    "profile": "product-root .venv Python, workspace_root.toml; canonical product cwd; 100-column root profile",
+    "qualification_note": "The earlier author wrong-cwd 88-column formatter comparison is not treated as the canonical receipt."
+  },
+  "created_on": "2026-10-19",
+  "full_footprint": {
+    "complete_commit_path_and_sha256_map": {
+      "bytes": 1116,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/native-stdlib-context-manager-import-source-20261019-readback.json",
+      "sha256": "544091c75753e1185be6ee3d9a85d575afbb55bdb87f668f8f1560ede43491a2"
+    },
+    "mechanism_paths": 1,
+    "path_count": 3,
+    "paths": [
+      {
+        "operation": "write",
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "postimage_sha256": "086ed6ef8170ddb3f183cc372db8103b913c0329a31dc65395c5da6f456471b8",
+        "preimage_sha256": "ef3b53d93898fe3013ce37efa1a9428c94265567fffe2a3867401fb75332ddce"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "aa66d81d2b401bca8d4480d9438886346780d264051d20d8e933aa4a055461ed"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "postimage_sha256": "9d24dddfbb890873a9cc0e550d59a5b6243c12fb8efb2b324bc7a54c7130b13e"
+      }
+    ],
+    "required_delivery_metadata_paths": 2
+  },
+  "independent_review": {
+    "checks": {
+      "changed_python_cohort_count": 59,
+      "function_bodies_unchanged": "16/16",
+      "new_runtime_stdlib_from_import_bindings": 52,
+      "normalized_ast_equivalence_after_import_and_annotation_alias_rebinding": true,
+      "reviewer_product_imports_or_tests": false,
+      "runtime_logic_changes": 0,
+      "unavailable_bindings_found": [
+        "collections.abc.ContextManager"
+      ]
+    },
+    "decision": "GO_SCOPED_SOURCE_REPAIR",
+    "reference": {
+      "bytes": 6292,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-independent-20261019/review.json",
+      "sha256": "7db4a1f58c45046ac6e7a939bb17801f8f382cfdff85c294d8fa8bb644a507b1"
+    },
+    "scope": "Independent static review of the exact one-file candidate and the pinned actual import failure. No product import, pytest, MyPy, environment mutation, or canonical write was performed.",
+    "semantic_change": "Import ContextManager as AbstractContextManager from contextlib; bind the existing protocol return annotation to the available generic type."
+  },
+  "owner_decision_and_capability_boundary": {
+    "G_acceptance": false,
+    "P40": "Same runtime-import compatibility class as the preceding collection failure; widened the review across all 59 changed Python files and 52 newly introduced runtime stdlib from-import bindings, finding one unavailable binding. The source change repairs that binding. The post-fix two-module replay is evidence for those consumers only; no universal runtime closure is claimed.",
+    "closure_ids": [],
+    "unresolved": [
+      "Full native suite and broader runtime compatibility are not established.",
+      "MyPy remains red.",
+      "PII model/profile completion and public-model schema/mapping authority remain separate owner decisions.",
+      "No external provider/cloud behavior or installed-resource verification follows from this import repair."
+    ]
+  },
+  "property": "Restore the Python 3.14 eager import path for the existing optional fsspec boundary by importing AbstractContextManager from contextlib, preserving the declared context-manager protocol annotation. Keep behavior and public data transformations unchanged.",
+  "record_type": "source_implementation_receipt_candidate",
+  "reviewed_inputs": [
+    {
+      "bytes": 5012,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/plan.json",
+      "sha256": "5155993270751085674aa3ed8b1f822e14fb36369ee48cbe2a780a1dc11853c6"
+    },
+    {
+      "bytes": 7800,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/source-application.json",
+      "sha256": "4377376410f115a4fa1b73aefcdaaf95393096e004fee16dce6da8371916224a"
+    },
+    {
+      "bytes": 8619,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/candidate-manifest.json",
+      "sha256": "775cddf1b80fa82a84cb2c13d4c08147d27cd7d8c030bd6305b0366c195e89de"
+    },
+    {
+      "bytes": 827,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/patch.diff",
+      "sha256": "4de98e63228858eefecd99f95b6bf1c7d24ce1560e0ea1aa55b2f357a57471eb"
+    },
+    {
+      "bytes": 41844,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/stdlib-import-audit.json",
+      "sha256": "f209ee23a3e6530a3a83123ad5102175a4545b7920afcea3e0ebafadadb72a31"
+    },
+    {
+      "bytes": 809,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/stdlib-runtime-probe.json",
+      "sha256": "2aa777f154d57ff71cf68c724df255de47edb03d62bb993bdf04f41db56737f5"
+    },
+    {
+      "bytes": 744,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/static-validation.json",
+      "sha256": "ca96d3d350649459e1aee75d5130c516df9978d4fba131b6bdfc6a7a10c185bd"
+    },
+    {
+      "bytes": 6292,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-independent-20261019/review.json",
+      "sha256": "7db4a1f58c45046ac6e7a939bb17801f8f382cfdff85c294d8fa8bb644a507b1"
+    },
+    {
+      "bytes": 2420,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/canonical-context-preflight.json",
+      "sha256": "7dc6380b7ec2d33dc0ff1126b7ec0db77d1f510e8adbcb70788524ae449e8195"
+    },
+    {
+      "bytes": 1116,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/native-stdlib-context-manager-import-source-20261019-readback.json",
+      "sha256": "544091c75753e1185be6ee3d9a85d575afbb55bdb87f668f8f1560ede43491a2"
+    }
+  ],
+  "source_application": {
+    "bytes": 7800,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/source-application.json",
+    "sha256": "4377376410f115a4fa1b73aefcdaaf95393096e004fee16dce6da8371916224a"
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "cc3d3edd490ff1e674ff996338422c6694f361b0",
+    "commit_subject": "fix(e02): use runtime context manager protocol from contextlib",
+    "parents": [
+      "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a"
+    ],
+    "slice_base": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
+    "tree": "5b39e3588dfb0f60ee43637a22d5630517addb38"
+  },
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc3d-source-implementation-receipt-20261019/implementation-cc3d3edd490f.json",
+    "reason": "R1 included a clean-tracked-worktree assertion not recorded by the source commit readback. R2 removes that unsupported assertion and tightens the P40 wording.",
+    "sha256": "eb27e476074aa2117828228a0b03c7c54d8892184f922041e5228e2be3d88911"
+  }
+}

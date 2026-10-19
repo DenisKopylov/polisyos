@@ -1,0 +1,307 @@
+{
+  "actuals": [
+    {
+      "detail": "Offline execution refused fallback because the observed failure did not prove a precise cache miss limited to the planned changed-package set. No package changed.",
+      "frame": {
+        "head": "964e2463566639601f7e986f0b03b4cdd45d95ab"
+      },
+      "id": "security_dependency_install_r4",
+      "independent_review_verdict": "GO_FOR_ONE_FRESH_ROOT_GRANTED_BOUNDED_INSTALL (pre-run only)",
+      "outcome": "safe_failed_attempt; package inventory stayed at 295 and before/after inventory bytes match",
+      "references": {
+        "r4_environment_after": {
+          "bytes": 11668292,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r4-actual-964e2463-20261019/after-environment.json",
+          "sha256": "ed2835c26795d553e59e5ef9beef72796fa213552dad5b256f6a7b4b1d2afe2e"
+        },
+        "r4_environment_before": {
+          "bytes": 11668292,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r4-actual-964e2463-20261019/before-environment.json",
+          "sha256": "ed2835c26795d553e59e5ef9beef72796fa213552dad5b256f6a7b4b1d2afe2e"
+        },
+        "r4_environment_diff": {
+          "bytes": 5801,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r4-actual-964e2463-20261019/environment-diff.json",
+          "sha256": "3f725d07b9851a7bf1c77dacaac7aaafa471501d12d60fde83e865047c4fbbe5"
+        },
+        "r4_execution": {
+          "bytes": 23048,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r4-actual-964e2463-20261019/execution-manifest.json",
+          "sha256": "a0a956134542750d3d17b1b799d3cc2bcb64cd87e0f167df89172a4df4d96b39"
+        },
+        "r4_independent_review": {
+          "bytes": 6791,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r4-independent-20261019/review.json",
+          "sha256": "2b738c7966e308d97deb3a0ec28b4c3fc5939dcb4a577ec7b5e6dcb53ed89e7c"
+        }
+      }
+    },
+    {
+      "frame": {
+        "head": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a"
+      },
+      "id": "security_lint_dependency_install_r5",
+      "independent_actual_review_verdict": "GO_FOR_THIS_BOUNDED_ACTUAL_INSTALL_ONLY",
+      "limitations": [
+        "No product imports or tests, NLP model download, PII behavior, or runtime capability was exercised.",
+        "Installed metadata/RECORD was reconciled; wheel archives were not independently retrieved and hashed after installation."
+      ],
+      "outcome": "sync_succeeded; package installation only",
+      "package_inventory": {
+        "added": {
+          "types-defusedxml": "0.7.0.20260504"
+        },
+        "after_count": 296,
+        "all_unaffected_records_identical": true,
+        "before_count": 295,
+        "changed_existing": {
+          "phonenumbers": "9.0.23 -> 9.0.28",
+          "presidio-analyzer": "2.2.360 -> 2.2.363"
+        },
+        "removed": [],
+        "source_unchanged": true,
+        "stable_python_and_venv_profile_equal": true,
+        "unchanged_records": 293
+      },
+      "references": {
+        "r5_actual_independent_review": {
+          "bytes": 15139,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-independent-20261019/review.json",
+          "sha256": "49f6a2875ff7809e0d085cf93ff7a334f1c7e262274d51a25adcb13712e91220"
+        },
+        "r5_environment_after": {
+          "bytes": 11686129,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/after-environment.json",
+          "sha256": "611519854c2c04131df174d941a112679f0b615c3889e811160a25ce4eeed8ca"
+        },
+        "r5_environment_before": {
+          "bytes": 11668292,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/before-environment.json",
+          "sha256": "ed2835c26795d553e59e5ef9beef72796fa213552dad5b256f6a7b4b1d2afe2e"
+        },
+        "r5_environment_diff": {
+          "bytes": 5828,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/environment-diff.json",
+          "sha256": "c19bd9930e83df9593e84e8c0d87c7305ef081198e4e2ab556b4685d4db137d8"
+        },
+        "r5_execution": {
+          "bytes": 23453,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/execution-manifest.json",
+          "sha256": "f57d82cd28a54843973d7382d7ab8f499991bc5af0df0cdc663a08799f138509"
+        },
+        "r5_offline_cache_miss": {
+          "bytes": 6696,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/offline-cache-miss.json",
+          "sha256": "e0832123dd46b0fac7cb7585d9140bcb88d338f09505cac2919913b6995b29a1"
+        },
+        "r5_offline_dry_run": {
+          "bytes": 2549,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/stage-offline-sync-dry-run/run.json",
+          "sha256": "9aac9fd6a74242443990b2a12e2bde207b36cfea3d0ed66c29e0e7a939a090f1"
+        },
+        "r5_offline_sync": {
+          "bytes": 2508,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/stage-sync-offline/run.json",
+          "sha256": "fda1c60981f0fc0514bb50a362b02e1bcbc4a100129a9bdc27b30ad233cf5365"
+        },
+        "r5_online_fallback_sync": {
+          "bytes": 2533,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/stage-sync-official-pypi-fallback/run.json",
+          "sha256": "b5b2e3c41277f0c780318c13c8bf7b330d97a959a2d463802b6d3e2b153662a1"
+        },
+        "r5_pip_check_after": {
+          "bytes": 2206,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/stage-pip-check-after/run.json",
+          "sha256": "162b0033194cf7a64ae84705abda04bfa22000eabafedf71b83674860911f9bd"
+        },
+        "r5_pip_check_before": {
+          "bytes": 2210,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/stage-pip-check-before/run.json",
+          "sha256": "e2b5e56cdc0ad6ea743ddb2451d2d792d92a1e1610093d162b920642d02f4059"
+        },
+        "r5_pre_run_review": {
+          "bytes": 10492,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-independent-20261019/review.json",
+          "sha256": "a77f25d1842cc404c62ecf0f10b9bf4a363d4c23cb95c580a86c00ef1f6b46ec"
+        },
+        "r5_root_grant": {
+          "bytes": 2811,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-root-grant-d7ad6b0b-20261019/root-grant.json",
+          "sha256": "cc5469b2a1cad84ad691a41ca7982d104e0d55081cf466746cfa20b2efa19e49"
+        }
+      },
+      "route": "offline dry-run passed; offline sync safely failed on precise phonenumbers 9.0.28 wheel cache miss; approved official-PyPI fallback succeeded; pip check moved 1 failure to 0 errors"
+    },
+    {
+      "follow_up": "The old literal provenance.py path is now a directory, not a missing file. Append-only erratum is pending; generic module/package owner repair and installed-resource verification remain open.",
+      "frame": {
+        "head": "964e2463566639601f7e986f0b03b4cdd45d95ab"
+      },
+      "id": "fabric_best_in_class_phase0_owner_replay",
+      "independent_review_verdict": "GO_SCOPED_ACTUAL_OWNER_FRESHNESS_AND_FIELD_BINDING_REPLAY",
+      "outcome": "bounded report-only replay: candidate update exit 0, check exit 0, one corrupted base-SHA check exit 1; full tracked-source before/after snapshots match",
+      "references": {
+        "fbc_corrupt_manifest": {
+          "bytes": 257314,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/corrupt-manifest.json",
+          "sha256": "a4028b2cd9bedee706195ceb09ffd7172abb52e394634eac823cd1974c30a4a3"
+        },
+        "fbc_generated_report": {
+          "bytes": 21072,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/best-in-class-inventory.md",
+          "sha256": "e22a322123ead281e3b299ddb30a507932ffe44c6855e69ac403845ed88f509b"
+        },
+        "fbc_independent_review": {
+          "bytes": 12258,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-independent-20261019/review.json",
+          "sha256": "63ed92777863e67928067ecb1744cd558ea2bbfe11656738fe7d919f05412879"
+        },
+        "fbc_owner_manifest": {
+          "bytes": 257314,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/fabric_best_in_class_manifest.json",
+          "sha256": "f22141d4d21729acb2b0c5120477127414e2ed2daae156afd93bb34fcb2ce308"
+        },
+        "fbc_request": {
+          "bytes": 885,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/request.json",
+          "sha256": "91b0bee991a7edbb44fe575c0a0d55a1c16cd5551730dd246d4d959af21d318d"
+        },
+        "fbc_result": {
+          "bytes": 5902,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/result.json",
+          "sha256": "9fb624e73e2029565b67303f5944e88182cfdfcf2908462604433f773150c44e"
+        },
+        "fbc_source_after": {
+          "bytes": 16896798,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/source-after.json",
+          "sha256": "c98adb6b0d05014ba5e0219260858fce7653a421a6cf5b0e7c645de094efea38"
+        },
+        "fbc_source_before": {
+          "bytes": 16896798,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-964-owner-actual-20261019/source-before.json",
+          "sha256": "c98adb6b0d05014ba5e0219260858fce7653a421a6cf5b0e7c645de094efea38"
+        }
+      },
+      "semantic_limit": "complete_verdict=false; freshness and one field-binding corruption only, not semantic closure, installed-resource verification, or canonical adoption."
+    },
+    {
+      "boundary": "transferred results consistency only; no runtime or G closure",
+      "frame": {
+        "head": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a"
+      },
+      "id": "transferred_results_importer_check",
+      "outcome": "exit 0; transferred-results consistency check only",
+      "references": {
+        "results_import_check": {
+          "bytes": 767,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-results-import-recheck-d7ad-20261019/receipt.json",
+          "sha256": "9fe412d99a2f3db3999b1a6fb5cecc876559a4840d2146ed333645b786085e96"
+        },
+        "results_verification": {
+          "bytes": 13971,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+          "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17"
+        }
+      }
+    },
+    {
+      "cause": "ImportError in src/polisyos/fabric/connectors/sources/_file_common.py: `from collections.abc import ContextManager, Mapping` fails on CPython 3.14.3 because ContextManager is not exported there.",
+      "frame": {
+        "head": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
+        "tree": "0cb0383165173f3214efba4384bf712ab1b4b76a"
+      },
+      "id": "n13_two_module_runtime_import_diagnostic",
+      "interpretation": "The post-run commit cc3d3edd490ff1e674ff996338422c6694f361b0 adds the ContextManager import repair. This d7ad result remains a genuine pre-fix failure; the later cc3d replay is separately receipted and is not substituted into this frame.",
+      "outcome": "collection error; 16 collected, 0 executed, pytest exit 2, 1 JUnit error",
+      "references": {
+        "n13_junit": {
+          "bytes": 5095,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/pytest.xml",
+          "sha256": "7c9095d7a15acb828f89920af4a6192bfc565e5cc9c0a933e2c4a8feae2208e0"
+        },
+        "n13_pre_run_review": {
+          "bytes": 5217,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/independent-review-r6.json",
+          "sha256": "8782194d89a48871ebe68e0ba85b45c17d7a8ea1320052730d4558e0d54718d9"
+        },
+        "n13_provenance": {
+          "bytes": 484816,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/execution-provenance.json",
+          "sha256": "43dcd40d225092257ef00150a258c968b83a9277b3b0da6df460de678cf135de"
+        },
+        "n13_request": {
+          "bytes": 7239,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/request.json",
+          "sha256": "7355f049388a7c810a1450703d80321f7b1ae807104f30d6a868e748ec1ab2a2"
+        },
+        "n13_root_grant": {
+          "bytes": 2320,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/root-grant.json",
+          "sha256": "cc5d7e2c2441454ae48defc0646a3a24e804f0b096feefd40e6a5e9d9955db14"
+        },
+        "n13_run": {
+          "bytes": 114970,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/actual-result.json",
+          "sha256": "1ec458704356532e8966f0aaff1638621638e555c0d65c5a0325b2729dab7067"
+        },
+        "n13_source_after": {
+          "bytes": 19363626,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/source-after.json",
+          "sha256": "1c6bba89e61d93ce893e0ac547f0735f75ed22a2988b125d7f5587227a2255e3"
+        },
+        "n13_source_before": {
+          "bytes": 19363626,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/source-before.json",
+          "sha256": "1c6bba89e61d93ce893e0ac547f0735f75ed22a2988b125d7f5587227a2255e3"
+        },
+        "n13_stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "n13_stdout": {
+          "bytes": 4958,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/pytest.stdout.txt",
+          "sha256": "05a7e919952779540084ac4c3de24fc32bb21647c5480866f9def4a46e0a427d"
+        }
+      },
+      "selection": [
+        "tests/unit/runtime/quality/test_data_state_substrate.py",
+        "tests/unit/fabric/test_world_write.py"
+      ]
+    }
+  ],
+  "pattern_and_claim_boundary": {
+    "closure_ids": [],
+    "g_acceptance": false,
+    "overall_capability_state": "No full native/runtime or PII capability claim is made. Package installation, report freshness, importer consistency, and selected-module execution have separate bounded outcomes.",
+    "p40": "R4 to R5 is one bounded install/cache-fallback class: the precise refusal was preserved, then a separately granted fallback path completed. FBC is one bounded owner/content-binding replay. The N13 import failure is a distinct runtime compatibility defect, fixed in a later source commit and replayed separately."
+  },
+  "receipt_id": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
+  "recorded_at_utc": "2026-10-19T04:22:21.037549+00:00",
+  "retained_implementation_receipts": [
+    {
+      "bytes": 10869,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-67712ca142d0.json",
+      "sha256": "48fd5daa95dea82ab4e93d3f43d3d806fdb69c417d17a78e19ccf3abc73c0072"
+    },
+    {
+      "bytes": 19098,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-964e24635666.json",
+      "sha256": "e107697f6d5c045fe3b826ad9c6cd7d6428959ba04249695045390c7d352e449"
+    }
+  ],
+  "run_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
+    "remote_changed_bytes_match_worktree": true,
+    "remote_changed_file_count": 65,
+    "remote_readback": {
+      "bytes": 12721,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-d7ad6b0b-20261019/remote-readback.json",
+      "sha256": "b336938f94b7aaa48a8084ebaf69948a16edaefada739c7762308b9b92f3790a"
+    },
+    "tree": "0cb0383165173f3214efba4384bf712ab1b4b76a"
+  },
+  "schema": "e02-actual-verification-receipt/v1"
+}

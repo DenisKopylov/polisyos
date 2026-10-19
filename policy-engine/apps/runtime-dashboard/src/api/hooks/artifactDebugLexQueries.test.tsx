@@ -16,7 +16,10 @@ import { useNodeDebug } from "@/api/hooks/useNodeDebug";
 import { useRunLineage } from "@/api/hooks/useRunLineage";
 import { useRunTimeline } from "@/api/hooks/useRunTimeline";
 import { queryKeys } from "@/api/queryKeys";
-import { createQueryHookWrapper } from "@/test/queryHook";
+import {
+  createQueryHookHarness,
+  createQueryHookWrapper,
+} from "@/test/queryHook";
 import { mockRuntimeGetSuccess } from "@/test/runtimeApi";
 
 const runId = "R_core_api_001";
@@ -195,6 +198,13 @@ describe("artifact, debug, and lex query hooks", () => {
         endpoint: "/api/v1/artifacts/{artifact_id}/content",
         hook: useArtifactContentHook,
         payload: artifactContentPayload,
+        expectedData: {
+          ...artifactContentPayload,
+          artifact: {
+            ...artifactContentPayload.artifact,
+            canon_read_status: "not_evaluated",
+          },
+        },
         queryKey: queryKeys.artifactContent(artifactId, 512),
       },
       {
@@ -225,7 +235,9 @@ describe("artifact, debug, and lex query hooks", () => {
       });
 
       expect(getSpy.mock.calls[0]?.[0]).toBe(scenario.endpoint);
-      expect(result.current.data).toEqual(scenario.payload);
+      expect(result.current.data).toEqual(
+        "expectedData" in scenario ? scenario.expectedData : scenario.payload,
+      );
       expect(scenario.queryKey).toBeTruthy();
       unmount();
       vi.restoreAllMocks();
@@ -335,6 +347,93 @@ describe("artifact, debug, and lex query hooks", () => {
     }
   });
 
+  it("keeps same-byte artifact content cache entries separate by selected profile", async () => {
+    const profileA = `sha256:${"a".repeat(64)}`;
+    const profileB = `sha256:${"b".repeat(64)}`;
+    const refA = {
+      artifact_id: artifactId,
+      kind: "json",
+      media_type: "application/json",
+      manifest_profile_sha256: profileA,
+    };
+    const refB = { ...refA, manifest_profile_sha256: profileB };
+    const contentForProfile = (profile: string, verdict: string) => ({
+      ...artifactContentPayload,
+      artifact: {
+        ...artifactContentPayload.artifact,
+        manifest_profile_sha256: profile,
+        preview: { verdict },
+      },
+    });
+    const responseA = contentForProfile(profileA, "profile-a");
+    const responseB = contentForProfile(profileB, "profile-b");
+    const getSpy = mockRuntimeGetSuccess(responseA);
+    getSpy
+      .mockResolvedValueOnce({
+        data: responseA,
+        error: undefined,
+        response: new Response("{}", { status: 200 }),
+      } as never)
+      .mockResolvedValueOnce({
+        data: responseB,
+        error: undefined,
+        response: new Response("{}", { status: 200 }),
+      } as never);
+    const harness = createQueryHookHarness();
+    const { result } = renderHook(
+      () => ({
+        profileA: useArtifactContent(refA, { maxBytes: 512 }),
+        profileB: useArtifactContent(refB, { maxBytes: 512 }),
+      }),
+      { wrapper: harness.wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.profileA.isSuccess).toBe(true);
+      expect(result.current.profileB.isSuccess).toBe(true);
+    });
+    expect(
+      harness.queryClient.getQueryData(queryKeys.artifactContent(refA, 512)),
+    ).toMatchObject({
+      artifact: {
+        manifest_profile_sha256: profileA,
+        preview: { verdict: "profile-a" },
+      },
+    });
+    expect(
+      harness.queryClient.getQueryData(queryKeys.artifactContent(refB, 512)),
+    ).toMatchObject({
+      artifact: {
+        manifest_profile_sha256: profileB,
+        preview: { verdict: "profile-b" },
+      },
+    });
+    expect(getSpy.mock.calls.map(([, init]) => init?.params?.query)).toEqual([
+      expect.objectContaining({ manifest_profile_sha256: profileA }),
+      expect.objectContaining({ manifest_profile_sha256: profileB }),
+    ]);
+  });
+
+  it("does not treat a missing profile declaration as the selected profile", async () => {
+    const profile = `sha256:${"c".repeat(64)}`;
+    const ref = {
+      artifact_id: artifactId,
+      kind: "json",
+      media_type: "application/json",
+      manifest_profile_sha256: profile,
+    };
+    mockRuntimeGetSuccess(artifactContentPayload);
+    const { result } = renderHook(
+      () => useArtifactContent(ref, { maxBytes: 512 }),
+      { wrapper: createQueryHookWrapper() },
+    );
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error?.message).toContain(
+      "does not match the selected ref",
+    );
+  });
+
   it("normalizes lineage, timeline, governance, and node debug payloads", async () => {
     const scenarios = [
       {
@@ -442,6 +541,28 @@ describe("artifact, debug, and lex query hooks", () => {
       unmount();
       vi.restoreAllMocks();
     }
+  });
+
+  it("does not cache a run-lineage response for a different run", async () => {
+    const harness = createQueryHookHarness();
+    mockRuntimeGetSuccess({
+      ...runLineagePayload,
+      run_id: "R_core_api_foreign",
+    });
+    const { result } = renderHook(() => useRunLineage(runId), {
+      wrapper: harness.wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+
+    expect(result.current.error?.message).toContain(
+      "does not match the requested run ID",
+    );
+    expect(
+      harness.queryClient.getQueryData(queryKeys.runLineage(runId, null)),
+    ).toBeUndefined();
   });
 
   it("loads lex graph and pipeline status with the expected polling keys", async () => {

@@ -7,12 +7,13 @@ from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.runtime import (
     ArtifactLineageEdge,
@@ -50,7 +51,7 @@ from polisyos.runtime.quality.authority import (
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.fabric.provenance.lineage import LineageTrace
-    from polisyos.runtime.http.services.run_index import IndexedRunRecord
+    from polisyos.runtime.http.services.run_index import IndexedRunRecord, RunIndexService
 
 DEFAULT_DECISION_SOURCE_CONTRACT = SourceContractRef(
     id="worldbank.wdi.generic",
@@ -88,12 +89,14 @@ class LineageService:
         self,
         *,
         store: ArtifactStore,
+        run_index: RunIndexService | None = None,
         default_max_depth: int = 64,
         default_max_nodes: int = 2000,
         default_timeout_seconds: float = 1.5,
         traversal_batch_size: int = 128,
     ) -> None:
         self._store = store
+        self._run_index = run_index
         self._default_max_depth = max(default_max_depth, 1)
         self._default_max_nodes = max(default_max_nodes, 1)
         self._default_timeout_seconds = max(default_timeout_seconds, 0.01)
@@ -265,17 +268,142 @@ class LineageService:
         self,
         lineage_ids: list[str],
         *,
+        selected_artifact_refs: list[ArtifactRef | None] | None = None,
+        run_id: str | None = None,
         enforce_missing_authority: bool = False,
     ) -> list[LineageGraphView]:
-        """Return runtime lineage graphs preserving request order."""
-        resolved: dict[str, LineageGraphView] = {}
-        for lineage_id in lineage_ids:
-            if lineage_id not in resolved:
-                resolved[lineage_id] = self.build_runtime_lineage(
+        """Return request-ordered graphs with reader-derived per-entry run binding.
+
+        ``run_id`` is candidate context only. A source-run relation is emitted
+        only when this service resolves the run and the canonical selected
+        decision-packet ref exactly matches the entry's complete CAS profile.
+        """
+        if selected_artifact_refs is not None and len(selected_artifact_refs) != len(lineage_ids):
+            raise ValueError("selected_artifact_refs must align with lineage_ids")
+        if run_id is not None and selected_artifact_refs is None:
+            raise ValueError("run_id requires aligned selected_artifact_refs")
+
+        run_selection: tuple[ArtifactRef, str] | None = None
+        resolved_run_id: str | None = None
+        if run_id is not None and self._run_index is not None:
+            try:
+                run = self._run_index.get_run(run_id)
+            except KeyError:
+                run = None
+            if run is not None:
+                run_selection = self.selected_decision_packet_ref_for_run(run)
+                if run_selection is not None:
+                    resolved_run_id = run.run_id
+
+        keys: list[tuple[Any, ...]] = []
+        resolved: dict[tuple[Any, ...], LineageGraphView] = {}
+        for index, lineage_id in enumerate(lineage_ids):
+            selected_ref = (
+                selected_artifact_refs[index] if selected_artifact_refs is not None else None
+            )
+            if selected_ref is not None:
+                expected_id = f"artifact:{selected_ref.artifact_id}"
+                if lineage_id != expected_id:
+                    raise ValueError("selected artifact profile does not match lineage id")
+                self.verify_selected_artifact_ref(selected_ref)
+
+            run_relation: tuple[str, str] | None = None
+            if (
+                selected_ref is not None
+                and run_selection is not None
+                and resolved_run_id is not None
+                and artifact_ref_identity_key(selected_ref)
+                == artifact_ref_identity_key(run_selection[0])
+            ):
+                run_relation = (resolved_run_id, run_selection[1])
+
+            profile_verified = selected_ref is not None and (
+                run_id is None or run_relation is not None
+            )
+            provenance = (
+                run_relation[1]
+                if run_relation is not None
+                else ("reader_materialized" if profile_verified else None)
+            )
+            source_run_id = run_relation[0] if run_relation is not None else None
+            binding_status = (
+                "verified"
+                if profile_verified
+                else (
+                    "not_established"
+                    if selected_artifact_refs is not None or run_id is not None
+                    else None
+                )
+            )
+            ref_identity = (
+                artifact_ref_identity_key(selected_ref) if selected_ref is not None else None
+            )
+            key = (lineage_id, ref_identity, provenance, source_run_id, binding_status)
+            keys.append(key)
+            if key in resolved:
+                continue
+
+            if selected_ref is None:
+                lineage = self.build_runtime_lineage(
                     lineage_id,
                     enforce_missing_authority=enforce_missing_authority,
+                ).model_copy(
+                    update={
+                        "profile_binding_status": binding_status,
+                        "selected_artifact_ref": None,
+                        "artifact_ref_provenance": None,
+                        "source_run_id": None,
+                        "trust_metadata": None,
+                    }
                 )
-        return [resolved[lineage_id] for lineage_id in lineage_ids]
+            else:
+                artifact_view = self.build_for_artifact_ids(
+                    [selected_ref],
+                    enforce_missing_authority=enforce_missing_authority,
+                )
+                lineage = _artifact_lineage_to_runtime_view(
+                    lineage_id=lineage_id,
+                    artifact_view=artifact_view,
+                ).model_copy(
+                    update={
+                        "selected_artifact_ref": selected_ref,
+                        "profile_binding_status": binding_status,
+                        "artifact_ref_provenance": provenance,
+                        "source_run_id": source_run_id,
+                        "trust_metadata": None,
+                    }
+                )
+            resolved[key] = lineage
+        return [resolved[key] for key in keys]
+
+    def selected_decision_packet_ref_for_run(
+        self,
+        run: IndexedRunRecord,
+    ) -> tuple[ArtifactRef, Literal["run_output_ref", "reader_materialized"]] | None:
+        """Resolve the selected decision-packet profile from its verified bytes."""
+        run_ref = run.decision_packet_ref
+        if run_ref is None:
+            return None
+        profiled = read_core_json_artifact(self._store, run_ref)
+        selected_profile = profiled.selected_manifest_profile_sha256
+        if selected_profile is None:
+            return None
+        selected_ref = run_ref.model_copy(update={"manifest_profile_sha256": selected_profile})
+        provenance: Literal["run_output_ref", "reader_materialized"] = (
+            "run_output_ref"
+            if run_ref.manifest_profile_sha256 == selected_profile
+            else "reader_materialized"
+        )
+        return selected_ref, provenance
+
+    def verify_selected_artifact_ref(self, ref: ArtifactRef) -> ArtifactRef:
+        """Resolve an exact selected JSON profile and verify its bytes in CAS."""
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("selected artifact reference must name a manifest profile")
+        profiled = read_core_json_artifact(self._store, ref)
+        if profiled.selected_manifest_profile_sha256 != ref.manifest_profile_sha256:
+            raise ValueError("selected artifact profile differs from the reader resolution")
+        return ref
 
     def build_from_fabric_trace(
         self,
@@ -388,13 +516,20 @@ class LineageService:
         decision_packet_ref = run.decision_packet_ref
 
         if decision_packet_ref is not None:
-            artifact_id = ArtifactID.model_validate(str(decision_packet_ref.artifact_id))
-            profiled = read_core_json_artifact(self._store, decision_packet_ref)
+            selected_packet = self.selected_decision_packet_ref_for_run(run)
+            if selected_packet is None:
+                raise ValueError("decision packet has no selected manifest profile")
+            selected_ref, artifact_ref_provenance = selected_packet
+            artifact_id = ArtifactID.model_validate(str(selected_ref.artifact_id))
+            profiled = read_core_json_artifact(self._store, selected_ref)
             if isinstance(profiled.value, dict):
                 quantities.extend(
                     _decision_packet_quantities(
                         profiled.value,
                         artifact_id=str(artifact_id),
+                        selected_artifact_ref=selected_ref,
+                        artifact_ref_provenance=artifact_ref_provenance,
+                        source_run_id=str(run.run_id),
                         run_started_at=run.details.started_at,
                         run_finished_at=run.details.finished_at,
                         canon_read_status=profiled.status,
@@ -466,12 +601,14 @@ class LineageService:
             source_contract=resolved_source_contract,
             temporal_scope=temporal_scope,
             access_resolver=(
-                lambda quantity, _index: access_ref_from_source_field_policy(
-                    source_contract_model,
-                    field_id=str(getattr(quantity, "metric_id", "") or "*"),
+                lambda quantity, _index: (
+                    access_ref_from_source_field_policy(
+                        source_contract_model,
+                        field_id=str(getattr(quantity, "metric_id", "") or "*"),
+                    )
+                    if source_contract_model is not None
+                    else None
                 )
-                if source_contract_model is not None
-                else None
             ),
         )
         return (
@@ -492,7 +629,7 @@ class LineageService:
             profiled = read_core_json_artifact(self._store, run.decision_packet_ref)
         except CanonicalProfileRefusalError:
             raise
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return DEFAULT_DECISION_SOURCE_CONTRACT
         if isinstance(profiled.value, Mapping):
             resolved = _source_contract_from_payload(profiled.value)
@@ -627,7 +764,7 @@ def _parse_artifact_lineage_id(lineage_id: str) -> ArtifactID | None:
     candidate = lineage_id.removeprefix("artifact:")
     try:
         return ArtifactID.model_validate(candidate)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
 
 
@@ -643,6 +780,8 @@ def _artifact_lineage_to_runtime_view(
             id=node.artifact_id,
             kind=node.kind or "artifact",
             label=node.kind or _short_id(node.artifact_id),
+            media_type=node.media_type,
+            manifest_profile_sha256=node.manifest_profile_sha256,
             metadata={
                 "role": node.role,
                 "status": node.status,
@@ -657,6 +796,8 @@ def _artifact_lineage_to_runtime_view(
             source_id=edge.parent_artifact_id,
             target_id=edge.child_artifact_id,
             relation=edge.role,
+            source_manifest_profile_sha256=edge.parent_manifest_profile_sha256,
+            target_manifest_profile_sha256=edge.child_manifest_profile_sha256,
         )
         for edge in artifact_view.edges
     ]
@@ -674,6 +815,7 @@ def _artifact_lineage_to_runtime_view(
         compact_summary=compact_summary,
         nodes=nodes,
         edges=edges,
+        root_artifact_refs=list(artifact_view.root_artifact_refs),
         exports=_export_links(lineage_id),
         metadata={
             "root_artifact_ids": list(artifact_view.root_artifact_ids),
@@ -835,6 +977,9 @@ def _verified_artifact_ref(
     *,
     label: str,
     canon_read_status: str | None = None,
+    selected_artifact_ref: ArtifactRef | None = None,
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"] | None = None,
+    source_run_id: str | None = None,
 ) -> LineageRef:
     summary = {"source": label, "artifact": artifact_id}
     if canon_read_status is not None:
@@ -848,6 +993,9 @@ def _verified_artifact_ref(
             LineageCompactSummaryItem(kind="source", label="Decision packet", id=artifact_id),
             LineageCompactSummaryItem(kind="result", label=label, id=f"artifact:{artifact_id}"),
         ],
+        artifact_ref=selected_artifact_ref,
+        artifact_ref_provenance=artifact_ref_provenance,
+        source_run_id=source_run_id,
     )
 
 
@@ -861,7 +1009,7 @@ def _source_contract_snapshot_by_id() -> dict[str, SourceContract]:
     try:
         payload = json.loads(_SOURCE_CONTRACT_SNAPSHOT.read_text(encoding="utf-8"))
         contracts = load_source_contracts(payload)
-    except (OSError, TypeError, ValueError):
+    except OSError, TypeError, ValueError:
         _SOURCE_CONTRACT_CACHE = {}
         return _SOURCE_CONTRACT_CACHE
     _SOURCE_CONTRACT_CACHE = {contract.id: contract for contract in contracts}
@@ -911,6 +1059,9 @@ def _decision_packet_quantities(
     payload: dict[str, Any],
     *,
     artifact_id: str,
+    selected_artifact_ref: ArtifactRef,
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"],
+    source_run_id: str,
     run_started_at: datetime | None,
     run_finished_at: datetime | None,
     canon_read_status: str,
@@ -930,6 +1081,9 @@ def _decision_packet_quantities(
                         label=metric_text,
                         path=f"decision_packet.simulation_results.{metric_text}",
                         artifact_id=artifact_id,
+                        selected_artifact_ref=selected_artifact_ref,
+                        artifact_ref_provenance=artifact_ref_provenance,
+                        source_run_id=source_run_id,
                         time=temporal,
                         canon_read_status=canon_read_status,
                     )
@@ -946,6 +1100,9 @@ def _decision_packet_quantities(
                     label="Backtest trust score",
                     path="decision_packet.backtest.trust_score",
                     artifact_id=artifact_id,
+                    selected_artifact_ref=selected_artifact_ref,
+                    artifact_ref_provenance=artifact_ref_provenance,
+                    source_run_id=source_run_id,
                     time=temporal,
                     canon_read_status=canon_read_status,
                 )
@@ -960,6 +1117,9 @@ def _decision_packet_quantities(
                         row,
                         index=index,
                         artifact_id=artifact_id,
+                        selected_artifact_ref=selected_artifact_ref,
+                        artifact_ref_provenance=artifact_ref_provenance,
+                        source_run_id=source_run_id,
                         time=temporal,
                         canon_read_status=canon_read_status,
                     )
@@ -973,6 +1133,9 @@ def _metric_comparison_quantities(
     *,
     index: int,
     artifact_id: str,
+    selected_artifact_ref: ArtifactRef,
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"],
+    source_run_id: str,
     time: TemporalRef | None,
     canon_read_status: str,
 ) -> list[QuantityValue]:
@@ -999,6 +1162,9 @@ def _metric_comparison_quantities(
                 label=f"{metric_id} {field_name}",
                 path=(f"decision_packet.metric_validation_comparison_rows[{index}].{field_name}"),
                 artifact_id=artifact_id,
+                selected_artifact_ref=selected_artifact_ref,
+                artifact_ref_provenance=artifact_ref_provenance,
+                source_run_id=source_run_id,
                 time=time,
                 canon_read_status=canon_read_status,
             )
@@ -1013,6 +1179,9 @@ def _quantity(
     label: str,
     path: str,
     artifact_id: str,
+    selected_artifact_ref: ArtifactRef | None = None,
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"] | None = None,
+    source_run_id: str | None = None,
     time: TemporalRef | None,
     canon_read_status: str | None = None,
 ) -> QuantityValue:
@@ -1025,6 +1194,9 @@ def _quantity(
             artifact_id,
             label=path,
             canon_read_status=canon_read_status,
+            selected_artifact_ref=selected_artifact_ref,
+            artifact_ref_provenance=artifact_ref_provenance,
+            source_run_id=source_run_id,
         ),
         time=time,
         quantity_class="decision",

@@ -1,5 +1,6 @@
 import { createContext, useContext, type PropsWithChildren } from "react";
 
+import type { ProfileBindingContext } from "../quantity/quantity.types";
 import type { VerificationMetadata } from "./trust-glyphs";
 
 export type TrustViewMode = "off" | "compact" | "expanded";
@@ -18,6 +19,7 @@ export type TrustInspectorSubject = {
   hash?: string | null;
   trustMetadata?: VerificationMetadata | null;
   temporalScope?: VerificationMetadata["temporal_scope"];
+  selectedProfileContext?: ProfileBindingContext;
   summary?: string | null;
 };
 

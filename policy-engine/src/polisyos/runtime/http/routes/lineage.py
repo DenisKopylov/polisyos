@@ -7,9 +7,11 @@ from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
     LineageBatchRequest,
+    LineageBatchResolution,
     LineageBatchResponse,
     LineageExportResponse,
     LineageGraphView,
@@ -142,10 +144,19 @@ if router is not None:
         scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> LineageBatchResponse:
-        authorized_lineage_ids, scenario_manifest_payloads = lineage_batch_from_bound_request(
+        (
+            authorized_lineage_ids,
+            scenario_manifest_payloads,
+            selected_artifact_refs,
+            artifact_ref_provenances,
+            request_run_id,
+            source_run_ids,
+        ) = lineage_batch_from_bound_request(
             request,
             ctx=ctx,
             requested_lineage_ids=body.lineage_ids,
+            requested_selected_artifact_refs=body.selected_artifact_refs,
+            requested_run_id=body.run_id,
         )
         try:
             scenario_manifests = {
@@ -157,6 +168,11 @@ if router is not None:
                 "The authorized scenario lineage manifest is invalid",
                 code="authorization_binding_context_invalid",
             ) from exc
+        if len(authorized_lineage_ids) != len(body.lineage_ids):
+            raise forbidden(
+                "The authorized lineage resolutions do not cover the requested batch",
+                code="authorization_binding_context_mismatch",
+            )
         temporal_scope = _resolve_lineage_temporal_scope(
             ctx,
             lineage_id="lineage.batch",
@@ -184,10 +200,48 @@ if router is not None:
                 ctx,
                 list(authorized_lineage_ids),
                 scenario_manifests=scenario_manifests,
+                selected_artifact_refs=selected_artifact_refs,
+                artifact_ref_provenances=artifact_ref_provenances,
+                request_run_id=request_run_id,
+                source_run_ids=source_run_ids,
                 temporal_scope=temporal_scope,
             )
         except LineageSurfaceAdmissionError as exc:
             raise _lineage_admission_conflict(exc, lineage_id="lineage.batch") from exc
+        except CanonicalProfileRefusalError as exc:
+            raise conflict(
+                "Selected artifact profile changed during lineage projection",
+                code=exc.code,
+            ) from exc
+        except ValueError as exc:
+            raise conflict(
+                "Selected artifact profile no longer matches its lineage selector",
+                code="authorization_binding_profile_mismatch",
+            ) from exc
+        if len(lineages) != len(authorized_lineage_ids) or any(
+            lineage.id != resolved_id
+            for lineage, resolved_id in zip(
+                lineages,
+                authorized_lineage_ids,
+                strict=True,
+            )
+        ):
+            raise conflict(
+                "The lineage batch response differs from its authorized resolutions",
+                code="lineage_batch_resolution_mismatch",
+            )
+        # The bound resolver returns one canonical ID per input selector in request order.
+        lineage_resolutions = [
+            LineageBatchResolution(
+                requested_lineage_id=requested_id,
+                resolved_lineage_id=resolved_id,
+            )
+            for requested_id, resolved_id in zip(
+                body.lineage_ids,
+                authorized_lineage_ids,
+                strict=True,
+            )
+        ]
         record_data_access_audit(
             request,
             resource_id="lineage.batch",
@@ -198,6 +252,7 @@ if router is not None:
             meta=build_meta(request),
             temporal_scope=temporal_scope,
             lineages=lineages,
+            lineage_resolutions=lineage_resolutions,
         )
 
     @router.get(
@@ -372,13 +427,47 @@ def _build_runtime_lineage_batch(
     lineage_ids: list[str],
     *,
     scenario_manifests: Mapping[str, ScenarioManifest],
+    selected_artifact_refs: tuple[Any | None, ...] | None = None,
+    artifact_ref_provenances: tuple[str | None, ...] | None = None,
+    request_run_id: str | None = None,
+    source_run_ids: tuple[str | None, ...] | None = None,
     temporal_scope: TemporalScope | None = None,
 ) -> list[LineageGraphView]:
-    scenario_lineage_by_id: dict[str, LineageGraphView] = {}
+    if selected_artifact_refs is not None and len(selected_artifact_refs) != len(lineage_ids):
+        raise forbidden(
+            "Selected artifact profiles do not align with authorized lineage selectors",
+            code="authorization_binding_context_mismatch",
+        )
+    if artifact_ref_provenances is not None and len(artifact_ref_provenances) != len(lineage_ids):
+        raise forbidden(
+            "Profile provenance does not align with authorized lineage selectors",
+            code="authorization_binding_context_mismatch",
+        )
+    if source_run_ids is None or len(source_run_ids) != len(lineage_ids):
+        raise forbidden(
+            "Source run relations do not align with authorized lineage selectors",
+            code="authorization_binding_context_mismatch",
+        )
+
+    scenario_by_id: dict[str, LineageGraphView] = {}
+    runtime_positions: list[int] = []
     runtime_ids: list[str] = []
-    for lineage_id in lineage_ids:
+    runtime_refs: list[Any | None] = []
+    resolver_provenances: list[str | None] = []
+    resolver_source_run_ids: list[str | None] = []
+    authorized_refs = selected_artifact_refs or tuple(None for _ in lineage_ids)
+    authorized_provenances = artifact_ref_provenances or tuple(None for _ in lineage_ids)
+    for index, lineage_id in enumerate(lineage_ids):
+        selected_ref = authorized_refs[index]
+        expected_provenance = authorized_provenances[index]
+        expected_source_run_id = source_run_ids[index]
         if ctx.scenarios.is_scenario_lineage(lineage_id):
-            if lineage_id not in scenario_lineage_by_id:
+            if selected_ref is not None:
+                raise forbidden(
+                    "Scenario lineage cannot be bound to a CAS artifact profile",
+                    code="authorization_binding_profile_lineage_mismatch",
+                )
+            if lineage_id not in scenario_by_id:
                 manifest = scenario_manifests.get(lineage_id)
                 if manifest is None:
                     raise forbidden(
@@ -386,7 +475,7 @@ def _build_runtime_lineage_batch(
                         code="authorization_binding_context_mismatch",
                     )
                 try:
-                    scenario_lineage_by_id[lineage_id] = ctx.scenarios.build_lineage_for_manifest(
+                    scenario_by_id[lineage_id] = ctx.scenarios.build_lineage_for_manifest(
                         lineage_id, manifest
                     )
                 except ValueError as exc:
@@ -394,23 +483,72 @@ def _build_runtime_lineage_batch(
                         "The scenario lineage differs from its authorized manifest",
                         code="authorization_binding_context_invalid",
                     ) from exc
-        elif lineage_id not in runtime_ids:
-            runtime_ids.append(lineage_id)
+            if expected_provenance is not None or expected_source_run_id is not None:
+                raise forbidden(
+                    "Scenario lineage cannot inherit artifact profile provenance",
+                    code="authorization_binding_profile_lineage_mismatch",
+                )
+            continue
+        runtime_positions.append(index)
+        runtime_ids.append(lineage_id)
+        runtime_refs.append(selected_ref)
+        resolver_provenances.append(expected_provenance)
+        resolver_source_run_ids.append(expected_source_run_id)
 
-    runtime_lineage_by_id = {
-        lineage.id: lineage
-        for lineage in ctx.lineage.build_runtime_lineage_batch(
-            runtime_ids, enforce_missing_authority=True
+    runtime_lineages = ctx.lineage.build_runtime_lineage_batch(
+        runtime_ids,
+        selected_artifact_refs=runtime_refs,
+        run_id=request_run_id,
+        enforce_missing_authority=True,
+    )
+    if len(runtime_lineages) != len(runtime_positions):
+        raise conflict(
+            "The runtime lineage builder returned an incomplete batch",
+            code="lineage_batch_resolution_mismatch",
         )
-    }
-    lineages: list[LineageGraphView] = []
-    for lineage_id in lineage_ids:
-        if lineage_id in scenario_lineage_by_id:
-            lineage = scenario_lineage_by_id[lineage_id]
-        else:
-            lineage = runtime_lineage_by_id[lineage_id]
-        lineages.append(_with_trust_metadata(lineage, temporal_scope=temporal_scope))
-    return lineages
+
+    result: list[LineageGraphView | None] = [None] * len(lineage_ids)
+    for index, lineage_id in enumerate(lineage_ids):
+        if ctx.scenarios.is_scenario_lineage(lineage_id):
+            lineage = scenario_by_id[lineage_id]
+            lineage = lineage.model_copy(
+                update={
+                    "profile_binding_status": "not_established",
+                    "selected_artifact_ref": None,
+                    "artifact_ref_provenance": None,
+                    "source_run_id": None,
+                    "trust_metadata": None,
+                }
+            )
+            result[index] = lineage
+    for offset, (position, lineage) in enumerate(
+        zip(runtime_positions, runtime_lineages, strict=True)
+    ):
+        original_index = position
+        expected_ref = authorized_refs[original_index]
+        expected_provenance = resolver_provenances[offset]
+        expected_source_run_id = resolver_source_run_ids[offset]
+        if expected_ref is None:
+            expected_provenance = None
+            expected_source_run_id = None
+        if (
+            lineage.selected_artifact_ref != expected_ref
+            or lineage.artifact_ref_provenance != expected_provenance
+            or lineage.source_run_id != expected_source_run_id
+            or lineage.profile_binding_status
+            != ("verified" if expected_ref is not None else "not_established")
+        ):
+            raise conflict(
+                "The lineage service result differs from its authorized profile context",
+                code="lineage_batch_resolution_mismatch",
+            )
+        result[position] = _with_trust_metadata(lineage, temporal_scope=temporal_scope)
+    if any(lineage is None for lineage in result):
+        raise conflict(
+            "The runtime lineage builder returned an incomplete batch",
+            code="lineage_batch_resolution_mismatch",
+        )
+    return [lineage for lineage in result if lineage is not None]
 
 
 def _with_trust_metadata(
@@ -418,6 +556,8 @@ def _with_trust_metadata(
     *,
     temporal_scope: TemporalScope | None,
 ) -> LineageGraphView:
+    if lineage.profile_binding_status == "not_established":
+        return lineage.model_copy(update={"trust_metadata": None})
     dispute_status = "disputed" if lineage.status == "disputed" else "none"
     verification_method = (
         "lineage_id_resolution" if lineage.status == "untraced" else "lineage_hash_match"
@@ -427,9 +567,7 @@ def _with_trust_metadata(
             "trust_metadata": VerificationMetadata(
                 hash=lineage.hash,
                 verification_status=lineage.status,
-                verified_by=(
-                    None if lineage.status == "untraced" else "PolicyOSLineageVerifier@1.0"
-                ),
+                verified_by=None,
                 verified_at=_latest_lineage_timestamp(lineage),
                 verification_method=verification_method,
                 freshness=lineage.freshness,
@@ -494,5 +632,5 @@ def _parse_artifact_lineage_id(lineage_id: str) -> ArtifactID | None:
     candidate = lineage_id.removeprefix("artifact:")
     try:
         return ArtifactID.model_validate(candidate)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None

@@ -20881,5 +20881,890 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "phase10-r3-profile-context-source-adoption-9d290ead-r4-public-surface-ruff-repair-r2": {
+    "slice_base": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/e2e/journeys/run-overview-profile-lineage.spec.ts": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "preimage_state": "absent",
+        "git_base_preimage_sha256": null,
+        "git_base_preimage_state": "absent",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/e2e/journeys/run-overview-profile-lineage.spec.ts",
+        "postimage_sha256": "1f54ebcf0e466f4b9799055f98712a7b5dbf2be5ed2f992c6ad589123965e40b",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "f4fb392e1fe94af0c5b3d9998dc5045020fcf9092fd7189b767280acf3be96a3",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "1c9ba974c8243655f1b9a1b607c92f4672f4815dae6956139b2ff5912589f491",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+        "postimage_sha256": "cb38bc781ade6bf464b60082813923e50a43c9a428c7869e455a60055ebc23b0",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "fe81f5a4160c66b58211e0769d3754fe9fcf3de82cd04e17033b83f31fbe19d7",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "3bd78644640a5f7f411b5b61b2cee52ef9b1d38a23264000d6cc667af9c24644",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "postimage_sha256": "7a1634bb35b2d84e8a0bc6b6aa0306ed4817b1deee973d443f983cdc8d6ab80b",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts": {
+        "operation": "write",
+        "preimage_sha256": "d87c76c4d94ff7f784ac617b34482208605175f3d9656f56cfeca8b96ee6ef7b",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "d5683f0cfc7ab454b850a6de1f8e334d2c2273200977fd9e5be7c5adaa444996",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-quantity-consumer-r4-20261019/candidate/policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+        "postimage_sha256": "d87c76c4d94ff7f784ac617b34482208605175f3d9656f56cfeca8b96ee6ef7b",
+        "origin": "preserved_original_r7_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts": {
+        "operation": "write",
+        "preimage_sha256": "f0420e6745e233dd15431c1c431cd20870b97b7e2c736cd47360945f7d073125",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "c094508a18a1361755eaa4706ca967fd7519f5d9046b660ed962e8f20c3b5546",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/api/validators.ts",
+        "postimage_sha256": "980256d02bf0fcdbfd2830f1e35ac1e68f6ea0d5a58a7cc01bf20d4b8951e3e6",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "c3e75fc348758c0edabf148989117547f36da50a2293b78467dbe669a54c3786",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "cea2d64fc5defa3d23d29fe821bdd4308441b3f29fa7ecdec3f15ef53b4107e1",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx",
+        "postimage_sha256": "8ae64108213ae131dfa7874ebe31e1399e543f8daeea00127cb9c03ec68f13ff",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx": {
+        "operation": "write",
+        "preimage_sha256": "6163eac2a953a43191c7ead23e039db6e2494e9da226425cbc88c4fd59c5c7e0",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "e02c75f2da4fa22780191ca09fb555b742c45468199542565734f8dc3a95675d",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx",
+        "postimage_sha256": "4a67f50c025dbad83004d39b9f78fbe8a03b80a769d1171aa19f7dd134d0916f",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx": {
+        "operation": "write",
+        "preimage_sha256": "1e34e3d85d31c41fc65cded845b515c0a59b5a1536e7f6062812e12e2d910fff",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "1e34e3d85d31c41fc65cded845b515c0a59b5a1536e7f6062812e12e2d910fff",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+        "postimage_sha256": "ed51c302e3a070150ef98546d502f7b76ec4b9bbbc0ce49b69518bdc600abeb3",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "preimage_state": "absent",
+        "git_base_preimage_sha256": null,
+        "git_base_preimage_state": "absent",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+        "postimage_sha256": "e0a1205043a4431ee833af643e4eb7f7df0464d5782e703ed264fa064f0f8386",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.tsx": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "preimage_state": "absent",
+        "git_base_preimage_sha256": null,
+        "git_base_preimage_state": "absent",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.tsx",
+        "postimage_sha256": "04c90d5ebc7a50d50dde92a0ef7a0fdf8eb70c5dd68c61da06af263ff17d4971",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "preimage_state": "absent",
+        "git_base_preimage_sha256": null,
+        "git_base_preimage_state": "absent",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-admission-recovery-delta-20261019/postimages/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+        "postimage_sha256": "f4a40d49de4601a854fd625d8050b03fc8f74bd5bdcb52c1e933c066d69b539c",
+        "origin": "r3_admission_recovery_delta"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json": {
+        "operation": "write",
+        "preimage_sha256": "57a14248a17a3710b0ab4229311518f7d5f2f3ad10e7c675bc16b05a9b4e3012",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "57a14248a17a3710b0ab4229311518f7d5f2f3ad10e7c675bc16b05a9b4e3012",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "postimage_sha256": "8d342186283c58bbf2a7ff836439598a8e6305ee0f8f22c9cfe4c6093a925d4d",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json": {
+        "operation": "write",
+        "preimage_sha256": "a4bdc2a87c5450f1b11246bdb6870401863f7d1f8ff3402f059a70e262037f4e",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "a4bdc2a87c5450f1b11246bdb6870401863f7d1f8ff3402f059a70e262037f4e",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+        "postimage_sha256": "ef9b2f9bafca8f9948dccd80a7b82ed06c0259626dc8ec951732c826098e5479",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json": {
+        "operation": "write",
+        "preimage_sha256": "ac7530dce76581179c9c2712c754a96c3cbd5831db9c1a284220a3c372fb07b8",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "ac7530dce76581179c9c2712c754a96c3cbd5831db9c1a284220a3c372fb07b8",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        "postimage_sha256": "4b24a593c1f5367e03f42bf4b6cb110077af11ace0372e45f4fea4ed9387ea5b",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx": {
+        "operation": "write",
+        "preimage_sha256": "87dd3e80ccd24994176a07765e5beb3f34879ade248ca63f80c889f141f8f8df",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "87dd3e80ccd24994176a07765e5beb3f34879ade248ca63f80c889f141f8f8df",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx",
+        "postimage_sha256": "004137187316fef6bd49e426f17d64f57483eccfb52c6cadf909e8b807b5722d",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "eb24377e608ffc9bdac9c921a79f8c02291fc9adedea3161b29ab6f4f101aabd",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "eb24377e608ffc9bdac9c921a79f8c02291fc9adedea3161b29ab6f4f101aabd",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+        "postimage_sha256": "ee0d996af5702e70dc5409668c9930f7392ab0c402d6fdb2d7ff0b21a68c1141",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx": {
+        "operation": "write",
+        "preimage_sha256": "aed6551e2d9cb59346be73c9d66176eee9eaad703be30f5b2ccfd280fb8fe82a",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "aed6551e2d9cb59346be73c9d66176eee9eaad703be30f5b2ccfd280fb8fe82a",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+        "postimage_sha256": "ba69a2a0a176927b401f7529e84b6a5a08a27520c31c64f139d0c1f8d3c4b255",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx": {
+        "operation": "write",
+        "preimage_sha256": "55f0156c7aa2d4c3763b2b991a55e97b30dea3a538b3e8613e8b2c03345a0925",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "55f0156c7aa2d4c3763b2b991a55e97b30dea3a538b3e8613e8b2c03345a0925",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+        "postimage_sha256": "20494c3d62597853ccac6a419e35d1a666352a591b631d370254f73ef5205698",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx": {
+        "operation": "write",
+        "preimage_sha256": "fe991f8a71cf6b662208212332c131f334028f41691335853a0b70822a4664ad",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "fe991f8a71cf6b662208212332c131f334028f41691335853a0b70822a4664ad",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+        "postimage_sha256": "25e6eaabe9bdc153e82d588d3287d3f4b1ac8208c1334152ea3cdb234affad9a",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "06cfc92049c6da31ffea4ba4cc8791694ccec9b0a95e3633aa1895fe803d78a3",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "06cfc92049c6da31ffea4ba4cc8791694ccec9b0a95e3633aa1895fe803d78a3",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+        "postimage_sha256": "d5b7dac12c2ed8052447218020e41560a8267ba6ac87e79d42bde3a587c0ced9",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts": {
+        "operation": "write",
+        "preimage_sha256": "44baa5b40ab1d209fc8731817be7cb5707ad93fecc238494746d7e886e246a36",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "44baa5b40ab1d209fc8731817be7cb5707ad93fecc238494746d7e886e246a36",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "postimage_sha256": "69b3369b345f4b9501788885feeb234c4644d0cbb373819d01409e28e892dbca",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts": {
+        "operation": "write",
+        "preimage_sha256": "384247e3b54cb0f685e504d66c9c238d7cabcaddf68ac11fb2bd511558588f2a",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "384247e3b54cb0f685e504d66c9c238d7cabcaddf68ac11fb2bd511558588f2a",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+        "postimage_sha256": "7fc7370225337308c88ceee1527ef01646779dd681a8d0dbf1dd33689cb614a2",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "538b458e90efcef386ec3b97c14f936f10c5f15c0e7a076e01076fd86b5171e9",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "538b458e90efcef386ec3b97c14f936f10c5f15c0e7a076e01076fd86b5171e9",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+        "postimage_sha256": "e833d6cfd8a8d187f3e7896859772dc1a70940940e103c525f0299ec8dfdc306",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts": {
+        "operation": "write",
+        "preimage_sha256": "625307ed3ad2c940963236d616bc7f31f588a282255712fbf28d52dd8e94a730",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "625307ed3ad2c940963236d616bc7f31f588a282255712fbf28d52dd8e94a730",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+        "postimage_sha256": "b15f363efa56c725ea4cc0d7bc1b65cde8610b2b92fadd8d61ea68bff3693a9a",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts": {
+        "operation": "write",
+        "preimage_sha256": "fffd59386d0c5770ffe6f7f3ff186c0839426266be1f5dd25f98b5d62d313a7d",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "fffd59386d0c5770ffe6f7f3ff186c0839426266be1f5dd25f98b5d62d313a7d",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+        "postimage_sha256": "98664d0b91be29b99cf94ad6912a6b8e6bdcdcfcc2715653373c8128eb64a5f9",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx": {
+        "operation": "write",
+        "preimage_sha256": "22fb5d48d9b1ff8c470c45389aa063845c67cb723749e2d780fb7fd6bb9aa286",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "22fb5d48d9b1ff8c470c45389aa063845c67cb723749e2d780fb7fd6bb9aa286",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
+        "postimage_sha256": "69dff8dfd75de9a3219145bae82f62f13261e499a1e2a78687a62db1d18b1d17",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "cad52413e2197b2b6ff50a77756612187ff55ab786bdd4007ae477823654e759",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "cad52413e2197b2b6ff50a77756612187ff55ab786bdd4007ae477823654e759",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+        "postimage_sha256": "d590805cfbb7d812eea0acc8cf9070e326ddaf2ead4e1067d682b03584a133a6",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx": {
+        "operation": "write",
+        "preimage_sha256": "1d7cbfcf1244180a5a2978ee09b134bca8e3c97c829da811ee1dc0798c5348bd",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "1d7cbfcf1244180a5a2978ee09b134bca8e3c97c829da811ee1dc0798c5348bd",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+        "postimage_sha256": "f8cbb244146b12a1ca973945849d19353c932dcfa497fbee1c8d52204fe06e56",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx": {
+        "operation": "write",
+        "preimage_sha256": "28477c590da909947615a1851b3889f678c0c5fe0beb943de66cb16e418607ee",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "28477c590da909947615a1851b3889f678c0c5fe0beb943de66cb16e418607ee",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+        "postimage_sha256": "3f879b11e5fd10d4c126727be01aed7f6d43c576fafd1504d9d37f964b8b19b5",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx": {
+        "operation": "write",
+        "preimage_sha256": "2cc20dc0a2e3a973d3af46ebea8f0e3530b8d96f7c567116a41535737b5374b8",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "2cc20dc0a2e3a973d3af46ebea8f0e3530b8d96f7c567116a41535737b5374b8",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx",
+        "postimage_sha256": "c306176795abfe4f6c2243d94e8c4f50f11edfbd0baf3821027c87be4af972f4",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/docs/reference/api/migration-guide.md": {
+        "operation": "write",
+        "preimage_sha256": "612fe009dd10ac110cd3c665c5e2fabb3ff0d06eb0d3d2f641dfa114ebbf91cc",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "7178a9ce52e50d2a355badfcd3006c06fc94b62590c4f872ed5e5fcb52d9e1e7",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/docs/reference/api/migration-guide.md",
+        "postimage_sha256": "d38390d81f00987e01b9ec59535dddd57810191a3bb85ffb7fb9338858a94ba0",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/docs/runbooks/migration-release-promotion.md": {
+        "operation": "write",
+        "preimage_sha256": "c55226975e8451319810fdc369804c524c2f644ded048368797b3c09163a8f76",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "b61f740c23f1955e9176690179be3ecdbcbffea21dc2e8adde53ae3e7e4bc393",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-lineage-batch-wire-compatibility-r2-20261019/candidate/policy-engine/docs/runbooks/migration-release-promotion.md",
+        "postimage_sha256": "c55226975e8451319810fdc369804c524c2f644ded048368797b3c09163a8f76",
+        "origin": "preserved_original_r7_postimage"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml": {
+        "operation": "write",
+        "preimage_sha256": "b22e592fa074748149f7b7584560d56b3a8516bd0feb25692d3681a45be13a24",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": null,
+        "git_base_preimage_state": "absent",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/postimages/policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml",
+        "postimage_sha256": "e3ae62b6209d2a714ce15b0422cbcc3073acd3da6857036d85f6325210634248",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/src/polisyos/core/contracts/runtime.py": {
+        "operation": "write",
+        "preimage_sha256": "8b0d366eca1503e31cf556558b5167ff1b1111e924ef175d3a744a018f382e7d",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "328d01caad11dd69226c6785548605fc4bd61b1e9c95de882879e8a7b47ad846",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/core/contracts/runtime.py",
+        "postimage_sha256": "fe246527306441af66e477cfb25bac17a57093e3cc1923de9cc39c2495b79512",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/src/polisyos/fabric/evidence/decision_data.py": {
+        "operation": "write",
+        "preimage_sha256": "3a6bcd16a5acc77cdf97903e76fe89e224566def4eaebbb216767ce96ebbc205",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "3a6bcd16a5acc77cdf97903e76fe89e224566def4eaebbb216767ce96ebbc205",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/fabric/evidence/decision_data.py",
+        "postimage_sha256": "d455603ffaac4c84ead5032f41782e8dfa74341edeb5ed6de779d16fe7e60856",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/src/polisyos/runtime/http/dependencies.py": {
+        "operation": "write",
+        "preimage_sha256": "b4a001bb6873b119e6ff6a0ce7800e9c3404780ea1054ef5c78ad501e9a085dd",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "b4a001bb6873b119e6ff6a0ce7800e9c3404780ea1054ef5c78ad501e9a085dd",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/runtime/http/dependencies.py",
+        "postimage_sha256": "b453a6f43fbeabbe7978bdc04f9ffd524c968f520c29212adf0b0cbf4e66f8bb",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "2ec9d515f8f10c684b360993b07254f65e2d8d37757a6e8e8764d3f95ca7f697",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-quantity-consumer-r5-20261019/delta/policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "postimage_sha256": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989",
+        "origin": "preserved_original_r7_postimage"
+      },
+      "policy-engine/src/polisyos/runtime/http/resource_binding.py": {
+        "operation": "write",
+        "preimage_sha256": "870af80c5e31df9eadb00f417fd89f35913ba8453d812e2f1f2d5eea8e2f88f1",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "870af80c5e31df9eadb00f417fd89f35913ba8453d812e2f1f2d5eea8e2f88f1",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/runtime/http/resource_binding.py",
+        "postimage_sha256": "f188931807ffabdb751b6a452ce3e96bc2246c1eff10bd73c8adf3fca0c2402f",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/src/polisyos/runtime/http/routes/lineage.py": {
+        "operation": "write",
+        "preimage_sha256": "4d105d1725d3844ee7e715649c5269217116111404448ae3c0d9b050474ac453",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "14858bafa5fb2a481b450d95b707008776fefead1bc5244c14c6c0f7f480977a",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/runtime/http/routes/lineage.py",
+        "postimage_sha256": "6b8f26ef9952f069e81ad4d51f22478dc219782c1155fdacf530d0ff3febbc2d",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/lineage.py": {
+        "operation": "write",
+        "preimage_sha256": "bb3e5455fd328110967f2c1a8fdcef863a1fc3c7e725fd80aea793b616f4ca02",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "bb3e5455fd328110967f2c1a8fdcef863a1fc3c7e725fd80aea793b616f4ca02",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/runtime/http/services/lineage.py",
+        "postimage_sha256": "30b4e53e88e2d9b40b05c5f83175cfe8f2c54aa002cd1f7f884d07bc437e9066",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/tests/unit/runtime/http/test_fabric_decision_data_profile_binding.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "preimage_state": "absent",
+        "git_base_preimage_sha256": null,
+        "git_base_preimage_state": "absent",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/postimages/tests/unit/runtime/http/test_fabric_decision_data_profile_binding.py",
+        "postimage_sha256": "4fea6658130ab4692c438e4534ca3234c8f05e58033f1b13c7206b47f67b2786",
+        "origin": "r4_ruff_import_order_delta"
+      },
+      "policy-engine/tests/unit/runtime/http/test_lineage_routes.py": {
+        "operation": "write",
+        "preimage_sha256": "141c33f919f2b5d8201267b5b034fb1423bf9a005c9c7239fd81d80a9cc3aae8",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "74a76c8ebad1c2065dbe792d412c671bd7e314feeae5ad69de7bff09bb1cddf7",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/tests/unit/runtime/http/test_lineage_routes.py",
+        "postimage_sha256": "918e6841e84c8f61f6669d6e70f040a54ad5119ac7899083d4970a0c1dd4091b",
+        "origin": "r3_delivery_postimage"
+      },
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py": {
+        "operation": "write",
+        "preimage_sha256": "ea183d74a5e3e8445f32d991881151dc4d9601c929be4ff2e4a50c90c10d832d",
+        "preimage_state": "present",
+        "git_base_preimage_sha256": "2b0e048f011778eef140a4086e8daad559e7e0e051247f83ecbbf7b949978d75",
+        "git_base_preimage_state": "present",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-quantity-consumer-r5-20261019/delta/policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+        "postimage_sha256": "ea183d74a5e3e8445f32d991881151dc4d9601c929be4ff2e4a50c90c10d832d",
+        "origin": "preserved_original_r7_postimage"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-lineage-43-source-admission-20261019/source-application.json",
+      "sha256": "51453b3e5dc19421d4a17228b176c08ad06488367b280d72798d7a215cadb1ab"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-lineage-43-source-admission-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/apps/runtime-dashboard/package.json",
+        "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a"
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "sha256": "71dca1f9ba7e2e379c90a48e167869bc769e5c3bc63e9628d2289a37230ae77a"
+      },
+      {
+        "path": "policy-engine/architecture/gates/compatibility_release.toml",
+        "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3",
+        "bytes": 5278
+      },
+      {
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "sha256": "e1784ad5f62a46f6afa2a968e188dbef58cfb00bce18056976be5bd481a65b49",
+        "bytes": 263033
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "sha256": "00a4677bf4844e5641c88aee0cf0e4d20b7f57325a2ac41fbd837ac4b416c92a",
+        "bytes": 21445
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "sha256": "7b07ca5937c26c677102b7506c3f83eef74312574bfd3b36774d06d38203bef3",
+        "bytes": 564925
+      },
+      {
+        "path": "policy-engine/docs/reference/generated-artifacts.md",
+        "sha256": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "sha256": "a7785f79f876441895ffceeec642abb8b44c49c2a792c1830b8bfee3993cebbb",
+        "bytes": 224642
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/reviewed-source-docs.patch",
+        "sha256": "3e1095450b8c9a27902c4de06a95334a30153b2fff88b226b85ce14e69ab23fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-lineage-release-generated-output-completeness-r3-20261019/lineage-batch-release-fragment.toml",
+        "sha256": "b22e592fa074748149f7b7584560d56b3a8516bd0feb25692d3681a45be13a24"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-lineage-release-generated-output-completeness-r3-20261019/manifest.json",
+        "sha256": "e3d6ed2cfd88b14c9172216e008247e93176ef56b6124a1c21e0177554e97860"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-lineage-release-generated-output-completeness-r3-independent-20261019/review.md",
+        "sha256": "790d0543d3bf672244f8a4358eb04d1bc6e60069e5dd4380869980b07b48497c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-trash-api-preflight-20261018/native-trash.swift",
+        "sha256": "cc2915bb33d2cd1d206e27782f6385e51df3e41ca65071fbae5288b8ce6bc868"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-source-application-r1-20261017/raw-alias-before-hashes.json",
+        "sha256": "f2bbab9c74ca918b4cd78fd3a7d6d468e206f13d67f7b93305c81ad1bf4cac31"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-consumer-r3-admission-recovery-delta-review-20261019/manifest.json",
+        "sha256": "2e37b0a36bed2f9e3a60cb76f9feeb04fbf3a4dff11a4f35a4d8a73a2642a62c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-consumer-r3-admission-recovery-delta-review-20261019/review.json",
+        "sha256": "27dd6f645d51f260817f8921cac46edf028815c53cb546952201f04138f79c7c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-consumer-r3-admission-recovery-delta-review-20261019/review.md",
+        "sha256": "89116174114f626fa3b2c05baa32793b272adf72bd01d53652756bf970dc2b90"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-frontend-consumer-r3-independent-20261019/review.json",
+        "sha256": "3bde14a05ceb2e71af587ca14b76cada8db79a28458fae7fbdd2dacd35c3bba7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r3-20261019/current-worktree-to-final-43.patch",
+        "sha256": "e5c7a578c508dee114f64f4df4c2d81117fd1a8043ed68e15226fbbddc4c6bf0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r3-20261019/owned-applied-provenance.json",
+        "sha256": "7910147bb98e8ab3bb90efbaaa9899128488b24758f0f80f984aa007fe72916a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/canonical-context-preflight.json",
+        "sha256": "81e7e41327bf4ac62b4095434fc82a978ef81110d34a0c57815e393b906432e9",
+        "bytes": 23047
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/canonical-preflight-40-check.stdout.txt",
+        "sha256": "30f1bf257e65c707709d4ee4b64cd360a601b61721fe68e3a953a78265312f68",
+        "bytes": 961
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/manifest.json",
+        "sha256": "2b08387d04cb82ea79304c69260c9a220336dcd2a06d4c5ae06057e1c9464f4a",
+        "bytes": 4123
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/plan.json",
+        "sha256": "66f577f80bf7c4032ad9d7888dd3d88ac8fe97059241c9ceb8d8c5db7430cadc",
+        "bytes": 70940
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/public-surface-inventory-readiness-r2.json",
+        "sha256": "e08d352c6e67f1c5427ff83c6bf5af1233a5b33af3baf5d3063841c6c28c6fd6",
+        "bytes": 13282
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-20261019/r3-to-r4-public-surface-fragment.patch",
+        "sha256": "5e05726cba6175ab4bee3e2bea844b2935eba5454bf3d534d100124f4c04b2b4",
+        "bytes": 9633
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/ast-and-ruff-qualification.json",
+        "sha256": "4cabdeb50ba55742bb86233592b221c3ed3ebb225b05cd3414c88e958d82df84",
+        "bytes": 2852
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/check-canonical-context.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/check-canonical-context.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/format-canonical-context.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/format-canonical-context.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/postimages/tests/unit/runtime/http/test_fabric_decision_data_profile_binding.py",
+        "sha256": "4fea6658130ab4692c438e4534ca3234c8f05e58033f1b13c7206b47f67b2786",
+        "bytes": 20619
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/r3-test-to-r4-ruff-sort.patch",
+        "sha256": "b378ad8e5c23ae3e7aac78a9fc95884c43f5ae984cc177e15ace90113fa81981",
+        "bytes": 716
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/ruff-sort-imports-command.json",
+        "sha256": "4f419a1c6255e8d4357285937180b4eb68c8d8025ddb58433685f5ec4488d5a9",
+        "bytes": 1197
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/ruff-sort-imports.stderr.txt",
+        "sha256": "aac3a0503d8b95052cc85fb9f1717dc82b74aa55853a5aa9749b41e30275d472",
+        "bytes": 38
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/ruff-sort-imports.stdout.txt",
+        "sha256": "4fea6658130ab4692c438e4534ca3234c8f05e58033f1b13c7206b47f67b2786",
+        "bytes": 20619
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-materialization-r2-admission-recovery-20261019/current14-overlay-to-final-r3-39.patch",
+        "sha256": "cc52a46e7b33e53d5a4f9c72847d93cbb8d4fd92f60395001e35d10dddc2474f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-materialization-r2-admission-recovery-20261019/gitbase-to-final-frontend-source.patch",
+        "sha256": "6eb8e2c61ac377fdcd4898d40aa67c2300daf8bb3676a76e8cc9dc82aebe643d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-materialization-r2-admission-recovery-20261019/manifest.json",
+        "sha256": "b7ff22ab3a89458d43e86c3aded0a75dd2862f2966bd067fb729d36d6e7a6b77"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-materialization-r2-admission-recovery-20261019/preparation.json",
+        "sha256": "1d055b4aef0fb07eec37eb2794eba491ff8f093d5a3d322eb688fd3ba69a1571"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-materialization-r2-admission-recovery-20261019/r3-source-pointer-ledger.json",
+        "sha256": "ce015155b03ec2abb02628fb96bdf4462553f785f7c8d83cfd9e497e1e6240d1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r4-public-surface-fragment-independent-review-20261019/review.md",
+        "sha256": "4f8293712978a60639d2fdb729c353e19bbb6c331e1afbc953a5ef14f293b29d",
+        "bytes": 3421
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/delivery-manifest.json",
+        "sha256": "9b83efc82a0a1039a7c8b380df625b6d9ba99c40eb3482b1e2790731976f06a2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/postimages/src/polisyos/fabric/evidence/decision_data.py",
+        "sha256": "d455603ffaac4c84ead5032f41782e8dfa74341edeb5ed6de779d16fe7e60856",
+        "bytes": 26198
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/r3-complete-source.patch",
+        "sha256": "7477c84a64fd177b703f753028862f86f1c4efcb80c521909989d100f9fdcea4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-20261019/source-preimage-manifest.json",
+        "sha256": "8e04b75fbf0c86ef3b82c9ed03c010883060243412e1551572bbd5b474b75d5f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-admission-recovery-delta-20261019/delta.patch",
+        "sha256": "79efc07b0fb7e9c89c7e7672ec6b8125cfa4bf6779030947c0fa8b81ad0e4f5f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-admission-recovery-delta-20261019/manifest.json",
+        "sha256": "d01b82eea763ed331b6e21f9ddd4e229f0218b4ff35a574fe5b61b815bcf9245"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-admission-recovery-delta-20261019/validation.json",
+        "sha256": "b765af4b21ad1f7bea86cbcb0dd52f80d59c75c006f064862ab23451693c0c6a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-independent-backend-review-9b83efc8-20261019/review.json",
+        "sha256": "5a7957a8de2ef68e59ff0964215fe9973a4755cddf7944fba67f836efc12db05"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-native-format-delta-20261019/delta.patch",
+        "sha256": "b112f1066fbb7e3c42e0c5e7af1dab901b521241e0027c00b8f9389358320491"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-real-quantity-trust-profile-context-r3-native-format-delta-20261019/manifest.json",
+        "sha256": "dbb877ba5e5764b94bc316d5f44a67d617cdbfcdf6d41873ef04e110f1cb9d6c"
+      },
+      {
+        "path": "policy-engine/ops/migrations/api_schemas/README.md",
+        "sha256": "4dd4e28aa5dab60ca4a05e3258690e9cec8548242c650e960a9c8fc196f9204e"
+      },
+      {
+        "path": "policy-engine/ops/release/release-fragment-policy.toml",
+        "sha256": "015f88e58e8d2c77c329196211360ca20413f2e6f8946b350224133ba20dbd30",
+        "bytes": 1067
+      },
+      {
+        "path": "policy-engine/package.json",
+        "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/README.md",
+        "sha256": "620fe86f4f3de3042808587243c671dd422efc528e49d9249e0d24098c167f82"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "sha256": "8ad15d5202c28c6595d7f9736f3d9f95994814798bfce760132b8d7a0fa0ae66"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/package.json",
+        "sha256": "0e88f8dcea58be097b3249eee3692f670ed3dce44a799c71b84d6cf4daf29cf1"
+      },
+      {
+        "path": "policy-engine/packages/runtime-api-client/types.ts",
+        "sha256": "4f4fefd23860ee6b3f47f3dc0630eff907210d422b801a3a2ed38a906298f886"
+      },
+      {
+        "path": "policy-engine/pnpm-lock.yaml",
+        "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      },
+      {
+        "path": "policy-engine/pnpm-workspace.yaml",
+        "sha256": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7"
+      },
+      {
+        "path": "policy-engine/release-fragments/README.md",
+        "sha256": "3149a0e1e24193bd0af0cdcaf5cc16c9851d647c981ab6608041baca576dc2b9",
+        "bytes": 4033
+      },
+      {
+        "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+        "sha256": "cda728719c170185b50b8be6ddbca88410313a25f63306f2f0cecf68f69b3778"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/__init__.py",
+        "sha256": "93b5764232d4b1fdaea6efe4b55a4a42850e28e709a2ce4cca95ac061141b713",
+        "bytes": 12730
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+        "sha256": "3a6bcd16a5acc77cdf97903e76fe89e224566def4eaebbb216767ce96ebbc205",
+        "bytes": 24689
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+        "sha256": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+        "sha256": "b625caf9dc6331f96cb9f090d5b54164053e5f042800630cb836e8d6298a7eb5",
+        "bytes": 36978
+      },
+      {
+        "path": "policy-engine/tools/devx/architecture/guardrails.py",
+        "sha256": "73a4c496f15be8cf51b121f9dca42ef28da0ead838698b4863bc65e58de8cb4c",
+        "bytes": 235378
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+        "sha256": "02f5164a002819e326ebe5d095c7e4b3fab3dac2e62d3a23b64cf1424201f711",
+        "bytes": 62641
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r4-public-surface-ruff-repair-r2-20261019/plan.json",
+        "sha256": "98e2b68715b2a21c848bfc812b6747948155fcec8ab7bded3055f5f2bf746550"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-r3-source-adoption-plan-9d290ead-r3-20261019/owned-applied-provenance.json",
+      "sha256": "7910147bb98e8ab3bb90efbaaa9899128488b24758f0f80f984aa007fe72916a"
+    },
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME public-surface classification class widened after review found the public-stable polisyos.fabric.LineageRef DTO shape change; R4 adds the additive Python API row and keeps inventory review false until the registered owner recipe produces a committed reviewed inventory. No per-field ladder.",
+    "bounded_proof": "R3 UI/backend/recovery source reviews plus the independent R4 public-surface fragment review support source classification only. The independent reviewer confirms the false marker leaves the python-public-api release predicate unsatisfied; no inventory, generator, runtime, strict-consumer, rollout, or G acceptance is claimed. A successor one-file Ruff qualification repairs the prior I001 only; full 43-row native-context validation is rerun on the successor plan, while product runtime remains UNRUN.",
+    "limitations": [
+      "The final source union remains 43 paths: 39 R3 deltas plus four retained R7-only companions. All R3 current preimages were checked against the exact current slice base 5ebf230; no source path changed in the base rebind commit.",
+      "The additional Python compatibility row classifies the R3 public-stable polisyos.fabric.LineageRef additions: optional artifact_ref, artifact_ref_provenance, and source_run_id. The source review does not establish that strict serialized consumers accept new keys or null defaults.",
+      "The generated public-surface inventory still reports the polisyos.fabric root as unresolved_exports, known_export_count 0, and 44 source-declared candidates including LineageRef. Those candidates are not proven exports; this plan makes no complete-inventory claim.",
+      "The public_surface_inventory_reviewed field is explicitly false. The independent review says this is schema-valid but leaves the structured python-public-api check unsatisfied. No inventory generator or owner review was run, and this plan records no team-architecture/G acceptance.",
+      "The five registered Runtime API/OpenAPI/client/dashboard owner outputs remain UNRUN with null candidate postimages; their bytes must come from the registered owner commands, not this plan.",
+      "The supported external-consumer inventory, strict consumer compatibility, coordinated deployment sequence, and rollout completion remain not_established; promotion remains HOLD.",
+      "R3 source review cohorts are source-only GO. Native runtime tests, typecheck, build, browser journey, release gate execution, inventory regeneration, and full owner output generation are UNRUN; closure_ids is empty.",
+      "The R4 repair successor changes only import ordering in the existing test candidate to satisfy exact canonical-context Ruff. Its import AST multiset and all non-import top-level AST nodes are unchanged; the prior failed 43-row preflight is preserved as evidence. No product test, import, inventory generation, runtime, or release gate was run."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the R7 helper in validate-only mode on this successor plan from the pinned 5ebf230 base; if all 43 exact postimages pass canonical-context Ruff and the helper reports VALIDATED_ONLY, root may decide whether to apply. Separately run owner inventory generation/review and registered generated outputs before any release marker is true. Runtime tests and external rollout remain separate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "phase10-native-frontend-seven-v4-companion-20261019": {
+    "slice_base": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+    "canonical_writer": "root only",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase10-native-frontend-v4-adoption-20261019/source-application.json",
+      "sha256": "4ee7423a7d0d4c061ac4d46e63076c1c32fa91abb65ce58aba600bd96050abd3"
+    },
+    "changed_seven_postimages": {
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.tsx": "edafd3bb910725e46d12ad0615b4021ac2fd5637d10ea68f3b992b68a3c239ba",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx": "93da851ecc8dfb4537732d72194f9c276d3c897e42f5eb20859b336e5a1813a3",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx": "a3ad2250a7c54b4d1e4f4c50a6b265ad685269058fc3238ee3338e64ae95ca71",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts": "a20962970ca4de2fc1e994b0e47147fa5110041505c95ee9e2b96ecce2e8c15a",
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json": "c98d168ba160ab39e96c69a36b80dac0d15cf483d2e831114cc184336a821f76",
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json": "4e617927c44f97d74a1b4dfc9dbc0f5b058d45b8f242d3b77e972873dc8aa317",
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json": "2928637b34e8f403b57d5eb6ea64c9f7ff626a89ed25415adc896c9a84088588"
+    },
+    "complete_source_footprint": [
+      "policy-engine/apps/runtime-dashboard/e2e/journeys/run-overview-profile-lineage.spec.ts",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.tsx",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx",
+      "policy-engine/docs/reference/api/migration-guide.md",
+      "policy-engine/docs/runbooks/migration-release-promotion.md",
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/fabric/evidence/decision_data.py",
+      "policy-engine/src/polisyos/runtime/http/dependencies.py",
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "policy-engine/src/polisyos/runtime/http/resource_binding.py",
+      "policy-engine/src/polisyos/runtime/http/routes/lineage.py",
+      "policy-engine/src/polisyos/runtime/http/services/lineage.py",
+      "policy-engine/tests/unit/runtime/http/test_fabric_decision_data_profile_binding.py",
+      "policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-seven-delta-independent-20261019/review-v1.json",
+      "sha256": "45248c64a3b866f9a801ea2473c3991c1a7cd70c38d7250cfc3e1ce90bd745cb"
+    },
+    "P40": "Native three rule-family repairs plus distinct assertion-target weakness corrected in v4; all original semantic assertions preserved without suppressions.",
+    "limits": [
+      "Source-only delta review and exact-memory lint/format; physical pre-commit and runtime checks remain separate",
+      "No release inventory owner approval or G acceptance; existing false markers preserved"
+    ],
+    "runtime": "UNRUN on adopted canonical source",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

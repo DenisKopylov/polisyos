@@ -2460,7 +2460,12 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
 def _success_example_response_models() -> dict[str, Any]:
     """Return response DTOs that govern model-dispatched success examples."""
     from polisyos.core.contracts import ControlPreAdmissionAttemptResponse
-    from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
+    from polisyos.core.contracts.runtime import (
+        LineageBatchResponse,
+        LineageExportResponse,
+        LineageResponse,
+        PredictiveCoverageDiagnosticPreview,
+    )
     from polisyos.runtime.http.services.control.lex_search_profile import (
         LexSearchProfileResponse,
     )
@@ -2469,6 +2474,10 @@ def _success_example_response_models() -> dict[str, Any]:
     )
 
     return {
+        "get_lineage": LineageResponse,
+        "get_lineage_batch": LineageBatchResponse,
+        "export_lineage_openlineage": LineageExportResponse,
+        "export_lineage_prov": LineageExportResponse,
         "get_predictive_coverage_diagnostic": PredictiveCoverageDiagnosticPreview,
         "get_lex_search_profile": LexSearchProfileResponse,
         "get_control_pre_admission_attempt_by_idempotency_key": (
@@ -3992,6 +4001,12 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
     "get_lineage_batch": {
         "meta": _META_NO_SOURCE,
         "lineages": [_LINEAGE_VIEW_SAMPLE],
+        "lineage_resolutions": [
+            {
+                "requested_lineage_id": "artifact:" + _ARTIFACT_ID_SAMPLE,
+                "resolved_lineage_id": "artifact:" + _ARTIFACT_ID_SAMPLE,
+            }
+        ],
     },
     "export_lineage_openlineage": {
         "meta": _META_NO_SOURCE,

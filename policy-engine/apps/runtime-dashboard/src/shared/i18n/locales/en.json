@@ -937,6 +937,15 @@
       "debugRunErrors": "Run errors",
       "decisionArtifact": "Decision artifact",
       "runLineage": "Run lineage",
+      "profileLineage": {
+        "eyebrow": "Decision data",
+        "title": "Decision quantities",
+        "loading": "Loading decision quantities…",
+        "loadError": "Decision quantities could not be loaded.",
+        "runMismatch": "The decision data response did not match this run.",
+        "empty": "No decision-bearing quantities are available for this run.",
+        "bindingNotEstablished": "Profile binding is not established; quantity values remain visible."
+      },
       "compare": {
         "requiredTitle": "Run comparison requires two run ids",
         "requiredBody": "Open /runs/compare?base=<runId>&target=<runId> to review governance, evidence, and artifact deltas side by side.",
@@ -2263,7 +2272,17 @@
         "copyAuditLink": "Copy audit link",
         "openDeepDive": "Open deep dive",
         "exportAudit": "Export audit",
-        "lineageActionUnavailable": "Lineage action is available only when this element has a lineage reference."
+        "lineageActionUnavailable": "Lineage action is available only when this element has a lineage reference.",
+        "profileBindingNotEstablished": "Profile binding not established",
+        "genericBindingNotice": "This view has no selected artifact profile, source run, origin, or time binding.",
+        "selectedProfile": "Selected profile",
+        "selectedArtifact": "Selected artifact",
+        "profileOrigin": "Profile source",
+        "sourceRun": "Source run",
+        "profileBindingStatus": "Profile binding",
+        "profileLineage": "Bound lineage",
+        "profileBindingFollowOnGeneric": "Deep dive and export open generic lineage views; they do not preserve this selected-profile binding.",
+        "profileBindingExportGeneric": "This graph uses the selected profile. Export links open generic lineage exports and do not preserve that profile binding."
       },
       "counterfactual": {
         "workbench": "Scenario workbench",

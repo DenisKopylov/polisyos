@@ -12,12 +12,20 @@ import { ProvenanceMiniGraph } from "./ProvenanceMiniGraph";
 import { useQuantityRuntimeBridge } from "./QuantityRuntimeBridge";
 import type {
   LineageFreshness,
+  LineageGraphView,
   LineageResponsePayload,
+  ProfileBindingContext,
+  ProfileBindingStatus,
   QuantityValue,
   TemporalRef,
   VerificationStatus,
 } from "./quantity.types";
 import { useLineage } from "./useLineage";
+import {
+  sameProfileBindingIdentity,
+  selectedArtifactRef,
+  useAdmittedBoundLineage,
+} from "./useLineageBatch";
 
 type ProvenancePopoverProps = {
   quantity: QuantityValue;
@@ -31,7 +39,10 @@ type ProvenancePopoverProps = {
 };
 
 type LineageQueryState = {
-  data?: LineageResponsePayload;
+  data?: {
+    lineage: LineageGraphView | LineageResponsePayload["lineage"];
+    temporal_scope?: TemporalRef | null;
+  };
   isLoading: boolean;
   isError: boolean;
 };
@@ -45,16 +56,67 @@ export function ProvenancePopover(props: ProvenancePopoverProps) {
 
 function TraceableProvenancePopover(props: ProvenancePopoverProps) {
   const runtime = useQuantityRuntimeBridge();
-  const scope = props.temporalScope ?? runtime.temporalScope;
-  const lineageQuery = useLineage(props.quantity.lineage.id, {
-    enabled: props.open,
+  const scope = selectedTemporalScope(props, runtime.temporalScope);
+  const lineage = props.quantity.lineage;
+  const selectedRef = selectedArtifactRef(lineage.artifact_ref);
+  const sourceRunId = lineage.source_run_id ?? null;
+  const requiresProfileBinding =
+    selectedRef !== null ||
+    sourceRunId !== null ||
+    lineage.artifact_ref_provenance != null;
+  const admittedRunId =
+    props.quantity.profile_binding_context?.sourceRunId ?? undefined;
+  const selector = {
+    lineageId: lineage.id,
+    selectedArtifactRef: selectedRef,
+    artifactRefProvenance: lineage.artifact_ref_provenance ?? null,
+    sourceRunId,
+  };
+  const boundLineageQuery = useAdmittedBoundLineage(selector, {
+    enabled:
+      props.open &&
+      requiresProfileBinding &&
+      admittedRunId !== undefined &&
+      scope !== undefined,
+    runId: admittedRunId,
     temporalScope: scope,
   });
+  const boundGraph = boundLineageQuery.isError
+    ? undefined
+    : boundLineageQuery.data?.lineage;
+  const candidateBinding = boundGraph
+    ? boundLineageQuery.profileBindingContext
+    : null;
+  const profileBindingContext =
+    candidateBinding &&
+    (!props.quantity.profile_binding_context ||
+      sameProfileBindingIdentity(
+        candidateBinding,
+        props.quantity.profile_binding_context,
+      ))
+      ? candidateBinding
+      : null;
+  const profileBindingStatus: ProfileBindingStatus | undefined =
+    profileBindingContext
+      ? "verified"
+      : props.quantity.profile_binding_status !== undefined ||
+          requiresProfileBinding
+        ? "not_established"
+        : undefined;
+  const legacyLineageQuery = useLineage(lineage.id, {
+    enabled: props.open && !requiresProfileBinding && scope !== undefined,
+    temporalScope: scope,
+  });
+  const lineageQuery = requiresProfileBinding
+    ? boundLineageQuery
+    : legacyLineageQuery;
 
   return (
     <ProvenancePopoverShell
       {...props}
       lineageQuery={lineageQuery}
+      profileBindingContext={profileBindingContext}
+      profileBindingStatus={profileBindingStatus}
       scope={scope}
     />
   );
@@ -62,9 +124,15 @@ function TraceableProvenancePopover(props: ProvenancePopoverProps) {
 
 function UntracedProvenancePopover(props: ProvenancePopoverProps) {
   const runtime = useQuantityRuntimeBridge();
-  const scope = props.temporalScope ?? runtime.temporalScope;
+  const scope = selectedTemporalScope(props, runtime.temporalScope);
   return (
-    <ProvenancePopoverShell {...props} lineageQuery={null} scope={scope} />
+    <ProvenancePopoverShell
+      {...props}
+      lineageQuery={null}
+      profileBindingContext={null}
+      profileBindingStatus={props.quantity.profile_binding_status}
+      scope={scope}
+    />
   );
 }
 
@@ -77,22 +145,27 @@ function ProvenancePopoverShell({
   onContentMouseEnter,
   onContentMouseLeave,
   lineageQuery,
+  profileBindingContext,
+  profileBindingStatus,
   scope,
 }: ProvenancePopoverProps & {
   lineageQuery: LineageQueryState | null;
-  scope: TemporalRef | null;
+  profileBindingContext: ProfileBindingContext | null;
+  profileBindingStatus: ProfileBindingStatus | undefined;
+  scope: TemporalRef | null | undefined;
 }) {
   const { t, locale } = useI18n();
   const [deepDiveOpen, setDeepDiveOpen] = useState(false);
   const lineage = lineageQuery?.data?.lineage;
   const formatted = formatQuantityValue(quantity, { locale });
-  const verificationStatus = lineage?.status ?? quantity.lineage.status;
-  const freshness = lineage?.freshness ?? quantity.lineage.freshness;
-  const trustMetadata =
-    lineage?.trust_metadata ?? quantity.lineage.trust_metadata;
+  const verificationStatus = quantity.lineage.status;
+  const freshness = quantity.lineage.freshness;
+  const trustMetadata = profileBindingContext
+    ? (lineage?.trust_metadata ?? null)
+    : null;
   const temporalLabel = useMemo(
-    () => formatTemporalScope(quantity, scope, t),
-    [quantity, scope, t],
+    () => formatTemporalScope(scope, t),
+    [scope, t],
   );
 
   useEffect(() => {
@@ -186,6 +259,49 @@ function ProvenancePopoverShell({
                 {t("shared.ui.quantity.popover.lineage")}
               </dt>
               <dd className="min-w-0 truncate">{quantity.lineage.id}</dd>
+              {profileBindingStatus ? (
+                <>
+                  <dt className="text-muted">
+                    {t("shared.ui.trustView.profileBindingStatus")}
+                  </dt>
+                  <dd data-testid="popover-profile-binding-status">
+                    {profileBindingStatus === "verified"
+                      ? profileBindingStatus
+                      : t("shared.ui.trustView.profileBindingNotEstablished")}
+                  </dd>
+                </>
+              ) : null}
+              {profileBindingContext ? (
+                <>
+                  <dt className="text-muted">
+                    {t("shared.ui.trustView.profileLineage")}
+                  </dt>
+                  <dd data-testid="popover-profile-lineage">
+                    {profileBindingContext.lineageId}
+                  </dd>
+                  <dt className="text-muted">
+                    {t("shared.ui.trustView.selectedArtifact")}
+                  </dt>
+                  <dd
+                    className="min-w-0 break-all"
+                    data-testid="popover-selected-artifact-ref"
+                  >
+                    {JSON.stringify(profileBindingContext.selectedArtifactRef)}
+                  </dd>
+                  <dt className="text-muted">
+                    {t("shared.ui.trustView.profileOrigin")}
+                  </dt>
+                  <dd data-testid="popover-profile-origin">
+                    {profileBindingContext.origin}
+                  </dd>
+                  <dt className="text-muted">
+                    {t("shared.ui.trustView.sourceRun")}
+                  </dt>
+                  <dd data-testid="popover-source-run">
+                    {profileBindingContext.sourceRunId}
+                  </dd>
+                </>
+              ) : null}
               {quantity.lineage.hash ? (
                 <>
                   <dt className="text-muted">
@@ -272,6 +388,7 @@ function ProvenancePopoverShell({
         quantity={quantity}
         lineage={lineage}
         temporalScope={scope}
+        profileBindingContext={profileBindingContext}
       />
     </>
   );
@@ -312,13 +429,24 @@ function formatUncertainty(
   });
 }
 
+function selectedTemporalScope(
+  props: ProvenancePopoverProps,
+  runtimeScope: TemporalRef | null | undefined,
+): TemporalRef | null | undefined {
+  if (props.temporalScope !== undefined) return props.temporalScope;
+  if (props.quantity.profile_binding_status !== undefined) {
+    return props.quantity.profile_binding_temporal_scope;
+  }
+  return runtimeScope;
+}
+
 function formatTemporalScope(
-  quantity: QuantityValue,
-  scope: TemporalRef | null,
+  scope: TemporalRef | null | undefined,
   t: (path: string, vars?: MessageValues) => string,
 ) {
-  const validAt = scope?.valid_at ?? quantity.time?.valid_at;
-  const txAt = scope?.tx_at ?? quantity.time?.tx_at;
+  if (scope === undefined || scope === null) return t("common.unknown");
+  const validAt = scope.valid_at;
+  const txAt = scope.tx_at;
   if (!validAt && !txAt) {
     return t("common.unknown");
   }

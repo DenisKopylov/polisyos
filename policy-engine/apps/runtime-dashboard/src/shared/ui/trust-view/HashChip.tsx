@@ -7,6 +7,7 @@ import { cn } from "@/shared/lib/utils";
 import { truncateHash, type VerificationMetadata } from "./trust-glyphs";
 import {
   useMaybeTrustView,
+  type TrustInspectorSubject,
   type TrustInspectorSubjectKind,
 } from "./TrustViewBridge";
 
@@ -15,6 +16,7 @@ type HashChipProps = {
   label?: string | null;
   subjectId: string;
   subjectKind?: TrustInspectorSubjectKind;
+  subject?: TrustInspectorSubject;
   trustMetadata?: VerificationMetadata | null;
   interactive?: boolean;
   className?: string;
@@ -25,6 +27,7 @@ export function HashChip({
   label,
   subjectId,
   subjectKind = "lineage",
+  subject,
   trustMetadata,
   interactive = true,
   className,
@@ -58,13 +61,15 @@ export function HashChip({
         title={title}
         data-hash={hash}
         onClick={() => {
-          trustView?.openInspector({
-            hash,
-            id: subjectId,
-            kind: subjectKind,
-            label,
-            trustMetadata,
-          });
+          trustView?.openInspector(
+            subject ?? {
+              hash,
+              id: subjectId,
+              kind: subjectKind,
+              label,
+              trustMetadata,
+            },
+          );
         }}
       >
         {shortHash}

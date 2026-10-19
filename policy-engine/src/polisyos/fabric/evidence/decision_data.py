@@ -15,6 +15,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core.artifacts.manifest import ArtifactRef
+
 DecisionDataKind = Literal["quantity", "authored_text", "fact", "event", "claim"]
 TypedGapState = Literal[
     "untraced",
@@ -234,6 +236,9 @@ class LineageRef(BaseModel):
     reason_code: str | None = None
     owner: str | None = None
     tracking_issue: str | None = None
+    artifact_ref: ArtifactRef | None = None
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"] | None = None
+    source_run_id: str | None = None
 
     @model_validator(mode="after")
     def _validate_untraced_contract(self) -> LineageRef:
@@ -242,6 +247,12 @@ class LineageRef(BaseModel):
                 raise ValueError("untraced lineage requires reason_code")
             if not self.owner:
                 raise ValueError("untraced lineage requires owner")
+        if self.artifact_ref is None and self.artifact_ref_provenance is not None:
+            raise ValueError("lineage provenance requires an artifact_ref")
+        if self.artifact_ref is not None and self.artifact_ref.manifest_profile_sha256 is None:
+            raise ValueError("lineage artifact_ref must select a manifest profile")
+        if self.artifact_ref_provenance == "run_output_ref" and self.source_run_id is None:
+            raise ValueError("run_output_ref provenance requires source_run_id")
         return self
 
 
@@ -472,6 +483,9 @@ def to_runtime_quantity_value(data: FabricDecisionData) -> Any:
             if data.lineage.status != "untraced"
             else data.lineage.tracking_issue or "policyos://fabric-decision-data/untraced"
         ),
+        artifact_ref=data.lineage.artifact_ref,
+        artifact_ref_provenance=data.lineage.artifact_ref_provenance,
+        source_run_id=data.lineage.source_run_id,
     )
     return QuantityValue(
         point=data.value.point,
@@ -541,6 +555,14 @@ def _lineage_from_runtime(runtime_lineage: Any | None, *, owner: str) -> Lineage
     raw_evidence_refs = []
     if isinstance(summary, Mapping) and summary.get("artifact"):
         raw_evidence_refs.append(f"cas://{summary['artifact']}")
+    artifact_ref_payload = payload.get("artifact_ref")
+    artifact_ref = (
+        ArtifactRef.model_validate(artifact_ref_payload)
+        if isinstance(artifact_ref_payload, Mapping)
+        else None
+    )
+    artifact_ref_provenance = payload.get("artifact_ref_provenance")
+    source_run_id = payload.get("source_run_id")
     if status == "untraced":
         return LineageRef(
             id=lineage_id,
@@ -553,6 +575,9 @@ def _lineage_from_runtime(runtime_lineage: Any | None, *, owner: str) -> Lineage
             reason_code=str(payload.get("reason_code") or "lineage_untraced"),
             owner=owner,
             tracking_issue=payload.get("tracking_issue"),
+            artifact_ref=artifact_ref,
+            artifact_ref_provenance=artifact_ref_provenance,
+            source_run_id=source_run_id,
         )
     return LineageRef(
         id=lineage_id,
@@ -562,6 +587,9 @@ def _lineage_from_runtime(runtime_lineage: Any | None, *, owner: str) -> Lineage
         full_graph_ref=f"/api/v1/lineage/{lineage_id}?view=full",
         raw_evidence_refs=raw_evidence_refs,
         export_links=_export_links(lineage_id),
+        artifact_ref=artifact_ref,
+        artifact_ref_provenance=artifact_ref_provenance,
+        source_run_id=source_run_id,
     )
 
 

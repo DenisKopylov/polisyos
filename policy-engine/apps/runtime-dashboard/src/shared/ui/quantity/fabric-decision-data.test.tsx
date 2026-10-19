@@ -49,6 +49,16 @@ const payload = {
         id: "artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         status: "verified",
         hash: "sha256:abc",
+        artifact_ref: {
+          artifact_id:
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          kind: "core.decision_packet",
+          media_type: "application/json",
+          manifest_profile_sha256:
+            "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        },
+        artifact_ref_provenance: "reader_materialized",
+        source_run_id: "R_core_api_001",
         compact_summary_ref:
           "/api/v1/lineage/artifact:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         full_graph_ref:
@@ -96,6 +106,13 @@ describe("Fabric decision data quantity adapter", () => {
     expect(quantity?.point).toBe(100);
     expect(quantity?.unit.display).toBe("USD");
     expect(quantity?.lineage.status).toBe("verified");
+    expect(quantity?.lineage.artifact_ref).toEqual(
+      payload.decision_data?.[0]?.lineage.artifact_ref,
+    );
+    expect(quantity?.lineage.artifact_ref_provenance).toBe(
+      "reader_materialized",
+    );
+    expect(quantity?.lineage.source_run_id).toBe("R_core_api_001");
     expect(quantity?.lineage.summary?.source_contract).toBe(
       "worldbank.wdi.generic@1.1.0",
     );

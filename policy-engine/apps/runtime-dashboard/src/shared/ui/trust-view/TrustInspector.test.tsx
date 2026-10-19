@@ -56,10 +56,46 @@ function OpenInspectorButton() {
             verified_at: "2026-04-16T09:20:00Z",
             verified_by: "RiskReviewBot@2.0",
           },
+          selectedProfileContext: {
+            status: "verified",
+            lineageId: "artifact:fixture",
+            selectedArtifactRef: {
+              artifact_id:
+                "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              kind: "core.decision_packet",
+              media_type: "application/json",
+              manifest_profile_sha256:
+                "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            },
+            sourceRunId: "run-profile-a",
+            origin: "reader_materialized",
+            temporalScope: {
+              tx_at: "2026-04-16T09:20:00Z",
+              valid_at: "2026-04-15T12:00:00Z",
+            },
+          },
         })
       }
     >
       open
+    </button>
+  );
+}
+
+function OpenGenericInspectorButton() {
+  const { openInspector } = useTrustView();
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        openInspector({
+          id: "lineage:generic",
+          kind: "lineage",
+          hash: "sha256:generic",
+        })
+      }
+    >
+      open generic
     </button>
   );
 }
@@ -90,6 +126,31 @@ describe("TrustInspector", () => {
     expect(screen.getByRole("dialog")).toHaveTextContent("Effect size");
     expect(screen.getByRole("dialog")).toHaveTextContent("RiskReviewBot@2.0");
     expect(screen.getByRole("dialog")).toHaveTextContent("lineage_hash_match");
+    expect(screen.getByTestId("trust-inspector-subject-id")).toHaveTextContent(
+      "artifact:fixture",
+    );
+    expect(
+      screen.getByTestId("trust-inspector-profile-lineage"),
+    ).toHaveTextContent("artifact:fixture");
+    expect(
+      screen.getByTestId("trust-inspector-selected-artifact-ref"),
+    ).toHaveTextContent(
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    );
+    expect(
+      screen.getByTestId("trust-inspector-profile-origin"),
+    ).toHaveTextContent("reader_materialized");
+    expect(screen.getByTestId("trust-inspector-source-run")).toHaveTextContent(
+      "run-profile-a",
+    );
+    expect(
+      screen.getByTestId("trust-inspector-profile-time"),
+    ).toHaveTextContent(
+      '{"valid_at":"2026-04-15T12:00:00Z","tx_at":"2026-04-16T09:20:00Z","branch":null,"snapshot_id":null,"scenario_id":null}',
+    );
+    expect(
+      screen.getByTestId("trust-inspector-follow-on-generic"),
+    ).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Copy audit link" }));
     expect(writeText).toHaveBeenCalledWith(
@@ -115,5 +176,24 @@ describe("TrustInspector", () => {
 
     await user.click(screen.getByRole("button", { name: "Close" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("labels an unbound legacy subject as a generic follow-on view", async () => {
+    const user = userEvent.setup();
+    render(
+      <LocaleProvider>
+        <TestTrustViewProvider>
+          <OpenGenericInspectorButton />
+          <TrustInspector />
+        </TestTrustViewProvider>
+      </LocaleProvider>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "open generic" }));
+
+    expect(
+      screen.getByTestId("trust-inspector-generic-binding-notice"),
+    ).toBeVisible();
+    expect(screen.queryByTestId("trust-inspector-profile-context")).toBeNull();
   });
 });

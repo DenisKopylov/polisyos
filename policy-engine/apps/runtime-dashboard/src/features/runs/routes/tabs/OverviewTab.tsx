@@ -49,6 +49,7 @@ import {
   issueOpaqueAuthorityStatusPresentation,
 } from "@/shared/ui/AuthorityStatusPresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
+import { RunOverviewProfileLineage } from "./RunOverviewProfileLineage";
 
 function DecisionPanelContent({
   artifactRef,
@@ -165,6 +166,7 @@ function DecisionPanelContent({
                 value={summary.decisionScore}
                 format="percent"
                 precision={0}
+                data-testid="overview-summary-decision-score"
               />
             }
           />
@@ -1976,6 +1978,8 @@ export default function OverviewTab() {
           <ScenarioWorkbench runId={runId} />
         </Card>
       ) : null}
+
+      <RunOverviewProfileLineage runId={runId} />
 
       {/* Explainability & Trust (XAI) */}
       <Card className="space-y-4">

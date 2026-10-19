@@ -642,6 +642,15 @@
       "debugRunErrors": "Run errors",
       "decisionArtifact": "Decision artifact",
       "runLineage": "Run lineage",
+      "profileLineage": {
+        "eyebrow": "Данные решения",
+        "title": "Количественные показатели решения",
+        "loading": "Загрузка показателей решения…",
+        "loadError": "Не удалось загрузить количественные показатели решения.",
+        "runMismatch": "Ответ с данными решения не соответствует этому запуску.",
+        "empty": "Для этого запуска нет количественных показателей, связанных с решением.",
+        "bindingNotEstablished": "Привязка профиля не установлена; значения показателей остаются видимыми."
+      },
       "compare": {
         "requiredTitle": "Run comparison requires two run ids",
         "requiredBody": "Open /runs/compare?base=<runId>&target=<runId> to review governance, evidence, and artifact deltas side by side.",
@@ -1817,7 +1826,17 @@
         "copyAuditLink": "Копировать audit-ссылку",
         "openDeepDive": "Открыть deep dive",
         "exportAudit": "Экспорт audit",
-        "lineageActionUnavailable": "Lineage-действие доступно только когда у элемента есть lineage reference."
+        "lineageActionUnavailable": "Lineage-действие доступно только когда у элемента есть lineage reference.",
+        "profileBindingNotEstablished": "Связь с профилем не установлена",
+        "genericBindingNotice": "Для этого представления не связаны выбранный профиль артефакта, исходный запуск, происхождение или время.",
+        "selectedProfile": "Выбранный профиль",
+        "selectedArtifact": "Выбранный артефакт",
+        "profileOrigin": "Источник профиля",
+        "sourceRun": "Исходный запуск",
+        "profileBindingStatus": "Связь с профилем",
+        "profileLineage": "Связанный lineage",
+        "profileBindingFollowOnGeneric": "Deep dive и экспорт открывают общий lineage-вид и не сохраняют эту связь с профилем.",
+        "profileBindingExportGeneric": "Этот граф использует выбранный профиль. Ссылки экспорта открывают общий lineage-экспорт и не сохраняют эту связь."
       },
       "evidenceCoverageRadar": {
         "overall": "Overall: {percent}%"

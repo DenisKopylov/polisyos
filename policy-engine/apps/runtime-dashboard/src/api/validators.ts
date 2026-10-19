@@ -3254,6 +3254,12 @@ const lineageGraphNodeSchema = z.object({
   id: z.string(),
   kind: z.string(),
   label: z.string(),
+  media_type: z.string().nullable().optional(),
+  manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   timestamp: z.string().nullable().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
@@ -3262,6 +3268,16 @@ const lineageGraphEdgeSchema = z.object({
   source_id: z.string(),
   target_id: z.string(),
   relation: z.string(),
+  source_manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
+  target_manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
@@ -3281,18 +3297,52 @@ const verificationMetadataSchema = z.object({
   temporal_scope: temporalScopeSchema,
 });
 
-export const lineageGraphViewSchema = z.object({
-  id: z.string(),
-  status: z.enum(["verified", "pending", "disputed", "untraced"]),
-  hash: z.string().nullable().optional(),
-  freshness: z.enum(["current", "stale", "unknown"]),
-  compact_summary: z.array(lineageCompactSummaryItemSchema).optional(),
-  nodes: z.array(lineageGraphNodeSchema).optional(),
-  edges: z.array(lineageGraphEdgeSchema).optional(),
-  exports: lineageExportLinksSchema,
-  metadata: z.record(z.string(), z.unknown()).optional(),
-  trust_metadata: verificationMetadataSchema.nullable().optional(),
-});
+export const lineageGraphViewSchema = z
+  .object({
+    id: z.string(),
+    status: z.enum(["verified", "pending", "disputed", "untraced"]),
+    hash: z.string().nullable().optional(),
+    freshness: z.enum(["current", "stale", "unknown"]),
+    compact_summary: z.array(lineageCompactSummaryItemSchema).optional(),
+    nodes: z.array(lineageGraphNodeSchema).optional(),
+    edges: z.array(lineageGraphEdgeSchema).optional(),
+    root_artifact_refs: z.array(artifactRefSchema).optional(),
+    selected_artifact_ref: coreArtifactRefSchema.nullable().optional(),
+    profile_binding_status: z
+      .enum(["verified", "not_established"])
+      .nullable()
+      .optional(),
+    artifact_ref_provenance: z
+      .enum(["run_output_ref", "reader_materialized"])
+      .nullable()
+      .optional(),
+    source_run_id: z.string().nullable().optional(),
+    exports: lineageExportLinksSchema,
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    trust_metadata: verificationMetadataSchema.nullable().optional(),
+  })
+  .superRefine((lineage, context) => {
+    if (
+      lineage.profile_binding_status === "verified" &&
+      !lineage.selected_artifact_ref
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "verified profile binding requires selected_artifact_ref",
+        path: ["selected_artifact_ref"],
+      });
+    }
+    if (
+      lineage.profile_binding_status === "not_established" &&
+      lineage.trust_metadata
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "unestablished profile binding cannot carry trust metadata",
+        path: ["trust_metadata"],
+      });
+    }
+  });
 
 const unitRefSchema = z.object({
   code: z.string(),
@@ -3300,17 +3350,50 @@ const unitRefSchema = z.object({
   display: z.string().nullable().optional(),
 });
 
-const lineageRefSchema = z.object({
-  id: z.string(),
-  hash: z.string().nullable().optional(),
-  status: z.enum(["verified", "pending", "disputed", "untraced"]),
-  freshness: z.enum(["current", "stale", "unknown"]),
-  summary: z.record(z.string(), z.string()).optional(),
-  compact_summary: z.array(lineageCompactSummaryItemSchema).optional(),
-  reason_code: z.string().nullable().optional(),
-  tracking_issue: z.string().nullable().optional(),
-  trust_metadata: verificationMetadataSchema.nullable().optional(),
-});
+const lineageRefSchema = z
+  .object({
+    id: z.string(),
+    hash: z.string().nullable().optional(),
+    status: z.enum(["verified", "pending", "disputed", "untraced"]),
+    freshness: z.enum(["current", "stale", "unknown"]),
+    summary: z.record(z.string(), z.string()).optional(),
+    compact_summary: z.array(lineageCompactSummaryItemSchema).optional(),
+    reason_code: z.string().nullable().optional(),
+    tracking_issue: z.string().nullable().optional(),
+    trust_metadata: verificationMetadataSchema.nullable().optional(),
+    artifact_ref: coreArtifactRefSchema.nullable().optional(),
+    artifact_ref_provenance: z
+      .enum(["run_output_ref", "reader_materialized"])
+      .nullable()
+      .optional(),
+    source_run_id: z.string().nullable().optional(),
+  })
+  .superRefine((lineage, context) => {
+    if (lineage.artifact_ref_provenance && !lineage.artifact_ref) {
+      context.addIssue({
+        code: "custom",
+        message: "artifact_ref_provenance requires artifact_ref",
+        path: ["artifact_ref_provenance"],
+      });
+    }
+    if (lineage.artifact_ref && !lineage.artifact_ref.manifest_profile_sha256) {
+      context.addIssue({
+        code: "custom",
+        message: "artifact_ref must select a manifest profile",
+        path: ["artifact_ref", "manifest_profile_sha256"],
+      });
+    }
+    if (
+      lineage.artifact_ref_provenance === "run_output_ref" &&
+      !lineage.source_run_id
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "run_output_ref provenance requires source_run_id",
+        path: ["source_run_id"],
+      });
+    }
+  });
 
 const quantityUncertaintySchema = z.object({
   ci_80: z.tuple([z.number(), z.number()]).nullable().optional(),
@@ -4508,18 +4591,51 @@ const fabricAccessRefSchema = z.object({
   policy_ref: z.string().nullable().optional(),
 });
 
-const fabricLineageRefSchema = z.object({
-  id: z.string(),
-  status: z.enum(["verified", "pending", "disputed", "untraced"]),
-  hash: z.string().nullable().optional(),
-  compact_summary_ref: z.string().nullable().optional(),
-  full_graph_ref: z.string().nullable().optional(),
-  raw_evidence_refs: z.array(z.string()).optional(),
-  export_links: z.record(z.string(), z.string()).optional(),
-  reason_code: z.string().nullable().optional(),
-  owner: z.string().nullable().optional(),
-  tracking_issue: z.string().nullable().optional(),
-});
+const fabricLineageRefSchema = z
+  .object({
+    id: z.string(),
+    status: z.enum(["verified", "pending", "disputed", "untraced"]),
+    hash: z.string().nullable().optional(),
+    compact_summary_ref: z.string().nullable().optional(),
+    full_graph_ref: z.string().nullable().optional(),
+    raw_evidence_refs: z.array(z.string()).optional(),
+    export_links: z.record(z.string(), z.string()).optional(),
+    reason_code: z.string().nullable().optional(),
+    owner: z.string().nullable().optional(),
+    tracking_issue: z.string().nullable().optional(),
+    artifact_ref: coreArtifactRefSchema.nullable().optional(),
+    artifact_ref_provenance: z
+      .enum(["run_output_ref", "reader_materialized"])
+      .nullable()
+      .optional(),
+    source_run_id: z.string().nullable().optional(),
+  })
+  .superRefine((lineage, context) => {
+    if (lineage.artifact_ref_provenance && !lineage.artifact_ref) {
+      context.addIssue({
+        code: "custom",
+        message: "artifact_ref_provenance requires artifact_ref",
+        path: ["artifact_ref_provenance"],
+      });
+    }
+    if (lineage.artifact_ref && !lineage.artifact_ref.manifest_profile_sha256) {
+      context.addIssue({
+        code: "custom",
+        message: "artifact_ref must select a manifest profile",
+        path: ["artifact_ref", "manifest_profile_sha256"],
+      });
+    }
+    if (
+      lineage.artifact_ref_provenance === "run_output_ref" &&
+      !lineage.source_run_id
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "run_output_ref provenance requires source_run_id",
+        path: ["source_run_id"],
+      });
+    }
+  });
 
 const fabricReplayRefSchema = z.object({
   status: z.enum(["replayable", "non_replayable", "unknown"]),
@@ -4838,10 +4954,21 @@ export const lineageResponseSchema = z.object({
   lineage: lineageGraphViewSchema,
 });
 
+const lineageBatchResolutionSchema = z
+  .object({
+    requested_lineage_id: z.string(),
+    resolved_lineage_id: z.string(),
+  })
+  .strict();
+
 export const lineageBatchResponseSchema = z.object({
   meta: apiMetaSchema,
   temporal_scope: temporalScopeSchema,
   lineages: z.array(lineageGraphViewSchema).optional(),
+  lineage_resolutions: z
+    .array(lineageBatchResolutionSchema)
+    .nullable()
+    .optional(),
 });
 
 export const lineageExportResponseSchema = z.object({

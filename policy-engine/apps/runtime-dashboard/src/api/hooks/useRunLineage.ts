@@ -39,6 +39,9 @@ async function fetchRunLineage(
   }
 
   const parsed = runLineageSchema.parse(data);
+  if (parsed.run_id !== runId) {
+    throw new Error("Run lineage response does not match the requested run ID");
+  }
   return {
     ...parsed,
     lineage: {

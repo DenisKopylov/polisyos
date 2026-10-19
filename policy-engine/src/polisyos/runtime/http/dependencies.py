@@ -133,15 +133,16 @@ def build_runtime_api_context(
         sync_store=ambient_store,
     )
     timeline = TimelineService(metrics=metrics)
-    lineage = LineageService(
-        store=store,
-        default_max_depth=lineage_max_depth,
-        default_max_nodes=lineage_max_nodes,
-    )
     run_index = RunIndexService(
         store=index_store,
         core_runs_root=core_runs_root,
         metrics=metrics,
+    )
+    lineage = LineageService(
+        store=store,
+        run_index=run_index,
+        default_max_depth=lineage_max_depth,
+        default_max_nodes=lineage_max_nodes,
     )
     debug = DebugService(
         store=store,

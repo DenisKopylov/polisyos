@@ -937,6 +937,15 @@
       "debugRunErrors": "Помилки запуску",
       "decisionArtifact": "Артефакт рішення",
       "runLineage": "Lineage запуску",
+      "profileLineage": {
+        "eyebrow": "Дані рішення",
+        "title": "Кількісні показники рішення",
+        "loading": "Завантаження кількісних показників рішення…",
+        "loadError": "Не вдалося завантажити кількісні показники рішення.",
+        "runMismatch": "Відповідь із даними рішення не відповідає цьому запуску.",
+        "empty": "Для цього запуску немає кількісних показників, пов’язаних із рішенням.",
+        "bindingNotEstablished": "Прив’язку профілю не встановлено; значення показників залишаються видимими."
+      },
       "compare": {
         "requiredTitle": "Для порівняння запусків потрібні два run id",
         "requiredBody": "Відкрийте /runs/compare?base=<runId>&target=<runId>, щоб порівняти governance, evidence та дельти артефактів поруч.",
@@ -2263,7 +2272,17 @@
         "copyAuditLink": "Копіювати audit-посилання",
         "openDeepDive": "Відкрити deep dive",
         "exportAudit": "Експорт audit",
-        "lineageActionUnavailable": "Lineage-дія доступна лише коли елемент має lineage reference."
+        "lineageActionUnavailable": "Lineage-дія доступна лише коли елемент має lineage reference.",
+        "profileBindingNotEstablished": "Прив’язку профілю не встановлено",
+        "genericBindingNotice": "Для цього подання не пов’язані вибраний профіль артефакту, вихідний запуск, походження або час.",
+        "selectedProfile": "Вибраний профіль",
+        "selectedArtifact": "Вибраний артефакт",
+        "profileOrigin": "Джерело профілю",
+        "sourceRun": "Вихідний запуск",
+        "profileBindingStatus": "Прив’язка профілю",
+        "profileLineage": "Пов’язаний lineage",
+        "profileBindingFollowOnGeneric": "Deep dive та експорт відкривають загальне lineage-подання й не зберігають цю прив’язку профілю.",
+        "profileBindingExportGeneric": "Цей граф використовує вибраний профіль. Посилання експорту відкривають загальний lineage-експорт і не зберігають цю прив’язку."
       },
       "evidenceCoverageRadar": {
         "overall": "Загалом: {percent}%"

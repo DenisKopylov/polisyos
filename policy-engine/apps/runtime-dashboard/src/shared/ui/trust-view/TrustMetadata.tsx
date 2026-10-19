@@ -23,6 +23,7 @@ type TrustMetadataProps = {
   label?: string | null;
   subjectId: string;
   subjectKind?: "quantity" | "authored_text" | "artifact" | "lineage" | "chart";
+  selectedProfileContext?: TrustInspectorSubject["selectedProfileContext"];
   mode?: Exclude<TrustViewMode, "off">;
   className?: string;
 };
@@ -33,6 +34,7 @@ export function TrustMetadata({
   label,
   subjectId,
   subjectKind = "lineage",
+  selectedProfileContext,
   mode = "compact",
   className,
 }: TrustMetadataProps) {
@@ -45,6 +47,7 @@ export function TrustMetadata({
     kind: subjectKind,
     label,
     trustMetadata: ownerMetadata,
+    selectedProfileContext,
   };
 
   if (mode === "compact") {
@@ -59,6 +62,7 @@ export function TrustMetadata({
           subjectId={subjectId}
           subjectKind={subjectKind}
           trustMetadata={ownerMetadata}
+          subject={openInspectorPayload}
         />
       </span>
     );
@@ -81,6 +85,7 @@ export function TrustMetadata({
           subjectId={subjectId}
           subjectKind={subjectKind}
           trustMetadata={ownerMetadata}
+          subject={openInspectorPayload}
         />
       </span>
       <span className="grid gap-x-3 gap-y-1 text-[11px] sm:grid-cols-[max-content_minmax(0,1fr)]">

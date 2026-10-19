@@ -34,6 +34,9 @@ export function fabricDecisionDataToQuantityValue(
       hash: stringValue(row.lineage.hash),
       reason_code: firstReasonCode(row),
       tracking_issue: stringValue(row.lineage.tracking_issue),
+      artifact_ref: selectedArtifactRef(row.lineage.artifact_ref),
+      artifact_ref_provenance: row.lineage.artifact_ref_provenance ?? null,
+      source_run_id: row.lineage.source_run_id ?? null,
       summary: {
         access: `${row.access.classification}/${row.access.redaction}`,
         quality: qualitySummary(row),
@@ -67,6 +70,21 @@ export function fabricDecisionDataPayloadToQuantities(
     const quantity = fabricDecisionDataToQuantityValue(row);
     return quantity ? [quantity] : [];
   });
+}
+
+function selectedArtifactRef(value: unknown) {
+  if (!isRecord(value)) return null;
+  const artifactId = stringValue(value.artifact_id);
+  const kind = stringValue(value.kind);
+  const mediaType = stringValue(value.media_type);
+  const profile = stringValue(value.manifest_profile_sha256);
+  if (!artifactId || !kind || !mediaType || !profile) return null;
+  return {
+    artifact_id: artifactId,
+    kind,
+    media_type: mediaType,
+    manifest_profile_sha256: profile,
+  };
 }
 
 function finitePoint(value: unknown): number | null {

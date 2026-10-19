@@ -37,7 +37,8 @@ def test_lineage_batch_lookup_uses_compact_batch_adapter(runtime_api_env) -> Non
             cell_id=cell.cell_id,
             writer="tests.runtime_http.lineage_batch",
         )
-    lineage_ids = [
+    lineage_ids = [primary_id, f"artifact:{secondary_id}", primary_id]
+    resolved_lineage_ids = [
         f"artifact:{primary_id}",
         f"artifact:{secondary_id}",
         f"artifact:{primary_id}",
@@ -56,11 +57,21 @@ def test_lineage_batch_lookup_uses_compact_batch_adapter(runtime_api_env) -> Non
 
     assert response.status_code == 200
     payload = response.json()
-    assert [item["id"] for item in payload["lineages"]] == lineage_ids
+    assert [item["id"] for item in payload["lineages"]] == resolved_lineage_ids
+    assert payload["lineage_resolutions"] == [
+        {
+            "requested_lineage_id": requested_id,
+            "resolved_lineage_id": resolved_id,
+        }
+        for requested_id, resolved_id in zip(
+            lineage_ids,
+            resolved_lineage_ids,
+            strict=True,
+        )
+    ]
     assert payload["temporal_scope"]["branch"] == "main"
-    assert all(
-        item["trust_metadata"]["temporal_scope"]["branch"] == "main" for item in payload["lineages"]
-    )
+    assert all(item["profile_binding_status"] == "not_established" for item in payload["lineages"])
+    assert all(item.get("trust_metadata") is None for item in payload["lineages"])
     assert all(item["status"] in {"verified", "disputed"} for item in payload["lineages"])
 
 

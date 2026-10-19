@@ -8,14 +8,21 @@ import {
   lineageResponseSchema,
 } from "@/api/validators";
 import {
+  alignLineageBatchResponses,
+  quantityHasExactProfileTrust,
   QuantityRuntimeBridgeProvider,
   type LineageBatchResponsePayload,
+  type LineageBatchSelector,
   type LineageExportPayload,
   type LineageResponsePayload,
   type QuantityValue,
   type TemporalRef,
 } from "@/shared/ui/quantity";
 import { TrustMetadata, useMaybeTrustView } from "@/shared/ui/trust-view";
+import {
+  sameProfileBindingIdentity,
+  useAdmittedBoundLineage,
+} from "@/shared/ui/quantity/useLineageBatch";
 
 import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 
@@ -25,7 +32,7 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
   const temporalScope = temporalRef(cursor?.committedScope ?? null);
 
   const fetchLineage = useCallback(
-    async (lineageId: string, scope: TemporalRef | null) => {
+    async (lineageId: string, scope: TemporalRef | null | undefined) => {
       const { data, error, response } = await runtimeApiClient.GET(
         "/api/v1/lineage/{lineage_id}",
         {
@@ -43,6 +50,11 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
         );
       }
       const parsed = lineageResponseSchema.parse(data);
+      if (parsed.lineage.id !== lineageId) {
+        throw new Error(
+          "Lineage response does not match the requested lineage ID",
+        );
+      }
       return {
         ...parsed,
         lineage: normalizeLineage(parsed.lineage),
@@ -52,12 +64,30 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
   );
 
   const fetchLineageBatch = useCallback(
-    async (lineageIds: readonly string[], scope: TemporalRef | null) => {
+    async (
+      selectors: readonly LineageBatchSelector[],
+      runId: string | undefined,
+      scope: TemporalRef | null | undefined,
+    ) => {
+      const includeSelectedArtifactRefs =
+        Boolean(runId) ||
+        selectors.some((selector) => selector.selectedArtifactRef != null);
+      const body = {
+        lineage_ids: selectors.map((selector) => selector.lineageId),
+        ...(includeSelectedArtifactRefs
+          ? {
+              selected_artifact_refs: selectors.map(
+                (selector) => selector.selectedArtifactRef ?? null,
+              ),
+            }
+          : {}),
+        ...(runId ? { run_id: runId } : {}),
+      };
       const { data, error, response } = await runtimeApiClient.POST(
         "/api/v1/lineage/batch",
         {
           params: { query: temporalQuery(scope) },
-          body: { lineage_ids: [...lineageIds] },
+          body,
         },
       );
       if (error || !response.ok || !data) {
@@ -68,6 +98,14 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
         );
       }
       const parsed = lineageBatchResponseSchema.parse(data);
+      alignLineageBatchResponses(
+        selectors,
+        parsed as LineageBatchResponsePayload,
+        {
+          runId,
+          temporalScope: scope,
+        },
+      );
       return {
         ...parsed,
         lineages: (parsed.lineages ?? []).map(normalizeLineage),
@@ -80,7 +118,7 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
     async (
       lineageId: string,
       format: LineageExportPayload["format"],
-      scope: TemporalRef | null,
+      scope: TemporalRef | null | undefined,
     ) => {
       const path =
         format === "openlineage"
@@ -99,27 +137,23 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
           `Failed to export lineage ${lineageId}`,
         );
       }
-      return lineageExportResponseSchema.parse(data) as LineageExportPayload;
+      const parsed = lineageExportResponseSchema.parse(data);
+      if (parsed.lineage_id !== lineageId || parsed.format !== format) {
+        throw new Error(
+          "Lineage export does not match the requested subject and format",
+        );
+      }
+      return parsed as LineageExportPayload;
     },
     [],
   );
 
   const renderTrustMetadata = useCallback(
     (quantity: QuantityValue, mode: "compact" | "expanded") => {
-      const metadata = quantity.lineage.trust_metadata;
-      if (!metadata) {
+      if (!quantityHasExactProfileTrust(quantity)) {
         return null;
       }
-      return (
-        <TrustMetadata
-          hash={quantity.lineage.hash}
-          label={quantity.label ?? quantity.metric_id}
-          metadata={metadata}
-          mode={mode}
-          subjectId={quantity.lineage.id}
-          subjectKind="quantity"
-        />
-      );
+      return <AdmittedQuantityTrustMetadata quantity={quantity} mode={mode} />;
     },
     [],
   );
@@ -155,6 +189,52 @@ export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
   );
 }
 
+function AdmittedQuantityTrustMetadata({
+  quantity,
+  mode,
+}: {
+  quantity: QuantityValue;
+  mode: "compact" | "expanded";
+}) {
+  const selectedProfileContext = quantity.profile_binding_context;
+  const selector = {
+    lineageId: quantity.lineage.id,
+    selectedArtifactRef: quantity.lineage.artifact_ref ?? null,
+    artifactRefProvenance: quantity.lineage.artifact_ref_provenance ?? null,
+    sourceRunId: quantity.lineage.source_run_id ?? null,
+  };
+  const query = useAdmittedBoundLineage(selector, {
+    runId: selectedProfileContext?.sourceRunId,
+    temporalScope: selectedProfileContext?.temporalScope,
+  });
+  const currentProfileContext = query.profileBindingContext;
+  const metadata = query.data?.lineage.trust_metadata;
+  if (
+    query.isError ||
+    query.isFetching ||
+    !selectedProfileContext ||
+    !currentProfileContext ||
+    !sameProfileBindingIdentity(
+      currentProfileContext,
+      selectedProfileContext,
+    ) ||
+    !metadata
+  ) {
+    return null;
+  }
+  return (
+    <TrustMetadata
+      hash={query.data?.lineage.hash ?? quantity.lineage.hash}
+      label={quantity.label ?? quantity.metric_id}
+      metadata={metadata}
+      selectedProfileContext={currentProfileContext}
+      mode={mode}
+      subjectId={quantity.lineage.id}
+      subjectKind="quantity"
+    />
+  );
+}
+
 function temporalRef(
   scope: {
     branch?: string | null;
@@ -168,15 +248,19 @@ function temporalRef(
     return null;
   }
   return {
-    branch: scope.branch ?? null,
-    scenario_id: scope.scenarioId ?? null,
-    snapshot_id: scope.snapshotId ?? null,
-    tx_at: scope.txAt ?? null,
-    valid_at: scope.validAt ?? null,
+    ...(scope.branch !== undefined ? { branch: scope.branch } : {}),
+    ...(scope.scenarioId !== undefined
+      ? { scenario_id: scope.scenarioId }
+      : {}),
+    ...(scope.snapshotId !== undefined
+      ? { snapshot_id: scope.snapshotId }
+      : {}),
+    ...(scope.txAt !== undefined ? { tx_at: scope.txAt } : {}),
+    ...(scope.validAt !== undefined ? { valid_at: scope.validAt } : {}),
   };
 }
 
-function temporalQuery(scope: TemporalRef | null) {
+function temporalQuery(scope: TemporalRef | null | undefined) {
   return {
     branch: scope?.branch ?? undefined,
     scenario_id: scope?.scenario_id ?? undefined,

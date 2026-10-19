@@ -34,6 +34,7 @@ export function TrustInspector() {
   }
 
   const metadata = inspectorSubject.trustMetadata ?? null;
+  const profileContext = inspectorSubject.selectedProfileContext ?? null;
   const presentation = issueTrustPresentation(metadata);
   const hash = metadata?.hash ?? inspectorSubject.hash;
   const lineageId =
@@ -93,7 +94,12 @@ export function TrustInspector() {
           <dt className="text-muted-foreground">
             {t("shared.ui.trustView.subject")}
           </dt>
-          <dd className="min-w-0 truncate">{inspectorSubject.id}</dd>
+          <dd
+            className="min-w-0 truncate"
+            data-testid="trust-inspector-subject-id"
+          >
+            {inspectorSubject.id}
+          </dd>
           <dt className="text-muted-foreground">
             {t("shared.ui.trustView.kind")}
           </dt>
@@ -129,6 +135,76 @@ export function TrustInspector() {
             />
           </dd>
         </dl>
+
+        {!profileContext ? (
+          <p
+            className="text-muted-foreground text-xs"
+            data-testid="trust-inspector-generic-binding-notice"
+          >
+            {t("shared.ui.trustView.genericBindingNotice")}
+          </p>
+        ) : null}
+
+        {profileContext ? (
+          <section
+            className="space-y-2"
+            data-testid="trust-inspector-profile-context"
+          >
+            <h3 className="text-sm font-semibold">
+              {t("shared.ui.trustView.selectedProfile")}
+            </h3>
+            <dl className="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.profileBindingStatus")}
+              </dt>
+              <dd data-testid="trust-inspector-profile-binding-status">
+                {profileContext.status}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.profileLineage")}
+              </dt>
+              <dd data-testid="trust-inspector-profile-lineage">
+                {profileContext.lineageId}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.selectedArtifact")}
+              </dt>
+              <dd
+                className="min-w-0 break-all"
+                data-testid="trust-inspector-selected-artifact-ref"
+              >
+                {JSON.stringify(profileContext.selectedArtifactRef)}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.profileOrigin")}
+              </dt>
+              <dd data-testid="trust-inspector-profile-origin">
+                {profileContext.origin}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.sourceRun")}
+              </dt>
+              <dd data-testid="trust-inspector-source-run">
+                {profileContext.sourceRunId}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.temporal")}
+              </dt>
+              <dd
+                className="min-w-0 break-all"
+                data-testid="trust-inspector-profile-time"
+              >
+                {formatTemporalScope(profileContext.temporalScope)}
+              </dd>
+            </dl>
+            <p
+              className="text-muted-foreground text-xs"
+              data-testid="trust-inspector-follow-on-generic"
+            >
+              {t("shared.ui.trustView.profileBindingFollowOnGeneric")}
+            </p>
+          </section>
+        ) : null}
 
         {inspectorSubject.summary ? (
           <p className="border-border bg-muted/30 rounded-md border p-3 text-sm">
@@ -191,4 +267,22 @@ function copyAuditLink(subjectId: string) {
   url.searchParams.set("trust", "expanded");
   url.searchParams.set("trust_subject", subjectId);
   void navigator.clipboard?.writeText(url.toString());
+}
+
+function formatTemporalScope(value: unknown): string {
+  if (value === null) return "null";
+  if (value === undefined) return "unknown";
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return "unknown";
+  }
+  const scope = value as Record<string, unknown>;
+  return JSON.stringify({
+    valid_at: typeof scope.valid_at === "string" ? scope.valid_at : null,
+    tx_at: typeof scope.tx_at === "string" ? scope.tx_at : null,
+    branch: typeof scope.branch === "string" ? scope.branch : null,
+    snapshot_id:
+      typeof scope.snapshot_id === "string" ? scope.snapshot_id : null,
+    scenario_id:
+      typeof scope.scenario_id === "string" ? scope.scenario_id : null,
+  });
 }

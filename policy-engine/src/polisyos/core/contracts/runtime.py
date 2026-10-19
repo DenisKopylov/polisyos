@@ -1273,6 +1273,9 @@ class LineageRef(BaseModel):
     reason_code: str | None = None
     tracking_issue: str | None = None
     trust_metadata: VerificationMetadata | None = None
+    artifact_ref: ArtifactRef | None = None
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"] | None = None
+    source_run_id: str | None = None
 
     @model_validator(mode="after")
     def _validate_untraced_contract(self) -> LineageRef:
@@ -1283,6 +1286,16 @@ class LineageRef(BaseModel):
                 raise ValueError("untraced lineage requires reason_code")
             if not self.tracking_issue:
                 raise ValueError("untraced lineage requires tracking_issue")
+        if self.artifact_ref is None and self.artifact_ref_provenance is not None:
+            raise ValueError("lineage provenance requires an artifact_ref")
+        if self.artifact_ref is not None and self.artifact_ref.manifest_profile_sha256 is None:
+            raise ValueError("lineage artifact_ref must select a manifest profile")
+        if self.source_run_id is not None and self.artifact_ref is None:
+            raise ValueError("source_run_id requires a selected artifact profile")
+        if self.source_run_id is not None and self.artifact_ref_provenance is None:
+            raise ValueError("source_run_id requires selected profile provenance")
+        if self.artifact_ref_provenance == "run_output_ref" and self.source_run_id is None:
+            raise ValueError("run_output_ref provenance requires source_run_id")
         return self
 
 
@@ -1322,6 +1335,8 @@ class LineageGraphNode(BaseModel):
     id: str
     kind: str = "unknown"
     label: str
+    media_type: str | None = None
+    manifest_profile_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
     timestamp: datetime | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -1334,6 +1349,12 @@ class LineageGraphEdge(BaseModel):
     source_id: str
     target_id: str
     relation: str
+    source_manifest_profile_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    target_manifest_profile_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -1358,9 +1379,34 @@ class LineageGraphView(BaseModel):
     compact_summary: list[LineageCompactSummaryItem] = Field(default_factory=list)
     nodes: list[LineageGraphNode] = Field(default_factory=list)
     edges: list[LineageGraphEdge] = Field(default_factory=list)
+    root_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
+    selected_artifact_ref: ArtifactRef | None = None
+    profile_binding_status: Literal["verified", "not_established"] | None = None
+    artifact_ref_provenance: Literal["run_output_ref", "reader_materialized"] | None = None
+    source_run_id: str | None = None
     exports: LineageExportLinks
     metadata: dict[str, Any] = Field(default_factory=dict)
     trust_metadata: VerificationMetadata | None = None
+
+    @model_validator(mode="after")
+    def _validate_profile_binding_surface(self) -> LineageGraphView:
+        if self.profile_binding_status == "verified" and self.selected_artifact_ref is None:
+            raise ValueError("verified profile binding requires selected_artifact_ref")
+        if self.source_run_id is not None and self.selected_artifact_ref is None:
+            raise ValueError("source_run_id requires a selected artifact profile")
+        if self.source_run_id is not None and self.profile_binding_status != "verified":
+            raise ValueError("source_run_id requires verified profile binding")
+        if self.source_run_id is not None and self.artifact_ref_provenance is None:
+            raise ValueError("source_run_id requires selected profile provenance")
+        if self.profile_binding_status == "verified" and self.artifact_ref_provenance is None:
+            raise ValueError("verified profile binding requires selected profile provenance")
+        if self.profile_binding_status == "not_established" and self.trust_metadata is not None:
+            raise ValueError("unestablished profile binding cannot carry trust metadata")
+        if self.artifact_ref_provenance is not None and self.selected_artifact_ref is None:
+            raise ValueError("profile provenance requires selected_artifact_ref")
+        if self.artifact_ref_provenance == "run_output_ref" and self.source_run_id is None:
+            raise ValueError("run_output_ref provenance requires source_run_id")
+        return self
 
 
 class LineageBatchRequest(BaseModel):
@@ -1369,6 +1415,23 @@ class LineageBatchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     lineage_ids: list[str] = Field(default_factory=list, min_length=1, max_length=100)
+    run_id: str | None = Field(default=None, min_length=1)
+    selected_artifact_refs: list[ArtifactRef | None] | None = None
+
+    @model_validator(mode="after")
+    def _validate_selected_profile_alignment(self) -> LineageBatchRequest:
+        if self.selected_artifact_refs is None:
+            if self.run_id is not None:
+                raise ValueError("run_id requires aligned selected_artifact_refs")
+            return self
+        if len(self.selected_artifact_refs) != len(self.lineage_ids):
+            raise ValueError("selected_artifact_refs must align with lineage_ids")
+        if any(
+            ref is not None and ref.manifest_profile_sha256 is None
+            for ref in self.selected_artifact_refs
+        ):
+            raise ValueError("selected_artifact_refs must select manifest profiles")
+        return self
 
 
 class LineageResponse(BaseModel):
@@ -1381,6 +1444,15 @@ class LineageResponse(BaseModel):
     lineage: LineageGraphView
 
 
+class LineageBatchResolution(BaseModel):
+    """Map one requested lineage selector and profile to its resolved response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requested_lineage_id: str
+    resolved_lineage_id: str
+
+
 class LineageBatchResponse(BaseModel):
     """Response envelope returned by runtime lineage batch lookup."""
 
@@ -1389,6 +1461,8 @@ class LineageBatchResponse(BaseModel):
     meta: ApiMeta
     temporal_scope: TemporalScope | None = None
     lineages: list[LineageGraphView] = Field(default_factory=list)
+    # Missing/null is a legacy response. Consumers may then match exact IDs only.
+    lineage_resolutions: list[LineageBatchResolution] | None = None
 
 
 class LineageExportResponse(BaseModel):
@@ -3861,7 +3935,7 @@ class AgentPipelineCostEvent(BaseModel):
             if raw_amount is not None:
                 try:
                     normalized["cost_usd"] = float(Decimal(str(raw_amount)))
-                except (InvalidOperation, ValueError, TypeError, OverflowError):
+                except InvalidOperation, ValueError, TypeError, OverflowError:
                     normalized["cost_usd"] = None
         return normalized
 
@@ -5463,6 +5537,7 @@ __all__ = [
     "InstitutionalAuthorityAbsenceView",
     "IterationLifecycleView",
     "LineageBatchRequest",
+    "LineageBatchResolution",
     "LineageBatchResponse",
     "LineageCompactSummaryItem",
     "LineageDelta",

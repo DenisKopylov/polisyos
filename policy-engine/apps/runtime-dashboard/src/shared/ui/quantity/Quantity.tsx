@@ -190,6 +190,14 @@ export function Quantity({
       ) : null}
       <StatusCue status={value.lineage.status} />
       <FreshnessCue freshness={value.lineage.freshness} />
+      {value.profile_binding_status === "not_established" ? (
+        <span
+          className="text-muted-foreground text-[10px] font-medium"
+          data-testid="profile-binding-status"
+        >
+          {t("shared.ui.trustView.profileBindingNotEstablished")}
+        </span>
+      ) : null}
       {value.uncertainty?.disputed ? (
         <AlertTriangle
           className="size-3.5 text-[var(--color-status-rejected)]"
@@ -217,6 +225,7 @@ export function Quantity({
         data-lineage-id={value.lineage.id}
         data-lineage-status={value.lineage.status}
         data-lineage-freshness={value.lineage.freshness}
+        data-profile-binding-status={value.profile_binding_status ?? undefined}
         data-quantity-class={value.quantity_class}
         data-quantity-metric-id={value.metric_id ?? undefined}
         data-quantity-presentation={presentation}
@@ -237,6 +246,7 @@ export function Quantity({
       data-lineage-id={value.lineage.id}
       data-lineage-status={value.lineage.status}
       data-lineage-freshness={value.lineage.freshness}
+      data-profile-binding-status={value.profile_binding_status ?? undefined}
       data-quantity-class={value.quantity_class}
       data-quantity-metric-id={value.metric_id ?? undefined}
       data-quantity-presentation={presentation}

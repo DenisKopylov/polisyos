@@ -1,0 +1,104 @@
+id = "2026-10-19-e02-lineage-batch-resolution"
+title = "Expose request-to-canonical bindings in lineage batch responses"
+type = "changed"
+component = "runtime-api"
+owner = "team-polisyos"
+summary = "Lineage batch adds selector mappings and selected-profile context, while the public Fabric LineageRef gains optional profile-bound provenance fields; strict readers and new request shapes require a coordinated rollout."
+evidence = [
+  "src/polisyos/fabric/__init__.py",
+  "src/polisyos/core/contracts/runtime.py",
+  "src/polisyos/runtime/http/routes/lineage.py",
+  "src/polisyos/runtime/http/resource_binding.py",
+  "src/polisyos/runtime/http/services/lineage.py",
+  "src/polisyos/runtime/http/dependencies.py",
+  "src/polisyos/fabric/evidence/decision_data.py",
+  "tests/unit/runtime/http/test_lineage_routes.py",
+  "tests/unit/runtime/http/test_fabric_decision_data_profile_binding.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+  "apps/runtime-dashboard/src/api/validators.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+  "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx",
+  "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx",
+  "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+  "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+  "apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+  "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+  "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+  "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+  "apps/runtime-dashboard/e2e/journeys/run-overview-profile-lineage.spec.ts",
+  "docs/reference/api/migration-guide.md",
+  "docs/runbooks/migration-release-promotion.md",
+]
+compatibility = "The candidate route emits lineage_resolutions and profile-binding graph fields on batch responses, with no legacy output mode. The previous strict HTTP response DTO rejects added fields, and the prior request model rejects profile-bound request fields. Separately, the public-stable polisyos.fabric.LineageRef shape adds optional artifact_ref, artifact_ref_provenance, and source_run_id fields; existing constructors may omit them, but strict serialized consumers may need review. No consumer tolerance or compatibility window is claimed."
+change_class = "schema-openapi-abi; python-public-api"
+surface_classification = "public_stable: Runtime API v1 OpenAPI schema and generated runtime client/dashboard TypeScript surfaces; public_stable: polisyos.fabric.LineageRef"
+migration = "Regenerate the OpenAPI snapshot, runtime client, and dashboard types; review Python LineageRef readers for the new optional profile-bound fields; and upgrade strict readers before the server emits lineage_resolutions or profile-binding fields. The profile-bound request shape is rejected by the prior strict server, so do not emit it before server support. Regenerate and review the registered public-surface inventory before setting public_surface_inventory_reviewed=true. No request feature gate or supported-consumer rollout sequence is established by this change; verify a coordinated sequence before promotion, and hold if the consumer set or ordering is unknown."
+api = "POST /api/v1/lineage/batch accepts aligned selected_artifact_refs and an optional run_id; run-bound requests require the aligned list. Responses include lineage_resolutions and each graph's selected_artifact_ref, profile_binding_status, artifact_ref_provenance, and source_run_id. Pre-OPA binding verifies selected CAS ownership/profile and run selection as authorization context; the lineage service independently resolves the canonical selected decision packet and emits a per-entry run relation only on an exact full-ref match, which the route reconciles before emission. Null refs and wrong-run service resolutions receive no source-run claim. Separately, public-stable polisyos.fabric.LineageRef adds optional artifact_ref, artifact_ref_provenance (run_output_ref or reader_materialized), and source_run_id fields. The LineageRef validators require a selected manifest profile on artifact_ref and require source_run_id for run_output_ref provenance. Dashboard trust admission is one shared generation for the complete lineage/ref/run/origin/time identity across batch, single, cache, popover, and Inspector; rejected revalidation withholds grades from older graphs. Both Inspector controls carry the same subject, and generic follow-on views remain labelled generic. These fields do not establish law, custody, or publication authority."
+limitations = "public_surface_inventory_reviewed is explicitly false: the current generated inventory reports polisyos.fabric exports as unresolved with zero known exports, and no inventory regeneration or team-architecture inventory review has been performed. The python-public-api release check therefore remains held; the false marker is not a waiver. The five registered Runtime API/client/dashboard outputs remain UNRUN. The candidate route has no old-output mode, and the prior strict request model rejects profile-bound request fields. No dual-read, dual-write, feature-gated request rollout, or compatibility window is established. The supported external-consumer inventory and coordinated client/server sequence remain not_established; promotion is HOLD. Numeric quantity values can remain visible when a valid primary response has no admitted profile graph, but no trust grade is shown. Malformed primary profile envelopes remain rejected with a visible error. Unbound popovers are informational; they cannot promote an embedded source-run candidate into a profile grade. Dashboard request/cache identities preserve omitted temporal fields separately from explicit nulls, and trust requires an exact response-scope match; query parameters themselves serialize null as omission. Generic follow-on exports and deep dives do not preserve selected-profile context."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/migration-guide.md", "packages/runtime-api-client/README.md", "ops/migrations/api_schemas/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "lineage-batch-request-resolution-wire"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: POST /api/v1/lineage/batch LineageBatchResponse.lineage_resolutions"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "No compatibility window: upgrade strict prior readers before the server emits lineage_resolutions; the candidate has no legacy omission mode."
+release_note = "The candidate server emits lineage_resolutions on every lineage batch response. The old strict Python DTO rejects this field, so update supported strict readers before server rollout; no old-output compatibility window is provided."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["docs/reference/api/migration-guide.md", "packages/runtime-api-client/README.md", "ops/migrations/api_schemas/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "lineage-batch-generated-client-regeneration"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "public_stable: @polisyos/runtime-api-client and runtime-dashboard generated API response types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Regenerate the Runtime API client and dashboard types and upgrade consumers before relying on the selector-to-resolved-ID mapping; generated types alone do not establish deployed consumer adoption."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/migration-guide.md", "packages/runtime-api-client/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lineage-batch-selected-profile-context-wire"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: POST /api/v1/lineage/batch request run_id/selected_artifact_refs and LineageGraphView selected-profile fields"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "No compatibility window: strict old readers reject the emitted graph fields and the previous strict server rejects the profile-bound request fields."
+release_note = "Upgrade strict response readers before profile-binding graph fields are emitted. Send aligned selected refs and run_id only after server support; the supported coordinated cutover sequence must be established before promotion."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["docs/reference/api/migration-guide.md", "packages/runtime-api-client/README.md"]
+runbook_docs = ["docs/runbooks/migration-release-promotion.md"]
+
+[[compatibility_change]]
+id = "fabric-lineage-ref-profile-bound-artifact-context"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.fabric.LineageRef"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The public LineageRef DTO adds optional selected-profile artifact and provenance fields; inventory review and strict-consumer compatibility remain unestablished."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

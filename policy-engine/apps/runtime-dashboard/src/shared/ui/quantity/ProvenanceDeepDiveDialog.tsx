@@ -14,6 +14,7 @@ import {
 import type {
   LineageGraphNode,
   LineageGraphView,
+  ProfileBindingContext,
   QuantityValue,
   TemporalRef,
 } from "./quantity.types";
@@ -24,6 +25,7 @@ type ProvenanceDeepDiveDialogProps = {
   quantity: QuantityValue;
   lineage?: LineageGraphView | null;
   temporalScope?: TemporalRef | null;
+  profileBindingContext?: ProfileBindingContext | null;
 };
 
 export function ProvenanceDeepDiveDialog({
@@ -32,9 +34,14 @@ export function ProvenanceDeepDiveDialog({
   quantity,
   lineage,
   temporalScope,
+  profileBindingContext,
 }: ProvenanceDeepDiveDialogProps) {
   const { t } = useI18n();
   const graph = lineage ?? lineageFromQuantity(quantity);
+  const boundProfileContext =
+    profileBindingContext !== undefined
+      ? profileBindingContext
+      : (quantity.profile_binding_context ?? null);
   const rawSources = graph.nodes?.filter(isRawSourceNode) ?? [];
 
   return (
@@ -101,6 +108,61 @@ export function ProvenanceDeepDiveDialog({
           </aside>
         </section>
 
+        {boundProfileContext ? (
+          <section
+            className="space-y-2"
+            data-testid="provenance-profile-context"
+          >
+            <h3 className="text-sm font-semibold">
+              {t("shared.ui.trustView.selectedProfile")}
+            </h3>
+            <dl className="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-3 gap-y-2 text-xs">
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.profileBindingStatus")}
+              </dt>
+              <dd data-testid="provenance-profile-binding-status">
+                {boundProfileContext.status}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.profileLineage")}
+              </dt>
+              <dd data-testid="provenance-profile-lineage">
+                {boundProfileContext.lineageId}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.selectedArtifact")}
+              </dt>
+              <dd
+                className="min-w-0 break-all"
+                data-testid="provenance-profile-selected-artifact-ref"
+              >
+                {JSON.stringify(boundProfileContext.selectedArtifactRef)}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.profileOrigin")}
+              </dt>
+              <dd data-testid="provenance-profile-origin">
+                {boundProfileContext.origin}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.sourceRun")}
+              </dt>
+              <dd data-testid="provenance-profile-source-run">
+                {boundProfileContext.sourceRunId}
+              </dd>
+              <dt className="text-muted-foreground">
+                {t("shared.ui.trustView.temporal")}
+              </dt>
+              <dd
+                className="min-w-0 break-all"
+                data-testid="provenance-profile-time"
+              >
+                {formatTemporalScope(boundProfileContext.temporalScope)}
+              </dd>
+            </dl>
+          </section>
+        ) : null}
+
         <section>
           <h3 className="text-sm font-semibold">
             {t("shared.ui.quantity.deepDive.rawSources")}
@@ -121,6 +183,14 @@ export function ProvenanceDeepDiveDialog({
           <h3 className="text-sm font-semibold">
             {t("shared.ui.quantity.deepDive.exports")}
           </h3>
+          {boundProfileContext ? (
+            <p
+              className="text-muted mt-1 text-xs"
+              data-testid="provenance-profile-export-generic"
+            >
+              {t("shared.ui.trustView.profileBindingExportGeneric")}
+            </p>
+          ) : null}
           <div className="mt-2 flex flex-wrap gap-2">
             <ExportLink
               href={withTemporalQuery(graph.exports.openlineage, temporalScope)}
@@ -251,4 +321,15 @@ function withTemporalQuery(
     return href;
   }
   return `${href}${href.includes("?") ? "&" : "?"}${suffix}`;
+}
+
+function formatTemporalScope(value: TemporalRef | null): string {
+  if (value === null) return "null";
+  return JSON.stringify({
+    valid_at: value.valid_at ?? null,
+    tx_at: value.tx_at ?? null,
+    branch: value.branch ?? null,
+    snapshot_id: value.snapshot_id ?? null,
+    scenario_id: value.scenario_id ?? null,
+  });
 }

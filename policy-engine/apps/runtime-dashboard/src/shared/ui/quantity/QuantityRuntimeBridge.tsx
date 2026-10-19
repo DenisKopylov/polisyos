@@ -9,6 +9,7 @@ import type {
   LineageBatchResponsePayload,
   LineageExportPayload,
   LineageResponsePayload,
+  LineageBatchSelector,
   QuantityValue,
   TemporalRef,
 } from "./quantity.types";
@@ -16,20 +17,21 @@ import type {
 export type QuantityTrustMode = "off" | "compact" | "expanded";
 
 export type QuantityRuntimeBridgeValue = {
-  temporalScope: TemporalRef | null;
+  temporalScope: TemporalRef | null | undefined;
   trustMode: QuantityTrustMode;
   fetchLineage: (
     lineageId: string,
-    temporalScope: TemporalRef | null,
+    temporalScope: TemporalRef | null | undefined,
   ) => Promise<LineageResponsePayload>;
   fetchLineageBatch: (
-    lineageIds: readonly string[],
-    temporalScope: TemporalRef | null,
+    selectors: readonly LineageBatchSelector[],
+    runId: string | undefined,
+    temporalScope: TemporalRef | null | undefined,
   ) => Promise<LineageBatchResponsePayload>;
   fetchLineageExport: (
     lineageId: string,
     format: LineageExportPayload["format"],
-    temporalScope: TemporalRef | null,
+    temporalScope: TemporalRef | null | undefined,
   ) => Promise<LineageExportPayload>;
   renderTrustMetadata?: (
     quantity: QuantityValue,

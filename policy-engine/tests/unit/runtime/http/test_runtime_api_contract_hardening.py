@@ -359,13 +359,28 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
 
     from polisyos.runtime.http import openapi_contract
     from polisyos.runtime.http._openapi_contract_helpers import iter_openapi_operations
+    from polisyos.runtime.http.routes import lineage as lineage_routes
 
     schema = export_runtime_openapi_schema()
     assert validate_runtime_openapi_contract(schema) == []
     response_models = openapi_contract._success_example_response_models()
     adapters = openapi_contract._success_example_response_adapters()
     assert response_models.keys() == adapters.keys()
-    assert set(response_models) <= set(openapi_contract._SUCCESS_EXAMPLE_SETS_BY_OPERATION)
+    registered_example_operations = set(openapi_contract._SUCCESS_EXAMPLE_SETS_BY_OPERATION) | set(
+        openapi_contract._SUCCESS_EXAMPLES_BY_OPERATION
+    )
+    assert set(response_models) <= registered_example_operations
+    lineage_route_models = {
+        route.operation_id: route.response_model
+        for route in lineage_routes.router.routes
+        if isinstance(getattr(route, "operation_id", None), str)
+        and getattr(route, "response_model", None) is not None
+    }
+    assert lineage_route_models
+    assert {
+        operation_id: response_models[operation_id] for operation_id in lineage_route_models
+    } == lineage_route_models
+    assert set(lineage_route_models) <= registered_example_operations
     operations = {
         operation.get("operationId"): operation
         for _, _, operation in iter_openapi_operations(schema)
@@ -644,6 +659,32 @@ def test_model_dispatched_success_examples_match_schema_and_reject_field_drift()
     assert len(predictive_example["scenarios"]) == 1
     assert predictive_example["scenarios"][0]["interval_requested_count"] == 1
     assert predictive_example["scenarios"][0]["interval_evaluated_count"] == 0
+
+
+def test_lineage_batch_openapi_schema_drift_is_rejected_against_route_dto() -> None:
+    """Keep the batch DTO, route response schema, and resolution example joined."""
+    from copy import deepcopy
+
+    from polisyos.core.contracts.runtime import LineageBatchResponse
+    from polisyos.runtime.http import openapi_contract
+
+    response_models = openapi_contract._success_example_response_models()
+    assert response_models["get_lineage_batch"] is LineageBatchResponse
+
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/lineage/batch"]["post"]
+    examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
+    assert any("lineage_resolutions" in item["value"] for item in examples.values())
+
+    corrupted = deepcopy(schema)
+    properties = corrupted["components"]["schemas"]["LineageBatchResponse"]["properties"]
+    assert "lineage_resolutions" in properties
+    del properties["lineage_resolutions"]
+
+    expected = (
+        "POST /api/v1/lineage/batch: success response schema differs from registered response model"
+    )
+    assert validate_runtime_openapi_contract(corrupted).count(expected) == 1
 
 
 def test_success_schema_projection_resolves_complete_local_reference_graph() -> None:

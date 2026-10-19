@@ -53,6 +53,22 @@ Record:
 5. If the change is breaking, stop promotion until release notes,
    migration-guide material, and this runbook cover the operator action.
 
+### Runtime API strict-reader changes
+
+For a response field that the candidate server emits unconditionally, classify
+the change as breaking when an existing strict response reader rejects the new
+field. An optional OpenAPI property alone does not create a runtime compatibility
+window. For `POST /api/v1/lineage/batch`, the candidate has no legacy omission
+mode: upgrade strict Python decoders and regenerate/deploy the runtime client
+and dashboard readers while the prior server still omits
+`lineage_resolutions`, then record and verify the supported consumer set before
+server promotion.
+
+If the consumer inventory or consumer-first sequence cannot be established,
+hold promotion. Do not infer a two-minor rollout window from generated-family
+metadata; no such response behavior exists in this candidate. This runbook does
+not establish external consumer adoption or authorize the rollout.
+
 ## Rollback / Mitigation
 
 - Hold promotion before applying a breaking migration to production.

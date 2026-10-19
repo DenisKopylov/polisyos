@@ -17,6 +17,7 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
@@ -373,7 +374,16 @@ def lineage_batch_from_bound_request(
     *,
     ctx: RuntimeApiContext,
     requested_lineage_ids: Sequence[str],
-) -> tuple[tuple[str, ...], Mapping[str, Mapping[str, Any]]]:
+    requested_selected_artifact_refs: Sequence[artifacts.ArtifactRef | None] | None = None,
+    requested_run_id: str | None = None,
+) -> tuple[
+    tuple[str, ...],
+    Mapping[str, Mapping[str, Any]],
+    tuple[artifacts.ArtifactRef | None, ...] | None,
+    tuple[str | None, ...] | None,
+    str | None,
+    tuple[str | None, ...],
+]:
     """Consume and revalidate the exact pre-policy lineage batch snapshot.
 
     Scenario manifests are returned from the immutable authorization context,
@@ -423,32 +433,95 @@ def lineage_batch_from_bound_request(
             ) from exc
         entries.append(raw_entry)
 
-    expected_requested = sorted(requested_lineage_ids)
-    actual_requested = sorted(cast("str", entry["requested_lineage_id"]) for entry in entries)
-    if actual_requested != expected_requested:
+    entries.sort(key=lambda entry: int(entry.get("request_index", -1)))
+    if [entry.get("request_index") for entry in entries] != list(range(len(entries))):
+        raise forbidden(
+            "The lineage authorization context has invalid request positions",
+            code="authorization_binding_context_invalid",
+        )
+    if [entry.get("requested_lineage_id") for entry in entries] != list(requested_lineage_ids):
         raise forbidden(
             "The request lineage batch differs from its authorized context",
             code="authorization_binding_context_mismatch",
         )
 
-    entries_by_requested: dict[str, list[Mapping[str, Any]]] = {}
-    for entry in entries:
-        requested_id = cast("str", entry["requested_lineage_id"])
-        entries_by_requested.setdefault(requested_id, []).append(entry)
+    selected_refs_present = context.get("selected_artifact_refs_present") is True
+    context_run_id = context.get("run_id")
+    if context_run_id != requested_run_id:
+        raise forbidden(
+            "The lineage run binding differs from its authorized context",
+            code="authorization_binding_context_mismatch",
+        )
+    if selected_refs_present != (requested_selected_artifact_refs is not None):
+        raise forbidden(
+            "The selected artifact profile list differs from its authorized context",
+            code="authorization_binding_context_mismatch",
+        )
+    if requested_selected_artifact_refs is not None:
+        if len(requested_selected_artifact_refs) != len(entries):
+            raise forbidden(
+                "Selected artifact profiles do not align with lineage selectors",
+                code="authorization_binding_context_mismatch",
+            )
+        for index, (requested_ref, entry) in enumerate(
+            zip(requested_selected_artifact_refs, entries, strict=True)
+        ):
+            raw_ref = entry.get("selected_artifact_ref")
+            canonical_ref = (
+                requested_ref.model_dump(mode="json") if requested_ref is not None else None
+            )
+            if entry.get("request_index") != index or raw_ref != canonical_ref:
+                raise forbidden(
+                    "A selected artifact profile differs from its pre-policy binding",
+                    code="authorization_binding_context_mismatch",
+                )
 
     canonical_ids: list[str] = []
     scenario_manifests: dict[str, Mapping[str, Any]] = {}
-    for requested_id in requested_lineage_ids:
-        matching = entries_by_requested.get(requested_id)
-        if not matching:
-            raise forbidden(
-                "The request lineage batch has no authorized resolution",
-                code="authorization_binding_context_mismatch",
-            )
-        entry = matching.pop()
+    authorized_refs: list[artifacts.ArtifactRef | None] = []
+    artifact_ref_provenances: list[str | None] = []
+    source_run_ids: list[str | None] = []
+    for entry in entries:
+        requested_id = cast("str", entry["requested_lineage_id"])
         canonical_id = cast("str", entry["lineage_id"])
         content_digest = cast("str", entry["content_digest"])
         canonical_ids.append(canonical_id)
+        raw_ref = entry.get("selected_artifact_ref")
+        authorized_ref = (
+            artifacts.ArtifactRef.model_validate(raw_ref) if isinstance(raw_ref, Mapping) else None
+        )
+        if authorized_ref is not None:
+            try:
+                ctx.lineage.verify_selected_artifact_ref(authorized_ref)
+            except CanonicalProfileRefusalError as exc:
+                raise conflict(
+                    "Selected artifact profile changed after authorization",
+                    code=exc.code,
+                ) from exc
+            except (TypeError, ValueError) as exc:
+                raise conflict(
+                    "Selected artifact profile changed after authorization",
+                    code="authorization_binding_profile_mismatch",
+                ) from exc
+        expected_binding_status = (
+            "verified"
+            if authorized_ref is not None
+            else ("not_established" if selected_refs_present else None)
+        )
+        if entry.get("profile_binding_status") != expected_binding_status:
+            raise forbidden(
+                "The selected profile status differs from its pre-policy binding",
+                code="authorization_binding_context_invalid",
+            )
+        expected_source_run_id = context_run_id if authorized_ref is not None else None
+        if entry.get("source_run_id") != expected_source_run_id:
+            raise forbidden(
+                "The selected profile run differs from its pre-policy binding",
+                code="authorization_binding_context_invalid",
+            )
+        authorized_refs.append(authorized_ref)
+        artifact_ref_provenances.append(cast("str | None", entry.get("artifact_ref_provenance")))
+        source_run_ids.append(expected_source_run_id)
 
         scenario_head = entry.get("scenario_head")
         scenario_manifest = entry.get("scenario_manifest")
@@ -507,12 +580,48 @@ def lineage_batch_from_bound_request(
             )
         scenario_manifests[canonical_id] = MappingProxyType(dict(scenario_manifest))
 
-    if any(entries for entries in entries_by_requested.values()):
-        raise forbidden(
-            "The lineage authorization context contains unused resolutions",
-            code="authorization_binding_context_mismatch",
-        )
-    return tuple(canonical_ids), MappingProxyType(scenario_manifests)
+    if context_run_id is not None and any(ref is not None for ref in authorized_refs):
+        try:
+            run = ctx.run_index.get_run(context_run_id)
+            current_run_packet = ctx.lineage.selected_decision_packet_ref_for_run(run)
+        except CanonicalProfileRefusalError as exc:
+            raise conflict(
+                "The run selected profile changed after authorization",
+                code=exc.code,
+            ) from exc
+        except (KeyError, TypeError, ValueError) as exc:
+            raise conflict(
+                "The bound run changed after authorization",
+                code="authorization_binding_run_unresolved",
+            ) from exc
+        for _entry, ref, provenance in zip(
+            entries, authorized_refs, artifact_ref_provenances, strict=True
+        ):
+            if ref is None:
+                continue
+            if current_run_packet is None:
+                raise conflict(
+                    "The run selected profile changed after authorization",
+                    code="authorization_binding_run_profile_unresolved",
+                )
+            expected_ref, expected_provenance = current_run_packet
+            if (
+                artifacts.artifact_ref_identity_key(ref)
+                != artifacts.artifact_ref_identity_key(expected_ref)
+                or provenance != expected_provenance
+            ):
+                raise conflict(
+                    "The run selected profile changed after authorization",
+                    code="authorization_binding_profile_context_changed",
+                )
+    return (
+        tuple(canonical_ids),
+        MappingProxyType(scenario_manifests),
+        tuple(authorized_refs) if selected_refs_present else None,
+        tuple(artifact_ref_provenances) if selected_refs_present else None,
+        cast("str | None", context_run_id),
+        tuple(source_run_ids),
+    )
 
 
 def scenario_target_from_bound_request(
@@ -1027,50 +1136,163 @@ def _bind_resolved_selector_batch(
         )
     ctx = _require_runtime_context(request)
     resolved = [_resolve_lineage_selector(ctx, scope, lineage_id) for lineage_id in values]
+    selected_refs = _artifact_ref_batch(
+        body, field_name="selected_artifact_refs", expected_count=len(values)
+    )
+    raw_run_id = body.get("run_id")
+    if raw_run_id is not None and not isinstance(raw_run_id, str):
+        raise bad_request(
+            "Lineage batch run_id must be a string", code="authorization_binding_identifier_invalid"
+        )
+    canonical_run_id: str | None = None
+    run_packet: tuple[artifacts.ArtifactRef, str] | None = None
+    if raw_run_id is not None:
+        canonical_run_id, run_tenant = _resolve_owned_run(ctx, scope, raw_run_id)
+        tenants_for_run = {item.tenant_id for item in resolved}
+        if tenants_for_run != {run_tenant}:
+            raise forbidden(
+                "Lineage batch selectors do not share the bound run tenant",
+                code="authorization_binding_batch_tenant_mismatch",
+            )
+        if selected_refs is None:
+            raise bad_request(
+                "A run-bound lineage batch requires aligned selected_artifact_refs",
+                code="authorization_binding_profile_list_required",
+            )
+        run = ctx.run_index.get_run(canonical_run_id)
+        if selected_refs is not None and any(ref is not None for ref in selected_refs):
+            try:
+                run_packet = ctx.lineage.selected_decision_packet_ref_for_run(run)
+            except CanonicalProfileRefusalError as exc:
+                raise conflict(
+                    "The run decision packet has no admissible selected profile",
+                    code=exc.code,
+                ) from exc
+    if selected_refs is not None and len(selected_refs) != len(resolved):
+        raise bad_request(
+            "selected_artifact_refs must align with lineage_ids",
+            code="authorization_binding_profile_list_mismatch",
+        )
+
     tenants = {item.tenant_id for item in resolved}
+    tenants.update(
+        _resolve_owned_artifact(ctx, scope, str(ref.artifact_id))[1]
+        for ref in (selected_refs or ())
+        if ref is not None
+    )
+    if canonical_run_id is not None:
+        tenants.add(_resolve_owned_run(ctx, scope, canonical_run_id)[1])
     if len(tenants) != 1:
         raise forbidden(
             "Lineage batch does not resolve to one verified tenant",
             code="authorization_binding_batch_tenant_mismatch",
         )
-    canonical_entries = tuple(
-        sorted(
-            [
-                {
-                    "lineage_id": item.canonical_id,
-                    "content_digest": item.content_digest,
-                }
-                for item in resolved
-            ],
-            key=lambda item: (item["lineage_id"], item["content_digest"]),
-        )
-    )
+
     context_entries: list[dict[str, Any]] = []
-    for item in resolved:
+    canonical_entries_list: list[dict[str, Any]] = []
+    artifact_ref_provenances: list[str | None] = []
+    for index, (item, selected_ref) in enumerate(
+        zip(resolved, selected_refs or [None] * len(resolved), strict=True)
+    ):
+        provenance: str | None = None
+        if selected_ref is not None:
+            if item.canonical_id != f"artifact:{selected_ref.artifact_id}":
+                raise forbidden(
+                    "Selected artifact profile does not identify the requested lineage",
+                    code="authorization_binding_profile_lineage_mismatch",
+                )
+            try:
+                ctx.lineage.verify_selected_artifact_ref(selected_ref)
+            except CanonicalProfileRefusalError as exc:
+                raise conflict(
+                    "Selected artifact profile is not verified by the canonical reader",
+                    code=exc.code,
+                ) from exc
+            except (TypeError, ValueError) as exc:
+                raise conflict(
+                    "Selected artifact profile does not match its stored manifest",
+                    code="authorization_binding_profile_mismatch",
+                ) from exc
+            if canonical_run_id is not None:
+                if run_packet is None:
+                    raise forbidden(
+                        "The bound run has no selected decision packet profile",
+                        code="authorization_binding_run_profile_unresolved",
+                    )
+                expected_ref, expected_provenance = run_packet
+                if artifacts.artifact_ref_identity_key(
+                    selected_ref
+                ) != artifacts.artifact_ref_identity_key(expected_ref):
+                    raise forbidden(
+                        "Selected artifact profile differs from the bound run output",
+                        code="authorization_binding_profile_context_mismatch",
+                    )
+                provenance = expected_provenance
+            else:
+                provenance = "reader_materialized"
+        artifact_ref_provenances.append(provenance)
         context_entry: dict[str, Any] = {
+            "request_index": index,
             "requested_lineage_id": item.requested_id,
             "lineage_id": item.canonical_id,
             "content_digest": item.content_digest,
+            "selected_artifact_ref": selected_ref.model_dump(mode="json")
+            if selected_ref is not None
+            else None,
+            "artifact_ref_provenance": provenance,
+            "profile_binding_status": "verified"
+            if selected_ref is not None
+            else ("not_established" if selected_refs is not None else None),
+            "source_run_id": canonical_run_id if selected_ref is not None else None,
         }
         if item.scenario_head is not None and item.scenario_manifest is not None:
             context_entry["scenario_head"] = dict(item.scenario_head)
             context_entry["scenario_manifest"] = dict(item.scenario_manifest)
         context_entries.append(context_entry)
-    context_entries.sort(
-        key=lambda item: (
-            item["requested_lineage_id"],
-            item["lineage_id"],
-            item["content_digest"],
+        canonical_entry = {
+            "lineage_id": item.canonical_id,
+            "content_digest": item.content_digest,
+            "selected_artifact_ref": selected_ref.model_dump(mode="json")
+            if selected_ref is not None
+            else None,
+        }
+        canonical_entries_list.append(canonical_entry)
+    canonical_entries = tuple(
+        sorted(
+            canonical_entries_list,
+            key=lambda item: (
+                item["lineage_id"],
+                item["content_digest"],
+                _canonical_json(item["selected_artifact_ref"]),
+            ),
         )
     )
+    context_entries.sort(key=lambda item: item["request_index"])
     context = canon.to_canonical_bytes(
         {
             "context_version": _LINEAGE_BATCH_CONTEXT_KIND,
             "entries": context_entries,
+            "selected_artifact_refs_present": selected_refs is not None,
+            "run_id": canonical_run_id,
         },
         spec=_RESOLVED_CONTEXT_CANON,
     )
-    selectors = ((field_name, _canonical_json(canonical_entries)),)
+    selectors_list = [(field_name, _canonical_json(canonical_entries))]
+    if selected_refs is not None:
+        selectors_list.append(
+            (
+                "selected_artifact_refs",
+                _canonical_json(
+                    [
+                        ref.model_dump(mode="json") if ref is not None else None
+                        for ref in selected_refs
+                    ]
+                ),
+            )
+        )
+    if canonical_run_id is not None:
+        selectors_list.append(("run_id", _canonical_json(canonical_run_id)))
+    selectors = tuple(sorted(selectors_list))
     return _build_bound_resource(
         request=request,
         requirement=requirement,
@@ -1234,7 +1456,7 @@ def _resolve_lineage_selector(
     artifact_candidate = lineage_id.removeprefix("artifact:")
     try:
         artifact_id = artifacts.ArtifactID.model_validate(artifact_candidate)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         artifact_id = None
     if artifact_id is not None:
         canonical_id, tenant_id = _resolve_owned_artifact(ctx, scope, str(artifact_id))
@@ -1430,6 +1652,46 @@ def _path_identifier(request: Request, name: str) -> str:
     path_params = getattr(request, "path_params", None)
     value = path_params.get(name) if isinstance(path_params, Mapping) else None
     return _required_string(value, field_name=f"path parameter {name}")
+
+
+def _artifact_ref_batch(
+    body: Mapping[str, Any],
+    *,
+    field_name: str,
+    expected_count: int,
+) -> tuple[artifacts.ArtifactRef | None, ...] | None:
+    if field_name not in body:
+        return None
+    value = body[field_name]
+    if not isinstance(value, list) or len(value) != expected_count:
+        raise bad_request(
+            "Selected artifact profiles must align with lineage_ids",
+            code="authorization_binding_profile_list_mismatch",
+        )
+    refs: list[artifacts.ArtifactRef | None] = []
+    for item in value:
+        if item is None:
+            refs.append(None)
+            continue
+        if not isinstance(item, Mapping):
+            raise bad_request(
+                "Selected artifact profile must be a typed reference or null",
+                code="authorization_binding_profile_invalid",
+            )
+        try:
+            ref = artifacts.ArtifactRef.model_validate(item)
+        except (TypeError, ValueError) as exc:
+            raise bad_request(
+                "Selected artifact profile is malformed",
+                code="authorization_binding_profile_invalid",
+            ) from exc
+        if ref.manifest_profile_sha256 is None:
+            raise bad_request(
+                "Selected artifact profile must name a manifest profile",
+                code="authorization_binding_profile_unqualified",
+            )
+        refs.append(ref)
+    return tuple(refs)
 
 
 def _string_batch(body: Mapping[str, Any], *, field_name: str) -> tuple[str, ...]:

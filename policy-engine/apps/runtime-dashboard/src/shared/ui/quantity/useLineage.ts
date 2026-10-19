@@ -11,7 +11,9 @@ export function useLineage(
   } = {},
 ) {
   const runtime = useQuantityRuntimeBridge();
-  const temporalScope = options.temporalScope ?? runtime.temporalScope;
+  const temporalScope = Object.hasOwn(options, "temporalScope")
+    ? options.temporalScope
+    : runtime.temporalScope;
   return useQuery({
     queryKey: ["quantity-lineage", lineageId ?? "unknown", temporalScope],
     queryFn: () => runtime.fetchLineage(lineageId ?? "", temporalScope),
@@ -28,7 +30,9 @@ export function useLineageExport(
   } = {},
 ) {
   const runtime = useQuantityRuntimeBridge();
-  const temporalScope = options.temporalScope ?? runtime.temporalScope;
+  const temporalScope = Object.hasOwn(options, "temporalScope")
+    ? options.temporalScope
+    : runtime.temporalScope;
   return useQuery({
     queryKey: [
       "quantity-lineage-export",

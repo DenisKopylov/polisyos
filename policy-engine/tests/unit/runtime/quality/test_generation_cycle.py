@@ -134,6 +134,7 @@ from tests._helpers.controlled_candidate_profile import (
     _budget,
     _Candidate,
     _CgfGenerationPort,
+    _controlled_direct_ncm_outcome_state_paths,
     _controlled_profile_cycle_basis,
     _GenerationResult,
     _GroundingDisposition,
@@ -2863,9 +2864,9 @@ def _owner_n5_case_with_selected_ncm_ref(
         cell_id="cell-n5-owner",
         ncm_view_refs=(ArtifactRef.model_validate(ncm_ref.model_dump(mode="python")),),
         candidate_baseline_state=problem.runtime_hints["joint_simulation_baseline_state"],
-        candidate_outcome_state_paths={
-            problem.outcome_of_interest.target_variable: "market.total_supply"
-        },
+        candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(
+            problem.outcome_of_interest.target_variable
+        ),
     )
     rebound_context, rebound_candidate = _rebind_owner_cycle_record(
         context, candidate, world_record

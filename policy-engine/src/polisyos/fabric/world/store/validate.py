@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from decimal import Decimal
 from enum import Enum
 
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
@@ -45,7 +46,7 @@ _ALLOWED_WORLD_ATTRS = {
 }
 
 
-def _enum_value(value) -> str:
+def _enum_value(value: Enum | str | int | bool | Decimal | None) -> str:
     if isinstance(value, Enum):
         return str(value.value)
     return str(value)

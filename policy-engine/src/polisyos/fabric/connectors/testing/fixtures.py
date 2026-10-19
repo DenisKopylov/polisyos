@@ -12,17 +12,17 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
+from typing import Any
 
 import pytest
 
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
-    FetchRequest,
-    FetchResult,
     HealthStatus,
     SourceConnector,
 )
+from polisyos.ir.connectors import FetchRequest, FetchResult
 
 # ---------------------------------------------------------------------------
 # Fault descriptors
@@ -143,7 +143,7 @@ class FaultInjector:
 
     def __init__(
         self,
-        connector: SourceConnector,
+        connector: SourceConnector[Any],
         sequence: FaultSequence | None = None,
     ) -> None:
         self._connector = connector
@@ -172,7 +172,7 @@ class FaultInjector:
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ) -> FetchResult:
+    ) -> FetchResult[Any]:
         """
         Intercept fetch, apply the next fault in the sequence (if any),
         then delegate to the real connector.
@@ -216,7 +216,7 @@ class FaultInjector:
 
     @classmethod
     def with_latency(
-        cls, connector: SourceConnector, latency_ms: int, count: int = 1
+        cls, connector: SourceConnector[Any], latency_ms: int, count: int = 1
     ) -> FaultInjector:
         """Create an injector that adds latency to the next count fetches."""
         return cls(
@@ -230,7 +230,7 @@ class FaultInjector:
 
     @classmethod
     def with_error(
-        cls, connector: SourceConnector, status_code: int, count: int = 1
+        cls, connector: SourceConnector[Any], status_code: int, count: int = 1
     ) -> FaultInjector:
         """Create an injector that raises HTTP errors for the next count fetches."""
         return cls(
@@ -243,7 +243,7 @@ class FaultInjector:
         )
 
     @classmethod
-    def with_disconnect(cls, connector: SourceConnector, count: int = 1) -> FaultInjector:
+    def with_disconnect(cls, connector: SourceConnector[Any], count: int = 1) -> FaultInjector:
         """Create an injector that drops connections for the next count fetches."""
         return cls(
             connector=connector,

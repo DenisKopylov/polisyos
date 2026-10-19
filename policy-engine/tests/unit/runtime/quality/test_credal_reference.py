@@ -589,7 +589,7 @@ def _phase5_l6_candidate_world_model_record():
         "simulation_model_ref": SimulationModelRef(
             model_spec_ref=digest("fixture-model-ref"),
             model_spec_hash=digest("fixture-model-hash"),
-            model_id="fixture-only-model",
+            model_id="fixture_only_model",
             data_snapshot_ref=digest("fixture-snapshot"),
             registry_bundle_ref=digest("fixture-registry"),
             fidelity_level="declared_candidate_fixture",

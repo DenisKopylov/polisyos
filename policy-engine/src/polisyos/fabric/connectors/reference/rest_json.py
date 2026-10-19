@@ -43,9 +43,16 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, TypedDict
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from typing import TypeGuard
+
+    from pydantic import JsonValue
 
 import aiohttp
 
@@ -55,8 +62,6 @@ from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
     ConnectionHandle,
-    FetchRequest,
-    FetchResult,
     HealthStatus,
 )
 from polisyos.fabric.connectors.contracts import make_schema_id
@@ -84,6 +89,8 @@ from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
     DataVersion,
+    FetchRequest,
+    FetchResult,
     QualityTier,
     TrustLevel,
     VersionStrategy,
@@ -100,13 +107,13 @@ _DEFAULT_MAX_PAGES = 1_000
 
 
 def _positive_int_header(
-    headers: dict[str, str] | Any,
+    headers: Mapping[str, str],
     header_name: str,
     *,
     default: int,
 ) -> int:
     raw = headers.get(header_name)
-    if raw in (None, ""):
+    if raw is None or raw == "":
         return default
     try:
         value = int(raw)
@@ -144,9 +151,16 @@ def _parse_http_datetime(value: str | None) -> datetime | None:
         return None
 
 
-def _extract_nested(obj: Any, path: str | tuple[str, ...]) -> Any:
+def _extract_nested(obj: JsonValue, path: str | tuple[str, ...]) -> JsonValue:
     """Resolve a dot-separated path through nested dicts/lists."""
     return extract_bounded_data_path(obj, path)
+
+
+def _is_json_object_list(
+    value: list[JsonValue],
+) -> TypeGuard[list[dict[str, JsonValue]]]:
+    """Narrow an already parsed JSON list after verifying every row is an object."""
+    return all(isinstance(row, dict) for row in value)
 
 
 class PaginationStrategy(str, Enum):
@@ -154,6 +168,40 @@ class PaginationStrategy(str, Enum):
 
     PAGE_NUMBER = "page_number"  # ?page=1&page=2 ...
     CURSOR = "cursor"  # response body contains a next-page token
+
+
+class _RestJsonConfig(TypedDict):
+    """Validated connector settings consumed by the REST JSON page reader."""
+
+    data_path: tuple[str, ...]
+    pagination: PaginationStrategy
+    page_size: int
+    page_param: str
+    page_size_param: str
+    cursor_param: str
+    cursor_path: tuple[str, ...]
+    date_start_param: str
+    date_end_param: str
+    max_response_bytes: int
+    max_json_bytes: int
+    max_decompressed_bytes: int
+    max_rows: int
+    max_pages: int
+
+
+class _PageResponseEnvelope(TypedDict):
+    """Mixed transport and parsed-JSON fields returned by one page request."""
+
+    json: JsonValue
+    _raw: bytes
+    headers: dict[str, str]
+
+
+_PageRequestResult = tuple[_PageResponseEnvelope, dict[str, str], int]
+_PageRequest = Callable[
+    [ConnectionHandle, aiohttp.ClientSession, str, dict[str, Any], dict[str, str]],
+    Awaitable[_PageRequestResult],
+]
 
 
 class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
@@ -190,7 +238,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
     # REST-specific config parsing
     # ------------------------------------------------------------------
     @staticmethod
-    def _parse_rest_config(config: ConnectionConfig) -> dict[str, Any]:
+    def _parse_rest_config(config: ConnectionConfig) -> _RestJsonConfig:
         pagination_raw = config.headers.get("X-REST-Pagination", "page_number")
         try:
             pagination = PaginationStrategy(pagination_raw)
@@ -238,7 +286,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         }
 
     @staticmethod
-    def _strip_internal_headers(headers: dict[str, str]) -> dict[str, str]:
+    def _strip_internal_headers(headers: Mapping[str, str]) -> dict[str, str]:
         return {k: v for k, v in headers.items() if not k.startswith("X-REST-")}
 
     def _build_auth_headers(self, config: ConnectionConfig) -> dict[str, str]:
@@ -419,7 +467,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     connector_id=self.connector_id,
                     request_params={"data_path": cfg["data_path"]},
                 )
-            if any(not isinstance(row, dict) for row in page_data):
+            if not _is_json_object_list(page_data):
                 raise FetchError(
                     message=f"Data path '{cfg['data_path']}' returned non-object rows",
                     connector_id=self.connector_id,
@@ -483,7 +531,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             bytes_transferred=total_bytes,
         )
 
-    def _extract_cursor(self, body: dict[str, Any], cfg: dict[str, Any]) -> str | None:
+    def _extract_cursor(self, body: JsonValue, cfg: _RestJsonConfig) -> str | None:
         cursor_path = cfg.get("cursor_path") or ""
         if cursor_path:
             try:
@@ -491,6 +539,8 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             except KeyError:
                 cursor_value = None
         else:
+            if not isinstance(body, dict):
+                raise AttributeError(f"'{type(body).__name__}' object has no attribute 'get'")
             cursor_value = body.get(cfg["cursor_param"])
         if cursor_value is None:
             return None
@@ -528,7 +578,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             content_hash=content_hash,
         )
 
-    def _decorate_request(self, func: Any, handle: ConnectionHandle) -> Any:
+    def _decorate_request(self, func: _PageRequest, handle: ConnectionHandle) -> _PageRequest:
         wrapped = func
         rate_limit_rps = handle.config.rate_limit_rps
         if rate_limit_rps:
@@ -544,7 +594,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
         url: str,
         params: dict[str, Any],
         headers: dict[str, str] | None = None,
-    ) -> tuple[dict[str, Any], dict[str, str], int]:
+    ) -> _PageRequestResult:
         async with session.get(
             url,
             params=params,
@@ -637,12 +687,12 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                     field="X-REST-Pagination",
                 )
             )
-        for field_name, header_name, default in (
+        for field_name, header_name, path_default in (
             ("data_path", "X-REST-DataPath", "data"),
             ("cursor_path", "X-REST-CursorPath", ""),
         ):
             try:
-                validate_data_path(config.headers.get(header_name, default))
+                validate_data_path(config.headers.get(header_name, path_default))
             except UnsafeDataPathError as exc:
                 issues.append(
                     ValidationIssue(
@@ -651,7 +701,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
                         field=field_name,
                     )
                 )
-        for header_name, default in (
+        for header_name, limit_default in (
             ("X-REST-MaxResponseBytes", _DEFAULT_MAX_RESPONSE_BYTES),
             ("X-REST-MaxJsonBytes", _DEFAULT_MAX_JSON_BYTES),
             ("X-REST-MaxDecompressedBytes", _DEFAULT_MAX_DECOMPRESSED_BYTES),
@@ -659,7 +709,7 @@ class GenericRESTConnector(BaseConnector[list[dict[str, Any]]]):
             ("X-REST-MaxPages", _DEFAULT_MAX_PAGES),
         ):
             try:
-                _positive_int_header(config.headers, header_name, default=default)
+                _positive_int_header(config.headers, header_name, default=limit_default)
             except ConfigurationError as exc:
                 issues.append(
                     ValidationIssue(

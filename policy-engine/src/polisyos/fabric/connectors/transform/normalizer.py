@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import Any
 
 import pandas as pd
 
@@ -202,7 +203,10 @@ class NormalizationTransform(DataTransform):
                 raise TransformError(
                     f"unit conversion input contains {int(non_finite.sum())} non-finite values"
                 )
-            return series.apply(lambda x: from_u.convert_to(to_u, x) if pd.notna(x) else x)
+            converted: pd.Series[Any] = series.apply(
+                lambda value: from_u.convert_to(to_u, value) if pd.notna(value) else value
+            )
+            return converted
         except ImportError:
             return self._simple_unit_conversion(series, from_unit, to_unit)
 
@@ -226,11 +230,11 @@ class NormalizationTransform(DataTransform):
                 "requires_rate": factor.requires_rate,
             }
         except ImportError:
-            factor = Decimal(str(self._simple_unit_factor(from_unit, to_unit)))
+            fallback_factor = Decimal(str(self._simple_unit_factor(from_unit, to_unit)))
             return {
                 "from_unit": from_unit,
                 "to_unit": to_unit,
-                "multiplier": str(factor),
+                "multiplier": str(fallback_factor),
                 "offset": "0",
                 "requires_rate": False,
             }
@@ -297,7 +301,10 @@ class NormalizationTransform(DataTransform):
         try:
             from polisyos.fabric.connectors.types.coercion import safe_cast
 
-            return series.apply(lambda x: safe_cast(x, target_dtype) if pd.notna(x) else x)
+            casted: pd.Series[Any] = series.apply(
+                lambda value: safe_cast(value, target_dtype) if pd.notna(value) else value
+            )
+            return casted
         except ImportError:
             return self._pandas_safe_cast(series, target_dtype)
 
@@ -331,4 +338,6 @@ class NormalizationTransform(DataTransform):
             return series.astype(str)
         if target_dtype in ("datetime", "datetime64"):
             return pd.to_datetime(series, errors="coerce")
-        return series.astype(target_dtype)
+        dtype = pd.api.types.pandas_dtype(target_dtype)
+        casted: pd.Series[Any] = series.astype(dtype)
+        return casted

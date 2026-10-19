@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from typing import Any
 
 import pandas as pd
+import pytest
 
 from polisyos.fabric.security import RowAccessPolicy
 from polisyos.fabric.world.query import WorldQueryRequest, execute_world_query
@@ -76,3 +77,18 @@ def test_execute_world_query_injects_row_policy_filters() -> None:
     assert "tenant_id = %s" in backend.last_sql
     assert "source_id = %s" in backend.last_sql
     assert backend.last_params == ["subj-1", "wdi", "tenant-a", 10]
+
+
+class _NonDataFrameBackend(FakeBackend):
+    def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> Any:
+        self.last_sql = sql
+        self.last_params = list(params or [])
+        return {"ok": True}
+
+
+def test_execute_world_query_rejects_non_dataframe_backend_result() -> None:
+    backend = _NonDataFrameBackend()
+    request = WorldQueryRequest(table="world_facts", columns=("fact_id",))
+
+    with pytest.raises(TypeError, match="pandas DataFrame"):
+        execute_world_query(backend, request)

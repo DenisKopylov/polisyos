@@ -6,7 +6,10 @@ import asyncio
 import json
 import time
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 import aiohttp
 
@@ -15,8 +18,6 @@ from polisyos.fabric.connectors.base import (
     BaseConnector,
     ConnectionConfig,
     ConnectionHandle,
-    FetchRequest,
-    FetchResult,
     HealthStatus,
 )
 from polisyos.fabric.connectors.contracts import infer_schema, make_schema_id
@@ -33,6 +34,8 @@ from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
     DataVersion,
+    FetchRequest,
+    FetchResult,
     QualityTier,
     TrustLevel,
     VersionStrategy,
@@ -44,9 +47,9 @@ _DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
 _DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
 
 
-def _positive_int_header(headers: dict[str, str] | Any, header_name: str, default: int) -> int:
+def _positive_int_header(headers: Mapping[str, str], header_name: str, default: int) -> int:
     raw = headers.get(header_name)
-    if raw in (None, ""):
+    if raw is None or raw == "":
         return default
     value = int(raw)
     if value <= 0:
@@ -93,7 +96,7 @@ class GraphQLConnector(BaseConnector[Any]):
             raise ValueError("X-GraphQL-Query is required for graphql.api")
         return query
 
-    def _data_path(self, config: ConnectionConfig) -> str:
+    def _data_path(self, config: ConnectionConfig) -> tuple[str, ...]:
         return validate_data_path(str(config.headers.get("X-GraphQL-DataPath", "data")).strip())
 
     def _transport_headers(self, config: ConnectionConfig) -> dict[str, str]:

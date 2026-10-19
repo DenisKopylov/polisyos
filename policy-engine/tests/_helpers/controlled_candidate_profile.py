@@ -435,6 +435,35 @@ _CONTROLLED_SLOT_ALIASES = {
 }
 
 
+def _controlled_direct_ncm_outcome_state_paths(outcome_variable: str) -> dict[str, str]:
+    """Name an explicit toy path only when the selected outcome has no registered path."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    canonical_id = _CONTROLLED_SLOT_ALIASES.get(outcome_variable, outcome_variable)
+    if canonical_id in DEFAULT_SLOT_REGISTRY.slots:
+        return {}
+    return {outcome_variable: "market.total_supply"}
+
+
+def _controlled_ncm_outcome_baseline_is_compatible(baseline: object, value_type: object) -> bool:
+    """Check scalar baselines without conflating booleans and numbers."""
+    value_type_name = getattr(value_type, "value", value_type)
+    if value_type_name == "bool":
+        return isinstance(baseline, bool)
+    if value_type_name == "int":
+        if isinstance(baseline, bool) or not isinstance(baseline, int):
+            return False
+    elif value_type_name == "decimal":
+        if isinstance(baseline, bool) or not isinstance(baseline, (int, float, Decimal)):
+            return False
+    else:
+        return False
+    try:
+        return math.isfinite(float(baseline))
+    except (OverflowError, TypeError, ValueError):
+        return False
+
+
 def _controlled_auto_binding_id(slot_id: str) -> str:
     """Mirror the data-plane auto-binding identifier for collision checks."""
     return f"auto.{slot_id.replace('.', '_')}"
@@ -501,31 +530,43 @@ def _controlled_selected_slot_specs(
     for slot_id, canonical_id in resolved:
         if canonical_id in DEFAULT_SLOT_REGISTRY.slots:
             canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
-            slot_spec = SlotSpec.model_validate(
-                {
-                    **canonical_slot.model_dump(mode="python"),
-                    "slot_id": slot_id,
-                    "unit": UnitRef(unit_id="synthetic_score"),
-                    "description": (
-                        "Controlled candidate-only binding copied from "
-                        f"{canonical_id}; measurement semantics are not established."
-                    ),
-                }
-            )
+            slot_spec = canonical_slot.model_copy(update={"slot_id": slot_id})
+            if slot_id in declared_ncm_outcomes:
+                scope_name = getattr(canonical_slot.scope, "value", canonical_slot.scope)
+                if scope_name != "global":
+                    raise ValueError("controlled_wmr_ncm_outcome_scope_not_supported:" + slot_id)
+                value_type_name = getattr(
+                    canonical_slot.value_type, "value", canonical_slot.value_type
+                )
+                if value_type_name not in {"bool", "int", "decimal"}:
+                    raise ValueError(
+                        "controlled_wmr_ncm_outcome_value_type_not_supported:" + slot_id
+                    )
+                baseline = (candidate_baseline_state or {}).get(slot_id)
+                if not _controlled_ncm_outcome_baseline_is_compatible(
+                    baseline, canonical_slot.value_type
+                ):
+                    raise ValueError(
+                        "controlled_wmr_ncm_outcome_baseline_not_established:" + slot_id
+                    )
+                if not isinstance(slot_spec.state_path, str) or not slot_spec.state_path.strip():
+                    raise ValueError(
+                        "controlled_wmr_ncm_outcome_state_path_not_declared:" + slot_id
+                    )
+                if slot_id in state_paths and state_paths[slot_id] != slot_spec.state_path:
+                    raise ValueError(
+                        "controlled_wmr_registered_ncm_outcome_state_path_mismatch:" + slot_id
+                    )
+            elif slot_id in state_paths:
+                raise ValueError(
+                    "controlled_wmr_candidate_outcome_state_path_not_ncm_output:" + slot_id
+                )
         else:
             baseline = (candidate_baseline_state or {}).get(slot_id)
             state_path = state_paths.get(slot_id)
             if slot_id not in declared_ncm_outcomes:
                 raise ValueError("controlled_wmr_ncm_outcome_not_declared:" + slot_id)
-            try:
-                baseline_is_finite = math.isfinite(float(baseline))
-            except OverflowError, TypeError, ValueError:
-                baseline_is_finite = False
-            if (
-                isinstance(baseline, bool)
-                or not isinstance(baseline, (int, float, Decimal))
-                or not baseline_is_finite
-            ):
+            if not _controlled_ncm_outcome_baseline_is_compatible(baseline, "decimal"):
                 raise ValueError("controlled_wmr_ncm_outcome_baseline_not_established:" + slot_id)
             if not isinstance(state_path, str) or not state_path.strip():
                 raise ValueError("controlled_wmr_ncm_outcome_state_path_not_declared:" + slot_id)
@@ -558,7 +599,7 @@ def _controlled_selected_slot_specs(
         for slot_id, canonical_id in resolved
         if canonical_id not in DEFAULT_SLOT_REGISTRY.slots
     }
-    if set(state_paths) != direct_outcome_ids:
+    if not direct_outcome_ids.issubset(state_paths):
         raise ValueError("controlled_wmr_candidate_outcome_state_paths_mismatch")
     if set(specs) != requested_ids:
         raise ValueError("controlled_wmr_selected_slot_registry_incomplete")
@@ -596,8 +637,10 @@ def _controlled_declared_ncm_outcomes(
     return frozenset(declared)
 
 
-def _controlled_set_payload_path(payload: dict[str, Any], path: str, value: object) -> None:
-    """Set one explicitly declared candidate fixture path without overwriting a node."""
+def _controlled_set_payload_path(
+    payload: dict[str, Any], path: str, value: object, *, replace_existing: bool = False
+) -> None:
+    """Set one validated candidate path, optionally replacing its fixture baseline leaf."""
     parts = path.split(".")
     if any(not part for part in parts):
         raise ValueError("controlled_wmr_candidate_outcome_state_path_invalid")
@@ -607,7 +650,7 @@ def _controlled_set_payload_path(payload: dict[str, Any], path: str, value: obje
         if not isinstance(child, dict):
             raise ValueError("controlled_wmr_candidate_outcome_state_path_conflict:" + path)
         current = child
-    if parts[-1] in current:
+    if parts[-1] in current and not replace_existing:
         raise ValueError("controlled_wmr_candidate_outcome_state_path_conflict:" + path)
     current[parts[-1]] = value
 
@@ -1051,11 +1094,23 @@ def _materialize_controlled_world_model_build(
             "government_balance": 0.0,
             "tax_rate": 0.0,
         }
-        for slot_id, state_path in (candidate_outcome_state_paths or {}).items():
+        for slot_id, slot_spec in controlled_slot_specs.items():
+            if slot_id not in declared_ncm_outcomes:
+                continue
             baseline = (candidate_baseline_state or {}).get(slot_id)
-            if slot_id not in controlled_slot_specs or baseline is None:
+            if baseline is None:
                 raise ValueError("controlled_wmr_candidate_outcome_input_unbound:" + slot_id)
-            _controlled_set_payload_path(payload, state_path, baseline)
+            if not isinstance(slot_spec.state_path, str) or not slot_spec.state_path.strip():
+                raise ValueError("controlled_wmr_candidate_outcome_input_unbound:" + slot_id)
+            canonical_id = _CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id)
+            canonical_slot = DEFAULT_SLOT_REGISTRY.slots.get(canonical_id)
+            registered_path = canonical_slot.state_path if canonical_slot is not None else None
+            _controlled_set_payload_path(
+                payload,
+                slot_spec.state_path,
+                baseline,
+                replace_existing=(registered_path == slot_spec.state_path),
+            )
         payload_ref = artifact_store.put_json(
             payload,
             PutOptions(kind="fabric.world_payload", media_type="application/json"),
@@ -1356,7 +1411,7 @@ def _build_configured_procurement_profile(
         cell_id=cell_id,
         ncm_view_refs=(ncm_ref,),
         candidate_baseline_state=n5.baseline_state,
-        candidate_outcome_state_paths={outcome_variable: "market.total_supply"},
+        candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome_variable),
     )
     world = world_build.record
     context_inputs = CandidateSimulationContextInputs(

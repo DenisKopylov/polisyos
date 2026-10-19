@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import ast
+import operator
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Protocol, runtime_checkable
 
 import pandas as pd
 
@@ -23,6 +25,81 @@ from polisyos.fabric.connectors.transform.pipeline import (
 from polisyos.fabric.quality.safety import UnsafeFilterExpressionError
 
 __all__ = ["FilterTransform"]
+
+
+@runtime_checkable
+class _SupportsNegation(Protocol):
+    """Expose Python's unary-negative operand slot for typed operator dispatch."""
+
+    def __neg__(self) -> object: ...
+
+
+@runtime_checkable
+class _SupportsPositivity(Protocol):
+    """Expose Python's unary-positive operand slot for typed operator dispatch."""
+
+    def __pos__(self) -> object: ...
+
+
+@runtime_checkable
+class _SupportsRichComparison(Protocol):
+    """Represent values that support the ordered comparisons used by the filter DSL."""
+
+    def __lt__(self, other: object, /) -> object: ...
+
+    def __le__(self, other: object, /) -> object: ...
+
+    def __gt__(self, other: object, /) -> object: ...
+
+    def __ge__(self, other: object, /) -> object: ...
+
+
+@runtime_checkable
+class _SupportsContains(Protocol):
+    """Expose Python's container membership slot without widening values to Any."""
+
+    def __contains__(self, value: object, /) -> bool: ...
+
+
+def _apply_unary_negative(value: object) -> object:
+    if not isinstance(value, _SupportsNegation):
+        raise TypeError(f"bad operand type for unary -: '{type(value).__name__}'")
+    return operator.neg(value)
+
+
+def _apply_unary_positive(value: object) -> object:
+    if not isinstance(value, _SupportsPositivity):
+        raise TypeError(f"bad operand type for unary +: '{type(value).__name__}'")
+    return operator.pos(value)
+
+
+def _apply_python_contains(container: object, item: object) -> object:
+    if not isinstance(container, _SupportsContains):
+        raise TypeError(f"argument of type '{type(container).__name__}' is not iterable")
+    return operator.contains(container, item)
+
+
+_UNARY_ARITHMETIC: dict[type[ast.unaryop], Callable[[object], object]] = {
+    ast.USub: _apply_unary_negative,
+    ast.UAdd: _apply_unary_positive,
+}
+_BINARY_ARITHMETIC: dict[type[ast.operator], Callable[[object, object], object]] = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Mod: operator.mod,
+}
+_ORDERED_COMPARISONS: dict[
+    type[ast.cmpop],
+    Callable[[_SupportsRichComparison, _SupportsRichComparison], object],
+] = {
+    ast.Gt: operator.gt,
+    ast.GtE: operator.ge,
+    ast.Lt: operator.lt,
+    ast.LtE: operator.le,
+}
+_COLLECTION_CONTAINS: Callable[[object, object], object] = _apply_python_contains
 
 
 def _evaluate_filter_condition(
@@ -67,10 +144,8 @@ def _eval_ast_node(node: ast.AST, data: pd.DataFrame) -> object:
         operand = _eval_ast_node(node.operand, data)
         if isinstance(node.op, ast.Not):
             return ~_coerce_bool_like(operand)
-        if isinstance(node.op, ast.USub):
-            return -operand
-        if isinstance(node.op, ast.UAdd):
-            return +operand
+        if isinstance(node.op, (ast.USub, ast.UAdd)):
+            return _apply_unary_arithmetic(node.op, operand)
         raise UnsafeFilterExpressionError("Unsupported unary operator")
 
     if isinstance(node, ast.Compare):
@@ -88,17 +163,7 @@ def _eval_ast_node(node: ast.AST, data: pd.DataFrame) -> object:
     if isinstance(node, ast.BinOp):
         left = _eval_ast_node(node.left, data)
         right = _eval_ast_node(node.right, data)
-        if isinstance(node.op, ast.Add):
-            return left + right
-        if isinstance(node.op, ast.Sub):
-            return left - right
-        if isinstance(node.op, ast.Mult):
-            return left * right
-        if isinstance(node.op, ast.Div):
-            return left / right
-        if isinstance(node.op, ast.Mod):
-            return left % right
-        raise UnsafeFilterExpressionError("Unsupported arithmetic operator")
+        return _apply_arithmetic(node.op, left, right)
 
     if isinstance(node, ast.Name):
         if node.id not in data.columns:
@@ -109,14 +174,54 @@ def _eval_ast_node(node: ast.AST, data: pd.DataFrame) -> object:
         return node.value
 
     if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
-        values = [_eval_ast_node(child, data) for child in node.elts]
-        if any(isinstance(value, pd.Series) for value in values):
+        items = [_eval_ast_node(child, data) for child in node.elts]
+        if any(isinstance(item, pd.Series) for item in items):
             raise UnsafeFilterExpressionError(
                 "Collection literals may not contain column references"
             )
-        return values
+        return items
 
     raise UnsafeFilterExpressionError(f"Unsupported filter expression node: {type(node).__name__}")
+
+
+def _apply_unary_arithmetic(operator_node: ast.unaryop, operand: object) -> object:
+    operation = _UNARY_ARITHMETIC.get(type(operator_node))
+    if operation is None:
+        raise UnsafeFilterExpressionError("Unsupported unary operator")
+    return operation(operand)
+
+
+def _apply_arithmetic(operator_node: ast.operator, left: object, right: object) -> object:
+    operation = _BINARY_ARITHMETIC.get(type(operator_node))
+    if operation is None:
+        raise UnsafeFilterExpressionError("Unsupported arithmetic operator")
+    return operation(left, right)
+
+
+def _apply_ordered_comparison(
+    operator_node: ast.cmpop,
+    left: object,
+    right: object,
+) -> object:
+    comparison = _ORDERED_COMPARISONS.get(type(operator_node))
+    if comparison is None:
+        raise UnsafeFilterExpressionError(
+            f"Unsupported comparison operator: {type(operator_node).__name__}"
+        )
+    if not isinstance(left, _SupportsRichComparison) or not isinstance(
+        right, _SupportsRichComparison
+    ):
+        operator_symbol = {
+            ast.Gt: ">",
+            ast.GtE: ">=",
+            ast.Lt: "<",
+            ast.LtE: "<=",
+        }[type(operator_node)]
+        raise TypeError(
+            f"'{operator_symbol}' not supported between instances of "
+            f"'{type(left).__name__}' and '{type(right).__name__}'"
+        )
+    return comparison(left, right)
 
 
 def _apply_comparison(
@@ -131,7 +236,7 @@ def _apply_comparison(
             raise UnsafeFilterExpressionError(
                 "Right-hand side of 'in' must be a literal collection"
             )
-        return left in right
+        return _COLLECTION_CONTAINS(right, left)
     if isinstance(operator_node, ast.NotIn):
         if isinstance(left, pd.Series):
             if isinstance(right, (list, tuple, set)):
@@ -139,19 +244,13 @@ def _apply_comparison(
             raise UnsafeFilterExpressionError(
                 "Right-hand side of 'not in' must be a literal collection"
             )
-        return left not in right
+        return not _COLLECTION_CONTAINS(right, left)
     if isinstance(operator_node, ast.Eq):
         return left == right
     if isinstance(operator_node, ast.NotEq):
         return left != right
-    if isinstance(operator_node, ast.Gt):
-        return left > right
-    if isinstance(operator_node, ast.GtE):
-        return left >= right
-    if isinstance(operator_node, ast.Lt):
-        return left < right
-    if isinstance(operator_node, ast.LtE):
-        return left <= right
+    if isinstance(operator_node, (ast.Gt, ast.GtE, ast.Lt, ast.LtE)):
+        return _apply_ordered_comparison(operator_node, left, right)
     raise UnsafeFilterExpressionError(
         f"Unsupported comparison operator: {type(operator_node).__name__}"
     )

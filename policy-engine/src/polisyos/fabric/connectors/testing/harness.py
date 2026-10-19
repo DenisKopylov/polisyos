@@ -26,8 +26,9 @@ from __future__ import annotations
 import asyncio
 import inspect
 import json
+from collections.abc import AsyncIterator, Hashable
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypeGuard
 
 import pytest
 
@@ -36,17 +37,29 @@ from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
-    FetchRequest,
-    FetchResult,
     HealthStatus,
     SourceConnector,
 )
 from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.testing.contracts import assert_schema_compliance
-from polisyos.ir.connectors import ConnectorCapability, DataVersion, VersionStrategy
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    DataVersion,
+    FetchRequest,
+    FetchResult,
+    VersionStrategy,
+)
 
 logger = get_logger(__name__)
+
+
+def _is_record_list(value: object) -> TypeGuard[list[dict[Hashable, Any]]]:
+    """Check the row container shape returned by dataframe-like payloads."""
+    return isinstance(value, list) and all(isinstance(item, dict) for item in value)
+
+
+type _ConnectedFixture = tuple[SourceConnector[Any], ConnectionHandle]
 
 
 # ---------------------------------------------------------------------------
@@ -54,7 +67,7 @@ logger = get_logger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _to_records(data: Any) -> list[dict[str, Any]]:
+def _to_records(data: object) -> list[dict[Hashable, Any]]:
     """
     Convert data payload into a list-of-dicts.
 
@@ -64,11 +77,13 @@ def _to_records(data: Any) -> list[dict[str, Any]]:
         import pandas as pd  # noqa: F401
 
         if hasattr(data, "to_dict"):
-            return data.to_dict(orient="records")
+            records = data.to_dict(orient="records")
+            if _is_record_list(records):
+                return records
     except Exception as exc:
         logger.debug("Ignored exception: %s", exc)
 
-    if isinstance(data, list) and all(isinstance(item, dict) for item in data):
+    if _is_record_list(data):
         return data
 
     raise TypeError("FetchResult.data must be a DataFrame or list-of-dicts to validate schema.")
@@ -168,7 +183,7 @@ class ConnectorTestHarness:
     # ------------------------------------------------------------------
     # Subclass MUST set these
     # ------------------------------------------------------------------
-    connector_class: ClassVar[type[SourceConnector]]
+    connector_class: ClassVar[type[SourceConnector[Any]]]
     sample_config: ClassVar[ConnectionConfig]
     sample_schema: ClassVar[DataSchema]
     sample_request: ClassVar[FetchRequest]
@@ -178,7 +193,7 @@ class ConnectorTestHarness:
     # ------------------------------------------------------------------
 
     @pytest.fixture
-    def connector_instance(self) -> SourceConnector:
+    def connector_instance(self) -> SourceConnector[Any]:
         """
         Instantiate the connector under test.
 
@@ -188,7 +203,7 @@ class ConnectorTestHarness:
         return self.connector_class()
 
     @pytest.fixture
-    async def connection_handle(self, connector_instance: SourceConnector) -> ConnectionHandle:
+    async def connection_handle(self, connector_instance: SourceConnector[Any]) -> ConnectionHandle:
         """
         Perform connect() and return the live handle.
 
@@ -200,9 +215,9 @@ class ConnectorTestHarness:
     @pytest.fixture
     async def connected(
         self,
-        connector_instance: SourceConnector,
+        connector_instance: SourceConnector[Any],
         connection_handle: ConnectionHandle,
-    ):
+    ) -> AsyncIterator[_ConnectedFixture]:
         """
         Context fixture: yields (connector, handle), disconnects after test.
 
@@ -286,7 +301,7 @@ class ConnectorTestHarness:
     # 2. CONNECTION LIFECYCLE
     # ==================================================================
 
-    async def test_connection_lifecycle(self, connector_instance: SourceConnector) -> None:
+    async def test_connection_lifecycle(self, connector_instance: SourceConnector[Any]) -> None:
         """
         Full lifecycle: connect -> health_check -> disconnect.
 
@@ -322,7 +337,7 @@ class ConnectorTestHarness:
         # No assertion needed -- absence of exception IS the assertion.
 
     async def test_connect_returns_unique_sessions(
-        self, connector_instance: SourceConnector
+        self, connector_instance: SourceConnector[Any]
     ) -> None:
         """
         Two connect() calls must produce distinct session_ids.
@@ -340,7 +355,7 @@ class ConnectorTestHarness:
         await connector_instance.disconnect(h1)
         await connector_instance.disconnect(h2)
 
-    async def test_disconnect_idempotent(self, connector_instance: SourceConnector) -> None:
+    async def test_disconnect_idempotent(self, connector_instance: SourceConnector[Any]) -> None:
         """
         disconnect() should be safe to call multiple times.
 
@@ -355,7 +370,7 @@ class ConnectorTestHarness:
     # 3. FETCH STRUCTURE VALIDATION
     # ==================================================================
 
-    async def test_fetch_returns_fetch_result(self, connected: tuple) -> None:
+    async def test_fetch_returns_fetch_result(self, connected: _ConnectedFixture) -> None:
         """fetch() must return a FetchResult with correct generic structure."""
         connector, handle = connected
         result = await connector.fetch(handle, self.sample_request)
@@ -364,7 +379,7 @@ class ConnectorTestHarness:
             f"fetch() returned {type(result).__name__}, expected FetchResult."
         )
 
-    async def test_fetch_result_has_valid_version(self, connected: tuple) -> None:
+    async def test_fetch_result_has_valid_version(self, connected: _ConnectedFixture) -> None:
         """
         FetchResult.version must be a well-formed DataVersion.
 
@@ -372,7 +387,7 @@ class ConnectorTestHarness:
         is non-empty.
         """
         connector, handle = connected
-        result: FetchResult = await connector.fetch(handle, self.sample_request)
+        result: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         assert result.version is not None, "FetchResult.version must not be None."
         assert isinstance(result.version, DataVersion), (
@@ -384,7 +399,7 @@ class ConnectorTestHarness:
             f"DataVersion.strategy '{result.version.strategy}' is not a valid VersionStrategy."
         )
 
-    async def test_fetch_result_schema_fields(self, connected: tuple) -> None:
+    async def test_fetch_result_schema_fields(self, connected: _ConnectedFixture) -> None:
         """
         FetchResult must carry schema_id and schema_version.
 
@@ -392,14 +407,14 @@ class ConnectorTestHarness:
         CAS-based caching (Law D).
         """
         connector, handle = connected
-        result: FetchResult = await connector.fetch(handle, self.sample_request)
+        result: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         assert result.schema_id, "FetchResult.schema_id must be a non-empty string."
         assert result.schema_version, (
             "FetchResult.schema_version must be a non-empty string (e.g. '1.0' or '1.0.0')."
         )
 
-    async def test_fetch_result_completeness_bounds(self, connected: tuple) -> None:
+    async def test_fetch_result_completeness_bounds(self, connected: _ConnectedFixture) -> None:
         """
         completeness must be in [0.0, 1.0].
 
@@ -407,20 +422,20 @@ class ConnectorTestHarness:
         explicit test provides a clear failure message.
         """
         connector, handle = connected
-        result: FetchResult = await connector.fetch(handle, self.sample_request)
+        result: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         assert 0.0 <= result.completeness <= 1.0, (
             f"FetchResult.completeness={result.completeness} is outside the valid range [0.0, 1.0]."
         )
 
-    async def test_fetch_result_row_count_non_negative(self, connected: tuple) -> None:
+    async def test_fetch_result_row_count_non_negative(self, connected: _ConnectedFixture) -> None:
         """row_count must be >= 0."""
         connector, handle = connected
-        result: FetchResult = await connector.fetch(handle, self.sample_request)
+        result: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         assert result.row_count >= 0, f"FetchResult.row_count={result.row_count} must be >= 0."
 
-    async def test_fetch_result_matches_schema(self, connected: tuple) -> None:
+    async def test_fetch_result_matches_schema(self, connected: _ConnectedFixture) -> None:
         """
         FetchResult.data must conform to the declared schema.
 
@@ -429,7 +444,7 @@ class ConnectorTestHarness:
         connectors from returning structurally invalid data.
         """
         connector, handle = connected
-        result: FetchResult = await connector.fetch(handle, self.sample_request)
+        result: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         records = _to_records(result.data)
         try:
@@ -452,7 +467,7 @@ class ConnectorTestHarness:
     # 4. IDEMPOTENCY (DETERMINISM)
     # ==================================================================
 
-    async def test_idempotency(self, connected: tuple) -> None:
+    async def test_idempotency(self, connected: _ConnectedFixture) -> None:
         """
         Fetching the same request twice must yield identical data.
 
@@ -469,8 +484,8 @@ class ConnectorTestHarness:
         """
         connector, handle = connected
 
-        result_a: FetchResult = await connector.fetch(handle, self.sample_request)
-        result_b: FetchResult = await connector.fetch(handle, self.sample_request)
+        result_a: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
+        result_b: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         # Prefer the connector's own content_hash if available
         hash_a = getattr(result_a, "content_hash", None) or _stable_hash(
@@ -489,7 +504,7 @@ class ConnectorTestHarness:
             "random IDs) in the connector's fetch() path."
         )
 
-    async def test_idempotency_preserves_version(self, connected: tuple) -> None:
+    async def test_idempotency_preserves_version(self, connected: _ConnectedFixture) -> None:
         """
         Two fetches with the same request must return the same DataVersion.
 
@@ -498,8 +513,8 @@ class ConnectorTestHarness:
         """
         connector, handle = connected
 
-        r1: FetchResult = await connector.fetch(handle, self.sample_request)
-        r2: FetchResult = await connector.fetch(handle, self.sample_request)
+        r1: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
+        r2: FetchResult[Any] = await connector.fetch(handle, self.sample_request)
 
         assert r1.version.value == r2.version.value, (
             "Idempotency violation: DataVersion.value changed between "
@@ -508,7 +523,7 @@ class ConnectorTestHarness:
             f"  Second : {r2.version.value}"
         )
 
-    async def test_concurrent_fetches(self, connected: tuple) -> None:
+    async def test_concurrent_fetches(self, connected: _ConnectedFixture) -> None:
         """
         Two concurrent fetches on the same handle should succeed.
 

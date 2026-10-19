@@ -9,10 +9,10 @@ document/claim ingestion, then this module exposes the materialized result table
 from __future__ import annotations
 
 from collections.abc import Iterable, Iterator, Mapping, Sequence
-from contextlib import contextmanager, nullcontext
+from contextlib import AbstractContextManager, contextmanager, nullcontext
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 import pandas as pd
 
@@ -74,6 +74,15 @@ _TABLES: dict[str, str] = {
 _AS_OF_SQL_TABLES = frozenset({"world_facts", "world_edges", "world_nodes"})
 
 
+@runtime_checkable
+class _TenantScopeProvider(Protocol):
+    """Backend contract required before applying a tenant row policy."""
+
+    tenant_scope_enforced: bool
+
+    def tenant_scope(self, tenant_id: str) -> AbstractContextManager[None]: ...
+
+
 class _DuckDBSnapshotBackend:
     backend_kind = "duckdb_snapshot"
     placeholder = "?"
@@ -91,7 +100,7 @@ class _DuckDBSnapshotBackend:
         return [tuple(row) for row in self.execute(sql, params).fetchall()]
 
     def fetchdf(self, sql: str, params: Sequence[Any] | None = None) -> pd.DataFrame:
-        return self.execute(sql, params).fetchdf()
+        return _require_dataframe(self.execute(sql, params).fetchdf())
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
@@ -452,22 +461,21 @@ def _resolve_tenant_scope(
     db: SimulationDB | DatabaseBackend | _DuckDBSnapshotBackend,
     *,
     row_policy: RowAccessPolicy,
-) -> Iterator[None]:
+) -> AbstractContextManager[None]:
     if row_policy.tenant_id is None:
         return nullcontext()
-    tenant_scope = getattr(db, "tenant_scope", None)
     backend_kind = getattr(db, "backend_kind", type(db).__name__)
-    if not callable(tenant_scope):
+    if not isinstance(db, _TenantScopeProvider) or not callable(db.tenant_scope):
         raise WorldQueryError(
             f"backend {backend_kind!r} does not support enforced tenant_scope; "
             "tenant-scoped world queries require a backend with tenant_scope enforcement"
         )
-    if not bool(getattr(db, "tenant_scope_enforced", False)):
+    if not db.tenant_scope_enforced:
         raise WorldQueryError(
             f"backend {backend_kind!r} does not support enforced tenant_scope; "
             "use a tenant-aware storage adapter or query an isolated tenant materialization"
         )
-    return tenant_scope(row_policy.tenant_id)
+    return db.tenant_scope(row_policy.tenant_id)
 
 
 def _open_snapshot_backend(snapshot: Any) -> _DuckDBSnapshotBackend:
@@ -793,18 +801,26 @@ def _resolve_placeholder(db: SimulationDB | DatabaseBackend) -> str:
     return "?"
 
 
+def _require_dataframe(value: object) -> pd.DataFrame:
+    """Enforce the materialized-world query result contract at a backend boundary."""
+
+    if not isinstance(value, pd.DataFrame):
+        raise TypeError("world query backend fetchdf must return a pandas DataFrame")
+    return value
+
+
 def _execute_fetchdf(
     db: SimulationDB | DatabaseBackend,
     sql: str,
     params: Sequence[Any],
 ) -> pd.DataFrame:
     if isinstance(db, SimulationDB):
-        return db.conn.execute(sql, list(params)).fetchdf()
+        return _require_dataframe(db.conn.execute(sql, list(params)).fetchdf())
     if isinstance(db, DatabaseBackend):
-        return db.fetchdf(sql, params)
+        return _require_dataframe(db.fetchdf(sql, params))
     fetchdf = getattr(db, "fetchdf", None)
     if callable(fetchdf):
-        return fetchdf(sql, params)
+        return _require_dataframe(fetchdf(sql, params))
     raise TypeError(f"Unsupported db backend: {type(db)!r}")
 
 

@@ -1009,6 +1009,167 @@ def test_schema_derived_union_refuses_ambiguous_model_shape(tmp_path) -> None:
         validate_core_model_json_artifact(_SchemaAmbiguousUnionPayload, store, ref)
 
 
+class _NullablePopulationRow(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    numeric_id: str
+    row_index: int
+
+
+class _NullablePopulation(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    columns: tuple[str, ...]
+    rows: tuple[_NullablePopulationRow, ...]
+    literal_target_row_indices: tuple[int, ...]
+    refusal_reasons: tuple[str, ...]
+
+
+class _NullableRecursiveCoreNode(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    label: str
+    children: tuple[_NullableRecursiveCoreNode, ...] = ()
+
+
+class _NullableTaggedRowOne(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    kind: Literal["nullable_one"]
+    row_indices: tuple[int, ...]
+
+
+class _NullableTaggedRowTwo(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    kind: Literal["nullable_two"]
+    row_indices: tuple[int, ...]
+
+
+class _NullableTypedCoreEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    population: _NullablePopulation | None
+    tree: _NullableRecursiveCoreNode | None
+    selected: (
+        Annotated[
+            _NullableTaggedRowOne | _NullableTaggedRowTwo,
+            Field(discriminator="kind"),
+        ]
+        | None
+    )
+    nullable_note: str | None
+
+
+def _nullable_typed_core_envelope() -> _NullableTypedCoreEnvelope:
+    return _NullableTypedCoreEnvelope(
+        population=_NullablePopulation(
+            columns=("numeric_id", "row_index"),
+            rows=(_NullablePopulationRow(numeric_id="n1", row_index=0),),
+            literal_target_row_indices=(0,),
+            refusal_reasons=(),
+        ),
+        tree=_NullableRecursiveCoreNode(
+            label="root",
+            children=(_NullableRecursiveCoreNode(label="child"),),
+        ),
+        selected=_NullableTaggedRowTwo(kind="nullable_two", row_indices=(2, 4)),
+        nullable_note=None,
+    )
+
+
+def test_nullable_model_branches_reify_nested_tuples_through_fresh_cas_reader(
+    tmp_path,
+) -> None:
+    source = _nullable_typed_core_envelope()
+    payload = source.model_dump(mode="json")
+    _store, ref, raw = _profiled_core_json_store(tmp_path / "populated", payload)
+    fresh_reader = FileSystemCAS(tmp_path / "populated" / "typed-cas")
+
+    restored = validate_core_model_json_artifact(
+        _NullableTypedCoreEnvelope,
+        fresh_reader,
+        ref,
+    )
+
+    assert restored == source
+    assert isinstance(restored.population, _NullablePopulation)
+    assert isinstance(restored.population.columns, tuple)
+    assert isinstance(restored.population.rows, tuple)
+    assert isinstance(restored.population.rows[0], _NullablePopulationRow)
+    assert isinstance(restored.population.literal_target_row_indices, tuple)
+    assert isinstance(restored.population.refusal_reasons, tuple)
+    assert isinstance(restored.tree, _NullableRecursiveCoreNode)
+    assert isinstance(restored.tree.children, tuple)
+    assert isinstance(restored.tree.children[0], _NullableRecursiveCoreNode)
+    assert isinstance(restored.selected, _NullableTaggedRowTwo)
+    assert isinstance(restored.selected.row_indices, tuple)
+    assert restored.nullable_note is None
+    assert read_core_json_artifact_bytes(fresh_reader, ref) == raw
+
+    explicit_nulls = {
+        **payload,
+        "population": None,
+        "tree": None,
+        "selected": None,
+    }
+    _null_store, null_ref, _null_raw = _profiled_core_json_store(
+        tmp_path / "explicit-nulls",
+        explicit_nulls,
+    )
+    null_reader = FileSystemCAS(tmp_path / "explicit-nulls" / "typed-cas")
+    restored_nulls = validate_core_model_json_artifact(
+        _NullableTypedCoreEnvelope,
+        null_reader,
+        null_ref,
+    )
+    assert restored_nulls.population is None
+    assert restored_nulls.tree is None
+    assert restored_nulls.selected is None
+    assert restored_nulls.nullable_note is None
+
+
+def test_nullable_model_branch_keeps_required_optional_fields_required(tmp_path) -> None:
+    payload = _nullable_typed_core_envelope().model_dump(mode="json")
+    payload.pop("population")
+    _store, ref, _raw = _profiled_core_json_store(tmp_path, payload)
+
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            _NullableTypedCoreEnvelope,
+            FileSystemCAS(tmp_path / "typed-cas"),
+            ref,
+        )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda payload: payload["population"]["rows"][0].update(row_index=True),
+        lambda payload: payload["population"].update(unexpected="extra"),
+        lambda payload: payload["selected"].update(kind="future_variant"),
+        lambda payload: payload["selected"]["row_indices"].__setitem__(0, True),
+    ],
+    ids=[
+        "strict-nested-tuple-item",
+        "forbidden-nested-field",
+        "unknown-discriminator",
+        "strict-discriminated-tuple-item",
+    ],
+)
+def test_nullable_model_branches_refuse_malformed_nested_values(tmp_path, mutation) -> None:
+    payload = _nullable_typed_core_envelope().model_dump(mode="json")
+    mutation(payload)
+    _store, ref, _raw = _profiled_core_json_store(tmp_path, payload)
+
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(
+            _NullableTypedCoreEnvelope,
+            FileSystemCAS(tmp_path / "typed-cas"),
+            ref,
+        )
+
+
 _UNIT_BEFORE_VALIDATOR_COUNT = 0
 _UNIT_MODEL_VALIDATOR_COUNT = 0
 

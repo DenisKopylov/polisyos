@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Protocol, TypedDict
 
 import pandas as pd
 
@@ -29,7 +30,155 @@ from polisyos.ir.world.event import WorldEvent
 from polisyos.ir.world.quality import QualityReport
 from polisyos.ir.world.trust import TrustAssessment
 
-from .errors import WorldArtifactReadError, WorldMergeConflict
+from .errors import WorldArtifactReadError, WorldMaterializationError, WorldMergeConflict
+
+
+class _ProjectionQueryResult(Protocol):
+    """DuckDB result operations used while refreshing world projections."""
+
+    def df(self) -> pd.DataFrame: ...
+
+    def fetchone(self) -> tuple[int, ...] | None: ...
+
+
+class _ProjectionConnection(Protocol):
+    """Connection operations shared by projection writers."""
+
+    def register(self, name: str, data: pd.DataFrame) -> object: ...
+
+    def unregister(self, name: str) -> object: ...
+
+    def execute(self, query: str) -> _ProjectionQueryResult: ...
+
+
+def _result_count(result: _ProjectionQueryResult) -> int:
+    row = result.fetchone()
+    if row is None:
+        raise WorldMaterializationError("projection count query returned no row")
+    return row[0]
+
+
+class _DocVersionProjectionRow(TypedDict):
+    doc_version_id: str
+    doc_source_id: str
+    retrieved_at: datetime
+    mime: str
+    license: str
+    jurisdiction: str | None
+    language: str | None
+    raw_ref: str
+    normalized_ref: str | None
+    structure_ref: str | None
+    chunks_ref: str | None
+    props_json: str | None
+    meta_artifact_id: str
+
+
+class _DocSourceProjectionRow(TypedDict):
+    doc_source_id: str
+    canonical_url: str | None
+    official_id: str | None
+    jurisdiction: str | None
+    language: str | None
+
+
+@dataclass
+class _DocSourceAccumulator:
+    doc_source_id: str
+    canonical_url: str | None = None
+    official_id: str | None = None
+    jurisdiction: str | None = None
+    language: str | None = None
+    jurisdiction_time: datetime | None = None
+    language_time: datetime | None = None
+
+
+class _DocFragmentProjectionRow(TypedDict):
+    fragment_id: str
+    doc_version_id: str
+    anchor_kind: str
+    anchor_path: str | None
+    offset_start: int | None
+    offset_end: int | None
+    page_start: int | None
+    page_end: int | None
+    text_hash: str
+    quote_preview: str | None
+    props_json: str | None
+    meta_artifact_id: str
+
+
+class _ClaimProjectionRow(TypedDict):
+    claim_id: str
+    predicate_id: str
+    subject_id: str | None
+    subject_text: str | None
+    value_text: str
+    value_decimal: str | None
+    unit_id: str | None
+    confidence: str | None
+    source_kind: str
+    jurisdiction: str | None
+    domain: str | None
+    valid_from: datetime | None
+    valid_to: datetime | None
+    qualifiers_json: str | None
+    props_json: str | None
+    meta_artifact_id: str
+
+
+class _ConflictSetProjectionRow(TypedDict):
+    conflict_set_id: str
+    conflict_key: str
+    conflict_kind: str
+    winner_claim_id: str | None
+    resolution_policy_id: str | None
+    resolution_confidence: str | None
+    resolution_artifact_id: str | None
+    meta_artifact_id: str
+    props_json: str | None
+
+
+class _TrustAssessmentProjectionRow(TypedDict):
+    trust_assessment_id: str
+    target_world_id: str
+    policy_id: str
+    algorithm_version: str
+    score: str
+    tier: str
+    features_json: str | None
+    rationale_json: str | None
+    props_json: str | None
+    meta_artifact_id: str
+
+
+class _QualityReportProjectionRow(TypedDict):
+    quality_report_id: str
+    scope: str
+    run_event_id: str
+    policy_id: str
+    algorithm_version: str
+    metrics_json: str | None
+    issues_json: str | None
+    props_json: str | None
+    meta_artifact_id: str
+
+
+class _WorldEventProjectionRow(TypedDict):
+    event_id: str
+    event_kind: str
+    agent_id: str
+    agent_type: str
+    agent_label: str
+    activity_id: str
+    activity_type: str
+    activity_label: str
+    started_at: datetime
+    ended_at: datetime | None
+    evidence_ref: str | None
+    provenance_ref: str | None
+    props_json: str | None
+    meta_artifact_id: str
 
 
 @dataclass(frozen=True)
@@ -189,7 +338,7 @@ class ProjectionUpdateStats:
         )
 
 
-def _canonical_json(value) -> str | None:
+def _canonical_json(value: object) -> str | None:
     if value is None:
         return None
     return to_canonical_bytes(value).decode("utf-8")
@@ -206,15 +355,20 @@ def _is_newer_retrieval(
     return candidate > previous
 
 
-def _load_json_artifact(cas: ArtifactStore, artifact_id: str) -> dict:
+def _load_json_artifact(cas: ArtifactStore, artifact_id: str) -> dict[str, object]:
     from polisyos.core.artifacts import load_core_json_artifact
 
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = load_core_json_artifact(cas, aid)
+        payload: object = load_core_json_artifact(cas, aid)
         if not isinstance(payload, dict):
             raise ValueError("artifact JSON must be an object")
-        return payload
+        string_keyed_payload: dict[str, object] = {}
+        for key, value in payload.items():
+            if not isinstance(key, str):
+                raise ValueError("artifact JSON object keys must be strings")
+            string_keyed_payload[key] = value
+        return string_keyed_payload
     except Exception as exc:  # pragma: no cover - defensive
         raise WorldArtifactReadError(f"failed to read artifact {artifact_id}: {exc}") from exc
 
@@ -315,14 +469,19 @@ def _load_world_event(cas: ArtifactStore, artifact_id: str) -> WorldEvent:
         ) from exc
 
 
-def _register_df(conn, df: pd.DataFrame, *, prefix: str) -> str:
+def _register_df(conn: _ProjectionConnection, df: pd.DataFrame, *, prefix: str) -> str:
     safe_prefix = prefix.replace(".", "_").replace("-", "_")
     name = f"{safe_prefix}_{uuid.uuid4().hex}"
     conn.register(name, df)
     return name
 
 
-def _apply_rows(conn, table: str, pk_col: str, rows: list[dict]) -> int:
+def _apply_rows(
+    conn: _ProjectionConnection,
+    table: str,
+    pk_col: str,
+    rows: Sequence[Mapping[str, object]],
+) -> int:
     if not rows:
         return 0
     df = pd.DataFrame(rows)
@@ -354,8 +513,8 @@ def _apply_rows(conn, table: str, pk_col: str, rows: list[dict]) -> int:
 def _build_doc_version_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> tuple[list[dict], list[DocMeta]]:
-    rows: list[dict] = []
+) -> tuple[list[_DocVersionProjectionRow], list[DocMeta]]:
+    rows: list[_DocVersionProjectionRow] = []
     metas: list[DocMeta] = []
     for artifact_id in artifact_ids:
         meta = _load_doc_meta(cas, artifact_id)
@@ -380,57 +539,53 @@ def _build_doc_version_rows(
     return rows, metas
 
 
-def _build_doc_source_rows(metas: Iterable[DocMeta]) -> list[dict]:
-    sources: dict[str, dict] = {}
+def _build_doc_source_rows(metas: Iterable[DocMeta]) -> list[_DocSourceProjectionRow]:
+    sources: dict[str, _DocSourceAccumulator] = {}
     for meta in metas:
         entry = sources.setdefault(
             meta.doc_source_id,
-            {
-                "doc_source_id": meta.doc_source_id,
-                "canonical_url": None,
-                "official_id": None,
-                "jurisdiction": None,
-                "language": None,
-                "_jurisdiction_time": None,
-                "_language_time": None,
-            },
+            _DocSourceAccumulator(doc_source_id=meta.doc_source_id),
         )
         if meta.canonical_url is not None:
-            if entry["canonical_url"] and entry["canonical_url"] != meta.canonical_url:
+            if entry.canonical_url and entry.canonical_url != meta.canonical_url:
                 raise WorldMergeConflict(
                     f"doc_source_id {meta.doc_source_id} canonical_url conflict"
                 )
-            entry["canonical_url"] = meta.canonical_url
+            entry.canonical_url = meta.canonical_url
         if meta.official_id is not None:
-            if entry["official_id"] and entry["official_id"] != meta.official_id:
+            if entry.official_id and entry.official_id != meta.official_id:
                 raise WorldMergeConflict(f"doc_source_id {meta.doc_source_id} official_id conflict")
-            entry["official_id"] = meta.official_id
+            entry.official_id = meta.official_id
 
-        if meta.jurisdiction is not None:
-            prev = entry.get("_jurisdiction_time")
-            if _is_newer_retrieval(meta.retrieved_at, prev):
-                entry["jurisdiction"] = meta.jurisdiction
-                entry["_jurisdiction_time"] = meta.retrieved_at
+        if meta.jurisdiction is not None and _is_newer_retrieval(
+            meta.retrieved_at, entry.jurisdiction_time
+        ):
+            entry.jurisdiction = meta.jurisdiction
+            entry.jurisdiction_time = meta.retrieved_at
 
-        if meta.language is not None:
-            prev = entry.get("_language_time")
-            if _is_newer_retrieval(meta.retrieved_at, prev):
-                entry["language"] = meta.language
-                entry["_language_time"] = meta.retrieved_at
+        if meta.language is not None and _is_newer_retrieval(
+            meta.retrieved_at, entry.language_time
+        ):
+            entry.language = meta.language
+            entry.language_time = meta.retrieved_at
 
-    rows: list[dict] = []
-    for entry in sources.values():
-        entry.pop("_jurisdiction_time", None)
-        entry.pop("_language_time", None)
-        rows.append(entry)
-    return rows
+    return [
+        _DocSourceProjectionRow(
+            doc_source_id=entry.doc_source_id,
+            canonical_url=entry.canonical_url,
+            official_id=entry.official_id,
+            jurisdiction=entry.jurisdiction,
+            language=entry.language,
+        )
+        for entry in sources.values()
+    ]
 
 
 def _build_doc_fragment_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> list[dict]:
-    rows: list[dict] = []
+) -> list[_DocFragmentProjectionRow]:
+    rows: list[_DocFragmentProjectionRow] = []
     for artifact_id in artifact_ids:
         fragment = _load_doc_fragment(cas, artifact_id)
         locator = fragment.locator
@@ -456,8 +611,8 @@ def _build_doc_fragment_rows(
 def _build_claim_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> list[dict]:
-    rows: list[dict] = []
+) -> list[_ClaimProjectionRow]:
+    rows: list[_ClaimProjectionRow] = []
     for artifact_id in artifact_ids:
         claim = _load_claim(cas, artifact_id)
         rows.append(
@@ -488,8 +643,8 @@ def _build_claim_rows(
 def _build_conflict_set_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> list[dict]:
-    rows: list[dict] = []
+) -> list[_ConflictSetProjectionRow]:
+    rows: list[_ConflictSetProjectionRow] = []
     for artifact_id in artifact_ids:
         conflict_set = _load_conflict_set(cas, artifact_id)
         rows.append(
@@ -527,8 +682,8 @@ def _build_conflict_set_rows(
 def _build_trust_assessment_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> list[dict]:
-    rows: list[dict] = []
+) -> list[_TrustAssessmentProjectionRow]:
+    rows: list[_TrustAssessmentProjectionRow] = []
     for artifact_id in artifact_ids:
         assessment = _load_trust_assessment(cas, artifact_id)
         rows.append(
@@ -551,8 +706,8 @@ def _build_trust_assessment_rows(
 def _build_quality_report_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> list[dict]:
-    rows: list[dict] = []
+) -> list[_QualityReportProjectionRow]:
+    rows: list[_QualityReportProjectionRow] = []
     for artifact_id in artifact_ids:
         report = _load_quality_report(cas, artifact_id)
         rows.append(
@@ -576,8 +731,8 @@ def _build_quality_report_rows(
 def _build_world_event_rows(
     cas: ArtifactStore,
     artifact_ids: Iterable[str],
-) -> list[dict]:
-    rows: list[dict] = []
+) -> list[_WorldEventProjectionRow]:
+    rows: list[_WorldEventProjectionRow] = []
     for artifact_id in artifact_ids:
         event = _load_world_event(cas, artifact_id)
         rows.append(
@@ -602,7 +757,7 @@ def _build_world_event_rows(
 
 
 def _update_claim_citations(
-    conn,
+    conn: _ProjectionConnection,
     *,
     touched_claim_ids: Sequence[str],
     touched_fragment_ids: Sequence[str],
@@ -618,7 +773,7 @@ def _update_claim_citations(
     claim_name = _register_df(conn, claim_df, prefix="claim_ids")
     fragment_name = _register_df(conn, fragment_df, prefix="fragment_ids")
     try:
-        affected = int(
+        affected = _result_count(
             conn.execute(
                 f"""
                 SELECT COUNT(*)
@@ -635,7 +790,7 @@ def _update_claim_citations(
                     GROUP BY src_id, dst_id
                 ) impacted
                 """
-            ).fetchone()[0]
+            )
         )
         conn.execute(
             f"""
@@ -668,7 +823,7 @@ def _update_claim_citations(
 
 
 def _update_conflict_members(
-    conn,
+    conn: _ProjectionConnection,
     *,
     touched_conflict_set_ids: Sequence[str],
     touched_claim_ids: Sequence[str],
@@ -684,7 +839,7 @@ def _update_conflict_members(
     conflict_name = _register_df(conn, conflict_df, prefix="conflict_set_ids")
     claim_name = _register_df(conn, claim_df, prefix="claim_ids")
     try:
-        affected = int(
+        affected = _result_count(
             conn.execute(
                 f"""
                 SELECT COUNT(*)
@@ -701,7 +856,7 @@ def _update_conflict_members(
                     GROUP BY dst_id, src_id
                 ) impacted
                 """
-            ).fetchone()[0]
+            )
         )
         conn.execute(
             f"""
@@ -742,7 +897,7 @@ def _update_conflict_members(
 
 
 def update_projections(
-    conn,
+    conn: _ProjectionConnection,
     cas: ArtifactStore,
     *,
     touched_node_ids: Sequence[str],

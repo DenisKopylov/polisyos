@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 import uuid
-from collections.abc import Mapping, Sequence
+from collections.abc import Hashable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
@@ -13,6 +13,7 @@ from typing import Any
 import pandas as pd
 
 from polisyos.core.artifacts.manifest import ArtifactGovernanceInfo
+from polisyos.core.security import DuckDBLegacyBackend
 from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.io.atomic import atomic_write_json
 from polisyos.fabric.io.db import SimulationDB
@@ -774,7 +775,7 @@ def merge_world_branch(
             SimulationDB(db_path=str(temp_db_path)) as merged_db,
             SimulationDB(db_path=str(source_snapshot.snapshot_path)) as source_db,
         ):
-            with merged_db.as_backend().transaction():
+            with DuckDBLegacyBackend(merged_db).transaction():
                 source_tables = set(_list_world_tables(source_db))
                 target_tables = set(_list_world_tables(merged_db))
                 for table_name in _MERGEABLE_WORLD_TABLES:
@@ -1293,7 +1294,7 @@ def _merge_table_frames(
     target_rows = {_row_key(row, pk_columns): row for row in target_frame.to_dict(orient="records")}
     source_rows = {_row_key(row, pk_columns): row for row in source_frame.to_dict(orient="records")}
     merged_rows = dict(target_rows)
-    conflicts: list[tuple[tuple[Any, ...], dict[str, Any], dict[str, Any]]] = []
+    conflicts: list[tuple[tuple[Any, ...], dict[Hashable, Any], dict[Hashable, Any]]] = []
 
     for key, source_row in source_rows.items():
         target_row = target_rows.get(key)
@@ -1345,11 +1346,11 @@ def _merge_table_frames(
     return merged_frame
 
 
-def _row_key(row: Mapping[str, Any], primary_keys: Sequence[str]) -> tuple[Any, ...]:
+def _row_key(row: Mapping[Hashable, Any], primary_keys: Sequence[Hashable]) -> tuple[Any, ...]:
     return tuple(row[column] for column in primary_keys)
 
 
-def _rows_equivalent(left: Mapping[str, Any], right: Mapping[str, Any]) -> bool:
+def _rows_equivalent(left: Mapping[Hashable, Any], right: Mapping[Hashable, Any]) -> bool:
     if left.keys() != right.keys():
         return False
     return all(_normalize_row_value(left[key]) == _normalize_row_value(right[key]) for key in left)

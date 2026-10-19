@@ -89,7 +89,9 @@ class AggregationTransform(DataTransform):
     ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
         start_time = stage_started_at()
         result, _ = copy_if_needed(data, context)
-        temporal_context = dict(self.temporal_context)
+        temporal_context: dict[str, TemporalType] = self._normalize_temporal_context(
+            self.temporal_context
+        )
 
         if self.auto_infer_temporal:
             temporal_context = self._infer_missing_temporal_types(
@@ -169,7 +171,7 @@ class AggregationTransform(DataTransform):
 
     @staticmethod
     def _normalize_temporal_context(
-        context: dict[str, TemporalType | str],
+        context: Mapping[str, TemporalType | str],
     ) -> dict[str, TemporalType]:
         normalized: dict[str, TemporalType] = {}
         for field, ttype in context.items():
@@ -183,7 +185,7 @@ class AggregationTransform(DataTransform):
 
     @staticmethod
     def _normalize_additivity_context(
-        context: dict[str, Additivity | str],
+        context: Mapping[str, Additivity | str],
     ) -> dict[str, Additivity]:
         normalized: dict[str, Additivity] = {}
         for field, add in context.items():
@@ -328,7 +330,10 @@ class AggregationTransform(DataTransform):
         schema: DataSchema | None,
     ) -> Additivity | None:
         if field in self.additivity_context:
-            return self.additivity_context[field]
+            additivity = self.additivity_context[field]
+            if isinstance(additivity, Additivity):
+                return additivity
+            return Additivity(additivity.lower())
 
         if schema is not None:
             spec = schema.get_field(field)

@@ -19,6 +19,7 @@ from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePath
 from tests._helpers.controlled_candidate_profile import (
     ControlledSKGSourceSelection,
     _configured_procurement_profile,
+    _controlled_direct_ncm_outcome_state_paths,
     _controlled_procurement_recording,
     _current_compiler_problem,
     _materialize_controlled_world_model_record,
@@ -811,7 +812,7 @@ def _generic_profile_for_selection(
         cell_id=cell_id,
         ncm_view_refs=(ncm_ref,),
         candidate_baseline_state=candidate_n5.baseline_state,
-        candidate_outcome_state_paths={outcome_variable: "market.total_supply"},
+        candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome_variable),
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         world = derive_candidate_scenario_world_model_record(

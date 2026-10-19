@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import heapq
 import json
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
@@ -36,15 +36,21 @@ from polisyos.fabric.connectors.federation.types import (
 )
 from polisyos.fabric.numerics.finite import is_finite_number
 
+if TYPE_CHECKING:
+    from polisyos.core.observability import PolicyOSTracer
+
+
 logger = get_logger(__name__)
+
+type _LineageMap = dict[str, SourceMetadata | None]
 
 
 @contextmanager
-def _noop_span():
+def _noop_span() -> Iterator[None]:
     yield None
 
 
-def _default_tracer():
+def _default_tracer() -> PolicyOSTracer | None:
     try:
         from polisyos.core.observability import get_tracer
 
@@ -415,10 +421,11 @@ class DataComposer:
         result_df, first_metadata = sources[0]
         result_df = result_df.copy().reset_index(drop=True)
         lineage_column = _fresh_internal_name(result_df.columns, "__policyos_lineage")
-        result_df[lineage_column] = [
+        initial_lineage: list[_LineageMap] = [
             {column: first_metadata for column in result_df.columns if column not in join_keys}
             for _ in range(len(result_df))
         ]
+        result_df[lineage_column] = pd.Series(initial_lineage, index=result_df.index, dtype=object)
 
         for df, metadata in sources[1:]:
             df_copy = df.copy().reset_index(drop=True)
@@ -469,10 +476,13 @@ class DataComposer:
                 [*result_df.columns, *right_work.columns],
                 "__policyos_right_lineage",
             )
-            right_work[right_lineage_column] = [
+            right_lineage_values: list[_LineageMap] = [
                 {column: metadata for column in df_copy.columns if column not in join_keys}
                 for _ in range(len(df_copy))
             ]
+            right_work[right_lineage_column] = pd.Series(
+                right_lineage_values, index=right_work.index, dtype=object
+            )
 
             left_work = result_df.copy()
             merge_keys: list[str] = []
@@ -511,9 +521,9 @@ class DataComposer:
             merged_lineage: list[dict[str, SourceMetadata | None]] = []
             for _, row in result_df.iterrows():
                 row_lineage = _lineage_map(row.get(lineage_column))
-                right_lineage = _lineage_map(row.get(right_lineage_column))
+                row_right_lineage = _lineage_map(row.get(right_lineage_column))
                 for column in right_only_columns:
-                    row_lineage.setdefault(column, right_lineage.get(column, metadata))
+                    row_lineage.setdefault(column, row_right_lineage.get(column, metadata))
                 merged_lineage.append(row_lineage)
 
             drop_columns = [
@@ -522,7 +532,9 @@ class DataComposer:
                 *right_key_aliases.values(),
             ]
             result_df = result_df.drop(columns=drop_columns)
-            result_df[lineage_column] = merged_lineage
+            result_df[lineage_column] = pd.Series(
+                merged_lineage, index=result_df.index, dtype=object
+            )
 
             # Resolve duplicate columns
             for col in sorted(overlapping_cols):
@@ -536,15 +548,19 @@ class DataComposer:
                     collector=collector,
                     left_column=col,
                     right_column=right_renames[col],
-                    left_lineage=result_df[lineage_column],
+                    left_lineage=[
+                        _lineage_map(value) for value in result_df[lineage_column].tolist()
+                    ],
                 )
 
                 result_df[col] = resolved_col
                 result_df = result_df.drop(columns=[right_renames[col]])
-                for index, source in chosen_lineage.items():
-                    row_lineage = _lineage_map(result_df.at[index, lineage_column])
-                    row_lineage[col] = source
-                    result_df.at[index, lineage_column] = row_lineage
+                lineage_values = [_lineage_map(value) for value in result_df[lineage_column]]
+                for position, source in enumerate(chosen_lineage):
+                    lineage_values[position][col] = source
+                result_df[lineage_column] = pd.Series(
+                    lineage_values, index=result_df.index, dtype=object
+                )
 
         result_df = result_df.drop(columns=[lineage_column])
 
@@ -810,10 +826,10 @@ class DataComposer:
         union_index = union_index.sort_values()
 
         # Determine common columns (excluding keys)
-        common_columns = set(indexed_sources[0][0].columns)
+        common_columns_set = set(indexed_sources[0][0].columns)
         for indexed, _ in indexed_sources[1:]:
-            common_columns &= set(indexed.columns)
-        common_columns = sorted(common_columns)
+            common_columns_set &= set(indexed.columns)
+        common_columns = sorted(common_columns_set)
 
         result = pd.DataFrame(index=union_index)
         consensus_stats: dict[str, dict[str, Any]] = {}
@@ -844,7 +860,9 @@ class DataComposer:
                 distinct_counts = values_df.nunique(axis=1, dropna=True)
                 conflict_mask = distinct_counts > 1
                 if conflict_mask.any():
-                    for idx in values_df.index[conflict_mask]:
+                    for row_position, idx in enumerate(values_df.index):
+                        if not conflict_mask.iat[row_position]:
+                            continue
                         row_key = self._row_key_from_index(key_columns, idx)
                         row_id = json.dumps(row_key, sort_keys=True, default=str)
                         participants = admissibility["participant_sources"].get(row_id, [])
@@ -866,21 +884,21 @@ class DataComposer:
                             ),
                             0,
                         )
+                        source_a_value = values_df.iat[row_position, source_a_index]
+                        consensus_value = consensus_col.iat[row_position]
                         entry = MergeLogEntry(
                             row_index=None,
                             row_key=row_key,
                             column=col,
                             conflict_type="consensus",
                             source_a_id=source_a_id,
-                            source_a_value=values_df.iloc[
-                                values_df.index.get_loc(idx), source_a_index
-                            ],
+                            source_a_value=source_a_value,
                             source_a_trust=indexed_sources[source_a_index][1].metadata.trust_level,
                             source_b_id="consensus",
-                            source_b_value=consensus_col.loc[idx],
+                            source_b_value=consensus_value,
                             source_b_trust=indexed_sources[0][1].metadata.trust_level,
                             chosen_source="consensus",
-                            chosen_value=consensus_col.loc[idx],
+                            chosen_value=consensus_value,
                             resolution_reason=(
                                 f"CONSENSUS: {agg_func} of {len(participants)} "
                                 f"admissible participants; excluded={len(exclusions)}"
@@ -928,7 +946,9 @@ class DataComposer:
         excluded_count = 0
 
         if agg_func == "mode":
-            modes = values_df.mode(axis=1, dropna=True)
+            # pandas-stubs types DataFrame.mode as Series; pandas returns a
+            # DataFrame for axis=1, so normalize that table at the boundary.
+            modes = pd.DataFrame(values_df.mode(axis=1, dropna=True))
             result = (
                 modes.iloc[:, 0]
                 if not modes.empty
@@ -967,6 +987,7 @@ class DataComposer:
                 source_id = indexed_sources[source_idx][1].connector_id
                 if _is_missing_scalar(value):
                     continue
+                reason: str | None
                 try:
                     numeric_value = float(value)
                 except (TypeError, ValueError):
@@ -1034,26 +1055,26 @@ class DataComposer:
         *,
         left_column: str | None = None,
         right_column: str | None = None,
-        left_lineage: pd.Series | None = None,
-    ) -> tuple[pd.Series, pd.Series]:
+        left_lineage: list[_LineageMap] | None = None,
+    ) -> tuple[pd.Series[Any], list[SourceMetadata | None]]:
         left_col = left_column or f"{column_name}_left"
         right_col = right_column or f"{column_name}_right"
 
         resolved = df[left_col].copy()
-        chosen_lineage = pd.Series(index=df.index, dtype=object)
+        chosen_lineage_values: list[SourceMetadata | None] = [None] * len(df)
 
-        for idx in df.index:
+        for position, idx in enumerate(df.index):
             left_val = df.at[idx, left_col]
             right_val = df.at[idx, right_col]
             left_source = left_meta
             if left_lineage is not None:
-                left_source = _lineage_map(left_lineage.at[idx]).get(column_name)
+                left_source = left_lineage[position].get(column_name)
 
             left_missing = _is_missing_scalar(left_val)
             right_missing = _is_missing_scalar(right_val)
 
             if left_missing and right_missing:
-                chosen_lineage.at[idx] = None
+                chosen_lineage_values[position] = None
                 continue
 
             if not left_missing and right_missing:
@@ -1061,19 +1082,19 @@ class DataComposer:
                     raise SchemaIncompatibilityError(
                         f"JOIN provenance missing for non-null column {column_name!r}"
                     )
-                chosen_lineage.at[idx] = left_source
+                chosen_lineage_values[position] = left_source
                 continue
 
             if left_missing and not right_missing:
                 resolved.at[idx] = right_val
-                chosen_lineage.at[idx] = right_meta
+                chosen_lineage_values[position] = right_meta
                 continue
 
             if not left_missing and not right_missing and self._values_equal(left_val, right_val):
                 if left_source is None:
                     left_source = right_meta
                 resolved.at[idx] = left_val
-                chosen_lineage.at[idx] = left_source
+                chosen_lineage_values[position] = left_source
                 continue
 
             if left_source is None:
@@ -1115,7 +1136,7 @@ class DataComposer:
                 record_log=request.audit_level != AuditLevel.NONE,
             )
             resolved.at[idx] = resolution.chosen_candidate.value
-            chosen_lineage.at[idx] = (
+            chosen_lineage_values[position] = (
                 left_source
                 if resolution.chosen_candidate.source_id == left_source.connector_id
                 else right_meta
@@ -1124,7 +1145,7 @@ class DataComposer:
             if resolution.log_entry:
                 collector.record(resolution.log_entry)
 
-        return resolved, chosen_lineage
+        return resolved, chosen_lineage_values
 
     @staticmethod
     def _values_equal(left: Any, right: Any) -> bool:

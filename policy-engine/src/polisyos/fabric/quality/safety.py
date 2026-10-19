@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING
 from urllib.parse import quote
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from pydantic import JsonValue
 
 _SQL_IDENTIFIER_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 _SPARQL_VARIABLE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -177,11 +181,11 @@ def validate_data_path(
 
 
 def extract_bounded_data_path(
-    obj: Any,
+    obj: JsonValue,
     path: str | Iterable[str] | None,
     *,
     max_depth: int = _MAX_DATA_PATH_DEPTH,
-) -> Any:
+) -> JsonValue:
     """Traverse a validated data path through nested dict/list JSON payloads."""
     tokens = validate_data_path(path, max_depth=max_depth)
     current = obj

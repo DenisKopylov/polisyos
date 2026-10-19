@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import contextlib
+import importlib
 import re
 import shutil
 import tempfile
 from collections import defaultdict, deque
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Hashable, Mapping, Sequence
 from dataclasses import dataclass
+from numbers import Integral
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Protocol, TypeGuard
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.io.db import SimulationDB
@@ -22,6 +24,88 @@ logger = get_logger(__name__)
 _KUZU_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 _DEFAULT_DDL_PATH = Path(__file__).resolve().parents[1] / "ddl" / "kuzu_world.cypher"
+
+
+class _KuzuQueryResult(Protocol):
+    """The query-result surface used by the optional Kuzu exporter."""
+
+    def get_as_df(self) -> object: ...
+
+
+class _KuzuTabularFrame(Protocol):
+    """Record conversion surface returned by Kuzu query results."""
+
+    def to_dict(self, orient: Literal["records"]) -> list[Mapping[Hashable, object]]: ...
+
+
+class _KuzuConnection(Protocol):
+    """Connection surface needed by schema creation, import, and read helpers."""
+
+    def execute(
+        self,
+        query: str,
+        params: dict[str, object] | None = None,
+    ) -> object: ...
+
+
+class _KuzuDatabaseFactory(Protocol):
+    def __call__(self, path: str) -> object: ...
+
+
+class _KuzuConnectionFactory(Protocol):
+    def __call__(self, database: object) -> _KuzuConnection: ...
+
+
+@dataclass(frozen=True)
+class _KuzuRuntime:
+    """Typed constructors resolved from the optional Kuzu package."""
+
+    make_database: _KuzuDatabaseFactory
+    make_connection: _KuzuConnectionFactory
+
+
+class _DuckDBCountResult(Protocol):
+    """DuckDB result for a scalar COUNT query."""
+
+    def fetchone(self) -> tuple[int, ...] | None: ...
+
+
+def _is_kuzu_query_result(value: object) -> TypeGuard[_KuzuQueryResult]:
+    return callable(getattr(value, "get_as_df", None))
+
+
+def _is_kuzu_tabular_frame(value: object) -> TypeGuard[_KuzuTabularFrame]:
+    return callable(getattr(value, "to_dict", None))
+
+
+def _typed_kuzu_records(records: list[Mapping[Hashable, object]]) -> list[dict[str, object]]:
+    typed_records: list[dict[str, object]] = []
+    for record in records:
+        typed_record: dict[str, object] = {}
+        for column, value in record.items():
+            if not isinstance(column, str):
+                raise WorldMaterializationError("Kuzu query result columns must be strings")
+            typed_record[column] = value
+        typed_records.append(typed_record)
+    return typed_records
+
+
+def _fetch_count(db: SimulationDB, query: str) -> int:
+    result: _DuckDBCountResult = db.conn.execute(query)
+    row = result.fetchone()
+    if row is None:
+        raise WorldMaterializationError("world table COUNT query returned no row")
+    return row[0]
+
+
+def _kuzu_count(conn: _KuzuConnection, query: str) -> int:
+    records = _execute_kuzu_df(conn, query, {})
+    if not records:
+        raise WorldMaterializationError("Kuzu COUNT query returned no row")
+    value = records[0].get("c")
+    if not isinstance(value, Integral):
+        raise WorldMaterializationError("Kuzu COUNT query returned a non-integer count")
+    return int(value)
 
 
 @dataclass(frozen=True)
@@ -549,12 +633,8 @@ def explain_world_kuzu_refresh_contract(
     estimated_nodes = None
     estimated_edges = None
     if db is not None:
-        estimated_nodes = int(
-            db.conn.execute("SELECT COUNT(*) FROM world.world_nodes").fetchone()[0]
-        )
-        estimated_edges = int(
-            db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0]
-        )
+        estimated_nodes = _fetch_count(db, "SELECT COUNT(*) FROM world.world_nodes")
+        estimated_edges = _fetch_count(db, "SELECT COUNT(*) FROM world.world_edges")
     return WorldKuzuRefreshContract(
         estimated_nodes=estimated_nodes,
         estimated_edges=estimated_edges,
@@ -593,8 +673,8 @@ def ensure_world_kuzu_schema(
     db = None
     conn = None
     try:
-        db = kuzu.Database(str(path))
-        conn = kuzu.Connection(db)
+        db = kuzu.make_database(str(path))
+        conn = kuzu.make_connection(db)
         for statement in _iter_ddl_statements(ddl_text):
             conn.execute(statement)
     except Exception as exc:
@@ -650,8 +730,8 @@ def materialize_world_kuzu_from_duckdb(
         _export_world_nodes(db, nodes_csv)
         _export_world_edges(db, edges_csv)
 
-        kuzu_db = kuzu.Database(str(kuzu_path))
-        kuzu_conn = kuzu.Connection(kuzu_db)
+        kuzu_db = kuzu.make_database(str(kuzu_path))
+        kuzu_conn = kuzu.make_connection(kuzu_db)
 
         _copy_kuzu_table(kuzu_conn, "WorldNode", nodes_csv)
         _copy_kuzu_table(kuzu_conn, "WorldEdge", edges_csv)
@@ -675,16 +755,22 @@ def materialize_world_kuzu_from_duckdb(
 # ---------------------------------------------------------------------------
 
 
-def _import_kuzu():
+def _import_kuzu() -> _KuzuRuntime:
     try:
-        import kuzu
-
+        kuzu_module = importlib.import_module("kuzu")
     except Exception as exc:
         raise WorldKuzuNotAvailable("kuzu not available") from exc
-    return kuzu
+    make_database = getattr(kuzu_module, "Database", None)
+    make_connection = getattr(kuzu_module, "Connection", None)
+    if not callable(make_database) or not callable(make_connection):
+        raise WorldKuzuNotAvailable("kuzu module does not expose Database and Connection")
+    return _KuzuRuntime(
+        make_database=make_database,
+        make_connection=make_connection,
+    )
 
 
-def _close_kuzu_resource(resource) -> None:
+def _close_kuzu_resource(resource: object | None) -> None:
     if resource is None:
         return
     close = getattr(resource, "close", None)
@@ -790,7 +876,7 @@ def _duckdb_copy(db: SimulationDB, select_sql: str, output_path: Path) -> None:
         ) from exc
 
 
-def _copy_kuzu_table(conn, table_name: str, csv_path: Path) -> None:
+def _copy_kuzu_table(conn: _KuzuConnection, table_name: str, csv_path: Path) -> None:
     if not _KUZU_IDENTIFIER_RE.fullmatch(table_name):
         raise WorldMaterializationError(f"unsafe Kuzu table identifier: {table_name!r}")
     path_sql = _sql_literal(str(csv_path))
@@ -802,15 +888,18 @@ def _copy_kuzu_table(conn, table_name: str, csv_path: Path) -> None:
         ) from exc
 
 
-def _validate_counts(db: SimulationDB, kuzu_conn) -> None:
-    duckdb_nodes = int(db.conn.execute("SELECT COUNT(*) FROM world.world_nodes").fetchone()[0])
-    duckdb_edges = int(db.conn.execute("SELECT COUNT(*) FROM world.world_edges").fetchone()[0])
+def _validate_counts(db: SimulationDB, kuzu_conn: _KuzuConnection) -> None:
+    duckdb_nodes = _fetch_count(db, "SELECT COUNT(*) FROM world.world_nodes")
+    duckdb_edges = _fetch_count(db, "SELECT COUNT(*) FROM world.world_edges")
 
-    kuzu_nodes_df = kuzu_conn.execute("MATCH (n:WorldNode) RETURN COUNT(n) AS c").get_as_df()
-    kuzu_edges_df = kuzu_conn.execute("MATCH ()-[e:WorldEdge]->() RETURN COUNT(e) AS c").get_as_df()
-
-    kuzu_nodes = int(kuzu_nodes_df.iloc[0, 0])
-    kuzu_edges = int(kuzu_edges_df.iloc[0, 0])
+    kuzu_nodes = _kuzu_count(
+        kuzu_conn,
+        "MATCH (n:WorldNode) RETURN COUNT(n) AS c",
+    )
+    kuzu_edges = _kuzu_count(
+        kuzu_conn,
+        "MATCH ()-[e:WorldEdge]->() RETURN COUNT(e) AS c",
+    )
 
     if duckdb_nodes != kuzu_nodes:
         raise WorldMaterializationError(
@@ -827,7 +916,7 @@ def _sql_literal(value: str) -> str:
 
 
 def _fetch_kuzu_neighborhood_nodes(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int,
@@ -847,20 +936,19 @@ def _fetch_kuzu_neighborhood_nodes(
 
 
 def _fetch_kuzu_neighborhood_edges(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int,
 ) -> tuple[WorldGraphEdgeRecord, ...]:
     edge_ids_query = _build_kuzu_neighborhood_edge_ids_query(max_hops=max_hops)
     edge_id_rows = _execute_kuzu_df(kuzu_conn, edge_ids_query, {"node_id": node_id})
-    edge_ids = sorted(
-        {
-            _optional_text(row.get("edge_id"))
-            for row in edge_id_rows
-            if _optional_text(row.get("edge_id"))
-        }
-    )
+    edge_ids_set: set[str] = set()
+    for row in edge_id_rows:
+        edge_id = _optional_text(row.get("edge_id"))
+        if edge_id is not None:
+            edge_ids_set.add(edge_id)
+    edge_ids = sorted(edge_ids_set)
     if not edge_ids:
         return ()
     edge_rows_query = _build_kuzu_neighborhood_edge_rows_query()
@@ -932,17 +1020,17 @@ def _build_kuzu_neighborhood_edge_rows_query() -> str:
 
 
 def _execute_kuzu_df(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     query: str,
     params: dict[str, object],
 ) -> list[dict[str, object]]:
-    result = kuzu_conn.execute(query, params)
-    if hasattr(result, "get_as_df"):
+    result: object = kuzu_conn.execute(query, params)
+    if _is_kuzu_query_result(result):
         frame = result.get_as_df()
-        if hasattr(frame, "to_dict"):
-            return list(frame.to_dict(orient="records"))
-    if hasattr(result, "to_dict"):
-        return list(result.to_dict(orient="records"))
+        if _is_kuzu_tabular_frame(frame):
+            return _typed_kuzu_records(frame.to_dict(orient="records"))
+    if _is_kuzu_tabular_frame(result):
+        return _typed_kuzu_records(result.to_dict(orient="records"))
     raise WorldMaterializationError("Kuzu query result does not expose a tabular DataFrame view")
 
 

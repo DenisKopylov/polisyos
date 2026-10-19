@@ -378,7 +378,7 @@ def _core_schema_model_type(
 
 
 def _core_schema_union_model_types(schema: Any) -> tuple[type[BaseModel], ...]:
-    """Read direct model choices from Pydantic's schema for one union annotation."""
+    """Read declared model branches from one union annotation schema."""
     definitions: dict[str, Any] = {}
     while isinstance(schema, Mapping):
         schema_type = schema.get("type")
@@ -398,11 +398,11 @@ def _core_schema_union_model_types(schema: Any) -> tuple[type[BaseModel], ...]:
             continue
         break
 
-    if not isinstance(schema, Mapping) or schema.get("type") not in {
-        "tagged-union",
-        "union",
-    }:
+    if not isinstance(schema, Mapping):
         return ()
+    if schema.get("type") not in {"tagged-union", "union"}:
+        model = _core_schema_model_type(schema, definitions)
+        return (model,) if model is not None else ()
     choices = schema.get("choices")
     if isinstance(choices, Mapping):
         branch_values = tuple(choices.values())

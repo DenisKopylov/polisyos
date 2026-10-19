@@ -428,6 +428,75 @@ def test_consensus_strict_rejects_invalid_numeric_candidates():
         )
 
 
+def test_consensus_mode_selects_a_mode_for_tied_rows():
+    source_a = pd.DataFrame({"key": [1, 2], "value": [1, 5]})
+    source_b = pd.DataFrame({"key": [1, 2], "value": [1, 6]})
+    source_c = pd.DataFrame({"key": [1, 2], "value": [2, 7]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.MEDIUM, fetched_at)
+    meta_c = _make_source_metadata("source_c", TrustLevel.LOW, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.consensus-mode",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="mode",
+        audit_level=AuditLevel.NONE,
+    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.MEDIAN))
+
+    result, _ = composer.compose(
+        sources=[
+            (source_a, meta_a),
+            (source_b, meta_b),
+            (source_c, meta_c),
+        ],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    mode_values = result["value"].tolist()
+    assert mode_values[0] == 1
+    assert mode_values[1] in {5, 6, 7}
+
+
+def test_consensus_full_audit_keeps_source_values_aligned_by_position():
+    source_a = pd.DataFrame({"key": ["zeta", "alpha"], "value": [20, 10]})
+    source_b = pd.DataFrame({"key": ["alpha", "zeta"], "value": [40, 50]})
+    fetched_at = datetime(2024, 1, 1, tzinfo=UTC)
+    meta_a = _make_source_metadata("source_a", TrustLevel.HIGH, fetched_at)
+    meta_b = _make_source_metadata("source_b", TrustLevel.MEDIUM, fetched_at)
+    request = CompositionRequest(
+        dataset_pattern="test.consensus-audit-source-position",
+        strategy=CompositionStrategy.CONSENSUS,
+        conflict_policy=ConflictPolicy.MEDIAN,
+        key_columns=["key"],
+        aggregation_func="median",
+        audit_level=AuditLevel.FULL,
+    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.MEDIAN))
+
+    result, merge_log = composer.compose(
+        sources=[(source_a, meta_a), (source_b, meta_b)],
+        strategy=request.strategy,
+        request=request,
+    )
+
+    assert result.set_index("key")["value"].to_dict() == {"alpha": 25.0, "zeta": 35.0}
+    entries = {entry.row_key["key"]: entry for entry in merge_log}
+    assert set(entries) == {"alpha", "zeta"}
+    for key, source_a_value in {"alpha": 10, "zeta": 20}.items():
+        entry = entries[key]
+        assert np.isscalar(entry.source_a_value)
+        assert entry.source_a_value == source_a_value
+        assert entry.source_a_id == meta_a.connector_id
+        assert entry.source_a_trust == meta_a.metadata.trust_level
+        assert entry.source_b_id == "consensus"
+        assert entry.source_b_value == result.set_index("key").loc[key, "value"]
+        assert entry.chosen_value == entry.source_b_value
+
+
 def test_full_audit_is_truncated_with_summary_metadata():
     years = list(range(2000, 2020))
     source_a = pd.DataFrame(

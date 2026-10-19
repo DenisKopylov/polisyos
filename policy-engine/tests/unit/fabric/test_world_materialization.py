@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import pandas as pd
 import pytest
 
+import polisyos.core.artifacts as core_artifacts
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.io.db import SimulationDB
@@ -23,7 +24,9 @@ from polisyos.fabric.world.materialize import (
     materialize_world_duckdb_from_fact_log,
 )
 from polisyos.fabric.world.materialize.duckdb import _load_applied_segments
+from polisyos.fabric.world.materialize.errors import WorldArtifactReadError
 from polisyos.fabric.world.materialize.projections import (
+    _load_json_artifact,
     build_projection_refresh_plan,
     update_projections,
 )
@@ -634,3 +637,18 @@ def test_materialize_stale_if_error_preserves_existing_projections(tmp_path: Pat
     assert stats.segments[-1].projections_updated == 0
     assert any("stale" in note for note in stats.segments[-1].notes)
     assert db.conn.execute("SELECT COUNT(*) FROM world.doc_versions").fetchone()[0] == 1
+
+
+def test_load_json_artifact_rejects_non_string_object_keys(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    monkeypatch.setattr(
+        core_artifacts,
+        "load_core_json_artifact",
+        lambda _cas, _artifact_id: {1: "invalid JSON object key"},
+    )
+
+    with pytest.raises(WorldArtifactReadError, match="object keys must be strings"):
+        _load_json_artifact(cas, _artifact_id("a"))

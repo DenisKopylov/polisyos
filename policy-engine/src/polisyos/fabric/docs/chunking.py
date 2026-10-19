@@ -10,6 +10,7 @@ import re
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TypedDict
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -28,6 +29,7 @@ from polisyos.fabric.world import (
     write_world_fact_segment,
 )
 from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
+from polisyos.ir.loading.fact_log import Fact
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import (
     EventKind,
@@ -46,17 +48,32 @@ from .types import DocChunkOptions, DocChunkResult
 _CHUNKS_SCHEMA = SchemaInfo(name="fabric.doc.chunks", version="1.0")
 
 
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+class _ChunkEntry(TypedDict):
+    """Internal shape of one persisted chunk-manifest entry."""
+
+    offset_start: int
+    offset_end: int
+    fragment_id: str
+    text_len: int
+    text_preview: str
+
+
+def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict[str, object]:
     from polisyos.core.artifacts import load_core_json_artifact
 
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = load_core_json_artifact(cas, aid)
+        payload: object = load_core_json_artifact(cas, aid)
     except Exception as exc:  # pragma: no cover - defensive
         raise DocValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):
         raise DocValidationError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
+    string_keyed_payload: dict[str, object] = {}
+    for key, value in payload.items():
+        if not isinstance(key, str):
+            raise DocValidationError(f"artifact {artifact_id} object keys must be strings")
+        string_keyed_payload[key] = value
+    return string_keyed_payload
 
 
 def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
@@ -127,9 +144,9 @@ def chunk_doc(
 
     ranges = _chunk_ranges(normalized_text, opts)
 
-    chunk_entries: list[dict] = []
+    chunk_entries: list[_ChunkEntry] = []
     fragment_ids: list[str] = []
-    fragment_facts: list = []
+    fragment_facts: list[Fact] = []
     stable_prov = stable_world_provenance_v1()
 
     for start, end in ranges:

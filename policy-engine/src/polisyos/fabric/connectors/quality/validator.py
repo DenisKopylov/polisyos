@@ -619,18 +619,33 @@ class DataQualityValidator:
 
     @staticmethod
     def _extract_time_series(data: pd.DataFrame, schema: Any) -> pd.Series | None:
-        time_dimension = getattr(schema, "time_dimension", None)
-        if time_dimension and time_dimension in data.columns:
-            return data[time_dimension]
+        def series_for_column(name: object) -> pd.Series | None:
+            if not isinstance(name, str) or name not in data.columns:
+                return None
+            selected = data[name]
+            if not isinstance(selected, pd.Series):
+                raise ValueError(
+                    f"Quality time field {name!r} is ambiguous because its label selects multiple columns"
+                )
+            return selected
+
+        time_series = series_for_column(getattr(schema, "time_dimension", None))
+        if time_series is not None:
+            return time_series
 
         for field in schema.fields:
+            field_name = getattr(field, "name", None)
+            if not isinstance(field_name, str):
+                continue
             if hasattr(field, "semantic_type"):
                 from polisyos.fabric.connectors.contracts.schema import SemanticType
 
                 if field.semantic_type == SemanticType.TEMPORAL:
-                    if field.name in data.columns:
-                        return data[field.name]
+                    time_series = series_for_column(field_name)
+                    if time_series is not None:
+                        return time_series
             if hasattr(field, "data_type") and field.data_type.is_temporal():
-                if field.name in data.columns:
-                    return data[field.name]
+                time_series = series_for_column(field_name)
+                if time_series is not None:
+                    return time_series
         return None

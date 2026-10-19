@@ -4,6 +4,7 @@ import ast
 import copy
 import dataclasses
 import hashlib
+import importlib
 import importlib.util
 import inspect
 import json
@@ -2053,6 +2054,638 @@ def test_authority_import_closure_includes_core_lazy_profile_providers() -> None
     assert closure["polisyos.common.canonical_profile"] == (
         "src/polisyos/common/canonical_profile.py"
     )
+
+
+def test_core_registry_source_resolution_covers_all_direct_and_lazy_exports() -> None:
+    """The complete public registry export set resolves from source, not a name allowlist."""
+
+    registry_path = REPO_ROOT / "src/polisyos/core/registry/__init__.py"
+    registry_source = registry_path.read_bytes()
+    tree = ast.parse(registry_source, filename=registry_path.relative_to(REPO_ROOT).as_posix())
+    exports = next(
+        ast.literal_eval(statement.value)
+        for statement in tree.body
+        if isinstance(statement, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "__all__" for target in statement.targets
+        )
+    )
+    assert len(exports) == 12 and len(set(exports)) == 12
+
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    directory_entries: dict[Path, frozenset[str]] = {}
+    direct: dict[str, tuple[str, str]] = {}
+    lazy: dict[str, tuple[str, str]] = {}
+    for export_name in exports:
+        target = ledger_module._source_module_direct_export_target(
+            REPO_ROOT,
+            "polisyos.core.registry",
+            export_name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+        if target is not None:
+            direct[export_name] = target
+        else:
+            provider = ledger_module._literal_module_getattr_provider(
+                REPO_ROOT,
+                "polisyos.core.registry",
+                export_name,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            )
+            assert provider is not None, export_name
+            provider_index = source_index.providers_by_content[registry_source]
+            symbols = (provider_index.provider_symbols_by_export or {}).get(
+                export_name, frozenset({export_name})
+            )
+            assert len(symbols) == 1, export_name
+            lazy[export_name] = (provider, next(iter(symbols)))
+
+    assert len(direct) == 4
+    assert len(lazy) == 8
+    for provider_module, provider_symbol in (*direct.values(), *lazy.values()):
+        assert ledger_module._repository_module_exports_symbol(
+            REPO_ROOT,
+            provider_module,
+            provider_symbol,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+
+
+def test_core_registry_exports_reconcile_to_live_api_and_factory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Source targets must equal the loaded public objects and support real consumers."""
+
+    registry = importlib.import_module("polisyos.core.registry")
+    closure = ledger_module._resolve_authority_import_closure(REPO_ROOT, ledger_module.__name__)
+    ledger_module._import_authority_closure_modules(closure)
+    registry_path = REPO_ROOT / "src/polisyos/core/registry/__init__.py"
+    tree = ast.parse(
+        registry_path.read_bytes(), filename=registry_path.relative_to(REPO_ROOT).as_posix()
+    )
+    exports = next(
+        ast.literal_eval(statement.value)
+        for statement in tree.body
+        if isinstance(statement, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "__all__" for target in statement.targets
+        )
+    )
+    directory_entries: dict[Path, frozenset[str]] = {}
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    for export_name in exports:
+        target = ledger_module._source_module_direct_export_target(
+            REPO_ROOT,
+            "polisyos.core.registry",
+            export_name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+        if target is None:
+            provider = ledger_module._literal_module_getattr_provider(
+                REPO_ROOT,
+                "polisyos.core.registry",
+                export_name,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            )
+            assert provider is not None, export_name
+            provider_index = source_index.providers_by_content[registry_path.read_bytes()]
+            symbols = (provider_index.provider_symbols_by_export or {}).get(
+                export_name, frozenset({export_name})
+            )
+            assert len(symbols) == 1, export_name
+            target = (provider, next(iter(symbols)))
+        provider_module = importlib.import_module(target[0])
+        assert getattr(registry, export_name) is vars(provider_module)[target[1]]
+
+    facade_projection, _supplemental = ledger_module._source_facade_runtime_projection(
+        REPO_ROOT,
+        closure,
+    )
+    bindings = json.loads(facade_projection)["bindings"]
+    direct_binding = next(
+        row
+        for row in bindings
+        if row["facade"] == "polisyos.core.registry" and row["export"] == "BaseRegistry"
+    )
+    assert direct_binding["provider"] == "polisyos.core.registry.base"
+    importer = next(
+        row for row in direct_binding["importers"] if row["scope"] in {"module", "module_value"}
+    )
+
+    bundle = registry.build_default_registry_bundle(FileSystemCAS(tmp_path / "registry-cas"))
+    assert bundle.bundle_ref.kind == "core.registry_bundle"
+
+    with monkeypatch.context() as mutation:
+        mutation.setattr(registry, "BaseRegistry", object())
+        with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+            ledger_module._source_facade_runtime_projection(REPO_ROOT, closure)
+
+    consumer = importlib.import_module(importer["module"])
+    with monkeypatch.context() as mutation:
+        mutation.setattr(consumer, importer["name"], object())
+        with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+            ledger_module._source_facade_runtime_projection(REPO_ROOT, closure)
+
+
+def test_source_direct_and_lazy_exports_refuse_unknown_and_rebound_bindings(
+    tmp_path: Path,
+) -> None:
+    """A direct source edge and a literal lazy edge work; unknown/rebound edges fail closed."""
+
+    repo_root = tmp_path / "direct-lazy-export-repo"
+    package = repo_root / "src/polisyos"
+    facade = package / "facade"
+    facade.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (facade / "__init__.py").write_text(
+        "from .provider import Direct as Direct\n"
+        "def __getattr__(name):\n"
+        '    if name == "Lazy":\n'
+        "        from .provider import Lazy as _lazy\n"
+        "        return _lazy\n"
+        "    raise AttributeError(name)\n",
+        encoding="utf-8",
+    )
+    (facade / "provider.py").write_text(
+        "class Direct: pass\nclass Lazy: pass\n",
+        encoding="utf-8",
+    )
+    entry = package / "entry.py"
+    entry.write_text(
+        "from polisyos.facade import Direct, Lazy\n",
+        encoding="utf-8",
+    )
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo_root, "polisyos.entry"))
+    assert closure["polisyos.facade.provider"] == "src/polisyos/facade/provider.py"
+
+    entry.write_text(
+        "from polisyos.facade import Direct, Unknown\n",
+        encoding="utf-8",
+    )
+    facade_source = (facade / "__init__.py").read_text(encoding="utf-8")
+    dynamic_fallback = facade_source.replace(
+        "    raise AttributeError(name)\n",
+        "    return getattr(resolve_provider(name), name)\n",
+        1,
+    )
+    assert dynamic_fallback != facade_source
+    (facade / "__init__.py").write_text(dynamic_fallback, encoding="utf-8")
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo_root, "polisyos.entry")
+
+    entry.write_text(
+        "from polisyos.facade import Direct\n",
+        encoding="utf-8",
+    )
+    facade_source = (facade / "__init__.py").read_text(encoding="utf-8")
+    rebound = facade_source + "Direct = object()\n"
+    assert all(marker in rebound for marker in ("__getattr__", "provider", "Direct"))
+    (facade / "__init__.py").write_text(rebound, encoding="utf-8")
+    with pytest.raises(ConfidenceLedgerError, match="rebound direct source export"):
+        ledger_module._resolve_authority_import_closure(repo_root, "polisyos.entry")
+
+
+def test_source_import_routes_prefer_bound_attributes_before_child_modules(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """One source route handles direct, lazy, absent-child, and unsafe collisions."""
+
+    repo_root = tmp_path / "source-route-repo"
+    source_root = repo_root / "src/polisyos"
+    fixture_name = "n11_route_" + hashlib.sha256(str(tmp_path).encode()).hexdigest()[:10]
+    prefix = f"polisyos.{fixture_name}"
+    fixture_root = source_root / fixture_name
+    fixture_root.mkdir(parents=True)
+    (source_root / "__init__.py").write_text("", encoding="utf-8")
+    (fixture_root / "__init__.py").write_text("", encoding="utf-8")
+
+    def write_package(name: str, source: str, child: str, child_source: str) -> None:
+        package = fixture_root / name
+        package.mkdir()
+        (package / "__init__.py").write_text(source, encoding="utf-8")
+        (package / f"{child}.py").write_text(child_source, encoding="utf-8")
+
+    write_package(
+        "direct_facade",
+        "class X: pass\n",
+        "X",
+        "class X: pass\n",
+    )
+    lazy = fixture_root / "lazy_facade"
+    lazy.mkdir()
+    (lazy / "__init__.py").write_text(
+        "def __getattr__(name):\n"
+        '    if name == "X":\n'
+        "        from .provider import X as _target\n"
+        "        return _target\n"
+        "    raise AttributeError(name)\n",
+        encoding="utf-8",
+    )
+    (lazy / "provider.py").write_text("class X: pass\n", encoding="utf-8")
+    (lazy / "X.py").write_text("class X: pass\n", encoding="utf-8")
+    write_package(
+        "absent_facade",
+        "",
+        "OnlyChild",
+        "class OnlyChild: pass\n",
+    )
+    write_package(
+        "self_import_facade",
+        "from . import Child\n",
+        "Child",
+        "class Child: pass\n",
+    )
+    write_package(
+        "opaque_facade",
+        "def __getattr__(name):\n    return resolve_export(name)\n",
+        "Opaque",
+        "class Opaque: pass\n",
+    )
+    write_package(
+        "rebound_facade",
+        "class X: pass\nX = object()\n",
+        "X",
+        "class X: pass\n",
+    )
+    initializer_source = (
+        "import importlib\n"
+        "def _install():\n"
+        f'    globals()["X"] = importlib.import_module("{prefix}.opaque_initializer_facade.provider").X\n'
+        "_install()\n"
+    )
+    hook_binding_line = "from .hook_provider import __getattr__\n"
+    hook_module = (
+        "from . import provider\n"
+        "def __getattr__(name):\n"
+        '    if name == "X":\n'
+        "        return provider.X\n"
+        "    raise AttributeError(name)\n"
+    )
+    initializer_cases: dict[str, dict[str, str]] = {
+        "opaque_initializer_facade": {
+            "source": initializer_source,
+            "expected": "refuse",
+            "provider.py": "class X: pass\n",
+        },
+        "direct_unknown_initializer_facade": {
+            "source": "class X: pass\ndef _unknown(): pass\n_unknown()\n",
+            "expected": "refuse",
+        },
+        "lazy_unknown_initializer_facade": {
+            "source": (
+                "def __getattr__(name):\n"
+                '    if name == "X":\n'
+                "        from .provider import X as _target\n"
+                "        return _target\n"
+                "    raise AttributeError(name)\n"
+                "def _unknown(): pass\n_unknown()\n"
+            ),
+            "expected": "refuse",
+            "provider.py": "class X: pass\n",
+        },
+        "globals_subscript_facade": {
+            "source": 'globals()["X"] = object()\n',
+            "expected": "refuse",
+        },
+        "decorated_initializer_facade": {
+            "source": "def _decorate(value):\n    return value\n@_decorate\nclass _Marker: pass\n",
+            "expected": "refuse",
+        },
+        "class_body_initializer_facade": {
+            "source": 'class _Initializer:\n    globals()["X"] = object()\n',
+            "expected": "refuse",
+        },
+        "guard_initializer_facade": {
+            "source": "__polisyos_static_namespace_effect_guard__ = {}\n",
+            "expected": "refuse",
+        },
+        "module_name_initializer_facade": {
+            "source": "__name__ = {}\n",
+            "expected": "refuse",
+        },
+        "module_package_initializer_facade": {
+            "source": "__package__ = {}\n",
+            "expected": "refuse",
+        },
+        "export_initializer_facade": {
+            "source": "X = object()\n",
+            "expected": "refuse",
+        },
+        "imported_getattr_facade": {
+            "source": '"""__getattr__ marker retained for removal control."""\n'
+            + hook_binding_line,
+            "expected": "refuse",
+            "hook_provider.py": hook_module,
+            "provider.py": "class X: pass\n",
+        },
+        "assigned_getattr_facade": {
+            "source": ("def _hook(name):\n    raise AttributeError(name)\n__getattr__ = _hook\n"),
+            "expected": "refuse",
+        },
+        "conditional_getattr_facade": {
+            "source": (
+                "if True:\n    def __getattr__(name):\n        raise AttributeError(name)\n"
+            ),
+            "expected": "refuse",
+        },
+        "rebound_getattr_facade": {
+            "source": (
+                "def __getattr__(name):\n"
+                "    raise AttributeError(name)\n"
+                "def _replacement(name):\n"
+                "    raise AttributeError(name)\n"
+                "__getattr__ = _replacement\n"
+            ),
+            "expected": "refuse",
+        },
+        "direct_imported_getattr_facade": {
+            "source": (
+                '"""__getattr__ marker for direct-attribute precedence."""\n'
+                + hook_binding_line
+                + "class X: pass\n"
+            ),
+            "expected": "direct",
+            "hook_provider.py": hook_module,
+            "provider.py": "class X: pass\n",
+        },
+        "uninstalled_initializer_facade": {
+            "source": initializer_source.removesuffix("_install()\n"),
+            "expected": "child",
+            "provider.py": "class X: pass\n",
+        },
+    }
+    for name, scenario in initializer_cases.items():
+        package = fixture_root / name
+        package.mkdir()
+        (package / "__init__.py").write_text(scenario["source"], encoding="utf-8")
+        (package / "X.py").write_text("class X: pass\n", encoding="utf-8")
+        for extra_name, extra_source in scenario.items():
+            if extra_name.endswith(".py"):
+                (package / extra_name).write_text(extra_source, encoding="utf-8")
+
+    routes_entry = fixture_root / "routes_entry.py"
+    routes_entry.write_text(
+        f"from {prefix}.direct_facade import X as DirectX\n"
+        f"from {prefix}.lazy_facade import X as LazyX\n"
+        f"from {prefix}.absent_facade import OnlyChild\n"
+        f"from {prefix}.self_import_facade import Child as SelfChild\n",
+        encoding="utf-8",
+    )
+    opaque_getter_entry = fixture_root / "opaque_entry.py"
+    opaque_getter_entry.write_text(
+        f"from {prefix}.opaque_facade import Opaque\n",
+        encoding="utf-8",
+    )
+    rebound_entry = fixture_root / "rebound_entry.py"
+    rebound_entry.write_text(
+        f"from {prefix}.rebound_facade import X\n",
+        encoding="utf-8",
+    )
+    opaque_initializer_entry = fixture_root / "opaque_initializer_entry.py"
+    opaque_initializer_entry.write_text(
+        f"from {prefix}.opaque_initializer_facade import X\n",
+        encoding="utf-8",
+    )
+    uninstalled_entry = fixture_root / "uninstalled_initializer_entry.py"
+    uninstalled_entry.write_text(
+        f"from {prefix}.uninstalled_initializer_facade import X\n",
+        encoding="utf-8",
+    )
+    imported_getattr_entry = fixture_root / "imported_getattr_entry.py"
+    imported_getattr_entry.write_text(
+        f"from {prefix}.imported_getattr_facade import X\n",
+        encoding="utf-8",
+    )
+
+    directory_entries: dict[Path, frozenset[str]] = {}
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    direct_route = ledger_module._source_module_import_route(
+        repo_root,
+        f"{prefix}.direct_facade",
+        "X",
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    lazy_route = ledger_module._source_module_import_route(
+        repo_root,
+        f"{prefix}.lazy_facade",
+        "X",
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    child_route = ledger_module._source_module_import_route(
+        repo_root,
+        f"{prefix}.absent_facade",
+        "OnlyChild",
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    assert direct_route == ("symbol", f"{prefix}.direct_facade", "X")
+    assert lazy_route == ("symbol", f"{prefix}.lazy_facade.provider", "X")
+    assert child_route == ("module", f"{prefix}.absent_facade.OnlyChild", None)
+    self_import_route = ledger_module._source_module_import_route(
+        repo_root,
+        f"{prefix}.self_import_facade",
+        "Child",
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    assert self_import_route == ("module", f"{prefix}.self_import_facade.Child", None)
+    for name, scenario in initializer_cases.items():
+        if scenario["expected"] == "refuse":
+            with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
+                ledger_module._source_module_import_route(
+                    repo_root,
+                    f"{prefix}.{name}",
+                    "X",
+                    directory_entries=directory_entries,
+                    source_index=source_index,
+                )
+        elif scenario["expected"] == "direct":
+            assert ledger_module._source_module_import_route(
+                repo_root,
+                f"{prefix}.{name}",
+                "X",
+                directory_entries=directory_entries,
+                source_index=source_index,
+            ) == ("symbol", f"{prefix}.{name}", "X")
+        else:
+            assert scenario["expected"] == "child"
+            assert ledger_module._source_module_import_route(
+                repo_root,
+                f"{prefix}.{name}",
+                "X",
+                directory_entries=directory_entries,
+                source_index=source_index,
+            ) == ("module", f"{prefix}.{name}.X", None)
+    assert (
+        ledger_module._source_module_import_route(
+            repo_root,
+            f"{prefix}.nonpackage",
+            "X",
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+        is None
+    )
+
+    routes_name = f"{prefix}.routes_entry"
+    closure = dict(ledger_module._resolve_authority_import_closure(repo_root, routes_name))
+    assert f"{prefix}.direct_facade.X" not in closure
+    assert f"{prefix}.lazy_facade.X" not in closure
+    assert closure[f"{prefix}.lazy_facade.provider"] == (
+        f"src/polisyos/{fixture_name}/lazy_facade/provider.py"
+    )
+    assert closure[f"{prefix}.absent_facade.OnlyChild"] == (
+        f"src/polisyos/{fixture_name}/absent_facade/OnlyChild.py"
+    )
+    assert closure[f"{prefix}.self_import_facade.Child"] == (
+        f"src/polisyos/{fixture_name}/self_import_facade/Child.py"
+    )
+
+    package_module = importlib.import_module("polisyos")
+    monkeypatch.setattr(
+        package_module,
+        "__path__",
+        [str(source_root), *(str(path) for path in package_module.__path__)],
+    )
+    importlib.invalidate_caches()
+    try:
+        importlib.import_module(prefix)
+        importlib.import_module(routes_name)
+        projection, _supplemental = ledger_module._source_facade_runtime_projection(
+            repo_root,
+            tuple(closure.items()),
+        )
+        bindings = json.loads(projection)["bindings"]
+        by_import = {(row["facade"], row["export"]): row for row in bindings}
+        assert by_import[(routes_name, "DirectX")]["provider"] == f"{prefix}.direct_facade"
+        assert by_import[(routes_name, "DirectX")]["attribute"] == "X"
+        assert by_import[(routes_name, "LazyX")]["provider"] == (f"{prefix}.lazy_facade.provider")
+        assert by_import[(routes_name, "LazyX")]["attribute"] == "X"
+        assert by_import[(routes_name, "OnlyChild")]["provider"] == (
+            f"{prefix}.absent_facade.OnlyChild"
+        )
+        assert by_import[(routes_name, "OnlyChild")]["module_binding"] == "true"
+        assert by_import[(routes_name, "SelfChild")]["provider"] == (
+            f"{prefix}.self_import_facade.Child"
+        )
+        assert by_import[(routes_name, "SelfChild")]["module_binding"] == "true"
+    finally:
+        for module_name in tuple(sys.modules):
+            if module_name == prefix or module_name.startswith(f"{prefix}."):
+                sys.modules.pop(module_name, None)
+        vars(package_module).pop(fixture_name, None)
+
+    with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            f"{prefix}.opaque_entry",
+        )
+    with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            f"{prefix}.opaque_initializer_entry",
+        )
+    with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
+        ledger_module._source_facade_runtime_projection(
+            repo_root,
+            (
+                (
+                    f"{prefix}.opaque_initializer_entry",
+                    f"src/polisyos/{fixture_name}/opaque_initializer_entry.py",
+                ),
+                (
+                    f"{prefix}.opaque_initializer_facade",
+                    f"src/polisyos/{fixture_name}/opaque_initializer_facade/__init__.py",
+                ),
+                (
+                    f"{prefix}.opaque_initializer_facade.X",
+                    f"src/polisyos/{fixture_name}/opaque_initializer_facade/X.py",
+                ),
+            ),
+        )
+    with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            f"{prefix}.imported_getattr_entry",
+        )
+    with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
+        ledger_module._source_facade_runtime_projection(
+            repo_root,
+            (
+                (
+                    f"{prefix}.imported_getattr_entry",
+                    f"src/polisyos/{fixture_name}/imported_getattr_entry.py",
+                ),
+                (
+                    f"{prefix}.imported_getattr_facade",
+                    f"src/polisyos/{fixture_name}/imported_getattr_facade/__init__.py",
+                ),
+                (
+                    f"{prefix}.imported_getattr_facade.X",
+                    f"src/polisyos/{fixture_name}/imported_getattr_facade/X.py",
+                ),
+            ),
+        )
+
+    imported_hook_initializer = fixture_root / "imported_getattr_facade/__init__.py"
+    original_imported_hook = imported_hook_initializer.read_text(encoding="utf-8")
+    assert original_imported_hook.count(hook_binding_line) == 1
+    assert "__getattr__ marker retained" in original_imported_hook
+    assert (fixture_root / "imported_getattr_facade/hook_provider.py").is_file()
+    assert (fixture_root / "imported_getattr_facade/provider.py").is_file()
+    assert "provider.X" in (fixture_root / "imported_getattr_facade/hook_provider.py").read_text(
+        encoding="utf-8"
+    )
+    assert (fixture_root / "imported_getattr_facade/X.py").is_file()
+    imported_hook_initializer.write_text(
+        original_imported_hook.replace(hook_binding_line, "", 1),
+        encoding="utf-8",
+    )
+    removed_source = imported_hook_initializer.read_text(encoding="utf-8")
+    assert "__getattr__ marker retained" in removed_source
+    removed_directory_entries: dict[Path, frozenset[str]] = {}
+    removed_source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    assert ledger_module._source_module_import_route(
+        repo_root,
+        f"{prefix}.imported_getattr_facade",
+        "X",
+        directory_entries=removed_directory_entries,
+        source_index=removed_source_index,
+    ) == ("module", f"{prefix}.imported_getattr_facade.X", None)
+    removed_hook_closure = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root, f"{prefix}.imported_getattr_entry"
+        )
+    )
+    assert removed_hook_closure[f"{prefix}.imported_getattr_facade.X"] == (
+        f"src/polisyos/{fixture_name}/imported_getattr_facade/X.py"
+    )
+    assert f"{prefix}.imported_getattr_facade.hook_provider" not in removed_hook_closure
+
+    uninstalled_closure = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root, f"{prefix}.uninstalled_initializer_entry"
+        )
+    )
+    assert uninstalled_closure[f"{prefix}.uninstalled_initializer_facade.X"] == (
+        f"src/polisyos/{fixture_name}/uninstalled_initializer_facade/X.py"
+    )
+    assert f"{prefix}.uninstalled_initializer_facade.provider" not in uninstalled_closure
+    with pytest.raises(ConfidenceLedgerError, match="rebound direct source export"):
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            f"{prefix}.rebound_entry",
+        )
 
 
 def test_authority_import_closure_indexes_literal_import_module_facades(tmp_path: Path) -> None:

@@ -60,7 +60,7 @@ class _VisibleTextExtractor(HTMLParser):
         if self._last_char() != "\n":
             self._chunks.append("\n")
 
-    def handle_starttag(self, tag: str, attrs) -> None:
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
         if tag in {"script", "style"}:
             self._ignore_stack.append(tag)
@@ -89,7 +89,7 @@ class _VisibleTextExtractor(HTMLParser):
         if tag in _BLOCK_TAGS:
             self._append_newline()
 
-    def handle_startendtag(self, tag: str, attrs) -> None:
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         tag = tag.lower()
         if tag == "br":
             self._append_newline()

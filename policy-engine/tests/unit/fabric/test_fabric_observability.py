@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 from types import SimpleNamespace
 
 import pandas as pd
 
+import polisyos.fabric._adapters.observability as fabric_observability
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.observability import get_metrics
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES, build_fabric_health_snapshot
@@ -161,3 +163,36 @@ def test_build_fabric_health_snapshot_accepts_injected_metrics(
     assert snapshot.healthy
     assert metrics.segment_counts == [0.0]
     assert metrics.dlq_counts == [0.0]
+
+
+def test_degraded_health_uses_noop_alert_sink_without_message_collision(
+    caplog,
+    monkeypatch,
+) -> None:
+    logger = logging.getLogger(f"{fabric_observability.__name__}.test")
+    monkeypatch.setattr(fabric_observability.logger, "_wrapped", logger)
+    caplog.set_level(logging.DEBUG, logger=logger.name)
+    registry = SimpleNamespace(
+        _connectors={
+            "degraded": SimpleNamespace(
+                fqid="connector.degraded",
+                health_status=HealthStatus(healthy=False, message="timeout"),
+            )
+        }
+    )
+
+    snapshot = build_fabric_health_snapshot(registry=registry, metrics=SimpleNamespace())
+
+    assert snapshot.healthy is False
+    assert snapshot.reasons == ("connector.degraded: timeout",)
+    records = [
+        record
+        for record in caplog.records
+        if record.name == logger.name and record.getMessage() == "Fabric alert emitted"
+    ]
+    assert len(records) == 1
+    record = records[0]
+    assert record.component == "connectors"
+    assert record.severity == "warning"
+    assert record.code == "health_degraded"
+    assert record.alert_message == "Fabric component reported degraded health"

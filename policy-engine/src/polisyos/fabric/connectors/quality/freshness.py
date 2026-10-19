@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -25,10 +25,13 @@ from polisyos.ir.connectors import ConnectorCapability
 
 from .report import FreshnessLevel, FreshnessStatus
 
+if TYPE_CHECKING:
+    from polisyos.core.observability import MetricsRegistry
+
 logger = get_logger(__name__)
 
 
-def _default_metrics():
+def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 

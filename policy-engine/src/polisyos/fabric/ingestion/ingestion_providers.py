@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import Any, Protocol, cast
 
 from polisyos.core.artifacts import RootedArtifactStore
 from polisyos.core.artifacts.backends.config import (
@@ -13,15 +13,13 @@ from polisyos.core.artifacts.backends.config import (
     build_artifact_store,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.core.observability import MetricsRegistry, PolicyOSTracer, get_metrics, get_tracer
+from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, SourceConnectorValue
+from polisyos.fabric.connectors.registry import ConnectorEntry, ConnectorRegistry
 from polisyos.fabric.storage.tenant_cas import (
     TenantSidecarScope,
     tenant_scoped_cas_root,
 )
-
-if TYPE_CHECKING:
-    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
 ArtifactStoreFactory = Callable[[Path], RootedArtifactStore]
 IngestionRegistryFactory = Callable[[], ConnectorRegistry]
@@ -72,7 +70,7 @@ def resolve_ingestion_sidecar_scope(
 
 def resolve_ingestion_store(
     cas_root: Path,
-    dependencies: IngestionDependencies,
+    dependencies: _BatchIngestionDependencies,
     *,
     sidecar_scope: TenantSidecarScope | None = None,
 ) -> RootedArtifactStore:
@@ -98,6 +96,70 @@ def resolve_ingestion_cache_namespace(
 ) -> str:
     """Qualify one logical cache namespace using its explicit scope object."""
     return sidecar_scope.cache_namespace(namespace or "connector_cache")
+
+
+class _BatchConnectorRegistry(Protocol):
+    """The concrete registry operations used by non-streaming ingestion."""
+
+    def get(
+        self,
+        connector_id: str,
+        version: str | None = None,
+        *,
+        enable_cache: bool = True,
+        _registration_binding: Any | None = None,
+    ) -> SourceConnectorValue[Any]: ...
+
+    def get_entry(self, connector_id: str) -> ConnectorEntry: ...
+
+    async def get_connection(
+        self,
+        connector_id: str,
+        config: ConnectionConfig | None = None,
+        *,
+        _registration_binding: Any | None = None,
+    ) -> ConnectionHandle: ...
+
+    async def _get_connection_with_live_permit(
+        self,
+        connector_id: str,
+        config: ConnectionConfig | None,
+        *,
+        dataset_id: str,
+        permit: object,
+    ) -> ConnectionHandle: ...
+
+    async def release_connection(
+        self,
+        connector_id: str,
+        handle: ConnectionHandle,
+    ) -> None: ...
+
+
+class _BatchIngestionDependencies(Protocol):
+    """Read-only provider surface shared by the batch ingestion bridge."""
+
+    @property
+    def registry(self) -> _BatchConnectorRegistry: ...
+
+    @property
+    def tracer(self) -> PolicyOSTracer: ...
+
+    @property
+    def metrics(self) -> MetricsRegistry: ...
+
+    @property
+    def store_factory(self) -> ArtifactStoreFactory: ...
+
+
+@dataclass(frozen=True, slots=True)
+class _BatchIngestionDependenciesView:
+    """Private batch-only dependency view for the cursor-aware registry facade."""
+
+    registry: _BatchConnectorRegistry
+    tracer: PolicyOSTracer
+    metrics: MetricsRegistry
+    store_factory: ArtifactStoreFactory
 
 
 @dataclass(frozen=True, slots=True)

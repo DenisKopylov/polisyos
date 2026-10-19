@@ -212,7 +212,7 @@ class SchemaInference:
         elapsed_ms = (time.perf_counter() - start_time) * 1000
 
         return InferenceResult(
-            schema=schema,
+            inferred_schema=schema,
             field_confidences=field_confidences,
             warnings=tuple(warnings),
             suggestions=tuple(suggestions),

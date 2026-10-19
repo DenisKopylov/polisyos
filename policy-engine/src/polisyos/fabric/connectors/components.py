@@ -14,6 +14,8 @@ from polisyos.ir.connectors import ConnectorCapability
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
+    from typing import Any as _Any
+
     from polisyos.fabric.connectors.base import SourceConnector
 
     __polisyos_components__: tuple[ConnectorComponent, ...]
@@ -46,14 +48,15 @@ class ConnectorComponent:
     """Connector component public type."""
 
     metadata: ComponentMetadata
-    connector_class: type
+    # Components combine connectors with unrelated output payload types.
+    connector_class: type[SourceConnector[_Any]]
 
-    def create(self) -> type:
+    def create(self) -> type[SourceConnector[_Any]]:
         return self.connector_class
 
 
 def connector_component_from_class(
-    connector_class: type[SourceConnector],
+    connector_class: type[SourceConnector[_Any]],
     *,
     tags: list[str] | None = None,
 ) -> ConnectorComponent:
@@ -92,7 +95,7 @@ def _to_component_capabilities(connector_capabilities: ConnectorCapability) -> C
     return caps
 
 
-def _load_builtin_connectors() -> Iterable[type[SourceConnector]]:
+def _load_builtin_connectors() -> Iterable[type[SourceConnector[_Any]]]:
     try:
         from .sources import (
             CKANCatalogConnector,

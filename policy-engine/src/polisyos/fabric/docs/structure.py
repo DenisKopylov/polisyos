@@ -8,9 +8,11 @@ extractors can cite document spans deterministically.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Literal, TypedDict
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -29,6 +31,7 @@ from polisyos.fabric.world import (
     write_world_fact_segment,
 )
 from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
+from polisyos.ir.loading.fact_log import Fact
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import (
     EventKind,
@@ -50,17 +53,33 @@ _HEADING_NUMBERED_RE = re.compile(r"^\s*\d+(?:\.\d+)*[)\.]\s+\S")
 _HEADING_HASH_RE = re.compile(r"^(#+)\s+(.*\S)")
 
 
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+class _DocumentAnchor(TypedDict):
+    """Internal anchor row emitted by the structure stage."""
+
+    anchor_kind: Literal["heading", "section"]
+    anchor_path: str | None
+    offset_start: int
+    offset_end: int
+    title_hint: str | None
+    _full_doc: bool
+
+
+def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict[str, object]:
     from polisyos.core.artifacts import load_core_json_artifact
 
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = load_core_json_artifact(cas, aid)
+        payload: object = load_core_json_artifact(cas, aid)
     except Exception as exc:  # pragma: no cover - defensive
         raise DocValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):
         raise DocValidationError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
+    string_keyed_payload: dict[str, object] = {}
+    for key, value in payload.items():
+        if not isinstance(key, str):
+            raise DocValidationError(f"artifact {artifact_id} object keys must be strings")
+        string_keyed_payload[key] = value
+    return string_keyed_payload
 
 
 def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
@@ -70,7 +89,7 @@ def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
     return meta
 
 
-def _iter_lines_with_offsets(text: str):
+def _iter_lines_with_offsets(text: str) -> Iterator[tuple[str, int, int]]:
     offset = 0
     for line in text.splitlines(keepends=True):
         start = offset
@@ -87,7 +106,7 @@ def _uppercase_ratio(line: str) -> float:
     return upper / len(letters)
 
 
-def _detect_heading(line: str, *, max_len: int) -> tuple[str | None, str | None]:
+def _detect_heading(line: str, *, max_len: int) -> tuple[Literal["heading"] | None, str | None]:
     if len(line) > max_len:
         return None, None
     hash_match = _HEADING_HASH_RE.match(line)
@@ -109,8 +128,8 @@ def _preview(text: str, limit: int = 240) -> str:
     return cleaned[:limit]
 
 
-def _build_anchors(text: str, *, options: DocStructureOptions) -> list[dict]:
-    anchors: list[dict] = []
+def _build_anchors(text: str, *, options: DocStructureOptions) -> list[_DocumentAnchor]:
+    anchors: list[_DocumentAnchor] = []
     text_len = len(text)
     if options.include_full_document_anchor and text_len:
         anchors.append(
@@ -145,7 +164,7 @@ def _build_anchors(text: str, *, options: DocStructureOptions) -> list[dict]:
             }
         )
 
-    filtered: list[dict] = []
+    filtered: list[_DocumentAnchor] = []
     for anchor in anchors:
         if anchor["anchor_kind"] == "section" and not anchor.get("_full_doc"):
             if anchor["offset_end"] - anchor["offset_start"] < options.min_section_chars:
@@ -222,7 +241,7 @@ def structure_doc(
     structure_artifact_id = str(structure_ref.artifact_id)
 
     fragment_ids: list[str] = []
-    fragment_facts: list = []
+    fragment_facts: list[Fact] = []
     stable_prov = stable_world_provenance_v1()
 
     for anchor in anchors:

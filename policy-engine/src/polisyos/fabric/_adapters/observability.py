@@ -12,7 +12,13 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
-from polisyos.core.observability import get_current_trace_context, get_metrics, get_tracer
+from polisyos.core.observability import (
+    MetricsRegistry,
+    PolicyOSTracer,
+    get_current_trace_context,
+    get_metrics,
+    get_tracer,
+)
 
 logger = get_logger(__name__)
 
@@ -23,7 +29,7 @@ class FabricObservabilityAdapter:
 
     component: str = "fabric"
 
-    def metrics(self) -> Any:
+    def metrics(self) -> MetricsRegistry:
         """Return the canonical process-wide metrics registry."""
         return _default_metrics()
 
@@ -83,11 +89,11 @@ __all__ = [
 ]
 
 
-def _default_metrics():
+def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
-def _default_tracer():
+def _default_tracer() -> PolicyOSTracer:
     return get_tracer()
 
 
@@ -186,7 +192,7 @@ class NoOpAlertSink:
             component=alert.component,
             severity=alert.severity.value,
             code=alert.code,
-            message=alert.message,
+            alert_message=alert.message,
         )
 
 
@@ -688,13 +694,13 @@ def _record_health_metrics(
         ):
             resolved_metrics.set_fabric_segment_count(
                 float(component.details.get("segment_count", 0))
-            )  # type: ignore[misc]
+            )
         if component.name == "retrieval" and getattr(
             resolved_metrics,
             "set_fabric_dlq_count",
             None,
         ):
-            resolved_metrics.set_fabric_dlq_count(0.0)  # type: ignore[misc]
+            resolved_metrics.set_fabric_dlq_count(0.0)
         if component.name == "slo" and getattr(
             resolved_metrics,
             "record_fabric_slo_assessment",
@@ -708,7 +714,7 @@ def _record_health_metrics(
                     healthy=bool(assessment.get("healthy")),
                     priority=str(assessment.get("priority")),
                     window=str(assessment.get("window", "unknown")),
-                )  # type: ignore[misc]
+                )
 
 
 def _group_sli_observations(

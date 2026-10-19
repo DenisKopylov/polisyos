@@ -113,7 +113,7 @@ class SchemaRegistration(BaseModel):
         approval: SchemaApprovalMetadata | None = None,
     ) -> SchemaRegistration:
         return cls(
-            schema=schema,
+            registered_schema=schema,
             content_hash=schema.content_hash,
             registered_by=registered_by,
             approval=approval or SchemaApprovalMetadata(),
@@ -386,7 +386,7 @@ class FileBackedSchemaRegistry(SchemaRegistry):
                         else datetime.now(UTC)
                     )
                     SchemaRegistration(
-                        schema=schema,
+                        registered_schema=schema,
                         content_hash=expected_hash or schema.content_hash,
                         registered_at=registered_at,
                         registered_by=registered_by,

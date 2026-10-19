@@ -25,6 +25,7 @@ from polisyos.fabric.connectors.quality import (
     FreshnessChecker,
     FreshnessLevel,
     FreshnessPolicy,
+    build_fabric_quality_governance_evidence,
 )
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 
@@ -308,6 +309,81 @@ class TestDataQualityValidator:
         validator = DataQualityValidator(sampling_threshold=10)
         report = validator.validate(fetch_result, schema)
         assert any("gaps detected" in warning for warning in report.warnings)
+
+    def test_ambiguous_declared_time_dimension_fails_closed(self):
+        missing_day = pd.Timestamp("2024-01-02")
+        primary_dates = pd.date_range("2024-01-01", periods=6, freq="D").drop(missing_day)
+        secondary_dates = pd.date_range("2024-01-01", periods=len(primary_dates), freq="D")
+        data = pd.concat(
+            [
+                pd.Series(primary_dates, name="requested_time"),
+                pd.Series(primary_dates, name="requested_time"),
+                pd.Series(secondary_dates, name="secondary_time"),
+                pd.Series(range(len(primary_dates)), name="value"),
+            ],
+            axis=1,
+        )
+        schema = make_schema(
+            [
+                FieldSpec(
+                    name="requested_time",
+                    data_type=SchemaType.DATETIME,
+                    semantic_type=SemanticType.TEMPORAL,
+                ),
+                FieldSpec(
+                    name="secondary_time",
+                    data_type=SchemaType.DATETIME,
+                    semantic_type=SemanticType.TEMPORAL,
+                ),
+                FieldSpec(name="value", data_type=SchemaType.INT32),
+            ],
+            time_dimension="requested_time",
+            time_granularity=TimeGranularity.DAILY,
+        )
+
+        report = DataQualityValidator().validate(make_fetch_result(data=data), schema)
+
+        assert report.score == 0.0
+        assert report.tier == QualityTier.BRONZE
+        assert report.row_count == 0
+        assert any(warning.startswith("Validation error:") for warning in report.warnings)
+        assert not any("gaps detected" in warning for warning in report.warnings)
+
+    def test_unique_declared_time_dimension_and_numeric_evidence_tier(self):
+        dates = pd.date_range("2024-01-01", periods=6, freq="D").drop(pd.Timestamp("2024-01-02"))
+        secondary_dates = pd.date_range("2024-01-01", periods=len(dates), freq="D")
+        data = pd.DataFrame(
+            {
+                "requested_time": dates,
+                "secondary_time": secondary_dates,
+                "value": range(len(dates)),
+            }
+        )
+        schema = make_schema(
+            [
+                FieldSpec(
+                    name="requested_time",
+                    data_type=SchemaType.DATETIME,
+                    semantic_type=SemanticType.TEMPORAL,
+                ),
+                FieldSpec(
+                    name="secondary_time",
+                    data_type=SchemaType.DATETIME,
+                    semantic_type=SemanticType.TEMPORAL,
+                ),
+                FieldSpec(name="value", data_type=SchemaType.INT32),
+            ],
+            time_dimension="requested_time",
+            time_granularity=TimeGranularity.DAILY,
+        )
+
+        report = DataQualityValidator().validate(make_fetch_result(data=data), schema)
+        evidence = build_fabric_quality_governance_evidence(report).to_dict()
+
+        assert report.score > 0.0
+        assert any("gaps detected" in warning for warning in report.warnings)
+        assert evidence["tier"] == report.tier.value
+        assert type(evidence["tier"]) is int
 
     def test_sampling_preserves_categorical_checks(self):
         df = pd.DataFrame({"category": ["A"] * 200 + ["B"] * 200 + ["X"]})

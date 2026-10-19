@@ -5,14 +5,17 @@ from __future__ import annotations
 import json
 import uuid
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.fabric.io.atomic import append_text_locked, file_lock
 from polisyos.ir.artifacts.io import get_json_artifact
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactSelector
 
 from .models import (
     EntityMatchBatch,
@@ -31,7 +34,7 @@ _OVERRIDE_LOCK_NAME = "entity_resolution_overrides.lock"
 
 def _require_entity_resolution_manifest(
     store: FileSystemCAS,
-    selector: object,
+    selector: ArtifactSelector,
     *,
     kind: str,
     schema: SchemaInfo,
@@ -50,18 +53,15 @@ def _require_entity_resolution_manifest(
         raise ValueError("Entity resolution artifact manifest is incompatible")
 
 
-def _selected_ref_fields(ref: object) -> dict[str, str]:
+def _selected_ref_fields(ref: ArtifactRef) -> dict[str, str]:
     """Project the exact selected artifact view into the append-only audit index."""
-    artifact_id = getattr(ref, "artifact_id", None)
-    kind = getattr(ref, "kind", None)
-    media_type = getattr(ref, "media_type", None)
-    profile = getattr(ref, "manifest_profile_sha256", None)
-    if artifact_id is None or not all(
-        isinstance(value, str) and value for value in (kind, media_type, profile)
-    ):
+    kind = ref.kind
+    media_type = ref.media_type
+    profile = ref.manifest_profile_sha256
+    if not kind or not media_type or not profile:
         raise ValueError("Entity resolution write did not return a complete selected artifact view")
     return {
-        "artifact_id": str(artifact_id),
+        "artifact_id": str(ref.artifact_id),
         "kind": kind,
         "media_type": media_type,
         "manifest_profile_sha256": profile,
@@ -80,7 +80,7 @@ class EntityMatchStore:
         *,
         method: str,
         metadata: dict[str, str] | None = None,
-    ):
+    ) -> ArtifactRef:
         batch = EntityMatchBatch(
             candidates=candidates,
             method=method,
@@ -97,7 +97,7 @@ class EntityMatchStore:
             return_selected_profile=True,
         )
 
-    def load_candidates(self, artifact_id) -> EntityMatchBatch:
+    def load_candidates(self, artifact_id: ArtifactSelector) -> EntityMatchBatch:
         _require_entity_resolution_manifest(
             self._store,
             artifact_id,
@@ -117,7 +117,7 @@ class EntityMatchStore:
         provenance_ref: str | None = None,
         merge_governance_ref: str | None = None,
         canonical_write: bool = False,
-    ):
+    ) -> ArtifactRef:
         """Persist an override without mutating canonical facts.
 
         Accepted overrides require merge-governance evidence before they can be
@@ -181,7 +181,7 @@ class EntityMatchStore:
         )
         return ref
 
-    def load_override(self, artifact_id) -> EntityOverrideEnvelope:
+    def load_override(self, artifact_id: ArtifactSelector) -> EntityOverrideEnvelope:
         _require_entity_resolution_manifest(
             self._store,
             artifact_id,

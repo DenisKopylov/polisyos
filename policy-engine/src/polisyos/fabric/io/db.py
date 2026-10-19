@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 import threading
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 import pandas as pd
 
 from polisyos.common.logger import logger
+
+if TYPE_CHECKING:
+    from polisyos.core.security import DuckDBLegacyBackend
 
 
 class SimulationDB:
@@ -19,14 +22,14 @@ class SimulationDB:
         self.db_path = db_path
         self._lock = threading.RLock()
         self._closed = False
-        self.conn = duckdb.connect(db_path)
+        self.conn: duckdb.DuckDBPyConnection = duckdb.connect(db_path)
         self._setup_db()
 
     def _ensure_open(self) -> None:
         if self._closed:
             raise RuntimeError(f"SimulationDB is closed: {self.db_path}")
 
-    def _setup_db(self):
+    def _setup_db(self) -> None:
         """Создаем структуру таблиц, если их нет."""
         self._ensure_open()
         # Таблица для макро-показателей (1 строка на 1 шаг симуляции)
@@ -102,7 +105,7 @@ class SimulationDB:
         )
         logger.info(f"💾 Database connected: {self.db_path}")
 
-    def save_macro(self, data: list[dict]):
+    def save_macro(self, data: list[dict[str, Any]]) -> None:
         """Быстрое сохранение макро-статистики."""
         self._ensure_open()
         if not data:
@@ -112,7 +115,7 @@ class SimulationDB:
         self.conn.execute("INSERT INTO macro_history SELECT * FROM df")
         logger.info(f"💾 Saved {len(df)} macro records.")
 
-    def save_agents(self, run_id: str, step: int, agents_state):
+    def save_agents(self, run_id: str, step: int, agents_state: Any) -> None:
         """
         Сохранение среза агентов.
         ВНИМАНИЕ: Это тяжелая операция (1 млн строк).
@@ -140,7 +143,7 @@ class SimulationDB:
         logger.debug(f"DataFrame shape: {df.shape}")  # Используем df для отладки
         logger.info(f"💾 Snapshot saved: {n_agents:,} agents at step {step}")
 
-    def close(self):
+    def close(self) -> None:
         with self._lock:
             if self._closed:
                 return
@@ -155,10 +158,10 @@ class SimulationDB:
         self._ensure_open()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
         self.close()
 
-    def as_backend(self):
+    def as_backend(self) -> DuckDBLegacyBackend:
         """Return a DatabaseBackend-compatible adapter around this SimulationDB."""
         self._ensure_open()
         from polisyos.core.security import DuckDBLegacyBackend

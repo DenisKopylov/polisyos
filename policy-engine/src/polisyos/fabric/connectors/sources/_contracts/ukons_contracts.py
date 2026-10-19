@@ -83,7 +83,7 @@ UKONS_GENERIC_CONTRACT = ConnectorSchemaContract(
     contract_id="ukons.datasets.generic",
     connector_id="ukons.datasets",
     dataset_id="*",
-    schema=UKONS_GENERIC_SCHEMA,
+    connector_schema=UKONS_GENERIC_SCHEMA,
     field_mappings=(
         FieldMapping(source_path="observations.*.observation", target_field="observation"),
         FieldMapping(source_path="observations.*.dimensions", target_field="dimensions_json"),

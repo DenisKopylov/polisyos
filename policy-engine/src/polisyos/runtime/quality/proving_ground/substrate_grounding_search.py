@@ -1485,7 +1485,7 @@ def build_fabric_source_contract_snapshot_from_capability(
         contract_id=f"layer3.ua_msme.{construct}.panel",
         connector_id=connector_id,
         dataset_id=dataset_id,
-        schema=schema,
+        connector_schema=schema,
         min_completeness=max(0.5, min(confidence, 0.95)),
         expected_row_count_range=(1, None),
         created_by="team-runtime-quality",

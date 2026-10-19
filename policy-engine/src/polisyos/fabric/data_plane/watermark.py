@@ -36,7 +36,7 @@ class TimestampWatermark(WatermarkPolicy):
     def extract(self, result: Any) -> str | None:
         ts = getattr(result, "source_updated_at", None) or getattr(result, "fetched_at", None)
         if ts is not None:
-            return ts.isoformat()
+            return str(ts.isoformat())
         return None
 
 
@@ -50,7 +50,7 @@ class ETagWatermark(WatermarkPolicy):
     def extract(self, result: Any) -> str | None:
         version = getattr(result, "version", None)
         if version is not None and getattr(version, "strategy", None) == VersionStrategy.ETAG:
-            return version.value
+            return str(version.value)
         return None
 
 
@@ -64,7 +64,7 @@ class RevisionWatermark(WatermarkPolicy):
     def extract(self, result: Any) -> str | None:
         version = getattr(result, "version", None)
         if version is not None and getattr(version, "strategy", None) == VersionStrategy.REVISION:
-            return version.value
+            return str(version.value)
         return None
 
 

@@ -117,6 +117,8 @@ def _numeric_histogram(series: pd.Series, *, bins: int) -> tuple[HistogramBin, .
     counts = categories.value_counts(sort=False)
     histogram: list[HistogramBin] = []
     for interval, count in counts.items():
+        if not isinstance(interval, pd.Interval):
+            continue
         histogram.append(
             HistogramBin(
                 lower=float(interval.left),
@@ -531,7 +533,7 @@ class QualityTrendPoint:
     row_count: int
     completeness_score: float | None = None
     consistency_score: float | None = None
-    tier: str | None = None
+    tier: str | int | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "score", ensure_probability(self.score, what="trend score"))
@@ -785,7 +787,7 @@ def detect_anomalies(
                 )
 
         if enable_isolation_forest and importlib.util.find_spec("sklearn") is not None:
-            from sklearn.ensemble import IsolationForest  # type: ignore[import]
+            from sklearn.ensemble import IsolationForest
 
             if len(series) >= 10:
                 model = IsolationForest(
@@ -817,7 +819,7 @@ def detect_anomalies(
 
 def _ks_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, float]:
     if importlib.util.find_spec("scipy") is not None:
-        from scipy.stats import ks_2samp  # type: ignore[import]
+        from scipy.stats import ks_2samp
 
         result = ks_2samp(current, baseline)
         return float(result.statistic), float(result.pvalue)
@@ -877,7 +879,7 @@ def _categorical_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, 
     )
 
     if importlib.util.find_spec("scipy") is not None:
-        from scipy.stats import chisquare  # type: ignore[import]
+        from scipy.stats import chisquare
 
         expected_scaled = [max(1e-6, value * observed_total) for value in expected_dist]
         expected_total_scaled = sum(expected_scaled)
@@ -1093,10 +1095,10 @@ def evaluate_quality_contract(
             )
     drift_by_column: dict[str, float] = {}
     if drift_report is not None:
-        for finding in drift_report.findings:
-            drift_by_column[finding.column_name] = max(
-                drift_by_column.get(finding.column_name, 0.0),
-                finding.drift_score,
+        for drift_finding in drift_report.findings:
+            drift_by_column[drift_finding.column_name] = max(
+                drift_by_column.get(drift_finding.column_name, 0.0),
+                drift_finding.drift_score,
             )
 
     failures: list[QualityContractFailure] = []

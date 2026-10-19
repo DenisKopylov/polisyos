@@ -33,6 +33,7 @@ from polisyos.core.contracts.fabric import (
     RetrievalSummary,
 )
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
+from polisyos.fabric.ingestion.ingestion_providers import _BatchIngestionDependencies
 from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
@@ -44,7 +45,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.fabric.connectors import RawHTTPResponseObserver
-    from polisyos.fabric.ingestion import IngestionDependencies, PreTransformFetchResultSink
+    from polisyos.fabric.ingestion import PreTransformFetchResultSink
 
 logger = get_logger(__name__)
 
@@ -516,7 +517,7 @@ def run_orchestrated_ingestion(
     connection_config: Any | None = None,
     produce_snapshot: bool = True,
     tenant_id: str | None = None,
-    ingestion_dependencies: IngestionDependencies | None = None,
+    ingestion_dependencies: _BatchIngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,

@@ -10,6 +10,7 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import duckdb
 import pandas as pd
 
 from polisyos.common.logger import get_logger
@@ -397,8 +398,9 @@ def apply_world_segment(
             if not facts_df.empty:
                 facts_name = _register_df(db.conn, facts_df, prefix="world_facts")
                 try:
-                    facts_inserted = int(
-                        db.conn.execute(sql_count_new_world_facts(facts_name)).fetchone()[0]
+                    facts_inserted = _fetch_count(
+                        db.conn,
+                        sql_count_new_world_facts(facts_name),
                     )
                     db.conn.execute(sql_insert_world_facts(facts_name))
                 finally:
@@ -423,8 +425,9 @@ def apply_world_segment(
             if not edges_df.empty:
                 edges_name = _register_df(db.conn, edges_df, prefix="world_edges")
                 try:
-                    edges_inserted = int(
-                        db.conn.execute(sql_count_new_edges(edges_name)).fetchone()[0]
+                    edges_inserted = _fetch_count(
+                        db.conn,
+                        sql_count_new_edges(edges_name),
                     )
                     db.conn.execute(sql_insert_world_edges(edges_name))
                 finally:
@@ -498,7 +501,19 @@ def apply_world_segment(
             raise WorldMaterializationError(str(exc)) from exc
 
 
-def _register_df(conn, df: pd.DataFrame, *, prefix: str) -> str:
+def _fetch_count(conn: duckdb.DuckDBPyConnection, query: str) -> int:
+    row = conn.execute(query).fetchone()
+    if row is None:
+        raise WorldMaterializationError("world COUNT query returned no row")
+    return int(row[0])
+
+
+def _register_df(
+    conn: duckdb.DuckDBPyConnection,
+    df: pd.DataFrame,
+    *,
+    prefix: str,
+) -> str:
     name = f"{prefix}_{uuid.uuid4().hex}"
     conn.register(name, df)
     return name

@@ -89,7 +89,7 @@ EUROSTAT_GENERIC_CONTRACT = ConnectorSchemaContract(
     contract_id="eurostat.data.generic",
     connector_id="eurostat.data",
     dataset_id="*",
-    schema=EUROSTAT_GENERIC_SCHEMA,
+    connector_schema=EUROSTAT_GENERIC_SCHEMA,
     field_mappings=(
         FieldMapping(source_path="id", target_field="dimensions_json", transform="json"),
         FieldMapping(source_path="value", target_field="value", transform="float"),

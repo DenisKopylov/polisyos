@@ -41,6 +41,8 @@ from polisyos.fabric.ingestion.ingestion_providers import (
     ArtifactStoreFactory,
     IngestionDependencies,
     IngestionStoreBindingError,
+    _BatchConnectorRegistry,
+    _BatchIngestionDependencies,
     resolve_ingestion_cache_namespace,
     resolve_ingestion_dependencies,
     resolve_ingestion_sidecar_scope,
@@ -677,7 +679,7 @@ def _parse_optional_datetime(value: str | None) -> datetime | None:
 
 
 def _sync_fetch(
-    registry: ConnectorRegistry,
+    registry: _BatchConnectorRegistry,
     connector_id: str,
     connector: Any,
     request: FetchRequest,
@@ -724,7 +726,7 @@ def _sync_fetch(
 
 
 def _sync_fetch_with_receipt(
-    registry: ConnectorRegistry,
+    registry: _BatchConnectorRegistry,
     connector_id: str,
     connector: Any,
     request: FetchRequest,
@@ -980,7 +982,7 @@ def run_connectors_ingestion(
     tracer: PolicyOSTracer | None = None,
     metrics: MetricsRegistry | None = None,
     store_factory: ArtifactStoreFactory | None = None,
-    dependencies: IngestionDependencies | None = None,
+    dependencies: _BatchIngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
     raw_result_sink: PreTransformFetchResultSink | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,

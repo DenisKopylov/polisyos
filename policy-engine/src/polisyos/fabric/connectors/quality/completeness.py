@@ -297,7 +297,9 @@ class CompletenessAnalyzer:
         granularity = getattr(schema, "time_granularity", None)
         if granularity is not None:
             try:
-                return granularity.to_pandas_freq()
+                frequency = granularity.to_pandas_freq()
+                if isinstance(frequency, str):
+                    return frequency
             except Exception as exc:
                 logger.debug("Ignored exception: %s", exc)
         return CompletenessAnalyzer._infer_frequency(time_values)
@@ -347,15 +349,19 @@ class CompletenessAnalyzer:
     @staticmethod
     def _get_time_field(schema: Any) -> str | None:
         time_dimension = getattr(schema, "time_dimension", None)
-        if time_dimension:
+        if isinstance(time_dimension, str) and time_dimension:
             return time_dimension
         for field in schema.fields:
             from polisyos.fabric.connectors.contracts.schema import SemanticType
 
             if field.semantic_type == SemanticType.TEMPORAL:
-                return field.name
+                field_name = getattr(field, "name", None)
+                if isinstance(field_name, str):
+                    return field_name
             if hasattr(field, "data_type") and field.data_type.is_temporal():
-                return field.name
+                field_name = getattr(field, "name", None)
+                if isinstance(field_name, str):
+                    return field_name
         return None
 
 

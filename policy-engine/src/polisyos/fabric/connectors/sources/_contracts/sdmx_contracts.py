@@ -80,7 +80,7 @@ SDMX_GENERIC_CONTRACT = ConnectorSchemaContract(
     contract_id="sdmx.generic",
     connector_id="sdmx.source",
     dataset_id="*",
-    schema=SDMX_GENERIC_SCHEMA,
+    connector_schema=SDMX_GENERIC_SCHEMA,
     field_mappings=(
         FieldMapping(source_path="value", target_field="value", transform="float"),
         FieldMapping(source_path="TIME_PERIOD", target_field="time_period"),

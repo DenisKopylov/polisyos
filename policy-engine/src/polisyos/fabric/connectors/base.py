@@ -33,8 +33,12 @@ from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
     DataVersion,
-    FetchRequest,
-    FetchResult,
+)
+from polisyos.ir.connectors import (
+    FetchRequest as FetchRequest,
+)
+from polisyos.ir.connectors import (
+    FetchResult as FetchResult,
 )
 from polisyos.ir.connectors import (
     QualityTier as QualityTier,
@@ -46,9 +50,11 @@ from polisyos.ir.connectors import (
 if TYPE_CHECKING:
     from polisyos.fabric.connectors.types import (
         DataChunk,
-        DatasetDescriptor,
         FreshnessResult,
         ValidationResult,
+    )
+    from polisyos.fabric.connectors.types import (
+        DatasetDescriptor as DatasetDescriptor,
     )
 
 

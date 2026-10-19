@@ -29,7 +29,7 @@ class FabricQualityGovernanceEvidence:
     schema_id: str
     validated_at: str
     score: float
-    tier: str
+    tier: str | int
     grade: str
     acceptable: bool
     needs_attention: bool

@@ -280,7 +280,7 @@ class DataQualityReport:
         """Generate human-readable summary."""
         lines = [
             f"Quality Report: {self.dataset_id}",
-            f"  Score: {self.score:.2f} ({self.grade}) - {self.tier.value.upper()}",
+            f"  Score: {self.score:.2f} ({self.grade}) - {self.tier.name.upper()}",
             f"  Freshness: {self.freshness_status.level.value.upper()}",
             f"  Completeness: {self.completeness_score:.2%}",
             f"  Consistency: {self.consistency_score:.2%}",

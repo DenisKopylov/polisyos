@@ -107,7 +107,7 @@ WDI_GENERIC_CONTRACT = ConnectorSchemaContract(
     contract_id="worldbank.wdi.generic",
     connector_id="worldbank.wdi",
     dataset_id="*",
-    schema=WDI_GENERIC_SCHEMA,
+    connector_schema=WDI_GENERIC_SCHEMA,
     field_mappings=(
         FieldMapping(source_path="countryiso3code", target_field="country_code"),
         FieldMapping(source_path="country.value", target_field="country_name"),

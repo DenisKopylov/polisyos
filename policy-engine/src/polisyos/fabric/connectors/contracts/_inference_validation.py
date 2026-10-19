@@ -115,14 +115,18 @@ def validate_dataframe_against_schema(
         if field.name not in df.columns:
             continue
 
-        col = df[field.name]
+        column_values = df[field.name]
 
-        if not field.nullable and field.name not in schema.allowed_null_fields and col.isna().any():
-            null_count = col.isna().sum()
+        if (
+            not field.nullable
+            and field.name not in schema.allowed_null_fields
+            and column_values.isna().any()
+        ):
+            null_count = column_values.isna().sum()
             errors.append(f"Field '{field.name}' has {null_count} null values but is not nullable")
 
         if field.data_type.is_numeric() or field.data_type == SchemaType.DECIMAL:
-            numeric_col = pd.to_numeric(col, errors="coerce")
+            numeric_col = pd.to_numeric(column_values, errors="coerce")
             finite_mask = numeric_col.map(is_finite_number)
             nonfinite = numeric_col.notna() & ~finite_mask
             if nonfinite.any():
@@ -164,7 +168,7 @@ def validate_dataframe_against_schema(
                     )
 
         if field.semantic_type in {SemanticType.IDENTIFIER, SemanticType.CODE}:
-            values = col.dropna().astype(str).str.strip()
+            values = column_values.dropna().astype(str).str.strip()
             empty_count = int((values == "").sum())
             if empty_count:
                 errors.append(
@@ -172,31 +176,35 @@ def validate_dataframe_against_schema(
                 )
 
         if field.allowed_values is not None:
-            invalid = set(col.dropna().astype(str)) - field.allowed_values
-            if invalid:
-                errors.append(f"Field '{field.name}' has invalid values: {invalid}")
+            invalid_allowed_values = set(column_values.dropna().astype(str)) - field.allowed_values
+            if invalid_allowed_values:
+                errors.append(f"Field '{field.name}' has invalid values: {invalid_allowed_values}")
 
         if field.pattern and field.data_type in (SchemaType.STRING, SchemaType.CATEGORY):
             pattern = re.compile(field.pattern)
-            invalid = [
-                value for value in col.dropna().astype(str).unique() if not pattern.match(value)
+            pattern_mismatches = [
+                value
+                for value in column_values.dropna().astype(str).unique()
+                if not pattern.match(value)
             ]
-            if invalid:
-                errors.append(f"Field '{field.name}' has values not matching pattern: {invalid}")
+            if pattern_mismatches:
+                errors.append(
+                    f"Field '{field.name}' has values not matching pattern: {pattern_mismatches}"
+                )
 
         if field.max_length and field.data_type in (
             SchemaType.STRING,
             SchemaType.CATEGORY,
             SchemaType.BINARY,
         ):
-            too_long = col.dropna().astype(str).str.len() > field.max_length
+            too_long = column_values.dropna().astype(str).str.len() > field.max_length
             if too_long.any():
                 count = int(too_long.sum())
                 errors.append(
                     f"Field '{field.name}' has {count} values exceeding max_length {field.max_length}"
                 )
 
-        completeness = 1.0 - col.isna().mean()
+        completeness = 1.0 - column_values.isna().mean()
         if (
             field.name not in schema.allowed_null_fields
             and completeness < schema.required_completeness
@@ -230,14 +238,14 @@ def coerce_dataframe_to_schema(
 
     if normalize_columns:
         normalized_map: dict[str, str] = {}
-        for col in df_work.columns:
-            normalized = SchemaInference._normalize_column_name(col)
+        for column_name in df_work.columns:
+            normalized = SchemaInference._normalize_column_name(column_name)
             if normalized in normalized_map:
                 warnings.append(
-                    f"Column '{col}' normalized to '{normalized}' conflicts with '{normalized_map[normalized]}'"
+                    f"Column '{column_name}' normalized to '{normalized}' conflicts with '{normalized_map[normalized]}'"
                 )
                 continue
-            normalized_map[normalized] = col
+            normalized_map[normalized] = column_name
 
         rename_map: dict[str, str] = {}
         for field in schema.fields:
@@ -252,12 +260,12 @@ def coerce_dataframe_to_schema(
     schema_fields = {f.name for f in schema.fields}
 
     if drop_extra:
-        extra = [col for col in df_work.columns if col not in schema_fields]
+        extra = [column_name for column_name in df_work.columns if column_name not in schema_fields]
         if extra:
             df_work = df_work.drop(columns=extra)
             dropped_columns.extend(extra)
     elif strict:
-        extra = [col for col in df_work.columns if col not in schema_fields]
+        extra = [column_name for column_name in df_work.columns if column_name not in schema_fields]
         if extra:
             errors.append(f"Extra columns not in schema: {set(extra)}")
 
@@ -268,13 +276,13 @@ def coerce_dataframe_to_schema(
             errors.append(f"Missing required column '{field.name}'")
             continue
 
-        col = df_work[field.name]
+        column_values = df_work[field.name]
         try:
             if field.data_type == SchemaType.BOOLEAN:
-                df_work[field.name] = _coerce_boolean(col)
+                df_work[field.name] = _coerce_boolean(column_values)
                 coerced_columns.append(field.name)
             elif field.data_type.is_numeric():
-                numeric = pd.to_numeric(col, errors="coerce")
+                numeric = pd.to_numeric(column_values, errors="coerce")
                 non_finite = numeric.notna() & ~numeric.map(is_finite_number)
                 if non_finite.any():
                     count = int(non_finite.sum())
@@ -285,22 +293,22 @@ def coerce_dataframe_to_schema(
                 df_work[field.name] = numeric.astype(field.data_type.to_pandas_dtype())
                 coerced_columns.append(field.name)
             elif field.data_type in (SchemaType.DATETIME, SchemaType.TIMESTAMP_TZ):
-                df_work[field.name] = pd.to_datetime(col, errors="coerce", utc=True)
+                df_work[field.name] = pd.to_datetime(column_values, errors="coerce", utc=True)
                 coerced_columns.append(field.name)
             elif field.data_type == SchemaType.DATE:
-                df_work[field.name] = pd.to_datetime(col, errors="coerce").dt.date
+                df_work[field.name] = pd.to_datetime(column_values, errors="coerce").dt.date
                 coerced_columns.append(field.name)
             elif field.data_type == SchemaType.DURATION:
-                df_work[field.name] = pd.to_timedelta(col, errors="coerce")
+                df_work[field.name] = pd.to_timedelta(column_values, errors="coerce")
                 coerced_columns.append(field.name)
             elif field.data_type == SchemaType.CATEGORY:
-                df_work[field.name] = col.astype("category")
+                df_work[field.name] = column_values.astype("category")
                 coerced_columns.append(field.name)
             elif field.data_type == SchemaType.STRING:
-                df_work[field.name] = col.astype("string")
+                df_work[field.name] = column_values.astype("string")
                 coerced_columns.append(field.name)
             elif field.data_type == SchemaType.DECIMAL:
-                df_work[field.name] = col.apply(_coerce_decimal)
+                df_work[field.name] = column_values.apply(_coerce_decimal)
                 coerced_columns.append(field.name)
         except Exception as exc:  # pragma: no cover - defensive
             errors.append(f"Failed to coerce column '{field.name}': {exc}")

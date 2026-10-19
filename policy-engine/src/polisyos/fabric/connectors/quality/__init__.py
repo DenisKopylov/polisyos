@@ -6,12 +6,11 @@ Provides validation utilities and report structures.
 
 from .completeness import (
     CompletenessAnalyzer,
-    CompletenessResult,
     DateGap,
     SamplingConfig,
     SamplingStrategy,
 )
-from .consistency import ConsistencyChecker, ConsistencyResult
+from .consistency import ConsistencyChecker
 from .evidence import (
     FabricQualityGovernanceEvidence,
     build_fabric_quality_governance_evidence,
@@ -22,6 +21,8 @@ from .freshness import (
     FreshnessPolicy,
 )
 from .report import (
+    CompletenessResult,
+    ConsistencyResult,
     DataQualityReport,
     FreshnessLevel,
     FreshnessStatus,

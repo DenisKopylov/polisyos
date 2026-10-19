@@ -10,7 +10,7 @@ from copy import copy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, cast, runtime_checkable
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.artifacts import ArtifactID
@@ -21,7 +21,7 @@ from polisyos.core.artifacts.async_store import (
     is_async_artifact_store,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import matches_runtime_protocol
+from polisyos.core.artifacts.protocol import matches_runtime_protocol_definition
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.cursor import (
@@ -1355,10 +1355,7 @@ class StreamWindowAccumulator:
             return None
         if isinstance(value, datetime):
             return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
-        return cast(
-            "datetime",
-            parse_datetime_utc(str(value), what="stream event timestamp"),
-        )
+        return parse_datetime_utc(str(value), what="stream event timestamp")
 
     def _next_ordinal(self) -> int:
         ordinal = self._ordinal
@@ -1994,10 +1991,7 @@ def _row_event_time(row: dict[str, Any], timestamp_field: str) -> datetime | Non
         return None
     if isinstance(value, datetime):
         return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
-    return cast(
-        "datetime",
-        parse_datetime_utc(str(value), what="stream ordering timestamp"),
-    )
+    return parse_datetime_utc(str(value), what="stream ordering timestamp")
 
 
 def _cdc_handling_action(
@@ -2022,6 +2016,11 @@ def _should_quarantine_cdc_schema_change(
         compatibility == CDCSchemaCompatibility.INCOMPATIBLE_BREAKING
         and handling_action == "quarantine"
     )
+
+
+def _is_indexed_artifact_store(value: object) -> TypeGuard[IndexedArtifactStore]:
+    """Check the rooted index surface without passing a Protocol class as a type."""
+    return matches_runtime_protocol_definition(value, IndexedArtifactStore)
 
 
 def _should_fail_closed_cdc_schema_change(
@@ -2173,7 +2172,7 @@ def _admit_stream_input(payload: Any, options: StreamRuntimeOptions) -> None:
             strategy="bounded_input",
         )
         names = tuple(str(name) for name in payload.columns)
-        source_rows = (
+        source_rows: Iterator[object] = (
             dict(zip(names, row, strict=True)) for row in payload.itertuples(index=False, name=None)
         )
     elif isinstance(payload, list):
@@ -2530,9 +2529,7 @@ async def process_stream_dataset(
                     compatibility,
                     handling_action,
                 )
-                if quarantine_cdc_change and not matches_runtime_protocol(
-                    sync_store, IndexedArtifactStore
-                ):
+                if quarantine_cdc_change and not _is_indexed_artifact_store(sync_store):
                     raise TypeError(
                         "CDC quarantine requires an artifact store with a rooted mutable index"
                     )
@@ -2566,7 +2563,7 @@ async def process_stream_dataset(
                         f"{connector_id}:{dataset_id}: {compatibility.value}"
                     )
                 if quarantine_cdc_change:
-                    if not matches_runtime_protocol(sync_store, IndexedArtifactStore):
+                    if not _is_indexed_artifact_store(sync_store):
                         raise TypeError(
                             "CDC quarantine requires an artifact store with a rooted mutable index"
                         )

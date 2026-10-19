@@ -109,7 +109,7 @@ WVS_GENERIC_CONTRACT = ConnectorSchemaContract(
     contract_id="wvs.wave7.generic",
     connector_id="wvs.wave7",
     dataset_id="*",
-    schema=WVS_GENERIC_SCHEMA,
+    connector_schema=WVS_GENERIC_SCHEMA,
     field_mappings=(
         FieldMapping(source_path="country_code", target_field="country_code"),
         FieldMapping(source_path="country_name", target_field="country_name"),

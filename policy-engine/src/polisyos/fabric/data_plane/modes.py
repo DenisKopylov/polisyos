@@ -19,9 +19,17 @@ from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
+from polisyos.fabric.connectors.base import ConnectionHandle
+from polisyos.fabric.connectors.registry import ConnectorEntry
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
+)
+from polisyos.fabric.ingestion.ingestion_providers import (
+    IngestionDependencies,
+    _BatchConnectorRegistry,
+    _BatchIngestionDependencies,
+    _BatchIngestionDependenciesView,
 )
 from polisyos.ir.connectors import ConnectorCapability, DataVersion, FetchRequest, VersionStrategy
 
@@ -32,7 +40,6 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.contracts import DataSchema
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.streaming import StreamSchemaBinding
-    from polisyos.fabric.ingestion import IngestionDependencies
     from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
 logger = get_logger(__name__)
@@ -194,7 +201,7 @@ class _CursorAwareRegistry:
 
     def __init__(
         self,
-        registry: Any,
+        registry: _BatchConnectorRegistry,
         cursor_versions: dict[tuple[str, str], DataVersion],
     ) -> None:
         self._registry = registry
@@ -208,6 +215,26 @@ class _CursorAwareRegistry:
             str(connector_id),
             self._cursor_versions,
         )
+
+    def get_entry(self, *args: Any, **kwargs: Any) -> ConnectorEntry:
+        """Return the original registered entry without changing its owner."""
+        return self._registry.get_entry(*args, **kwargs)
+
+    async def get_connection(self, *args: Any, **kwargs: Any) -> ConnectionHandle:
+        """Forward connection acquisition to the registry that owns the pool."""
+        return await self._registry.get_connection(*args, **kwargs)
+
+    async def _get_connection_with_live_permit(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> ConnectionHandle:
+        """Forward live-permit acquisition to the exact registry owner."""
+        return await self._registry._get_connection_with_live_permit(*args, **kwargs)
+
+    async def release_connection(self, *args: Any, **kwargs: Any) -> None:
+        """Release through the registry that acquired the handle."""
+        await self._registry.release_connection(*args, **kwargs)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._registry, name)
@@ -301,11 +328,13 @@ def _cursor_version(cursor: CursorState, connector: Any) -> DataVersion | None:
 def _cursor_aware_dependencies(
     dependencies: IngestionDependencies,
     cursor_versions: dict[tuple[str, str], DataVersion],
-) -> IngestionDependencies:
-    """Build ingestion dependencies whose registry injects supported cursors."""
-    return replace(
-        dependencies,
+) -> _BatchIngestionDependencies:
+    """Build the batch-only provider view whose registry injects stored cursors."""
+    return _BatchIngestionDependenciesView(
         registry=_CursorAwareRegistry(dependencies.registry, cursor_versions),
+        tracer=dependencies.tracer,
+        metrics=dependencies.metrics,
+        store_factory=dependencies.store_factory,
     )
 
 
@@ -650,7 +679,7 @@ def run_replay_mode(
     """
     import tempfile
 
-    from polisyos.core.artifacts.manifest import ArtifactID
+    from polisyos.core.artifacts import ArtifactID
     from polisyos.fabric.data_plane.replay_store import ReplayStore
 
     effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
@@ -1358,8 +1387,6 @@ async def _fetch_stream_for_dataset_async(
 
         connector_cls = entry.connector_cls
         connector = connector_cls()
-
-        from polisyos.fabric.connectors.capabilities import ConnectorCapability
 
         capabilities = cast("Any", entry.metadata.capabilities)
         if not (capabilities & ConnectorCapability.STREAMING):

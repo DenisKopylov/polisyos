@@ -99,17 +99,22 @@ def _normalize_text(text: str, options: DocNormalizeOptions) -> str:
     return text
 
 
-def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict[str, object]:
     from polisyos.core.artifacts import load_core_json_artifact
 
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = load_core_json_artifact(cas, aid)
+        payload: object = load_core_json_artifact(cas, aid)
     except Exception as exc:  # pragma: no cover - defensive
         raise DocValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):
         raise DocValidationError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
+    string_keyed_payload: dict[str, object] = {}
+    for key, value in payload.items():
+        if not isinstance(key, str):
+            raise DocValidationError(f"artifact {artifact_id} object keys must be strings")
+        string_keyed_payload[key] = value
+    return string_keyed_payload
 
 
 def _load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:

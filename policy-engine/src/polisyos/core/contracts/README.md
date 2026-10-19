@@ -115,3 +115,21 @@ The typed source reader compares each selected manifest's `artifact_schema` with
 These values identify serialization contracts. They do not establish risk meaning, units, a refinement relation, valid time/currentness, issuer authority, or historical supersession. Missing schema on a legacy ID-only reference remains unqualified; no old profile is inferred or backfilled. `ProgramGraph.schema_version` (0.2) is its model field and remains distinct from the artifact-manifest version (0.2.0).
 
 The same typed owner models declare literal `ARTIFACT_KIND` and `ARTIFACT_MEDIA_TYPE` values. The B161 source reader checks both the caller's typed ref and the exact selected manifest against those owner values before decoding bytes. Parent-edge resolution for `WelfareBundle.simulation_result` and `SimulationResult.state_delta` supplies the expected model owner explicitly; it does not treat a kind or media type read from the manifest as its own expected value. Wrong-kind or wrong-media aliases with unchanged bytes, schema, canonical profile, and lineage are refused. These serialization descriptors prove source type identity only; they add no risk, authority, unit, time, or refinement claim. The Ukraine DataSnapshot writer passes its owner media type through the existing `_cas_put_json(media_type=...)` option; its `application/json` default remains unchanged for other callers.
+
+## Semantic epoch owner statement readback
+
+`load_verified_epoch_statement` applies the owner profile to `epoch.semantic_manifest` and
+`epoch.production_receipt`: exact kind and media type, absent artifact schema, and the declared
+`epoch_canon_info()` Core profile. It decodes the selected/default CAS view through the existing
+Core canonical-profile reader, then checks the content-addressed single frame. Semantic manifests
+carry no direct CAS input edges; production receipts carry exactly the `epoch_production_input`
+edges derived by the producer's shared seven-field contract helper, including each direct ref's
+selected-profile digest. `owner_denominator_receipt_refs` remain payload-level verification evidence
+for the owner consumer and are not promoted into the direct CAS edge set. A ref without
+`manifest_profile_sha256` selects the actual default manifest and is returned unchanged; that view
+is accepted when the manifest declares `epoch_canon_info()`. A historical owner manifest missing
+Core CanonInfo still raises `CanonicalProfileRefusalError`. The reader neither adds a selector nor
+restamps a manifest. This contract does not validate owner-denominator evidence or resolve child refs.
+Core CanonInfo checks serialization conformance only; it does not apply an IR law or make a receipt
+a native history, currentness, or authority claim.
+

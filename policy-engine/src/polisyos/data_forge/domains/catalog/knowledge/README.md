@@ -50,8 +50,10 @@ transportability layer over the dataset catalog built by the batch pipeline.
   admission. Legacy/null stamps and incomplete physical membership remain
   audit-visible but fail closed for read visibility and positive chronology. New framed
   semantic receipts persist the exact profile of their Core serializer, and activation
-  re-reads that selected profile and payload before writing an active state. Existing
-  profileless frames are not upgraded or activated by reader materialization.
+  re-reads that selected profile and payload before writing an active state. A historical
+  manifest without Core CanonInfo is not retagged, restamped, or activated. A child ref without
+  a profile selector can still read its actual default view unchanged when that manifest carries
+  the declared Core profile.
 
 ## Public API
 
@@ -98,3 +100,20 @@ source facts are part of that same prewrite decision: both row-presence flags mu
 must be pending or active, and the receipt operational epoch must equal the owner-row epoch. Historical
 v1 rows remain explicitly legacy-unresolved; the adapter does not fabricate missing carriers or
 promote them. A historical or unresolved passport remains limited and is never upgraded by this check.
+
+
+## Protected semantic epoch activation readback
+
+`CatalogAcquisitionOverlay.activate_semantic_epoch` sends the selected production-receipt ref
+through Core `load_verified_epoch_statement` before it creates an activated receipt or opens the
+activation transaction. This checks the exact receipt kind/media, selected Core epoch profile,
+absent artifact schema, framed bytes, and the seven direct `epoch_production_input` edges declared
+by the producer's typed receipt fields. A schema-bearing or input-edge-tampered selected view is
+refused through the existing `OverlayAdmissionError` boundary without changing overlay state.
+Activation retains its existing requirement for a selected production-receipt ref. That requirement
+applies to the activation receipt itself; child refs inside it may lack a selector and still resolve
+their actual default manifest when it carries the declared Core profile. The reader preserves such
+child refs unchanged. This path does not synthesize selectors, retag bytes, or validate the separate
+`owner_denominator_receipt_refs` evidence vector. Core CanonInfo confirms the declared serialization
+codec only; it establishes no
+IR law, denominator validity, currentness, or epoch authority.

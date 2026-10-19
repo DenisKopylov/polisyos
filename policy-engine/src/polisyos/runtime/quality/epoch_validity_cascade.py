@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
 from polisyos.core.contracts import EpochPerturbationClass, c4_framed_semantic_projection_digest
@@ -1092,117 +1093,38 @@ class FileSemanticEpochTransitionHistoryAdapter:
         self._artifacts = artifacts
         self._history = history
 
-    @staticmethod
-    def _sorted_inputs(
-        values: Sequence[artifacts.InputRef],
-    ) -> tuple[artifacts.InputRef, ...]:
-        return tuple(
-            sorted(
-                values,
-                key=lambda item: (
-                    item.role,
-                    str(item.artifact_id),
-                    item.manifest_profile_sha256 or "",
-                ),
-            )
-        )
-
     def _read_production_receipt(
         self,
         receipt_ref: ArtifactRef,
     ) -> SemanticEpochProductionReceipt:
-        from polisyos.core.artifacts import load_core_json_frame_records
-
-        if (
-            receipt_ref.kind != "epoch.production_receipt"
-            or receipt_ref.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
-        ):
-            raise ValueError("epoch transition receipt artifact profile mismatch")
         try:
-            report = self._artifacts.verify(receipt_ref)
-            raw = self._artifacts.get_bytes(receipt_ref)
-            manifest = self._artifacts.get_manifest(receipt_ref)
-            records = core_contracts.chronology._split_framed_records(raw)
+            mapping = core_contracts.epoch.load_verified_epoch_statement(
+                store=self._artifacts,
+                ref=receipt_ref,
+                expected_kind="epoch.production_receipt",
+                expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
+            )
+            return SemanticEpochProductionReceipt.model_validate(mapping)
+        except CanonicalProfileRefusalError:
+            raise
         except (KeyError, OSError, TypeError, ValueError) as exc:
             raise ValueError("epoch transition receipt CAS readback failed") from exc
-        if (
-            not report.ok
-            or _raw_hash(raw) != str(receipt_ref.artifact_id)
-            or manifest.artifact_id != receipt_ref.artifact_id
-            or manifest.kind != receipt_ref.kind
-            or manifest.media_type != receipt_ref.media_type
-            or len(records) != 1
-        ):
-            raise ValueError("epoch transition receipt CAS readback failed")
-        try:
-            receipt = SemanticEpochProductionReceipt.model_validate(
-                load_core_json_frame_records(self._artifacts, receipt_ref, raw_payload_bytes=raw)[0]
-            )
-        except (TypeError, ValueError) as exc:
-            raise ValueError("epoch transition receipt CAS readback failed") from exc
-        expected_raw = core_contracts.chronology._frame_record(
-            core_contracts.epoch.canonical_epoch_bytes(receipt.statement_projection())
-        )
-        expected_inputs = self._sorted_inputs(
-            tuple(
-                artifacts.input_ref_from_artifact_ref(ref, role="epoch_production_input")
-                for ref in (
-                    receipt.prepared_epoch_ref,
-                    receipt.admitted_boundary_evidence_ref,
-                    receipt.semantic_manifest_ref,
-                    receipt.history_append_receipt_ref,
-                    receipt.chronology_bundle_ref,
-                    receipt.chronology_verification_ref,
-                    receipt.chronology_projection_ref,
-                )
-                if ref is not None
-            )
-        )
-        if raw != expected_raw or self._sorted_inputs(manifest.inputs) != expected_inputs:
-            raise ValueError("epoch transition receipt CAS readback failed")
-        return receipt
 
     def _read_semantic_manifest(
         self,
         manifest_ref: ArtifactRef,
     ) -> SemanticEpochManifest:
-        from polisyos.core.artifacts import load_core_json_frame_records
-
-        if (
-            manifest_ref.kind != "epoch.semantic_manifest"
-            or manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
-        ):
-            raise ValueError("epoch transition semantic manifest artifact profile mismatch")
         try:
-            report = self._artifacts.verify(manifest_ref)
-            raw = self._artifacts.get_bytes(manifest_ref)
-            manifest_record = self._artifacts.get_manifest(manifest_ref)
-            records = core_contracts.chronology._split_framed_records(raw)
+            mapping = core_contracts.epoch.load_verified_epoch_statement(
+                store=self._artifacts,
+                ref=manifest_ref,
+                expected_kind="epoch.semantic_manifest",
+            )
+            return SemanticEpochManifest.model_validate(mapping)
+        except CanonicalProfileRefusalError:
+            raise
         except (KeyError, OSError, TypeError, ValueError) as exc:
             raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
-        if (
-            not report.ok
-            or _raw_hash(raw) != str(manifest_ref.artifact_id)
-            or manifest_record.artifact_id != manifest_ref.artifact_id
-            or manifest_record.kind != manifest_ref.kind
-            or manifest_record.media_type != manifest_ref.media_type
-            or len(records) != 1
-        ):
-            raise ValueError("epoch transition semantic manifest CAS readback failed")
-        try:
-            manifest = SemanticEpochManifest.model_validate(
-                load_core_json_frame_records(self._artifacts, manifest_ref, raw_payload_bytes=raw)[
-                    0
-                ]
-            )
-        except (TypeError, ValueError) as exc:
-            raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
-        expected_raw = core_contracts.chronology._frame_record(
-            core_contracts.epoch.canonical_epoch_bytes(manifest)
-        )
-        if raw != expected_raw:
-            raise ValueError("epoch transition semantic manifest CAS readback failed")
-        return manifest
 
     def _validate_scope_history(
         self,
@@ -1419,7 +1341,7 @@ class EpochValidityTransitionProducer:
                 or _canonical_bytes(readback) != exact.blob_bytes
             ):
                 raise ValueError("epoch transition canonical readback mismatch")
-        except (KeyError, OSError, TypeError, ValueError):
+        except KeyError, OSError, TypeError, ValueError:
             return EpochTransitionSigningNonReceipt(
                 status="not_established",
                 code="epoch_transition_exact_evidence_unavailable",
@@ -1461,7 +1383,7 @@ class EpochValidityTransitionProducer:
                 requested_query_context_ref=requested_query_context_ref,
                 authority_purpose=authority_purpose,
             )
-        except (KeyError, OSError, TypeError, ValueError):
+        except KeyError, OSError, TypeError, ValueError:
             return EpochTransitionSigningNonReceipt(
                 status="not_established",
                 code="epoch_transition_exact_evidence_unavailable",
@@ -2000,12 +1922,12 @@ class ArtifactPromotionCandidateDenominatorOwner:
                 return PromotionOwnerQueryContextNonReceipt(
                     status="rejected", code="promotion_candidate_denominator_mismatch"
                 )
-            except (OSError, RuntimeError):
+            except OSError, RuntimeError:
                 return PromotionOwnerQueryContextNonReceipt(
                     status="not_established",
                     code="promotion_candidate_inventory_unavailable",
                 )
-            except (KeyError, TypeError, ValueError):
+            except KeyError, TypeError, ValueError:
                 # A malformed or orphan denominator is not an admitted conflict
                 # participant. Exact content and all occurrence bindings are
                 # recomputed by the loader before a view can enter this set.
@@ -2026,7 +1948,7 @@ class ArtifactPromotionCandidateDenominatorOwner:
             )
         try:
             snapshot = self._load_snapshot(completed_batch.owner_snapshot_ref)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_candidate_denominator_mismatch"
             )
@@ -2122,7 +2044,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
     ) -> PersistedPromotionOwnerQueryContext | PromotionOwnerQueryContextNonReceipt:
         try:
             context_bytes = self._artifacts.get_bytes(context_ref)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"
             )
@@ -2201,7 +2123,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
                     raise ValueError("promotion_query_context_historical_projection_ambiguous")
                 historical_algorithm, expected_requested = matches[0]
             self._verify_aggregate(statement, expected_requested_context_ref=expected_requested)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"
             )
@@ -2581,7 +2503,7 @@ class PromotionOwnerQueryContextAuthority:
                 artifacts=self._artifacts,
                 denominator_ref=denominator_ref,
             )
-        except (KeyError, OSError, TypeError, ValueError):
+        except KeyError, OSError, TypeError, ValueError:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_candidate_denominator_mismatch"
             )
@@ -2905,7 +2827,7 @@ class ArtifactEpochValidityAuthorityGate:
                 subject_ref=subject_ref,
                 requested_query_context_ref=query_ref,
             )
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return core_contracts.decision_validity.EpochValidityGateNonReceipt(
                 status="rejected",
                 code="epoch_validity_subject_unresolved",
@@ -3028,7 +2950,7 @@ class ArtifactEpochValidityN9EvidenceResolver:
                 status=gate.status,
                 predicate_class="independently_reconciled",
             )
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return core_contracts.decision_validity.EpochValidityGateNonReceipt(
                 status="rejected",
                 code="epoch_validity_gate_evidence_unresolved",
@@ -3087,7 +3009,7 @@ class ArtifactEpochValidityN9EvidenceResolver:
             ):
                 raise ValueError("epoch_validity_projection_binding_mismatch")
             return resolved
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return core_contracts.decision_validity.EpochValidityGateNonReceipt(
                 status="rejected",
                 code="epoch_validity_gate_evidence_unresolved",

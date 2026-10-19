@@ -14,7 +14,14 @@ from typing import Annotated, Any, Literal, NamedTuple, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import ArtifactID, ArtifactRef, CanonInfo
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    CanonInfo,
+    InputRef,
+    RawManifestBytesReader,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)]
@@ -30,6 +37,10 @@ _CANON = CanonSpec(
     separators=(",", ":"),
     ensure_ascii=False,
 )
+_EPOCH_OWNER_STATEMENT_MEDIA_TYPES: dict[str, str] = {
+    "epoch.semantic_manifest": "application/vnd.polisyos.epoch+json",
+    "epoch.production_receipt": "application/vnd.polisyos.epoch-production-receipt+json",
+}
 _EXTERNAL_STATEMENT_CANON = CanonSpec(forbid_floats=False, exclude_none=False)
 _EXTERNAL_ACQUISITION_STATEMENT_KINDS = frozenset(
     {
@@ -126,8 +137,8 @@ class _EpochModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
-class _EpochArtifactStore(Protocol):
-    """Minimal CAS surface used to re-establish an epoch statement from bytes."""
+class _EpochArtifactStore(RawManifestBytesReader, Protocol):
+    """Read-only CAS surface, including raw manifest bytes for Core profile checks."""
 
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes: ...
 
@@ -351,12 +362,19 @@ def load_verified_epoch_statement(
 ) -> dict[str, Any]:
     """Reload one exact framed epoch statement through its CAS manifest.
 
-    The supplied reference is only a selector.  The returned mapping is admitted
-    from independently re-read bytes after CAS, manifest-profile, frame-count and
-    content-address checks all agree.
+    The supplied reference selects a CAS manifest view: a profile digest selects
+    that exact view, while an absent digest selects the store's actual default view.
+    The reader never adds a selector. For semantic manifests and production receipts,
+    an absent selector is accepted only when the actual manifest declares the exact
+    Core epoch profile; a manifest missing that profile remains a typed refusal.
+    The returned mapping is admitted from independently re-read bytes after CAS,
+    frame-count, content-address, and owner input-closure checks agree.
     """
     from polisyos.core.artifacts import load_core_json_frame_records
 
+    owner_media_type = _EPOCH_OWNER_STATEMENT_MEDIA_TYPES.get(expected_kind)
+    if owner_media_type is not None and expected_media_type != owner_media_type:
+        raise ValueError("epoch statement owner media type differs")
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("epoch statement reference profile differs")
     report = store.verify(ref)
@@ -377,6 +395,24 @@ def load_verified_epoch_statement(
     decoded = load_core_json_frame_records(store, ref, raw_payload_bytes=payload)[0]
     if not isinstance(decoded, dict):
         raise ValueError("epoch statement payload is not a mapping")
+    if expected_kind in _EPOCH_OWNER_STATEMENT_MEDIA_TYPES:
+        # Read the Core profile first so an absent historical declaration remains
+        # a typed CanonicalProfileRefusalError instead of being repaired here.
+        if (
+            getattr(manifest, "artifact_schema", None) is not None
+            or getattr(manifest, "canon", None) != epoch_canon_info()
+        ):
+            raise ValueError("epoch statement Core profile differs")
+        if expected_kind == "epoch.semantic_manifest":
+            expected_inputs: tuple[InputRef, ...] = ()
+        else:
+            receipt = SemanticEpochProductionReceiptStatement.model_validate(decoded)
+            expected_inputs = _semantic_epoch_production_receipt_input_refs(receipt)
+        manifest_inputs = getattr(manifest, "inputs", None)
+        if not isinstance(manifest_inputs, tuple | list) or not _epoch_owner_manifest_inputs_match(
+            manifest_inputs, expected_inputs
+        ):
+            raise ValueError("epoch statement manifest input closure differs")
     return {str(key): value for key, value in decoded.items()}
 
 
@@ -1203,6 +1239,55 @@ class SemanticEpochProductionReceiptStatement(_EpochModel):
         ):
             raise ValueError("acquisition finalization requires both handshake refs")
         return self
+
+
+def _semantic_epoch_production_receipt_input_refs(
+    receipt: SemanticEpochProductionReceiptStatement,
+) -> tuple[InputRef, ...]:
+    """Derive the producer-declared direct CAS edges for one epoch receipt.
+
+    The direct lineage is the seven typed statement fields named below. The
+    ``owner_denominator_receipt_refs`` field remains verification evidence in
+    the receipt payload; its evidence validation belongs to the owning consumer,
+    and it is not promoted into this CAS input-edge contract.
+    """
+    return tuple(
+        input_ref_from_artifact_ref(source, role="epoch_production_input")
+        for source in (
+            receipt.prepared_epoch_ref,
+            receipt.admitted_boundary_evidence_ref,
+            receipt.semantic_manifest_ref,
+            receipt.history_append_receipt_ref,
+            receipt.chronology_bundle_ref,
+            receipt.chronology_verification_ref,
+            receipt.chronology_projection_ref,
+        )
+        if source is not None
+    )
+
+
+def _epoch_owner_manifest_inputs_match(
+    actual: tuple[InputRef, ...] | list[InputRef],
+    expected: tuple[InputRef, ...],
+) -> bool:
+    """Compare the complete input multiset while preserving each selected view."""
+    return _epoch_owner_input_keys(actual) == _epoch_owner_input_keys(expected)
+
+
+def _epoch_owner_input_keys(
+    values: tuple[InputRef, ...] | list[InputRef],
+) -> tuple[tuple[str, str, str], ...]:
+    """Sort the exact edge multiset without discarding selected profile identity."""
+    return tuple(
+        sorted(
+            (
+                value.role,
+                str(value.artifact_id),
+                value.manifest_profile_sha256 or "",
+            )
+            for value in values
+        )
+    )
 
 
 class SemanticEpochHistoryAppendReceiptStatement(_EpochModel):

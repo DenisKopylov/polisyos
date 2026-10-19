@@ -208,10 +208,10 @@ def test_cli_rejects_corrupt_persisted_receipt(admission_request, capsys, monkey
     assert json.loads(output.err)["error"]
 
 
-def test_cli_preserves_legacy_negative_receipt_bytes(
+def test_cli_refuses_profileless_legacy_receipt_without_retagging(
     admission_request, capsys, monkeypatch
 ) -> None:
-    """Reading the original grammar does not insert a new null into its identity."""
+    """Profileless legacy history remains a typed refusal at the CLI boundary."""
     from polisyos.core.contracts import chronology as chronology_contract
     from polisyos.runtime.quality import acquisition_epoch_admission as cli
     from polisyos.runtime.quality import acquisition_executor
@@ -219,6 +219,7 @@ def test_cli_preserves_legacy_negative_receipt_bytes(
     request_path, store = admission_request
     original = acquisition_executor.admit_acquisition_with_production_semantic_epoch
     legacy_raw: list[bytes] = []
+    legacy_refs: list[artifacts.ArtifactRef] = []
 
     def legacy_production(**kwargs):
         receipt = original(**kwargs)
@@ -236,6 +237,7 @@ def test_cli_preserves_legacy_negative_receipt_bytes(
             ),
         )
         legacy_raw.append(raw)
+        legacy_refs.append(ref)
         return semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(
             {
                 **statement,
@@ -249,11 +251,14 @@ def test_cli_preserves_legacy_negative_receipt_bytes(
     monkeypatch.setattr(
         acquisition_executor, "admit_acquisition_with_production_semantic_epoch", legacy_production
     )
-    assert cli.main(["--request", str(request_path)]) == 1
+    assert cli.main(["--request", str(request_path)]) == 2
     output = capsys.readouterr()
-    assert output.err == ""
-    value = json.loads(output.out)
-    assert "chronology_projection_ref" not in value
-    reread = semantic_epoch.PersistedSemanticEpochProductionReceipt.model_validate(value)
-    assert reread.chronology_projection_ref is None
-    assert store.get_bytes(reread.receipt_ref.artifact_id) == legacy_raw[0]
+    assert output.out == ""
+    refusal = json.loads(output.err)
+    assert refusal == {
+        "error": "canon_profile_absent",
+        "error_type": "CanonicalProfileRefusalError",
+    }
+    assert len(legacy_raw) == len(legacy_refs) == 1
+    assert store.get_bytes(legacy_refs[0].artifact_id) == legacy_raw[0]
+    assert store.get_manifest(legacy_refs[0]).canon is None

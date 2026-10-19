@@ -11,7 +11,8 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import contracts
-from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo
+from polisyos.core.artifacts import artifact_manifest_profile_sha256, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.data_forge.domains.catalog.knowledge import overlay as overlay_module
@@ -39,11 +40,52 @@ from tests._helpers.semantic_epoch_native import (
 from tests.unit.runtime.quality.test_acquisition_executor import (
     _activate_real_epoch_scenario,
     _second_real_epoch_scenario,
+    _test_positive_production_receipt,
 )
 
 
 def _sha256(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _activation_database_snapshot(scenario) -> tuple[object, ...]:
+    """Capture every overlay row that activation may mutate for this passport."""
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        epoch = tuple(
+            con.execute(
+                "SELECT * FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+                [scenario.passport.epoch_id, str(scenario.passport.passport_id)],
+            ).fetchall()
+        )
+        members = tuple(
+            con.execute(
+                "SELECT * FROM acquisition_epoch_members WHERE epoch_id = ? AND passport_id = ? "
+                "ORDER BY table_name, canonical_primary_key_hash",
+                [scenario.passport.epoch_id, str(scenario.passport.passport_id)],
+            ).fetchall()
+        )
+        passport = tuple(
+            con.execute(
+                "SELECT * FROM acquisition_passports WHERE passport_id = ?",
+                [str(scenario.passport.passport_id)],
+            ).fetchall()
+        )
+        provenance = tuple(
+            con.execute(
+                "SELECT * FROM acquisition_observation_provenance "
+                "WHERE epoch_id = ? AND passport_id = ? ORDER BY observation_id",
+                [scenario.passport.epoch_id, str(scenario.passport.passport_id)],
+            ).fetchall()
+        )
+        receipts = tuple(
+            con.execute(
+                "SELECT * FROM acquisition_semantic_receipts ORDER BY receipt_ref"
+            ).fetchall()
+        )
+        return epoch, members, passport, provenance, receipts
+    finally:
+        con.close()
 
 
 def _admit(overlay, *, passport, store, authority):
@@ -1319,6 +1361,70 @@ def test_activation_retry_cannot_append_a_second_semantic_epoch(tmp_path: Path) 
     assert second.replayed is True
     assert first.receipt_ref == second.receipt_ref
     assert epoch_count == 1
+
+
+@pytest.mark.parametrize("tampered_sidecar", ["schema", "input_edges"])
+def test_activation_refuses_profiled_production_sidecar_drift_without_overlay_writes(
+    tmp_path: Path,
+    tampered_sidecar: str,
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path)
+    production = _test_positive_production_receipt(scenario)
+    original_ref = production.receipt_ref
+    original_manifest = scenario.store.get_manifest(original_ref)
+    raw = scenario.store.get_bytes(original_ref)
+
+    schema = None
+    inputs = list(original_manifest.inputs)
+    if tampered_sidecar == "schema":
+        schema = SchemaInfo(name="polisyos.test.tampered-epoch-receipt", version="1")
+    else:
+        unrelated_ref = scenario.store.put_bytes(
+            b"unrelated receipt input",
+            ArtifactWriteOptions(kind="test.unrelated", media_type="application/octet-stream"),
+        )
+        inputs = [input_ref_from_artifact_ref(unrelated_ref, role="epoch_production_input")]
+
+    tampered_ref = scenario.store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="epoch.production_receipt",
+            media_type="application/vnd.polisyos.epoch-production-receipt+json",
+            canon=contracts.epoch.epoch_canon_info(),
+            schema=schema,
+            inputs=inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert tampered_ref.artifact_id == original_ref.artifact_id
+    assert tampered_ref.manifest_profile_sha256 is not None
+    assert scenario.store.get_bytes(tampered_ref) == raw
+    tampered_manifest = scenario.store.get_manifest(tampered_ref)
+    assert tampered_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+        tampered_manifest
+    )
+    assert tampered_manifest.canon == contracts.epoch.epoch_canon_info()
+    if tampered_sidecar == "schema":
+        assert tampered_manifest.artifact_schema == schema
+        assert tampered_manifest.inputs == original_manifest.inputs
+    else:
+        assert tampered_manifest.artifact_schema is None
+        assert tampered_manifest.inputs == inputs
+
+    tampered_production = type(production).model_validate(
+        production.model_dump(mode="python") | {"receipt_ref": tampered_ref}
+    )
+    before = _activation_database_snapshot(scenario)
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="semantic_epoch_production_receipt_drift",
+    ):
+        scenario.overlay.activate_semantic_epoch(
+            pending_receipt=scenario.pending,
+            production_receipt=tampered_production,
+            artifact_store=scenario.store,
+        )
+    assert _activation_database_snapshot(scenario) == before
 
 
 def test_same_candidate_two_ordinals_change_native_not_semantic_denominator(

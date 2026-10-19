@@ -10,7 +10,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core import artifacts, security
+from polisyos.core import artifacts, contracts, security
 from polisyos.core.artifacts.signed_evidence import FileSystemSignedArtifactEvidenceRepository
 
 
@@ -253,6 +253,12 @@ def test_canonical_producer_persists_independently_readable_execution_origin(
         )
     assert origin.previous_epoch_manifest_ref == fixture.previous_ref
     assert origin.current_epoch_production_receipt_ref == fixture.current_receipt.receipt_ref
+    assert fixture.store.get_manifest(origin.previous_epoch_manifest_ref).canon == (
+        contracts.epoch.epoch_canon_info()
+    )
+    receipt_manifest = fixture.store.get_manifest(origin.current_epoch_production_receipt_ref)
+    assert receipt_manifest.canon == contracts.epoch.epoch_canon_info()
+    assert receipt_manifest.artifact_schema is None
     assert origin.transition_artifact_ref == result.transition_artifact_ref
 
     dependencies = cascade._read_model(

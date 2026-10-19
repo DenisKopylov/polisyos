@@ -1067,3 +1067,23 @@ key. Nested values continue through the existing validation and conflict
 checks. A role hint alone does not create a ref, and malformed, null, or
 conflicting explicit values remain rejected. This intake change does not verify
 artifact content or grant authority.
+
+## Semantic epoch CAS profile contract
+
+The semantic-epoch producer, native history repository, transition history/source resolver,
+transition-origin owner, certificate-issuance owner, native qualification consumer, and Data Forge
+Catalog overlay activation path share Core `load_verified_epoch_statement` for semantic manifests
+and production receipts. The reader requires exact kind/media, the declared Core epoch profile,
+absent artifact schema, one content-addressed frame, and the producer-declared direct input-edge
+closure. The producer and reader use one seven-field derivation for receipt `epoch_production_input`
+edges and preserve each direct ref's selected profile or default view. The separate
+`owner_denominator_receipt_refs` evidence vector remains owned by its verification consumers; Core
+profile admission does not validate it or turn it into direct CAS lineage. Data Forge maps Core
+refusals to its existing `OverlayAdmissionError` boundary before any activation write. A ref without
+a profile digest reads its actual default manifest and remains unchanged; it is accepted only when
+that manifest declares the exact Core profile. Historical manifests lacking Core CanonInfo remain
+typed refusals, including at acquisition-admission CLI readback and protected overlay activation.
+Readers never synthesize selectors or restamp manifests. CAS enumeration exposes only the default
+view; a non-default view is consumed only when its selector is already carried by the owner-produced
+ref. Core CanonInfo checks serialization only; it does not apply an IR law.
+

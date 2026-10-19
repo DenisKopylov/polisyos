@@ -288,13 +288,22 @@ class SemanticEpochNativePolicyOwner:
             raise ValueError("native denominator differs from canonical owner history")
         members = []
         for row in history.entries:
+            member_mapping = contracts.epoch.load_verified_epoch_statement(
+                store=self._store,
+                ref=row.native_member_ref,
+                expected_kind="epoch.semantic_manifest",
+            )
             member_raw = self.deployment._runtime_repository().read_raw(
                 artifact_ref=row.native_member_ref
             )
-            manifest = security.parse_canonical_statement(member_raw, SemanticEpochManifest)
+            manifest = SemanticEpochManifest.model_validate(member_mapping)
+            expected_member_raw = contract._frame_record(
+                contracts.epoch.canonical_epoch_bytes(member_mapping)
+            )
             if (
                 row.native_member_ref != row.manifest_ref
                 or row.native_member_ref.kind != "epoch.semantic_manifest"
+                or member_raw != expected_member_raw
                 or security.raw_content_hash(member_raw) != row.native_member_content_hash
                 or manifest.epoch_ref != row.epoch_ref
                 or manifest.manifest_content_hash != row.manifest_content_hash

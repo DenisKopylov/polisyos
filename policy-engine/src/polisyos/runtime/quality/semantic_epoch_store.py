@@ -167,31 +167,16 @@ class FileSemanticEpochHistoryRepository:
                 scratch.unlink()
 
     def _manifest(self, manifest_ref: ArtifactRef) -> tuple[SemanticEpochManifest, bytes]:
-        from polisyos.core.artifacts import load_core_json_frame_records
-
-        report = self._artifacts.verify(manifest_ref)
+        mapping = epoch_contract.load_verified_epoch_statement(
+            store=self._artifacts,
+            ref=manifest_ref,
+            expected_kind="epoch.semantic_manifest",
+        )
+        manifest = SemanticEpochManifest.model_validate(mapping)
         raw = self._artifacts.get_bytes(manifest_ref)
-        manifest = self._artifacts.get_manifest(manifest_ref)
-        if (
-            manifest_ref.kind != "epoch.semantic_manifest"
-            or manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
-            or manifest.kind != "epoch.semantic_manifest"
-            or manifest.media_type != "application/vnd.polisyos.epoch+json"
-        ):
-            raise ValueError("semantic manifest artifact profile mismatch")
-        records = chronology_contract._split_framed_records(raw)
-        if (
-            not report.ok
-            or _sha256(raw) != str(manifest_ref.artifact_id)
-            or manifest.artifact_id != manifest_ref.artifact_id
-            or manifest.kind != manifest_ref.kind
-            or manifest.media_type != manifest_ref.media_type
-            or len(records) != 1
-        ):
-            raise ValueError("semantic manifest CAS readback failed")
-        return SemanticEpochManifest.model_validate(
-            load_core_json_frame_records(self._artifacts, manifest_ref, raw_payload_bytes=raw)[0]
-        ), raw
+        if _sha256(raw) != str(manifest_ref.artifact_id):
+            raise ValueError("semantic manifest CAS readback changed after profile admission")
+        return manifest, raw
 
     def _validate_history_row(
         self,

@@ -8,7 +8,10 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts
+from polisyos.core.contracts import chronology as chronology_contract
+from polisyos.core.contracts import epoch as epoch_contract
 
 
 def _module():
@@ -30,7 +33,61 @@ def test_source_resolution_uses_native_head_and_direct_predecessor(tmp_path: Pat
         authority_purpose="decision_validity",
     )
     assert source.previous_epoch_manifest_ref == fixture.previous_ref
-    assert source.current_epoch_production_receipt_ref == fixture.current_receipt.receipt_ref
+    assert source.current_epoch_production_receipt_ref.manifest_profile_sha256 is None
+    assert source.current_epoch_production_receipt_ref == artifacts.ArtifactRef(
+        artifact_id=fixture.current_receipt.receipt_ref.artifact_id,
+        kind=fixture.current_receipt.receipt_ref.kind,
+        media_type=fixture.current_receipt.receipt_ref.media_type,
+    )
+    assert (
+        fixture.store.get_manifest(source.current_epoch_production_receipt_ref).canon
+        == epoch_contract.epoch_canon_info()
+    )
+
+
+def test_source_resolution_refuses_profileless_same_kind_receipt_before_selection(
+    tmp_path: Path,
+) -> None:
+    """A profileless same-kind row is a typed refusal, even outside the query."""
+    from polisyos.runtime.quality import semantic_epoch
+    from tests.unit.runtime.quality.test_epoch_validity_cascade import _transition_history_fixture
+
+    fixture = _transition_history_fixture(tmp_path)
+    digest = fixture.current.requested_query_context_ref
+    negative = semantic_epoch.SemanticEpochProductionReceipt(
+        production_mode="ordinary",
+        status="not_established",
+        prepared_epoch_ref=None,
+        admitted_boundary_evidence_ref=None,
+        epoch_ref=None,
+        semantic_manifest_ref=None,
+        owner_denominator_receipt_refs=(),
+        history_append_receipt_ref=None,
+        chronology_bundle_ref=None,
+        chronology_verification_ref=None,
+        requested_query_context_ref=digest,
+        failure_codes=("profileless_history_probe",),
+    )
+    raw = chronology_contract._frame_record(
+        epoch_contract.canonical_epoch_bytes(negative.statement_projection())
+    )
+    profileless_ref = fixture.store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind="epoch.production_receipt",
+            media_type="application/vnd.polisyos.epoch-production-receipt+json",
+        ),
+    )
+    assert profileless_ref.manifest_profile_sha256 is None
+
+    resolver = _module().CanonicalEpochTransitionSourceResolver(
+        artifacts=fixture.store, history=fixture.history
+    )
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        resolver.resolve_transition_source(
+            requested_query_context_ref=fixture.current.requested_query_context_ref,
+            authority_purpose="decision_validity",
+        )
 
 
 @pytest.mark.parametrize(

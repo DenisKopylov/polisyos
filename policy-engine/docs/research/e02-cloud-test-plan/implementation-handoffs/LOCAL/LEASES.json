@@ -24572,5 +24572,224 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "core-epoch-owner-producer-and-reader-contract-v4-20261020": {
+    "slice_base": "b76b4d016738e2d71f518fe6fca0bf183137e406",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-19-semantic-epoch-owner-reader-profile-contract.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/release-fragments/unreleased/2026-10-19-semantic-epoch-owner-reader-profile-contract.toml",
+        "postimage_sha256": "610dd561fd68f9ebd06d9e951c53b5674a9f100f9399b5ece2339303dcd0b552"
+      },
+      "policy-engine/src/polisyos/core/contracts/README.md": {
+        "operation": "write",
+        "preimage_sha256": "cefaca709aff1e698b7147f4b1ca3f8e6da9b5c12047c1766cc0baf5a7694696",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/core/contracts/README.md",
+        "postimage_sha256": "9eeea941c4a37c47ab564d173fd328da75d86a7b704ab3e7e1116be09fb91f94"
+      },
+      "policy-engine/src/polisyos/core/contracts/epoch.py": {
+        "operation": "write",
+        "preimage_sha256": "a1d151ccee1b539790ec4bda9d25c689f4145acbc860ca6bfeddca51e56d7f09",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/core/contracts/epoch.py",
+        "postimage_sha256": "6448347899f1306e2b35f7f50050aa636235b1bfbaa25aaa488f0bde958146b1"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md": {
+        "operation": "write",
+        "preimage_sha256": "fcc078a7475e4563f4539a0756b96b3c07a8cb98f5aa68e0a25b2632c55d80fe",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+        "postimage_sha256": "5b3864bb06707935487ea8e71e4efc3f6149b308b60704a4c19a172afc077de0"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py": {
+        "operation": "write",
+        "preimage_sha256": "af0345fc38a195ef85aee960126e80eb79a2f19c54028dd5ce24b86b7444d152",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "postimage_sha256": "c8b2aa454084e8d889a27b70eaa508568aa7a9a0298e9771d0de0b8ab5d2b451"
+      },
+      "policy-engine/src/polisyos/runtime/quality/README.md": {
+        "operation": "write",
+        "preimage_sha256": "1b0df1871214eb4f4f3a297adc22bdc064599da23711598f732d9e59a117ec8e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/README.md",
+        "postimage_sha256": "f294d4e076d4e553708a1c0216c23266561431bce4bc53cec2d41c91b7002b25"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py": {
+        "operation": "write",
+        "preimage_sha256": "0b5fd443010f1b885c07ef742849cd590048f8a28a11c0bd3576054c67795351",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+        "postimage_sha256": "0e35cbe46167882b0de7fe1852eb3c7967009b742acd2007c89fe66c5f7fbbf9"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py": {
+        "operation": "write",
+        "preimage_sha256": "86f8d94f952f321af51babddfddc32c9a9298b30955d099a1f2010be57ee242f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/epoch_transition_inputs.py",
+        "postimage_sha256": "0710ff292664fa409304c12edc82f7fdb3f291a562a8513a30250cdc52833bac"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py": {
+        "operation": "write",
+        "preimage_sha256": "073579152df0cb4347f26db55ca1fb70a6d5faebf7b1d261d3211a799ce4701f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/epoch_transition_origin.py",
+        "postimage_sha256": "6757f02d7150e3abb16ee053810adf3dfae531f36d6828c30c82d91b661be0b3"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py": {
+        "operation": "write",
+        "preimage_sha256": "ae97dd712ef723275ace63273039473a7d9e0482adebedffece9b8985f472c9c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "postimage_sha256": "2d468a397b3c4d8a0a0ae1d7d98e130defd33d36d6c5022917a1bbf81028170a"
+      },
+      "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py": {
+        "operation": "write",
+        "preimage_sha256": "0fce8c956b42613777b0cd7dc3dcfb115e7e3bfb457f8440d871d82f44422852",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "postimage_sha256": "a09f2b9f17ed7923a7313a23ec6d3df141036790a466a51d67f7123b7f6bc0d7"
+      },
+      "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py": {
+        "operation": "write",
+        "preimage_sha256": "4590464873d9b94026d965849a7cd3abfdc35c94119a5e9175372bc6ac8fee55",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+        "postimage_sha256": "e73fd31facfa750d1b8ea5164a465340fbee2b45f80bb41a652028e0c34b85f8"
+      },
+      "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py": {
+        "operation": "write",
+        "preimage_sha256": "b84b5151aaf703e968d9d855b8c414bad8e4daf06a62c01eade2c66533fb8c77",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+        "postimage_sha256": "f10b10bb7d8b853869a45e619137bb812e45151d96463990956684f11630bde3"
+      },
+      "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py": {
+        "operation": "write",
+        "preimage_sha256": "05735b77499fc6eb97a1bff3849aacfcf5b8d7fe3af517e244b48f2786f064ff",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+        "postimage_sha256": "579c89d5a874fb6379119766a014eaa8875eae3258deaf089b1cfe6fff3f774e"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py": {
+        "operation": "write",
+        "preimage_sha256": "e24e75caa3a6cdc42ec9c0230d0fcd56d67d570c58ed71420fe623218dad9f52",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+        "postimage_sha256": "ac32a93012a3be970f84c58937b8c62b23ca51779560e8549647114b053c17eb"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py": {
+        "operation": "write",
+        "preimage_sha256": "b3d58595c247eb194bf53a0fb9eeda19c932b7184a412e7aa64d5ad640868167",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+        "postimage_sha256": "653bbf980aaf2b4ac25f1db4650cb38d93a86cc904182381cf39f4e9a259d6ab"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py": {
+        "operation": "write",
+        "preimage_sha256": "b3b91e2ae99acce85f0e7d0ba0716771f413d670e798dd324649e1662e335a04",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/tests/unit/runtime/quality/test_epoch_transition_origin.py",
+        "postimage_sha256": "4dab255236bb93e21b2174c3d6e854b0a07f4fc876eb08859169e5c9206ce934"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py": {
+        "operation": "write",
+        "preimage_sha256": "a3c8131d1471ec8301ea7f4adf4d0c218dead217141c387d1102492f81688741",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+        "postimage_sha256": "d6ee3ee698ff013be526582a01593f430fd559f313f1f5f7daaa991c42304b1f"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py": {
+        "operation": "write",
+        "preimage_sha256": "73d3cb61abc2264b0c8ba657c1db611b4d041b59fb5ef4d61e18631b338dff26",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/postimages-v4/policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py",
+        "postimage_sha256": "2e91c3d9a61d4fdd3d5e1daea6eb9588c1af517cd25fa4bc21ead8208f1a9bf2"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/source-application.json",
+      "sha256": "6abf9672479c442d1b3499a2ff43a8704f18b314cdd385e1aa8105049d706a70"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can-epoch-reader-contract-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/manifest-v4.json",
+        "sha256": "70b4c10a14952ef1f26c0590b5ee469337d5c6aebc8255621288547b69c7430d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/readonly-cas-bridge-independent-review-20261019/review-v4-delta.json",
+        "sha256": "9480f2bbf748fcd8d5dba2751ccfa7a6030d55a6de3eeb67051e47d5f705f768"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/readonly-cas-bridge-independent-review-20261019/review-v3.json",
+        "sha256": "da9acd5372c3a81323295d196230c624ac7f7f126ae6627fc3c4f188b1eea9f7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/patch-v4.diff",
+        "sha256": "eb2ad00a1c50c5b0607ab92dc8b37f6e239a97feeba84603686b4962761324b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/classification-v4.md",
+        "sha256": "c0af3fc14e16022893b6f537f5641bb1f300e6380babb8dcf527a7330ead64d3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/delta-from-v3-v4.json",
+        "sha256": "664e2420380b486251e25c8c5704343380f60618133498f78e5235d0bc2d3548"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/epoch-artifact-reader-contract-author-v4-20261019/test-scope-v4.json",
+        "sha256": "9e9c6331cf72f20b65379750dec599f4b98da154b4844ca7d1650dc779397ab8"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same profile-composition class widened across the actual full reader set; one Core intake, no reader materialization, restamping or new IR law.",
+    "bounded_proof": "Independent v3 semantic review and v4 read-protocol delta GO. Exact source preimages and postimages verified; canonical runtime is UNRUN.",
+    "limitations": [
+      "Valid unselected child refs retain actual default CAN views; protected activation keeps producer-selected top-level receipt requirement.",
+      "Truly profileless historical manifests remain typed refusals; production manifests are not rewritten.",
+      "Core profile admission proves serialization/direct edges, not owner-denominator evidence, causal calibration, issuer or currentness.",
+      "Unreferenced selected-view discovery/index remains unavailable.",
+      "Ten whole affected modules and origin/profileless discriminators require adopted-source replay.",
+      "Existing exports/G resources preserved; public-surface review, release and G acceptance are unestablished.",
+      "Two known-owned incomplete N7/B108 test edits preserved unchanged outside the commit; no whole-worktree clean or complete freeze claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run actual epoch-origin positive and profileless-history refusal; after all blocking reviews replay pinned ten-module union and final CAN21 with source/profile/input freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

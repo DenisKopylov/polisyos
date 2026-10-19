@@ -214,53 +214,23 @@ class FileEpochTransitionOriginOwner:
         kind: str,
         media_type: str,
     ) -> Model:
-        from polisyos.core.artifacts import load_core_json_frame_records
-
-        raw = self._artifacts.get_bytes(ref)
-        manifest = self._artifacts.get_manifest(ref)
-        frames = contracts.chronology._split_framed_records(raw)
-        if (
-            not self._artifacts.verify(ref).ok
-            or str(ref.artifact_id) != security.raw_content_hash(raw)
-            or ref.kind != kind
-            or manifest.kind != kind
-            or ref.media_type != media_type
-            or manifest.media_type != media_type
-            or manifest.artifact_id != ref.artifact_id
-            or manifest.artifact_schema is not None
-            or manifest.canon is not None
-            or len(frames) != 1
-        ):
-            raise ValueError("epoch_origin_retained_source_mismatch")
-        value = model.model_validate(
-            load_core_json_frame_records(self._artifacts, ref, raw_payload_bytes=raw)[0]
+        mapping = contracts.epoch.load_verified_epoch_statement(
+            store=self._artifacts,
+            ref=ref,
+            expected_kind=kind,
+            expected_media_type=media_type,
         )
+        value = model.model_validate(mapping)
         statement = (
             value.statement_projection()
             if isinstance(value, SemanticEpochProductionReceipt)
             else value
         )
+        raw = self._artifacts.get_bytes(ref)
         if raw != contracts.chronology._frame_record(
             contracts.epoch.canonical_epoch_bytes(statement)
         ):
             raise ValueError("epoch_origin_retained_source_noncanonical")
-        if isinstance(value, SemanticEpochProductionReceipt):
-            expected_inputs = tuple(
-                artifacts.input_ref_from_artifact_ref(source, role="epoch_production_input")
-                for source in (
-                    value.prepared_epoch_ref,
-                    value.admitted_boundary_evidence_ref,
-                    value.semantic_manifest_ref,
-                    value.history_append_receipt_ref,
-                    value.chronology_bundle_ref,
-                    value.chronology_verification_ref,
-                    value.chronology_projection_ref,
-                )
-                if source is not None
-            )
-            ordered = cascade.FileSemanticEpochTransitionHistoryAdapter._sorted_inputs
-            if ordered(manifest.inputs) != ordered(expected_inputs):
-                raise ValueError("epoch_origin_retained_receipt_inputs_mismatch")
         return value
 
     def _verify_origin(self, origin: EpochTransitionOriginStatement) -> None:

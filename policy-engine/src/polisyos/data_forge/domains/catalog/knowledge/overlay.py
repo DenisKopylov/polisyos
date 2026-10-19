@@ -1916,27 +1916,24 @@ class CatalogAcquisitionOverlay:
             raise OverlayAdmissionError("semantic_epoch_production_profile_missing")
         if not artifact_store.has(production_ref):
             raise OverlayAdmissionError("semantic_epoch_production_receipt_missing")
-        production_report = artifact_store.verify(production_ref)
-        production_manifest = artifact_store.get_manifest(production_ref)
-        production_raw = artifact_store.get_bytes(production_ref)
-        if (
-            not production_report.ok
-            or production_manifest.artifact_id != production_ref.artifact_id
-            or production_manifest.kind != production_ref.kind
-            or production_manifest.media_type != production_ref.media_type
-            or production_manifest.canon != epoch_contract.epoch_canon_info()
-            or production_ref.kind != "epoch.production_receipt"
-            or production_ref.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
-            or f"sha256:{hashlib.sha256(production_raw).hexdigest()}"
-            != str(production_ref.artifact_id)
-        ):
-            raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")
-        persisted = _load_profiled_framed_statement(
-            artifact_store=artifact_store,
-            ref=production_ref,
-            expected_kind="epoch.production_receipt",
-            raw_payload_bytes=production_raw,
-        )
+        from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
+        try:
+            persisted = epoch_contract.load_verified_epoch_statement(
+                store=artifact_store,
+                ref=production_ref,
+                expected_kind="epoch.production_receipt",
+                expected_media_type=("application/vnd.polisyos.epoch-production-receipt+json"),
+            )
+        except CanonicalProfileRefusalError as exc:
+            raise OverlayAdmissionError(
+                "semantic_external_receipt_profile_unverified",
+                f"epoch.production_receipt: {exc}",
+            ) from exc
+        except (TypeError, ValueError) as exc:
+            raise OverlayAdmissionError(
+                "semantic_epoch_production_receipt_drift", str(exc)
+            ) from exc
         expected = production_receipt.statement_projection()
         if persisted != expected:
             raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")

@@ -25,6 +25,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon, contracts
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.runtime.quality.chronology_qualification import (
@@ -348,6 +349,18 @@ def _load_selected_acquisition_mapping(
     store: ArtifactStore, ref: ArtifactRef, *, expected_kind: str
 ) -> dict[str, object]:
     """Resolve one selected acquisition payload through its registered byte codec."""
+    if expected_kind in {"epoch.semantic_manifest", "epoch.production_receipt"}:
+        expected_media_type = (
+            "application/vnd.polisyos.epoch-production-receipt+json"
+            if expected_kind == "epoch.production_receipt"
+            else "application/vnd.polisyos.epoch+json"
+        )
+        return epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=ref,
+            expected_kind=expected_kind,
+            expected_media_type=expected_media_type,
+        )
     codec = epoch_contract.acquisition_artifact_codec(expected_kind, media_type=ref.media_type)
     if (
         codec is None
@@ -462,7 +475,11 @@ def _load_selected_acquisition_mapping(
 def _load_owner_projection_mapping(
     store: ArtifactStore, ref: ArtifactRef
 ) -> tuple[ArtifactRef, dict[str, object]]:
-    """Resolve a profileless owner projection through its actual default manifest."""
+    """Resolve an owner ref without a selector through its actual default manifest.
+
+    The shared Core reader preserves the ref and refuses when the manifest itself
+    lacks the declared Core profile.
+    """
     codec = epoch_contract.acquisition_artifact_codec(ref.kind, media_type=ref.media_type)
     if (
         codec is None
@@ -482,6 +499,8 @@ def _load_owner_projection_mapping(
         or codec.media_type != ref.media_type
     ):
         raise ValueError("owner reference has no registered content resolver")
+    if ref.kind in {"epoch.semantic_manifest", "epoch.production_receipt"}:
+        return ref, _load_selected_acquisition_mapping(store, ref, expected_kind=ref.kind)
     if ref.manifest_profile_sha256 is None:
         manifest = store.get_manifest(ref)
         if (
@@ -2452,9 +2471,16 @@ def _persist_model(
         or len(records) != 1
     ):
         raise RuntimeError("semantic epoch artifact CAS readback failed")
-    reparsed = value.__class__.model_validate(
-        load_core_json_frame_records(store, ref, raw_payload_bytes=readback)[0]
+    decoded = (
+        epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=ref,
+            expected_kind="epoch.semantic_manifest",
+        )
+        if kind == "epoch.semantic_manifest"
+        else load_core_json_frame_records(store, ref, raw_payload_bytes=readback)[0]
     )
+    reparsed = value.__class__.model_validate(decoded)
     if reparsed != value:
         raise RuntimeError("semantic epoch artifact changed after CAS readback")
     return ref, _model_hash(kind.encode() + b"\0", value)
@@ -2464,28 +2490,23 @@ def persist_semantic_epoch_production_receipt(
     *, store: ArtifactStore, receipt: SemanticEpochProductionReceipt
 ) -> PersistedSemanticEpochProductionReceipt:
     """Persist and reread one exact production receipt without self-reference."""
-    from polisyos.core.artifacts import load_core_json_frame_records
-
     # Current writes keep the v1 explicit-null field. Historical reads use
     # model_fields_set to preserve an absent field from older receipt bytes.
     current_receipt = receipt.model_copy(
         update={"chronology_projection_ref": receipt.chronology_projection_ref}
     )
     statement = current_receipt.statement_projection()
-    raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
-    inputs = [
-        artifacts.input_ref_from_artifact_ref(ref, role="epoch_production_input")
-        for ref in (
-            receipt.prepared_epoch_ref,
-            receipt.admitted_boundary_evidence_ref,
-            receipt.semantic_manifest_ref,
-            receipt.history_append_receipt_ref,
-            receipt.chronology_bundle_ref,
-            receipt.chronology_verification_ref,
-            receipt.chronology_projection_ref,
+    if current_receipt.semantic_manifest_ref is not None:
+        manifest_mapping = epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=current_receipt.semantic_manifest_ref,
+            expected_kind="epoch.semantic_manifest",
         )
-        if ref is not None
-    ]
+        semantic_manifest = SemanticEpochManifest.model_validate(manifest_mapping)
+        if semantic_manifest.epoch_ref != current_receipt.epoch_ref:
+            raise ValueError("epoch production receipt semantic manifest differs")
+    raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
+    inputs = list(epoch_contract._semantic_epoch_production_receipt_input_refs(current_receipt))
     receipt_ref = store.put_bytes(
         raw,
         ArtifactWriteOptions(
@@ -2512,11 +2533,15 @@ def persist_semantic_epoch_production_receipt(
         or len(records) != 1
     ):
         raise RuntimeError("epoch production receipt frame denominator differs from one")
+    reread = epoch_contract.load_verified_epoch_statement(
+        store=store,
+        ref=receipt_ref,
+        expected_kind="epoch.production_receipt",
+        expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
+    )
     if (
-        SemanticEpochProductionReceipt.model_validate(
-            load_core_json_frame_records(store, receipt_ref, raw_payload_bytes=readback)[0]
-        )
-        != receipt
+        reread != statement
+        or SemanticEpochProductionReceipt.model_validate(reread) != current_receipt
     ):
         raise RuntimeError("epoch production receipt changed after CAS readback")
     return PersistedSemanticEpochProductionReceipt(
@@ -4633,8 +4658,6 @@ class SemanticEpochService:
         self, *, query: EpochResolutionQuery
     ) -> PersistedSemanticEpochProductionReceipt:
         """Resolve complete owner inputs, append native history, and persist C2 proof."""
-        from polisyos.core.artifacts import load_core_json_frame_records
-
         self._require_resolution_components()
         try:
             batches, facets = self._collect(query=query)
@@ -4650,12 +4673,18 @@ class SemanticEpochService:
                 facet_values=facets,
                 prior_manifests=tuple(
                     SemanticEpochManifest.model_validate(
-                        load_core_json_frame_records(self._artifact_store, row.manifest_ref)[0]
+                        epoch_contract.load_verified_epoch_statement(
+                            store=self._artifact_store,
+                            ref=row.manifest_ref,
+                            expected_kind="epoch.semantic_manifest",
+                        )
                     )
                     for row in history.entries
                 ),
             )
             return self._append_and_qualify(query=query, result=result, mode="ordinary")
+        except CanonicalProfileRefusalError:
+            raise
         except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return self._negative(
                 mode="ordinary",
@@ -4671,8 +4700,6 @@ class SemanticEpochService:
         boundary_candidate_refs: Mapping[str, tuple[ArtifactRef, ...]],
     ) -> PreparedSemanticEpoch:
         """Persist a stable candidate/stamp without moving a native head."""
-        from polisyos.core.artifacts import load_core_json_frame_records
-
         self._require_resolution_components()
         batches, facets = self._collect(
             query=query,
@@ -4690,7 +4717,11 @@ class SemanticEpochService:
             facet_values=facets,
             prior_manifests=tuple(
                 SemanticEpochManifest.model_validate(
-                    load_core_json_frame_records(self._artifact_store, row.manifest_ref)[0]
+                    epoch_contract.load_verified_epoch_statement(
+                        store=self._artifact_store,
+                        ref=row.manifest_ref,
+                        expected_kind="epoch.semantic_manifest",
+                    )
                 )
                 for row in history.entries
             ),
@@ -4844,7 +4875,6 @@ class SemanticEpochService:
         admitted_boundary_evidence_ref: ArtifactRef,
     ) -> PersistedSemanticEpochProductionReceipt:
         """Re-enumerate owner state and append only the admitted stable candidate."""
-        from polisyos.core.artifacts import load_core_json_frame_records
         from polisyos.fabric.data_plane import content_sha256
 
         self._require_resolution_components()
@@ -5150,7 +5180,11 @@ class SemanticEpochService:
                 facet_values=facets,
                 prior_manifests=tuple(
                     SemanticEpochManifest.model_validate(
-                        load_core_json_frame_records(self._artifact_store, row.manifest_ref)[0]
+                        epoch_contract.load_verified_epoch_statement(
+                            store=self._artifact_store,
+                            ref=row.manifest_ref,
+                            expected_kind="epoch.semantic_manifest",
+                        )
                     )
                     for row in history.entries
                 ),
@@ -5164,6 +5198,8 @@ class SemanticEpochService:
                 prepared_ref=prepared_epoch_ref,
                 admitted_ref=admitted_boundary_evidence_ref,
             )
+        except CanonicalProfileRefusalError:
+            raise
         except KeyError, OSError, RuntimeError, TypeError, ValueError:
             if prepared_for_failure is not None:
                 return self._negative(

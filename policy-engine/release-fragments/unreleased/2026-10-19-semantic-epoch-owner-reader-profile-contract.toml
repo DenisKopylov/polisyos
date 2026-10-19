@@ -1,0 +1,44 @@
+id = "2026-10-19-semantic-epoch-owner-reader-profile-contract"
+title = "Bind epoch owner statement reads to their Core profiles"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Semantic epoch manifests and production receipts share one Core-profile read contract across the producer, native history, transition/source, issuance, qualification, and Data Forge activation consumers."
+evidence = [
+  "tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+  "tests/unit/runtime/quality/test_acquisition_epoch_admission.py",
+  "tests/unit/runtime/quality/test_semantic_epoch_store.py",
+  "tests/unit/runtime/quality/test_epoch_transition_inputs.py",
+  "tests/unit/runtime/quality/test_epoch_transition_origin.py",
+  "tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+]
+compatibility = "Historical semantic manifests and production receipts whose manifest omits Core CanonInfo continue to refuse as typed CanonicalProfileRefusalError and are not retagged. A ref without a profile digest may still resolve its actual default manifest when that manifest declares Core CanonInfo; the reader leaves the incoming ref unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts.epoch.load_verified_epoch_statement"
+migration = "No migration or restamping is available for historical owner manifests without Core CanonInfo. Reissue only through the owning semantic-epoch producer with the declared Core epoch profile and its seven owner-declared direct input edges."
+api = "The existing load_verified_epoch_statement contract checks exact kind/media type, schema absence, Core epoch CanonInfo, frame/content identity, and the producer-declared direct-edge closure for semantic manifests and production receipts. The producer and reader share one seven-field edge derivation; owner_denominator_receipt_refs remain separate payload-level verification evidence and are not validated or promoted by this reader. Data Forge activation maps reader refusals to its existing OverlayAdmissionError before writes. No new export, signature, schema version, OpenAPI, or generated-client surface was added; public-surface inventory review remains not established."
+limitations = "The source resolver enumerates default CAS views; separately selected views are consumed only when the incoming ref already carries the selector; an unselected ref reads the actual default manifest, if it has Core CanonInfo. The reader leaves input refs unchanged. Readers do not validate owner_denominator_receipt_refs, apply an IR law, authorize a native epoch, or establish currentness."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "src/polisyos/core/contracts/README.md",
+  "src/polisyos/runtime/quality/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "semantic-epoch-owner-statement-core-read-contract"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.core.contracts.epoch.load_verified_epoch_statement"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "Semantic epoch owner reads require the canonical Core serialization profile and the seven owner-declared direct receipt edges; historical owner manifests without Core CanonInfo remain typed refusals."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "src/polisyos/core/contracts/README.md",
+  "src/polisyos/runtime/quality/README.md",
+]
+runbook_docs = []

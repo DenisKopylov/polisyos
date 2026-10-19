@@ -7,6 +7,8 @@ from typing import Any
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core import artifacts
 from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, FileSystemCAS
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
@@ -371,6 +373,52 @@ def test_scope_history_rebuild_contains_every_native_member(tmp_path: Path) -> N
         entries=(first_entry, second_entry),
         heads=(second.epoch_ref,),
     )
+
+
+def test_history_manifest_reader_requires_profile_and_empty_input_closure(
+    tmp_path: Path,
+) -> None:
+    """History reads preserve profileless refusal and reject hidden parent edges."""
+    scope = _scope()
+    manifest = _manifest(scope=scope, label="reader-contract", predecessors=())
+    raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(manifest))
+
+    profileless_store = FileSystemCAS(tmp_path / "profileless-cas")
+    profileless_ref = profileless_store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="epoch.semantic_manifest",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+    )
+    profileless_history = FileSemanticEpochHistoryRepository(
+        root=tmp_path / "profileless-history",
+        artifacts=profileless_store,
+    )
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        profileless_history._manifest(profileless_ref)
+
+    profiled_store = FileSystemCAS(tmp_path / "profiled-cas")
+    anchor = profiled_store.put_bytes(
+        b"hidden-manifest-parent",
+        ArtifactWriteOptions(kind="epoch.test_anchor", media_type="application/octet-stream"),
+    )
+    hidden_edge_ref = profiled_store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="epoch.semantic_manifest",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+            inputs=[artifacts.input_ref_from_artifact_ref(anchor, role="semantic_basis")],
+        ),
+        return_selected_profile=True,
+    )
+    profiled_history = FileSemanticEpochHistoryRepository(
+        root=tmp_path / "profiled-history",
+        artifacts=profiled_store,
+    )
+    with pytest.raises(ValueError, match="input closure differs"):
+        profiled_history._manifest(hidden_edge_ref)
 
 
 def test_manifest_artifact_profile_must_be_exact(tmp_path: Path) -> None:

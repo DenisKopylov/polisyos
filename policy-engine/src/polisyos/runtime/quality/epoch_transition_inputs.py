@@ -81,9 +81,6 @@ class CanonicalEpochTransitionSourceResolver:
             # Validate before filtering, so malformed same-kind records are not
             # quietly dropped from the purported complete source population.
             receipt = self._adapter._read_production_receipt(ref)
-            manifest = self._artifacts.get_manifest(ref)
-            if manifest.artifact_schema is not None or manifest.canon is not None:
-                raise ValueError("epoch_transition_source_receipt_profile_mismatch")
             if receipt.requested_query_context_ref != requested_query_context_ref:
                 continue
             if receipt.status not in {"appended", "no_change"}:
@@ -572,7 +569,7 @@ class EpochTransitionProductionBridge:
             if result.transition_artifact_ref != transition_artifact_ref:
                 raise ValueError("epoch_transition_requested_output_mismatch")
             return result
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return cascade.EpochTransitionSigningNonReceipt(
                 status="not_established",
                 code="epoch_transition_exact_evidence_unavailable",

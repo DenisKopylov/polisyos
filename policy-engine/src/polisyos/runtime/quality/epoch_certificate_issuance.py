@@ -354,19 +354,12 @@ class DecisionPacketEpochIssuanceOwner:
         return ref
 
     def _read_epoch(self, ref: ArtifactRef) -> SemanticEpochManifest:
-        raw = self._read_exact(ref)
-        if (
-            ref.kind != "epoch.semantic_manifest"
-            or ref.media_type != "application/vnd.polisyos.epoch+json"
-        ):
-            raise ValueError("epoch_certificate_issuance_evidence_unresolved")
-        records = contracts.chronology._split_framed_records(raw)
-        if len(records) != 1:
-            raise ValueError("epoch_certificate_issuance_evidence_unresolved")
-        epoch = SemanticEpochManifest.model_validate(canon.from_canonical_bytes(records[0]))
-        if contracts.chronology._frame_record(contracts.epoch.canonical_epoch_bytes(epoch)) != raw:
-            raise ValueError("epoch_certificate_issuance_evidence_unresolved")
-        return epoch
+        mapping = contracts.epoch.load_verified_epoch_statement(
+            store=self.store,
+            ref=ref,
+            expected_kind="epoch.semantic_manifest",
+        )
+        return SemanticEpochManifest.model_validate(mapping)
 
     def _read_basis(
         self, preparation: PersistedEpochCertificateIssuancePreparation

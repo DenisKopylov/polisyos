@@ -1,0 +1,304 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "source_frame": {
+    "slice_base": "67712ca142d010aa1881b502f973f8548c415b4d",
+    "candidate": "964e2463566639601f7e986f0b03b4cdd45d95ab",
+    "tree": "26eab8439e599d7c6e69dd923df4b0cdac71308a",
+    "parents": [
+      "67712ca142d010aa1881b502f973f8548c415b4d"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "tracked_worktree_clean_at_receipt": true
+  },
+  "property": "Preserve runtime/coercion/optional-backend behavior while typing actual SDK and registry/cache/federation/custody seams; refuse persisted fetch success with missing catalog binding before CAS writes. Retain documented public schema/mapping contracts.",
+  "full_footprint": {
+    "path_count": 61,
+    "mechanism_paths": 57,
+    "changed_test_companions": 2,
+    "delivery_metadata_paths": 2,
+    "complete_commit_path_and_sha256_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/native-122-reviewed-typing-and-custody-source-20261019-readback.json",
+      "sha256": "a4e6686cb0840e04f042396b9d1afaf819fede3da795d385beb648e4092f45d5"
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-owner-candidate-r2-20261019/manifest.json",
+      "sha256": "279ddf8b8df69ab1295e352b3c052c9f19902a6733bed17f38bc5f671133d017"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-b-adapter-candidate-r2-20261019/manifest.json",
+      "sha256": "8c6eac7fabb95707a7cbae8945b42f8c46cbb9316be196be5a0e19f1037523c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-c-custody-candidate-20261019/r5/candidate-manifest.json",
+      "sha256": "50b2ba10b734aed90a26a76206c7b6b2e29d8aef75a5a20293b1b0a731718de2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-d-pipeline-candidate-r3-binding-20261019/manifest.json",
+      "sha256": "0e6daf7b382a107e3621662352778b2be55c902d8e2a19f7d4c4589fdb0e7004"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-fsspec-typed-boundary-r2-corrected-20261019/manifest.json",
+      "sha256": "f466cee4578696e5e98f89ede9a5d381fd257e4c2ce999b587d40b771817a5bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-r2-independent-20261019/review.json",
+      "sha256": "cf5e53f23b0d7689f392b02da1c6326365a0fbbb6f2f73f5800e2bc2b222295f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-b-independent-20261019/packet-seal.json",
+      "sha256": "652c02a85b813a9201c0d06ffe9f3e92c86f01f53523271c508969ce80099ea7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-c-independent-20261019/review.json",
+      "sha256": "805f4bbc171e0af41687b985b6e59c35363dd1fc918f8ac3809dc86dd23204a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-d-r3-independent-20261019/review.json",
+      "sha256": "f73d67e26b46062080e01e0c2b1eb1df8bb812077320649094dc2da533be754e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-fsspec-typed-boundary-r2-independent-20261019/review.json",
+      "sha256": "82ff25012490328e7280013a4bce81c9e7abbd483725e09780ee5732a88e8e51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-owner-candidate-r2-20261019/patch.diff",
+      "sha256": "d942c01be079a06711ce4c4f1ab0588a9eb85a70523fe3e5ee2982b0bf29ea5f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-b-adapter-candidate-r2-20261019/candidate.patch",
+      "sha256": "1843381848de9a6b08784470b8a1f41b8efc6e329ad2d3ff16809e5f43cabcd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-c-custody-candidate-20261019/r5/candidate.patch",
+      "sha256": "1dd59f135aea561799251c21c1842aace3094d9a676232874faa033c5978f866"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-d-pipeline-candidate-r2-20261019/patch.diff",
+      "sha256": "33211524bc666f366f475f8c7b6d53bf14652e481ebbdc41e89fb318a908a787"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-fsspec-typed-boundary-r2-corrected-20261019/candidate.patch",
+      "sha256": "9bc385b66480dcb810d1e8082ed743ead0abf89dd7cdf1125d2bf51092b37c76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-owner-candidate-r2-20261019/conversion-callback-audit.json",
+      "sha256": "d9a76314cb2b9e43c00564603e9a2affcc99e7fd0fd4cd276515254a0072a5ef"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-owner-candidate-r2-20261019/static-checks.json",
+      "sha256": "c249767e96b82ecdfec088b050a952f419aa7087649c7cb4bb1ccc97ac5cb9b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-owner-candidate-20261019/manifest.json",
+      "sha256": "b87d37a26e5d151cb30def16e28dd8ca5f9c00167d42a8ddb1a877ae85303b4d"
+    }
+  ],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/source-application.json",
+    "sha256": "1f7804327edffbe8658a72ec8eeb3e8fe8a9bf86cceb5bbbf7c5574f23ae714f"
+  },
+  "adoption_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/plan.json",
+    "sha256": "70e26f67eaeeceb30bca9d08b494db4eb927ad697cfed30e598b635c9b400374"
+  },
+  "canonical_ruff_preflight": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/canonical-context-preflight.json",
+    "sha256": "237211e88eb4512a840110a181f9df592c0e300d6cd3440351c9a157d9055298"
+  },
+  "verification": {
+    "ruff": {
+      "stdin_checks": 118,
+      "check_invocations": 59,
+      "format_invocations": 59,
+      "all_exit_code_0": true,
+      "changed_path_aggregate_commands": 2,
+      "aggregate_commands_exit_code_0": true,
+      "canonical_preflight": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/canonical-context-preflight.json",
+        "sha256": "237211e88eb4512a840110a181f9df592c0e300d6cd3440351c9a157d9055298"
+      },
+      "aggregate_stdout_stderr": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/format-native-role-0.stdout.txt",
+          "sha256": "dde06e21cf5db6168f920332c9667435d5fd2ab41bccc4a890a89e4e5610926a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-reviewed-composition-adoption-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "runtime": "UNRUN on this adopted source boundary.",
+    "composed_172_mypy": {
+      "result": "UNRUN; no product diagnostics emitted. Runner admission refused before MyPy because the installed typed-dependency name/version did not match the locked profile. This is an environment/profile preflight refusal, not a product typing result.",
+      "grant": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-964e2463-execution-grant-20261019/grant.json",
+        "sha256": "b81599caf677bf513b26319fe111fc2d55799fd4a5c41e585db48bd4ef8780e4"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-mypy172-964e2463-execution-grant-20261019/wrapper.stderr.txt",
+        "sha256": "627fdd515c0d728e8b290daf58f022cb4df40d733c2fd27e7be10e9b5af63c95"
+      }
+    },
+    "sdk_environment_sync": "UNRUN at the source evidence boundary recorded here. Source lock candidate remains Presidio Analyzer 2.2.363, phonenumbers 9.0.28, types-defusedxml 0.7.0.20260504; installed-profile qualification is a separate operation.",
+    "native_tests": "UNRUN; no test suite or product import is claimed by the 118 Ruff preflights."
+  },
+  "reviewed_cohorts": [
+    {
+      "cohort": "A2",
+      "candidate": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-owner-candidate-r2-20261019/manifest.json",
+        "sha256": "279ddf8b8df69ab1295e352b3c052c9f19902a6733bed17f38bc5f671133d017"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-a-r2-independent-20261019/review.json",
+        "sha256": "cf5e53f23b0d7689f392b02da1c6326365a0fbbb6f2f73f5800e2bc2b222295f"
+      }
+    },
+    {
+      "cohort": "B2",
+      "candidate": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-b-adapter-candidate-r2-20261019/manifest.json",
+        "sha256": "8c6eac7fabb95707a7cbae8945b42f8c46cbb9316be196be5a0e19f1037523c6"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-b-independent-20261019/packet-seal.json",
+        "sha256": "652c02a85b813a9201c0d06ffe9f3e92c86f01f53523271c508969ce80099ea7"
+      }
+    },
+    {
+      "cohort": "C5",
+      "candidate": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-c-custody-candidate-20261019/r5/candidate-manifest.json",
+        "sha256": "50b2ba10b734aed90a26a76206c7b6b2e29d8aef75a5a20293b1b0a731718de2"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-c-independent-20261019/review.json",
+        "sha256": "805f4bbc171e0af41687b985b6e59c35363dd1fc918f8ac3809dc86dd23204a6"
+      }
+    },
+    {
+      "cohort": "D3",
+      "candidate": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-d-pipeline-candidate-r3-binding-20261019/manifest.json",
+        "sha256": "0e6daf7b382a107e3621662352778b2be55c902d8e2a19f7d4c4589fdb0e7004"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-122-bucket-d-r3-independent-20261019/review.json",
+        "sha256": "f73d67e26b46062080e01e0c2b1eb1df8bb812077320649094dc2da533be754e"
+      }
+    },
+    {
+      "cohort": "fsspec2",
+      "candidate": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-fsspec-typed-boundary-r2-corrected-20261019/manifest.json",
+        "sha256": "f466cee4578696e5e98f89ede9a5d381fd257e4c2ce999b587d40b771817a5bc"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-fsspec-typed-boundary-r2-independent-20261019/review.json",
+        "sha256": "82ff25012490328e7280013a4bce81c9e7abbd483725e09780ee5732a88e8e51"
+      }
+    }
+  ],
+  "owner_decision_and_generator_boundaries": {
+    "public_model_contract": {
+      "status": "G decision HOLD; schema/mapping contract remains unresolved, not adopted or accepted by this source commit.",
+      "references": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-model-override-decision-20261019/decision.md",
+          "sha256": "b99e5c667497ddab532e3de34a46095f93601f30f9877892fd86f6ac66c281ca"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-model-override-decision-20261019/source-pins.json",
+          "sha256": "77ec34db7c3ae3274ac968a705f837505a01e6f9975a93c5766de45c1761525f"
+        }
+      ]
+    },
+    "pii_profile_and_completion": {
+      "status": "owner decision requested; prototype controls remain candidate evidence and do not establish required scan completion, profile authority, or production behavior.",
+      "references": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/decision-proposal-r2.md",
+          "sha256": "27f4d4a70fd22f3425bdd2f09ba3da01973dc17968fc61bd7518dd82d558819e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/manifest-r2.json",
+          "sha256": "571bdec36bb2817f3be2915184f5759402d64ae46c27f089a155c494e9ff3b62"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/source-pins-r2.json",
+          "sha256": "fabf0c147591236a2cccd28e4d0b0e77e36f3d81657b905f5db07dc838d47b00"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/prototype-check-r2-receipt.json",
+          "sha256": "d50d3674bc187efa465744020cf900565ddec5ec2ae85fbd7e2d0c939df3eac0"
+        }
+      ]
+    },
+    "N11_source_generation": {
+      "status": "current source-owner regeneration/check/corruption is pending; R4 source candidate review is bounded to its parser/provider boundary and does not establish runtime owner acceptance.",
+      "references": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-source-fqn-resolution-r4-20261019/candidate-manifest-r4.json",
+          "sha256": "8e5563ee1c865e359af9dcf9a15de29428c11bbac98b430d569379f2c60eadde"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-source-fqn-resolution-r4-independent-20261019/review.json",
+          "sha256": "8929e54c97839f9ed4b871ea411a58dc9e51b189f2f8af4f56df5f932998395f"
+        }
+      ]
+    },
+    "FBC_source_generation": {
+      "status": "generator/check/build are not run in the route packet; regenerate current content-bound owner output after the final source/profile boundary.",
+      "references": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-source-owner-regeneration-route-20261019/route.json",
+          "sha256": "a68902f0fde9f2a72f61f5a9ee76d6efb3e65dcbec9b23a0b451a2caded143f5"
+        }
+      ]
+    },
+    "sdk_recipe_source": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/plan.json",
+        "sha256": "a783e29bf7c8f2e6e5b4c4c1b69c0e315eac51a1d566b6c41e28ce9e042aafe1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/final-manifest.json",
+        "sha256": "9dcbfb87946045caf5672f512823d29094f354e9f5dd8cc5556215abc7065ae8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/attempt-08-final-recipe-check-offline/run.json",
+        "sha256": "08a0fce41ef05a9565b18906cf7aa0ebe457b2f2a8febece85d0fed850a7219d"
+      }
+    ]
+  },
+  "P39": {
+    "mechanism_paths": 57,
+    "changed_test_companions": 2,
+    "other_required_companions": "Cohort-pinned unchanged tests; actual N11/FBC owner regeneration on final source/profile; separate locked SDK source/install."
+  },
+  "P40": "Whole reviewed cohorts; runtime-equivalence findings corrected as a class. A mixed-offset hypothesis was not reproduced and original expression is preserved. D full packet identity repaired by immutable R3. No ignore/waiver/scientific-contract change.",
+  "limitations": [
+    "New composed MyPy and runtime UNRUN; the old122 diagnostics are a basis, not a claimed resolved count.",
+    "Public .schema and Mapping/BaseModel conflicts retained for G choices; fourth schema sibling included in decision packet.",
+    "B generic-parameter identity, private SDMX dispatch and SQL reflection residuals explicitly documented.",
+    "Fsspec SDK memory probe does not prove cloud providers or product adapter; C guard follows fetch and does not claim no-network.",
+    "N11/FBC content-binding owner regeneration/check/corruption controls pending; no manual digest repair.",
+    "Presidio installed2.2.360/Python3.14 mismatch pending separately qualified sync; PII completion semantics remain unaccepted proposal."
+  ],
+  "next_check": "Commit/read back exact source; separately qualified existing-venv sync; actual canonical owner generation/check/corruption; fresh composed172-targetMyPy and real consumer union. Retain complete outputs and individual occurrence outcomes. No native/G closure inferred.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "proposal_outcomes": []
+}

@@ -749,7 +749,7 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-composed-collection-error-20261017.json",
       "sha256": "bf7c7a1491433b2c05c53f0076b340710d97eeace2b8ebaa12c8133648309659"
     },
-      {
+    {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/la036-method-identity-limited-r4-20261018.json",
       "sha256": "3cb6d80c1d1c6ac0d7462578bd6250f94765a338b317719cd5a9ee2e4df287df"
     },
@@ -1156,6 +1156,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-contract-decision-proposals-a0e9b373.json",
       "sha256": "525979aa8b6375d5d6839a45b98cc8d781c504c2352120cd805d1449cd67f283"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-67712ca142d0.json",
+      "sha256": "48fd5daa95dea82ab4e93d3f43d3d806fdb69c417d17a78e19ccf3abc73c0072"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-964e24635666.json",
+      "sha256": "e107697f6d5c045fe3b826ad9c6cd7d6428959ba04249695045390c7d352e449"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -1207,10 +1215,10 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "a0e9b37311127880a1bc0a5c3733a3c167b6bbf2",
-    "tree": "0d7767a862ffc38e96109161c5db02ba3d9cc23e",
+    "head": "964e2463566639601f7e986f0b03b4cdd45d95ab",
+    "tree": "26eab8439e599d7c6e69dd923df4b0cdac71308a",
     "parents": [
-      "063982645dd5a4d4fc6028d3857f7948dffd85bc"
+      "67712ca142d010aa1881b502f973f8548c415b4d"
     ],
     "source_freeze": false,
     "tracked_source_clean_before_receipt_edit": true,
@@ -1230,6 +1238,14 @@
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a0e9b3731112.json",
         "sha256": "3ccae15bc107262fb8b80e32f3fba00378c0034bd5854dd27efd8cb1fb31ffcc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-67712ca142d0.json",
+        "sha256": "48fd5daa95dea82ab4e93d3f43d3d806fdb69c417d17a78e19ccf3abc73c0072"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-964e24635666.json",
+        "sha256": "e107697f6d5c045fe3b826ad9c6cd7d6428959ba04249695045390c7d352e449"
       }
     ],
     "occurrence_progress": {
@@ -1237,11 +1253,11 @@
       "sha256": "0788f5af53f5f0ff7886212bd8a58650874d34fa5ecb69cec365461df63f5a55"
     },
     "published_candidate_last_verified": {
-      "sha": "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9",
-      "tree": "5df54fb5b28079655e45d1e508236082d29cd3df",
+      "sha": "3addf6fa7ca236308c3dd6fc9fba86c1f4346e02",
+      "tree": "ec213fbbff3d0c2ae4b1f6f0a2cc6d33046cd1e7",
       "readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-fe9b479-20261019/remote-readback.json",
-        "sha256": "24a9bbf62a4b33029fdea30cc5a0060b4cc18ae45b3a532523e414befb52ec12"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3addf6fa-20261019/remote-readback.json",
+        "sha256": "fe8a5b3671988ab49ec657f9bf7524c164ffd82444b10619a93d8b5d24eca524"
       }
     },
     "G_checkpoint_last_remote_verified": {
@@ -1258,7 +1274,7 @@
       "sha256": "d57dbd2071647138a682e6d895d3e94bbdefaabdbb691dbf6232b922aade5817"
     },
     "G_acceptance": false,
-    "meaning": "Selected split-root output confinement source is delivered at exact a0e9. The retained four-module invocation has44PASS with independent source/JUnit reconciliation; selected172-targetMyPy is RED122occurrences99signatures61files. Full native, selected N13 runtime, installed/rebuilt-sdist, Linux and composed acceptance remain UNRUN. The referenced complete291navigation is historical975only, not regenerated current closure evidence. No future receipt SHA or formal closure is asserted.",
+    "meaning": "Exact source677 locked SDK recipe and964 typed connector/custody composition delivered; two separate implementation receipts. SDK R4 actual offline cache miss safely refused fallback with295-package inventory unchanged; R5 diagnostic grammar repair pending. MyPy964 refused during profile admission before diagnostics. Actual FBC fresh candidate generation/check/corrupt-field ran0/0/1 with full source interval unchanged; canonical generated outputs and independent actual qualification pending. Historical a0e44PASS/122MyPy diagnostics and975 complete291 navigation remain bounded to their own source/profile; full native/current composed acceptance and G closures are not established.",
     "latest_actual_verification": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-a0e9b3731112.json",
       "sha256": "64bc5846694c83b7dad174e7bc0bcf79761f35afabd72b23fa87bfb50f39c1de"

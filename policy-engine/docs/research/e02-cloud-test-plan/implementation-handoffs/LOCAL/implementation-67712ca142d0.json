@@ -1,0 +1,184 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "source_frame": {
+    "slice_base": "3addf6fa7ca236308c3dd6fc9fba86c1f4346e02",
+    "candidate": "67712ca142d010aa1881b502f973f8548c415b4d",
+    "tree": "ba001361bacbe15ec3e7925886764609a4d0cbbc",
+    "parents": [
+      "3addf6fa7ca236308c3dd6fc9fba86c1f4346e02"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "source_freeze": false
+  },
+  "property": "Preserve optional security and scientific runtime contracts while selecting the first verified Python 3.14-compatible Presidio release, its required phone-number version, and the matching defusedxml typing stub. Full lock-table reconciliation preserves every unrelated dependency version.",
+  "full_footprint": {
+    "path_count": 4,
+    "mechanism_paths": 2,
+    "required_delivery_metadata_paths": 2,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256": "05a08cac364068ac4f6e9afa94e3a791c9175856d1e756b0f9617f43aa020cba",
+        "role": "root_delivery_metadata"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "sha256": "765084146fc4a80ee926d180f9e0af8a4ecac61cee441d6d9bf851af351b9159",
+        "role": "root_delivery_metadata"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "83a03f75698b190832e077dc8475e9269247521b1abd1f94198966ab16c77df4",
+        "role": "source_recipe"
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "sha256": "b1166585634919e552eecf21a56437552781a03f7f1d4a1a9d32db0430dbf009",
+        "role": "locked_dependency_companion"
+      }
+    ],
+    "complete_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/native-targeted-security-lock-r2-source-20261019-readback.json",
+      "sha256": "0633debbf039d49a0935a7a987d1deeec1644a23466d97cb3d5800afdb45de22"
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/final-manifest.json",
+      "sha256": "9dcbfb87946045caf5672f512823d29094f354e9f5dd8cc5556215abc7065ae8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/candidate.patch",
+      "sha256": "b9630ca13848eb8f8bd2b7dc84aacc5cad445941aa27c518a28d92b95d7f4ba1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/lock-diff.json",
+      "sha256": "ffd84ebd09f875d66796e4739bbf4aea6153a9ea6b4f5d3f3f3020c4c128f699"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/SHA256SUMS",
+      "sha256": "c0180ad70dc2056761fd737dff8f8b3a6036dfbbd654e7ed8c5581c0a72bfd6f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-independent-20261019/review.md",
+      "sha256": "a2a47ca397df5a54e079cce0374a006b8517b4185b767431bb6a21adc2e3598e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-independent-20261019/packet-seal.json",
+      "sha256": "e1978245873b6185138edb0769c42445bb7f9a0cb121df41368d139de5bf3856"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/plan-prepared-before-receipt-boundary.json",
+      "sha256": "5d84ae737982fa47462902c4acc74029630790f19a62d31e9dfe4be5980616ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3addf6fa-20261019/remote-readback.json",
+      "sha256": "fe8a5b3671988ab49ec657f9bf7524c164ffd82444b10619a93d8b5d24eca524"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-lock-companion-plan-20261019/plan.md",
+      "sha256": "ad6de13da856f0f03487d5adb5a87bcc93d6bc5176dc62c2a1f3b741682b42f3"
+    }
+  ],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/source-application.json",
+    "sha256": "5781e54ccd2fe6e44a5bb9982a46d25aaaecedb6df3da20366aa0fb655c89407"
+  },
+  "adoption_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/plan.json",
+    "sha256": "a783e29bf7c8f2e6e5b4c4c1b69c0e315eac51a1d566b6c41e28ce9e042aafe1"
+  },
+  "candidate_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/final-manifest.json",
+    "sha256": "9dcbfb87946045caf5672f512823d29094f354e9f5dd8cc5556215abc7065ae8"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-independent-20261019/packet-seal.json",
+    "sha256": "e1978245873b6185138edb0769c42445bb7f9a0cb121df41368d139de5bf3856"
+  },
+  "verification": {
+    "locked_recipe_check": {
+      "result": "PASS",
+      "command": [
+        "/opt/homebrew/bin/uv",
+        "lock",
+        "--check",
+        "--offline",
+        "--project",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/recipe",
+        "--no-progress"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.223,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/attempt-08-final-recipe-check-offline/run.json",
+        "sha256": "08a0fce41ef05a9565b18906cf7aa0ebe457b2f2a8febece85d0fed850a7219d"
+      }
+    },
+    "ruff": "NOT_APPLICABLE: this source commit changes no Python file.",
+    "runtime_or_mypy": "UNRUN. The locked recipe and its offline lock check do not establish an installed analyzer, NLP model, PII scan completeness, or runtime behavior.",
+    "candidate_selected": "Python 3.14 security profile selects Presidio Analyzer 2.2.363, transitive phonenumbers 9.0.28 and types-defusedxml 0.7.0.20260504; unrelated lock records are preserved per candidate manifest."
+  },
+  "dependency_and_decision_boundaries": {
+    "sdk_recipe_source": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/recipe/pyproject.toml",
+        "sha256": "83a03f75698b190832e077dc8475e9269247521b1abd1f94198966ab16c77df4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/recipe/uv.lock",
+        "sha256": "b1166585634919e552eecf21a56437552781a03f7f1d4a1a9d32db0430dbf009"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/SHA256SUMS",
+        "sha256": "c0180ad70dc2056761fd737dff8f8b3a6036dfbbd654e7ed8c5581c0a72bfd6f"
+      }
+    ],
+    "owner_decisions": [
+      {
+        "topic": "PII scan completeness/profile semantics; owner decision requested, not accepted",
+        "references": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/decision-proposal-r2.md",
+            "sha256": "27f4d4a70fd22f3425bdd2f09ba3da01973dc17968fc61bd7518dd82d558819e"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/manifest-r2.json",
+            "sha256": "571bdec36bb2817f3be2915184f5759402d64ae46c27f089a155c494e9ff3b62"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/source-pins-r2.json",
+            "sha256": "fabf0c147591236a2cccd28e4d0b0e77e36f3d81657b905f5db07dc838d47b00"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/prototype-check-r2-receipt.json",
+            "sha256": "d50d3674bc187efa465744020cf900565ddec5ec2ae85fbd7e2d0c939df3eac0"
+          }
+        ]
+      },
+      {
+        "topic": "Public ArtifactRefModel Mapping versus BaseModel iteration contract; canonical adoption on hold",
+        "references": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-model-override-decision-20261019/decision.md",
+            "sha256": "b99e5c667497ddab532e3de34a46095f93601f30f9877892fd86f6ac66c281ca"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-model-override-decision-20261019/source-pins.json",
+            "sha256": "77ec34db7c3ae3274ac968a705f837505a01e6f9975a93c5766de45c1761525f"
+          }
+        ]
+      }
+    ]
+  },
+  "P40": "Same whole dependency compatibility class: resolve the supported SDK dependency closure together. This is distinct from PII scan completion/profile custody semantics; no model substitution, scientific contract change, or waiver is claimed.",
+  "limitations": [
+    "The recipe source commit is not an environment installation. Current analyzer/model runtime and PII completion behavior remain unverified.",
+    "Foundry package TOMLs are primary source contracts, not generated dependency artifacts; no generator outputs were changed here."
+  ],
+  "next_check": "Separately qualify the existing-environment sync on this exact recipe; verify installed metadata and locked dependencies; then run fresh affected typing and security-runtime checks on the resulting source/profile.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "proposal_outcomes": []
+}

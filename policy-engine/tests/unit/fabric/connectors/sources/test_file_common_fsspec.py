@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from types import TracebackType
-from typing import NoReturn
+from typing import NoReturn, cast
 
 import pytest
 
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.sources import _file_common
+from polisyos.fabric.connectors.sources.object_storage import ObjectStorageConnector
 
 
 class _FakeBinaryReader:
@@ -123,3 +124,153 @@ async def test_remote_fsspec_reader_retains_optional_dependency_error(
         await _file_common.read_location_bytes(
             ConnectionConfig(url="s3://bucket/object.csv", headers={})
         )
+
+
+@pytest.mark.asyncio
+async def test_remote_fsspec_reader_uses_default_when_max_bytes_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _FakeFsspec(b"1234", {})
+    monkeypatch.setattr(_file_common, "_load_fsspec", lambda: adapter)
+
+    payload, _headers = await _file_common.read_location_bytes(
+        ConnectionConfig(url="s3://bucket/object.csv", headers={})
+    )
+
+    assert payload == b"1234"
+    assert adapter.requested_sizes == [_file_common._DEFAULT_MAX_LOCATION_BYTES + 1]
+
+
+@pytest.mark.parametrize(
+    ("headers", "expected_max_bytes"),
+    [
+        ({"X-File-MaxBytes": "8", "X-GeoJSON-MaxBytes": "4"}, 8),
+        ({"X-GeoJSON-MaxBytes": "4"}, 4),
+    ],
+)
+@pytest.mark.asyncio
+async def test_remote_fsspec_reader_preserves_max_bytes_prefix_order(
+    headers: dict[str, str],
+    expected_max_bytes: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _FakeFsspec(b"1234", {})
+    monkeypatch.setattr(_file_common, "_load_fsspec", lambda: adapter)
+
+    payload, _response_headers = await _file_common.read_location_bytes(
+        ConnectionConfig(url="s3://bucket/object.csv", headers=headers),
+        prefixes=("X-File-", "X-GeoJSON-"),
+    )
+
+    assert payload == b"1234"
+    assert adapter.requested_sizes == [expected_max_bytes + 1]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected_max_bytes"),
+    [("+4", 4), (" 4 ", 4), ("4_0", 40), ("４", 4)],
+)
+@pytest.mark.asyncio
+async def test_remote_fsspec_reader_preserves_integer_string_grammar(
+    raw: str,
+    expected_max_bytes: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _FakeFsspec(b"1234", {})
+    monkeypatch.setattr(_file_common, "_load_fsspec", lambda: adapter)
+
+    payload, _headers = await _file_common.read_location_bytes(
+        ConnectionConfig(
+            url="s3://bucket/object.csv",
+            headers={"X-File-MaxBytes": raw},
+        )
+    )
+
+    assert payload == b"1234"
+    assert adapter.requested_sizes == [expected_max_bytes + 1]
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [None, 8, 8.5, True, "", " ", "0", "-1", "1.5", "garbage", "+", "1e3"],
+)
+@pytest.mark.asyncio
+async def test_remote_fsspec_reader_rejects_present_invalid_max_bytes_before_open(
+    raw: object,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _FakeFsspec(b"1234", {})
+    monkeypatch.setattr(_file_common, "_load_fsspec", lambda: adapter)
+    headers = cast("dict[str, str]", {"X-File-MaxBytes": raw})
+
+    with pytest.raises(ValueError, match="X-File-MaxBytes must be a positive integer"):
+        await _file_common.read_location_bytes(
+            ConnectionConfig(url="s3://bucket/object.csv", headers=headers)
+        )
+
+    assert adapter.resolved_urls == []
+    assert adapter.open_calls == []
+    assert adapter.requested_sizes == []
+
+
+@pytest.mark.parametrize(
+    ("headers", "expected_header"),
+    [
+        ({"X-File-MaxBytes": "invalid", "X-GeoJSON-MaxBytes": "4"}, "X-File-MaxBytes"),
+        ({"X-GeoJSON-MaxBytes": ""}, "X-GeoJSON-MaxBytes"),
+        ({"X-GeoJSON-MaxBytes": None}, "X-GeoJSON-MaxBytes"),
+    ],
+)
+@pytest.mark.asyncio
+async def test_remote_fsspec_reader_rejects_invalid_present_prefix_without_fallback(
+    headers: dict[str, object],
+    expected_header: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _FakeFsspec(b"1234", {})
+    monkeypatch.setattr(_file_common, "_load_fsspec", lambda: adapter)
+    typed_headers = cast("dict[str, str]", headers)
+
+    with pytest.raises(ValueError, match=f"{expected_header} must be a positive integer"):
+        await _file_common.read_location_bytes(
+            ConnectionConfig(url="s3://bucket/object.csv", headers=typed_headers),
+            prefixes=("X-File-", "X-GeoJSON-"),
+        )
+
+    assert adapter.resolved_urls == []
+    assert adapter.open_calls == []
+    assert adapter.requested_sizes == []
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected_healthy", "expected_read_size"),
+    [(" 4 ", True, 5), ("", False, None)],
+)
+@pytest.mark.asyncio
+async def test_object_storage_health_check_uses_object_max_bytes_prefix(
+    raw: str,
+    expected_healthy: bool,
+    expected_read_size: int | None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter = _FakeFsspec(b"1234", {})
+    monkeypatch.setattr(_file_common, "_load_fsspec", lambda: adapter)
+    connector = ObjectStorageConnector()
+    handle = await connector.connect(
+        ConnectionConfig(
+            url="s3://bucket/object.csv",
+            headers={"X-Object-MaxBytes": raw},
+        )
+    )
+
+    status = await connector.health_check(handle)
+    await connector.disconnect(handle)
+
+    assert status.healthy is expected_healthy
+    if expected_read_size is None:
+        assert adapter.resolved_urls == []
+        assert adapter.open_calls == []
+        assert adapter.requested_sizes == []
+    else:
+        assert adapter.requested_sizes == [expected_read_size]
+        assert adapter.open_calls == [("s3://bucket/object.csv", "rb")]

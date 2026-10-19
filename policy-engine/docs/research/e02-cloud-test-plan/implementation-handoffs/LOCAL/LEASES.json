@@ -17591,5 +17591,61 @@
     "closure_ids": [],
     "source_profile_freeze": false,
     "G_acceptance": false
+  },
+  "root_maxbytes_present_input_r6_20261019": {
+    "slice_base": "f6fd6ab9a8cfbb65f3f597dfe4c5a3fae3cc0f80",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py": {
+        "operation": "write",
+        "preimage_sha256": "9e9207fa108dbaa2a5400c3e638d2f49cf738a2d970d825c597a820dac18a2da",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-file-common-maxbytes-present-input-author-r6-20261019/postimages/policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "postimage_sha256": "5ef26d6c514367bee5a1939004bfb5ca73e638b61eb6346858c97bfa720384c8",
+        "category": "mechanism",
+        "P39_role": "shared_source_byte_limit_presence_intake"
+      },
+      "policy-engine/tests/unit/fabric/connectors/sources/test_file_common_fsspec.py": {
+        "operation": "write",
+        "preimage_sha256": "cb4f55a4e3bfc41a92ba9e2c921cadc5a8cbcf49e1e9c4a7f7a2f1e528f66ff4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-file-common-maxbytes-present-input-author-r6-20261019/postimages/policy-engine/tests/unit/fabric/connectors/sources/test_file_common_fsspec.py",
+        "postimage_sha256": "a437a7fdc63e3cbdbec43404b4071734450a3b6a3fbed3c6b4fadcf7b309678e",
+        "category": "test_companion",
+        "P39_role": "owner_intake_and_inherited_ObjectStorage_consumer_tests"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes-presence-r6-source-adoption-r2-20261019/source-application.json",
+      "sha256": "715dc48db3095e248d9cf40511e508e23fc5d7403d2cef0842bfdc655c7d2e2c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes-presence-r6-source-adoption-r2-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-file-common-maxbytes-present-input-author-r6-20261019/manifest.json",
+        "sha256": "c46013ce65ffb2663abee98ae0d35b37fc8e4a7c9cb4acf00bad67497d86e0b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-file-common-maxbytes-r6-independent-20261019/manifest.json",
+        "sha256": "69ef9866804dcc8807b76f465be9305f9eff208bdbf176ab0f5b85048310cafe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-file-common-maxbytes-r6-independent-20261019/review.json",
+        "sha256": "f69bf8f54d991680ac4e1f38150eeac3952b6f22922c33ae0be635e5390db82d"
+      }
+    ],
+    "P40": "SAME_CLASS_DEEPER: one shared presence-aware intake covers the full reader/consumer family; unsupported ASCII-only narrowing was rejected and is not adopted.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Canonical consumer pytest and fresh 172-target MyPy remain UNRUN on this adopted source.",
+      "Previously measured 1c9 MyPy five errors are historical; four public API diagnostics require a separate G decision and are not bypassed or claimed resolved here.",
+      "Synthetic source fixtures do not establish production source custody, workload or authority."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete changed owner plus direct/importer connector test modules, malformed/prefix/removal controls, and fresh canonical 172-target MyPy after blocking source composition freezes.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

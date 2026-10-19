@@ -97,12 +97,14 @@ def _configured_max_bytes(config: ConnectionConfig, *, prefixes: tuple[str, ...]
     headers = dict(config.headers)
     for prefix in prefixes:
         header_name = f"{prefix}MaxBytes"
-        raw = headers.get(header_name)
-        if raw in (None, ""):
+        if header_name not in headers:
             continue
+        raw = headers[header_name]
+        if not isinstance(raw, str):
+            raise ValueError(f"{header_name} must be a positive integer")
         try:
             value = int(raw)
-        except (TypeError, ValueError) as exc:
+        except ValueError as exc:
             raise ValueError(f"{header_name} must be a positive integer") from exc
         if value <= 0:
             raise ValueError(f"{header_name} must be a positive integer")

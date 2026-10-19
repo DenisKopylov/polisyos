@@ -10,8 +10,8 @@ from polisyos.ir.connectors import DataVersion, FetchResult, VersionStrategy
 
 
 class _BridgeEntry:
-    def __init__(self) -> None:
-        self.short_id = "test.bridge"
+    def __init__(self, short_id: str = "test.bridge") -> None:
+        self.short_id = short_id
         self.known_datasets: frozenset[str] = frozenset()
         self.dataset_descriptors: tuple[_BridgeDescriptor, ...] = ()
         self.default_config = object()

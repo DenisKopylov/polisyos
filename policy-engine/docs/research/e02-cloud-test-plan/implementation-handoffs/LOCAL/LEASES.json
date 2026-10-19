@@ -24214,5 +24214,112 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-reviewed-q2-module-subtype-capture-adoption-20261019": {
+    "slice_base": "a7ef7eb9cee4e95daeddddd021c853852f95bc20",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py": {
+        "operation": "write",
+        "preimage_sha256": "bfb8bb70a1f0ded3a0247b5da8ebf9d2733b3f1ecb3b3174a768953aaa67cd2f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-module-subtype-capture-composition-20261019/candidate/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_sha256": "a0be42c8f356fea405e3721a9e891d78ad6116def82d1613e7b784cae2f124cc"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py": {
+        "operation": "write",
+        "preimage_sha256": "27e26065c2ebb63ce0cd1e9e55aea5fec7adbd43f5616985c48ee65f7f19ec2d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-module-subtype-capture-composition-20261019/candidate/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+        "postimage_sha256": "284479ab54b1577d6ac7f818bb6f12eba35f0842c30756e104efca4b07f9b48e"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/source-application.json",
+      "sha256": "9e0288615e30059941e0dc0cdf1a746c25f22fa00f3ecdc4727810d52fecd56c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-q2-module-subtype-capture-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/manifest.json",
+        "sha256": "933c09ebc36e436c862933a4a15e484bdf81f3b0d41008ed08ecf8dcd57b148e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-module-subtype-capture-composition-20261019/candidate-manifest-v3.json",
+        "sha256": "b12d0072f00da96a1a1af1354f8a917f20f373551d082e961a8ecd83e85b8453"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-module-subtype-capture-composition-20261019/design-v3.md",
+        "sha256": "ba3557e0ff8e3f84ffca0a264c7a2a43c2f9fd30dcdbabaab3b5a65e2f6f0be7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-module-subtype-capture-composition-20261019/q2-candidate-r2.patch",
+        "sha256": "f49c8c0e07942c451683baac2125c2560190254664a6d75e69ff46bf5277e42f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-module-subtype-capture-independent-review-20261019/review-v3-corrected.json",
+        "sha256": "3981d343e3ebece345cc7da286ae2315c53530c7d50107892efaf0388651b7b8"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same runtime-object capture class widened to actual ModuleType subtypes and external value domain; owned-source fences remain fail closed, with no method-count proxy.",
+    "bounded_proof": "Independent qualified GO 3981d343; focused real six.moves/cffi behavioral control and native canonical-role checks pass.",
+    "limitations": [
+      "Selected-profile canonical prepare, full package/RECORD authentication and complete 46-module denominator remain UNRUN.",
+      "Custom-metaclass subtypes remain refused; external opaque state and live-execution provenance are not established.",
+      "Embedded-plugin full-rule comparison is diagnostic: both baseline and candidate have identical existing findings; it is not a native green claim.",
+      "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+      "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After complete source boundary, run actual canonical prepare, source-derived manifest reconciliation, whole timeout-driver module and corruption/removal controls before installed consumers.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

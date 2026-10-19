@@ -2223,5 +2223,30 @@ def test_timeout_driver_cli_preserves_status_output(
 
 def test_collection_capture_binds_external_nonmodules_through_receipt_and_fails_removal() -> None:
     cases = audit_api.self_test_non_module_sys_modules_capture()
-    assert cases
+    required = {
+        "producer-captures-actual-builtin-module",
+        "producer-captures-real-six-moves-module-subtype",
+        "source-binds-module-subtype-class-to-verified-owner",
+        "consumer-refuses-class-with-detached-source-hash",
+        "opaque-external-class-state-is-explicitly-unestablished",
+        "producer-records-external-nonmodule-with-runtime-type",
+        "cyclic-class-data-is-explicitly-not-established",
+        "cyclic-module-data-digest-remains-fail-closed",
+        "bound-collection-receipt-preserves-module-subtype-and-nonmodule",
+        "remove-class-property-keep-markers-fails-closed",
+        "consumer-rejects-unsupported-module-inventory-schema",
+        "consumer-recomputes-state-instead-of-trusting-marker",
+        "consumer-rejects-malformed-opaque-type-record",
+        "producer-refuses-unbound-module-subclass-class",
+        "producer-refuses-owned-module-subtype-with-opaque-data",
+        "producer-refuses-owned-source-nonmodule:polisyos._q2_owned_nonmodule",
+        "producer-refuses-owned-source-nonmodule:tools._q2_owned_nonmodule",
+        "consumer-refuses-owned-source-nonmodule:polisyos._q2_owned_nonmodule",
+        "consumer-refuses-owned-source-nonmodule:tools._q2_owned_nonmodule",
+        "producer-refuses-owned-module-alias:polisyos._q2_forged_module_alias",
+        "producer-refuses-owned-module-alias:tools._q2_forged_module_alias",
+        "consumer-refuses-owned-module-alias:polisyos._q2_forged_module_alias",
+        "consumer-refuses-owned-module-alias:tools._q2_forged_module_alias",
+    }
+    assert required <= cases.keys(), cases
     assert all(cases.values()), cases

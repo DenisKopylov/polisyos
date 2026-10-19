@@ -20,6 +20,7 @@ import gzip
 import hashlib
 import io
 import json
+import math
 import os
 import re
 import stat
@@ -477,7 +478,27 @@ def _file_record(label, path):
     return {"label": label, "origin": str(path), "sha256": hashlib.sha256(data).hexdigest()}
 
 
-def _runtime_data_value(value, active=None):
+def _opaque_runtime_data_value(value: object) -> list[object]:
+    # Identify an opaque value without inspecting its internal state.
+    runtime_type = type(value)
+    try:
+        module_name = type.__getattribute__(runtime_type, "__module__")
+        qualname = type.__getattribute__(runtime_type, "__qualname__")
+        name = type.__getattribute__(runtime_type, "__name__")
+    except (AttributeError, TypeError) as error:
+        raise TypeError("opaque runtime value has no readable type identity") from error
+    if any(type(part) is not str or not part for part in (module_name, qualname, name)):
+        raise TypeError("opaque runtime value has a malformed type identity")
+    if _is_owned_source_module_name(module_name):
+        raise TypeError("owned source class attribute has opaque runtime state")
+    return [
+        "opaque_runtime_state",
+        {"module": module_name, "qualname": qualname, "name": name},
+    ]
+
+
+def _runtime_data_value(value, active=None, *, allow_opaque: bool = False):
+    # Encode bounded primitive/container data and optionally mark opaque leaves.
     value_type = type(value)
     if value is None:
         return ["none"]
@@ -497,15 +518,32 @@ def _runtime_data_value(value, active=None):
         active = set() if active is None else active
         identity = id(value)
         if identity in active:
+            if allow_opaque:
+                return _opaque_runtime_data_value(value)
             raise TypeError("cyclic runtime data")
         active.add(identity)
         try:
             if value_type is list:
-                return ["list", [_runtime_data_value(item, active) for item in value]]
+                return [
+                    "list",
+                    [
+                        _runtime_data_value(item, active, allow_opaque=allow_opaque)
+                        for item in value
+                    ],
+                ]
             if value_type is tuple:
-                return ["tuple", [_runtime_data_value(item, active) for item in value]]
+                return [
+                    "tuple",
+                    [
+                        _runtime_data_value(item, active, allow_opaque=allow_opaque)
+                        for item in value
+                    ],
+                ]
             rows = [
-                [_runtime_data_value(key, active), _runtime_data_value(item, active)]
+                [
+                    _runtime_data_value(key, active, allow_opaque=allow_opaque),
+                    _runtime_data_value(item, active, allow_opaque=allow_opaque),
+                ]
                 for key, item in value.items()
             ]
             rows.sort(
@@ -516,6 +554,8 @@ def _runtime_data_value(value, active=None):
             return ["dict", rows]
         finally:
             active.remove(identity)
+    if allow_opaque:
+        return _opaque_runtime_data_value(value)
     raise TypeError("unsupported runtime data value")
 
 
@@ -561,6 +601,27 @@ def _type_identity(class_type):
     return {"module": module_name, "qualname": qualname, "name": name}
 
 
+def _source_bound_type_identity(class_type: type) -> dict[str, str]:
+    # Require a module subtype class to resolve by identity from its actual module.
+    identity = _type_identity(class_type)
+    module = sys.modules.get(identity["module"])
+    if not _is_module_instance(module):
+        raise TypeError("module subtype class has no actual defining module")
+    resolved = _module_namespace(module)
+    for part in identity["qualname"].split("."):
+        if not part or part == "<locals>":
+            raise TypeError("module subtype class has no stable module namespace path")
+        if type(resolved) is dict:
+            resolved = resolved.get(part)
+        elif isinstance(resolved, type):
+            resolved = type.__getattribute__(resolved, "__dict__").get(part)
+        else:
+            raise TypeError("module subtype class namespace path is not resolvable")
+    if resolved is not class_type:
+        raise TypeError("module subtype class is not bound by its claimed module")
+    return identity
+
+
 def _plugin_module_identity(plugin):
     # Bind module/class/instance plugin objects to one actual loaded module.
     if _is_module_instance(plugin):
@@ -604,6 +665,22 @@ def _plugin_module_identity(plugin):
     return module_name
 
 
+def _runtime_data_state_recomputed(value: object) -> bool:
+    if type(value) is not list or not value:
+        raise TypeError("runtime data encoding is malformed")
+    if value[0] == "opaque_runtime_state":
+        return False
+    if value[0] in {"list", "tuple"}:
+        return all(_runtime_data_state_recomputed(item) for item in value[1])
+    if value[0] == "dict":
+        return all(
+            _runtime_data_state_recomputed(item)
+            for row in value[1]
+            for item in row
+        )
+    return True
+
+
 def _module_class_provenance(module):
     # Capture actual type ancestry and source-associated class shape.
     actual_type = type(module)
@@ -626,9 +703,10 @@ def _module_class_provenance(module):
     for class_type in actual_mro:
         if class_type is types.ModuleType or class_type is object:
             continue
-        identity = _type_identity(class_type)
+        identity = _source_bound_type_identity(class_type)
         namespace = type.__getattribute__(class_type, "__dict__")
         attributes = []
+        class_attribute_state = "recomputed"
         for attribute, value in sorted(namespace.items()):
             if type(attribute) is not str:
                 raise TypeError("module subclass has a non-string class attribute")
@@ -650,11 +728,22 @@ def _module_class_provenance(module):
                     }
                 )
             else:
+                encoded_value = _runtime_data_value(value, allow_opaque=True)
+                value_status = (
+                    "recomputed"
+                    if _runtime_data_state_recomputed(encoded_value)
+                    else "not_established"
+                )
+                if value_status == "not_established":
+                    if _is_owned_source_module_name(identity["module"]):
+                        raise TypeError("owned module subclass has unestablished class data")
+                    class_attribute_state = "not_established"
                 attributes.append(
                     {
                         "name": attribute,
                         "kind": "data",
-                        "value": _runtime_data_value(value),
+                        "value": encoded_value,
+                        "value_status": value_status,
                     }
                 )
         bases = [
@@ -666,11 +755,13 @@ def _module_class_provenance(module):
                 **identity,
                 "bases": bases,
                 "attributes": attributes,
+                "class_attribute_state": class_attribute_state,
             }
         )
     if not class_rows:
         raise TypeError("module subclass has no source-associated class record")
     return {
+        "schema_version": 2,
         "exact_module_type": False,
         "mro": [_type_identity(class_type) for class_type in actual_mro],
         "classes": class_rows,
@@ -740,6 +831,15 @@ def _module_rows(metadata, module_items=None):
                 }
             )
             continue
+        module_namespace = _module_namespace(module)
+        runtime_module_name = module_namespace.get("__name__")
+        if type(runtime_module_name) is not str or not runtime_module_name:
+            raise RuntimeError(f"sys.modules module has no actual string name: {name!r}")
+        if _is_owned_source_module_name(name) and runtime_module_name != name:
+            raise RuntimeError(
+                "owned source module key aliases a different runtime module: "
+                f"key={name!r} actual={runtime_module_name!r}"
+            )
         try:
             module_class_provenance = _module_class_provenance(module)
         except (AttributeError, TypeError, ValueError) as error:
@@ -747,7 +847,6 @@ def _module_rows(metadata, module_items=None):
                 "sys.modules module subtype has unsupported class provenance: "
                 f"name={name!r} type={_runtime_type_label(module)}"
             ) from error
-        module_namespace = _module_namespace(module)
         spec = module_namespace.get("__spec__")
         if spec is not None and type(spec) is not importlib.machinery.ModuleSpec:
             locations = None
@@ -762,6 +861,7 @@ def _module_rows(metadata, module_items=None):
             rows.append(
                 {
                     "module": name,
+                    "runtime_module_name": runtime_module_name,
                     "origin": None,
                     "sha256": None,
                     "distribution": None,
@@ -776,6 +876,7 @@ def _module_rows(metadata, module_items=None):
         if value is None or value in {"built-in", "frozen"}:
             row = {
                 "module": name,
+                "runtime_module_name": runtime_module_name,
                 "origin": value,
                 "sha256": None,
                 "distribution": None,
@@ -805,6 +906,7 @@ def _module_rows(metadata, module_items=None):
         rows.append(
             {
                 "module": name,
+                "runtime_module_name": runtime_module_name,
                 **record,
                 "distribution": _distribution_for(name, origin, metadata),
                 "search_locations": sorted(str(item) for item in locations or ()),
@@ -817,6 +919,7 @@ def _module_rows(metadata, module_items=None):
 def _capture_module_inventory(metadata, module_items=None):
     module_origins, non_module_sys_modules = _module_rows(metadata, module_items)
     return {
+        "module_inventory_schema_version": 2,
         "module_origins": module_origins,
         "non_module_sys_modules": non_module_sys_modules,
     }
@@ -2970,7 +3073,87 @@ def validate_module_class_provenance(
     object_identity = identity(object)
     subclass_rows: dict[str, dict[str, Any]] = {}
     identity_fields = frozenset({"module", "qualname", "name"})
-    class_record_fields = frozenset({"module", "qualname", "name", "bases", "attributes"})
+    class_record_fields = frozenset(
+        {"module", "qualname", "name", "bases", "attributes", "class_attribute_state"}
+    )
+
+    def runtime_data_state(value: object, module_name: str) -> bool:
+        if type(value) is not list or not value or type(value[0]) is not str:
+            raise AuditFailure(
+                f"module subclass data attribute encoding is malformed: {module_name}"
+            )
+        tag = value[0]
+        if tag == "none":
+            if len(value) != 1:
+                raise AuditFailure("module subclass none encoding has extra data")
+            return True
+        if tag in {"bool", "int", "float", "str", "bytes"}:
+            if len(value) != 2:
+                raise AuditFailure("module subclass scalar encoding has extra data")
+            payload = value[1]
+            if tag == "bool" and type(payload) is not bool:
+                raise AuditFailure("module subclass bool encoding is malformed")
+            if tag in {"int", "float", "str", "bytes"} and type(payload) is not str:
+                raise AuditFailure("module subclass scalar encoding is malformed")
+            if tag == "int":
+                try:
+                    if str(int(payload)) != payload:
+                        raise ValueError
+                except ValueError as error:
+                    raise AuditFailure("module subclass int encoding is malformed") from error
+            elif tag == "float":
+                try:
+                    if not math.isfinite(float.fromhex(payload)):
+                        raise ValueError
+                except ValueError as error:
+                    raise AuditFailure("module subclass float encoding is malformed") from error
+            elif tag == "bytes":
+                try:
+                    raw = base64.b64decode(payload, validate=True)
+                except (ValueError, base64.binascii.Error) as error:
+                    raise AuditFailure("module subclass bytes encoding is malformed") from error
+                if base64.b64encode(raw).decode("ascii") != payload:
+                    raise AuditFailure("module subclass bytes encoding is not canonical")
+            return True
+        if tag in {"list", "tuple"}:
+            if len(value) != 2 or type(value[1]) is not list:
+                raise AuditFailure("module subclass sequence encoding is malformed")
+            return all(runtime_data_state(item, module_name) for item in value[1])
+        if tag == "dict":
+            if len(value) != 2 or type(value[1]) is not list:
+                raise AuditFailure("module subclass dict encoding is malformed")
+            key_rows = []
+            complete = True
+            for row in value[1]:
+                if type(row) is not list or len(row) != 2:
+                    raise AuditFailure("module subclass dict entry is malformed")
+                complete = runtime_data_state(row[0], module_name) and complete
+                complete = runtime_data_state(row[1], module_name) and complete
+                key_rows.append(
+                    json.dumps(row[0], ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+                )
+            if key_rows != sorted(key_rows):
+                raise AuditFailure("module subclass dict encoding is not deterministic")
+            return complete
+        if tag == "opaque_runtime_state":
+            if (
+                len(value) != 2
+                or type(value[1]) is not dict
+                or set(value[1])
+                != {
+                    "module",
+                    "qualname",
+                    "name",
+                }
+            ):
+                raise AuditFailure("module subclass opaque-state type identity is malformed")
+            values = (value[1].get("module"), value[1].get("qualname"), value[1].get("name"))
+            if any(type(part) is not str or not part for part in values):
+                raise AuditFailure("module subclass opaque-state type identity is incomplete")
+            if owned_source_module_name(module_name) or owned_source_module_name(values[0]):
+                raise AuditFailure("owned module subclass has unestablished class data")
+            return False
+        raise AuditFailure(f"module subclass data encoding has an unsupported tag: {tag}")
 
     def identity_row(
         row: object,
@@ -2996,11 +3179,14 @@ def validate_module_class_provenance(
         if evidence is None:
             continue
         if not isinstance(evidence, dict) or set(evidence) != {
+            "schema_version",
             "exact_module_type",
             "mro",
             "classes",
         }:
             raise AuditFailure(f"module class provenance is malformed: {module_name}")
+        if type(evidence.get("schema_version")) is not int or evidence.get("schema_version") != 2:
+            raise AuditFailure(f"module class provenance has an unsupported schema: {module_name}")
         if evidence.get("exact_module_type") is not False:
             raise AuditFailure(f"module subclass provenance claims an exact type: {module_name}")
         mro = evidence.get("mro")
@@ -3037,13 +3223,7 @@ def validate_module_class_provenance(
 
         source_modules = []
         for class_row, class_identity in zip(classes, class_identities, strict=True):
-            if not isinstance(class_row, dict) or set(class_row) != {
-                "module",
-                "qualname",
-                "name",
-                "bases",
-                "attributes",
-            }:
+            if not isinstance(class_row, dict) or set(class_row) != class_record_fields:
                 raise AuditFailure(f"module subclass class record is malformed: {module_name}")
             defining_module, class_qualname, _class_name = class_identity
             defining_row = module_rows.get(defining_module)
@@ -3087,7 +3267,7 @@ def validate_module_class_provenance(
                 )
 
             attribute_names = []
-            function_count = 0
+            class_data_state = "recomputed"
             for attribute in attributes:
                 if not isinstance(attribute, dict) or not isinstance(attribute.get("name"), str):
                     raise AuditFailure(
@@ -3124,15 +3304,21 @@ def validate_module_class_provenance(
                             f"module subclass method is detached from its verified source: "
                             f"{defining_module}.{class_qualname}.{attribute['name']}"
                         )
-                    function_count += 1
                 elif attribute.get("kind") == "data":
-                    if set(attribute) != {"name", "kind", "value"} or not isinstance(
-                        attribute.get("value"), list
-                    ):
+                    if set(attribute) != {"name", "kind", "value", "value_status"}:
                         raise AuditFailure(
                             f"module subclass data attribute is malformed: "
                             f"{defining_module}.{class_qualname}"
                         )
+                    state_recomputed = runtime_data_state(attribute.get("value"), defining_module)
+                    expected_status = "recomputed" if state_recomputed else "not_established"
+                    if attribute.get("value_status") != expected_status:
+                        raise AuditFailure(
+                            f"module subclass data status differs from its value: "
+                            f"{defining_module}.{class_qualname}.{attribute['name']}"
+                        )
+                    if not state_recomputed:
+                        class_data_state = "not_established"
                 else:
                     raise AuditFailure(
                         f"module subclass attribute kind is unsupported: "
@@ -3141,7 +3327,7 @@ def validate_module_class_provenance(
             if (
                 attribute_names != sorted(attribute_names)
                 or len(set(attribute_names)) != len(attribute_names)
-                or function_count == 0
+                or class_row.get("class_attribute_state") != class_data_state
             ):
                 raise AuditFailure(
                     f"module subclass class is not fully source-associated: "
@@ -3183,6 +3369,14 @@ def validate_module_class_provenance(
             "class_record_sha256": canonical_json_sha256(evidence),
             "class_source_modules": sorted(set(source_modules)),
             "module_type_predicate": "independently_reconciled",
+            "class_attribute_state": (
+                "not_established"
+                if any(
+                    class_row.get("class_attribute_state") == "not_established"
+                    for class_row in classes
+                )
+                else "recomputed"
+            ),
             "live_execution_provenance": "not_established",
         }
     return subclass_rows
@@ -3242,6 +3436,11 @@ def bind_collection_module_inventory(
     report: dict[str, Any],
 ) -> tuple[dict[str, dict[str, Any]], list[dict[str, str]]]:
     """Bind module rows and explicit non-module values from a collection report."""
+    if (
+        type(report.get("module_inventory_schema_version")) is not int
+        or report.get("module_inventory_schema_version") != 2
+    ):
+        raise AuditFailure("pytest collection report has an unsupported module inventory schema")
     modules = report.get("module_origins")
     if type(modules) is not list:
         raise AuditFailure("pytest collection report omits its runtime or module-origin inventory")
@@ -3250,6 +3449,14 @@ def bind_collection_module_inventory(
         if not isinstance(module, dict) or not isinstance(module.get("module"), str):
             raise AuditFailure("pytest module-origin inventory contains a malformed row")
         module_name = module["module"]
+        runtime_module_name = module.get("runtime_module_name")
+        if type(runtime_module_name) is not str or not runtime_module_name:
+            raise AuditFailure(f"module inventory omits its actual runtime name: {module_name}")
+        if owned_source_module_name(module_name) and runtime_module_name != module_name:
+            raise AuditFailure(
+                "owned source module key aliases a different runtime module: "
+                f"key={module_name!r} actual={runtime_module_name!r}"
+            )
         if "module_class_provenance" not in module:
             raise AuditFailure(f"module inventory omits runtime type provenance: {module_name}")
         if module_name in module_rows:
@@ -4960,18 +5167,22 @@ def self_test_environment_reconciliation() -> dict[str, bool]:
 
 
 def self_test_non_module_sys_modules_capture() -> dict[str, bool]:
-    """Exercise producer, JSON capture, binding, receipt propagation, and property removal."""
+    """Exercise real module subtypes, non-module values, binding, receipt, and removal."""
+    import builtins
+    import importlib
     import types
+
+    import cffi
 
     sentinel = object()
     prior_pytest = sys.modules.get("pytest", sentinel)
     pytest_stub = types.ModuleType("pytest")
     pytest_stub.hookimpl = lambda **_kwargs: (lambda function: function)
     sys.modules["pytest"] = pytest_stub
-    plugin_namespace: dict[str, Any] = {"__name__": "q2_source_freeze_capture_nonmodule_test"}
+    plugin_namespace: dict[str, Any] = {"__name__": "q2_source_freeze_capture_composition_test"}
     try:
         exec(  # noqa: S102 -- evaluates only the exact embedded collector plugin.
-            compile(COLLECTION_PLUGIN_SOURCE, "q2-source-freeze-capture-nonmodule", "exec"),
+            compile(COLLECTION_PLUGIN_SOURCE, "q2-source-freeze-capture-composition", "exec"),
             plugin_namespace,
         )
     finally:
@@ -4980,14 +5191,22 @@ def self_test_non_module_sys_modules_capture() -> dict[str, bool]:
         else:
             sys.modules["pytest"] = prior_pytest
 
-    class CffiLikeLibrary:
-        pass
+    six = importlib.import_module("six")
+    six_moves = importlib.import_module("six.moves")
 
     external_name = "_q2_external_cffi_cache.control"
-    external_value = CffiLikeLibrary()
-    captured_fields = plugin_namespace["_capture_module_inventory"](
-        plugin_namespace["_CaptureMetadata"]([]),
-        {external_name: external_value, "sys": sys},
+    external_value = cffi.FFI()
+    capture = plugin_namespace["_capture_module_inventory"]
+    metadata_type = plugin_namespace["_CaptureMetadata"]
+    captured_fields = capture(
+        metadata_type([]),
+        {
+            external_name: external_value,
+            "sys": sys,
+            "builtins": builtins,
+            "six": six,
+            "six.moves": six_moves,
+        },
     )
     report = json.loads(
         json.dumps(
@@ -5000,70 +5219,298 @@ def self_test_non_module_sys_modules_capture() -> dict[str, bool]:
         )
     )
     module_rows, non_module_rows = bind_collection_module_inventory(report)
-    origins = [{"kind": "source-bound-origin", "module": "sys"}]
-    receipt_fields = collection_origin_receipt_fields(report, origins, non_module_rows)
+    six_row = module_rows["six"]
+    source_records = {"six": {"kind": "locked_python_distribution", "sha256": six_row["sha256"]}}
+    class_records = validate_module_class_provenance(module_rows, source_records)
+    six_class = class_records["six.moves"]
+    try:
+        validate_module_class_provenance(
+            module_rows,
+            {"six": {"kind": "locked_python_distribution", "sha256": "0" * 64}},
+        )
+    except AuditFailure as error:
+        detached_source_rejected = "no verified defining source module" in str(error)
+    else:
+        detached_source_rejected = False
+    six_evidence = module_rows["six.moves"]["module_class_provenance"]
+    opaque_class = next(
+        row for row in six_evidence["classes"] if row["class_attribute_state"] == "not_established"
+    )
+    opaque_attribute = next(
+        row for row in opaque_class["attributes"] if row.get("value_status") == "not_established"
+    )
+    encoded_value_has_opaque = (
+        plugin_namespace["_runtime_data_state_recomputed"](opaque_attribute["value"]) is False
+    )
+    class_origin = {
+        "kind": "loaded_module_subclass_class_origin",
+        "module": "six.moves",
+        **six_class,
+    }
+    receipt_fields = collection_origin_receipt_fields(report, [class_origin], non_module_rows)
     expected_external = {
         "name": external_name,
         "runtime_type": f"{type(external_value).__module__}.{type(external_value).__qualname__}",
         "classification": "non_module_sys_modules_value",
     }
     cases: dict[str, bool] = {
-        "producer-captures-real-module-object-in-origin-denominator": (
-            "sys" in module_rows and module_rows["sys"].get("module") == "sys"
+        "producer-captures-actual-builtin-module": (
+            module_rows["sys"].get("runtime_module_name") == "sys"
+            and module_rows["sys"].get("module_class_provenance") is None
+        ),
+        "producer-captures-real-six-moves-module-subtype": (
+            module_rows["six.moves"].get("runtime_module_name") == "six.moves"
+            and six_evidence.get("schema_version") == 2
+            and six_evidence.get("exact_module_type") is False
+            and encoded_value_has_opaque
+        ),
+        "source-binds-module-subtype-class-to-verified-owner": (
+            six_class["class_source_modules"] == ["six"]
+            and six_class["module_type_predicate"] == "independently_reconciled"
+        ),
+        "consumer-refuses-class-with-detached-source-hash": detached_source_rejected,
+        "opaque-external-class-state-is-explicitly-unestablished": (
+            opaque_attribute["value_status"] == "not_established"
+            and opaque_class["class_attribute_state"] == "not_established"
+            and six_class["class_attribute_state"] == "not_established"
+            and six_class["live_execution_provenance"] == "not_established"
         ),
         "producer-records-external-nonmodule-with-runtime-type": (
             non_module_rows == [expected_external]
+            and expected_external["runtime_type"] == "cffi.api.FFI"
         ),
-        "bound-collection-receipt-preserves-both-inventories": (
-            receipt_fields["non_module_sys_modules"] == [expected_external]
-            and receipt_fields["loaded_module_origins"] == origins
+        "bound-collection-receipt-preserves-module-subtype-and-nonmodule": (
+            class_origin in receipt_fields["loaded_module_origins"]
+            and receipt_fields["non_module_sys_modules"] == [expected_external]
         ),
     }
 
-    missing_property_report = dict(report)
-    missing_property_report.pop("non_module_sys_modules")
+    cycle_value: list[Any] = []
+    cycle_value.append(cycle_value)
+    cycle_encoding = plugin_namespace["_runtime_data_value"](cycle_value, allow_opaque=True)
+    cycle_module = types.ModuleType("_q2_cycle_module_digest")
+    cycle_module.cycle_value = cycle_value
+    cycle_digest = plugin_namespace["_module_data_digest"](cycle_module)
+    cases["cyclic-class-data-is-explicitly-not-established"] = (
+        cycle_encoding
+        == [
+            "list",
+            [
+                [
+                    "opaque_runtime_state",
+                    {"module": "builtins", "qualname": "list", "name": "list"},
+                ]
+            ],
+        ]
+        and plugin_namespace["_runtime_data_state_recomputed"](cycle_encoding) is False
+        and cycle_digest == {"supported": False, "bytes": None, "sha256": None}
+    )
     try:
-        bind_collection_module_inventory(missing_property_report)
+        plugin_namespace["_runtime_data_value"](cycle_value)
+    except TypeError as error:
+        cases["cyclic-module-data-digest-remains-fail-closed"] = str(error) == "cyclic runtime data"
+    else:
+        cases["cyclic-module-data-digest-remains-fail-closed"] = False
+
+    unsupported_schema_report = json.loads(json.dumps(report))
+    unsupported_schema_report["module_inventory_schema_version"] = 1
+    try:
+        bind_collection_module_inventory(unsupported_schema_report)
     except AuditFailure as error:
-        cases["remove-property-keep-markers-fails-closed"] = (
-            str(error).startswith("pytest collection report omits non-module sys.modules inventory")
-            and missing_property_report["collection_exitstatus"] == 0
-            and bool(missing_property_report["plugins"])
-            and "module_origins" in missing_property_report
+        cases["consumer-rejects-unsupported-module-inventory-schema"] = (
+            "unsupported module inventory schema" in str(error)
         )
     else:
-        cases["remove-property-keep-markers-fails-closed"] = False
+        cases["consumer-rejects-unsupported-module-inventory-schema"] = False
 
-    for name in ("polisyos._q2_nonmodule_control", "tools._q2_nonmodule_control"):
-        try:
-            plugin_namespace["_capture_module_inventory"](
-                plugin_namespace["_CaptureMetadata"]([]), {name: external_value}
+    missing_class_property_report = json.loads(json.dumps(report))
+    missing_six_moves = next(
+        row
+        for row in missing_class_property_report["module_origins"]
+        if row["module"] == "six.moves"
+    )
+    missing_six_moves.pop("module_class_provenance")
+    try:
+        bind_collection_module_inventory(missing_class_property_report)
+    except AuditFailure as error:
+        cases["remove-class-property-keep-markers-fails-closed"] = (
+            "omits runtime type provenance" in str(error)
+            and missing_class_property_report["collection_exitstatus"] == 0
+            and bool(missing_class_property_report["plugins"])
+            and any(
+                row.get("module") == "six.moves"
+                for row in missing_class_property_report["module_origins"]
             )
+        )
+    else:
+        cases["remove-class-property-keep-markers-fails-closed"] = False
+
+    false_state_report = json.loads(json.dumps(report))
+    false_state_six_moves = next(
+        row for row in false_state_report["module_origins"] if row["module"] == "six.moves"
+    )
+    false_state_class = next(
+        row
+        for row in false_state_six_moves["module_class_provenance"]["classes"]
+        if row["class_attribute_state"] == "not_established"
+    )
+    false_state_class["class_attribute_state"] = "recomputed"
+    try:
+        false_state_rows, _ = bind_collection_module_inventory(false_state_report)
+        validate_module_class_provenance(false_state_rows, source_records)
+    except AuditFailure as error:
+        cases["consumer-recomputes-state-instead-of-trusting-marker"] = (
+            "not fully source-associated" in str(error)
+        )
+    else:
+        cases["consumer-recomputes-state-instead-of-trusting-marker"] = False
+
+    malformed_state_report = json.loads(json.dumps(report))
+    malformed_six_moves = next(
+        row for row in malformed_state_report["module_origins"] if row["module"] == "six.moves"
+    )
+    malformed_attr = next(
+        attr
+        for row in malformed_six_moves["module_class_provenance"]["classes"]
+        for attr in row["attributes"]
+        if attr.get("kind") == "data"
+        and plugin_namespace["_runtime_data_state_recomputed"](attr.get("value")) is False
+    )
+    opaque_token = None
+
+    def find_opaque(value: object) -> list[Any] | None:
+        if type(value) is list:
+            if value and value[0] == "opaque_runtime_state":
+                return value
+            for child in value:
+                found = find_opaque(child)
+                if found is not None:
+                    return found
+        return None
+
+    opaque_token = find_opaque(malformed_attr["value"])
+    if opaque_token is None:
+        cases["consumer-rejects-malformed-opaque-type-record"] = False
+    else:
+        opaque_token[1].pop("qualname")
+        try:
+            malformed_rows, _ = bind_collection_module_inventory(malformed_state_report)
+            validate_module_class_provenance(malformed_rows, source_records)
+        except AuditFailure as error:
+            cases["consumer-rejects-malformed-opaque-type-record"] = (
+                "opaque-state type identity" in str(error)
+            )
+        else:
+            cases["consumer-rejects-malformed-opaque-type-record"] = False
+
+    for owned_name in ("polisyos._q2_owned_nonmodule", "tools._q2_owned_nonmodule"):
+        try:
+            capture(metadata_type([]), {owned_name: external_value})
         except RuntimeError as error:
-            cases[f"producer-refuses-owned-source-nonmodule:{name}"] = str(error).startswith(
+            cases[f"producer-refuses-owned-source-nonmodule:{owned_name}"] = str(error).startswith(
                 "owned source module key maps to a non-module value:"
             )
         else:
-            cases[f"producer-refuses-owned-source-nonmodule:{name}"] = False
+            cases[f"producer-refuses-owned-source-nonmodule:{owned_name}"] = False
         try:
             validate_non_module_sys_modules(
                 set(),
                 [
                     {
-                        "name": name,
+                        "name": owned_name,
                         "runtime_type": expected_external["runtime_type"],
                         "classification": "non_module_sys_modules_value",
                     }
                 ],
             )
         except AuditFailure as error:
-            cases[f"consumer-refuses-owned-source-nonmodule:{name}"] = str(error).startswith(
+            cases[f"consumer-refuses-owned-source-nonmodule:{owned_name}"] = str(error).startswith(
                 "owned source module key is not a module object:"
             )
         else:
-            cases[f"consumer-refuses-owned-source-nonmodule:{name}"] = False
+            cases[f"consumer-refuses-owned-source-nonmodule:{owned_name}"] = False
+
+    for owned_name in ("polisyos._q2_forged_module_alias", "tools._q2_forged_module_alias"):
+        forged_module = types.ModuleType("external._q2_forged_module_alias")
+        try:
+            capture(metadata_type([]), {owned_name: forged_module})
+        except RuntimeError as error:
+            cases[f"producer-refuses-owned-module-alias:{owned_name}"] = (
+                "owned source module key aliases a different runtime module" in str(error)
+            )
+        else:
+            cases[f"producer-refuses-owned-module-alias:{owned_name}"] = False
+        alias_report = {
+            "collection_exitstatus": 0,
+            "module_inventory_schema_version": 2,
+            "plugins": [{"name": "explicit-capture", "module": "q2_source_freeze_capture"}],
+            "module_origins": [
+                {
+                    "module": owned_name,
+                    "runtime_module_name": "external._q2_forged_module_alias",
+                    "module_class_provenance": None,
+                }
+            ],
+            "non_module_sys_modules": [],
+        }
+        try:
+            bind_collection_module_inventory(alias_report)
+        except AuditFailure as error:
+            cases[f"consumer-refuses-owned-module-alias:{owned_name}"] = (
+                "owned source module key aliases a different runtime module" in str(error)
+            )
+        else:
+            cases[f"consumer-refuses-owned-module-alias:{owned_name}"] = False
+
+    unbound_module_class = type(
+        "UnboundModuleClass",
+        (types.ModuleType,),
+        {"__module__": "six", "__qualname__": "Q2ForgedUnboundModuleClass"},
+    )
+    try:
+        plugin_namespace["_module_class_provenance"](
+            unbound_module_class("_q2_unbound_class_identity")
+        )
+    except TypeError as error:
+        cases["producer-refuses-unbound-module-subclass-class"] = (
+            "not bound by its claimed module" in str(error)
+        )
+    else:
+        cases["producer-refuses-unbound-module-subclass-class"] = False
+
+    owned_class_module_name = "polisyos._q2_owned_module_subtype_state"
+    owned_class_module = types.ModuleType(owned_class_module_name)
+    owned_class_type = type(
+        "OwnedModuleType",
+        (types.ModuleType,),
+        {
+            "__module__": owned_class_module_name,
+            "__qualname__": "OwnedModuleType",
+            "_opaque_payload": external_value,
+        },
+    )
+    owned_class_module.OwnedModuleType = owned_class_type
+    prior_owned_module = sys.modules.get(owned_class_module_name, sentinel)
+    sys.modules[owned_class_module_name] = owned_class_module
+    try:
+        capture(
+            metadata_type([]), {owned_class_module_name: owned_class_type(owned_class_module_name)}
+        )
+    except RuntimeError as error:
+        cases["producer-refuses-owned-module-subtype-with-opaque-data"] = (
+            "unsupported class provenance" in str(error)
+            and "owned module subclass" in str(error.__cause__)
+        )
+    else:
+        cases["producer-refuses-owned-module-subtype-with-opaque-data"] = False
+    finally:
+        if prior_owned_module is sentinel:
+            sys.modules.pop(owned_class_module_name, None)
+        else:
+            sys.modules[owned_class_module_name] = prior_owned_module
+
     if not all(cases.values()):
-        raise AuditFailure(f"non-module sys.modules capture controls failed: {cases}")
+        raise AuditFailure(f"module capture controls failed: {cases}")
     return cases
 
 

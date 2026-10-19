@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from decimal import Decimal
+from multiprocessing.connection import Connection
 from pathlib import Path
 from typing import Any
 
@@ -120,3 +121,17 @@ def execute_decimal_worker(
         if registry_module is not None and original_discover_nodes is not None:
             registry_module.discover_nodes = original_discover_nodes
         result_sender.close()
+
+
+def execute_decimal_worker_without_budget_tag(
+    payload: dict[str, Any],
+    backend: str,
+    expected_budgets: dict[str, Decimal],
+    attempts_path: str,
+    result_sender: Connection,
+) -> None:
+    """Run the importable worker after removing only typed-budget admission."""
+    from polisyos.scientist.orchestration.engine.runner import serialization as wire
+
+    wire._typed_state_payload = lambda _payload: None
+    execute_decimal_worker(payload, backend, expected_budgets, attempts_path, result_sender)

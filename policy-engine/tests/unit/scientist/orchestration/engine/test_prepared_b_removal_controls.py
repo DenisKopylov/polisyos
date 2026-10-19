@@ -14,9 +14,10 @@ import multiprocessing
 import textwrap
 import threading
 import time
+from collections.abc import Awaitable
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 import pytest
 from _helpers.run_lifecycle import (
@@ -28,18 +29,20 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.scientist.orchestration.engine import async_executor as async_engine
 from polisyos.scientist.orchestration.engine import state_merge as engine_merge
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeCacheEntry,
     NodeResultCache,
     _build_journal_proof,
     compute_idempotency_key,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.runner import serialization as wire
 from polisyos.scientist.orchestration.engine.runner import state_merge as worker_merge
 from polisyos.scientist.orchestration.engine.runner.state_merge import StateMergeConflictError
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
+    StateMutationJournal,
     branch_state,
     mutation_journal_for_state,
 )
@@ -47,6 +50,7 @@ from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_o
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 from tests.unit.scientist.orchestration.engine.runner.decimal_worker_transport import (
     execute_decimal_worker,
+    execute_decimal_worker_without_budget_tag,
 )
 from tests.unit.scientist.orchestration.engine.test_async_cache_recovery import (
     GatedPublicationCAS,
@@ -62,8 +66,10 @@ from tests.unit.scientist.orchestration.engine.test_async_cache_recovery import 
 from tests.unit.scientist.orchestration.engine.test_async_cache_recovery import (
     workflow as recovery_workflow,
 )
+from tests.unit.scientist.orchestration.engine.test_async_executor import (
+    _make_ctx as _make_execution_ctx,
+)
 from tests.unit.scientist.orchestration.engine.test_async_executor_hardening import (
-    _make_ctx,
     _make_node,
     _make_registry,
     _make_workflow,
@@ -74,7 +80,6 @@ from tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency 
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
-    from multiprocessing.connection import Connection
     from pathlib import Path
 
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -84,61 +89,102 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
 
+class _AsyncTestNodeCallback(Protocol):
+    """Describe the async callback installed on the shared test-node fixture."""
+
+    spec: NodeSpec
+
+    def execute(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> Awaitable[NodeOutcome]: ...
+
+
+class _NativeAsyncTestNode:
+    """Adapt a shared test node callback to the executor's native async path."""
+
+    def __init__(self, node: _AsyncTestNodeCallback) -> None:
+        self.spec = node.spec
+        self._execute = node.execute
+
+    async def execute_async(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+    ) -> NodeOutcome:
+        return await self._execute(ctx, state)
+
+
 def test_branch_isolation_removal_leaks_to_real_parallel_sibling(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """One branch-state seam covers declared nested COW and failed-node rollback (#1/#9)."""
+    """A tracked nested write stays branch-local through the real async tier consumer."""
 
     async def run_case(
-        root: Path,
         *,
         remove_isolation: bool,
         patcher: pytest.MonkeyPatch | None = None,
-    ) -> tuple[list[str], list[str]]:
-        root.mkdir(parents=True, exist_ok=True)
-        writer_finished = threading.Event()
+    ) -> tuple[list[str], list[str], list[str]]:
+        sibling_started = asyncio.Event()
+        writer_finished = asyncio.Event()
         sibling_observed: list[list[str]] = []
+        writer_journals: list[StateMutationJournal] = []
+        reader_journals: list[StateMutationJournal] = []
 
-        def fail_after_nested_write(state: ExperimentState) -> NodeOutcome:
+        async def fail_after_nested_write(state: ExperimentState) -> NodeOutcome:
+            await asyncio.wait_for(sibling_started.wait(), timeout=3)
             state.params["nested"]["items"].append("failed-branch")
             writer_finished.set()
             return NodeOutcome(
                 status="fail",
                 state=state,
-                error=NodeError(code="probe.failure", message="expected failed branch", details={}),
+                error=NodeError(
+                    code="probe.failure",
+                    message="expected failed branch",
+                    details={},
+                ),
             )
 
-        def read_sibling(state: ExperimentState) -> NodeOutcome:
-            assert writer_finished.wait(3), "parallel writer did not reach its mutation"
+        async def read_sibling(state: ExperimentState) -> NodeOutcome:
+            sibling_started.set()
+            await asyncio.wait_for(writer_finished.wait(), timeout=3)
             observed = list(state.params["nested"]["items"])
             sibling_observed.append(observed)
             state.params["observed"] = observed
             return NodeOutcome(status="ok", state=state)
 
-        writer = _make_node(
+        writer_node = _make_node(
             fail_after_nested_write,
             node_id="test.prepared_b_failed_nested_writer@1.0.0",
             state_writes=["params.nested.items"],
         )
-        sibling = _make_node(
+        sibling_node = _make_node(
             read_sibling,
             node_id="test.prepared_b_parallel_reader@1.0.0",
             state_writes=["params.observed"],
         )
+        sibling_node.spec = sibling_node.spec.model_copy(
+            update={"state_reads": ["params.nested.items"]}
+        )
+        writer = _NativeAsyncTestNode(writer_node)
+        sibling = _NativeAsyncTestNode(sibling_node)
         registry = _make_registry(
             ("test.prepared_b_failed_nested_writer@1.0.0", writer),
             ("test.prepared_b_parallel_reader@1.0.0", sibling),
         )
-        context = _make_ctx(root)
+        context = _make_execution_ctx()
         workflow = _make_workflow(
             NodeInvocation(alias="failed_writer", node_id=str(writer.spec.metadata.component_id)),
             NodeInvocation(alias="sibling", node_id=str(sibling.spec.metadata.component_id)),
             error_policy="continue",
         )
+
         if remove_isolation:
             actual_branch_state = async_engine.branch_state
+            branches_by_base: dict[int, dict[str, BranchedState]] = {}
 
-            def alias_declared_branch_to_receiver(
+            def share_writer_path_with_reader(
                 base_state: ExperimentState,
                 *,
                 write_paths: Iterable[str] = (),
@@ -146,18 +192,52 @@ def test_branch_isolation_removal_leaks_to_real_parallel_sibling(
             ) -> BranchedState:
                 paths = tuple(write_paths)
                 branch = actual_branch_state(
-                    base_state, write_paths=paths, enforce_write_scope=enforce_write_scope
+                    base_state,
+                    write_paths=paths,
+                    enforce_write_scope=enforce_write_scope,
                 )
-                if "params.nested.items" in paths:
-                    # Keep the actual branch journal and admitted path marker, but
-                    # remove the branch-local receiver at the real executor seam.
-                    assert mutation_journal_for_state(branch.state) is branch.journal
-                    assert branch.journal.isolated_paths == paths
-                    object.__setattr__(branch.state, "params", base_state.params)
-                return branch
+                if paths in {("params.nested.items",), ("params.observed",)}:
+                    journal = mutation_journal_for_state(branch.state)
+                    if (
+                        journal is None
+                        or journal is not branch.journal
+                        or journal.isolated_paths != paths
+                    ):
+                        raise AssertionError(
+                            "test mutant must preserve each declared write journal"
+                        )
+                    role = "writer" if paths == ("params.nested.items",) else "reader"
+                    tier_branches = branches_by_base.setdefault(id(base_state), {})
+                    tier_branches[role] = branch
+                    if "writer" in tier_branches and "reader" in tier_branches:
+                        writer_branch = tier_branches["writer"]
+                        reader_branch = tier_branches["reader"]
+                        writer_journal = mutation_journal_for_state(writer_branch.state)
+                        reader_journal = mutation_journal_for_state(reader_branch.state)
+                        if (
+                            writer_journal is None
+                            or writer_journal is not writer_branch.journal
+                            or writer_journal.isolated_paths != ("params.nested.items",)
+                        ):
+                            raise AssertionError("writer branch lost its declared write journal")
+                        if (
+                            reader_journal is None
+                            or reader_journal is not reader_branch.journal
+                            or reader_journal.isolated_paths != ("params.observed",)
+                        ):
+                            raise AssertionError("reader branch lost its declared write journal")
+                        shared_items = writer_branch.state.params["nested"]["items"]
+                        reader_nested = reader_branch.state.params["nested"]
+                        if not isinstance(reader_nested, dict):
+                            raise AssertionError("reader branch nested receiver must be a mapping")
+                        # Remove only sibling-locality for the writer's nested
+                        # receiver. Models, wrappers, journals, and scoped writes stay active.
+                        dict.__setitem__(reader_nested, "items", shared_items)
+                        writer_journals.append(writer_journal)
+                        reader_journals.append(reader_journal)
 
             assert patcher is not None
-            patcher.setattr(async_engine, "branch_state", alias_declared_branch_to_receiver)
+            patcher.setattr(async_engine, "branch_state", share_writer_path_with_reader)
 
         base = ExperimentState(
             run_id="R_prepared_b_branch_removal",
@@ -167,26 +247,44 @@ def test_branch_isolation_removal_leaks_to_real_parallel_sibling(
             workflow, base
         )
         assert len(sibling_observed) == 1
-        return sibling_observed[0], list(result.state.params["nested"]["items"])
+        assert {record.alias: record.status for record in result.report.nodes} == {
+            "failed_writer": "fail",
+            "sibling": "ok",
+        }
+        journaled_paths = [
+            operation.path
+            for journal in (*writer_journals, *reader_journals)
+            for operation in journal.operations
+        ]
+        if remove_isolation:
+            assert len(writer_journals) == 1
+            assert len(reader_journals) == 1
+            assert "params.nested.items" in journaled_paths
+            assert "params.observed" in journaled_paths
+        return (
+            sibling_observed[0],
+            list(result.state.params["nested"]["items"]),
+            journaled_paths,
+        )
 
-    normal_sibling, normal_receiver = asyncio.run(
-        run_case(tmp_path / "normal", remove_isolation=False)
-    )
+    normal_sibling, normal_receiver, normal_journal = asyncio.run(run_case(remove_isolation=False))
     assert normal_sibling == ["seed"]
     assert normal_receiver == ["seed"]
+    assert normal_journal == []
 
     with monkeypatch.context() as mutation:
-        leaked_sibling, leaked_receiver = asyncio.run(
-            run_case(tmp_path / "mutant", remove_isolation=True, patcher=mutation)
+        leaked_sibling, mutant_receiver, mutant_journal = asyncio.run(
+            run_case(remove_isolation=True, patcher=mutation)
         )
-    # The normal property assertion must turn red after the marker-preserving
-    # receiver alias mutant; both the sibling and failed-node receiver show it.
+    # The positive reader assertion goes red when only the producer/reader
+    # nested receiver is deliberately shared across their live tier branches.
     with pytest.raises(AssertionError):
         assert leaked_sibling == ["seed"]
     assert leaked_sibling == ["seed", "failed-branch"]
-    # The returned tier state may be its rollback snapshot; sibling visibility
-    # is the decisive consumer property for this failed concurrent producer.
-    assert leaked_receiver in (["seed"], ["seed", "failed-branch"])
+    # The failed branch is still excluded from the committed receiver, and its
+    # mutation remains represented in the producer branch journal.
+    assert mutant_receiver == ["seed"]
+    assert "params.nested.items" in mutant_journal
 
 
 def _journaled_multi_operation_merge() -> tuple[ExperimentState, MergeResult]:
@@ -545,20 +643,6 @@ def test_current_wire_schema_removal_accepts_unknown_version_with_markers(
     assert accepted.state.params == {"marker": "present"}
 
 
-def _execute_decimal_worker_without_budget_tag(
-    payload: dict[str, object],
-    backend: str,
-    expected_budgets: dict[str, Decimal],
-    attempts_path: str,
-    result_sender: Connection,
-) -> None:
-    """Spawn target: remove only the typed-budget gate, then run the real worker."""
-    from polisyos.scientist.orchestration.engine.runner import serialization as child_wire
-
-    child_wire._typed_state_payload = lambda _payload: None
-    execute_decimal_worker(payload, backend, expected_budgets, attempts_path, result_sender)
-
-
 def _run_decimal_worker(
     target: Callable[..., None],
     payload: dict[str, object],
@@ -630,7 +714,7 @@ def test_typed_decimal_refusal_survives_actual_worker_and_marker_removal(
     assert not attempts.exists()
 
     accepted = _run_decimal_worker(
-        _execute_decimal_worker_without_budget_tag,
+        execute_decimal_worker_without_budget_tag,
         payload,
         expected,
         attempts,

@@ -23226,5 +23226,71 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "prepared-b-real-async-branch-and-importable-worker-controls-20261019": {
+    "slice_base": "ac42e495f074e209b40d706d337cd851b228f89b",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py": {
+        "operation": "write",
+        "preimage_sha256": "39e8c07b9626bbc7e086d7f807dbb9cfc688ccd33dd134f4170e7a84f836da09",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-independent-review-e398-20261019/candidate-v4-style-only/postimages/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py",
+        "postimage_sha256": "895ea350a8de8325646a8286b5afe222a2e68d09091fc206da12ed3c97f1537e"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py": {
+        "operation": "write",
+        "preimage_sha256": "7be2e108d4019be16d023e64eaebed36bc30f22dac776cae0c05e2add1921ab4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-independent-review-e398-20261019/candidate-v4-style-only/postimages/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py",
+        "postimage_sha256": "b702a642fc2f8dbd21030cd413cdf7f587aa4a10555ed34201572523c0ffdb79"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/source-application.json",
+      "sha256": "7165281092da8e2e817e99f07c82230a6834f2ffbe920b4accbc9eabb999c982"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-independent-review-e398-20261019/candidate-v4-style-only/manifest.json",
+        "sha256": "41cece7b1bfe3df78a3b7dd4950e6d06c287c27918d0a5370e76f8a09b4bf6ab"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-independent-review-e398-20261019/candidate-v4-style-only/patch.diff",
+        "sha256": "ea6e52a942e81793cf87045b31a79681ed62da7d6e3720c3276fafdbb100dd2a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-independent-review-e398-20261019/review.json",
+        "sha256": "d37438a28f7e2529c7be85571cb9db786d0f6559a12686f32942559f53ddc005"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-independent-review-e398-20261019/v4-delta-review.json",
+        "sha256": "0a84a13ab8feb1764aa2219c57b777a9c9f5eeb117ae3484f5564e5368e99212"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-author-e73-20261019/repair-candidate-v3/manifest.json",
+        "sha256": "5aab643f0164bd40db61bec107f6a5716e13363795e98214698c4c4bbc4b0efd"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Branch isolation: same class widened to actual async consumer path. Spawn importability: separate harness class. v4 is independently reviewed style-only delta of v3.",
+    "bounded_proof": "Full v3 semantic review and independent v4 AST/import/format delta review; all8 controls retained, both canonical Ruff roots pass.",
+    "limitations": [
+      "Prior full8 actuale73 result6PASS2FAIL remains retained; repairedruntimeUNRUN.",
+      "No production code or scientific/authority/schema contract changed.",
+      "Helper importer census3104Pythonfiles is bound to e9; no current whole-tree or P41 inheritance claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Full8 B8 module plus complete test_serialization_e02.py importer within composed PreparedB68-module replay; actual worker/caller/consumer and removal differences, full outputs and module-origin qualification required.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

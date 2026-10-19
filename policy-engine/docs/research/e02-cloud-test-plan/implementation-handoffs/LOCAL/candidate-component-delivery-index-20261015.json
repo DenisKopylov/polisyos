@@ -1124,6 +1124,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-c7115b298004.json",
       "sha256": "1c8b4d4026d3f52e6f1c289217cefac854dbd3b49466deb343f69e84259a0486"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-851600e7c313.json",
+      "sha256": "73f7475ba06967e044014f132ae20926f2ceec624942e9cb04bc122291189fd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-192a306501ef.json",
+      "sha256": "cb8cf786fe85043c300d941b3abe8f5ff6b2df15fa189510f9a23debb92bf475"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-192a-20261019.json",
+      "sha256": "15b27ba56ff596c683d01f49a41bdc2d16a7b02cbdf0826066594ecde8c5c387"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -1175,58 +1187,46 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "f508fa13707043a55b8278178c30acc22f599080",
-    "tree": "299d8af15136666084134489044cd99ce48a7893",
+    "head": "192a306501ef40ab8550c7b6766b8bff233126c6",
+    "tree": "e92bdd7f0b4a8552d4c630b3dcf415199ce82e96",
     "parents": [
-      "6d4511969970a0986d577cb2050f5282d063a8c9"
+      "851600e7c313f0d6e720be9fd3448cc71b11291d"
     ],
     "source_freeze": false,
-    "tracked_source_clean_at_observation": true,
-    "prior_reconciled_source_cut": {
-      "head": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
-      "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
-      "parents": [
-        "c5611db921ab48d07416e95746b85e189baa16c1"
-      ],
-      "source_freeze": false,
-      "tracked_source_clean_at_observation": true,
-      "prior_index_observation": {
-        "commit": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
-        "sha256": "4757b00c01d290c2e8d0deea4f50dbf75e8da636bd40533637d840b3636a3021"
+    "tracked_source_clean_before_receipt_edit": true,
+    "implementation_handoffs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-851600e7c313.json",
+        "sha256": "73f7475ba06967e044014f132ae20926f2ceec624942e9cb04bc122291189fd3"
       },
-      "published_candidate_last_verified": {
-        "sha": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
-        "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
-        "readback": {
-          "path": "raw/resume-candidate-push-b6f115016f87-20261015/remote-readback.json",
-          "sha256": "a36ced3b89802327289a98f6865fe1e496d509ed1b7cef0acb62c3d523092e32"
-        },
-        "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
-        "G_acceptance": false
-      },
-      "meaning": "128 reviewed implementation paths plus two companions delivered in b6f. Actual selected behavior includes passes, four N11 failures and an R15 collection error; full ratchetCLI is red. Complete original291occurrence proposals remain separate. This receipt delivery adds no productsource and claims no global/native acceptance."
-    },
-    "prior_index_observation": {
-      "commit": "f508fa13707043a55b8278178c30acc22f599080",
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
-      "sha256": "5c2e9127f2542fa88bd7064cee58d894d4e2ecb87c7a76acb953b7bec5e5dfc5"
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-192a306501ef.json",
+        "sha256": "cb8cf786fe85043c300d941b3abe8f5ff6b2df15fa189510f9a23debb92bf475"
+      }
+    ],
+    "occurrence_progress": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-192a-20261019.json",
+      "sha256": "15b27ba56ff596c683d01f49a41bdc2d16a7b02cbdf0826066594ecde8c5c387"
     },
     "published_candidate_last_verified": {
-      "sha": "8c692577b722e0645d1e6a6562e285590049abd4",
-      "tree": "61d20980e71c14950f49b83e8188c73483163c03",
+      "sha": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+      "tree": "3d3c1981b5078ebf80566b7f5720888433cf54f2",
       "readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-8c692577b722-20261015/remote-readback.json",
-        "sha256": "f9909f63f312bd2c27f2ee1baeb0f8ea65bd78d5dfde4950aef7c2d77107bf75"
-      },
-      "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
-      "G_acceptance": false
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-72470bc-20261019/remote-readback.json",
+        "sha256": "361c63d51354fadd5c4e5392041dd7ca69a3b7a45f22167475e68ba181504277"
+      }
     },
-    "source_handoff": {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-reviewed-source-batch-f508-20261018.json",
-      "sha256": "2abdedad569e3717edf26268204ed6b687339799281e8583bf20fc65ba0516b7"
+    "G_checkpoint_last_remote_verified": {
+      "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+      "parents": [
+        "78be3aff64185e2de24abe710523e14491e36ba6"
+      ],
+      "receipt": "raw/root-g-published-readback-20261017/readback.json",
+      "meaning": "Fetched G unchanged; read-only, not authorship or automatic acceptance. Own28ba exactremote/tree/10changedpaths verified separately."
     },
-    "meaning": "Six reviewed implementation commits since 8c692; 45 distinct paths (29 mechanism, 11 tests, 1 artifact, 2 docs, 2 records). Exact physical source Ruff checks pass. Composed runtime/native/SOTA outcomes remain UNRUN; Wave35B and N11 remain separately held. Receipt batch adds seven proposals/evidence records plus this source handoff; no G acceptance or closures."
+    "G_acceptance": false,
+    "meaning": "49 source/test/package-documentation paths plus two shared mandatory record paths committed in two implementation boundaries. Actual changed-file Ruff passed. Full current composed/native/Linux/installed/browser acceptance remains unrun; full291 occurrence navigation preserves limits and historical decisions. No future receipt SHA is asserted."
   },
   "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
 }

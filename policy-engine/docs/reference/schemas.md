@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Snapshot Summary
 
-- IR snapshot: `103` schemas, generated `2026-10-13T21:05:17+00:00`.
+- IR snapshot: `103` schemas, generated `2026-10-19T17:20:49+00:00`.
 - Fabric world ABI snapshot: `2` schemas, generated `2026-10-13T21:05:17+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 
@@ -29,7 +29,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `refutation_result` | `polisyos.ir.analytics.causal.RefutationResult` | `analytics` | `—` | `p1` | `—` | `root_facade` | [RefutationResult](ir/schema-catalog.md#polisyos-ir-analytics-causal-refutationresult) | `schemas/snapshots/ir/refutation_result.schema.json` |
 | `causal_discovery_report` | `polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport` | `analytics` | `1.1` | `p1` | `—` | `root_facade` | [CausalDiscoveryReport](ir/schema-catalog.md#polisyos-ir-analytics-causal-discovery-causaldiscoveryreport) | `schemas/snapshots/ir/causal_discovery_report.schema.json` |
 | `causal_model_ensemble` | `polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble` | `analytics` | `1.0` | `p1` | `—` | `root_facade` | [CausalModelEnsemble](ir/schema-catalog.md#polisyos-ir-analytics-causal-ensemble-causalmodelensemble) | `schemas/snapshots/ir/causal_model_ensemble.schema.json` |
-| `causal_graph_model` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` | `analytics` | `1.0` | `p1` | `—` | `package_facade` | [CausalGraphModel](ir/schema-catalog.md#polisyos-ir-analytics-causal-graph-causalgraphmodel) | `schemas/snapshots/ir/causal_graph_model.schema.json` |
+| `causal_graph_model` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` | `analytics` | `1.0` | `p1` | `—` | `root_facade` | [CausalGraphModel](ir/schema-catalog.md#polisyos-ir-analytics-causal-graph-causalgraphmodel) | `schemas/snapshots/ir/causal_graph_model.schema.json` |
 | `causal_query` | `polisyos.ir.analytics.causal_queries.CausalQuery` | `analytics` | `—` | `p2` | `—` | `root_facade` | [CausalQuery](ir/schema-catalog.md#polisyos-ir-analytics-causal-queries-causalquery) | `schemas/snapshots/ir/causal_query.schema.json` |
 | `causal_query_result` | `polisyos.ir.analytics.causal_queries.CausalQueryResult` | `analytics` | `1.2` | `p1` | `—` | `root_facade` | [CausalQueryResult](ir/schema-catalog.md#polisyos-ir-analytics-causal-queries-causalqueryresult) | `schemas/snapshots/ir/causal_query_result.schema.json` |
 | `data_view_request` | `polisyos.ir.analytics.data_views.DataViewRequest` | `analytics` | `—` | `p2` | `—` | `root_facade` | [DataViewRequest](ir/schema-catalog.md#polisyos-ir-analytics-data-views-dataviewrequest) | `schemas/snapshots/ir/data_view_request.schema.json` |
@@ -69,8 +69,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `temporal_intervention_sequence` | `polisyos.ir.governance.policy_spec.TemporalInterventionSequence` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [TemporalInterventionSequence](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-temporalinterventionsequence) | `schemas/snapshots/ir/temporal_intervention_sequence.schema.json` |
 | `temporal_intervention_step` | `polisyos.ir.governance.policy_spec.TemporalInterventionStep` | `governance` | `—` | `p2` | `—` | `root_facade` | [TemporalInterventionStep](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-temporalinterventionstep) | `schemas/snapshots/ir/temporal_intervention_step.schema.json` |
 | `problem_frame` | `polisyos.ir.governance.problem_frame.ProblemFrame` | `governance` | `1.0` | `p0` | `—` | `root_facade` | [ProblemFrame](ir/schema-catalog.md#polisyos-ir-governance-problem-frame-problemframe) | `schemas/snapshots/ir/problem_frame.schema.json` |
-| `fact` | `polisyos.ir.loading.fact_log.Fact` | `loading` | `1.0` | `p0` | `—` | `snapshot_only` | [Fact](ir/schema-catalog.md#polisyos-ir-loading-fact-log-fact) | `schemas/snapshots/ir/fact.schema.json` |
-| `fact_segment_manifest` | `polisyos.ir.loading.fact_log.FactSegmentManifest` | `loading` | `1.0` | `p0` | `—` | `snapshot_only` | [FactSegmentManifest](ir/schema-catalog.md#polisyos-ir-loading-fact-log-factsegmentmanifest) | `schemas/snapshots/ir/fact_segment_manifest.schema.json` |
+| `fact` | `polisyos.ir.loading.fact_log.Fact` | `loading` | `1.0` | `p0` | `—` | `package_facade` | [Fact](ir/schema-catalog.md#polisyos-ir-loading-fact-log-fact) | `schemas/snapshots/ir/fact.schema.json` |
+| `fact_segment_manifest` | `polisyos.ir.loading.fact_log.FactSegmentManifest` | `loading` | `1.0` | `p0` | `—` | `package_facade` | [FactSegmentManifest](ir/schema-catalog.md#polisyos-ir-loading-fact-log-factsegmentmanifest) | `schemas/snapshots/ir/fact_segment_manifest.schema.json` |
 | `norm_pack` | `polisyos.ir.loading.norm_pack.NormPack` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [NormPack](ir/schema-catalog.md#polisyos-ir-loading-norm-pack-normpack) | `schemas/snapshots/ir/norm_pack.schema.json` |
 | `norm_ref` | `polisyos.ir.loading.norm_pack.NormRef` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [NormRef](ir/schema-catalog.md#polisyos-ir-loading-norm-pack-normref) | `schemas/snapshots/ir/norm_ref.schema.json` |
 | `norm_rule` | `polisyos.ir.loading.norm_pack.NormRule` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [NormRule](ir/schema-catalog.md#polisyos-ir-loading-norm-pack-normrule) | `schemas/snapshots/ir/norm_rule.schema.json` |

@@ -1,0 +1,1017 @@
+{
+  "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference an artifact across service, registry, and governance boundaries.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "kind",
+        "media_type"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "BacktestKind": {
+      "description": "Required backtest channel in calibration governance.\n\nThe kinds partition historical validation into macro, cell,\nstrategic-agent, household, and distress evidence slices so promotion\ndecisions can require coverage across distinct observational regimes.",
+      "enum": [
+        "macro",
+        "cell",
+        "strategic_agent",
+        "household",
+        "distress"
+      ],
+      "title": "BacktestKind",
+      "type": "string"
+    },
+    "BacktestKindResult": {
+      "additionalProperties": false,
+      "description": "Per-kind summary for one required backtest slice.",
+      "properties": {
+        "gap_flag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gap Flag"
+        },
+        "kind": {
+          "$ref": "#/$defs/BacktestKind"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "n_plans": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Plans",
+          "type": "integer"
+        },
+        "n_scenarios": {
+          "default": 0,
+          "minimum": 0,
+          "title": "N Scenarios",
+          "type": "integer"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "observation_families": {
+          "items": {
+            "$ref": "#/$defs/ObservationFamily"
+          },
+          "title": "Observation Families",
+          "type": "array"
+        },
+        "scenario_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scenario Ids",
+          "type": "array"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "status": {
+          "pattern": "^(ok|gap|error)$",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "status"
+      ],
+      "title": "BacktestKindResult",
+      "type": "object"
+    },
+    "BacktestMatrixResult": {
+      "additionalProperties": false,
+      "description": "Aggregate calibration-governance view over all required backtest kinds.\n\n`gap_flags` enumerates missing evidence channels, `composite_score` provides\nthe promotion score, and `backtest_report_ref` links to the persisted replay\nartifact for audit and downstream leaderboard scoring.",
+      "properties": {
+        "backtest_report_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BacktestReportRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "composite_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Composite Score"
+        },
+        "gap_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gap Flags",
+          "type": "array"
+        },
+        "kind_results": {
+          "items": {
+            "$ref": "#/$defs/BacktestKindResult"
+          },
+          "title": "Kind Results",
+          "type": "array"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "report_id": {
+          "minLength": 1,
+          "title": "Report Id",
+          "type": "string"
+        },
+        "worst_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BacktestKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "report_id"
+      ],
+      "title": "BacktestMatrixResult",
+      "type": "object"
+    },
+    "BacktestReportRef": {
+      "additionalProperties": false,
+      "description": "Stable handle for persisted backtest reports consumed by Scientist governance and readiness review.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.backtest_report",
+          "default": "ir.backtest_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "BacktestReportRef",
+      "type": "object"
+    },
+    "CalibrationLeaderboardEntry": {
+      "additionalProperties": false,
+      "description": "One ranked candidate entry in the calibration leaderboard.",
+      "properties": {
+        "candidate_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "entry_id": {
+          "minLength": 1,
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "metrics": {
+          "$ref": "#/$defs/CalibrationLeaderboardMetrics"
+        },
+        "rank": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Rank",
+          "type": "integer"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "worst_backtest_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BacktestKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "worst_stress_scenario": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StressScenarioKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "entry_id",
+        "run_id",
+        "metrics"
+      ],
+      "title": "CalibrationLeaderboardEntry",
+      "type": "object"
+    },
+    "CalibrationLeaderboardMetrics": {
+      "additionalProperties": false,
+      "description": "Normalized promotion metrics used to rank calibration candidates.\n\nRequired evidence channels are captured as nullable scores so missing inputs\ncan be surfaced through `gap_flags`. `eligible_for_promotion` is true only\nwhen governance approves, required adversarial suites pass, and no required\nscore is missing.",
+      "properties": {
+        "adversarial_passed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adversarial Passed"
+        },
+        "backtest_matrix_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backtest Matrix Score"
+        },
+        "calibration_fit_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibration Fit Score"
+        },
+        "composite_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Composite Score"
+        },
+        "eligible_for_promotion": {
+          "default": false,
+          "title": "Eligible For Promotion",
+          "type": "boolean"
+        },
+        "gap_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Gap Flags",
+          "type": "array"
+        },
+        "governance_verdict": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Governance Verdict"
+        },
+        "interference_fit": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interference Fit"
+        },
+        "specification_curve_robustness": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Specification Curve Robustness"
+        },
+        "strategic_response_plausibility": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Strategic Response Plausibility"
+        },
+        "stress_robustness_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stress Robustness Score"
+        },
+        "transportability_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transportability Score"
+        }
+      },
+      "title": "CalibrationLeaderboardMetrics",
+      "type": "object"
+    },
+    "GovernanceAccountabilityArtifactRef": {
+      "additionalProperties": false,
+      "description": "Reference to a stored governance accountability artifact.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "default": "scientist.governance_accountability_artifact",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "GovernanceAccountabilityArtifactRef",
+      "type": "object"
+    },
+    "ObservationFamily": {
+      "description": "Classify raw evidence into stable observation families for routing.\n\nFamilies partition raw evidence into domains such as budget flows, firm\nfundamentals, or household distribution so measurement rules, governance\ndefaults, and contract compilers can branch on a stable domain label.",
+      "enum": [
+        "budget_flows",
+        "procurement_flows",
+        "macro_state",
+        "firm_fundamentals",
+        "trade_exposure",
+        "labor_market",
+        "household_distribution",
+        "distress_enforcement",
+        "spatial_raster_exogenous",
+        "public_service_domain_flows",
+        "education_human_capital_supply",
+        "construction_capital_formation",
+        "logistics_friction"
+      ],
+      "title": "ObservationFamily",
+      "type": "string"
+    },
+    "StressScenarioComparison": {
+      "additionalProperties": false,
+      "description": "Comparison between baseline and stressed outcomes for one scenario.",
+      "properties": {
+        "baseline_objective": {
+          "title": "Baseline Objective",
+          "type": "number"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        },
+        "objective_delta": {
+          "title": "Objective Delta",
+          "type": "number"
+        },
+        "relative_delta": {
+          "title": "Relative Delta",
+          "type": "number"
+        },
+        "scenario": {
+          "$ref": "#/$defs/StressScenarioKind"
+        },
+        "severity": {
+          "pattern": "^(critical|high|medium|low|none)$",
+          "title": "Severity",
+          "type": "string"
+        },
+        "stressed_metrics": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Stressed Metrics",
+          "type": "object"
+        },
+        "stressed_objective": {
+          "title": "Stressed Objective",
+          "type": "number"
+        }
+      },
+      "required": [
+        "scenario",
+        "baseline_objective",
+        "stressed_objective",
+        "objective_delta",
+        "relative_delta",
+        "severity"
+      ],
+      "title": "StressScenarioComparison",
+      "type": "object"
+    },
+    "StressScenarioKind": {
+      "description": "Canonical stress scenario required during calibration validation.\n\nThe built-in presets represent budget contraction, procurement disruption,\nwage subsidy incidence shifts, FX volatility, trade disruption, and\nreimbursement tariff shocks.",
+      "enum": [
+        "budget_contraction",
+        "procurement_shock",
+        "wage_subsidy",
+        "fx",
+        "trade_disruption",
+        "reimbursement_tariff"
+      ],
+      "title": "StressScenarioKind",
+      "type": "string"
+    },
+    "StressScenarioResult": {
+      "additionalProperties": false,
+      "description": "Aggregate result of executing the full stress-scenario suite.\n\n`comparisons` keeps one baseline-vs-stress readout per scenario,\n`robustness_score` is the aggregate promotion metric, and\n`stress_test_report_ref` points at the persisted audit artifact.",
+      "properties": {
+        "comparisons": {
+          "items": {
+            "$ref": "#/$defs/StressScenarioComparison"
+          },
+          "title": "Comparisons",
+          "type": "array"
+        },
+        "critical_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Critical Count",
+          "type": "integer"
+        },
+        "high_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "High Count",
+          "type": "integer"
+        },
+        "medium_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Medium Count",
+          "type": "integer"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "report_id": {
+          "minLength": 1,
+          "title": "Report Id",
+          "type": "string"
+        },
+        "robustness_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Robustness Score"
+        },
+        "stress_test_report_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StressTestReportRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "worst_scenario": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StressScenarioKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "report_id"
+      ],
+      "title": "StressScenarioResult",
+      "type": "object"
+    },
+    "StressTestReportRef": {
+      "additionalProperties": false,
+      "description": "Reference to a stored stress-test report artifact.",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "kind": {
+          "default": "scientist.stress_test_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "StressTestReportRef",
+      "type": "object"
+    },
+    "UkraineJSONSnapshotProvenance": {
+      "additionalProperties": false,
+      "description": "Recomputed selection/content facts, never producer or source authority.",
+      "properties": {
+        "artifact_kind": {
+          "minLength": 1,
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        "authority_provenance": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Authority Provenance",
+          "type": "string"
+        },
+        "consumer_contract": {
+          "minLength": 1,
+          "title": "Consumer Contract",
+          "type": "string"
+        },
+        "content_binding_provenance": {
+          "const": "recomputed",
+          "default": "recomputed",
+          "title": "Content Binding Provenance",
+          "type": "string"
+        },
+        "content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "content_size_bytes": {
+          "minimum": 0,
+          "title": "Content Size Bytes",
+          "type": "integer"
+        },
+        "currentness_provenance": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Currentness Provenance",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        },
+        "producer_attestation_status": {
+          "const": "not_established",
+          "default": "not_established",
+          "title": "Producer Attestation Status",
+          "type": "string"
+        },
+        "profile_selection_provenance": {
+          "const": "recomputed",
+          "default": "recomputed",
+          "title": "Profile Selection Provenance",
+          "type": "string"
+        },
+        "profile_status": {
+          "enum": [
+            "declared_bytes_conformant",
+            "profile_absent_raw_snapshot_candidate",
+            "declared_unknown_candidate"
+          ],
+          "title": "Profile Status",
+          "type": "string"
+        },
+        "schema_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Name"
+        },
+        "schema_validation_provenance": {
+          "enum": [
+            "recomputed",
+            "not_evaluated"
+          ],
+          "title": "Schema Validation Provenance",
+          "type": "string"
+        },
+        "schema_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Version"
+        },
+        "selected_artifact_id": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Selected Artifact Id",
+          "type": "string"
+        },
+        "selected_manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Selected Manifest Profile Sha256",
+          "type": "string"
+        },
+        "source_materialization": {
+          "enum": [
+            "reader_materialized",
+            "raw_snapshot_candidate",
+            "raw_only_candidate"
+          ],
+          "title": "Source Materialization",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "selected_artifact_id",
+        "selected_manifest_profile_sha256",
+        "content_sha256",
+        "content_size_bytes",
+        "artifact_kind",
+        "profile_status",
+        "consumer_contract",
+        "schema_validation_provenance",
+        "source_materialization"
+      ],
+      "title": "UkraineJSONSnapshotProvenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "backtest_matrix": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BacktestMatrixResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "candidate_ref": {
+      "$ref": "#/$defs/ArtifactRef"
+    },
+    "governance_accountability_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GovernanceAccountabilityArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "governance_accountability_summary": {
+      "additionalProperties": true,
+      "title": "Governance Accountability Summary",
+      "type": "object"
+    },
+    "governance_verdict": {
+      "minLength": 1,
+      "title": "Governance Verdict",
+      "type": "string"
+    },
+    "leaderboard_entry": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CalibrationLeaderboardEntry"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "lesson_card_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "purpose": {
+      "default": "promotion",
+      "pattern": "^(promotion|candidate_diagnostic)$",
+      "title": "Purpose",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "selected_holdout_role": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Holdout Role"
+    },
+    "selected_training_role": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Training Role"
+    },
+    "selected_validation_role": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Validation Role"
+    },
+    "source_json_snapshot_reads": {
+      "additionalProperties": {
+        "$ref": "#/$defs/UkraineJSONSnapshotProvenance"
+      },
+      "title": "Source Json Snapshot Reads",
+      "type": "object"
+    },
+    "status": {
+      "pattern": "^(completed|blocked_by_governance|candidate_diagnostic)$",
+      "title": "Status",
+      "type": "string"
+    },
+    "stress_scenarios": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StressScenarioResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "run_id",
+    "candidate_ref",
+    "governance_verdict",
+    "status"
+  ],
+  "title": "CalibrationValidationBundle",
+  "type": "object"
+}

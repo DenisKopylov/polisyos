@@ -1868,7 +1868,7 @@
       "type": "object"
     },
     "SelectorOperator": {
-      "description": "\u0420\u0430\u0437\u0440\u0435\u0448\u0435\u043d\u043d\u044b\u0435 \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u044b \u0434\u043b\u044f TargetSelector (AST).",
+      "description": "Allowed operators for TargetSelector (AST).",
       "enum": [
         "==",
         "!=",
@@ -3109,7 +3109,7 @@
     },
     "TranslatableString": {
       "additionalProperties": false,
-      "description": "\u041c\u0443\u043b\u044c\u0442\u0438\u044f\u0437\u044b\u0447\u043d\u0430\u044f \u0441\u0442\u0440\u043e\u043a\u0430.\nLLM \u0432\u0438\u0434\u0438\u0442 'en' \u0434\u043b\u044f \u043b\u043e\u0433\u0438\u043a\u0438, \u0430 'ua'/'ru' \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044e\u0442\u0441\u044f \u0434\u043b\u044f UI.",
+      "description": "Multilingual string.\n\nThe LLM sees 'en' for logic, while 'ua'/'ru' are used for the UI.",
       "properties": {
         "en": {
           "description": "English text for LLM logic",

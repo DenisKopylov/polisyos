@@ -1,0 +1,31 @@
+id = "2026-10-19-causal-method-aipw-schema-candidate"
+title = "Candidate only: expose the existing AIPW CausalMethod value"
+type = "candidate"
+component = "ir"
+owner = "team-ir"
+summary = "Candidate only: refresh the causal_effect_report and hte_result schema snapshots to include the existing source CausalMethod value `aipw`. This records existing source state; it introduces no new estimator claim and is not owner-approved."
+compatibility = "The enum widens additively while both persisted schema snapshots still default schema_version to 1.0. Closed-enum clients may reject the added value. Compatibility, version treatment, and deployment guidance remain pending team-ir owner decision; no nonbreaking claim is made."
+change_class = "candidate_additive_enum_widening"
+surface_classification = "Persisted JSON Schema enum values in the generated ABI family; the registered generator family and approval owner remain team-polisyos."
+migration = "Pending owner review. Consumers that validate CausalMethod as a closed enum may need to accept `aipw` before any persisted artifact uses it. No version bump or migration action is approved by this candidate."
+api = "The candidate concerns the CausalMethod enum reused by CausalEffectReport and HTEResult. It does not change Python DTO definitions or an HTTP route contract."
+limitations = "This candidate does not settle owner acceptance, G choice, backward-compatibility policy, or schema-version policy. Canonical generation and full check passed for 106/106 models on e73; the isolated copied enum drift check rejected the changed schema. Full deciding outputs are referenced by the candidate handoff."
+generated_client_compatibility = "unestablished_pending_owner_review"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+status = "candidate_only"
+persisted_schema_owner_status = "pending"
+g_approval_status = "pending"
+generated_family_owner = "team-polisyos"
+generated_family_approval_owner = "team-polisyos"
+schema_version_default_observed = "1.0"
+schema_version_change = "not_proposed_pending_owner_decision"
+source_enum_path = "policy-engine/src/polisyos/ir/analytics/causal.py"
+source_enum_sha256 = "8d9f455691fa394e6c36013821bd3f95be8bd93de2c2abaa898ddd1b28fb6264"
+[[evidence]]
+path = "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json"
+sha256 = "86918949f665d3fcd95130d3d6619a8d20848b752db1e31c0e4870b22fe69b4b"
+[[evidence]]
+path = "policy-engine/schemas/snapshots/ir/hte_result.schema.json"
+sha256 = "61678133d7b406fa9420b20bac21976ed568fe28dec8d2dfc727c115a30459e8"

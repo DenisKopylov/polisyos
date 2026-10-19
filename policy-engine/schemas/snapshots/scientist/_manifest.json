@@ -1,0 +1,31 @@
+{
+  "compatibility": {
+    "breaking_change_requires_fragment": "true",
+    "compatibility_class": "persisted-artifact-format",
+    "deprecation_window": "2 minor releases",
+    "release_fragment_change_class": "persisted-artifact-format",
+    "version_owner": "team-scientist"
+  },
+  "content_hash": "efecfbd4041a5fac9111832c49ea2694d01f972f55d0dde927ee8299d5dbcc67",
+  "generated_at": "2026-10-13T21:05:18+00:00",
+  "generator_version": "1.1.0",
+  "models": {
+    "calibration_validation_bundle_v1_1": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.scientist.governance.calibration_validation.CalibrationValidationBundle",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "calibration_validation_bundle_v1_1.schema.json",
+      "schema_mode": "serialization",
+      "schema_variant_version": "1.1",
+      "schema_version": "1.1",
+      "sha256_full": "4c9eac7956544d1f0c0068e4f97b61ba93c240dc9ddde1d852b7fc7bdb3cc3c2",
+      "sha256_semantic": "0986bc177d552a23416a204b9e7b492015ae5ebaa8d9593518af9b5137232fde",
+      "version_field": "schema_version"
+    }
+  },
+  "module": "scientist",
+  "pydantic_version": "2.12.5",
+  "python_version": "3.14.3"
+}

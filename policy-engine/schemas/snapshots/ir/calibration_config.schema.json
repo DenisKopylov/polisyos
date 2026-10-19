@@ -75,7 +75,7 @@
     },
     "ConstraintLossConfig": {
       "additionalProperties": false,
-      "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0448\u0442\u0440\u0430\u0444\u043e\u0432 \u043f\u043e \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u044f\u043c.",
+      "description": "Settings for constraint penalties.",
       "properties": {
         "constraint_ids": {
           "description": "\u0415\u0441\u043b\u0438 \u043f\u0443\u0441\u0442\u043e \u2014 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u044c \u0432\u0441\u0435 \u043e\u0433\u0440\u0430\u043d\u0438\u0447\u0435\u043d\u0438\u044f \u0438\u0437 registry.",
@@ -120,7 +120,7 @@
     },
     "FidelityConfig": {
       "additionalProperties": false,
-      "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0440\u0435\u0436\u0438\u043c\u0430 \u0438\u0441\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u044f \u0434\u043b\u044f \u043a\u0430\u043b\u0438\u0431\u0440\u0430\u0446\u0438\u0438.",
+      "description": "Execution-mode settings for calibration.",
       "properties": {
         "force_override": {
           "default": true,
@@ -148,7 +148,7 @@
     },
     "GradNormConfig": {
       "additionalProperties": false,
-      "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 GradNorm (\u0432\u044b\u0440\u0430\u0432\u043d\u0438\u0432\u0430\u043d\u0438\u0435 \u043d\u043e\u0440\u043c \u0433\u0440\u0430\u0434\u0438\u0435\u043d\u0442\u043e\u0432 \u043f\u043e \u0442\u0430\u0440\u0433\u0435\u0442\u0430\u043c).",
+      "description": "GradNorm settings (aligning gradient norms across targets).",
       "properties": {
         "alpha": {
           "default": 1.0,
@@ -200,7 +200,7 @@
     },
     "HessianConfig": {
       "additionalProperties": false,
-      "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u043e\u0446\u0435\u043d\u043a\u0438 \u043d\u0435\u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0451\u043d\u043d\u043e\u0441\u0442\u0438 \u0447\u0435\u0440\u0435\u0437 Hessian.",
+      "description": "Settings for Hessian-based uncertainty estimation.",
       "properties": {
         "condition_warn": {
           "default": 100000000.0,
@@ -291,7 +291,7 @@
     },
     "PriorLossConfig": {
       "additionalProperties": false,
-      "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 Gaussian priors \u043f\u043e trainable \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u0430\u043c.",
+      "description": "Settings for Gaussian priors on trainable parameters.",
       "properties": {
         "enabled": {
           "default": false,
@@ -316,7 +316,7 @@
     },
     "TargetAlignConfig": {
       "additionalProperties": false,
-      "description": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0432\u044b\u0440\u0430\u0432\u043d\u0438\u0432\u0430\u043d\u0438\u044f \u0438\u0441\u0442\u043e\u0440\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0440\u044f\u0434\u0430 \u043f\u043e\u0434 \u0448\u0430\u0433 \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
+      "description": "Settings for aligning a historical series to the simulation time step.",
       "properties": {
         "fill_value": {
           "anyOf": [
@@ -383,7 +383,7 @@
     },
     "TargetLossConfig": {
       "additionalProperties": false,
-      "description": "\u041f\u0430\u0440\u0430\u043c\u0435\u0442\u0440\u044b \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u043e\u0448\u0438\u0431\u043a\u0438 \u043f\u043e \u0442\u0430\u0440\u0433\u0435\u0442\u0443.",
+      "description": "Target loss-calculation settings.",
       "properties": {
         "epsilon": {
           "default": 1e-08,
@@ -422,7 +422,7 @@
       "type": "object"
     },
     "TimeFrequency": {
-      "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0434\u043b\u044f \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
+      "description": "Time frequencies for simulation.",
       "enum": [
         "M",
         "Q",
@@ -433,7 +433,7 @@
     },
     "TrainableParamRef": {
       "additionalProperties": false,
-      "description": "\u0421\u0441\u044b\u043b\u043a\u0430 \u043d\u0430 \u043f\u0430\u0440\u0430\u043c\u0435\u0442\u0440 \u043c\u0435\u0445\u0430\u043d\u0438\u0437\u043c\u0430, \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u043d\u0443\u0436\u043d\u043e \u043a\u0430\u043b\u0438\u0431\u0440\u043e\u0432\u0430\u0442\u044c.",
+      "description": "Reference to a mechanism parameter to calibrate.",
       "properties": {
         "mechanism_type": {
           "anyOf": [

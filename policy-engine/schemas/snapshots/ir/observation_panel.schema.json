@@ -264,7 +264,7 @@
       "type": "string"
     },
     "TimeFrequency": {
-      "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0434\u043b\u044f \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
+      "description": "Time frequencies for simulation.",
       "enum": [
         "M",
         "Q",

@@ -12,37 +12,40 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1610`.
-- Public/root-or-package facade types: `457`.
+- Total IR types: `1616`.
+- Public/root-or-package facade types: `644`.
 - ABI snapshot-backed types: `99`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 296 |
-| `polisyos.ir.analytics` | 285 |
-| `polisyos.ir.kernel` | 52 |
+| `polisyos.ir` | 496 |
+| `polisyos.ir.analytics` | 288 |
+| `polisyos.ir.kernel` | 53 |
+| `polisyos.ir.loading` | 12 |
+| `polisyos.ir.model_layer` | 6 |
+| `polisyos.ir.registry` | 118 |
 | `polisyos.ir.world` | 54 |
 
 ## Section Summary
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 998 | 265 | 41 |
-| `artifacts` | 26 | 0 | 0 |
-| `governance` | 99 | 21 | 8 |
-| `kernel` | 47 | 38 | 0 |
+| `analytics` | 998 | 331 | 41 |
+| `artifacts` | 26 | 3 | 0 |
+| `governance` | 99 | 27 | 8 |
+| `kernel` | 53 | 41 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 7 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
 | `trinity` | 2 | 1 | 1 |
 | `world` | 32 | 32 | 12 |
-| `connectors` | 24 | 4 | 0 |
+| `connectors` | 24 | 6 | 0 |
 | `data` | 7 | 0 | 0 |
-| `loading` | 25 | 10 | 6 |
-| `model_layer` | 30 | 8 | 1 |
+| `loading` | 25 | 19 | 6 |
+| `model_layer` | 30 | 17 | 1 |
 | `passes` | 16 | 0 | 0 |
-| `registry` | 146 | 31 | 0 |
+| `registry` | 146 | 118 | 0 |
 | `schemas` | 6 | 0 | 0 |
 
 ## Analytics
@@ -862,9 +865,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.alignment_certification.AlignmentCertificate` { #polisyos-ir-analytics-alignment-certification-alignmentcertificate }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:AlignmentCertificate`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.alignment_certification.AlignmentCertificateType`
@@ -881,9 +884,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.alignment_certification.AlignmentCertificateType` { #polisyos-ir-analytics-alignment-certification-alignmentcertificatetype }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:AlignmentCertificateType`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -900,9 +903,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.alignment_certification.AlignmentCertificationPolicy` { #polisyos-ir-analytics-alignment-certification-alignmentcertificationpolicy }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:AlignmentCertificationPolicy`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.alignment_certification.AlignmentCertificateType`
@@ -1123,9 +1126,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.alignment_certification.OuterObjectiveResult` { #polisyos-ir-analytics-alignment-certification-outerobjectiveresult }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:OuterObjectiveResult`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.alignment_certification.AlignmentCertificationPolicy`
@@ -2132,6 +2135,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `forest_dr` |
 | `causal_bcf` |
 | `double_ml` |
+| `aipw` |
 | `tmle` |
 | `s_learner` |
 | `t_learner` |
@@ -2268,9 +2272,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal.ProofBundle` { #polisyos-ir-analytics-causal-proofbundle }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:ProofBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.dynamic_causal_semantics.DynamicSemanticsAttachment`, `polisyos.ir.registry.refs.BridgePlausibilityReportRef`, `polisyos.ir.registry.refs.DPRobustnessCertificateRef`, `polisyos.ir.registry.refs.EvidenceBundleRef`, `polisyos.ir.registry.refs.FrontierSketchRef`, `polisyos.ir.registry.refs.JointDecisionCertificateRef`, `polisyos.ir.registry.refs.ProofComposabilityCertificateRef`, `polisyos.ir.registry.refs.ProofWitnessIndexRef`, `polisyos.ir.registry.refs.ProximalIdentificationCertificateRef`, `polisyos.ir.registry.refs.RecoverabilityCertificateRef`
@@ -2390,9 +2394,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_capabilities.CausalBackendId` { #polisyos-ir-analytics-causal-capabilities-causalbackendid }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:CausalBackendId`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -2408,9 +2412,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_capabilities.CausalCapabilityContract` { #polisyos-ir-analytics-causal-capabilities-causalcapabilitycontract }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:CausalCapabilityContract`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_capabilities.CausalBackendCapability`, `polisyos.ir.analytics.causal_capabilities.CausalBackendId`, `polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily`
@@ -2430,9 +2434,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily` { #polisyos-ir-analytics-causal-capabilities-causalidentificationfamily }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:CausalIdentificationFamily`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -2469,9 +2473,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_discovery.AlgebraicAssumptionStatus` { #polisyos-ir-analytics-causal-discovery-algebraicassumptionstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:AlgebraicAssumptionStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -2594,9 +2598,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_discovery.AlgebraicFalsificationScope` { #polisyos-ir-analytics-causal-discovery-algebraicfalsificationscope }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:AlgebraicFalsificationScope`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -3020,9 +3024,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_discovery.LatentDiscoveryBundle` { #polisyos-ir-analytics-causal-discovery-latentdiscoverybundle }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:LatentDiscoveryBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_discovery.LatentAssumptionCard`, `polisyos.ir.analytics.causal_discovery.LatentPromotionEvidence`, `polisyos.ir.analytics.causal_discovery.LatentTrustLevel`
@@ -3238,9 +3242,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_graph.CausalGraphModel` { #polisyos-ir-analytics-causal-graph-causalgraphmodel }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: `polisyos.ir.analytics:CausalGraphModel`
+- Exported from: `polisyos.ir.analytics:CausalGraphModel`, `polisyos.ir:CausalGraphModel`
 - ABI snapshot: `causal_graph_model` / `schemas/snapshots/ir/causal_graph_model.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_graph.CausalEdge`, `polisyos.ir.analytics.causal_graph.GraphType`, `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy`
@@ -3353,9 +3357,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy` { #polisyos-ir-analytics-causal-graph-pagidentificationpolicy }
 
 - Kind: `enum`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:PAGIdentificationPolicy`
+- Exported from: `polisyos.ir.analytics:PAGIdentificationPolicy`, `polisyos.ir:PAGIdentificationPolicy`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -3844,9 +3848,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.context.ContextProfile` { #polisyos-ir-analytics-context-contextprofile }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ContextProfile`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.context.ContextProfileInferenceLevel`, `polisyos.ir.analytics.context.IncomeLevel`
@@ -4181,9 +4185,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.cross_graph.CrossGraphEvidenceProfile` { #polisyos-ir-analytics-cross-graph-crossgraphevidenceprofile }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `2.1`
-- Exported from: —
+- Exported from: `polisyos.ir:CrossGraphEvidenceProfile`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.cross_graph.CanonicalConcept`, `polisyos.ir.analytics.cross_graph.ConceptBridge`, `polisyos.ir.analytics.cross_graph.CrossGraphDiagnostic`, `polisyos.ir.analytics.cross_graph.CrossGraphEvidenceSummary`, `polisyos.ir.analytics.cross_graph.CrossGraphSourceRefs`, `polisyos.ir.analytics.cross_graph.EvidenceNeedAssessment`, `polisyos.ir.analytics.cross_graph.EvidenceSourceStatus`
@@ -4390,9 +4394,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.cross_graph.EvidenceSourceKind` { #polisyos-ir-analytics-cross-graph-evidencesourcekind }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:EvidenceSourceKind`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -4756,9 +4760,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.cross_graph.TransportStatus` { #polisyos-ir-analytics-cross-graph-transportstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:TransportStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -5606,9 +5610,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.CausalAssumptionCard` { #polisyos-ir-analytics-distributional-causalassumptioncard }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:CausalAssumptionCard`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.registry.refs.ArtifactRefModel`
@@ -5674,9 +5678,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.CouplingDiagnostics` { #polisyos-ir-analytics-distributional-couplingdiagnostics }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:CouplingDiagnostics`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -5720,9 +5724,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DiscreteDistributionSummary` { #polisyos-ir-analytics-distributional-discretedistributionsummary }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:DiscreteDistributionSummary`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.DistributionBin`
@@ -5744,9 +5748,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionBin` { #polisyos-ir-analytics-distributional-distributionbin }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionBin`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -5764,9 +5768,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalBoundUniformity` { #polisyos-ir-analytics-distributional-distributionalbounduniformity }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalBoundUniformity`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -5783,9 +5787,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalBoundsBundle` { #polisyos-ir-analytics-distributional-distributionalboundsbundle }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalBoundsBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.DistributionalBoundsMethodSummary`, `polisyos.ir.analytics.distributional.DistributionalFunctional`, `polisyos.ir.analytics.distributional.DistributionalFunctionalParameters`, `polisyos.ir.analytics.distributional.FunctionalBounds`, `polisyos.ir.analytics.distributional.GridAxis`, `polisyos.ir.registry.refs.DistributionalDualCertificateRef`
@@ -5832,9 +5836,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalCouplingStatus` { #polisyos-ir-analytics-distributional-distributionalcouplingstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalCouplingStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -5873,9 +5877,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalDualCertificate` { #polisyos-ir-analytics-distributional-distributionaldualcertificate }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalDualCertificate`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.DistributionalBoundUniformity`, `polisyos.ir.analytics.distributional.DistributionalDualBoundWitness`, `polisyos.ir.analytics.distributional.DistributionalFunctional`, `polisyos.ir.analytics.distributional.DistributionalSupportDomain`, `polisyos.ir.analytics.distributional.GridAxis`
@@ -5942,9 +5946,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalFunctional` { #polisyos-ir-analytics-distributional-distributionalfunctional }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalFunctional`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -5991,9 +5995,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalJustification` { #polisyos-ir-analytics-distributional-distributionaljustification }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalJustification`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -6008,9 +6012,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalProofArtifact` { #polisyos-ir-analytics-distributional-distributionalproofartifact }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalProofArtifact`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.DistributionalBoundUniformity`, `polisyos.ir.analytics.distributional.DistributionalCouplingStatus`, `polisyos.ir.analytics.distributional.DistributionalProofTarget`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.CausalAssumptionCardRef`, `polisyos.ir.registry.refs.EstimandASTRef`, `polisyos.ir.registry.refs.ProofBundleRef`
@@ -6036,9 +6040,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.DistributionalProofTarget` { #polisyos-ir-analytics-distributional-distributionalprooftarget }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionalProofTarget`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -6172,9 +6176,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.OTCouplingSummary` { #polisyos-ir-analytics-distributional-otcouplingsummary }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:OTCouplingSummary`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -6196,9 +6200,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.OrdinalPovertyEstimate` { #polisyos-ir-analytics-distributional-ordinalpovertyestimate }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:OrdinalPovertyEstimate`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -6231,9 +6235,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.OrdinalPovertyReport` { #polisyos-ir-analytics-distributional-ordinalpovertyreport }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:OrdinalPovertyReport`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.OrdinalPovertyEstimate`
@@ -6252,9 +6256,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.QuantileShiftEntry` { #polisyos-ir-analytics-distributional-quantileshiftentry }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:QuantileShiftEntry`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -6270,9 +6274,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.QuantileShiftSummary` { #polisyos-ir-analytics-distributional-quantileshiftsummary }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:QuantileShiftSummary`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.QuantileShiftEntry`
@@ -6288,9 +6292,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.SubgroupDistributionComparison` { #polisyos-ir-analytics-distributional-subgroupdistributioncomparison }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:SubgroupDistributionComparison`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.CohortDimension`, `polisyos.ir.analytics.distributional.CouplingDiagnostics`, `polisyos.ir.registry.refs.ArtifactRefModel`
@@ -6317,9 +6321,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.TailRiskDeltaEntry` { #polisyos-ir-analytics-distributional-tailriskdeltaentry }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:TailRiskDeltaEntry`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -6339,9 +6343,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.distributional.TailRiskDeltaSummary` { #polisyos-ir-analytics-distributional-tailriskdeltasummary }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:TailRiskDeltaSummary`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.distributional.TailRiskDeltaEntry`
@@ -8413,9 +8417,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.estimand.DistributionDomain` { #polisyos-ir-analytics-estimand-distributiondomain }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionDomain`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -8454,9 +8458,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.estimand.DistributionLawQuery` { #polisyos-ir-analytics-estimand-distributionlawquery }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DistributionLawQuery`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -8533,9 +8537,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.estimand.EstimandAST` { #polisyos-ir-analytics-estimand-estimandast }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:EstimandAST`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.estimand.ConditionalInterventionNode`, `polisyos.ir.analytics.estimand.CounterfactualNode`, `polisyos.ir.analytics.estimand.CrossWorldNode`, `polisyos.ir.analytics.estimand.CtfInterventionNode`, `polisyos.ir.analytics.estimand.DistributionLawNode`, `polisyos.ir.analytics.estimand.DistributionRef`, `polisyos.ir.analytics.estimand.EdgeInterventionNode`, `polisyos.ir.analytics.estimand.ExpectationNode`, `polisyos.ir.analytics.estimand.IntegralNode`, `polisyos.ir.analytics.estimand.ModifiedTreatmentPolicyNode`, `polisyos.ir.analytics.estimand.NestedCounterfactualNode`, `polisyos.ir.analytics.estimand.NuisanceNode`, `polisyos.ir.analytics.estimand.OperatorApplyNode`, `polisyos.ir.analytics.estimand.OperatorTargetNode`, `polisyos.ir.analytics.estimand.PathSpecificNode`, `polisyos.ir.analytics.estimand.ProductNode`, `polisyos.ir.analytics.estimand.ProxyAdjustmentNode`, `polisyos.ir.analytics.estimand.RatioNode`, `polisyos.ir.analytics.estimand.RecoveredDistNode`, `polisyos.ir.analytics.estimand.SideCondition`, `polisyos.ir.analytics.estimand.StochasticInterventionNode`, `polisyos.ir.analytics.estimand.SumNode`
@@ -10514,9 +10518,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.interventions.InterventionQuery` { #polisyos-ir-analytics-interventions-interventionquery }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: `polisyos.ir.analytics:InterventionQuery`
+- Exported from: `polisyos.ir.analytics:InterventionQuery`, `polisyos.ir:InterventionQuery`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.interventions.CompositeIntervention`, `polisyos.ir.analytics.interventions.ConditionalIntervention`, `polisyos.ir.analytics.interventions.EdgeIntervention`, `polisyos.ir.analytics.interventions.InterferenceIntervention`, `polisyos.ir.analytics.interventions.InterventionContext`, `polisyos.ir.analytics.interventions.MTPIntervention`, `polisyos.ir.analytics.interventions.NodeIntervention`, `polisyos.ir.analytics.interventions.PathIntervention`, `polisyos.ir.analytics.interventions.QueryTarget`, `polisyos.ir.analytics.interventions.StochasticIntervention`, `polisyos.ir.analytics.interventions.TransportIntervention`
@@ -13567,9 +13571,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.mechanism_design.ICVerificationMode` { #polisyos-ir-analytics-mechanism-design-icverificationmode }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ICVerificationMode`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -13636,9 +13640,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.mechanism_design.MechanismFamily` { #polisyos-ir-analytics-mechanism-design-mechanismfamily }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:MechanismDesignFamily`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -13654,9 +13658,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.mechanism_design.MechanismFamilySpec` { #polisyos-ir-analytics-mechanism-design-mechanismfamilyspec }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:MechanismFamilySpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.mechanism_design.ICVerificationMode`, `polisyos.ir.analytics.mechanism_design.MechanismFamily`
@@ -14202,9 +14206,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.ncm.NCMSpec` { #polisyos-ir-analytics-ncm-ncmspec }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:NCMSpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.ncm.ExogenousSpec`, `polisyos.ir.analytics.ncm.StructuralEquation`, `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec`
@@ -14248,9 +14252,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.negative_certificate.BlockingType` { #polisyos-ir-analytics-negative-certificate-blockingtype }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:BlockingType`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -14395,9 +14399,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.negative_certificate.NegativeCertificate` { #polisyos-ir-analytics-negative-certificate-negativecertificate }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NegativeCertificate`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.negative_certificate.BlockingType`, `polisyos.ir.analytics.negative_certificate.FallbackResult`, `polisyos.ir.analytics.negative_certificate.ModelClassCompatibilityReport`, `polisyos.ir.analytics.negative_certificate.RecoveryPlan`, `polisyos.ir.analytics.negative_certificate.SuggestedExperiment`, `polisyos.ir.analytics.partial_identification.BoundsBundle`, `polisyos.ir.analytics.partial_identification.PartialIdentificationResult`
@@ -14591,9 +14595,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.ArbitrationOption` { #polisyos-ir-analytics-normative-arbitration-arbitrationoption }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ArbitrationOption`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -14608,9 +14612,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.HardConstraintAuditEntry` { #polisyos-ir-analytics-normative-arbitration-hardconstraintauditentry }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:HardConstraintAuditEntry`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus`
@@ -14629,9 +14633,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.NormativeArbitrationResult` { #polisyos-ir-analytics-normative-arbitration-normativearbitrationresult }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeArbitrationResult`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.ArbitrationOption`, `polisyos.ir.analytics.normative_arbitration.HardConstraintAuditEntry`, `polisyos.ir.analytics.normative_arbitration.NormativeModelCompleteness`, `polisyos.ir.analytics.normative_arbitration.NormativeProvenance`, `polisyos.ir.analytics.normative_arbitration.OptionOutcomeMatrix`, `polisyos.ir.analytics.normative_arbitration.PolicyOutcome`, `polisyos.ir.analytics.normative_arbitration.ResidualDissent`, `polisyos.ir.analytics.normative_arbitration.RightsAuditEntry`, `polisyos.ir.analytics.normative_arbitration.StakeholderUtilitySummary`, `polisyos.ir.analytics.normative_arbitration.TradeoffCertificate`, `polisyos.ir.governance.problem_frame.NormativeArbitrationPolicy`
@@ -14660,9 +14664,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus` { #polisyos-ir-analytics-normative-arbitration-normativeauditstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeAuditStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -14677,9 +14681,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.NormativeModelCompleteness` { #polisyos-ir-analytics-normative-arbitration-normativemodelcompleteness }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeModelCompleteness`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -14730,9 +14734,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.PolicyOutcome` { #polisyos-ir-analytics-normative-arbitration-policyoutcome }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:PolicyOutcome`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.ArbitrationOption`, `polisyos.ir.governance.problem_frame.NormativeArbitrationPolicy`
@@ -14767,9 +14771,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.RightsAuditEntry` { #polisyos-ir-analytics-normative-arbitration-rightsauditentry }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:RightsAuditEntry`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus`
@@ -14790,9 +14794,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.normative_arbitration.StakeholderUtilitySummary` { #polisyos-ir-analytics-normative-arbitration-stakeholderutilitysummary }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:StakeholderUtilitySummary`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -14934,9 +14938,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.partial_identification.BoundMethod` { #polisyos-ir-analytics-partial-identification-boundmethod }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:BoundMethod`, `polisyos.ir:BoundMethod`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -14963,9 +14967,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.partial_identification.BoundSoundnessLevel` { #polisyos-ir-analytics-partial-identification-boundsoundnesslevel }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:BoundSoundnessLevel`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -15003,9 +15007,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.partial_identification.BoundsBundle` { #polisyos-ir-analytics-partial-identification-boundsbundle }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:BoundsBundle`, `polisyos.ir:BoundsBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.partial_identification.BestInClassClaim`, `polisyos.ir.analytics.partial_identification.BoundsMethodSummary`, `polisyos.ir.analytics.partial_identification.TighteningStatus`, `polisyos.ir.analytics.partial_identification.TighteningStopReason`, `polisyos.ir.registry.refs.BoundsTighteningLogRef`, `polisyos.ir.registry.refs.DualCertificateRef`
@@ -15916,9 +15920,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.privacy_transportability.TransportPrivacyContext` { #polisyos-ir-analytics-privacy-transportability-transportprivacycontext }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:TransportPrivacyContext`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.privacy_transportability.DPUtilityManifest`, `polisyos.ir.analytics.privacy_transportability.PrivacyAwareTransportCertificate`, `polisyos.ir.artifacts.contracts.ArtifactStore`, `polisyos.ir.artifacts.contracts.InputRef`
@@ -20062,9 +20066,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.transportability.DataGap` { #polisyos-ir-analytics-transportability-datagap }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:DataGap`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -20099,9 +20103,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.transportability.SNode` { #polisyos-ir-analytics-transportability-snode }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:SNode`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.transportability.SNodeOrigin`, `polisyos.ir.analytics.transportability.SNodeRole`
@@ -20124,9 +20128,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.transportability.SNodeOrigin` { #polisyos-ir-analytics-transportability-snodeorigin }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:SNodeOrigin`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -20160,9 +20164,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.transportability.SelectionDiagram` { #polisyos-ir-analytics-transportability-selectiondiagram }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:SelectionDiagram`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.transportability.SNode`
@@ -20266,9 +20270,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.transportability.TransportMode` { #polisyos-ir-analytics-transportability-transportmode }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:TransportMode`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -20351,9 +20355,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.transportability.TransportabilityStatus` { #polisyos-ir-analytics-transportability-transportabilitystatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:TransportabilityStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -20369,9 +20373,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.twin_network.TwinNetworkResult` { #polisyos-ir-analytics-twin-network-twinnetworkresult }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.1`
-- Exported from: —
+- Exported from: `polisyos.ir:TwinNetworkResult`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_queries.CausalEstimatorInterval`, `polisyos.ir.analytics.causal_queries.CausalResultKind`, `polisyos.ir.analytics.causal_queries.InterventionSpec`
@@ -20634,9 +20638,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding` { #polisyos-ir-analytics-uncertainty-nativevalueestimandbinding }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `polisyos.ir.native_value_estimand_binding.v1`
-- Exported from: —
+- Exported from: `polisyos.ir:NativeValueEstimandBinding`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -20772,9 +20776,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier` { #polisyos-ir-analytics-uncertainty-posteriorsamplescarrier }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:PosteriorSamplesCarrier`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -21145,9 +21149,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.welfare.ChannelDecompositionTargetKind` { #polisyos-ir-analytics-welfare-channeldecompositiontargetkind }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ChannelDecompositionTargetKind`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -21377,9 +21381,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.artifacts.contracts.ArtifactID` { #polisyos-ir-artifacts-contracts-artifactid }
 
 - Kind: `root_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ArtifactID`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -21392,9 +21396,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.artifacts.contracts.ArtifactStore` { #polisyos-ir-artifacts-contracts-artifactstore }
 
 - Kind: `protocol`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:ArtifactStore`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -21437,9 +21441,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.artifacts.contracts.InputRef` { #polisyos-ir-artifacts-contracts-inputref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:InputRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -22865,7 +22869,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:ProblemConstraintSpec`
+- Exported from: `polisyos.ir:ConstraintSpec`, `polisyos.ir:ProblemConstraintSpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.governance.problem_frame.ConstraintType`, `polisyos.ir.kernel.values.CountValue`, `polisyos.ir.kernel.values.DurationValue`, `polisyos.ir.kernel.values.MoneyValue`, `polisyos.ir.kernel.values.RateValue`
@@ -22923,9 +22927,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.governance.problem_frame.NormativeArbitrationPolicy` { #polisyos-ir-governance-problem-frame-normativearbitrationpolicy }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeArbitrationPolicy`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -22956,9 +22960,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.governance.problem_frame.NormativeComparisonTarget` { #polisyos-ir-governance-problem-frame-normativecomparisontarget }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeComparisonTarget`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -22973,9 +22977,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.governance.problem_frame.NormativeFrame` { #polisyos-ir-governance-problem-frame-normativeframe }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeFrame`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.governance.problem_frame.NormativeArbitrationPolicy`, `polisyos.ir.governance.problem_frame.NormativeComparisonMode`, `polisyos.ir.governance.problem_frame.StakeholderOutcomeBinding`, `polisyos.ir.governance.problem_frame.StakeholderRightSpec`, `polisyos.ir.governance.problem_frame.StakeholderUtilityTerm`
@@ -22995,9 +22999,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.governance.problem_frame.NormativeOutcomeChannel` { #polisyos-ir-governance-problem-frame-normativeoutcomechannel }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:NormativeOutcomeChannel`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -23088,9 +23092,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.governance.problem_frame.StakeholderOutcomeBinding` { #polisyos-ir-governance-problem-frame-stakeholderoutcomebinding }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:StakeholderOutcomeBinding`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.governance.problem_frame.NormativeOutcomeChannel`
@@ -23192,9 +23196,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.governance.problem_frame.UtilityDirection` { #polisyos-ir-governance-problem-frame-utilitydirection }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:UtilityDirection`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -24186,9 +24190,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.kernel.slots.SlotFamily` { #polisyos-ir-kernel-slots-slotfamily }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:SlotFamily`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.kernel.slots.SlotScope`
@@ -24204,9 +24208,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.kernel.slots.SlotFamilyManifest` { #polisyos-ir-kernel-slots-slotfamilymanifest }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:SlotFamilyManifest`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.kernel.slots.SlotFamily`
@@ -24238,9 +24242,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.kernel.slots.SlotLayout` { #polisyos-ir-kernel-slots-slotlayout }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:SlotLayout`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -24534,12 +24538,102 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.kernel.units.UnitKind`
+- References: —
 - Summary: Unit spec data model.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `kind` | `polisyos.ir.kernel.units.UnitKind` | `yes` | `—` | `polisyos.ir.kernel.units.UnitKind` |
+| `kind` | `~UnitKindT` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.units.UnitSpec[Literal['count']]` { #polisyos-ir-kernel-units-unitspec-literal-count }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unit spec data model.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `kind` | `Literal[count]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.units.UnitSpec[Literal['dimensionless']]` { #polisyos-ir-kernel-units-unitspec-literal-dimensionless }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unit spec data model.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `kind` | `Literal[dimensionless]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.units.UnitSpec[Literal['duration']]` { #polisyos-ir-kernel-units-unitspec-literal-duration }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unit spec data model.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `kind` | `Literal[duration]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.units.UnitSpec[Literal['generic']]` { #polisyos-ir-kernel-units-unitspec-literal-generic }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unit spec data model.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `kind` | `Literal[generic]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.units.UnitSpec[Literal['money']]` { #polisyos-ir-kernel-units-unitspec-literal-money }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unit spec data model.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `kind` | `Literal[money]` | `yes` | `—` | — |
+
+### `polisyos.ir.kernel.units.UnitSpec[Literal['rate']]` { #polisyos-ir-kernel-units-unitspec-literal-rate }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Unit spec data model.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `kind` | `Literal[rate]` | `yes` | `—` | — |
 
 ### `polisyos.ir.kernel.units.UnitsRegistry` { #polisyos-ir-kernel-units-unitsregistry }
 
@@ -28548,9 +28642,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.connectors.FetchRequest` { #polisyos-ir-connectors-fetchrequest }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:FetchRequest`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -28576,9 +28670,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.connectors.FetchResult` { #polisyos-ir-connectors-fetchresult }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `PydanticUndefined`
-- Exported from: —
+- Exported from: `polisyos.ir:FetchResult`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.connectors.DataVersion`, `polisyos.ir.connectors.PIIScanSummary`, `polisyos.ir.connectors.QualityTier`, `polisyos.ir.connectors.ResilienceInfo`, `polisyos.ir.registry.refs.EvidenceBundleRef`
@@ -28897,9 +28991,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.citations.AnchorKind` { #polisyos-ir-loading-citations-anchorkind }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:AnchorKind`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -28921,9 +29015,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.citations.CitationRef` { #polisyos-ir-loading-citations-citationref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:CitationRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.citations.DocumentRef`, `polisyos.ir.loading.citations.FragmentLocator`
@@ -28945,9 +29039,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.citations.DocumentRef` { #polisyos-ir-loading-citations-documentref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:DocumentRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -28963,9 +29057,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.citations.FragmentLocator` { #polisyos-ir-loading-citations-fragmentlocator }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FragmentLocator`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.citations.AnchorKind`
@@ -28984,9 +29078,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.Fact` { #polisyos-ir-loading-fact-log-fact }
 
 - Kind: `pydantic_model`
-- Public status: `snapshot_only`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:Fact`
 - ABI snapshot: `fact` / `schemas/snapshots/ir/fact.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.fact_log.FactLegal`, `polisyos.ir.loading.fact_log.FactProvenance`, `polisyos.ir.loading.fact_log.FactTrust`
@@ -29009,9 +29103,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactBatch` { #polisyos-ir-loading-fact-log-factbatch }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FactBatch`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.fact_log.Fact`
@@ -29026,9 +29120,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactLegal` { #polisyos-ir-loading-fact-log-factlegal }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FactLegal`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.fact_log.FactPIIEntity`
@@ -29047,9 +29141,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactPIIEntity` { #polisyos-ir-loading-fact-log-factpiientity }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FactPIIEntity`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29068,9 +29162,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactProvenance` { #polisyos-ir-loading-fact-log-factprovenance }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FactProvenance`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29088,9 +29182,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactSegmentManifest` { #polisyos-ir-loading-fact-log-factsegmentmanifest }
 
 - Kind: `pydantic_model`
-- Public status: `snapshot_only`
+- Public status: `package_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FactSegmentManifest`
 - ABI snapshot: `fact_segment_manifest` / `schemas/snapshots/ir/fact_segment_manifest.schema.json`
 - Compatibility mode: `—`
 - References: —
@@ -29113,9 +29207,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactTrust` { #polisyos-ir-loading-fact-log-facttrust }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.loading:FactTrust`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29405,9 +29499,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.canon.CanonSpec` { #polisyos-ir-model-layer-canon-canonspec }
 
 - Kind: `dataclass`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:CanonSpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29428,9 +29522,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.canon.CanonViolation` { #polisyos-ir-model-layer-canon-canonviolation }
 
 - Kind: `class`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir:CanonViolation`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29744,9 +29838,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.queries.DataViewRequest` { #polisyos-ir-model-layer-queries-dataviewrequest }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `1.0`
-- Exported from: —
+- Exported from: `polisyos.ir:ModelQueryDataViewRequest`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.model_layer.queries.DataFilter`, `polisyos.ir.model_layer.queries.Pagination`, `polisyos.ir.model_layer.queries.QueryScope`
@@ -29875,9 +29969,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.types.EntityType` { #polisyos-ir-model-layer-types-entitytype }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.model_layer:EntityType`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29893,9 +29987,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.types.OptimizationDirection` { #polisyos-ir-model-layer-types-optimizationdirection }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.model_layer:OptimizationDirection`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29910,9 +30004,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.types.SelectorOperator` { #polisyos-ir-model-layer-types-selectoroperator }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.model_layer:SelectorOperator`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29934,9 +30028,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.types.TimeFrequency` { #polisyos-ir-model-layer-types-timefrequency }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.model_layer:TimeFrequency`, `polisyos.ir:TimeFrequency`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29951,9 +30045,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.types.TimeUnit` { #polisyos-ir-model-layer-types-timeunit }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.model_layer:TimeUnit`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -29968,9 +30062,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.model_layer.types.TranslatableString` { #polisyos-ir-model-layer-types-translatablestring }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.model_layer:TranslatableString`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -30227,9 +30321,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ABMAlignmentReportRef` { #polisyos-ir-registry-refs-abmalignmentreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ABMAlignmentReportRef`, `polisyos.ir:ABMAlignmentReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30247,7 +30341,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:ABMResultRef`, `polisyos.ir:ABMResultRef`
+- Exported from: `polisyos.ir.analytics:ABMResultRef`, `polisyos.ir.registry:ABMResultRef`, `polisyos.ir:ABMResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30263,9 +30357,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.AbstractionCertificateRef` { #polisyos-ir-registry-refs-abstractioncertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:AbstractionCertificateRef`, `polisyos.ir:AbstractionCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30281,9 +30375,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.AlignmentReportRef` { #polisyos-ir-registry-refs-alignmentreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:AlignmentReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30301,7 +30395,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:ArtifactRefModel`
+- Exported from: `polisyos.ir.registry:ArtifactRefModel`, `polisyos.ir:ArtifactRefModel`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30317,9 +30411,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.BacktestReportRef` { #polisyos-ir-registry-refs-backtestreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:BacktestReportRef`, `polisyos.ir:BacktestReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30335,9 +30429,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.BoundsBundleRef` { #polisyos-ir-registry-refs-boundsbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:BoundsBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30353,9 +30447,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.BoundsTighteningLogRef` { #polisyos-ir-registry-refs-boundstighteninglogref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:BoundsTighteningLogRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30371,9 +30465,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.BridgePlausibilityReportRef` { #polisyos-ir-registry-refs-bridgeplausibilityreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:BridgePlausibilityReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30389,9 +30483,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalAssumptionCardRef` { #polisyos-ir-registry-refs-causalassumptioncardref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalAssumptionCardRef`, `polisyos.ir:CausalAssumptionCardRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30409,7 +30503,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:CausalBlockBridgeRef`, `polisyos.ir:CausalBlockBridgeRef`
+- Exported from: `polisyos.ir.analytics:CausalBlockBridgeRef`, `polisyos.ir.registry:CausalBlockBridgeRef`, `polisyos.ir:CausalBlockBridgeRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30425,9 +30519,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalCapabilityContractRef` { #polisyos-ir-registry-refs-causalcapabilitycontractref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalCapabilityContractRef`, `polisyos.ir:CausalCapabilityContractRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30443,9 +30537,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalDiscoveryReportRef` { #polisyos-ir-registry-refs-causaldiscoveryreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalDiscoveryReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30461,9 +30555,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalEffectReportRef` { #polisyos-ir-registry-refs-causaleffectreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalEffectReportRef`, `polisyos.ir:CausalEffectReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30481,7 +30575,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:CausalExecutionBundleRef`
+- Exported from: `polisyos.ir.registry:CausalExecutionBundleRef`, `polisyos.ir:CausalExecutionBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30497,9 +30591,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalGraphModelRef` { #polisyos-ir-registry-refs-causalgraphmodelref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalGraphModelRef`, `polisyos.ir:CausalGraphModelRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30517,7 +30611,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:CausalModelEnsembleRef`
+- Exported from: `polisyos.ir.registry:CausalModelEnsembleRef`, `polisyos.ir:CausalModelEnsembleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30535,7 +30629,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:CausalQueryResultRef`
+- Exported from: `polisyos.ir.registry:CausalQueryResultRef`, `polisyos.ir:CausalQueryResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30551,9 +30645,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalReadinessBundleRef` { #polisyos-ir-registry-refs-causalreadinessbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalReadinessBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30569,9 +30663,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CausalSensitivityResultRef` { #polisyos-ir-registry-refs-causalsensitivityresultref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CausalSensitivityResultRef`, `polisyos.ir:CausalSensitivityResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30587,9 +30681,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ChannelDecompositionArtifactRef` { #polisyos-ir-registry-refs-channeldecompositionartifactref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ChannelDecompositionArtifactRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30605,9 +30699,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CompositionCertificateRef` { #polisyos-ir-registry-refs-compositioncertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CompositionCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30623,9 +30717,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CompositionFailureCardBundleRef` { #polisyos-ir-registry-refs-compositionfailurecardbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CompositionFailureCardBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30641,9 +30735,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ContextAdaptiveParameterBundleRef` { #polisyos-ir-registry-refs-contextadaptiveparameterbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ContextAdaptiveParameterBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30659,9 +30753,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ContinuousTimeQueryRef` { #polisyos-ir-registry-refs-continuoustimequeryref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ContinuousTimeQueryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30677,9 +30771,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CounterfactualResultRef` { #polisyos-ir-registry-refs-counterfactualresultref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CounterfactualResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30695,9 +30789,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef` { #polisyos-ir-registry-refs-crossgraphevidenceprofileref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:CrossGraphEvidenceProfileRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30713,9 +30807,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DPRobustnessCertificateRef` { #polisyos-ir-registry-refs-dprobustnesscertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DPRobustnessCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30731,9 +30825,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DataReadinessReportRef` { #polisyos-ir-registry-refs-datareadinessreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DataReadinessReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30751,7 +30845,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:DependenceStructureRef`, `polisyos.ir:DependenceStructureRef`
+- Exported from: `polisyos.ir.analytics:DependenceStructureRef`, `polisyos.ir.registry:DependenceStructureRef`, `polisyos.ir:DependenceStructureRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30767,9 +30861,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DistributionalBoundsBundleRef` { #polisyos-ir-registry-refs-distributionalboundsbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DistributionalBoundsBundleRef`, `polisyos.ir:DistributionalBoundsBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30785,9 +30879,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DistributionalDualCertificateRef` { #polisyos-ir-registry-refs-distributionaldualcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DistributionalDualCertificateRef`, `polisyos.ir:DistributionalDualCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30803,9 +30897,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DistributionalEffectBundleRef` { #polisyos-ir-registry-refs-distributionaleffectbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DistributionalEffectBundleRef`, `polisyos.ir:DistributionalEffectBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30821,9 +30915,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DistributionalProofArtifactRef` { #polisyos-ir-registry-refs-distributionalproofartifactref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DistributionalProofArtifactRef`, `polisyos.ir:DistributionalProofArtifactRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30839,9 +30933,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DistributionalReportRef` { #polisyos-ir-registry-refs-distributionalreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DistributionalReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30859,7 +30953,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:DriftReadinessRef`, `polisyos.ir:DriftReadinessRef`
+- Exported from: `polisyos.ir.analytics:DriftReadinessRef`, `polisyos.ir.registry:DriftReadinessRef`, `polisyos.ir:DriftReadinessRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30875,9 +30969,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DualCertificateRef` { #polisyos-ir-registry-refs-dualcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DualCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30895,7 +30989,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:DynamicMicrosimValidationReportRef`, `polisyos.ir:DynamicMicrosimValidationReportRef`
+- Exported from: `polisyos.ir.analytics:DynamicMicrosimValidationReportRef`, `polisyos.ir.registry:DynamicMicrosimValidationReportRef`, `polisyos.ir:DynamicMicrosimValidationReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30911,9 +31005,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.DynamicTreatmentRegimeRef` { #polisyos-ir-registry-refs-dynamictreatmentregimeref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:DynamicTreatmentRegimeRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30929,9 +31023,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.EffectTrajectoryBundleRef` { #polisyos-ir-registry-refs-effecttrajectorybundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:EffectTrajectoryBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30949,7 +31043,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `package_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:EndogenousGroupInequalityDecompositionRef`
+- Exported from: `polisyos.ir.analytics:EndogenousGroupInequalityDecompositionRef`, `polisyos.ir.registry:EndogenousGroupInequalityDecompositionRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30965,9 +31059,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.EstimandASTRef` { #polisyos-ir-registry-refs-estimandastref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:EstimandASTRef`, `polisyos.ir:EstimandASTRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -30983,9 +31077,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.EvidenceBundleRef` { #polisyos-ir-registry-refs-evidencebundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:EvidenceBundleRef`, `polisyos.ir:EvidenceBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31003,7 +31097,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:ExplanationBundleRef`, `polisyos.ir:ExplanationBundleRef`
+- Exported from: `polisyos.ir.analytics:ExplanationBundleRef`, `polisyos.ir.registry:ExplanationBundleRef`, `polisyos.ir:ExplanationBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31019,9 +31113,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.FairnessAuditReportRef` { #polisyos-ir-registry-refs-fairnessauditreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:FairnessAuditReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31037,9 +31131,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.FiniteStateAbstractionMapRef` { #polisyos-ir-registry-refs-finitestateabstractionmapref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:FiniteStateAbstractionMapRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31055,9 +31149,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.FiscalFeedbackLinkRef` { #polisyos-ir-registry-refs-fiscalfeedbacklinkref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:FiscalFeedbackLinkRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31073,9 +31167,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ForecastInterventionCertificateRef` { #polisyos-ir-registry-refs-forecastinterventioncertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ForecastInterventionCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31091,9 +31185,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ForecastInterventionQueryRef` { #polisyos-ir-registry-refs-forecastinterventionqueryref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ForecastInterventionQueryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31111,7 +31205,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:ForecastingUncertaintyBundleRef`
+- Exported from: `polisyos.ir.registry:ForecastingUncertaintyBundleRef`, `polisyos.ir:ForecastingUncertaintyBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31127,9 +31221,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.FrontierSketchRef` { #polisyos-ir-registry-refs-frontiersketchref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:FrontierSketchRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31147,7 +31241,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:GEUncertaintyBundleRef`, `polisyos.ir:GEUncertaintyBundleRef`
+- Exported from: `polisyos.ir.analytics:GEUncertaintyBundleRef`, `polisyos.ir.registry:GEUncertaintyBundleRef`, `polisyos.ir:GEUncertaintyBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31163,9 +31257,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.HTEResultRef` { #polisyos-ir-registry-refs-hteresultref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:HTEResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31181,9 +31275,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.IncentiveCompatibilityCertificateRef` { #polisyos-ir-registry-refs-incentivecompatibilitycertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:IncentiveCompatibilityCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31201,7 +31295,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:InteractionComplexRef`, `polisyos.ir:InteractionComplexRef`
+- Exported from: `polisyos.ir.analytics:InteractionComplexRef`, `polisyos.ir.registry:InteractionComplexRef`, `polisyos.ir:InteractionComplexRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31217,9 +31311,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.InterfaceMappingRef` { #polisyos-ir-registry-refs-interfacemappingref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:InterfaceMappingRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31237,7 +31331,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:InterferenceCertificateRef`, `polisyos.ir:InterferenceCertificateRef`
+- Exported from: `polisyos.ir.analytics:InterferenceCertificateRef`, `polisyos.ir.registry:InterferenceCertificateRef`, `polisyos.ir:InterferenceCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31253,9 +31347,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.InterventionCertificateRef` { #polisyos-ir-registry-refs-interventioncertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:InterventionCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31271,9 +31365,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.InterventionCostManifoldRef` { #polisyos-ir-registry-refs-interventioncostmanifoldref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:InterventionCostManifoldRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31289,9 +31383,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.InterventionQueryRef` { #polisyos-ir-registry-refs-interventionqueryref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:InterventionQueryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31307,9 +31401,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.JointDecisionCertificateRef` { #polisyos-ir-registry-refs-jointdecisioncertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:JointDecisionCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31327,7 +31421,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:JudgeVerdictRef`, `polisyos.ir:JudgeVerdictRef`
+- Exported from: `polisyos.ir.analytics:JudgeVerdictRef`, `polisyos.ir.registry:JudgeVerdictRef`, `polisyos.ir:JudgeVerdictRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31343,9 +31437,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.KernelEstimatorSpecRef` { #polisyos-ir-registry-refs-kernelestimatorspecref }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:KernelEstimatorSpecRef`
+- Exported from: `polisyos.ir.analytics:KernelEstimatorSpecRef`, `polisyos.ir.registry:KernelEstimatorSpecRef`, `polisyos.ir:KernelEstimatorSpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31361,9 +31455,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.LatentBridgeHypothesisRef` { #polisyos-ir-registry-refs-latentbridgehypothesisref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:LatentBridgeHypothesisRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31379,9 +31473,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.LiteratureCausalPriorRef` { #polisyos-ir-registry-refs-literaturecausalpriorref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:LiteratureCausalPriorRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31397,9 +31491,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.LocalIndependenceWeightingCertificateRef` { #polisyos-ir-registry-refs-localindependenceweightingcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:LocalIndependenceWeightingCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31417,7 +31511,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:MAUPInvarianceCertificateRef`, `polisyos.ir:MAUPInvarianceCertificateRef`
+- Exported from: `polisyos.ir.analytics:MAUPInvarianceCertificateRef`, `polisyos.ir.registry:MAUPInvarianceCertificateRef`, `polisyos.ir:MAUPInvarianceCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31433,9 +31527,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.MeanFieldEquilibriumCertificateRef` { #polisyos-ir-registry-refs-meanfieldequilibriumcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:MeanFieldEquilibriumCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31451,9 +31545,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.MeanFieldMacroSimulationConfigRef` { #polisyos-ir-registry-refs-meanfieldmacrosimulationconfigref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:MeanFieldMacroSimulationConfigRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31469,9 +31563,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.MeanFieldPerturbationSpecRef` { #polisyos-ir-registry-refs-meanfieldperturbationspecref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:MeanFieldPerturbationSpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31487,9 +31581,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.MechanismFamilySpecRef` { #polisyos-ir-registry-refs-mechanismfamilyspecref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:MechanismFamilySpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31505,9 +31599,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.MechanismWelfareLossBoundRef` { #polisyos-ir-registry-refs-mechanismwelfarelossboundref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:MechanismWelfareLossBoundRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31523,9 +31617,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.MetricValidationReportRef` { #polisyos-ir-registry-refs-metricvalidationreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:MetricValidationReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31543,7 +31637,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:MicrosimCalibrationReportRef`, `polisyos.ir:MicrosimCalibrationReportRef`
+- Exported from: `polisyos.ir.analytics:MicrosimCalibrationReportRef`, `polisyos.ir.registry:MicrosimCalibrationReportRef`, `polisyos.ir:MicrosimCalibrationReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31561,7 +31655,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:MobilityReportRef`, `polisyos.ir:MobilityReportRef`
+- Exported from: `polisyos.ir.analytics:MobilityReportRef`, `polisyos.ir.registry:MobilityReportRef`, `polisyos.ir:MobilityReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31577,9 +31671,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.NCMSpecRef` { #polisyos-ir-registry-refs-ncmspecref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:NCMSpecRef`, `polisyos.ir:NCMSpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31595,9 +31689,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.NegativeCertificateRef` { #polisyos-ir-registry-refs-negativecertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:NegativeCertificateRef`, `polisyos.ir:NegativeCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31613,9 +31707,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.NormativeArbitrationResultRef` { #polisyos-ir-registry-refs-normativearbitrationresultref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:NormativeArbitrationResultRef`, `polisyos.ir:NormativeArbitrationResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31631,9 +31725,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.OperatorEffectBundleRef` { #polisyos-ir-registry-refs-operatoreffectbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:OperatorEffectBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31649,9 +31743,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.OptimalRecourseInterventionBundleRef` { #polisyos-ir-registry-refs-optimalrecourseinterventionbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:OptimalRecourseInterventionBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31667,9 +31761,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.OptimalRecourseInterventionQueryRef` { #polisyos-ir-registry-refs-optimalrecourseinterventionqueryref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:OptimalRecourseInterventionQueryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31685,9 +31779,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.OptimizationAmbiguityCertificateRef` { #polisyos-ir-registry-refs-optimizationambiguitycertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:OptimizationAmbiguityCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31703,9 +31797,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.OrdinalPovertyReportRef` { #polisyos-ir-registry-refs-ordinalpovertyreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:OrdinalPovertyReportRef`, `polisyos.ir:OrdinalPovertyReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31721,9 +31815,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.PolicyRecommendationRef` { #polisyos-ir-registry-refs-policyrecommendationref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:PolicyRecommendationRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31741,7 +31835,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `package_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:PrivacyAwareTransportCertificateRef`
+- Exported from: `polisyos.ir.analytics:PrivacyAwareTransportCertificateRef`, `polisyos.ir.registry:PrivacyAwareTransportCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31757,9 +31851,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ProofBundleRef` { #polisyos-ir-registry-refs-proofbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ProofBundleRef`, `polisyos.ir:ProofBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31775,9 +31869,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ProofComposabilityCertificateRef` { #polisyos-ir-registry-refs-proofcomposabilitycertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ProofComposabilityCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31793,9 +31887,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ProofWitnessIndexRef` { #polisyos-ir-registry-refs-proofwitnessindexref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ProofWitnessIndexRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31811,9 +31905,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ProximalIdentificationCertificateRef` { #polisyos-ir-registry-refs-proximalidentificationcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ProximalIdentificationCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31829,9 +31923,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.RecourseFeasibilityCertificateRef` { #polisyos-ir-registry-refs-recoursefeasibilitycertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:RecourseFeasibilityCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31847,9 +31941,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.RecourseProofBundleRef` { #polisyos-ir-registry-refs-recourseproofbundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:RecourseProofBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31865,9 +31959,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.RecoverabilityCertificateRef` { #polisyos-ir-registry-refs-recoverabilitycertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:RecoverabilityCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31885,7 +31979,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:RegimeShiftForecastBundleRef`, `polisyos.ir:RegimeShiftForecastBundleRef`
+- Exported from: `polisyos.ir.analytics:RegimeShiftForecastBundleRef`, `polisyos.ir.registry:RegimeShiftForecastBundleRef`, `polisyos.ir:RegimeShiftForecastBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31903,7 +31997,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `package_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:RegimeShiftIdentificationCertificateRef`
+- Exported from: `polisyos.ir.analytics:RegimeShiftIdentificationCertificateRef`, `polisyos.ir.registry:RegimeShiftIdentificationCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31919,9 +32013,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.RoughPathInterventionCertificateRef` { #polisyos-ir-registry-refs-roughpathinterventioncertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:RoughPathInterventionCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31937,9 +32031,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.SCMFragmentRef` { #polisyos-ir-registry-refs-scmfragmentref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:SCMFragmentRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31957,7 +32051,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:SensitivityAnalysisBundleRef`, `polisyos.ir:SensitivityAnalysisBundleRef`
+- Exported from: `polisyos.ir.analytics:SensitivityAnalysisBundleRef`, `polisyos.ir.registry:SensitivityAnalysisBundleRef`, `polisyos.ir:SensitivityAnalysisBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31975,7 +32069,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:ShiftDiagnosticReportRef`, `polisyos.ir:ShiftDiagnosticReportRef`
+- Exported from: `polisyos.ir.analytics:ShiftDiagnosticReportRef`, `polisyos.ir.registry:ShiftDiagnosticReportRef`, `polisyos.ir:ShiftDiagnosticReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -31991,9 +32085,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.SimulationCalibrationReceiptRef` { #polisyos-ir-registry-refs-simulationcalibrationreceiptref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:SimulationCalibrationReceiptRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32009,9 +32103,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.SimulationProofBridgeRef` { #polisyos-ir-registry-refs-simulationproofbridgeref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:SimulationProofBridgeRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32027,9 +32121,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.SocialWeightManifestRef` { #polisyos-ir-registry-refs-socialweightmanifestref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:SocialWeightManifestRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32047,7 +32141,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:SpaceTimeCausalCertificateRef`, `polisyos.ir:SpaceTimeCausalCertificateRef`
+- Exported from: `polisyos.ir.analytics:SpaceTimeCausalCertificateRef`, `polisyos.ir.registry:SpaceTimeCausalCertificateRef`, `polisyos.ir:SpaceTimeCausalCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32063,9 +32157,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.SpatialHodgeDiagnosticsRef` { #polisyos-ir-registry-refs-spatialhodgediagnosticsref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:SpatialHodgeDiagnosticsRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32081,9 +32175,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.StrategicPayoffTableRef` { #polisyos-ir-registry-refs-strategicpayofftableref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:StrategicPayoffTableRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32099,9 +32193,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.StrategicResponseBundleRef` { #polisyos-ir-registry-refs-strategicresponsebundleref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:StrategicResponseBundleRef`, `polisyos.ir:StrategicResponseBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32117,9 +32211,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.StrategicSCMRef` { #polisyos-ir-registry-refs-strategicscmref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:StrategicSCMRef`, `polisyos.ir:StrategicSCMRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32135,9 +32229,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.StructuralCausalModelSpecRef` { #polisyos-ir-registry-refs-structuralcausalmodelspecref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:StructuralCausalModelSpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32155,7 +32249,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:SurveyQualityCertificateRef`, `polisyos.ir:SurveyQualityCertificateRef`
+- Exported from: `polisyos.ir.analytics:SurveyQualityCertificateRef`, `polisyos.ir.registry:SurveyQualityCertificateRef`, `polisyos.ir:SurveyQualityCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32173,7 +32267,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:TemporalGraphCausalCertificateRef`, `polisyos.ir:TemporalGraphCausalCertificateRef`
+- Exported from: `polisyos.ir.analytics:TemporalGraphCausalCertificateRef`, `polisyos.ir.registry:TemporalGraphCausalCertificateRef`, `polisyos.ir:TemporalGraphCausalCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32189,9 +32283,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.TemporalIdentificationCertificateRef` { #polisyos-ir-registry-refs-temporalidentificationcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:TemporalIdentificationCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32207,9 +32301,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.TemporalInterventionTrajectoryRef` { #polisyos-ir-registry-refs-temporalinterventiontrajectoryref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:TemporalInterventionTrajectoryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32227,7 +32321,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir:TransportabilityResultRef`
+- Exported from: `polisyos.ir.registry:TransportabilityResultRef`, `polisyos.ir:TransportabilityResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32243,9 +32337,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.TwinNetworkResultRef` { #polisyos-ir-registry-refs-twinnetworkresultref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:TwinNetworkResultRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32261,9 +32355,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.UncertaintyEnvelopeRef` { #polisyos-ir-registry-refs-uncertaintyenveloperef }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:UncertaintyEnvelopeRef`, `polisyos.ir:UncertaintyEnvelopeRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32279,9 +32373,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.ValidationReportRef` { #polisyos-ir-registry-refs-validationreportref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:ValidationReportRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32297,9 +32391,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.VariableAlignmentCertificateRef` { #polisyos-ir-registry-refs-variablealignmentcertificateref }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.registry:VariableAlignmentCertificateRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32317,7 +32411,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:WelfareBundleRef`, `polisyos.ir:WelfareBundleRef`
+- Exported from: `polisyos.ir.analytics:WelfareBundleRef`, `polisyos.ir.registry:WelfareBundleRef`, `polisyos.ir:WelfareBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -32335,7 +32429,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Kind: `pydantic_model`
 - Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.analytics:WelfareSampleBundleRef`, `polisyos.ir:WelfareSampleBundleRef`
+- Exported from: `polisyos.ir.analytics:WelfareSampleBundleRef`, `polisyos.ir.registry:WelfareSampleBundleRef`, `polisyos.ir:WelfareSampleBundleRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`

@@ -45,4 +45,4 @@ allowed-confusables = [
 # ignores are intentionally left empty.
 
 [lint.flake8-type-checking]
-runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "tools.quality.validation.acquisition_contract_support._StrictModel"]

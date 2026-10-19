@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -63,9 +63,7 @@ from .acquisition_contract_support import (
     _read_model,
     _StrictModel,
 )
-
-if TYPE_CHECKING:
-    from .artifact_lifecycle_manifest import N13bLifecycleManifest, N13bLifecycleManifestV2
+from .artifact_lifecycle_manifest import N13bLifecycleManifest, N13bLifecycleManifestV2
 from .demand_gap_projections import (
     D2SourceGrowthBacklog,
     LocalLiftRefusal,
@@ -493,7 +491,8 @@ def read_n13b_acquisition_executor_contract(
             ),
         },
     )
-    assert isinstance(receipt, N13bAcquisitionExecutorContractV4)
+    if not isinstance(receipt, N13bAcquisitionExecutorContractV4):
+        raise AssertionError
     return receipt
 
 

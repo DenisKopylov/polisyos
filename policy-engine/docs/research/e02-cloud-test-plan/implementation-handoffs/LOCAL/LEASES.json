@@ -17533,5 +17533,63 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_n13b_runtime_ruff_lifecycle_20261019": {
+    "slice_base": "1c9acee07939dfc43343abde6c171e807281b042",
+    "canonical_writer": "root",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/acquisition_admission_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "9e6160ad5c2f3e53cf1f3c857ddb750d0a61585604ed65ad825e5a1198996b99",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-dependency-repair-20261019/candidate-r4/acquisition_admission_contract.py",
+        "postimage_sha256": "69d4e633767d25e03c1032d88d582c05e04793eca2a82fd651c4ebc8d418c626",
+        "category": "mechanism"
+      },
+      "policy-engine/architecture/tooling/ruff/base.toml": {
+        "operation": "write",
+        "preimage_sha256": "2b18b5fbdf4fa0f4deb499eb9745834f36e1334d98e91b2a41e3c4118ab97099",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-dependency-repair-20261019/candidate-r4/ruff-base.toml",
+        "postimage_sha256": "e436072433f59cc3f7490fef05a082242f6d19c1ca82a514e3c5ce68f5da9ba8",
+        "category": "mandatory_config_companion"
+      },
+      "policy-engine/ruff.generated.toml": {
+        "operation": "write",
+        "preimage_sha256": "e5a086a9b98caefff32281242cf678931078dfb2b0efedbe5029eaaaa35a482a",
+        "postimage_sha256": "bbd8f9cbf79174cabc2f26fe9934d5bfdc0e857d1a7eb9b9bcd499706b39656e",
+        "category": "mandatory_generated_config_companion",
+        "real_owner_output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/tool-configs-command-results.json",
+          "sha256": "486af12213219a87c920999743818684b41e306fcc0b1800e4a40e16344cea25"
+        }
+      }
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-runtime-and-ruff-source-adoption-20261019/source-application.json",
+      "sha256": "2d72bb699e2d32765a377edbbf6e00f667f6e3e38ae10d595e844115746a363b"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-dependency-repair-20261019/candidate-r4/review-entry.json",
+        "sha256": "b679d8d58176933473ac53d6266a726df6ae07dbfff211930ffa40257889e2da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-dependency-repair-20261019/candidate-r4/candidate.patch",
+        "sha256": "e9738c914405592cc940db2ff56a83e3c0bfccd12815a8f8b83868bda33ff8b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-pydantic-runtime-r4-independent-20261019/review.json",
+        "sha256": "5592fab8ad62e106c0219809dba4156c37b0c35ba639324c6ef78fbe0df2b3f7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-pydantic-runtime-field-dependency-systemic-audit-20261019/audit-record.json",
+        "sha256": "e39db4c40de2f90503f68ec28152597c9297f5860f9c4d4b49152a5d85ef9fe5"
+      }
+    ],
+    "P40": "NEW runtime Pydantic field dependency class, whole V4/V5 owner dependency set and meaningful lint-base recognition; no schema weakening/suppression.",
+    "runtime": "UNRUN on committed source",
+    "next_check": "Actual V4/V5 genuine field schemas and current consumer model_validate_json, negative invalid fixture; then source-bound whole confidence-ledger125test composition and config-corruption drift control.",
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "G_acceptance": false
   }
 }

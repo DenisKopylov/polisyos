@@ -89,6 +89,247 @@ def _candidate_transport_context_without_graph() -> cycle_substrate.TransportCon
     )
 
 
+def _emp01_transport_context(
+    *,
+    problem: Any,
+    base_context: Any,
+    graph_ref: Any | None,
+) -> cycle_substrate.CycleSubstrateContext:
+    """Bind an optional selected graph through the existing cycle-context owner."""
+
+    problem_ref = (
+        cycle_substrate.cycle_job_design_problem_ref(problem)
+        if graph_ref is not None
+        else generation_cycle.gy_content_hash(problem.model_dump(mode="json"))
+    )
+    source_profile_hash = (
+        base_context.source_profile.content_hash
+        if base_context.source_profile is not None
+        else None
+    )
+    context_binding_hash = cycle_substrate.cycle_substrate_context_binding_hash(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_input_content_hash=base_context.substrate_input_content_hash,
+        substrate_registry_content_hash=base_context.substrate_registry.content_hash,
+        world_model_record_id=base_context.world_model_record.world_model_record_id,
+        world_model_record_content_hash=base_context.world_model_record.content_hash,
+        world_model_record_authority_status=base_context.world_model_record.authority_status,
+        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
+        source_profile_content_hash=source_profile_hash,
+    )
+    transport = cycle_substrate.TransportContextEvidence(
+        status="candidate_context_only_not_transport_authority",
+        source_context_id="controlled-source",
+        target_context_id="controlled-target",
+        source_profile_content_hash="sha256:" + "1" * 64,
+        target_profile_content_hash="sha256:" + "2" * 64,
+        substrate_input_content_hash=base_context.substrate_input_content_hash,
+        context_binding_hash=context_binding_hash,
+        covariates=(
+            cycle_substrate.TransportCovariateObservation(
+                canonical_var="income",
+                source_value=1.0,
+                target_value=2.0,
+                source_row_content_hash="sha256:" + "3" * 64,
+                target_row_content_hash="sha256:" + "4" * 64,
+            ),
+        ),
+        causal_graph_ref=graph_ref,
+    )
+    return cycle_substrate.build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=base_context.substrate_registry,
+        selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
+        world_model_record=base_context.world_model_record,
+        intervention_substrate=base_context.intervention_substrate,
+        candidate_levers=base_context.candidate_levers,
+        transport_context=transport,
+        source_pack_content_hash=base_context.source_pack_content_hash,
+        substrate_input_content_hash=base_context.substrate_input_content_hash,
+        source_profile=base_context.source_profile,
+    )
+
+
+def _selected_profile_transport_case(tmp_path: Path) -> tuple[Any, ...]:
+    """Build a controlled candidate-only graph/CAS/context chain for EMP-01."""
+
+    from polisyos.core.artifacts import FileSystemCAS, ensure_ir_artifact_store
+    from polisyos.ir.analytics.causal_graph import (
+        CausalEdge,
+        CausalGraphModel,
+        GraphType,
+        persist_causal_graph_model,
+    )
+    from tests._helpers.controlled_candidate_profile import (
+        _controlled_profile_cycle_basis,
+    )
+    from tests._helpers.controlled_candidate_profile import (
+        _problem as controlled_problem,
+    )
+
+    problem, base_context = _controlled_profile_cycle_basis(
+        controlled_problem("emp01_selected_graph_transport")
+    )
+    store = FileSystemCAS(tmp_path / "selected-graph-cas")
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["tax_rate", "income", "firm_survival"],
+        edges=[
+            CausalEdge(src="tax_rate", dst="income"),
+            CausalEdge(src="income", dst="firm_survival"),
+        ],
+        discovery_method="controlled_transport_algorithm_fixture",
+    )
+    graph_ref = persist_causal_graph_model(
+        ensure_ir_artifact_store(store),
+        graph,
+        return_selected_profile=True,
+    )
+    context = _emp01_transport_context(
+        problem=problem,
+        base_context=base_context,
+        graph_ref=graph_ref,
+    )
+    candidate = SimpleNamespace(
+        candidate_id="emp01_selected_graph_candidate",
+        atom=SimpleNamespace(
+            treatment_variable="tax_rate",
+            target_world_slots=("firm_survival",),
+            content_hash=generation_cycle.gy_content_hash(
+                {"fixture": "emp01_selected_graph_candidate"}
+            ),
+        ),
+    )
+    return problem, base_context, context, candidate, store, graph, graph_ref
+
+
+def test_selected_profile_graph_reaches_fresh_candidate_transport_receipt(
+    tmp_path: Path,
+) -> None:
+    """A real selected graph traverses CAS, run basis, fresh replay, and receipt."""
+
+    problem, base_context, context, candidate, store, graph, graph_ref = (
+        _selected_profile_transport_case(tmp_path)
+    )
+    world_record = base_context.world_model_record
+    gateway = generation_cycle.RealValueOwnerGateway(
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+
+    receipt, refusal = gateway.run_transport(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        solver_mode="simplified",
+    )
+
+    assert refusal is None
+    assert isinstance(receipt, generation_cycle.ValueTransportRunReceiptV1)
+    assert receipt.status == "transported_limited"
+    assert receipt.transport_status == "identified"
+    assert receipt.transport_mode == "transport_formula"
+    assert receipt.transport_run_basis_ref.manifest_profile_sha256 is not None
+    assert context.authority_purpose == "cycle_input_candidate_only"
+    assert context.transport_context is not None
+    assert context.transport_context.causal_graph_ref == graph_ref
+
+    basis, request, stored_diagram, result = generation_cycle._resolve_value_transport_run_basis(
+        store=store,
+        run_basis_ref=receipt.transport_run_basis_ref,
+        candidate=candidate,
+        problem=problem,
+        cycle_substrate_context=context,
+        world_record=world_record,
+    )
+    assert request.solver_mode == basis.solver_mode == "simplified"
+    assert request.authority_scope == "candidate_fixture_only"
+    assert request.production_value_eligible is False
+    assert basis.selected_graph_ref.model_dump(mode="json") == graph_ref.model_dump(mode="json")
+    assert stored_diagram.base_graph.model_dump(mode="json") == graph.model_dump(mode="json")
+    assert [
+        (node.target_variable, node.source_value, node.target_value)
+        for node in stored_diagram.s_nodes
+    ] == [("income", 1.0, 2.0)]
+    assert result.status.value == receipt.transport_status
+    assert result.transport_mode.value == receipt.transport_mode
+
+
+def test_fresh_transport_admission_refuses_removed_or_substituted_graph(
+    tmp_path: Path,
+) -> None:
+    """Missing, replaced, or absent-in-CAS graphs never reuse a receipt."""
+
+    from polisyos.core.artifacts import FileSystemCAS
+
+    problem, base_context, context, candidate, store, _graph, graph_ref = (
+        _selected_profile_transport_case(tmp_path)
+    )
+    world_record = base_context.world_model_record
+    gateway = generation_cycle.RealValueOwnerGateway(
+        cycle_substrate_context=context,
+        artifact_store=store,
+    )
+    receipt, refusal = gateway.run_transport(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        solver_mode="simplified",
+    )
+    assert refusal is None
+    assert receipt is not None
+
+    removed_context = _emp01_transport_context(
+        problem=problem,
+        base_context=base_context,
+        graph_ref=None,
+    )
+    with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
+        generation_cycle._resolve_value_transport_run_basis(
+            store=store,
+            run_basis_ref=receipt.transport_run_basis_ref,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=removed_context,
+            world_record=world_record,
+        )
+
+    missing_store = FileSystemCAS(tmp_path / "removed-graph-cas")
+    missing_graph_gateway = generation_cycle.RealValueOwnerGateway(
+        cycle_substrate_context=context,
+        artifact_store=missing_store,
+    )
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as missing_graph:
+        missing_graph_gateway.build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+        )
+    assert missing_graph.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+    wrong_profile_ref = graph_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    wrong_profile_context = _emp01_transport_context(
+        problem=problem,
+        base_context=base_context,
+        graph_ref=wrong_profile_ref,
+    )
+    wrong_profile_gateway = generation_cycle.RealValueOwnerGateway(
+        cycle_substrate_context=wrong_profile_context,
+        artifact_store=store,
+    )
+    with pytest.raises(generation_cycle.ValueOwnerAccessError) as wrong_profile:
+        wrong_profile_gateway.build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+        )
+    assert wrong_profile.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+
 def _seed_emp01_catalog(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

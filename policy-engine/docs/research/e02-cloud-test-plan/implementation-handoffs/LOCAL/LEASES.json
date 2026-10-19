@@ -21917,5 +21917,63 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b33-selected-graph-witness-adopted-20261019": {
+    "slice_base": "2ad2ed93db51ae404ed5064372c90edbff72ea23",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_emp_01.py": {
+        "preimage_sha256": "8b538d7cb9871e8bd581b31a916e8993ca1827ea9a86d5ae1f27095d75e3f0b8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b33-semantic-positive-companion-r3-20261019/postimage/policy-engine/tests/unit/remediation/test_emp_01.py",
+        "postimage_sha256": "1e6cfba4bfe8ea275ec387367bd578bfc0beb21a1e8bc28a3b72c874363cf3c8",
+        "operation": "write",
+        "git_base_preimage_sha256": "8b538d7cb9871e8bd581b31a916e8993ca1827ea9a86d5ae1f27095d75e3f0b8"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/b33-selected-graph-witness/source-application.json",
+      "sha256": "8b2906a547e885831e271dce8cd4c97a8906f485be5b9a55652c50966df95562"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/b33-selected-graph-witness/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b33-semantic-positive-companion-r3-20261019/manifest.json",
+        "sha256": "8180861f752c33900614a63369b467997decdfbb76910adf5ca0576939f3062a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b33-semantic-positive-companion-r3-20261019/candidate.patch",
+        "sha256": "a23d85377aa4bc1baf6451170b38efb871d5269daa1c2bc52614e60de729eb88"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b33-positive-independent-20261019/r3-delta-20261019/review.md",
+        "sha256": "a1a2a9443e283cec85b8aee1fdebe25b0f506a30a756981ad5e485a36ad28204"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b33-positive-independent-20261019/r3-delta-20261019/r3-review-diagnostic.json",
+        "sha256": "2a6753098f7c72c48441a92a3d4c960d838ed32285e6e163832f25bae68cb27f"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW P38 representation-equality test defect distinct from prior solver/profile choice. Compare complete canonical wire projections together (artifact_id,kind,media_type,manifest_profile_sha256), not domain wrapper object to string. No per-field ladder.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Two independent RAW candidate nodes pass; canonical whole-module composed replay pending",
+      "Simplified supported candidate-only algorithm; auto/Y0 absent-profile refusal unchanged",
+      "No external graph truth/calibration/currentness or production value authority",
+      "No formal G closure"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run full EMP-01 module in composed freeze and independently classify B33 outcome within full-ID proposals",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

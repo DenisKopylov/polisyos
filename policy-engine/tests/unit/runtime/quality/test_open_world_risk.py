@@ -1467,6 +1467,7 @@ def test_owner_query_v2_exact_history_is_limited_by_current_reader(
         store=runtime.store,
         value=historical_statement,
         profile_record="aggregate_context",
+        selected_profile=False,
     )
 
     exact = runtime.context_repository.verify_exact(
@@ -1505,6 +1506,7 @@ def test_owner_query_v2_exact_history_is_limited_by_current_reader(
         store=runtime.store,
         value=corrupt_statement,
         profile_record="aggregate_context",
+        selected_profile=False,
     )
     corrupt = runtime.context_repository.verify_exact(
         context_ref=corrupt_ref,
@@ -1568,6 +1570,7 @@ def test_owner_query_reader_dispatches_from_exact_selected_manifest_profile(
             store=runtime.store,
             value=historical_statement,
             profile_record=source_profile,
+            selected_profile=False,
         )
         source_manifest = runtime.store.get_manifest(source_ref)
         assert source_manifest.artifact_schema == artifacts.SchemaInfo(
@@ -2119,6 +2122,7 @@ def test_owner_context_rejects_dropped_duplicate_reordered_or_cross_promotion_me
         store=runtime.store,
         value=reordered_statement,
         profile_record="aggregate_context",
+        selected_profile=False,
     )
     assert isinstance(
         runtime.context_repository.resolve_verified(context_ref=reordered_ref),
@@ -2137,6 +2141,7 @@ def test_owner_context_rejects_dropped_duplicate_reordered_or_cross_promotion_me
         store=runtime.store,
         value=cross_aggregate,
         profile_record="bound_member",
+        selected_profile=False,
     )
     with pytest.raises(ValueError, match="bound_member_context_mismatch"):
         runtime.context_repository.resolve_bound_member(bound_member_ref=cross_ref)
@@ -2153,6 +2158,7 @@ def test_owner_context_rejects_dropped_duplicate_reordered_or_cross_promotion_me
         store=runtime.store,
         value=duplicated_statement,
         profile_record="aggregate_context",
+        selected_profile=False,
     )
     assert isinstance(
         runtime.context_repository.resolve_verified(context_ref=duplicated_ref),
@@ -2166,6 +2172,7 @@ def test_owner_context_rejects_dropped_duplicate_reordered_or_cross_promotion_me
         store=runtime.store,
         value=dropped_statement,
         profile_record="aggregate_context",
+        selected_profile=False,
     )
     assert isinstance(
         runtime.context_repository.resolve_verified(context_ref=dropped_ref),
@@ -2290,6 +2297,7 @@ def test_shaped_denominator_cannot_poison_the_admitted_owner_snapshot(tmp_path) 
         store=runtime.store,
         value=shaped,
         profile_record="candidate_denominator",
+        selected_profile=False,
     )
 
     fresh_runtime = PromotionRuntime(store=FileSystemCAS(store_root))
@@ -2333,6 +2341,7 @@ def test_coherent_unadmitted_denominator_cannot_enter_owner_context(tmp_path) ->
         store=store,
         value=occurrence,
         profile_record="candidate_occurrence",
+        selected_profile=False,
     )
     denominator = PromotionCandidateDenominatorStatement(
         owner_snapshot_ref=sealed.owner_snapshot_ref,
@@ -2347,6 +2356,7 @@ def test_coherent_unadmitted_denominator_cannot_enter_owner_context(tmp_path) ->
         store=store,
         value=denominator,
         profile_record="candidate_denominator",
+        selected_profile=False,
     )
 
     rejected = runtime.context_authority.persist_for_promotion(denominator_ref=denominator_ref)
@@ -2637,7 +2647,10 @@ def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path)
                 cycle_index=summary.cycle_index,
             )
             ref, semantic, _ = _persist_model(
-                store=store, value=occurrence, profile_record="candidate_occurrence"
+                store=store,
+                value=occurrence,
+                profile_record="candidate_occurrence",
+                selected_profile=False,
             )
             occurrences.append((ref, semantic))
         statement = PromotionCandidateDenominatorStatement(
@@ -2650,7 +2663,10 @@ def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path)
             predicate_class="recomputed",
         )
         denominator_ref, _, _ = _persist_model(
-            store=store, value=statement, profile_record="candidate_denominator"
+            store=store,
+            value=statement,
+            profile_record="candidate_denominator",
+            selected_profile=False,
         )
         race_evidence["denominator_ref"] = denominator_ref
         race_evidence["statement"] = statement

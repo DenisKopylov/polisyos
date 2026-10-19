@@ -4897,6 +4897,7 @@ def test_historical_v2_owner_context_is_refused_before_n9_ledger_open(
         store=runtime.store,
         value=historical_statement,
         profile_record="aggregate_context",
+        selected_profile=False,
     )
     exact_history = runtime.context_repository.verify_exact(
         context_ref=historical_ref,

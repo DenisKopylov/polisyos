@@ -2186,7 +2186,10 @@ def test_current_effect_bridge_binds_actual_historical_emitter_epoch(
         kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
     )
     _, _, observed = current._persist_model(
-        store=store, value=parsed, kind=current._EFFECT_OBLIGATION_SOURCE_KIND
+        store=store,
+        value=parsed,
+        kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
+        selected_profile=False,
     )
     assert observed == old_raw
     (tmp_path / "historical_effect_v1.json").write_text(

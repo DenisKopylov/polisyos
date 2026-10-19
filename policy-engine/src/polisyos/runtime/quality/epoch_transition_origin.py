@@ -362,6 +362,22 @@ class FileEpochTransitionOriginOwner:
         ):
             raise ValueError("epoch_transition_origin_binding_mismatch")
 
+    def _persist_profiled_owner_model(
+        self, *, value: cascade._StrictModel, kind: str
+    ) -> ArtifactRef:
+        """Persist an owner model with the profile returned by its canonical write."""
+
+        try:
+            ref, _, _ = cascade._persist_model(
+                store=self._artifacts,
+                value=value,
+                kind=kind,
+                selected_profile=True,
+            )
+        except NotImplementedError as exc:
+            raise ValueError("epoch_origin_selected_profile_writer_unavailable") from exc
+        return ref
+
     def _admit_completed_execution(
         self, execution: _CompletedEpochTransitionExecution
     ) -> ArtifactRef:
@@ -386,11 +402,11 @@ class FileEpochTransitionOriginOwner:
             authority_purpose=execution.transition.authority_purpose,
             requested_query_context_ref=execution.transition.requested_query_context_ref,
         )
-        dependencies, _, _ = cascade._persist_model(
-            store=self._artifacts, value=execution.dependencies, kind=_DEPENDENCIES_KIND
+        dependencies = self._persist_profiled_owner_model(
+            value=execution.dependencies, kind=_DEPENDENCIES_KIND
         )
-        adjudications, _, _ = cascade._persist_model(
-            store=self._artifacts, value=execution.adjudications, kind=_ADJUDICATIONS_KIND
+        adjudications = self._persist_profiled_owner_model(
+            value=execution.adjudications, kind=_ADJUDICATIONS_KIND
         )
         origin = EpochTransitionOriginStatement(
             previous_epoch_manifest_ref=execution.previous_epoch_manifest_ref,
@@ -412,7 +428,7 @@ class FileEpochTransitionOriginOwner:
             requested_query_context_ref=execution.transition.requested_query_context_ref,
         )
         self._verify_origin(origin)
-        ref, _, _ = cascade._persist_model(store=self._artifacts, value=origin, kind=_ORIGIN_KIND)
+        ref = self._persist_profiled_owner_model(value=origin, kind=_ORIGIN_KIND)
         index_raw = cascade._canonical_bytes(ref)
         scope_root = self._scope_root()
         index_path = scope_root / f"{ref.artifact_id.hex}.json"

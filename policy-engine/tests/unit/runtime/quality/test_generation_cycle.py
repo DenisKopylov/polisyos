@@ -1123,6 +1123,7 @@ def _positive_epoch_admitted_batch(
             store=runtime.store,
             value=gate,
             profile_record="epoch_validity_gate_receipt",
+            selected_profile=False,
         )
         occurrence = runtime.context_repository.resolve_occurrence(
             occurrence_ref=bound.statement.candidate_occurrence_ref
@@ -1934,6 +1935,7 @@ def test_old_packet_after_prior_head_advance_requires_validity_batch(
         store=runtime.store,
         value=old_subject,
         profile_record="pre_n9_epoch_subject",
+        selected_profile=False,
     )
 
     result = runtime.epoch_validity_gate.reconcile_before_n9(subject_ref=old_ref)

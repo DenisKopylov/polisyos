@@ -565,6 +565,7 @@ class OpenWorldRiskVectorArtifactRepository:
                 store=self._store,
                 value=vector,
                 profile_record="open_world_risk_vector",
+                selected_profile=False,
             )
             persisted = PersistedOpenWorldRiskVector(
                 vector_artifact_ref=ref,
@@ -1169,6 +1170,7 @@ class _PersistedNegativeEpochQueryOwner:
             store=self._store,
             value=payload,
             profile_record="epoch_query_evidence",
+            selected_profile=False,
         )
         return EpochPromotionQueryEvidence(
             family="semantic_epoch",
@@ -1206,6 +1208,7 @@ class _PersistedDeploymentQueryOwner:
             store=self._store,
             value=payload,
             profile_record="deployment_query_evidence",
+            selected_profile=False,
         )
         return DeploymentPromotionQueryEvidence(
             family="deployment_scope",

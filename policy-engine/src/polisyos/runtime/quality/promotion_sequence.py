@@ -741,6 +741,7 @@ class N9PromotionEvidenceSource:
             store=store,
             value=resolution,
             kind="runtime.n9_evidence_source_resolution",
+            selected_profile=False,
         )
         context: dict[str, Any] = {
             "producer_root_refs": (

@@ -277,7 +277,7 @@ def _persist_model(
     kind: str | None = None,
     profile_record: str | None = None,
     inputs: Sequence[artifacts.InputRef] | None = None,
-    selected_profile: bool = False,
+    selected_profile: bool,
 ) -> tuple[ArtifactRef, Digest, bytes]:
     if (kind is None) == (profile_record is None):
         raise ValueError("exactly_one_chronology_persistence_profile_required")
@@ -336,6 +336,10 @@ def _persist_model(
                 or manifest.artifact_schema != options.schema
                 or manifest.canon != options.canon
             )
+        )
+        or (
+            selected_profile
+            and ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(manifest)
         )
     ):
         raise ValueError("chronology_artifact_readback_mismatch")
@@ -1736,6 +1740,7 @@ def _seal_completed_generation_candidate_batch(
         store=artifacts,
         value=snapshot,
         profile_record="generation_owner_snapshot",
+        selected_profile=False,
     )
     return _CompletedGenerationCandidateBatch(
         design_problem_ref=design_problem_ref,
@@ -2066,6 +2071,7 @@ class ArtifactPromotionCandidateDenominatorOwner:
                 store=self._artifacts,
                 value=statement,
                 profile_record="candidate_occurrence",
+                selected_profile=False,
             )
             occurrences.append((ref, semantic))
         statement = PromotionCandidateDenominatorStatement(
@@ -2081,6 +2087,7 @@ class ArtifactPromotionCandidateDenominatorOwner:
             store=self._artifacts,
             value=statement,
             profile_record="candidate_denominator",
+            selected_profile=False,
         )
         result = PersistedPromotionCandidateDenominator(
             denominator_ref=ref,
@@ -2643,6 +2650,7 @@ class PromotionOwnerQueryContextAuthority:
                 store=self._artifacts,
                 value=member_statement,
                 profile_record="member_context",
+                selected_profile=False,
             )
             member_refs.append((member_ref, member_hash))
             member_context_ref = _semantic_hash(
@@ -2694,6 +2702,7 @@ class PromotionOwnerQueryContextAuthority:
             store=self._artifacts,
             value=aggregate_statement,
             profile_record="aggregate_context_v3",
+            selected_profile=False,
         )
         aggregate = PersistedPromotionOwnerQueryContext(
             context_ref=aggregate_ref,
@@ -2719,6 +2728,7 @@ class PromotionOwnerQueryContextAuthority:
                 store=self._artifacts,
                 value=statement,
                 profile_record="bound_member",
+                selected_profile=False,
             )
             bound.append(
                 PersistedBoundPromotionCandidateContext(
@@ -2783,6 +2793,7 @@ class ArtifactEpochValidityPreN9SubjectAuthority:
             store=self._store,
             value=statement,
             profile_record="pre_n9_epoch_subject",
+            selected_profile=False,
         )
         return core_contracts.decision_validity.PersistedPreN9EpochValiditySubject(
             subject_ref=subject_ref,
@@ -3115,6 +3126,7 @@ def seal_pre_n9_admitted_candidate_batch(
         store=store,
         value=batch,
         profile_record="pre_n9_admitted_candidate_batch",
+        selected_profile=False,
     )
     if persisted_hash != batch_hash:
         raise ValueError("epoch_validity_admission_batch_hash_mismatch")

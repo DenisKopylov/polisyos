@@ -30,6 +30,7 @@ def test_actual_v2_evidence_bridge_retains_its_exact_producer_bytes(tmp_path: Pa
         store=FileSystemCAS(tmp_path / "cas"),
         value=record,
         kind="polisyos.gy.n9_promotion_evidence_bridge",
+        selected_profile=False,
     )
     assert observed == raw
     for field, value in (
@@ -55,6 +56,7 @@ def test_actual_v1_independence_source_retains_its_exact_producer_bytes(tmp_path
         store=FileSystemCAS(tmp_path / "cas"),
         value=record,
         kind="polisyos.gy.n9_effective_independence_producer_record",
+        selected_profile=False,
     )
     assert observed == raw
     with pytest.raises(ValueError, match="historical_evidence_source_cannot_be_restamped"):

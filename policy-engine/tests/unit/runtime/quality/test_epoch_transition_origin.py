@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, security
 from polisyos.core.artifacts.signed_evidence import FileSystemSignedArtifactEvidenceRepository
 
@@ -241,9 +242,42 @@ def test_canonical_producer_persists_independently_readable_execution_origin(
     transition_manifest = fixture.store.get_manifest(result.transition_artifact_ref)
     assert transition_manifest.canon == cascade._TRANSITION_CANON_INFO
     origin = _read(owner, result)
+    for ref in (
+        result.producer_identity_ref,
+        origin.dependency_receipt_ref,
+        origin.adjudication_receipt_ref,
+    ):
+        assert ref.manifest_profile_sha256 is not None
+        assert ref.manifest_profile_sha256 == artifacts.artifact_manifest_profile_sha256(
+            fixture.store.get_manifest(ref)
+        )
     assert origin.previous_epoch_manifest_ref == fixture.previous_ref
     assert origin.current_epoch_production_receipt_ref == fixture.current_receipt.receipt_ref
     assert origin.transition_artifact_ref == result.transition_artifact_ref
+
+    dependencies = cascade._read_model(
+        store=fixture.store,
+        ref=origin.dependency_receipt_ref,
+        model=cascade.EpochDependencyDenominatorReceipt,
+        kind="polisyos.epoch.transition_dependency_receipt",
+    )
+    legacy_store = artifacts.FileSystemCAS(tmp_path / "legacy-cas")
+    legacy_ref, _, _ = cascade._persist_model(
+        store=legacy_store,
+        value=dependencies,
+        kind="polisyos.epoch.transition_dependency_receipt",
+        selected_profile=False,
+    )
+    assert legacy_ref.manifest_profile_sha256 is None
+    assert legacy_store.get_manifest(legacy_ref).canon is None
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        cascade._read_model(
+            store=legacy_store,
+            ref=legacy_ref,
+            model=cascade.EpochDependencyDenominatorReceipt,
+            kind="polisyos.epoch.transition_dependency_receipt",
+        )
+
     restarted = _module().FileEpochTransitionOriginOwner(
         root=tmp_path / "origins",
         artifacts=fixture.store,

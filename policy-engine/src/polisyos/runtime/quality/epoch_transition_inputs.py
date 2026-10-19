@@ -324,6 +324,7 @@ class NativeEpochSemanticBasisDeltaProvider:
             store=self._artifacts,
             value=dependencies,
             kind="polisyos.epoch.transition_dependency_receipt",
+            selected_profile=False,
         )
         payload = {
             "source": source,
@@ -343,6 +344,7 @@ class NativeEpochSemanticBasisDeltaProvider:
             store=self._artifacts,
             value=delta,
             kind="polisyos.epoch.native_semantic_basis_delta",
+            selected_profile=False,
         )
         if self.resolve_exact(delta_ref=ref) != delta:
             raise ValueError("epoch_native_basis_delta_readback_mismatch")

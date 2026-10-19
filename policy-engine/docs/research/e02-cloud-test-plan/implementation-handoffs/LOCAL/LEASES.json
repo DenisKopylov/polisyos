@@ -16172,5 +16172,86 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_native_targeted_security_lock_r2_20261019": {
+    "slice_base": "3addf6fa7ca236308c3dd6fc9fba86c1f4346e02",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/pyproject.toml": {
+        "operation": "write",
+        "preimage_sha256": "b2d3d2629db1cb184c1dffe48a48884c4652574229021e6fab1fe47f8336873f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/recipe/pyproject.toml",
+        "postimage_sha256": "83a03f75698b190832e077dc8475e9269247521b1abd1f94198966ab16c77df4",
+        "category": "mechanism",
+        "P39_role": "source_recipe_and_lock_companion"
+      },
+      "policy-engine/uv.lock": {
+        "operation": "write",
+        "preimage_sha256": "6b0157dd281cae2f1bb3c2af2bd2ea4353a99ca1fa2f0424df091f41fd0b8b9c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/recipe/uv.lock",
+        "postimage_sha256": "b1166585634919e552eecf21a56437552781a03f7f1d4a1a9d32db0430dbf009",
+        "category": "mechanism",
+        "P39_role": "source_recipe_and_lock_companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/source-application.json",
+      "sha256": "5781e54ccd2fe6e44a5bb9982a46d25aaaecedb6df3da20366aa0fb655c89407"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/final-manifest.json",
+        "sha256": "9dcbfb87946045caf5672f512823d29094f354e9f5dd8cc5556215abc7065ae8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/candidate.patch",
+        "sha256": "b9630ca13848eb8f8bd2b7dc84aacc5cad445941aa27c518a28d92b95d7f4ba1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/lock-diff.json",
+        "sha256": "ffd84ebd09f875d66796e4739bbf4aea6153a9ea6b4f5d3f3f3020c4c128f699"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-20261019/SHA256SUMS",
+        "sha256": "c0180ad70dc2056761fd737dff8f8b3a6036dfbbd654e7ed8c5581c0a72bfd6f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-independent-20261019/review.md",
+        "sha256": "a2a47ca397df5a54e079cce0374a006b8517b4185b767431bb6a21adc2e3598e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-independent-20261019/packet-seal.json",
+        "sha256": "e1978245873b6185138edb0769c42445bb7f9a0cb121df41368d139de5bf3856"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-lock-r2-adoption-plan-20261019/plan-prepared-before-receipt-boundary.json",
+        "sha256": "5d84ae737982fa47462902c4acc74029630790f19a62d31e9dfe4be5980616ce"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3addf6fa-20261019/remote-readback.json",
+        "sha256": "fe8a5b3671988ab49ec657f9bf7524c164ffd82444b10619a93d8b5d24eca524"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-lock-companion-plan-20261019/plan.md",
+        "sha256": "ad6de13da856f0f03487d5adb5a87bcc93d6bc5176dc62c2a1f3b741682b42f3"
+      }
+    ],
+    "P40": "Same SDK Python compatibility class. Resolve the complete metadata dependency closure, do not patch single import sites or suppress native gates. PII scan-completeness is a separate whole-property issue and remains decision/prototype work.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Source/locked recipe only; no environment install, NLP model, analyzer execution, MyPy or security runtime PASS is established.",
+      "Presidio 2.2.363 actual model and PII completion behavior remain unverified; no regex-only or NoOp substitution for default spaCy model.",
+      "Existing environment at this boundary remains unsupported for Python3.14 because installed analyzer2.2.360; controlled sync is separate.",
+      "No generated Foundry TOML changes: owner/companion investigation identified those as primary source contracts, not generated dependency artifacts."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After this source commit, independently qualify and execute one bounded frozen/inexact sync in the existing main venv; retain all actual metadata/RECORD changes and uv pip check. Then fresh affected MyPy and native behavior on exact new source/profile.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -3800,11 +3800,11 @@ wheels = [
 
 [[package]]
 name = "phonenumbers"
-version = "9.0.23"
+version = "9.0.28"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e5/1a/d1a90630b5f5e6ff3918f1ab6958430c051c3f311610780bcd9bc7200a5d/phonenumbers-9.0.23.tar.gz", hash = "sha256:e5aa44844684ffb4928f25a7b8c31dbf6e3763138cb13edd2ab03bf6d4803d98", size = 2298342, upload-time = "2026-02-04T15:58:16.916Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/72/97fd1961e3d6f8323b1396669c346557a8581874e2c2a478a83dc5d616e7/phonenumbers-9.0.28.tar.gz", hash = "sha256:f1d810aaa43fbf3a5cb1ee54733218f8333a2a92c85c4d579a810403d6260a8c", size = 2298779, upload-time = "2026-04-13T14:19:50.741Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/91/17099726260627a23109abf9590b02f08ff3798e3722d760a1f142d9932d/phonenumbers-9.0.23-py2.py3-none-any.whl", hash = "sha256:f29651fb72ba4d22d2691bb0b432f1d2c93fd49cc7b89aa6c11bd6b0e4167412", size = 2584396, upload-time = "2026-02-04T15:58:13.529Z" },
+    { url = "https://files.pythonhosted.org/packages/68/bd/5e55cea252bf21402a2d5f2479edd7e24a4c9ebbe59f197080d0d4cd9093/phonenumbers-9.0.28-py2.py3-none-any.whl", hash = "sha256:ee8caabab4fd554efb6119e7b95cb69da40e0f04050611730eed839d93f39920", size = 2585077, upload-time = "2026-04-13T14:16:09.853Z" },
 ]
 
 [[package]]
@@ -4029,6 +4029,7 @@ dev = [
     { name = "ruff" },
     { name = "seaborn" },
     { name = "structlog" },
+    { name = "types-defusedxml" },
     { name = "types-networkx" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
@@ -4051,6 +4052,7 @@ lint = [
     { name = "pre-commit" },
     { name = "pyarrow-stubs" },
     { name = "ruff" },
+    { name = "types-defusedxml" },
     { name = "types-networkx" },
     { name = "types-pyyaml" },
     { name = "types-requests" },
@@ -4378,7 +4380,7 @@ requires-dist = [
     { name = "policy-engine", extras = ["structured-logging"], marker = "extra == 'runtime'" },
     { name = "policy-engine", extras = ["vector-search"], marker = "extra == 'research'" },
     { name = "pre-commit", marker = "extra == 'lint'", specifier = ">=4.5.1" },
-    { name = "presidio-analyzer", marker = "extra == 'security'", specifier = ">=2.2.0" },
+    { name = "presidio-analyzer", marker = "extra == 'security'", specifier = ">=2.2.363" },
     { name = "presidio-anonymizer", marker = "extra == 'security'", specifier = ">=2.2.0" },
     { name = "prometheus-client", marker = "extra == 'observability'", specifier = ">=0.17.0" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'multi-tenant'", specifier = ">=3.1.0" },
@@ -4422,6 +4424,7 @@ requires-dist = [
     { name = "tiktoken" },
     { name = "torch", marker = "extra == 'search-bo'", specifier = ">=2.0.0" },
     { name = "torch", marker = "extra == 'search-mo'", specifier = ">=2.0.0" },
+    { name = "types-defusedxml", marker = "extra == 'lint'", specifier = "==0.7.0.20260504" },
     { name = "types-networkx", marker = "extra == 'lint'", specifier = ">=3.6,<3.7" },
     { name = "types-pyyaml", marker = "extra == 'lint'", specifier = ">=6,<7" },
     { name = "types-requests", marker = "extra == 'lint'", specifier = ">=2.32.4.20250913" },
@@ -4493,18 +4496,22 @@ wheels = [
 
 [[package]]
 name = "presidio-analyzer"
-version = "2.2.360"
+version = "2.2.363"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "click" },
+    { name = "numpy" },
     { name = "phonenumbers" },
+    { name = "pydantic" },
     { name = "pyyaml" },
     { name = "regex", version = "2024.11.6", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-policy-engine-table-extraction'" },
     { name = "regex", version = "2026.9.3", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-13-policy-engine-ci' or extra != 'extra-13-policy-engine-table-extraction'" },
     { name = "spacy" },
     { name = "tldextract" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/a8/c7/c88c469f06cbf44d00a3af773ea8baea7f6ee045ba39933f4a54993854f8/presidio_analyzer-2.2.363.tar.gz", hash = "sha256:f93eae598710e747e54d1a79d3a3b892caea91d46e87a32becb340fb064bf497", size = 149406, upload-time = "2026-06-28T16:09:10.613Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/dd/df0d00ff44977868878f391b08feb65b8269904262d0f1387de827c13c7d/presidio_analyzer-2.2.360-py3-none-any.whl", hash = "sha256:aa6e83779b8f23587000ccfa3ef47aa34356a60b51284742e0d2a96b33205c4e", size = 128661, upload-time = "2025-09-09T09:24:20.75Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/17/1ff9fbf2cbecb9bf0bf86615aadb4641e29d9712cb6ca51aaeda481f5add/presidio_analyzer-2.2.363-py3-none-any.whl", hash = "sha256:84203d1148a87620ab80004cf31775d5868b965395f2754aa0a27c8d308e7dfb", size = 259041, upload-time = "2026-06-28T16:09:08.993Z" },
 ]
 
 [[package]]
@@ -6453,6 +6460,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/17/d4/064570dec6358aa9049d4708e4a10407d74c99258f8b2136bb8702303f1a/typer_slim-0.21.1.tar.gz", hash = "sha256:73495dd08c2d0940d611c5a8c04e91c2a0a98600cbd4ee19192255a233b6dbfd", size = 110478, upload-time = "2026-01-06T11:21:11.176Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c8/0a/4aca634faf693e33004796b6cee0ae2e1dba375a800c16ab8d3eff4bb800/typer_slim-0.21.1-py3-none-any.whl", hash = "sha256:6e6c31047f171ac93cc5a973c9e617dbc5ab2bddc4d0a3135dc161b4e2020e0d", size = 47444, upload-time = "2026-01-06T11:21:12.441Z" },
+]
+
+[[package]]
+name = "types-defusedxml"
+version = "0.7.0.20260504"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/da/d2/4553c8fa9cdebfe1e84b950cf790a4d2376a97fa016e43f7c65323fa6c7d/types_defusedxml-0.7.0.20260504.tar.gz", hash = "sha256:2ab2828a3f97111ba1c16cee273ad4124a831fc9198c41bf8368ff6ea48ad300", size = 10729, upload-time = "2026-05-04T05:22:50.192Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bf/2d/8a4b5ba1d732b8bc691f0efbb1c6f77cb5f6f473b2afe181d83d910773c5/types_defusedxml-0.7.0.20260504-py3-none-any.whl", hash = "sha256:a959e3a0a43b93e464bd625d91ec9193a2703ddc10443bdd627792485fae0b10", size = 13467, upload-time = "2026-05-04T05:22:49.319Z" },
 ]
 
 [[package]]

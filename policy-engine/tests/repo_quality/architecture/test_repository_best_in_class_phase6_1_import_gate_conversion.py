@@ -46,8 +46,19 @@ PHASE6_7_VALIDATION_BUDGET_PATHS = {
     "tools/quality/validation/check_docs_lifecycle.py",
     "tools/quality/validation/repository_last_mile_inventory.py",
     "tools/quality/validation/check_extension_examples.py",
-    "tools/quality/validation/architecture_report_only_contracts.py",
 }
+
+
+ARCHITECTURE_REPORT_OWNER_PATHS = (
+    "tools/quality/validation/architecture_report_only_contracts.py",
+    "tools/quality/validation/architecture_package_contracts.py",
+    "tools/quality/validation/architecture_package_mirror_projection.py",
+    "tools/quality/validation/architecture_module_size_contracts.py",
+    "tools/quality/validation/architecture_artifact_contracts.py",
+    "tools/quality/validation/architecture_directory_contracts.py",
+    "tools/quality/validation/architecture_import_graph.py",
+    "tools/quality/validation/architecture_report_surface.py",
+)
 
 
 def test_phase6_1_import_boundary_report_emits_package_level_deltas() -> None:
@@ -943,6 +954,17 @@ def test_phase6_7_validation_tooling_budgets_are_declared() -> None:
             assert budget["owner"].startswith("team-"), path
             assert budget["target_date"] >= "2026-05-08", path
             assert budget["extraction_sequence"], path
+
+
+def test_phase6_7_architecture_report_owners_fit_validation_warning() -> None:
+    contract = tomllib.loads((REPO_ROOT / "architecture" / "module_size_budget.toml").read_text())
+    budget_paths = {item["path"] for item in contract["budget"]}
+
+    assert "tools/quality/validation/architecture_report_only_contracts.py" not in budget_paths
+    assert all(
+        contracts._count_lines(REPO_ROOT / relative_path) <= 1000
+        for relative_path in ARCHITECTURE_REPORT_OWNER_PATHS
+    )
 
 
 def test_phase6_7_unbudgeted_large_validation_script_is_contract_error(

@@ -195,13 +195,13 @@ def test_report_only_gate_accepts_elapsed_eligibility_date_without_mode_promotio
     assert gate["mode"] == "report_only"
 
 
-def test_validation_tooling_extraction_target_remains_an_expiry() -> None:
+def test_validation_tooling_expired_target_remains_a_finding() -> None:
     data = _read_toml(REPO_ROOT / "architecture" / "module_size_budget.toml")
     header = data["validation_tooling_size_budget"]
     budget = next(
         row
         for row in data["budget"]
-        if row["path"] == "tools/quality/validation/architecture_report_only_contracts.py"
+        if row["path"] == "tools/quality/validation/fabric_best_in_class_inventory.py"
     )
     budget = {**budget, "target_date": (dt.date.today() - dt.timedelta(days=1)).isoformat()}
 

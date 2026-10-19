@@ -17384,5 +17384,154 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_native_validator_module_size_r5_20261019": {
+    "slice_base": "93b09c756c114d8d3533e552dac4da58733a91d4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/architecture_report_only_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": "e6de2b42f97ee17259191c003bc0345e3b72a0923b7ba28930601dfd57bce01c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_report_only_contracts.py",
+        "postimage_sha256": "51872af190fba7c33aff7d00385bee063ee0459146ab8125145b19d9ee5261d3",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_package_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_package_contracts.py",
+        "postimage_sha256": "7e1a96291220d2204495891fe5ac90fc597f8c31d4d3271214ffa12d0bde0fcc",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_package_mirror_projection.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_package_mirror_projection.py",
+        "postimage_sha256": "09d0361731833a78eb804f3bb346b047e78b3403af65401e5e08e49dc837339f",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_module_size_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_module_size_contracts.py",
+        "postimage_sha256": "e6522fffb0b606e32a12102935abf578ba4974950d64cedac3a5f31ed1677bbe",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_artifact_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_artifact_contracts.py",
+        "postimage_sha256": "33d49110608e3a7d097cc1b6299700ea73dcd3da0e6423606719084ad1b70fbf",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_directory_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_directory_contracts.py",
+        "postimage_sha256": "610cf15391d2a30e5751bab4db2f1765277ed6cc7ba1f4c20c83aa5eff977183",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_import_graph.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_import_graph.py",
+        "postimage_sha256": "5f277b8b6b0ce7ef2f6d4d16272c1ba37b51635c8043c0e219776d2802987a55",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/architecture_report_surface.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/architecture_report_surface.py",
+        "postimage_sha256": "9d97d8f041603fd79105edae229f809f11ecc7f1a6cd825c3bc603b4eb4511b7",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/architecture/module_size_budget.toml": {
+        "operation": "write",
+        "preimage_sha256": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/module_size_budget.toml",
+        "postimage_sha256": "f9a1af648609d200c4f0ed6d4c13262f1e7cb1ba1ba871d35399c92302fb5274",
+        "category": "mandatory_config_companion",
+        "P39_role": "mandatory_config_companion"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": "ff925976328bb7e1dad8b00368f929e1c27dfbb725b3cfe87d0360e5618cafc0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/test_repository_best_in_class_phase1_3_contracts.py",
+        "postimage_sha256": "5c92090bdaa48ce1e9a7fcf7b8e0105369763629e3823769980f3e0975010b79",
+        "category": "mandatory_test_companion",
+        "P39_role": "mandatory_test_companion"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py": {
+        "operation": "write",
+        "preimage_sha256": "d0ba9af511840a6d70509fcc136fd876e1acaa48e39353d800011ee586a4af89",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/test_repository_best_in_class_phase6_1_import_gate_conversion.py",
+        "postimage_sha256": "2d291fae7bf9815e2846e943cc9ce14f7c49a1fb98a5d4c7fe375057417a1d60",
+        "category": "mandatory_test_companion",
+        "P39_role": "mandatory_test_companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/source-application.json",
+      "sha256": "8efeb3e498975cf228efd0fd774f629ad5ee2526917176f5e01d9ea706c96321"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-source-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/patch-manifest-r5.json",
+        "sha256": "18bf457145f95381aa1c560fc3be96eb8c07f4871495c0dcbfffc198e50762e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/candidate-r5.patch",
+        "sha256": "1df636f50f999ec406465687ec4177b5f9ea7694912f3ed381271c9133cfa69f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/authoring-packet-r5.md",
+        "sha256": "d9c4c95de7b52e307daa03ca05bdacc6a0d87e51936a2d475a0314a33b855d79"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/static-verification-r5.json",
+        "sha256": "1e4facb209d4fd4641147dc75609440794ea30264f2852bf07d0c5a3c470c9a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/ruff-source-qualified-r5-final2.json",
+        "sha256": "2c85a2cbe56f61bd548759ca83e26eca210e5575386c0414968322da130eef9f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-repair-r5-20261019/candidate-inventory-r5-final.json",
+        "sha256": "84e721375c2ef90e1c5b5bc145eb5dc03de030a6243411cc5cd9747950e4f039"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-r5-independent-20261019/review-v2.json",
+        "sha256": "a1003ac46154a9dd458eefcbca0c1d40257fab199479f35c40ad6ded1df58837"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-validator-module-size-r5-independent-20261019/review-corrigendum-v2.md",
+        "sha256": "b6d05cd393556d99d90e104a4961e66e0d1b5f50c8cb5ec6cab13433967a1f4a"
+      }
+    ],
+    "P40": "SAME oversized-validator class; widened from one extracted family to whole facade and all cohesive owners below1000. Genuine budget repayment only, no blanket waiver or time shift.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Independent exact R5source review GO; original report/corrigenda retained with finalv2full11pathhashmap authoritative. Runtime qualification is separate.",
+      "Historical native module-size gate had63contract errors with4facade errors; remaining59 are not established inherited and fullpostimagegate remainsUNRUN.",
+      "AST/body equivalence and canonical Ruff do not prove runtime compatibility or package/architecturegate behavior.",
+      "No new authority/status/scientificcontract semantics, no Gacceptance or closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After independent source GO and batched composition run whole mirrored architecture characterization/import/output-registry tests and actual native module-size CLI; retain all remaining diagnostics individually with decision/issuer requirements.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

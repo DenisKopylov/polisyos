@@ -28,26 +28,6 @@ requires_extraction_sequence = true
 description = "Validation tooling uses logical-code-line budgets. Scripts at or below 1,000 logical code lines inherit the validation warning/fail-closed budget; scripts above 1,000 must pin a no-growth baseline and carry an extraction owner, sequence, and target date."
 
 [[budget]]
-path = "tools/quality/validation/architecture_report_only_contracts.py"
-package = "tools-quality-validation"
-owner = "team-architecture"
-baseline_lines = 3080
-current_lines = 3080
-warning_lines = 1000
-fail_closed_lines = 2000
-report_only_limit_lines = 3080
-next_ratchet_lines = 2000
-target_lines = 1000
-target_date = "2026-08-31"
-sunset = "2026-12-31"
-issue = "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md#phase-67---validation-tooling-size-budget"
-strategy = "split architecture report contract families into focused report modules before adding more gates"
-shrink_plan = "Extract module-size validation, import-boundary reporting, package contract validation, and directory/static-analysis report generation into smaller modules behind the same CLI."
-extraction_sequence = ["module-size contracts", "import reports", "package contracts", "directory and override reports", "CLI orchestration"]
-risk_notes = "This script is the architecture evidence aggregator; extraction must preserve report JSON shape, fail-on-contract-errors semantics, and package import gate compatibility."
-characterization_tests = ["tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py"]
-
-[[budget]]
 path = "tools/quality/validation/fabric_best_in_class_inventory.py"
 package = "tools-quality-validation"
 owner = "team-fabric"

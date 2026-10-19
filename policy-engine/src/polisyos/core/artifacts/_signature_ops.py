@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import threading
-from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, BrokenExecutor, Future, ThreadPoolExecutor, wait
 from contextvars import copy_context
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
 from .signing import (
@@ -54,6 +55,22 @@ def _source_length_hint(source: Iterable[ArtifactID]) -> int | None:
         return None
 
 
+@dataclass(frozen=True)
+class _BoundedRun:
+    """Return actual finished rows and inventory/executor completion state."""
+
+    indexed: list[tuple[int, object]]
+    length_hint: int | None
+    admitted: int
+    inventory_exhausted: bool
+    abort_reason: str | None
+
+    @property
+    def finished(self) -> int:
+        """Count callback results retained by this run."""
+        return len(self.indexed)
+
+
 def _run_bounded(
     artifact_ids: Iterable[ArtifactID],
     process: Callable[[ArtifactID], object],
@@ -61,29 +78,28 @@ def _run_bounded(
     max_workers: int,
     pending_window: int | None,
     cancel_event: threading.Event | None,
-) -> tuple[list[tuple[int, object]], int | None, bool, bool]:
+) -> _BoundedRun:
     """Run item callbacks with bounded inventory consumption and cancellation.
 
     Only ordinary per-item exceptions are converted by the callback supplied
-    by each caller.  Future ``result()`` calls deliberately let
-    ``BaseException`` escape so operator interrupts and executor-level aborts
-    cannot become successful-looking rows.
+    by each caller. Executor breakage stops further admission while preserving
+    finished callback rows. ``BaseException`` deliberately retains its control
+    flow meaning.
     """
     iterator = iter(artifact_ids)
     pending: dict[Future[object], tuple[int, ArtifactID]] = {}
     results: list[tuple[int, object]] = []
     next_index = 0
     exhausted = False
-    cancelled = False
-    source_failed = False
+    abort_reason: str | None = None
     window = _pending_window(max_workers, pending_window)
     length_hint = _source_length_hint(artifact_ids)
 
     def fill_window(executor: ThreadPoolExecutor) -> None:
-        nonlocal cancelled, exhausted, next_index, source_failed
-        while not exhausted and not cancelled and len(pending) < window:
+        nonlocal abort_reason, exhausted, next_index
+        while not exhausted and abort_reason is None and len(pending) < window:
             if cancel_event is not None and cancel_event.is_set():
-                cancelled = True
+                abort_reason = "cancelled"
                 return
             try:
                 artifact_id = next(iterator)
@@ -91,16 +107,18 @@ def _run_bounded(
                 exhausted = True
                 return
             except Exception:
-                # Preserve already-completed item rows, but never report a
-                # complete batch when its inventory source failed mid-stream.
-                exhausted = True
-                source_failed = True
+                # A failed inventory is not evidence that the source ended.
+                abort_reason = "inventory_failed"
                 return
             if cancel_event is not None and cancel_event.is_set():
-                cancelled = True
+                abort_reason = "cancelled"
                 return
             task_context = copy_context()
-            future = executor.submit(task_context.run, process, artifact_id)
+            try:
+                future = executor.submit(task_context.run, process, artifact_id)
+            except (BrokenExecutor, RuntimeError):
+                abort_reason = "executor_failed"
+                return
             pending[future] = (next_index, artifact_id)
             next_index += 1
 
@@ -110,14 +128,25 @@ def _run_bounded(
             done, _ = wait(pending, return_when=FIRST_COMPLETED)
             for future in done:
                 index, _artifact_id = pending.pop(future)
-                # Do not catch BaseException here.  Cancellation and operator
-                # interruption must retain their control-flow semantics.
-                results.append((index, future.result()))
-                if cancel_event is not None and cancel_event.is_set():
-                    cancelled = True
+                try:
+                    results.append((index, future.result()))
+                except BrokenExecutor:
+                    # The callback wrapper converts local Exception instances
+                    # to item rows. A BrokenExecutor escaping Future.result()
+                    # therefore identifies infrastructure failure, not an
+                    # item disposition. Preserve every other finished row.
+                    abort_reason = "executor_failed"
+                if abort_reason is None and cancel_event is not None and cancel_event.is_set():
+                    abort_reason = "cancelled"
             fill_window(executor)
 
-    return results, length_hint, cancelled, source_failed
+    return _BoundedRun(
+        indexed=results,
+        length_hint=length_hint,
+        admitted=next_index,
+        inventory_exhausted=exhausted,
+        abort_reason=abort_reason,
+    )
 
 
 def get_signature(
@@ -299,28 +328,20 @@ def sign_all_artifacts(
                 message=str(exc),
             )
 
-    indexed, length_hint, cancelled, source_failed = _run_bounded(
+    run = _run_bounded(
         artifact_ids,
         _sign_one,
         max_workers=max_workers,
         pending_window=pending_window,
         cancel_event=cancel_event,
     )
-    details = [result for _index, result in sorted(indexed, key=lambda item: item[0])]
-    if cancelled:
+    details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
+    if run.abort_reason is not None:
         details.append(
             ArtifactSigningResult(
                 artifact_id="<batch>",
                 status="error",
-                message="Batch cancelled; no new artifacts were submitted",
-            )
-        )
-    if source_failed:
-        details.append(
-            ArtifactSigningResult(
-                artifact_id="<batch>",
-                status="error",
-                message="Batch inventory source failed; results are incomplete",
+                message=f"Batch aborted ({run.abort_reason}); results are incomplete",
             )
         )
 
@@ -328,11 +349,20 @@ def sign_all_artifacts(
     skipped = sum(1 for item in details if item.status == "skipped")
     errors = sum(1 for item in details if item.status == "error")
     return BulkSigningReport(
-        total=(length_hint if length_hint is not None and not source_failed else len(details)),
+        total=(
+            run.length_hint
+            if run.length_hint is not None and run.abort_reason != "inventory_failed"
+            else len(details)
+        ),
         signed=signed,
         skipped=skipped,
         errors=errors,
         details=details,
+        state="aborted" if run.abort_reason is not None else "complete",
+        admitted=run.admitted,
+        finished=run.finished,
+        inventory_exhausted=run.inventory_exhausted,
+        abort_reason=run.abort_reason,
     )
 
 
@@ -358,28 +388,20 @@ def verify_all_signatures(
                 message=str(exc),
             )
 
-    indexed, length_hint, cancelled, source_failed = _run_bounded(
+    run = _run_bounded(
         artifact_ids,
         _verify_one,
         max_workers=max_workers,
         pending_window=pending_window,
         cancel_event=cancel_event,
     )
-    details = [result for _index, result in sorted(indexed, key=lambda item: item[0])]
-    if cancelled:
+    details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
+    if run.abort_reason is not None:
         details.append(
             SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
                 artifact_id="<batch>",
-                message="Batch cancelled; no new artifacts were submitted",
-            )
-        )
-    if source_failed:
-        details.append(
-            SignatureVerificationResult(
-                status=SignatureVerificationStatus.ERROR,
-                artifact_id="<batch>",
-                message="Batch inventory source failed; results are incomplete",
+                message=f"Batch aborted ({run.abort_reason}); results are incomplete",
             )
         )
 
@@ -390,7 +412,11 @@ def verify_all_signatures(
     revoked = sum(1 for item in details if item.status == SignatureVerificationStatus.REVOKED)
     errors = sum(1 for item in details if item.status == SignatureVerificationStatus.ERROR)
     return BulkVerificationReport(
-        total=(length_hint if length_hint is not None and not source_failed else len(details)),
+        total=(
+            run.length_hint
+            if run.length_hint is not None and run.abort_reason != "inventory_failed"
+            else len(details)
+        ),
         valid=valid,
         unsigned=unsigned,
         invalid=invalid,
@@ -398,4 +424,9 @@ def verify_all_signatures(
         revoked=revoked,
         errors=errors,
         details=details,
+        state="aborted" if run.abort_reason is not None else "complete",
+        admitted=run.admitted,
+        finished=run.finished,
+        inventory_exhausted=run.inventory_exhausted,
+        abort_reason=run.abort_reason,
     )

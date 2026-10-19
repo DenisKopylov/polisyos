@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
@@ -121,7 +121,7 @@ class SignatureVerificationResult(BaseModel):
 
 
 class BulkVerificationReport(BaseModel):
-    """Batch verification report for CAS bulk checks."""
+    """Batch verification outcomes and runtime completion diagnostics."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -134,6 +134,34 @@ class BulkVerificationReport(BaseModel):
     errors: int
     details: list[SignatureVerificationResult] = Field(default_factory=list)
     checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    state: Literal["complete", "aborted"] | None = Field(
+        default=None, description="Runtime batch state; None for a legacy or unmeasured DTO."
+    )
+    admitted: int | None = Field(
+        default=None,
+        ge=0,
+        description="Successful executor submissions in this run; None for a legacy DTO.",
+    )
+    finished: int | None = Field(
+        default=None,
+        ge=0,
+        description="Callback results collected by this run; None for a legacy DTO.",
+    )
+    inventory_exhausted: bool | None = Field(
+        default=None,
+        description="Whether this run observed iterator exhaustion; None for a legacy DTO.",
+    )
+    abort_reason: (
+        Literal[
+            "cancelled",
+            "inventory_failed",
+            "executor_failed",
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description="Global abort reason; None for completion or a legacy DTO.",
+    )
 
     @computed_field(return_type=bool)
     def ok(self) -> bool:
@@ -153,7 +181,7 @@ class ArtifactSigningResult(BaseModel):
 
 
 class BulkSigningReport(BaseModel):
-    """Batch signing report for CAS artifacts."""
+    """Batch signing outcome and runtime completion report for CAS artifacts."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -163,6 +191,34 @@ class BulkSigningReport(BaseModel):
     errors: int
     details: list[ArtifactSigningResult] = Field(default_factory=list)
     finished_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    state: Literal["complete", "aborted"] | None = Field(
+        default=None, description="Runtime batch state; None for a legacy or unmeasured DTO."
+    )
+    admitted: int | None = Field(
+        default=None,
+        ge=0,
+        description="Successful executor submissions in this run; None for a legacy DTO.",
+    )
+    finished: int | None = Field(
+        default=None,
+        ge=0,
+        description="Callback results collected by this run; None for a legacy DTO.",
+    )
+    inventory_exhausted: bool | None = Field(
+        default=None,
+        description="Whether this run observed iterator exhaustion; None for a legacy DTO.",
+    )
+    abort_reason: (
+        Literal[
+            "cancelled",
+            "inventory_failed",
+            "executor_failed",
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description="Global abort reason; None for completion or a legacy DTO.",
+    )
 
 
 class SigningConfig(BaseModel):

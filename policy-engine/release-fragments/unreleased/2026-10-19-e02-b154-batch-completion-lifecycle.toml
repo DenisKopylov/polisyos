@@ -1,0 +1,37 @@
+id = "2026-10-19-e02-b154-batch-completion-lifecycle"
+title = "Report signature batch completion and abort state"
+type = "changed"
+component = "core"
+owner = "team-polisyos"
+summary = "Bulk signing and verification reports now retain completed rows and expose producer-computed completion or abort state."
+evidence = [
+  "src/polisyos/core/artifacts/_signature_ops.py",
+  "src/polisyos/core/artifacts/signing.py",
+  "src/polisyos/core/artifacts/README.md",
+  "tests/unit/remediation/test_b154_batch_completion.py",
+  "tests/unit/core/phase0/test_cli_signing.py",
+]
+
+compatibility = "BulkSigningReport and BulkVerificationReport add nullable runtime lifecycle fields; current producers populate them from observed iteration and executor results, while legacy DTOs leave them unset. The existing ok predicates and total length-hint/sentinel behavior remain unchanged. JSON serialization includes the new fields, so strict consumers must review and update their accepted schema before relying on these outputs; compatibility is not assumed."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.BulkSigningReport and BulkVerificationReport; CLI signature batch JSON output"
+migration = "Before consuming the expanded JSON output, update strict readers to accept state, admitted, finished, inventory_exhausted, and abort_reason. Treat missing lifecycle fields on historical DTOs as unmeasured, not complete. Do not interpret total as the required-set denominator or ok as proof of batch completion."
+api = "BulkSigningReport and BulkVerificationReport expose nullable state, admitted, finished, inventory_exhausted, and abort_reason fields. Producer-created reports populate these from the bounded batch runner; legacy constructions and payloads retain None defaults."
+limitations = "This producer/report repair does not define shared authorization-loss semantics, identify an owner-derived required-reference set, or implement an all-confirmations publisher. Those authority and consumer boundaries remain unestablished. The registered public-surface inventory and any owning generated schema must be refreshed and reviewed before adoption; this fragment does not claim that review."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-b154-batch-completion-lifecycle"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.core.artifacts.BulkSigningReport, BulkVerificationReport, and CLI signature batch JSON output"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Bulk signature reports now expose runtime-computed completion and abort fields while preserving finished result rows."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []

@@ -23470,5 +23470,104 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b154-bounded-executor-completion-and-retained-results-20261019": {
+    "slice_base": "be96782322a1bdc0fa0c21761a700d837fcdfe2c",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/_signature_ops.py": {
+        "operation": "write",
+        "preimage_sha256": "35a8af3422febca80a8f3584117bc2464a5468a0f73482c738e8255760f7fbfb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-source/src/polisyos/core/artifacts/_signature_ops.py",
+        "postimage_sha256": "9ca96f8de6b55237c20085ef9880d3213a08f484619acb61506763579f8a6f01"
+      },
+      "policy-engine/src/polisyos/core/artifacts/signing.py": {
+        "operation": "write",
+        "preimage_sha256": "5d4a19ab6a2c8b5caacb3c7c74caf3625c24d4e5e51873d131292a682738b568",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-source/src/polisyos/core/artifacts/signing.py",
+        "postimage_sha256": "c29095bb579694ed2b045fa5cf5e7233a18bbe068885461fe110bbdce07b99d0"
+      },
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "operation": "write",
+        "preimage_sha256": "e26f0011f48fa69628c315a68828b7340d4d93e4cfe1e918224c3a982b828e8e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-source/core/artifacts/README.md",
+        "postimage_sha256": "dd9ce7afbf7b87497984bf56332f80097e88dede7e9f3c7d00933a2d782f7da7"
+      },
+      "policy-engine/tests/unit/remediation/test_b154_batch_completion.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-source/tests/unit/remediation/test_b154_batch_completion.py",
+        "postimage_sha256": "036e08e0b3267ab83d8e2c276d4aa0cdb49e6ffb24f7134e7f8bb137142c33b8"
+      },
+      "policy-engine/tests/unit/core/phase0/test_cli_signing.py": {
+        "operation": "write",
+        "preimage_sha256": "414daba848a4814c1f65ef02318efc74b326191a96abad028939fc0cda69fcd7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-source/tests/unit/core/phase0/test_cli_signing.py",
+        "postimage_sha256": "3861c4d4b6893a12543c7c72a4b7eb3c590df149c507827f4932c1bb94ed5cbe"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-source/release-fragments/unreleased/2026-10-19-e02-b154-batch-completion-lifecycle.toml",
+        "postimage_sha256": "10d399181392cb75543a97323ca8795be0f2d570b95b096768c4d2ad4177b226"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-executor-completion-adoption-20261019/source-application.json",
+      "sha256": "ebc62270868d6cec0cd16d7f8401f06431a05ef5ebf1ba7d7749e5825265dbf9"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-executor-completion-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate-manifest.json",
+        "sha256": "ac7adf0831f22062e2b8c13a1ca7481b133f6edfe869ee7b4ef0c0b1e10de040"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/candidate.patch",
+        "sha256": "9f47054232c6c2d7b435628819c2220f24318b8ed665d6afa89027ef1eb53a37"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-independent-review-20261019/review-v1.json",
+        "sha256": "026f4d00cd4b5658196d9d2373997be3732ad176eda8437569e2129658b90074"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/native-ruff-style-verification.json",
+        "sha256": "c2db28827116c225ec908757b5a6255cea34092ccccbae3245be791686c41e32"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/native-ruff-patch-delta.diff",
+        "sha256": "09de8272ad95c511c1614c54bbbc4fd1549022e4bb2eff1bd8c76d8b5fcc46cf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/actual-postimage-overlay-aligned-v2/run-receipt.json",
+        "sha256": "3e3e6bf5942b1641ac642f6ed70d962202cad04d4a91b25456ac5ee8952380ca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-incomplete-producer-20261019/actual-preimage-retry/run-receipt.json",
+        "sha256": "94a0dc56d163637b0a63a968960130966922e6022c4613b6260eb46ba186b9fd"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same B154 class one level deeper: infrastructure submit/result failures lost completed row aggregates. Shared bounded runner now retains rows across both executor boundaries; per-item errors remain per-item and BaseException preserves control flow.",
+    "bounded_proof": "True BrokenExecutor preimage body fails after a completed row; frozen pre-style overlay passes10 behavioral/CLI controls with source/origin binding. Final import ordering/format and test-location companions independently reviewed, canonical Ruff+format all4Python paths pass. Exact post-style canonical full-module qualification still required.",
+    "limitations": [
+      "No owner-derived required-reference set, typed shared-authorization-loss signal or protected all-confirmations publisher was identified; no such capability or B154 whole-property closure is claimed.",
+      "Legacy .ok is outcome-only and .total remains legacy length-hint/sentinel semantics, not completion or required-set authority.",
+      "New public report diagnostics may affect strict consumers. Release fragment records pending public-surface/schema review; no nonbreaking/G acceptance claim.",
+      "Historical stale overlay receipt and initial setup error remain explicitly superseded, not current-candidate proofs."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay complete new batch-completion and CLI-legacy modules plus existing whole CAS03 and original CLI importer modules on canonical post-style source; refresh owning public-surface inventory/check registered schema ownership and evaluate strict old consumers.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

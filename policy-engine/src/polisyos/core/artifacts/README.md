@@ -135,12 +135,12 @@ local Python API and adds no HTTP endpoint.
   normalize integrity reasons without reopening repaired files; errors before a safe
   blob read carry no invented digest or size. Verified reads and signature consumers
   continue to refuse the original validation failure.
-- signature batches: results retain exact selected references and disclose `state`,
-  `admitted`, `finished`, `inventory_exhausted` and `abort_reason`. Local failures keep the
-  other item results. `require_complete_valid(required_refs)` reconciles every distinct
-  exact view and requires VALID for all; legacy `ok` still permits unsigned/untrusted rows
-  and cannot authorize an all-confirmations publication. A DTO supplied by another caller
-  is not a fresh local verification result or a transferable attestation.
+- signature batches: current producers preserve per-item result rows, including rows
+  collected before a batch abort, and expose runtime lifecycle fields (see “Current State”).
+  These rows are not an exact-selected-reference reconciliation; no
+  `require_complete_valid(required_refs)` predicate is implemented. The legacy
+  `BulkVerificationReport.ok` remains outcome-only and does not authorize an all-confirmations
+  publication. Batch reports are diagnostic, not fresh verification or a transferable attestation.
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`
 
 ## Current State
@@ -156,19 +156,37 @@ already-entered filesystem calls or roll back a completed publication.
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.
 
-Batch verification/signing consumes explicit iterables lazily and keeps a bounded pending
-window. An optional absolute monotonic `deadline` and cancellation stop new item admission;
-explicit inventories check each supplied item before and after producer advancement, including
-duplicates and exhaustion. A single user iterator operation may still block; this is not hard
-preemption of arbitrary producer code.
-running physical callbacks drain before return, so uncooperative I/O can outlive that logical
-budget. Global `ArtifactBatchAbortError` preserves completed results with an aborted report;
-BaseException retains its control-flow meaning. Legacy `<batch>` diagnostic rows and total
-counters remain, while explicit completion fields describe actual admitted items.
+Batch verification and signing consume explicit iterables lazily with a bounded pending window.
+An optional cancellation event stops new admission; an exception while advancing the inventory
+also aborts the batch. Per-item callbacks convert ordinary `Exception` failures into item-level
+ERROR results and continue, while `BaseException` retains its control-flow meaning. Executor
+submission failure or a `BrokenExecutor` from a future stops further admission. Already collected
+callback results remain in the report, along with a `<batch>` ERROR row for a global abort.
 
-The default filesystem inventory still materializes an O(N) canonical name/member census and
-visible IDs before yielding. It checks cancellation/deadline between filesystem operations;
-one syscall remains a physical boundary. Detailed reports also require O(N) memory.
+Both `BulkSigningReport` and `BulkVerificationReport` expose runtime `state`, `admitted`,
+`finished`, `inventory_exhausted` and `abort_reason` fields. `admitted` counts successful executor
+submissions; `finished` counts callback results collected by the batch; and `inventory_exhausted`
+becomes true only when the iterator's `StopIteration` is observed. `state=complete` means the
+inventory was exhausted without a batch abort; it does not mean every item succeeded. The legacy
+`BulkVerificationReport.ok` remains outcome-only, may be true for unsigned or untrusted rows, and
+is not a completeness or publication predicate. Historical report payloads without runtime
+lifecycle fields deserialize those fields as `None`; they are not inferred complete. A partial
+report cannot authorize a publication that requires confirmations for every selected reference.
+
+These APIs do not distinguish a local `PermissionError` from a shared authorization loss; no
+typed shared-authorization signal is currently supplied to the batch producer. They also do not
+provide `require_complete_valid(required_refs)` or an all-confirmations publisher. A consumer that
+needs that policy must supply and reconcile its own exact required set and freshly verify each
+selected reference. This report is a diagnostic result, not a transferable verification attestation.
+
+Cancellation stops future admission but does not preempt callbacks already running. A single
+iterator operation may block; this is not hard preemption of arbitrary producer code.
+
+The default filesystem inventory materializes the full CAS name/member census and visible IDs
+before yielding, without reading every manifest or blob during that first census. On successful
+exhaustion it recomputes active-scope membership. Cancellation cannot interrupt the initial
+filesystem walk; it stops later item admission only. These signature batch methods do not accept
+a deadline. Detailed reports also require O(N) memory.
 The importer with `verify_integrity=True` consumes a full typed per-view integrity report,
 reconciling exact member membership, actual blob digest/size and manifest digest/profile
 against its measured intake before publishing. This does not add a signature trust policy

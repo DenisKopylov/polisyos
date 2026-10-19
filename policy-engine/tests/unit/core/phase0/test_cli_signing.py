@@ -167,3 +167,7 @@ def test_verify_all_json_output(capsys, tmp_path: Path) -> None:
     assert payload["total"] == 2
     assert payload["valid"] == 1
     assert payload["unsigned"] == 1
+    assert payload["state"] == "complete"
+    assert payload["admitted"] == payload["finished"] == 2
+    assert payload["inventory_exhausted"] is True
+    assert payload["abort_reason"] is None

@@ -310,10 +310,13 @@ class _InterceptingConnection:
         self._connection = connection
         self.orphan_kind = orphan_kind
         self.statements: list[str] = []
+        self.parameterized_statements: list[tuple[str, object]] = []
 
     def execute(self, sql: str, parameters: object | None = None) -> Any:
         normalized = " ".join(sql.split())
         self.statements.append(normalized)
+        if parameters is not None:
+            self.parameterized_statements.append((normalized, parameters))
         if self.orphan_kind == "fact" and "AS orphan_fact_id" in normalized:
             return _RowsResult([("fact-1",)])
         if self.orphan_kind == "node" and "AS orphan_node_id" in normalized:
@@ -431,6 +434,8 @@ def test_world_snapshot_write_replaces_only_managed_rows_and_snapshots_after_com
     from polisyos.fabric.world.store import snapshots
 
     db_path = tmp_path / "fabric-world.duckdb"
+    temp_directory = tmp_path / "duckdb-scratch"
+    temp_directory.mkdir()
     _seed_replacement_rows(db_path)
     connections = _install_intercepting_db(monkeypatch, orphan_kind=None)
     snapshot_calls: list[dict[str, object]] = []
@@ -451,9 +456,17 @@ def test_world_snapshot_write_replaces_only_managed_rows_and_snapshots_after_com
 
     monkeypatch.setattr(snapshots, "create_world_snapshot", _snapshot_spy)
 
-    result = write_world_snapshot(db_path, _request(tmp_path))
+    result = write_world_snapshot(
+        db_path,
+        _request(tmp_path),
+        temp_directory=temp_directory,
+    )
 
     assert result is expected
+    assert (
+        "SET temp_directory = ?",
+        [str(temp_directory)],
+    ) in connections[0].parameterized_statements
     assert snapshot_calls == [
         {
             "snapshot_root": tmp_path / "snapshots",

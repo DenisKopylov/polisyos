@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
@@ -28,6 +30,7 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
+    default_l6_bundle_paths,
     intervention_substrate_behavior_report,
     load_l6_intervention_substrate,
     replace_intervention_substrate_bundle,
@@ -59,6 +62,211 @@ L6_MECHANISM_IDS = {
 FREE_GROW_KNOB = "future_child_benefit_intensity"
 FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
+
+
+def _write_l6_fixture(path: Path, payload: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(dict(payload), sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _minimal_split_l6_fixture(code_root: Path, data_root: Path) -> dict[str, Path]:
+    paths = default_l6_bundle_paths(code_root, source_owner_root=data_root)
+    _write_l6_fixture(paths["intervention_knob_dictionary"], {"selected_data": {"v": 1}})
+    _write_l6_fixture(paths["lex_intervention_map"], {"law": ["selected_data"]})
+    _write_l6_fixture(paths["observation_to_contract_manifest"], {"routes": []})
+    _write_l6_fixture(paths["policy_scenario_templates"], {"selected_root": "physical-data"})
+    _write_l6_fixture(paths["slot_family_manifest"], {"selected_root": "physical-data"})
+    _write_l6_fixture(
+        paths["owner_authority_bindings"],
+        {
+            "code_owner_marker": "architecture-root",
+            "world_mechanism_manifest": {"mechanism": "code-owned"},
+            "lex_authority_manifest": {"authority": "code-owned"},
+        },
+    )
+    return paths
+
+
+def test_split_l6_loads_candidate_data_but_keeps_authority_in_code_root(
+    tmp_path: Path,
+) -> None:
+    """L6 input files follow the selected data root; authority stays code-owned."""
+
+    code_root = tmp_path / "code-owner"
+    data_root = tmp_path / "physical-data-owner"
+    code_root.mkdir()
+    data_root.mkdir()
+    paths = _minimal_split_l6_fixture(code_root, data_root)
+
+    # An invalid data-plane decoy must be ignored for the code-owned authority file.
+    data_authority_decoy = data_root / "architecture/policy_design_case/"
+    data_authority_decoy = data_authority_decoy / "layer3_gy_l6_owner_authority_bindings.json"
+    data_authority_decoy.parent.mkdir(parents=True)
+    data_authority_decoy.write_text("not-json\n", encoding="utf-8")
+
+    data_before = {
+        path.relative_to(data_root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(data_root.rglob("*"))
+        if path.is_file()
+    }
+    bundle = load_l6_intervention_substrate(
+        code_root,
+        source_owner_root=data_root,
+    )
+    default_paths = default_l6_bundle_paths(code_root)
+
+    assert bundle.policy_scenario_templates == {"selected_root": "physical-data"}
+    assert bundle.owner_authority_manifest["code_owner_marker"] == "architecture-root"
+    assert bundle.source_refs["policy_scenario_templates"] == (
+        "repo://production_data/ukraine_agent_simulation_baseline_20260410/"
+        "production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json"
+    )
+    assert bundle.source_refs["owner_authority_bindings"] == (
+        "repo://architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
+    )
+    assert default_paths["intervention_knob_dictionary"].is_relative_to(code_root)
+    assert default_paths["owner_authority_bindings"].is_relative_to(code_root)
+    assert {
+        path.relative_to(data_root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(data_root.rglob("*"))
+        if path.is_file()
+    } == data_before
+
+
+def test_split_l6_source_paths_reject_data_and_code_authority_symlink_escapes(
+    tmp_path: Path,
+) -> None:
+    """Both owner roles reject a symlink that resolves outside its own root."""
+
+    code_root = tmp_path / "code-owner"
+    data_root = tmp_path / "physical-data-owner"
+    code_root.mkdir()
+    data_root.mkdir()
+    paths = _minimal_split_l6_fixture(code_root, data_root)
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}\n", encoding="utf-8")
+
+    data_knob = paths["intervention_knob_dictionary"]
+    data_knob.unlink()
+    try:
+        data_knob.symlink_to(outside)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+    with pytest.raises(
+        InterventionSubstrateError,
+        match="l6_source_path_outside_owner_root",
+    ):
+        load_l6_intervention_substrate(code_root, source_owner_root=data_root)
+
+    data_knob.unlink()
+    _write_l6_fixture(data_knob, {"selected_data": {"v": 1}})
+    code_authority = paths["owner_authority_bindings"]
+    code_authority.unlink()
+    code_authority.symlink_to(outside)
+    with pytest.raises(
+        InterventionSubstrateError,
+        match="l6_source_path_outside_owner_root",
+    ):
+        load_l6_intervention_substrate(code_root, source_owner_root=data_root)
+
+
+def test_split_composed_wmr_requires_disjoint_workspace_and_bypasses_root_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Selected data cannot reuse a root-only WMR cache or write into sources."""
+
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    code_root = tmp_path / "code-owner"
+    data_root = tmp_path / "physical-data-owner"
+    workspace = tmp_path / "caller-workspace"
+    code_root.mkdir()
+    (data_root / "production_data").mkdir(parents=True)
+    workspace.mkdir()
+    calls: list[tuple[Path, Path, Path | None]] = []
+    result = object()
+
+    def build(
+        repo_root: Path,
+        *,
+        workspace_root: Path,
+        production_data_root: Path | None = None,
+    ) -> Any:
+        calls.append((repo_root, workspace_root, production_data_root))
+        return result
+
+    monkeypatch.setattr(owner, "_build_production_composed_world_model_record", build)
+    first = owner.production_composed_world_model_record(
+        code_root,
+        workspace_dir=workspace,
+        production_data_root=data_root,
+    )
+    second = owner.production_composed_world_model_record(
+        code_root,
+        workspace_dir=workspace,
+        production_data_root=data_root,
+    )
+
+    assert first is result and second is result
+    assert calls == [(code_root.resolve(), workspace.resolve(), data_root.resolve())] * 2
+    with pytest.raises(
+        InterventionSubstrateError,
+        match="composed_wmr_workspace_required_for_split_source",
+    ):
+        owner.production_composed_world_model_record(
+            code_root,
+            production_data_root=data_root,
+        )
+    with pytest.raises(
+        InterventionSubstrateError,
+        match="composed_wmr_workspace_overlaps_source_root",
+    ):
+        owner.production_composed_world_model_record(
+            code_root,
+            workspace_dir=data_root,
+            production_data_root=data_root,
+        )
+
+
+@pytest.mark.parametrize("cas_child", [None, "artifacts"])
+def test_split_composed_wmr_refuses_cas_child_symlink_before_store_creation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    cas_child: str | None,
+) -> None:
+    """The selected WMR CAS root is checked before its filesystem store is created."""
+
+    from polisyos.runtime.quality import intervention_substrate as owner
+
+    code_root = tmp_path / "code-owner"
+    data_root = tmp_path / "physical-data-owner"
+    workspace = tmp_path / "caller-workspace"
+    outside = tmp_path / "outside"
+    code_root.mkdir()
+    (data_root / "production_data").mkdir(parents=True)
+    workspace.mkdir()
+    outside.mkdir()
+    cas_root = workspace / "gy-s-composed-wmr-cas"
+    if cas_child is None:
+        cas_root.symlink_to(outside, target_is_directory=True)
+    else:
+        cas_root.mkdir()
+        (cas_root / cas_child).symlink_to(outside, target_is_directory=True)
+    store_calls: list[object] = []
+    monkeypatch.setattr(
+        owner, "build_artifact_store", lambda *args, **kwargs: store_calls.append(args)
+    )
+
+    with pytest.raises(ValueError, match="selected_workspace_output_path_escape"):
+        owner.production_composed_world_model_record(
+            code_root,
+            workspace_dir=workspace,
+            production_data_root=data_root,
+        )
+
+    assert store_calls == []
+    assert list(outside.iterdir()) == []
 
 
 def test_candidate_scenario_set_to_gate_recomputes_operator_value_and_write_set() -> None:

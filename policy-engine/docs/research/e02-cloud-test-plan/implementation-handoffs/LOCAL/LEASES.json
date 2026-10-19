@@ -15847,5 +15847,330 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "selected-substrate-root-confinement-r7b-final-source-20261019": {
+    "slice_base": "063982645dd5a4d4fc6028d3857f7948dffd85bc",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": [
+      "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "policy-engine/tests/_helpers/selected_substrate_source_context.py",
+      "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_data_state_substrate.py",
+      "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+      "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+      "policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py",
+      "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+      "policy-engine/tools/quality/validation/substrate_source_context.py",
+      "policy-engine/src/polisyos/fabric/world/write.py",
+      "policy-engine/tests/unit/fabric/test_world_write.py"
+    ],
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/source-application.json",
+      "sha256": "a28fd776e3afe99bc0b805412276b973a4f01c3d84092ee56aab3341be1cb65e"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-final-apply-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "bytes": 65806,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-owner-37-final-apply-20261019/plan.json",
+        "role": "reference adoption-plan schema",
+        "sha256": "fa587fdc2787f7742db567c5b976317b1a4efc0bc8390445e548981e63172499"
+      },
+      {
+        "bytes": 18142,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/manifest-r2.json",
+        "role": "R6 final source candidate manifest",
+        "sha256": "8ae09a9efa60e9e7a182a08b227b268f61c35b87abf20533a3f1a75f09ab2dd1"
+      },
+      {
+        "bytes": 212453,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/candidate.patch",
+        "role": "R6 source candidate patch",
+        "sha256": "19c007a7cad98f43b1d51a7f155ee6c37f98060c35a2cdbb42a7b1b71d5a756c"
+      },
+      {
+        "bytes": 19330,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/current-requalification.json",
+        "role": "R6 source preimage requalification",
+        "sha256": "ed282e02c1be80032e20a8788029ff9245b696358ceccb64f36400f9e42592a7"
+      },
+      {
+        "bytes": 12746,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/seal-r2.json",
+        "role": "R6 final seal",
+        "sha256": "be82041c1fa4881b22b52bae0a0fad4137978e63051c7cfc34a5177ecdc485ad"
+      },
+      {
+        "bytes": 27419,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/static-checks.json",
+        "role": "R6 full static command outputs",
+        "sha256": "7c01e54edc33af8854ade6536339e662b269df090825d38ffb01b8b63e01701c"
+      },
+      {
+        "bytes": 5898,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/author-report.md",
+        "role": "R6 author report",
+        "sha256": "5afdd44c97f3e8e22bd4fc941839b753975a7accbde12c17d19db0156eafa8bf"
+      },
+      {
+        "bytes": 1907,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/route-matrix.md",
+        "role": "R6 route matrix",
+        "sha256": "2811cb5382fe837d672918805dca337558201282b5305e472b77d813d6ad43ef"
+      },
+      {
+        "bytes": 9035,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/sink-inventory.md",
+        "role": "R6 sink inventory",
+        "sha256": "1830fef42d9cba8e4a1da844d7614fb2cbc51d149c68acb091219db83528c5f7"
+      },
+      {
+        "bytes": 3921,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/duckdb-probe-result.json",
+        "role": "R6 actual DuckDB probe result",
+        "sha256": "26e4be1aa33a217a8ea8f32e3d3502c1d3b81d022b924c0001752e465ccac827"
+      },
+      {
+        "bytes": 2222,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/duckdb-probe.stdout.txt",
+        "role": "R6 complete DuckDB probe stdout",
+        "sha256": "2ebe985e39c84c759e5efb781ca72e3a9b7d8d4c103e141cb1c70adfe2ff396f"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/duckdb-probe.stderr.txt",
+        "role": "R6 complete DuckDB probe stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 4069,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/incident-receipt.json",
+        "role": "R6 preserved incident receipt",
+        "sha256": "ddef4a5b13d67e16311478c157ffc803ae1a2041fd6f5733e3fe9cb046c4fc8e"
+      },
+      {
+        "bytes": 1002,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-workspace-sink-confinement-20261019/path-base-correction-r2.md",
+        "role": "R6 base correction note",
+        "sha256": "839e7cd171324c5560b49631c5122f05d194187d0963a8258050e020f678afa8"
+      },
+      {
+        "bytes": 2612,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-independent-20261019/review.json",
+        "role": "Independent R6 review decision",
+        "sha256": "22c8386597d2f1c860203547f96585a988abd9ec51d9e76ae72ba78b614c3671"
+      },
+      {
+        "bytes": 5805,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r6-independent-20261019/review.md",
+        "role": "Independent R6 review report",
+        "sha256": "f525c8d0dcb6e2bfb34124c1aaf95db63c13895936f69af62b977fb4191aa140"
+      },
+      {
+        "bytes": 28756,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/manifest.json",
+        "role": "R7 whole-parent candidate manifest",
+        "sha256": "a8b3dfc484b05e784d958a8b196f505bfb2ffb7ab11e0e8ea7011efa2ed7cb6a"
+      },
+      {
+        "bytes": 214156,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/candidate.patch",
+        "role": "R7 cumulative candidate patch",
+        "sha256": "2d559dd8190f7d754051531793c4e39f3a6aa9847deae3e86f64f413b32aec34"
+      },
+      {
+        "bytes": 5569,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/r7-delta-from-r6.patch",
+        "role": "R7 source delta from R6",
+        "sha256": "2546d24a6571f790fe6425bb5f3525b24eb5b5f229ca87d6f530406f9d6b1c55"
+      },
+      {
+        "bytes": 8833,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/current-requalification.json",
+        "role": "R7 source preimage requalification",
+        "sha256": "d154349bd758bb7e89ff2ff04ff21d47724431c189c6d9e6460419704aca3d14"
+      },
+      {
+        "bytes": 9264,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/seal.json",
+        "role": "R7 seal",
+        "sha256": "3013a063d3c463594bfa16cadab2c0bf6550e3a5c27f6c8bf6925a7d7493b310"
+      },
+      {
+        "bytes": 41978,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/static-checks.json",
+        "role": "R7 full static command outputs",
+        "sha256": "8ebab2ffea268ab0a68a8be02f2c67988804c16eb5d7d5e47f63e0d6768d48b9"
+      },
+      {
+        "bytes": 4940,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/author-report.md",
+        "role": "R7 author report",
+        "sha256": "b8bf4f1672ad12e34fdd65820d37365aa1f31039af123debe158558117d2df70"
+      },
+      {
+        "bytes": 1715,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/route-matrix.md",
+        "role": "R7 route matrix",
+        "sha256": "e8a4df58dde9994dac9088c128a9910da989babacb4aee4a69ae58e468eccb25"
+      },
+      {
+        "bytes": 6769,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/sink-inventory.md",
+        "role": "R7 sink inventory",
+        "sha256": "379f74b4112e931f9da9239880e7797eca88465822de5298f4b2a041647b59b8"
+      },
+      {
+        "bytes": 1912,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-native-db-parent-20261019/initial-ruff-failure.json",
+        "role": "R7 preserved initial Ruff failure",
+        "sha256": "7fed63aa5e91d94d7158d027d8789314a09965b03344a63da5f024fed9fa5f81"
+      },
+      {
+        "bytes": 3316,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-independent-20261019/review.json",
+        "role": "Independent R7 review decision",
+        "sha256": "55add70004a4cfc6fb0187457d51da505c4ceb7836238e55ad30357467b1a693"
+      },
+      {
+        "bytes": 5582,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7-independent-20261019/review.md",
+        "role": "Independent R7 review report",
+        "sha256": "c2bacb1c7c9c6823dcb35ccf6b1f938b7bfd8c51d908534da6b0c3018c5ddd80"
+      },
+      {
+        "bytes": 30191,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/manifest.json",
+        "role": "R7b cumulative candidate manifest",
+        "sha256": "e86df915306ff11ea7054ae724398a494c040d4492081a41d3e0a22cb5dea735"
+      },
+      {
+        "bytes": 214147,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/candidate.patch",
+        "role": "R7b cumulative candidate patch",
+        "sha256": "83f773c6271562151a47ad79a32e97f72ef4e5329af8bdf160490a533d372338"
+      },
+      {
+        "bytes": 722,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/r7b-delta-from-r7.patch",
+        "role": "R7b test-shape-only delta",
+        "sha256": "1a6f3ba12de1c543c58ccd3fd4e8629b1376482855e358b4436a1f8aba0578cd"
+      },
+      {
+        "bytes": 9293,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/current-requalification.json",
+        "role": "R7b source preimage requalification",
+        "sha256": "f815c3cc8e173d382156bd6c33093871744e53ff061b59d88cbfbf33028fec2d"
+      },
+      {
+        "bytes": 18450,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/seal.json",
+        "role": "R7b seal and complete artifact inventory",
+        "sha256": "6886ce923722b24d20ed41ef3286002c004c4d8e45dd8ef5a86b6fd7a86af089"
+      },
+      {
+        "bytes": 8723,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/static-checks.json",
+        "role": "R7b full static command outputs",
+        "sha256": "e75d1661d330b3a49bf7c0215385ab3e434620bf5fb7e8d1961e3a57d757abe2"
+      },
+      {
+        "bytes": 5565,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/parameter-extraction-control-final.json",
+        "role": "R7b actual pytest parser extraction control",
+        "sha256": "5bdb4c5bf2d0256c87fcba8dfc67de2554b20acbecefc9466dfcda40807da4e8"
+      },
+      {
+        "bytes": 5597,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/parameter-extraction-control.json",
+        "role": "R7b prior malformed-shape control retained",
+        "sha256": "e43f3fc95982391b6e12ac3437ead8e577adf3427f19b96f2815ca9f196b97c1"
+      },
+      {
+        "bytes": 2522,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/author-report.md",
+        "role": "R7b author report",
+        "sha256": "78d0b44785f6766926ce67fef3345bdcbc64ac8f4d59025f031aea0f5776b125"
+      },
+      {
+        "bytes": 1715,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/route-matrix.md",
+        "role": "R7b route matrix",
+        "sha256": "e8a4df58dde9994dac9088c128a9910da989babacb4aee4a69ae58e468eccb25"
+      },
+      {
+        "bytes": 6769,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/sink-inventory.md",
+        "role": "R7b sink inventory",
+        "sha256": "379f74b4112e931f9da9239880e7797eca88465822de5298f4b2a041647b59b8"
+      },
+      {
+        "bytes": 1113,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/authoring/intermediate-pt006/ruff-check.json",
+        "role": "R7b preserved PT006 intermediate failure",
+        "sha256": "831ad8cc856739089a960b1dc484a443853710ab2e627c1ac79d9dda21d478e3"
+      },
+      {
+        "bytes": 215068,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-parametrize-shape-20261019/authoring/intermediate-pt006/candidate.patch",
+        "role": "R7b preserved superseded intermediate patch",
+        "sha256": "7b87bfe7f663a89754dbdadcd526c039cedd34809e6b867483959c7ea591d8f0"
+      },
+      {
+        "bytes": 2319,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-independent-20261019/review.json",
+        "role": "Independent R7b review decision",
+        "sha256": "af4ade667037b57f07a0f46a5b3e1b5f021a217e9cb78604c7023f72fe4d919a"
+      },
+      {
+        "bytes": 3632,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-independent-20261019/review.md",
+        "role": "Independent R7b review report",
+        "sha256": "bb3fda4a0d1b2bae3e0ac0126ca7a52b27290fe75c122345e184063eee2b2550"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-adoption-plan-20261019/plan.json",
+        "sha256": "145c3efbc58e579a5a52006bf658f6384bb2abf1f5b7441ae288a4a4fe551d18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-selected-root-composition-r7b-independent-20261019/review.json",
+        "sha256": "af4ade667037b57f07a0f46a5b3e1b5f021a217e9cb78604c7023f72fe4d919a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-final-apply-20261019/plan.json",
+        "sha256": "0606c569f1715f46ca2bbdd5602a76ac46ef0d574f1690d04b6a575fe2fbfa85"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-final-apply-20261019/source-application.json",
+        "sha256": "a36fd3ca1e1a3ab2be08161d09da0aa17885cd28db2f08097ff44048c0c9af76"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-final-apply-20261019/ruff-postapplication-import-only.patch",
+        "sha256": "13bf36e3c6a721d461774d0623290b5176cfa6f1ad205482972e29bd03bbefd5"
+      }
+    ],
+    "P40": "Same root-role/output-confinement class as the R5 .tmp and R6 .wal escape, one level deeper. R7 widens the mechanism from named DB/spill paths to the entire selected native DB parent and arbitrary current/future descendants; R7b repairs the test parameter-extraction representation, not a new production sink class. R7b\u2019s peer review confirms scalar extraction and carries bounded source GO. The declared race/path-replacement, hard-link, and mount-remapping limitations remain bounded; no filename whitelist or per-instance sidecar patches are proposed.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "This is an unapplied candidate adoption plan. Root alone owns canonical source, index, lease, and Git writes.",
+      "The current R7b requalification frame is 975bca19daba048fcaaf0cbff64c65aabdf1b9b8/tree a8695ce3f9ac1d39c30dbb0ecb71a59cf20fa69a. All 15 scoped file states and hashes were read back against that receipt; no broad worktree-cleanliness claim is made.",
+      "R7b independent review is GO for root adoption and the focused runtime test; it is a static delta review only. Runtime and focused pytest remain UNRUN; verification_missing remains the honest state.",
+      "The source property is physical output confinement, not trust/permission/currentness. Selecting production_data_root does not prove that the data is authorized or current.",
+      "Historical R6/R7 failures and superseded R7b intermediate artifacts are preserved and referenced through their immutable seals and explicit evidence pins. No failure record was edited or discarded.",
+      "No capability closure, publication state, or authority-grade evidence claim is made.",
+      "Root requalified against current0639826 after two documentation commits; only3 delivery record paths differ from975review frame. No production input opened. Runtime remains UNRUN."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After root applies and reads back all 15 exact postimages, run the R7b-reviewed focused three-case test, then the root-selected composed runtime profile against the newly frozen source. Retain complete outputs, including skips and failures. Reassess only the stated bounded path-race, hard-link, and mount limits; do not infer green runtime from static GO.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1022,10 +1022,16 @@ def replace_intervention_substrate_bundle(
     return InterventionSubstrateBundle.model_validate(payload)
 
 
-def default_l6_bundle_paths(repo_root: Path) -> dict[str, Path]:
-    """Return canonical L6 agent-sim bundle paths under ``repo_root``."""
+def default_l6_bundle_paths(
+    repo_root: Path,
+    *,
+    source_owner_root: Path | None = None,
+) -> dict[str, Path]:
+    """Return code-bound L6 paths with optionally selected physical data inputs."""
 
-    root = repo_root / DEFAULT_L6_BUNDLE_ROOT
+    code_root = Path(repo_root).resolve()
+    data_root = Path(source_owner_root).resolve() if source_owner_root is not None else code_root
+    root = data_root / DEFAULT_L6_BUNDLE_ROOT
     return {
         "intervention_knob_dictionary": (
             root / "intervention_bundle_v1/intervention_knob_dictionary.json"
@@ -1038,14 +1044,34 @@ def default_l6_bundle_paths(repo_root: Path) -> dict[str, Path]:
             root / "intervention_bundle_v1/policy_scenario_templates.json"
         ),
         "slot_family_manifest": root / "runtime_bundle_v1/slot_family_manifest.json",
-        "owner_authority_bindings": repo_root / DEFAULT_L6_OWNER_AUTHORITY_PATH,
+        "owner_authority_bindings": code_root / DEFAULT_L6_OWNER_AUTHORITY_PATH,
     }
 
 
-def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBundle:
-    """Load the real L6 agent-sim control artifacts with content hashes."""
+def load_l6_intervention_substrate(
+    repo_root: Path,
+    *,
+    source_owner_root: Path | None = None,
+) -> InterventionSubstrateBundle:
+    """Load L6 data from an optional owner while keeping code authority local."""
 
-    paths = default_l6_bundle_paths(repo_root.resolve())
+    code_root = Path(repo_root).resolve()
+    data_root = code_root
+    if source_owner_root is not None:
+        try:
+            data_root = Path(source_owner_root).resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise InterventionSubstrateError("l6_source_owner_root_unavailable") from exc
+        if not data_root.is_dir():
+            raise InterventionSubstrateError("l6_source_owner_root_not_directory")
+    paths = default_l6_bundle_paths(
+        code_root,
+        source_owner_root=data_root if source_owner_root is not None else None,
+    )
+    if source_owner_root is not None:
+        for name, path in paths.items():
+            owner_root = code_root if name == "owner_authority_bindings" else data_root
+            _require_l6_path_within_owner(path, owner_root)
     required = (
         "intervention_knob_dictionary",
         "lex_intervention_map",
@@ -1068,7 +1094,12 @@ def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBund
             continue
         payload = _read_json_object(path)
         payloads[name] = payload
-        source_refs[name] = _repo_ref(path, repo_root)
+        ref_root = (
+            code_root
+            if source_owner_root is None or name == "owner_authority_bindings"
+            else data_root
+        )
+        source_refs[name] = _repo_ref(path, ref_root)
         source_hashes[name] = gy_content_hash(payload)
 
     fields = {
@@ -1092,6 +1123,17 @@ def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBund
         **fields,
         content_hash=intervention_substrate_bundle_content_hash(fields),
     )
+
+
+def _require_l6_path_within_owner(path: Path, owner_root: Path) -> None:
+    """Reject selected L6 paths whose resolved bytes escape their typed owner root."""
+
+    try:
+        resolved_root = owner_root.resolve(strict=True)
+        resolved_path = path.resolve(strict=False)
+        resolved_path.relative_to(resolved_root)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise InterventionSubstrateError("l6_source_path_outside_owner_root") from exc
 
 
 def resolve_intervention_lever(
@@ -2769,30 +2811,97 @@ def _repo_root_for_bundle(bundle: InterventionSubstrateBundle) -> Path:
 
 @lru_cache(maxsize=4)
 def _production_composed_world_model_record(repo_root: str) -> WorldModelRecord:
+    root = Path(repo_root).resolve()
+    return _build_production_composed_world_model_record(root, workspace_root=root / ".tmp")
+
+
+def _build_production_composed_world_model_record(
+    repo_root: Path,
+    *,
+    workspace_root: Path,
+    production_data_root: Path | None = None,
+) -> WorldModelRecord:
     from polisyos.runtime.quality.data_state_substrate import (
         build_production_data_state_world_model_record,
     )
 
     root = Path(repo_root).resolve()
+    workspace = Path(workspace_root)
+    if production_data_root is not None:
+        from polisyos.runtime.quality.data_state_substrate import (
+            _require_workspace_output_tree,
+        )
+
+        _require_workspace_output_tree(workspace, workspace / "gy-s-composed-wmr-cas")
     built = build_production_data_state_world_model_record(
         build_artifact_store(
             ArtifactStoreConfig(
                 backend="filesystem",
-                root=str(root / ".tmp/gy-s-composed-wmr-cas"),
+                root=str(workspace / "gy-s-composed-wmr-cas"),
             ),
         ),
         repo_root=root,
-        workspace_dir=root / ".tmp/gy-s-composed-wmr-world",
+        workspace_dir=(
+            workspace / "gy-s-composed-wmr-world" if production_data_root is None else workspace
+        ),
         agent_limit=_COMPOSED_WMR_AGENT_LIMIT,
         required_substrate_families=_COMPOSED_WMR_REQUIRED_SUBSTRATE_FAMILIES,
+        production_data_root=production_data_root,
     )
+    if production_data_root is not None:
+        from polisyos.runtime.quality.data_state_substrate import (
+            _require_workspace_output_tree,
+        )
+
+        _require_workspace_output_tree(workspace, workspace / "gy-s-composed-wmr-cas")
     return built.world_model.record
 
 
-def production_composed_world_model_record(repo_root: str | Path) -> WorldModelRecord:
-    """Return the cached production WMR composed by the existing owner."""
+def production_composed_world_model_record(
+    repo_root: str | Path,
+    *,
+    workspace_dir: Path | None = None,
+    production_data_root: Path | None = None,
+) -> WorldModelRecord:
+    """Return an owner-built WMR with code and optional data roots separated.
 
-    return _production_composed_world_model_record(Path(repo_root).resolve().as_posix())
+    The default one-root route preserves its established cache and workspace.
+    A split-root call requires a caller-owned workspace, reads production data
+    only beneath ``production_data_root``, and keeps all derived writes there.
+    """
+
+    root = Path(repo_root).resolve()
+    data_root: Path | None = None
+    if production_data_root is not None:
+        try:
+            data_root = Path(production_data_root).resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise InterventionSubstrateError("l6_source_owner_root_unavailable") from exc
+        if not data_root.is_dir():
+            raise InterventionSubstrateError("l6_source_owner_root_not_directory")
+        if workspace_dir is None:
+            raise InterventionSubstrateError("composed_wmr_workspace_required_for_split_source")
+    if workspace_dir is None:
+        return _production_composed_world_model_record(root.as_posix())
+    try:
+        workspace = Path(workspace_dir).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise InterventionSubstrateError("composed_wmr_workspace_unavailable") from exc
+    if not workspace.is_dir():
+        raise InterventionSubstrateError("composed_wmr_workspace_not_directory")
+    source_roots = (root,) if data_root is None else (root, data_root)
+    if any(
+        workspace == source_root
+        or source_root in workspace.parents
+        or workspace in source_root.parents
+        for source_root in source_roots
+    ):
+        raise InterventionSubstrateError("composed_wmr_workspace_overlaps_source_root")
+    return _build_production_composed_world_model_record(
+        root,
+        workspace_root=workspace,
+        production_data_root=data_root,
+    )
 
 
 def intervention_generation_registry_bundle(

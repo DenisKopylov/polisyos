@@ -483,9 +483,21 @@ async def test_missing_subdesign_denominator_refuses_before_n5() -> None:
 
 
 @pytest.mark.asyncio
-async def test_contract_testing_leaf_cannot_drop_verified_substrate_context() -> None:
+async def test_contract_testing_leaf_cannot_drop_verified_substrate_context(
+    tmp_path: Path,
+) -> None:
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
+
     second_domain_pack = import_module(
         "tools.quality.validation.check_layer3_gy_second_domain_pack"
+    )
+    source_workspace = tmp_path / "contract-context-wmr-workspace"
+    source_workspace.mkdir()
+    source_context = select_substrate_source_context(
+        REPO_ROOT,
+        workspace_root=source_workspace,
     )
     bundle = cast("Any", second_domain_pack)._load_frozen_bundle(REPO_ROOT)
     problem = DesignProblem.model_validate(bundle["smoke_problem"]["design_problem"])
@@ -493,6 +505,7 @@ async def test_contract_testing_leaf_cannot_drop_verified_substrate_context() ->
         REPO_ROOT,
         bundle=bundle,
         design_problem=problem,
+        source_context=source_context,
     )
     root = "design://context/root"
     graph = derive_recursive_design_graph(
@@ -1140,14 +1153,739 @@ def _universality_contract_validator() -> Any:
     return import_module("tools.quality.validation.check_layer3_gy_depth_n_universality_contract")
 
 
-def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
+@pytest.mark.parametrize(
+    "escaped_child",
+    [Path(".tmp"), Path(".tmp/gy-n10-stage4-proof")],
+)
+def test_selected_depth_capture_refuses_escaping_workspace_child_symlinks(
+    tmp_path: Path,
+    escaped_child: Path,
+) -> None:
+    """Cold capture and its journal emitter refuse internal workspace symlink escapes."""
+
+    from tools.quality.validation.substrate_source_context import (
+        CandidateSubstrateSourceError,
+        candidate_source_context_for_entrypoint,
+    )
+
+    owner_root = tmp_path / "selected-owner"
+    data_root = owner_root / "production_data"
+    data_root.mkdir(parents=True)
+    (data_root / "manifest.json").write_text('{"fixture":"workspace-sink"}\n', encoding="utf-8")
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(data_root, target_is_directory=True)
+    workspace_root = tmp_path / "caller-workspace"
+    workspace_root.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    link = workspace_root / escaped_child
+    link.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        link.symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+
+    context = candidate_source_context_for_entrypoint(
+        code_root,
+        source_owner_root=owner_root,
+        workspace_root=workspace_root,
+    )
+    assert context is not None
+    validator = _universality_contract_validator()
+    with pytest.raises(CandidateSubstrateSourceError, match="workspace_output_escape"):
+        validator._append_capture_journal(
+            workspace_root,
+            {"event": "must_not_escape"},
+            source_context=context,
+        )
+    with pytest.raises(CandidateSubstrateSourceError, match="workspace_output_escape"):
+        validator.capture_and_write_payload(
+            code_root,
+            source_context=context,
+            output_path=workspace_root / "candidate.json",
+        )
+
+    assert list(outside.iterdir()) == []
+    assert not (workspace_root / "candidate.json").exists()
+
+
+@pytest.mark.parametrize(
+    "escaped_child",
+    [Path(".tmp"), Path(".tmp/gy-n10-stage1-n4")],
+)
+def test_selected_n10a_capture_refuses_escaping_workspace_child_symlinks(
+    tmp_path: Path,
+    escaped_child: Path,
+) -> None:
+    """N10a live and caller-supplied journal routes refuse scratch symlink escapes."""
+
+    from tools.quality.validation.substrate_source_context import (
+        CandidateSubstrateSourceError,
+        candidate_source_context_for_entrypoint,
+    )
+
+    owner_root = tmp_path / "selected-owner"
+    data_root = owner_root / "production_data"
+    data_root.mkdir(parents=True)
+    (data_root / "manifest.json").write_text(
+        '{"fixture":"n10a-workspace-sink"}\n', encoding="utf-8"
+    )
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(data_root, target_is_directory=True)
+    workspace_root = tmp_path / "caller-workspace"
+    workspace_root.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    link = workspace_root / escaped_child
+    link.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        link.symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+
+    context = candidate_source_context_for_entrypoint(
+        code_root,
+        source_owner_root=owner_root,
+        workspace_root=workspace_root,
+    )
+    assert context is not None
+    validator = import_module("tools.quality.validation.check_layer3_gy_second_domain_pack")
+    if escaped_child == Path(".tmp"):
+        with pytest.raises(
+            ValueError,
+            match="education_n4_capture_journal_outside_selected_workspace",
+        ):
+            validator.write(
+                code_root,
+                n4_capture_journal=workspace_root / ".tmp" / "accepted.jsonl",
+                persist=False,
+                candidate_dir=workspace_root / "candidate",
+                source_context=context,
+            )
+    else:
+        with pytest.raises(CandidateSubstrateSourceError, match="workspace_output_escape"):
+            validator.write(
+                code_root,
+                allow_live_n4_capture=True,
+                persist=False,
+                candidate_dir=workspace_root / "candidate",
+                source_context=context,
+            )
+
+    assert list(outside.iterdir()) == []
+    assert not (workspace_root / "candidate").exists()
+
+
+def test_candidate_substrate_source_context_rechecks_owner_and_manifest(tmp_path: Path) -> None:
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
+    from tools.quality.validation.substrate_source_context import (
+        CandidateSubstrateSourceContext,
+        CandidateSubstrateSourceError,
+    )
+
+    owner_root = tmp_path / "owner"
+    production_root = owner_root / "production_data"
+    production_root.mkdir(parents=True)
+    manifest = production_root / "manifest.json"
+    original_manifest = b'{"fixture":"owner-a"}\n'
+
+    code_root = tmp_path / "code"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(production_root, target_is_directory=True)
+    workspace_root = tmp_path / "workspace"
+    workspace_root.mkdir()
+    for invalid_manifest in (b"{", b"[]", b'{"fixture":"a","fixture":"b"}'):
+        manifest.write_bytes(invalid_manifest)
+        with pytest.raises(CandidateSubstrateSourceError, match="manifest_invalid"):
+            select_substrate_source_context(code_root, workspace_root=workspace_root)
+
+    manifest.write_bytes(original_manifest)
+    context = select_substrate_source_context(code_root, workspace_root=workspace_root)
+    assert context.require_source_owner_root(code_root) == owner_root.resolve()
+    assert context.source_use == "candidate_test_input_only"
+
+    alternate_owner = tmp_path / "alternate-owner"
+    alternate_data = alternate_owner / "production_data"
+    alternate_data.mkdir(parents=True)
+    (alternate_data / "manifest.json").write_bytes(original_manifest)
+    with pytest.raises(CandidateSubstrateSourceError, match="owner_root_mismatch"):
+        CandidateSubstrateSourceContext.from_code_root(
+            code_root,
+            workspace_root=workspace_root,
+            source_owner_root=alternate_owner,
+        )
+
+    wrong_code_root = tmp_path / "other-code"
+    wrong_code_root.mkdir()
+    (wrong_code_root / "production_data").symlink_to(production_root, target_is_directory=True)
+    with pytest.raises(CandidateSubstrateSourceError, match="code_root_mismatch"):
+        context.require_source_owner_root(wrong_code_root)
+
+    link = code_root / "production_data"
+    link.unlink()
+    link.symlink_to(alternate_data, target_is_directory=True)
+    with pytest.raises(CandidateSubstrateSourceError, match="data_link_drift"):
+        context.require_source_owner_root(code_root)
+
+    link.unlink()
+    link.symlink_to(production_root, target_is_directory=True)
+    manifest.write_bytes(b"{")
+    with pytest.raises(CandidateSubstrateSourceError, match="manifest_invalid"):
+        context.require_source_owner_root(code_root)
+
+    manifest.write_bytes(b'{"fixture":"owner-a","changed":true}\n')
+    with pytest.raises(CandidateSubstrateSourceError, match="manifest_drift"):
+        context.require_source_owner_root(code_root)
+
+    missing_owner = tmp_path / "missing-owner"
+    missing_data = missing_owner / "production_data"
+    missing_data.mkdir(parents=True)
+    missing_code = tmp_path / "missing-code"
+    missing_code.mkdir()
+    (missing_code / "production_data").symlink_to(missing_data, target_is_directory=True)
+    with pytest.raises(CandidateSubstrateSourceError, match="manifest_unavailable"):
+        CandidateSubstrateSourceContext.from_code_root(
+            missing_code,
+            workspace_root=workspace_root,
+        )
+
+
+def test_native_depth_entrypoint_binds_context_and_candidate_output_workspace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The real CLI and writer bridge one typed profile without writing to either source root."""
+
+    from tools.quality.validation.substrate_source_context import (
+        candidate_source_context_for_entrypoint,
+    )
+
+    owner_root = tmp_path / "selected-owner"
+    data_root = owner_root / "production_data"
+    data_root.mkdir(parents=True)
+    (data_root / "manifest.json").write_text('{"fixture":"selected"}\n', encoding="utf-8")
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(data_root, target_is_directory=True)
+    workspace_root = tmp_path / "caller-workspace"
+    workspace_root.mkdir()
+    context = candidate_source_context_for_entrypoint(
+        code_root, source_owner_root=owner_root, workspace_root=workspace_root
+    )
+    assert context is not None
+
+    validator = _universality_contract_validator()
+    observed: dict[str, Any] = {}
+
+    def check(
+        repo_root: Path,
+        *,
+        source_context: Any,
+        artifact_path: Path | None = None,
+    ) -> dict[str, Any]:
+        observed["check"] = (repo_root, source_context, artifact_path)
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(validator, "_check_canonical", check)
+    exit_code = validator.main(
+        [
+            "--check",
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output-format",
+            "json",
+        ]
+    )
+    assert exit_code == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "pass"
+    assert observed["check"][0] == code_root.resolve()
+    assert observed["check"][1] == context
+
+    routed: dict[str, tuple[Path, Any, Path | None]] = {}
+
+    def route(
+        repo_root: Path, *, source_context: Any, artifact_path: Path | None
+    ) -> dict[str, Any]:
+        routed["route"] = (repo_root, source_context, artifact_path)
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(validator, "_rederive_audit", route)
+    rederive_exit = validator.main(
+        [
+            "--rederive-audit",
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output",
+            "rederived.json",
+            "--output-format",
+            "json",
+        ]
+    )
+    assert rederive_exit == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "pass"
+    assert routed["route"] == (code_root.resolve(), context, workspace_root / "rederived.json")
+
+    monkeypatch.setattr(validator, "corrupt_field_drift_check", route)
+    drift_exit = validator.main(
+        [
+            "--corrupt-field-drift-check",
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output",
+            "candidate.json",
+            "--output-format",
+            "json",
+        ]
+    )
+    assert drift_exit == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "pass"
+    assert routed["route"] == (code_root.resolve(), context, workspace_root / "candidate.json")
+
+    partial_exit = validator.main(
+        [
+            "--check",
+            "--repo-root",
+            str(code_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output-format",
+            "json",
+        ]
+    )
+    partial_report = json.loads(capsys.readouterr().out)
+    assert partial_exit == 1
+    assert partial_report["status"] == "fail"
+    assert partial_report["issues"][0]["code"] == "selected_substrate_roots_require_pair"
+
+    def build(
+        repo_root: Path,
+        *,
+        lane: str,
+        source_context: Any,
+        source_artifact_path: Path | None = None,
+    ) -> tuple[dict[str, Any], object]:
+        observed["build"] = (repo_root, lane, source_context, source_artifact_path)
+        return {"contract_content_hash": "sha256:" + "a" * 64}, object()
+
+    def validate(payload: Any, *, source_context: Any) -> dict[str, Any]:
+        observed["validate"] = source_context
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(validator, "_build_live_payload_with_plan", build)
+    monkeypatch.setattr(validator, "validate_payload", validate)
+    candidate_path = workspace_root / "candidate.json"
+    validator.write_payload(code_root, candidate_path, source_context=context)
+    assert candidate_path.is_file()
+    assert observed["build"][:3] == (code_root.resolve(), "cached", context)
+    assert observed["build"][3] is None
+    assert observed["validate"] == context
+    assert not (code_root / validator.OUTPUT_PATH).exists()
+
+    monkeypatch.setattr(
+        validator,
+        "check_provenance_stability",
+        lambda _root, *, source_context: {"status": "stable", "issues": []},
+    )
+    cli_candidate_path = workspace_root / "cli-candidate.json"
+    cli_write_exit = validator.main(
+        [
+            "--write",
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output",
+            str(cli_candidate_path),
+            "--output-format",
+            "json",
+        ]
+    )
+    cli_write_report = json.loads(capsys.readouterr().out)
+    assert cli_write_exit == 0
+    assert cli_write_report["status"] == "pass"
+    assert cli_candidate_path.is_file()
+    assert observed["build"][:3] == (code_root.resolve(), "cached", context)
+    assert not (code_root / validator.OUTPUT_PATH).exists()
+
+    outside_candidate = code_root / "outside-candidate.json"
+    outside_exit = validator.main(
+        [
+            "--write",
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output",
+            str(outside_candidate),
+            "--output-format",
+            "json",
+        ]
+    )
+    outside_report = json.loads(capsys.readouterr().out)
+    assert outside_exit == 1
+    assert outside_report["issues"][0]["code"] == "candidate_output_outside_selected_workspace"
+    assert not outside_candidate.exists()
+
+    with pytest.raises(
+        validator.UniversalityContractError, match="candidate_output_outside_selected_workspace"
+    ):
+        validator.write_payload(code_root, code_root / "candidate.json", source_context=context)
+    with pytest.raises(
+        validator.UniversalityContractError, match="candidate_output_target_required"
+    ):
+        validator.capture_and_write_payload(code_root, source_context=context)
+
+
+def test_native_n10a_candidate_cli_threads_context_to_live_writer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The N10a public candidate-capture route preserves source and workspace roles."""
+
+    from tools.quality.validation.substrate_source_context import (
+        candidate_source_context_for_entrypoint,
+    )
+
+    owner_root = tmp_path / "selected-owner"
+    data_root = owner_root / "production_data"
+    data_root.mkdir(parents=True)
+    (data_root / "manifest.json").write_text('{"fixture":"n10a"}\n', encoding="utf-8")
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(data_root, target_is_directory=True)
+    workspace_root = tmp_path / "caller-workspace"
+    workspace_root.mkdir()
+    expected_context = candidate_source_context_for_entrypoint(
+        code_root, source_owner_root=owner_root, workspace_root=workspace_root
+    )
+    assert expected_context is not None
+
+    validator = import_module("tools.quality.validation.check_layer3_gy_second_domain_pack")
+    observed: dict[str, Any] = {}
+    actual_write = validator.write
+
+    def write(repo_root: Path, **kwargs: Any) -> dict[str, Any]:
+        observed["write"] = (repo_root, kwargs)
+        return {"status": "pass", "issues": [], "outputs": []}
+
+    monkeypatch.setattr(validator, "write", write)
+    monkeypatch.setattr(
+        validator,
+        "read_foundry_dependency_discriminant",
+        lambda **kwargs: object(),
+    )
+    monkeypatch.setattr(
+        validator,
+        "dependency_environment_diagnostic_projection",
+        lambda _result: {"decision_role": "ambient_non_decisive", "status": "not_established"},
+    )
+    candidate_dir = workspace_root / "n10a-candidate"
+    exit_code = validator.main(
+        [
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--expected-source-freeze",
+            "0" * 64,
+            "--candidate-dir",
+            str(candidate_dir),
+            "--capture-stage1-n4",
+            "--output-format",
+            "json",
+        ]
+    )
+    assert exit_code == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "pass"
+    assert observed["write"][0] == code_root.resolve()
+    assert observed["write"][1]["source_context"] == expected_context
+    assert observed["write"][1]["candidate_dir"] == candidate_dir
+    assert observed["write"][1]["persist"] is False
+    assert observed["write"][1]["allow_live_n4_capture"] is True
+    successful_write = observed["write"]
+
+    route_calls: list[tuple[str, Path, Any]] = []
+
+    def route(name: str) -> Any:
+        def invoke(
+            repo_root: Path,
+            *,
+            expected_source_freeze: str | None = None,
+            source_context: Any,
+        ) -> dict[str, Any]:
+            route_calls.append((name, repo_root, source_context))
+            return {"status": "pass", "issues": [], "outputs": []}
+
+        return invoke
+
+    for flag, method_name, expected_exit in (
+        ("--check", "validate", 0),
+        ("--rederive-audit", "rederive_audit", 0),
+        ("--corrupt-field-drift-check", "corrupt_field_drift_check", 2),
+    ):
+        monkeypatch.setattr(validator, method_name, route(method_name))
+        route_exit = validator.main(
+            [
+                flag,
+                "--repo-root",
+                str(code_root),
+                "--source-owner-root",
+                str(owner_root),
+                "--workspace-root",
+                str(workspace_root),
+                "--expected-source-freeze",
+                "0" * 64,
+                "--output-format",
+                "json",
+            ]
+        )
+        assert route_exit == expected_exit
+        assert json.loads(capsys.readouterr().out)["status"] == "pass"
+        assert route_calls[-1] == (method_name, code_root.resolve(), expected_context)
+
+    partial_exit = validator.main(
+        [
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--expected-source-freeze",
+            "0" * 64,
+            "--candidate-dir",
+            str(candidate_dir),
+            "--output-format",
+            "json",
+        ]
+    )
+    partial_report = json.loads(capsys.readouterr().out)
+    assert partial_exit == 1
+    assert partial_report["status"] == "fail"
+    assert partial_report["issues"][0]["code"] == "second_domain_pack_execution_failed"
+    assert observed["write"] is successful_write
+
+    with pytest.raises(ValueError, match="candidate_source_context_requires_candidate_output"):
+        actual_write(code_root, source_context=expected_context)
+
+
+def test_native_depth_cold_capture_cli_uses_selected_roots_and_candidate_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The cold CLI forwards one source profile and writes only its candidate output."""
+
+    from tools.quality.validation.substrate_source_context import (
+        candidate_source_context_for_entrypoint,
+    )
+
+    owner_root = tmp_path / "selected-owner"
+    data_root = owner_root / "production_data"
+    data_root.mkdir(parents=True)
+    manifest = data_root / "manifest.json"
+    manifest.write_text('{"fixture":"depth-cold"}\n', encoding="utf-8")
+    manifest_bytes = manifest.read_bytes()
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(data_root, target_is_directory=True)
+    workspace_root = tmp_path / "caller-workspace"
+    workspace_root.mkdir()
+    output_path = workspace_root / "complete-candidate.json"
+    context = candidate_source_context_for_entrypoint(
+        code_root, source_owner_root=owner_root, workspace_root=workspace_root
+    )
+    assert context is not None
+
+    validator = _universality_contract_validator()
+    observed: dict[str, Any] = {}
+    monkeypatch.setattr(
+        validator,
+        "check_provenance_stability",
+        lambda root, *, source_context: {
+            "status": "stable"
+            if source_context == context and root == code_root.resolve()
+            else "fail",
+            "issues": [],
+        },
+    )
+
+    async def capture(root: Path, *, source_context: Any) -> dict[str, Any]:
+        observed["capture"] = (root, source_context)
+        return {"recordings": "controlled fixture only"}
+
+    async def complete(
+        root: Path,
+        *,
+        recordings: Any,
+        historical_domain_runs: Any = None,
+        source_context: Any,
+    ) -> tuple[dict[str, Any], object]:
+        observed["complete"] = (root, recordings, historical_domain_runs, source_context)
+        runs = {
+            role: {"terminal_distribution": {"fixture": role}}
+            for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+        }
+        return {"contract_content_hash": "sha256:" + "b" * 64, "domain_runs": runs}, object()
+
+    monkeypatch.setattr(validator, "_capture_proof_recordings", capture)
+    monkeypatch.setattr(validator, "_complete_payload_from_recordings", complete)
+
+    def validate(payload: Any, *, source_context: Any) -> dict[str, Any]:
+        observed["validate"] = (payload, source_context)
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(validator, "validate_payload", validate)
+
+    exit_code = validator.main(
+        [
+            "--capture-proof-runs",
+            "--repo-root",
+            str(code_root),
+            "--source-owner-root",
+            str(owner_root),
+            "--workspace-root",
+            str(workspace_root),
+            "--output",
+            str(output_path),
+            "--output-format",
+            "json",
+        ]
+    )
+    report = json.loads(capsys.readouterr().out)
+    assert exit_code == 0
+    assert report["status"] == "pass"
+    assert observed["capture"] == (code_root.resolve(), context)
+    assert observed["complete"] == (
+        code_root.resolve(),
+        {"recordings": "controlled fixture only"},
+        None,
+        context,
+    )
+    assert observed["validate"][1] == context
+    assert output_path.is_file()
+    assert json.loads(output_path.read_text(encoding="utf-8"))["contract_content_hash"] == (
+        "sha256:" + "b" * 64
+    )
+    assert (workspace_root / ".tmp" / "gy-n10-stage4-proof" / "capture.jsonl").is_file()
+    assert manifest.read_bytes() == manifest_bytes
+    assert not (code_root / validator.OUTPUT_PATH).exists()
+
+
+def test_n10a_candidate_writer_persists_only_into_selected_workspace(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The N10a writer serializes a selected-profile candidate beneath its caller workspace."""
+
+    from tools.quality.validation.substrate_source_context import (
+        candidate_source_context_for_entrypoint,
+    )
+
+    owner_root = tmp_path / "selected-owner"
+    data_root = owner_root / "production_data"
+    data_root.mkdir(parents=True)
+    manifest = data_root / "manifest.json"
+    manifest.write_text('{"fixture":"n10a-writer"}\n', encoding="utf-8")
+    manifest_bytes = manifest.read_bytes()
+    code_root = tmp_path / "code-root"
+    code_root.mkdir()
+    (code_root / "production_data").symlink_to(data_root, target_is_directory=True)
+    workspace_root = tmp_path / "caller-workspace"
+    workspace_root.mkdir()
+    context = candidate_source_context_for_entrypoint(
+        code_root, source_owner_root=owner_root, workspace_root=workspace_root
+    )
+    assert context is not None
+
+    validator = import_module("tools.quality.validation.check_layer3_gy_second_domain_pack")
+    bundle = {
+        "census": {"fixture": "census"},
+        "pack": {"fixture": "pack"},
+        "smoke_problem": {"fixture": "problem"},
+        "cycle_trace": {"fixture": "cycle"},
+        "gaps": {"fixture": "gaps"},
+    }
+    observed: dict[str, Any] = {}
+
+    def build_live_bundle(repo_root: Path, **kwargs: Any) -> dict[str, Any]:
+        observed["build"] = (repo_root, kwargs)
+        return bundle
+
+    monkeypatch.setattr(validator, "subprocess", import_module("subprocess"))
+    monkeypatch.setattr(
+        validator.subprocess, "check_output", lambda *args, **kwargs: str(code_root)
+    )
+    monkeypatch.setattr(validator, "_require_n10a_source_scope_clean", lambda _root: None)
+    monkeypatch.setattr(validator, "build_live_bundle", build_live_bundle)
+    monkeypatch.setattr(validator, "_cycle_trace_plan_from_manifest", lambda _trace: object())
+    monkeypatch.setattr(validator, "_reconcile_frozen_cycle_trace", lambda trace, *_args: trace)
+    monkeypatch.setattr(validator, "_preserve_frozen_operational_metrics", lambda *_args: None)
+    monkeypatch.setattr(validator, "validate_bundle_payloads", lambda *_args, **_kwargs: [])
+    monkeypatch.setattr(validator, "_prepare_artifact_write_transitions", lambda *_args: [])
+    monkeypatch.setattr(
+        validator,
+        "_artifact_write_transition_manifest",
+        lambda *_args: {"schema_version": "test.transition.v1", "rows": []},
+    )
+
+    candidate_dir = workspace_root / "n10a-candidate"
+    report = validator.write(
+        code_root,
+        expected_source_freeze="0" * 64,
+        persist=False,
+        candidate_dir=candidate_dir,
+        source_context=context,
+    )
+    assert report["status"] == "pass"
+    assert report["candidate_write_performed"] is True
+    assert observed["build"][0] == code_root.resolve()
+    assert observed["build"][1]["source_context"] == context
+    expected_files = {candidate_dir / name for name in validator.ARTIFACT_OUTPUTS}
+    assert {path for path in candidate_dir.rglob("*") if path.is_file()} == expected_files
+    assert not any((code_root / name).exists() for name in validator.ARTIFACT_OUTPUTS)
+    assert manifest.read_bytes() == manifest_bytes
+
+
+def test_cycle_context_intake_is_world_and_owner_evidence_driven(tmp_path: Path) -> None:
     """Task 13 must not select fiscal/education evidence by role or label."""
+
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
 
     validator = _universality_contract_validator()
     n4_contract = import_module(
         "tools.quality.validation.check_layer3_gy_design_generation_contract"
     )
     n10a = import_module("tools.quality.validation.check_layer3_gy_second_domain_pack")
+    source_workspace = tmp_path / "cycle-context-wmr-workspace"
+    source_workspace.mkdir()
+    source_context = select_substrate_source_context(
+        REPO_ROOT,
+        workspace_root=source_workspace,
+    )
     fiscal = n4_contract._design_problem(
         {
             "design_problem_id": "world_context_fiscal",
@@ -1157,6 +1895,7 @@ def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
     fiscal_context = validator._cycle_context_for_problem(
         REPO_ROOT,
         problem=fiscal,
+        source_context=source_context,
     )
 
     frozen = n10a._load_frozen_bundle(REPO_ROOT)
@@ -1166,6 +1905,7 @@ def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
     education_context = validator._cycle_context_for_problem(
         REPO_ROOT,
         problem=education,
+        source_context=source_context,
     )
     unseen = education.model_copy(
         update={
@@ -1184,6 +1924,7 @@ def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
     unseen_context = validator._cycle_context_for_problem(
         REPO_ROOT,
         problem=unseen,
+        source_context=source_context,
     )
 
     assert fiscal_context is not None
@@ -1217,11 +1958,24 @@ def _run_universality_validator_with_pythonpath(
     )
 
 
-def test_stage4_provenance_stability_binds_current_owner_graph() -> None:
+def test_stage4_provenance_stability_binds_current_owner_graph(tmp_path: Path) -> None:
     """Bind N4, Fork-B, N8, N10a, prompt, and composition owner evidence."""
 
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
+
     validator = _universality_contract_validator()
-    report = validator.check_provenance_stability(REPO_ROOT)
+    source_workspace = tmp_path / "provenance-wmr-workspace"
+    source_workspace.mkdir()
+    source_context = select_substrate_source_context(
+        REPO_ROOT,
+        workspace_root=source_workspace,
+    )
+    report = validator.check_provenance_stability(
+        REPO_ROOT,
+        source_context=source_context,
+    )
 
     assert report["status"] == "stable"
     assert report["issues"] == []
@@ -4701,12 +5455,27 @@ def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
     assert any(issue["code"] == "cycle_driven_by_pinned_fixture" for issue in report["issues"])
 
 
-def test_unseen_vertical_contamination_is_rejected_after_hash_recompute() -> None:
+def test_unseen_vertical_contamination_is_rejected_after_hash_recompute(
+    tmp_path: Path,
+) -> None:
     """A recomputed capstone cannot borrow pack, WMR, or lever vocabulary."""
 
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
+
     validator = _universality_contract_validator()
+    source_workspace = tmp_path / "vocabulary-wmr-workspace"
+    source_workspace.mkdir()
+    source_context = select_substrate_source_context(
+        REPO_ROOT,
+        workspace_root=source_workspace,
+    )
     baseline = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
-    owner_vocabulary = validator._known_vertical_vocabulary(baseline)
+    owner_vocabulary = validator._known_vertical_vocabulary(
+        baseline,
+        source_context=source_context,
+    )
     assert "tax_relief_rate" in owner_vocabulary
     assert "school_quality" in owner_vocabulary
     assert "household_cells.disposable_income" in owner_vocabulary
@@ -4723,7 +5492,7 @@ def test_unseen_vertical_contamination_is_rejected_after_hash_recompute() -> Non
         unseen["content_hash"] = validator._semantic_hash(stable_run)
         payload["contract_content_hash"] = validator._contract_content_hash(payload)
 
-        report = validator.validate_payload(payload)
+        report = validator.validate_payload(payload, source_context=source_context)
 
         assert "unseen_domain_vertical_contamination" in {
             issue["code"] for issue in report["issues"]
@@ -4860,14 +5629,28 @@ def test_n10_ledger_lands_only_after_s2_and_gyg_strangles() -> None:
     )
 
 
-def test_universality_contract_content_hash_rejects_corruption() -> None:
+def test_universality_contract_content_hash_rejects_corruption(tmp_path: Path) -> None:
     """Reject a semantic mutation whose content hash was not recomputed."""
 
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
+
     validator = _universality_contract_validator()
-    payload = validator.build_live_payload(REPO_ROOT, lane="lane0")
+    source_workspace = tmp_path / "content-hash-wmr-workspace"
+    source_workspace.mkdir()
+    source_context = select_substrate_source_context(
+        REPO_ROOT,
+        workspace_root=source_workspace,
+    )
+    payload = validator.build_live_payload(
+        REPO_ROOT,
+        lane="lane0",
+        source_context=source_context,
+    )
     payload["proof_status"] = "complete"
 
-    report = validator.validate_payload(payload)
+    report = validator.validate_payload(payload, source_context=source_context)
 
     assert any(issue["code"] == "contract_content_hash_mismatch" for issue in report["issues"])
 

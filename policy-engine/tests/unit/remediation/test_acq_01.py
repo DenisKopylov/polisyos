@@ -822,6 +822,9 @@ def _real_acq01_route(
         BranchMode,
         build_world_model_record,
     )
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
     from tests._helpers.world_model_record import (
         _fabric_ref,
         _model_spec,
@@ -906,8 +909,20 @@ def _real_acq01_route(
 
         baseline_registry = _substrate_registry()
         baseline_registry_ref = persist_substrate_registry(store, baseline_registry)
+        source_workspace = tmp_path / "selected-substrate-source-workspace"
+        source_workspace.mkdir()
+        source_context = select_substrate_source_context(
+            REPO_ROOT,
+            workspace_root=source_workspace,
+        )
+        source_owner_root = source_context.require_source_owner_root(REPO_ROOT)
         l5_authority = load_l5_catalog_authority(
-            default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT
+            default_substrate_catalog_paths(source_owner_root),
+            repo_root=source_owner_root,
+        )
+        assert source_context.source_use == "candidate_test_input_only"
+        assert source_context.manifest_ref == (
+            "repo://production_data/manifest.json#production_data_root_manifest"
         )
         registration = SubstrateRegistration(
             source_id="acquisition:acq-01-file-tabular",

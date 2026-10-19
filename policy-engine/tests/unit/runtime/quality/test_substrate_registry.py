@@ -625,6 +625,172 @@ def test_l5_refs_resolve_under_nondefault_selected_repo_root(
         )
 
 
+def test_split_catalog_roots_keep_code_epoch_and_selected_data_inputs_separate(
+    tmp_path: Path,
+) -> None:
+    """Selected production metadata cannot re-root code-owned epoch registries."""
+
+    code_root = tmp_path / "code-owner"
+    data_root = tmp_path / "physical-data-owner"
+    _write_substrate_catalog_fixture(code_root)
+    _write_substrate_catalog_fixture(data_root)
+    code_paths = default_substrate_catalog_paths(code_root)
+    data_paths = default_substrate_catalog_paths(data_root)
+
+    code_epoch = json.loads(
+        code_paths.epoch_schema_regime_registry_path.read_text(encoding="utf-8")
+    )
+    code_epoch["regimes"]["code_root_only"] = {
+        "schema_regime_id": "code_root_only",
+        "source_version": "code-owned-fixture-v1",
+        "effective_start": "2025-01-01",
+        "effective_end": None,
+        "boundary_buffer_periods": 0,
+    }
+    _write_catalog_fixture_json(code_paths.epoch_schema_regime_registry_path, code_epoch)
+    data_epoch = json.loads(
+        data_paths.epoch_schema_regime_registry_path.read_text(encoding="utf-8")
+    )
+    data_epoch["regimes"]["data_root_decoy"] = {
+        "schema_regime_id": "data_root_decoy",
+        "source_version": "data-root-decoy-v1",
+        "effective_start": "2025-01-01",
+        "effective_end": None,
+        "boundary_buffer_periods": 0,
+    }
+    _write_catalog_fixture_json(data_paths.epoch_schema_regime_registry_path, data_epoch)
+
+    data_measurement = json.loads(data_paths.measurement_registry_path.read_text(encoding="utf-8"))
+    data_measurement["trust_tiers"]["weak_anchor"]["trust_multiplier"] = 0.61
+    _write_catalog_fixture_json(data_paths.measurement_registry_path, data_measurement)
+    data_manifest = json.loads(data_paths.root_manifest_path.read_text(encoding="utf-8"))
+    data_manifest["bundles"]["ukraine_simulation"]["version_id"] = "selected-data-v2"
+    _write_catalog_fixture_json(data_paths.root_manifest_path, data_manifest)
+
+    l6_relative = Path(
+        "production_data/fixture_ukraine_simulation/production_bundle/bundles/"
+        "intervention_bundle_v1/intervention_knob_dictionary.json"
+    )
+    selected_l6_payload = {
+        "routes": [{"route_id": "selected-data-route-1"}, {"route_id": "selected-data-route-2"}],
+        "artifacts": [],
+    }
+    decoy_l6_payload = {"routes": [{"route_id": "code-root-decoy"}], "artifacts": []}
+    _write_catalog_fixture_json(data_root / l6_relative, selected_l6_payload)
+    _write_catalog_fixture_json(code_root / l6_relative, decoy_l6_payload)
+
+    def tree_digest(root: Path) -> dict[str, str]:
+        return {
+            path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(root.rglob("*"))
+            if path.is_file()
+        }
+
+    data_before = tree_digest(data_root)
+    paths = default_substrate_catalog_paths(code_root, source_owner_root=data_root)
+    authority = load_l5_catalog_authority(
+        paths,
+        repo_root=code_root,
+        source_owner_root=data_root,
+    )
+    registry = build_substrate_registry_from_existing_catalogs(
+        code_root,
+        source_owner_root=data_root,
+    )
+
+    assert authority.trust_tiers["weak_anchor"].trust_multiplier == 0.61
+    assert "code_root_only" in authority.schema_regimes
+    assert "data_root_decoy" not in authority.schema_regimes
+    expected_epoch_digest = (
+        "sha256:"
+        + hashlib.sha256(code_paths.epoch_schema_regime_registry_path.read_bytes()).hexdigest()
+    )
+    assert str(authority.epoch_schema_regime_registry_ref.artifact_id) == expected_epoch_digest
+    selected_l6 = registry.resolve(
+        family_id="l6_intervention_knob_dictionary",
+        layer=SubstrateLayer.L6,
+    )[0]
+    assert selected_l6.data_version == "selected-data-v2"
+    assert selected_l6.coverage.observation_count == 2
+    assert tree_digest(data_root) == data_before
+
+    changed_l6_payload = {
+        **selected_l6_payload,
+        "routes": [
+            *selected_l6_payload["routes"],
+            {"route_id": "selected-data-route-3"},
+        ],
+    }
+    _write_catalog_fixture_json(data_root / l6_relative, changed_l6_payload)
+    refreshed = build_substrate_registry_from_existing_catalogs(
+        code_root,
+        source_owner_root=data_root,
+    )
+    assert refreshed.content_hash != registry.content_hash
+
+
+def test_split_l5_loader_rejects_missing_malformed_and_escaped_selected_sources(
+    tmp_path: Path,
+) -> None:
+    """A selected root path is resolved and parsed, never accepted by declaration alone."""
+
+    code_root = tmp_path / "code-owner"
+    data_root = tmp_path / "physical-data-owner"
+    _write_substrate_catalog_fixture(code_root)
+    _write_substrate_catalog_fixture(data_root)
+    paths = default_substrate_catalog_paths(code_root, source_owner_root=data_root)
+
+    missing_manifest_paths = replace(
+        paths,
+        root_manifest_path=data_root / "production_data" / "missing-manifest.json",
+    )
+    with pytest.raises(SubstrateRegistryError, match="substrate_source_path_unavailable"):
+        load_l5_catalog_authority(
+            missing_manifest_paths,
+            repo_root=code_root,
+            source_owner_root=data_root,
+        )
+
+    malformed_manifest = data_root / "production_data/manifest.json"
+    manifest_bytes = malformed_manifest.read_bytes()
+    for malformed_bytes in (
+        b"{\n",
+        b"[]\n",
+        b'{"owner": 1, "owner": 2}\n',
+        b'{"owner": NaN}\n',
+    ):
+        malformed_manifest.write_bytes(malformed_bytes)
+        with pytest.raises(SubstrateRegistryError, match="substrate_catalog_invalid"):
+            load_l5_catalog_authority(
+                paths,
+                repo_root=code_root,
+                source_owner_root=data_root,
+            )
+    malformed_manifest.write_bytes(manifest_bytes)
+
+    outside = tmp_path / "outside-measurement.json"
+    outside.write_text("{}\n", encoding="utf-8")
+    link = data_root / "production_data/measurement-link.json"
+    try:
+        link.symlink_to(outside)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+    escaped_paths = replace(paths, measurement_registry_path=link)
+    with pytest.raises(SubstrateRegistryError, match="substrate_source_path_outside_repo_root"):
+        load_l5_catalog_authority(
+            escaped_paths,
+            repo_root=code_root,
+            source_owner_root=data_root,
+        )
+
+    with pytest.raises(SubstrateRegistryError, match="substrate_source_path_outside_repo_root"):
+        load_l5_catalog_authority(
+            paths,
+            repo_root=data_root,
+            source_owner_root=data_root,
+        )
+
+
 def test_repo_ref_resolves_selected_root_and_rejects_symlink_escape(
     tmp_path: Path,
 ) -> None:

@@ -65,6 +65,7 @@ from polisyos.foundry.methods.catalog.dependency_profile import (
 
 if TYPE_CHECKING:
     from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, DomainDigest
+    from tools.quality.validation.substrate_source_context import CandidateSubstrateSourceContext
 
 from polisyos.pdc import (
     GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
@@ -567,7 +568,7 @@ class _RecordedN4OwnerPort:
         return organ_run.result
 
 
-_CYCLE_TRACE_CACHE: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+_CYCLE_TRACE_CACHE: dict[tuple[str, str, str, str, str], dict[str, Any]] = {}
 
 
 @lru_cache(maxsize=4)
@@ -589,6 +590,7 @@ def build_live_bundle(
     expected_source_freeze: str | None = None,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Re-derive the pack under one declared retrieval environment."""
 
@@ -598,6 +600,7 @@ def build_live_bundle(
             expected_source_freeze=expected_source_freeze,
             allow_live_n4_capture=allow_live_n4_capture,
             n4_capture_journal=n4_capture_journal,
+            source_context=source_context,
         )
 
 
@@ -607,15 +610,25 @@ def _build_live_bundle(
     expected_source_freeze: str | None = None,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Re-derive the complete pack from DCAT, SKG, S0/L6, and N6 owners."""
 
     started = time.monotonic()
     root = repo_root.resolve()
-    paths = _owner_paths(root)
+    owner_root = (
+        source_context.require_source_owner_root(root) if source_context is not None else root
+    )
+    paths = _owner_paths(root, source_context=source_context)
     query_timings: dict[str, float] = {}
-    census = _build_census(root, paths, query_timings)
-    source_facts = _build_selected_domain_facts(root, paths, census, query_timings)
+    census = _build_census(root, paths, query_timings, source_context=source_context)
+    source_facts = _build_selected_domain_facts(
+        root,
+        paths,
+        census,
+        query_timings,
+        source_context=source_context,
+    )
     source_facts["n7_attempt"] = _load_historical_n7_attempt(
         root,
         source_facts,
@@ -628,6 +641,7 @@ def _build_live_bundle(
         census=census,
         substrate_input=substrate_input,
         design_problem=problem,
+        source_context=source_context,
     )
     cycle_trace = _build_cycle_trace(
         root,
@@ -636,6 +650,7 @@ def _build_live_bundle(
         expected_source_freeze=expected_source_freeze,
         allow_live_n4_capture=allow_live_n4_capture,
         n4_capture_journal=n4_capture_journal,
+        source_context=source_context,
     )
     gaps = _build_gap_report(
         root,
@@ -662,8 +677,8 @@ def _build_live_bundle(
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
             "query_timings_seconds": query_timings,
             "owner_data_paths": {
-                "l1_dcat": _repo_relative(paths["l1_dcat"], root),
-                "l2_skg": _repo_relative(paths["l2_skg"], root),
+                "l1_dcat": _repo_relative(paths["l1_dcat"], owner_root),
+                "l2_skg": _repo_relative(paths["l2_skg"], owner_root),
             },
         },
     }
@@ -674,10 +689,13 @@ def validate_bundle_payloads(
     repo_root: Path,
     *,
     expected_source_freeze: str | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> list[dict[str, Any]]:
     """Validate frozen content, owner evidence, distinctness, and terminal honesty."""
 
     root = repo_root.resolve()
+    if source_context is not None:
+        source_context.require_source_owner_root(root)
     issues: list[dict[str, Any]] = []
     census = _mapping(bundle.get("census"))
     pack = _mapping(bundle.get("pack"))
@@ -702,7 +720,13 @@ def validate_bundle_payloads(
         issues.append({"code": "pack_gap_report_ref_drift"})
 
     _validate_census_selection(census, issues)
-    _validate_cycle_substrate_registry(root, census, pack, issues)
+    _validate_cycle_substrate_registry(
+        root,
+        census,
+        pack,
+        issues,
+        source_context=source_context,
+    )
     _validate_owner_derived_entries(census, pack, issues)
     _validate_n7_attempt(root, pack, issues)
     _validate_distinctness(root, pack, issues)
@@ -725,6 +749,7 @@ def validate(
     repo_root: Path,
     *,
     expected_source_freeze: str | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Validate frozen artifacts without reopening external owner stores."""
 
@@ -742,6 +767,7 @@ def validate(
         bundle,
         root,
         expected_source_freeze=expected_source_freeze,
+        source_context=source_context,
     )
     census_metrics = _mapping(_mapping(bundle.get("census")).get("runtime_metrics"))
     return {
@@ -756,6 +782,7 @@ def rederive_audit(
     repo_root: Path,
     *,
     expected_source_freeze: str | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Rebuild owner facts and require byte-for-byte agreement with frozen output."""
 
@@ -766,6 +793,7 @@ def rederive_audit(
         live = build_live_bundle(
             root,
             expected_source_freeze=expected_source_freeze,
+            source_context=source_context,
         )
     except OwnerDataUnavailableError as exc:
         return {
@@ -777,6 +805,7 @@ def rederive_audit(
         live,
         root,
         expected_source_freeze=expected_source_freeze,
+        source_context=source_context,
     )
     try:
         _reconcile_frozen_cycle_trace(
@@ -811,6 +840,7 @@ def corrupt_field_drift_check(
     repo_root: Path,
     *,
     expected_source_freeze: str | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Exercise owner provenance, distinctness, terminal, and code-scope mutations."""
 
@@ -938,6 +968,7 @@ def corrupt_field_drift_check(
         corrupted,
         root,
         expected_source_freeze=expected_source_freeze,
+        source_context=source_context,
     )
     mutation_results: list[dict[str, Any]] = []
     per_mutation_missing: set[str] = set()
@@ -947,6 +978,7 @@ def corrupt_field_drift_check(
             mutation,
             root,
             expected_source_freeze=expected_source_freeze,
+            source_context=source_context,
         )
         mutation_codes = sorted(
             {str(issue.get("code")) for issue in mutation_issues if issue.get("code")}
@@ -964,6 +996,7 @@ def corrupt_field_drift_check(
             mutation,
             root,
             expected_source_freeze=expected_source_freeze,
+            source_context=source_context,
         )
         mutation_codes = sorted(
             {str(issue.get("code")) for issue in mutation_issues if issue.get("code")}
@@ -1255,11 +1288,32 @@ def write(
     expected_transition_manifest: Mapping[str, Any] | None = None,
     persist: bool = True,
     candidate_dir: Path | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
     started = time.monotonic()
     root = repo_root.resolve()
+    if source_context is not None:
+        source_context.require_source_owner_root(root)
+        if persist:
+            raise ValueError("candidate_source_context_requires_candidate_output")
+        workspace = source_context.workspace_root.resolve()
+        if n4_capture_journal is not None:
+            selected_journal = n4_capture_journal
+            if not selected_journal.is_absolute():
+                selected_journal = workspace / selected_journal
+            try:
+                selected_journal = source_context.require_workspace_path(selected_journal)
+                local_tmp = source_context.require_workspace_path(workspace / ".tmp")
+                selected_journal.relative_to(local_tmp)
+            except (ValueError, OSError, RuntimeError) as exc:
+                raise ValueError("education_n4_capture_journal_outside_selected_workspace") from exc
+            n4_capture_journal = selected_journal
+        elif allow_live_n4_capture:
+            source_context.require_workspace_path(workspace / ".tmp" / "gy-n10-stage1-n4")
+        source_context.require_workspace_path(workspace)
+        source_context.require_workspace_path(workspace / "gy-s-composed-wmr-cas")
     git_root = Path(
         subprocess.check_output(
             ["git", "rev-parse", "--show-toplevel"], cwd=root, text=True
@@ -1272,8 +1326,14 @@ def write(
         if candidate_dir.is_symlink():
             raise ValueError("candidate_dir_symlink")
         candidate_root = candidate_dir.expanduser().resolve()
+        if source_context is not None:
+            candidate_root = source_context.require_workspace_tree(candidate_root)
         if candidate_root.is_relative_to(git_root):
             raise ValueError("candidate_dir_inside_repository")
+        if source_context is not None and not candidate_root.is_relative_to(
+            source_context.workspace_root.resolve()
+        ):
+            raise ValueError("candidate_dir_outside_selected_workspace")
         if candidate_root.exists():
             raise ValueError("candidate_dir_already_exists")
     governed_preimages = {
@@ -1288,6 +1348,7 @@ def write(
         expected_source_freeze=expected_source_freeze,
         allow_live_n4_capture=allow_live_n4_capture,
         n4_capture_journal=n4_capture_journal,
+        source_context=source_context,
     )
     try:
         cycle_trace_plan = _cycle_trace_plan_from_manifest(bundle["cycle_trace"])
@@ -1310,6 +1371,7 @@ def write(
         bundle,
         root,
         expected_source_freeze=expected_source_freeze,
+        source_context=source_context,
     )
     if issues:
         return {
@@ -1342,10 +1404,19 @@ def write(
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
     elif candidate_root is not None:
+        if source_context is not None:
+            candidate_root = source_context.require_workspace_path(candidate_root)
         candidate_root.mkdir(parents=True, exist_ok=False)
+        if source_context is not None:
+            candidate_root = source_context.require_workspace_tree(candidate_root)
         for relative_path, payload in by_path.items():
             candidate_path = candidate_root / relative_path
+            if source_context is not None:
+                candidate_path = source_context.require_workspace_path(candidate_path)
             candidate_path.parent.mkdir(parents=True, exist_ok=True)
+            if source_context is not None:
+                candidate_path = source_context.require_workspace_path(candidate_path)
+                source_context.require_workspace_tree(candidate_path.parent)
             data = (_canonical_json(payload) + "\n").encode("utf-8")
             descriptor = os.open(
                 candidate_path,
@@ -1359,6 +1430,10 @@ def write(
                     os.fsync(handle.fileno())
             finally:
                 os.close(descriptor)
+            if source_context is not None:
+                source_context.require_workspace_path(candidate_path)
+        if source_context is not None:
+            source_context.require_workspace_tree(candidate_root)
         for relative_path, preimage in governed_preimages.items():
             governed = root / relative_path
             observed = governed.read_bytes() if governed.is_file() else None
@@ -1378,10 +1453,20 @@ def write(
     }
 
 
-def _owner_paths(root: Path) -> dict[str, Path]:
-    paths = default_substrate_catalog_paths(root)
+def _owner_paths(
+    root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Path]:
+    source_root = (
+        source_context.require_source_owner_root(root) if source_context is not None else root
+    )
+    paths = default_substrate_catalog_paths(
+        root,
+        source_owner_root=source_root if source_context is not None else None,
+    )
     l1_dcat = paths.l1_dcat_path
-    l2_skg = root / DEFAULT_L2_SCHOLAR_KG_PATH
+    l2_skg = source_root / DEFAULT_L2_SCHOLAR_KG_PATH
     missing = [path for path in (l1_dcat, l2_skg) if not path.is_file()]
     if missing:
         raise OwnerDataUnavailableError(
@@ -1394,16 +1479,31 @@ def _build_census(
     root: Path,
     paths: Mapping[str, Path],
     query_timings: dict[str, float],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
+    source_root = (
+        source_context.require_source_owner_root(root) if source_context is not None else root
+    )
     comparator = _first_vertical_comparator(root)
     l1_rows, l1_query = _l1_candidate_aggregate(paths["l1_dcat"], query_timings)
     l2_rows, l2_query = _l2_candidate_aggregate(paths["l2_skg"], query_timings)
     l2_query["owner_query_source_ref"] = "repo://" + _repo_relative_mounted_evidence_path(
-        paths["l2_skg"], root
+        paths["l2_skg"], source_root
     )
     l2_measure_names, l2_measure_query = _l2_candidate_measure_names(paths["l2_skg"], query_timings)
-    registry = _cached_owner_substrate_registry(root.as_posix())
-    l6_bundle = load_l6_intervention_substrate(root)
+    registry = (
+        _cached_owner_substrate_registry(root.as_posix())
+        if source_context is None
+        else build_substrate_registry_from_existing_catalogs(
+            root,
+            source_owner_root=source_root,
+        )
+    )
+    l6_bundle = load_l6_intervention_substrate(
+        root,
+        source_owner_root=source_root if source_context is not None else None,
+    )
     cg3_application_scope = str(GroundingAdmissionLedger.model_fields["application_scope"].default)
     l1_by_var = {str(row["canonical_var"]): row for row in l1_rows}
     l2_by_candidate = {str(row["candidate_id"]): row for row in l2_rows}
@@ -1513,8 +1613,8 @@ def _build_census(
             "query_timings_seconds": dict(sorted(query_timings.items())),
         },
         "owner_paths": {
-            "l1_dcat": _repo_relative(paths["l1_dcat"], root),
-            "l2_scholar_kg": _repo_relative(paths["l2_skg"], root),
+            "l1_dcat": _repo_relative(paths["l1_dcat"], source_root),
+            "l2_scholar_kg": _repo_relative(paths["l2_skg"], source_root),
         },
         "first_vertical_comparator": comparator,
         "owner_queries": {
@@ -1915,7 +2015,12 @@ def _build_selected_domain_facts(
     paths: Mapping[str, Path],
     census: Mapping[str, Any],
     query_timings: dict[str, float],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
+    source_root = (
+        source_context.require_source_owner_root(root) if source_context is not None else root
+    )
     chosen = str(_mapping(census.get("decision")).get("chosen_candidate"))
     candidate = _mapping(_mapping(census.get("candidates")).get(chosen))
     l1_rows = _list_of_mappings(_mapping(candidate.get("l1_dcat")).get("rows"))
@@ -1949,9 +2054,18 @@ def _build_selected_domain_facts(
         [str(row["canonical_var"]) for row in covariate_rows],
         query_timings,
     )
-    source_context, target_context = _select_context_pair(profiles)
-    registry = _cached_owner_substrate_registry(root.as_posix())
-    l2_query_source_ref = "repo://" + _repo_relative_mounted_evidence_path(paths["l2_skg"], root)
+    profile_source_context, profile_target_context = _select_context_pair(profiles)
+    registry = (
+        _cached_owner_substrate_registry(root.as_posix())
+        if source_context is None
+        else build_substrate_registry_from_existing_catalogs(
+            root,
+            source_owner_root=source_root,
+        )
+    )
+    l2_query_source_ref = "repo://" + _repo_relative_mounted_evidence_path(
+        paths["l2_skg"], source_root
+    )
     selected_l2_query_entries = [
         entry
         for entry in registry.entries
@@ -1965,7 +2079,10 @@ def _build_selected_domain_facts(
         raise OwnerDataUnavailableError(
             "S0 registry must have exactly one L2 entry resolving the selected query source"
         )
-    l6_bundle = load_l6_intervention_substrate(root)
+    l6_bundle = load_l6_intervention_substrate(
+        root,
+        source_owner_root=source_root if source_context is not None else None,
+    )
     levers = _list_of_mappings(l2.get("top_levers"))
     if not levers:
         raise OwnerDataUnavailableError("chosen domain has no L2 owner-derived candidate levers")
@@ -2000,8 +2117,8 @@ def _build_selected_domain_facts(
         "l2_levers": levers,
         "l1_context_profiles": profiles,
         "l1_context_query": profile_query,
-        "source_context": source_context,
-        "target_context": target_context,
+        "source_context": profile_source_context,
+        "target_context": profile_target_context,
         "s0_registry": {
             "content_hash": registry.content_hash,
             "substrate_version_id": registry.substrate_version_id,
@@ -2792,10 +2909,16 @@ def _build_cycle_trace(
     n4_owner_capture: Mapping[str, Any] | None = None,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Run the real N4->N6 route from one content-bound capture or live attempt."""
 
     problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+    workspace_root = source_context.workspace_root if source_context is not None else root
+    if source_context is not None:
+        source_context.require_source_owner_root(root)
+        if n4_capture_journal is not None and not n4_capture_journal.is_absolute():
+            n4_capture_journal = workspace_root / n4_capture_journal
     if cycle_substrate_context is None:
         frozen = _load_frozen_bundle(root)
         cycle_substrate_context = _build_frozen_cycle_substrate_context(
@@ -2818,11 +2941,21 @@ def _build_cycle_trace(
         raise ValueError("education_n4_owner_capture_missing")
 
     capture_hash = str(_mapping(n4_owner_capture).get("recording_content_hash") or "live")
+    source_profile_key = "single-root"
+    if source_context is not None:
+        source_profile_key = "|".join(
+            (
+                source_context.source_owner_root.as_posix(),
+                source_context.workspace_root.as_posix(),
+                source_context.manifest_sha256,
+            )
+        )
     cache_key = (
         root.resolve().as_posix(),
         str(smoke_problem.get("smoke_problem_content_hash") or ""),
         str(cycle_substrate_context.content_hash),
         capture_hash,
+        source_profile_key,
     )
     if not allow_live_n4_capture and n4_capture_journal is None and cache_key in _CYCLE_TRACE_CACHE:
         return copy.deepcopy(_CYCLE_TRACE_CACHE[cache_key])
@@ -2847,6 +2980,8 @@ def _build_cycle_trace(
                 problem=problem,
                 cycle_substrate_context=cycle_substrate_context,
                 journal_path=n4_capture_journal,
+                workspace_root=workspace_root,
+                source_context=source_context,
             )
         elif allow_live_n4_capture:
             (
@@ -2857,6 +2992,8 @@ def _build_cycle_trace(
                 root,
                 problem=problem,
                 cycle_substrate_context=cycle_substrate_context,
+                workspace_root=workspace_root,
+                source_context=source_context,
             )
         elif _n4_owner_capture_issues(
             active_capture,
@@ -2897,8 +3034,15 @@ def _build_cycle_trace(
         )
 
         binding = N9DesignProblemBinding.from_problem(problem)
-        with TemporaryDirectory(prefix="gy-n10a-n9-verification-") as temp_dir:
+        with TemporaryDirectory(
+            prefix="gy-n10a-n9-verification-",
+            dir=workspace_root if source_context is not None else None,
+        ) as temp_dir:
             state_root = Path(temp_dir)
+            if source_context is not None:
+                state_root = source_context.require_workspace_tree(state_root)
+                source_context.require_workspace_path(state_root / "cas")
+                source_context.require_workspace_path(state_root / "state")
             session = ConfidenceLedgerSession._for_verification(
                 root,
                 risk_scope=confidence_risk_scope_for_problem(binding),
@@ -3067,9 +3211,13 @@ def _build_live_cycle_substrate_context(
     census: Mapping[str, Any],
     substrate_input: Mapping[str, Any],
     design_problem: DesignProblem,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> CycleSubstrateContext:
     """Build one context directly from freshly derived pack-shaped evidence."""
 
+    source_root = (
+        source_context.require_source_owner_root(root) if source_context is not None else root
+    )
     projection = {
         "selected_domain": substrate_input["selected_domain"],
         "components": copy.deepcopy(substrate_input["components"]),
@@ -3089,7 +3237,11 @@ def _build_live_cycle_substrate_context(
         root,
         bundle={"census": census, "pack": projection},
         design_problem=design_problem,
-        intervention_substrate=load_l6_intervention_substrate(root),
+        intervention_substrate=load_l6_intervention_substrate(
+            root,
+            source_owner_root=source_root if source_context is not None else None,
+        ),
+        source_context=source_context,
     )
 
 
@@ -3098,14 +3250,20 @@ def _build_frozen_cycle_substrate_context(
     *,
     bundle: Mapping[str, Any],
     design_problem: DesignProblem,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> CycleSubstrateContext:
     """Build one context after verifying the committed pack evidence."""
 
+    source_root = source_context.require_source_owner_root(root) if source_context else root
     return _build_cycle_substrate_context_from_bundle(
         root,
         bundle=bundle,
         design_problem=design_problem,
-        intervention_substrate=load_l6_intervention_substrate(root),
+        intervention_substrate=load_l6_intervention_substrate(
+            root,
+            source_owner_root=source_root if source_context is not None else None,
+        ),
+        source_context=source_context,
     )
 
 
@@ -3133,9 +3291,13 @@ def _build_cycle_substrate_context_from_bundle(
     design_problem: DesignProblem,
     intervention_substrate: InterventionSubstrateBundle | None,
     rederive_current_owner: bool = True,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> CycleSubstrateContext:
     """Reuse canonical registry/WMR/L6 owners for one verified pack projection."""
 
+    code_root = Path(root).resolve()
+    if source_context is not None:
+        source_context.require_source_owner_root(code_root)
     pack = _mapping(bundle.get("pack"))
     components = _mapping(pack.get("components"))
     registry = SubstrateRegistry.model_validate(
@@ -3164,7 +3326,7 @@ def _build_cycle_substrate_context_from_bundle(
         )
     )
     world_model_record = _build_boundary_world_model_record(
-        repo_root=root,
+        repo_root=code_root,
         problem=design_problem,
         outcome=outcome,
         policy_slot_ids=policy_slot_ids,
@@ -3173,11 +3335,12 @@ def _build_cycle_substrate_context_from_bundle(
     )
     return _project_second_domain_cycle_substrate_context(
         bundle,
-        repo_root=root,
+        repo_root=code_root,
         design_problem=design_problem,
         world_model_record=world_model_record,
         intervention_substrate=intervention_substrate,
         rederive_current_owner=rederive_current_owner,
+        source_context=source_context,
     )
 
 
@@ -3186,15 +3349,24 @@ async def _capture_live_n4_owner(
     *,
     problem: DesignProblem,
     cycle_substrate_context: CycleSubstrateContext,
+    workspace_root: Path | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
     """Make one journal-first provider attempt through the canonical N4 owner."""
 
+    journal_root = workspace_root.resolve() if workspace_root is not None else root
     journal_path = (
-        root
+        journal_root
         / ".tmp"
         / "gy-n10-stage1-n4"
         / (problem.design_problem_id + "-" + str(time.time_ns()) + ".jsonl")
     )
+    if source_context is not None:
+        journal_path = source_context.require_workspace_path(journal_path)
+    journal_path.parent.mkdir(parents=True, exist_ok=True)
+    if source_context is not None:
+        journal_path = source_context.require_workspace_path(journal_path)
+        source_context.require_workspace_tree(journal_path.parent)
     live_environment = {
         **_N4_LIVE_CAPTURE_ENV,
         "POLISYOS_N4_CALL_JOURNAL_PATH": str(journal_path),
@@ -3212,6 +3384,7 @@ async def _capture_live_n4_owner(
         problem=problem,
         cycle_substrate_context=cycle_substrate_context,
         journal_path=journal_path,
+        source_context=source_context,
         recording_source="live_gateway_real_n4_owner_journal_first",
         capture_environment=live_environment,
     )
@@ -3223,14 +3396,23 @@ async def _capture_n4_owner_from_journal(
     problem: DesignProblem,
     cycle_substrate_context: CycleSubstrateContext,
     journal_path: Path,
+    workspace_root: Path | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
     """Accept one paid live journal only after replay through current owners."""
 
+    journal_root = workspace_root.resolve() if workspace_root is not None else root
     resolved_journal = journal_path
     if not resolved_journal.is_absolute():
-        resolved_journal = (root / resolved_journal).resolve()
+        resolved_journal = journal_root / resolved_journal
     try:
-        resolved_journal.relative_to((root / ".tmp").resolve())
+        if source_context is not None:
+            resolved_journal = source_context.require_workspace_path(resolved_journal)
+            local_tmp = source_context.require_workspace_path(journal_root / ".tmp")
+        else:
+            resolved_journal = resolved_journal.resolve()
+            local_tmp = (journal_root / ".tmp").resolve()
+        resolved_journal.relative_to(local_tmp)
     except ValueError as exc:
         raise ValueError("education_n4_capture_journal_outside_local_tmp") from exc
     responses = _n4_capture_responses_from_journal(resolved_journal)
@@ -3252,6 +3434,7 @@ async def _capture_n4_owner_from_journal(
         problem=problem,
         cycle_substrate_context=cycle_substrate_context,
         journal_path=resolved_journal,
+        source_context=source_context,
         recording_source="live_gateway_journal_replayed_through_current_n4_owner",
         capture_environment=_N4_LIVE_CAPTURE_ENV,
     )
@@ -3339,9 +3522,12 @@ def _n4_owner_capture_from_organ_run(
     journal_path: Path,
     recording_source: str,
     capture_environment: Mapping[str, str],
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
     """Build one path-independent capture after the native result passes."""
 
+    if source_context is not None:
+        journal_path = source_context.require_workspace_path(journal_path)
     journal_receipt = _n4_call_journal_receipt(journal_path)
     capture = _assemble_n4_owner_capture(
         organ_run,
@@ -4823,6 +5009,7 @@ def _project_second_domain_cycle_substrate_context(
     world_model_record: WorldModelRecord,
     intervention_substrate: InterventionSubstrateBundle | None,
     rederive_current_owner: bool,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> CycleSubstrateContext:
     """Project current or exact historical bytes without conflating their authority."""
 
@@ -4837,6 +5024,7 @@ def _project_second_domain_cycle_substrate_context(
         pack,
         issues,
         rederive_current_owner=rederive_current_owner,
+        source_context=source_context,
     )
     _validate_owner_derived_entries(census, pack, issues)
     if issues:
@@ -5443,6 +5631,7 @@ def _validate_cycle_substrate_registry(
     issues: list[dict[str, Any]],
     *,
     rederive_current_owner: bool = True,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> None:
     """Resolve and content-bind the registry evidence used by cycle intake."""
 
@@ -5485,7 +5674,14 @@ def _validate_cycle_substrate_registry(
         issues.append({"code": "cycle_substrate_registry_producer_mismatch"})
     query_owner_registry = registry
     if rederive_current_owner:
-        live_registry = _cached_owner_substrate_registry(root.resolve().as_posix())
+        if source_context is None:
+            live_registry = _cached_owner_substrate_registry(root.resolve().as_posix())
+        else:
+            source_root = source_context.require_source_owner_root(root)
+            live_registry = build_substrate_registry_from_existing_catalogs(
+                root,
+                source_owner_root=source_root,
+            )
         if registry.model_dump(mode="json") != live_registry.model_dump(mode="json"):
             issues.append({"code": "cycle_substrate_registry_owner_rederive_mismatch"})
         query_owner_registry = live_registry
@@ -7492,6 +7688,8 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
+    parser.add_argument("--source-owner-root", type=Path)
+    parser.add_argument("--workspace-root", type=Path)
     parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
@@ -7524,25 +7722,32 @@ def main(argv: list[str] | None = None) -> int:
             args.accept_stage1_n4_journal is not None,
         )
     )
+    candidate_mode = args.candidate_dir is not None
     if args.measure_write_transition:
         incompatible = any(
             (
                 args.check,
                 args.write,
-                args.candidate_dir is not None,
+                candidate_mode,
                 args.rederive_audit,
                 args.corrupt_field_drift_check,
             )
         )
         if incompatible or capture_selected > 1:
             parser.error("select exactly one action")
+    elif candidate_mode:
+        if any((args.check, args.write, args.rederive_audit, args.corrupt_field_drift_check)):
+            parser.error("candidate output cannot be combined with a persisted/read action")
+        if capture_selected > 1:
+            parser.error("select only one N4 capture source")
+        if args.expected_transition_manifest is not None:
+            parser.error("candidate output does not accept a persisted transition manifest")
     else:
         selected = sum(
             bool(value)
             for value in (
                 args.check,
                 args.write,
-                args.candidate_dir is not None,
                 args.capture_stage1_n4,
                 args.accept_stage1_n4_journal is not None,
                 args.rederive_audit,
@@ -7553,6 +7758,7 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("select exactly one action")
     writer_selected = bool(
         not args.measure_write_transition
+        and not candidate_mode
         and (args.write or args.capture_stage1_n4 or args.accept_stage1_n4_journal is not None)
     )
     if writer_selected != (args.expected_transition_manifest is not None):
@@ -7561,11 +7767,31 @@ def main(argv: list[str] | None = None) -> int:
         )
     root = args.repo_root.resolve()
     try:
+        from tools.quality.validation.substrate_source_context import (
+            candidate_source_context_for_entrypoint,
+        )
+
+        source_context = candidate_source_context_for_entrypoint(
+            root,
+            source_owner_root=args.source_owner_root,
+            workspace_root=args.workspace_root,
+        )
+        if source_context is not None and args.write:
+            parser.error("selected source writes require --candidate-dir")
         expected_manifest = (
             _read_json(args.expected_transition_manifest.resolve())
             if args.expected_transition_manifest is not None
             else None
         )
+        if source_context is not None and not candidate_mode and writer_selected:
+            parser.error("selected source writes require --candidate-dir")
+        candidate_dir = args.candidate_dir
+        if (
+            source_context is not None
+            and candidate_dir is not None
+            and not candidate_dir.is_absolute()
+        ):
+            candidate_dir = source_context.workspace_root / candidate_dir
         if args.measure_write_transition:
             report = write(
                 root,
@@ -7573,6 +7799,17 @@ def main(argv: list[str] | None = None) -> int:
                 allow_live_n4_capture=args.capture_stage1_n4,
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 persist=False,
+                source_context=source_context,
+            )
+        elif candidate_mode:
+            report = write(
+                root,
+                expected_source_freeze=args.expected_source_freeze,
+                allow_live_n4_capture=args.capture_stage1_n4,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+                persist=False,
+                candidate_dir=candidate_dir,
+                source_context=source_context,
             )
         elif args.accept_stage1_n4_journal is not None:
             report = write(
@@ -7580,6 +7817,7 @@ def main(argv: list[str] | None = None) -> int:
                 expected_source_freeze=args.expected_source_freeze,
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 expected_transition_manifest=expected_manifest,
+                source_context=source_context,
             )
         elif args.capture_stage1_n4:
             report = write(
@@ -7587,6 +7825,7 @@ def main(argv: list[str] | None = None) -> int:
                 expected_source_freeze=args.expected_source_freeze,
                 allow_live_n4_capture=True,
                 expected_transition_manifest=expected_manifest,
+                source_context=source_context,
             )
         elif args.write:
             report = write(
@@ -7595,6 +7834,7 @@ def main(argv: list[str] | None = None) -> int:
                 allow_live_n4_capture=args.capture_stage1_n4,
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 expected_transition_manifest=expected_manifest,
+                source_context=source_context,
             )
         elif args.candidate_dir is not None:
             report = write(
@@ -7602,21 +7842,25 @@ def main(argv: list[str] | None = None) -> int:
                 expected_source_freeze=args.expected_source_freeze,
                 persist=False,
                 candidate_dir=args.candidate_dir,
+                source_context=source_context,
             )
         elif args.rederive_audit:
             report = rederive_audit(
                 root,
                 expected_source_freeze=args.expected_source_freeze,
+                source_context=source_context,
             )
         elif args.corrupt_field_drift_check:
             report = corrupt_field_drift_check(
                 root,
                 expected_source_freeze=args.expected_source_freeze,
+                source_context=source_context,
             )
         else:
             report = validate(
                 root,
                 expected_source_freeze=args.expected_source_freeze,
+                source_context=source_context,
             )
     except GapWitnessTargetMissingError as exc:
         report = {

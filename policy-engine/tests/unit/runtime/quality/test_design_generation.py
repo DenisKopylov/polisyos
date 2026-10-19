@@ -98,6 +98,20 @@ def _unit_credal_reference_for_candidate_generation(
     return _unit_credal_reference()
 
 
+@pytest.fixture(scope="module")
+def selected_substrate_source_context(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Any:
+    """Bind the live education-source tests to the linked physical owner."""
+
+    from tests._helpers.selected_substrate_source_context import (
+        select_substrate_source_context,
+    )
+
+    workspace_root = tmp_path_factory.mktemp("education-substrate-wmr")
+    return select_substrate_source_context(REPO_ROOT, workspace_root=workspace_root)
+
+
 @lru_cache(maxsize=1)
 def _historical_education_prompt_context() -> tuple[DesignProblem, object]:
     """Replay frozen candidate vocabulary without presenting it as current L6."""
@@ -115,7 +129,9 @@ def _historical_education_prompt_context() -> tuple[DesignProblem, object]:
 
 
 @lru_cache(maxsize=1)
-def _current_education_cycle_context() -> tuple[DesignProblem, object]:
+def _current_education_cycle_context(
+    source_context: Any,
+) -> tuple[DesignProblem, object]:
     """Build candidate-only context from current L1/L2/S0/L6 owners."""
 
     from unittest.mock import patch
@@ -128,14 +144,26 @@ def _current_education_cycle_context() -> tuple[DesignProblem, object]:
         return connection
 
     with patch.object(second_domain_pack.duckdb, "connect", single_thread_connect):
-        paths = second_domain_pack._owner_paths(REPO_ROOT)
+        paths = second_domain_pack._owner_paths(
+            REPO_ROOT,
+            source_context=source_context,
+        )
+        assert paths["l1_dcat"].is_relative_to(source_context.source_owner_root)
+        assert paths["l2_skg"].is_relative_to(source_context.source_owner_root)
+        assert not paths["l1_dcat"].is_relative_to(REPO_ROOT)
         timings: dict[str, float] = {}
-        census = second_domain_pack._build_census(REPO_ROOT, paths, timings)
+        census = second_domain_pack._build_census(
+            REPO_ROOT,
+            paths,
+            timings,
+            source_context=source_context,
+        )
         facts = second_domain_pack._build_selected_domain_facts(
             REPO_ROOT,
             paths,
             census,
             timings,
+            source_context=source_context,
         )
         problem = DesignProblem.model_validate(
             second_domain_pack._build_smoke_problem(census, facts)["design_problem"]
@@ -146,6 +174,7 @@ def _current_education_cycle_context() -> tuple[DesignProblem, object]:
             census=census,
             substrate_input=substrate_input,
             design_problem=problem,
+            source_context=source_context,
         )
 
     assert context.domain == facts["chosen_candidate"]
@@ -939,10 +968,12 @@ def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
     )
 
 
-def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -> None:
+def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition(
+    selected_substrate_source_context: Any,
+) -> None:
     """The N4 owner records both its CG attempt and the real L6 refusal."""
 
-    problem, context = _current_education_cycle_context()
+    problem, context = _current_education_cycle_context(selected_substrate_source_context)
     intervention = InterventionSpec(
         intervention_id="education_teaching_method_probe",
         kind="education_teaching_method",
@@ -1117,10 +1148,12 @@ def test_candidate_lever_id_is_not_cg_relation_authority() -> None:
     assert "candidate_lever_id" not in proposal.get("signature", {}).get("params", {})
 
 
-def test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind() -> None:
+def test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind(
+    selected_substrate_source_context: Any,
+) -> None:
     """Resolve an exact candidate ref while leaving adaptive_agent as Trinity grammar."""
 
-    problem, context = _current_education_cycle_context()
+    problem, context = _current_education_cycle_context(selected_substrate_source_context)
     intervention = InterventionSpec(
         intervention_id="education_teaching_method_adaptive_probe",
         kind="adaptive_agent",
@@ -3920,6 +3953,7 @@ def test_skg_owner_uses_read_api_route_and_emits_canonical_owner_module(
 def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    selected_substrate_source_context: Any,
 ) -> None:
     """Candidate linking rejects profile/context drift and forwards verified context."""
     from polisyos.pdc import gy_content_hash
@@ -3937,7 +3971,7 @@ def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
 
-    problem, context = _current_education_cycle_context()
+    problem, context = _current_education_cycle_context(selected_substrate_source_context)
     context_bundle = context.intervention_substrate
     assert context_bundle is not None
     rule = CandidateScenarioSetToRule(

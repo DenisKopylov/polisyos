@@ -48,6 +48,7 @@ from polisyos.runtime.quality.substrate_registry import (
     L5CatalogAuthority,
     SubstrateRegistry,
     SubstrateRegistryError,
+    _repo_relative_path,
     build_substrate_registry_from_existing_catalogs,
     default_substrate_catalog_paths,
     l5_owner_scope_identity_refs,
@@ -104,6 +105,46 @@ class DataStateSubstrateError(ValueError):
     def __init__(self, code: str, message: str | None = None) -> None:
         self.code = code
         super().__init__(f"{code}: {message or code}")
+
+
+def _require_workspace_output_path(workspace_root: Path, output_path: Path) -> Path:
+    """Resolve one output and require its physical target beneath the caller workspace."""
+
+    try:
+        root = Path(workspace_root).resolve(strict=True)
+        target = Path(output_path).expanduser()
+        if not target.is_absolute():
+            target = root / target
+        resolved = target.resolve(strict=False)
+    except (OSError, RuntimeError) as exc:
+        raise DataStateSubstrateError(
+            "selected_workspace_output_path_unavailable", str(output_path)
+        ) from exc
+    if not resolved.is_relative_to(root):
+        raise DataStateSubstrateError("selected_workspace_output_path_escape", str(output_path))
+    return resolved
+
+
+def _require_workspace_output_tree(workspace_root: Path, output_root: Path) -> Path:
+    """Reject any existing symlink below an output tree that resolves outside the workspace."""
+
+    root = Path(workspace_root).resolve(strict=True)
+    directory = _require_workspace_output_path(root, output_root)
+    if not directory.exists():
+        return directory
+    if not directory.is_dir():
+        raise DataStateSubstrateError(
+            "selected_workspace_output_tree_not_directory", str(output_root)
+        )
+    try:
+        for candidate in directory.rglob("*"):
+            if candidate.is_symlink():
+                _require_workspace_output_path(root, candidate)
+    except (OSError, RuntimeError) as exc:
+        raise DataStateSubstrateError(
+            "selected_workspace_output_tree_unavailable", str(output_root)
+        ) from exc
+    return directory
 
 
 def _data_forge_snapshot_role() -> str:
@@ -310,13 +351,26 @@ def l1_dcat_variable_availability(
     variable_id: str,
     *,
     overlay_path: Path | None = None,
+    production_data_root: Path | None = None,
 ) -> L1VariableAvailability:
-    """Resolve required-vs-available status from the L1 DCAT DuckDB catalog."""
+    """Resolve required-vs-available status from one selected L1 catalog.
+
+    ``repo_root`` remains the code and acquisition-overlay owner. The optional
+    ``production_data_root`` selects only the catalog input; it does not grant
+    source authority or establish currentness.
+    """
 
     variable = variable_id.strip()
     if not variable:
         raise DataStateSubstrateError("l1_variable_empty")
-    dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
+    code_root = Path(repo_root).resolve()
+    data_root = (
+        Path(production_data_root).resolve() if production_data_root is not None else code_root
+    )
+    dcat_path = default_substrate_catalog_paths(
+        code_root,
+        source_owner_root=data_root if production_data_root is not None else None,
+    ).l1_dcat_path
     from polisyos.runtime.quality.substrate_registry import (
         current_catalog_serving_source,
     )
@@ -324,9 +378,14 @@ def l1_dcat_variable_availability(
     catalog_source = current_catalog_serving_source()
     if not dcat_path.exists():
         raise DataStateSubstrateError("l1_dcat_missing", dcat_path.as_posix())
+    if production_data_root is not None:
+        try:
+            _repo_relative_path(dcat_path, repo_root=data_root)
+        except SubstrateRegistryError as exc:
+            raise DataStateSubstrateError("l1_dcat_source_path_unbound", str(exc)) from exc
 
     selected_overlay = overlay_path or (
-        data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+        data_forge_read_api.catalog.default_acquisition_overlay_path(code_root)
     )
     con = data_forge_read_api.catalog.open_catalog_read_session(
         dcat_path,
@@ -386,10 +445,22 @@ def build_l5_family_binding_profile(
     period_start: str,
     period_end: str,
     scope_identity_ref: str | None = None,
+    production_data_root: Path | None = None,
 ) -> L5FamilyBindingProfile:
-    """Build the L5 honesty profile for bound data-state families."""
+    """Build the L5 honesty profile from the code root and selected data owner."""
 
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root), repo_root=repo_root)
+    code_root = Path(repo_root).resolve()
+    data_root = (
+        Path(production_data_root).resolve() if production_data_root is not None else code_root
+    )
+    l5 = load_l5_catalog_authority(
+        default_substrate_catalog_paths(
+            code_root,
+            source_owner_root=data_root if production_data_root is not None else None,
+        ),
+        repo_root=code_root,
+        source_owner_root=data_root if production_data_root is not None else None,
+    )
     owner_scopes = l5_owner_scope_identity_refs(l5)
     if scope_identity_ref is None:
         if len(owner_scopes) != 1:
@@ -454,6 +525,7 @@ def materialize_l4_data_state_snapshot(
     substrate_registry: SubstrateRegistry | None = None,
     period_start: str = DEFAULT_DATA_STATE_PERIOD_START,
     period_end: str = DEFAULT_DATA_STATE_PERIOD_END,
+    production_data_root: Path | None = None,
 ) -> DataStateMaterializationResult:
     """Persist a real L4 data-state ``DataSnapshot`` and Data Forge binding.
 
@@ -465,10 +537,30 @@ def materialize_l4_data_state_snapshot(
     if agent_limit is not None and agent_limit <= 0:
         raise DataStateSubstrateError("production_data_state_empty")
     root = repo_root.resolve()
-    paths = _default_data_state_paths(root)
-    _require_paths(paths)
+    data_root = Path(production_data_root).resolve() if production_data_root is not None else root
+    if production_data_root is not None:
+        _require_split_data_workspace(
+            workspace_dir,
+            code_root=root,
+            data_root=data_root,
+            cas_root=store.root,
+        )
+        _require_workspace_output_tree(workspace_dir, store.root)
+    paths = _default_data_state_paths(
+        root,
+        production_data_root=data_root if production_data_root is not None else None,
+    )
+    _require_paths(
+        paths,
+        production_data_root=data_root if production_data_root is not None else None,
+    )
     availability = tuple(
-        l1_dcat_variable_availability(root, variable) for variable in required_l1_variables
+        l1_dcat_variable_availability(
+            root,
+            variable,
+            production_data_root=data_root if production_data_root is not None else None,
+        )
+        for variable in required_l1_variables
     )
     unavailable = [item.variable_id for item in availability if item.status == "unavailable"]
     if unavailable:
@@ -478,9 +570,13 @@ def materialize_l4_data_state_snapshot(
         families=families,
         period_start=period_start,
         period_end=period_end,
+        production_data_root=data_root if production_data_root is not None else None,
     )
     if substrate_registry is None:
-        substrate_registry = build_substrate_registry_from_existing_catalogs(root)
+        substrate_registry = build_substrate_registry_from_existing_catalogs(
+            root,
+            source_owner_root=data_root if production_data_root is not None else None,
+        )
     world_preimage_ref = _world_preimage_ref(
         substrate_version_id=substrate_registry.substrate_version_id,
         agent_limit=agent_limit,
@@ -513,10 +609,12 @@ def materialize_l4_data_state_snapshot(
             "l5_profile": l5_profile.model_dump(mode="json"),
             "l5_profile_hash": profile_hash,
             "world_preimage_ref": world_preimage_ref,
-            "source_paths": _relative_source_paths(paths, root),
+            "source_paths": _relative_source_paths(paths, data_root),
             "stats": stats,
         },
     }
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     payload_ref = store.put_json(
         payload_with_meta,
         PutOptions(
@@ -529,6 +627,8 @@ def materialize_l4_data_state_snapshot(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     payload_content_hash = str(payload_ref.artifact_id)
     snapshot_id = _snapshot_id(agent_limit=agent_limit, payload_hash=payload_content_hash)
     data_snapshot = DataSnapshot(
@@ -551,6 +651,8 @@ def materialize_l4_data_state_snapshot(
             f"schema_regime_status:{l5_profile.schema_regime_status}",
         ],
     )
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     data_snapshot_ref = store.put_json(
         data_snapshot,
         PutOptions(
@@ -561,12 +663,17 @@ def materialize_l4_data_state_snapshot(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     binding_path = _write_data_forge_snapshot_binding(
         workspace_dir=workspace_dir,
         snapshot_id=snapshot_id,
         payload=payload_with_meta,
         payload_content_hash=payload_content_hash,
+        confine_outputs=production_data_root is not None,
     )
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     stats = {
         **stats,
         "source_mode": data_snapshot.stats["source_mode"],
@@ -1058,9 +1165,17 @@ def build_production_data_state_world_model_record(
     substrate_registry_artifact_ref: ArtifactRef | str | None = None,
     period_start: str = DEFAULT_DATA_STATE_PERIOD_START,
     period_end: str = DEFAULT_DATA_STATE_PERIOD_END,
+    production_data_root: Path | None = None,
 ) -> ProductionDataStateWorldBuildResult:
     """Build an N3 ``WorldModelRecord`` over the real S1 data-state substrate."""
 
+    data_root = (
+        Path(production_data_root).resolve()
+        if production_data_root is not None
+        else Path(repo_root).resolve()
+    )
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     try:
         if substrate_registry_artifact_ref is None:
             materialized = materialize_l4_data_state_snapshot(
@@ -1072,8 +1187,12 @@ def build_production_data_state_world_model_record(
                 families=DEFAULT_DATA_STATE_FAMILIES,
                 period_start=period_start,
                 period_end=period_end,
+                production_data_root=data_root if production_data_root is not None else None,
             )
-            registry = build_substrate_registry_from_existing_catalogs(repo_root)
+            registry = build_substrate_registry_from_existing_catalogs(
+                repo_root,
+                source_owner_root=data_root if production_data_root is not None else None,
+            )
             persisted_registry_ref = persist_substrate_registry(store, registry)
         else:
             persisted_registry_ref, registry = _load_substrate_registry_artifact_ref(
@@ -1090,6 +1209,7 @@ def build_production_data_state_world_model_record(
                 substrate_registry=registry,
                 period_start=period_start,
                 period_end=period_end,
+                production_data_root=data_root if production_data_root is not None else None,
             )
         registry_bundle = build_default_registry_bundle(store)
         model_spec = ModelSpec(
@@ -1108,8 +1228,9 @@ def build_production_data_state_world_model_record(
             snapshot_id=materialized.snapshot_id,
             payload_hash=materialized.payload_content_hash,
             stats=materialized.data_snapshot_stats,
+            confine_outputs=production_data_root is not None,
         )
-        skg_ref = _production_skg_ref(repo_root, snapshot_id=materialized.snapshot_id)
+        skg_ref = _production_skg_ref(data_root, snapshot_id=materialized.snapshot_id)
         limitations = WorldModelLimitations(
             unavailable_data=tuple(
                 f"l1:{item.variable_id}"
@@ -1181,6 +1302,8 @@ def build_production_data_state_world_model_record(
     except (WorldModelRecordError, SubstrateRegistryError) as exc:
         code = getattr(exc, "code", type(exc).__name__)
         raise DataStateSubstrateError(str(code), str(exc)) from exc
+    if production_data_root is not None:
+        _require_workspace_output_tree(workspace_dir, store.root)
     return ProductionDataStateWorldBuildResult(
         materialization=materialized,
         world_model=world_model,
@@ -1805,17 +1928,28 @@ def _write_data_forge_snapshot_binding(
     ),
     lineage_refs: Sequence[str] | None = None,
     claim_requirement_bindings: Sequence[Mapping[str, Any]] | None = None,
+    confine_outputs: bool = False,
 ) -> Path:
     snapshot_root = workspace_dir / snapshot_id
     pipeline_root = snapshot_root / _DATA_FORGE_SNAPSHOT_PIPELINE
     artifact_path = pipeline_root / "data_state_payload.json"
+    manifest_path = pipeline_root / "publish" / "manifest.json"
+    if confine_outputs:
+        snapshot_root = _require_workspace_output_tree(workspace_dir, snapshot_root)
+        artifact_path = _require_workspace_output_path(workspace_dir, artifact_path)
+        manifest_path = _require_workspace_output_path(workspace_dir, manifest_path)
     artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    if confine_outputs:
+        artifact_path = _require_workspace_output_path(workspace_dir, artifact_path)
+        manifest_path = _require_workspace_output_path(workspace_dir, manifest_path)
     artifact_path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+    if confine_outputs:
+        _require_workspace_output_tree(workspace_dir, snapshot_root)
     data_forge_read_api.write_publish_manifest(
-        manifest_path=pipeline_root / "publish" / "manifest.json",
+        manifest_path=manifest_path,
         pipeline=_DATA_FORGE_SNAPSHOT_PIPELINE,
         artifacts=(artifact_path,),
         published_at=published_at,
@@ -1851,12 +1985,18 @@ def _write_data_forge_snapshot_binding(
             ],
         },
     )
+    if confine_outputs:
+        _require_workspace_output_tree(workspace_dir, snapshot_root)
     data_forge_read_api.finalize_snapshot(
         snapshot_root,
         update_latest_symlink=False,
         pipelines=(_DATA_FORGE_SNAPSHOT_PIPELINE,),
     )
-    return snapshot_root / "data_forge_snapshot_binding.json"
+    binding_path = snapshot_root / "data_forge_snapshot_binding.json"
+    if confine_outputs:
+        binding_path = _require_workspace_output_path(workspace_dir, binding_path)
+        _require_workspace_output_tree(workspace_dir, snapshot_root)
+    return binding_path
 
 
 def _cas_data_forge_ref(ref: ArtifactRef) -> str:
@@ -1872,6 +2012,7 @@ def _write_fabric_world_snapshot(
     snapshot_id: str,
     payload_hash: str,
     stats: Mapping[str, Any],
+    confine_outputs: bool = False,
 ) -> Path:
     from polisyos.fabric.world import (
         WorldSnapshotFactWrite,
@@ -1881,9 +2022,29 @@ def _write_fabric_world_snapshot(
     )
 
     snapshot_root = workspace_dir / "fabric-world"
-    db_path = workspace_dir / "fabric-world.duckdb"
+    native_db_root = workspace_dir / "fabric-world-db"
+    if confine_outputs:
+        snapshot_root = _require_workspace_output_tree(workspace_dir, snapshot_root)
+        native_db_root = _require_workspace_output_tree(workspace_dir, native_db_root)
+        db_path = native_db_root / "fabric-world.duckdb"
+    else:
+        db_path = workspace_dir / "fabric-world.duckdb"
+    temp_root = db_path.with_name(db_path.name + ".tmp")
+    if confine_outputs:
+        temp_root = _require_workspace_output_tree(workspace_dir, temp_root)
     snapshot_root.mkdir(parents=True, exist_ok=True)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    if confine_outputs:
+        native_db_root.mkdir(parents=True, exist_ok=True)
+        native_db_root = _require_workspace_output_tree(workspace_dir, native_db_root)
+        temp_root = _require_workspace_output_tree(workspace_dir, temp_root)
+        temp_root.mkdir(parents=True, exist_ok=True)
+        temp_root = _require_workspace_output_tree(workspace_dir, temp_root)
+        # The entire physical database parent is the preflight boundary. This
+        # catches WAL and future sidecars before SimulationDB opens anything.
+        native_db_root = _require_workspace_output_tree(workspace_dir, native_db_root)
+        db_path = _require_workspace_output_path(workspace_dir, db_path)
+    else:
+        db_path.parent.mkdir(parents=True, exist_ok=True)
     node_id = f"world.data_state.{snapshot_id}"
     world_node = WorldSnapshotNodeWrite(
         node_id=node_id,
@@ -1920,19 +2081,25 @@ def _write_fabric_world_snapshot(
         legal_json=None,
         segment_id=f"seg:{snapshot_id}:hash",
     )
-    write_world_snapshot(
-        db_path,
-        WorldSnapshotWriteRequest(
-            snapshot_root=snapshot_root,
-            snapshot_id=snapshot_id,
-            branch_name="observed",
-            as_of_valid_time="2026-05-01T00:00:00+00:00",
-            as_of_tx_time="2026-05-01T00:00:00+00:00",
-            provenance={"producer": "polisyos.runtime.quality.data_state_substrate"},
-            nodes=(world_node,),
-            facts=(bound_agent_count_fact, payload_hash_fact),
-        ),
+    request = WorldSnapshotWriteRequest(
+        snapshot_root=snapshot_root,
+        snapshot_id=snapshot_id,
+        branch_name="observed",
+        as_of_valid_time="2026-05-01T00:00:00+00:00",
+        as_of_tx_time="2026-05-01T00:00:00+00:00",
+        provenance={"producer": "polisyos.runtime.quality.data_state_substrate"},
+        nodes=(world_node,),
+        facts=(bound_agent_count_fact, payload_hash_fact),
     )
+    if confine_outputs:
+        _require_workspace_output_tree(workspace_dir, snapshot_root)
+        _require_workspace_output_tree(workspace_dir, native_db_root)
+        write_world_snapshot(db_path, request, temp_directory=temp_root)
+        _require_workspace_output_tree(workspace_dir, native_db_root)
+        _require_workspace_output_tree(workspace_dir, snapshot_root)
+        _require_workspace_output_path(workspace_dir, db_path)
+    else:
+        write_world_snapshot(db_path, request)
     return snapshot_root
 
 
@@ -2139,13 +2306,24 @@ def _schema_regime_decision(
     }
 
 
-def _default_data_state_paths(repo_root: Path) -> _DataStatePaths:
+def _default_data_state_paths(
+    repo_root: Path,
+    *,
+    production_data_root: Path | None = None,
+) -> _DataStatePaths:
+    code_root = Path(repo_root).resolve()
+    data_root = (
+        Path(production_data_root).resolve() if production_data_root is not None else code_root
+    )
     base = (
-        repo_root / "production_data/canonical/local_data_20260501/ukraine_server_support_20260410"
+        data_root / "production_data/canonical/local_data_20260501/ukraine_server_support_20260410"
     )
     normalized = base / "normalized_corpus/normalized"
     d3 = base / "runtime_calibration_internals/calibration/d3"
-    l1 = default_substrate_catalog_paths(repo_root).l1_dcat_path
+    l1 = default_substrate_catalog_paths(
+        code_root,
+        source_owner_root=data_root if production_data_root is not None else None,
+    ).l1_dcat_path
     return _DataStatePaths(
         l1_dcat_path=l1,
         agent_registry_full=normalized / "edr_current/agent_registry_full.parquet",
@@ -2158,17 +2336,57 @@ def _default_data_state_paths(repo_root: Path) -> _DataStatePaths:
     )
 
 
-def _require_paths(paths: _DataStatePaths) -> None:
-    for path in (
+def _require_paths(
+    paths: _DataStatePaths,
+    *,
+    production_data_root: Path | None = None,
+) -> None:
+    required_paths = (
         paths.l1_dcat_path,
         paths.agent_registry_full,
         paths.firm_fundamentals_annual,
         paths.budget_flows_monthly_sparse,
         paths.corrected_firm_panels,
         paths.calibrated_household_cells,
-    ):
+    )
+    for path in required_paths:
         if not path.exists():
             raise DataStateSubstrateError("production_data_path_missing", path.as_posix())
+    if production_data_root is not None:
+        for path in required_paths:
+            try:
+                _repo_relative_path(path, repo_root=production_data_root)
+            except SubstrateRegistryError as exc:
+                raise DataStateSubstrateError("production_data_path_unbound", str(exc)) from exc
+
+
+def _require_split_data_workspace(
+    workspace_dir: Path,
+    *,
+    code_root: Path,
+    data_root: Path,
+    cas_root: Path,
+) -> None:
+    """Keep split-source outputs inside an isolated caller-owned workspace."""
+
+    try:
+        workspace = Path(workspace_dir).resolve(strict=True)
+        code = Path(code_root).resolve(strict=True)
+        data = Path(data_root).resolve(strict=True)
+        cas = Path(cas_root).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise DataStateSubstrateError("split_data_workspace_unavailable") from exc
+    if not workspace.is_dir():
+        raise DataStateSubstrateError("split_data_workspace_not_directory")
+    if any(
+        workspace == source_root
+        or source_root in workspace.parents
+        or workspace in source_root.parents
+        for source_root in (code, data)
+    ):
+        raise DataStateSubstrateError("split_data_workspace_overlaps_source_root")
+    if cas != workspace and workspace not in cas.parents:
+        raise DataStateSubstrateError("split_data_cas_outside_workspace")
 
 
 def _relative_source_paths(paths: _DataStatePaths, root: Path) -> dict[str, str]:

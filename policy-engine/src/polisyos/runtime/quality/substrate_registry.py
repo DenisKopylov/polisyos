@@ -19,7 +19,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, NoReturn
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -943,26 +943,80 @@ def l5_owner_scope_identity_refs(
     )
 
 
-def default_substrate_catalog_paths(repo_root: Path) -> SubstrateCatalogPaths:
-    """Return canonical S0 catalog paths under a repo root."""
+def default_substrate_catalog_paths(
+    repo_root: Path,
+    *,
+    source_owner_root: Path | None = None,
+) -> SubstrateCatalogPaths:
+    """Return typed catalog paths with code and selected data roots kept separate.
+
+    ``repo_root`` remains the owner of architecture and epoch registries. When
+    ``source_owner_root`` is supplied, only production-data paths are resolved
+    beneath that physical owner. The one-root default and active serving-source
+    behavior remain unchanged.
+    """
 
     root = repo_root.resolve()
     active_source = current_catalog_serving_source()
-    if active_source is not None:
+    if source_owner_root is None and active_source is not None:
         if active_source.repo_root != root:
             raise SubstrateRegistryError("catalog_source_repo_root_mismatch")
         return active_source.substrate_paths
-    l5_dir = root / DEFAULT_L5_REGISTRY_DIR
-    return SubstrateCatalogPaths(
-        production_root=root / DEFAULT_PRODUCTION_DATA_ROOT,
-        root_manifest_path=root / DEFAULT_ROOT_MANIFEST_PATH,
+
+    data_root = root
+    if source_owner_root is not None:
+        try:
+            data_root = Path(source_owner_root).resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise SubstrateRegistryError("substrate_source_owner_root_unavailable") from exc
+        if not data_root.is_dir():
+            raise SubstrateRegistryError("substrate_source_owner_root_not_directory")
+    l5_dir = data_root / DEFAULT_L5_REGISTRY_DIR
+    expected = SubstrateCatalogPaths(
+        production_root=data_root / DEFAULT_PRODUCTION_DATA_ROOT,
+        root_manifest_path=data_root / DEFAULT_ROOT_MANIFEST_PATH,
         measurement_registry_path=l5_dir / "measurement_registry.json",
         identification_mode_registry_path=l5_dir / "identification_mode_registry.json",
         schema_regime_registry_path=l5_dir / "schema_regime_registry.json",
-        l1_dcat_path=root / DEFAULT_L1_DCAT_PATH,
+        l1_dcat_path=data_root / DEFAULT_L1_DCAT_PATH,
         epoch_schema_regime_registry_path=root / DEFAULT_EPOCH_L5_REGIME_REGISTRY_PATH,
         epoch_schema_regime_scope_registry_path=root / DEFAULT_EPOCH_L5_SCOPE_REGISTRY_PATH,
     )
+    if active_source is None:
+        return expected
+    if active_source.repo_root != root:
+        raise SubstrateRegistryError("catalog_source_repo_root_mismatch")
+    active_paths = active_source.substrate_paths
+    if active_paths.root_manifest_path.resolve() != expected.root_manifest_path.resolve():
+        raise SubstrateRegistryError("catalog_source_split_root_mismatch")
+    _require_catalog_path_within_owner(active_paths.production_root, data_root)
+    for path in (
+        active_paths.root_manifest_path,
+        active_paths.measurement_registry_path,
+        active_paths.identification_mode_registry_path,
+        active_paths.schema_regime_registry_path,
+        active_paths.l1_dcat_path,
+    ):
+        _require_catalog_path_within_owner(path, data_root)
+    for path in (
+        active_paths.epoch_schema_regime_registry_path,
+        active_paths.epoch_schema_regime_scope_registry_path,
+    ):
+        if path is None:
+            raise SubstrateRegistryError("l5_epoch_registry_paths_not_established")
+        _require_catalog_path_within_owner(path, root)
+    return active_paths
+
+
+def _require_catalog_path_within_owner(path: Path, owner_root: Path) -> None:
+    """Reject a declared catalog path that resolves outside its typed owner."""
+
+    try:
+        resolved_root = Path(owner_root).resolve(strict=True)
+        resolved_path = Path(path).resolve(strict=False)
+        resolved_path.relative_to(resolved_root)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise SubstrateRegistryError("substrate_source_path_outside_repo_root", str(path)) from exc
 
 
 def _file_artifact_ref(
@@ -984,15 +1038,23 @@ def load_l5_catalog_authority(
     paths: SubstrateCatalogPaths,
     *,
     repo_root: Path,
+    source_owner_root: Path | None = None,
 ) -> L5CatalogAuthority:
-    """Load L5 authority while binding every source file to its actual repo root."""
+    """Load L5 data metadata and code-owned epoch registries from their roots."""
 
     try:
         repo_root = Path(repo_root).resolve(strict=True)
+        data_root = (
+            Path(source_owner_root).resolve(strict=True)
+            if source_owner_root is not None
+            else repo_root
+        )
     except (OSError, RuntimeError) as exc:
         raise SubstrateRegistryError("substrate_source_repo_root_unavailable") from exc
     if not repo_root.is_dir():
         raise SubstrateRegistryError("substrate_source_repo_root_not_directory")
+    if not data_root.is_dir():
+        raise SubstrateRegistryError("substrate_source_owner_root_not_directory")
     epoch_regime_path = paths.epoch_schema_regime_registry_path
     epoch_scope_path = paths.epoch_schema_regime_scope_registry_path
     if epoch_regime_path is None or epoch_scope_path is None:
@@ -1002,10 +1064,12 @@ def load_l5_catalog_authority(
         paths.measurement_registry_path,
         paths.identification_mode_registry_path,
         paths.schema_regime_registry_path,
-        epoch_regime_path,
-        epoch_scope_path,
     ):
+        _repo_relative_path(source_path, repo_root=data_root)
+    for source_path in (epoch_regime_path, epoch_scope_path):
         _repo_relative_path(source_path, repo_root=repo_root)
+    if source_owner_root is not None:
+        _load_json(paths.root_manifest_path, strict_object=True)
     measurement = _load_json(paths.measurement_registry_path)
     identification = _load_json(paths.identification_mode_registry_path)
     schema_regime = _load_json(paths.schema_regime_registry_path)
@@ -1014,17 +1078,17 @@ def load_l5_catalog_authority(
     measurement_ref = _repo_ref(
         paths.measurement_registry_path,
         marker="measurement_registry",
-        repo_root=repo_root,
+        repo_root=data_root,
     )
     identification_ref = _repo_ref(
         paths.identification_mode_registry_path,
         marker="identification_mode_registry",
-        repo_root=repo_root,
+        repo_root=data_root,
     )
     schema_ref = _repo_ref(
         paths.schema_regime_registry_path,
         marker="schema_regime_registry",
-        repo_root=repo_root,
+        repo_root=data_root,
     )
     trust_tiers = {
         str(tier_id): SubstrateTrustTier(
@@ -1110,6 +1174,7 @@ def load_l5_catalog_authority(
 def build_substrate_registry_from_existing_catalogs(
     repo_root: Path,
     *,
+    source_owner_root: Path | None = None,
     l5_receipt_projections: Sequence[
         tuple[
             epoch_contract.L5SchemaRegimeDenominatorReceipt,
@@ -1121,7 +1186,11 @@ def build_substrate_registry_from_existing_catalogs(
     """Lift the current production-data substrate metadata from L5 and L1 catalogs."""
 
     repo_root = Path(repo_root).resolve()
-    paths = default_substrate_catalog_paths(repo_root)
+    data_root = Path(source_owner_root).resolve() if source_owner_root is not None else repo_root
+    paths = default_substrate_catalog_paths(
+        repo_root,
+        source_owner_root=data_root if source_owner_root is not None else None,
+    )
     for required in (
         paths.root_manifest_path,
         paths.measurement_registry_path,
@@ -1131,8 +1200,15 @@ def build_substrate_registry_from_existing_catalogs(
     ):
         if not required.exists():
             raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
-    l5 = load_l5_catalog_authority(paths, repo_root=repo_root)
-    root_manifest = _load_json(paths.root_manifest_path)
+    l5 = load_l5_catalog_authority(
+        paths,
+        repo_root=repo_root,
+        source_owner_root=data_root if source_owner_root is not None else None,
+    )
+    root_manifest = _load_json(
+        paths.root_manifest_path,
+        strict_object=source_owner_root is not None,
+    )
     receipt_projections = tuple(l5_receipt_projections or ())
     if not receipt_projections:
         receipt_projections = tuple(
@@ -1152,27 +1228,30 @@ def build_substrate_registry_from_existing_catalogs(
         *l5_entries_by_key.values(),
         *_entries_from_l1_dcat(
             paths.l1_dcat_path,
-            repo_root=repo_root,
+            repo_root=data_root,
             root_manifest=root_manifest,
             l5=l5,
         ),
         *_entries_from_root_manifest(
-            repo_root,
+            data_root,
             root_manifest,
             root_manifest_path=paths.root_manifest_path,
             l5=l5,
         ),
-        *_entries_from_l2_l3_knowledge_substrates(repo_root.resolve(), l5=l5),
+        *_entries_from_l2_l3_knowledge_substrates(data_root, l5=l5),
         *_entries_from_l6_agent_sim_control_artifacts(
-            repo_root.resolve(),
+            data_root,
             root_manifest,
             root_manifest_path=paths.root_manifest_path,
             l5=l5,
         ),
     ]
-    knowledge_source_refs = _knowledge_substrate_refs(repo_root.resolve())
+    knowledge_source_refs = _knowledge_substrate_refs(data_root)
     l6_source_refs = _l6_agent_sim_control_refs(
-        repo_root.resolve(), root_manifest, root_manifest_path=paths.root_manifest_path
+        repo_root,
+        root_manifest,
+        root_manifest_path=paths.root_manifest_path,
+        source_owner_root=data_root if source_owner_root is not None else None,
     )
     return build_substrate_registry(
         entries,
@@ -1181,7 +1260,7 @@ def build_substrate_registry_from_existing_catalogs(
             _repo_ref(
                 paths.root_manifest_path,
                 marker="production_data_root_manifest",
-                repo_root=repo_root,
+                repo_root=data_root,
             ),
             l5.measurement_registry_ref,
             l5.identification_mode_registry_ref,
@@ -1191,7 +1270,7 @@ def build_substrate_registry_from_existing_catalogs(
             _repo_ref(
                 paths.l1_dcat_path,
                 marker="dataset_catalog.duckdb",
-                repo_root=repo_root,
+                repo_root=data_root,
             ),
             *knowledge_source_refs,
             *l6_source_refs,
@@ -1978,15 +2057,24 @@ def _l6_agent_sim_control_refs(
     root_manifest: Mapping[str, Any],
     *,
     root_manifest_path: Path,
+    source_owner_root: Path | None = None,
 ) -> tuple[str, ...]:
-    paths = default_substrate_catalog_paths(repo_root)
+    data_root = Path(source_owner_root).resolve() if source_owner_root is not None else repo_root
+    paths = default_substrate_catalog_paths(
+        repo_root,
+        source_owner_root=data_root if source_owner_root is not None else None,
+    )
     return tuple(
         entry.provenance_refs[0]
         for entry in _entries_from_l6_agent_sim_control_artifacts(
-            repo_root,
+            data_root,
             root_manifest,
             root_manifest_path=root_manifest_path,
-            l5=load_l5_catalog_authority(paths, repo_root=repo_root),
+            l5=load_l5_catalog_authority(
+                paths,
+                repo_root=repo_root,
+                source_owner_root=data_root if source_owner_root is not None else None,
+            ),
         )
     )
 
@@ -2146,14 +2234,42 @@ def _json_ready(value: object) -> object:
     return value
 
 
-def _load_json(path: Path) -> dict[str, Any]:
+def _load_json(path: Path, *, strict_object: bool = False) -> dict[str, Any]:
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        raw = path.read_bytes()
+        payload = (
+            json.loads(
+                raw,
+                object_pairs_hook=_unique_json_object,
+                parse_constant=_reject_json_constant,
+            )
+            if strict_object
+            else json.loads(raw)
+        )
     except FileNotFoundError as exc:
         raise SubstrateRegistryError("substrate_catalog_missing", path.as_posix()) from exc
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise SubstrateRegistryError("substrate_catalog_invalid", path.as_posix()) from exc
     if not isinstance(payload, dict):
         raise SubstrateRegistryError("substrate_catalog_invalid", path.as_posix())
     return payload
+
+
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject duplicate members when binding a selected production-data root."""
+
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate_json_object_key")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> NoReturn:
+    """Reject non-standard constants in selected production-data root JSON."""
+
+    raise ValueError(f"non_json_constant:{value}")
 
 
 def _load_json_source_bytes(path: Path) -> tuple[dict[str, Any], bytes]:

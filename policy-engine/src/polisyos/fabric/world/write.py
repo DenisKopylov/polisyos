@@ -114,12 +114,16 @@ def _json_value(value: dict[str, Any] | None) -> str | None:
 def write_world_snapshot(
     db_path: Path,
     request: WorldSnapshotWriteRequest,
+    *,
+    temp_directory: Path | None = None,
 ) -> WorldSnapshotRecord:
     """Replace named world rows transactionally, then retain the proven snapshot.
 
     Args:
         db_path: File-backed DuckDB database owned by the caller's workspace.
         request: Strict node, fact, temporal, and provenance snapshot request.
+        temp_directory: Optional physical DuckDB scratch directory. A split-root
+            caller supplies a path already confined to its caller-owned workspace.
 
     Returns:
         The retained Fabric world snapshot record.
@@ -171,6 +175,8 @@ def write_world_snapshot(
     managed_node_ids = tuple(node.node_id for node in validated.nodes)
 
     with SimulationDB(db_path=str(db_path)) as db:
+        if temp_directory is not None:
+            db.conn.execute("SET temp_directory = ?", [str(temp_directory)])
         ensure_world_schema(db)
         db.conn.execute("BEGIN")
         try:

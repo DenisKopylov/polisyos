@@ -98,6 +98,7 @@ from polisyos.runtime.quality.promotion_sequence import (  # noqa: E402
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
+    from tools.quality.validation.substrate_source_context import CandidateSubstrateSourceContext
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n10.depth_n_universality.v1"
 RULE_VERSION = "policyos.layer3.gy.n10.depth_n_universality.v1"
@@ -340,12 +341,14 @@ class _RecordingGateway:
         *,
         journal_path: Path | None = None,
         journal_context: Mapping[str, Any] | None = None,
+        source_context: CandidateSubstrateSourceContext | None = None,
     ) -> None:
         self._inner = inner
         self.calls: list[dict[str, Any]] = []
         self.model_ids: list[str] = []
         self._journal_path = journal_path
         self._journal_context = dict(journal_context or {})
+        self._source_context = source_context
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         method = getattr(self._inner, "list_model_ids", None)
@@ -377,6 +380,7 @@ class _RecordingGateway:
                     "event": "compiler_gateway_response_captured",
                     "call": row,
                 },
+                source_context=self._source_context,
             )
         return response
 
@@ -476,11 +480,13 @@ class _FreshRecordingSpanGateway:
         model_id: str,
         journal_path: Path | None = None,
         journal_context: Mapping[str, Any] | None = None,
+        source_context: CandidateSubstrateSourceContext | None = None,
     ) -> None:
         self.model_id = model_id
         self.calls: list[dict[str, Any]] = []
         self._journal_path = journal_path
         self._journal_context = dict(journal_context or {})
+        self._source_context = source_context
 
     async def generate(self, **kwargs: Any) -> object:
         from polisyos.scientist.orchestration.llm.factory import (
@@ -516,6 +522,7 @@ class _FreshRecordingSpanGateway:
                     "event": "span_gateway_response_captured",
                     "call": row,
                 },
+                source_context=self._source_context,
             )
         return response
 
@@ -1675,6 +1682,7 @@ def _cycle_context_for_problem(
     repo_root: Path,
     *,
     problem: object,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> object | None:
     """Resolve owner evidence for one world without role or domain-label trust."""
 
@@ -1695,30 +1703,55 @@ def _cycle_context_for_problem(
     from polisyos.runtime.quality.world_model_record import WorldModelRecordError
     from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
 
+    code_root = Path(repo_root).resolve()
+    source_root = (
+        source_context.require_source_owner_root(code_root)
+        if source_context is not None
+        else code_root
+    )
     resolved_problem = DesignProblem.model_validate(problem)
     problem_ref = gy_content_hash(resolved_problem.model_dump(mode="json"))
     contexts: list[CycleSubstrateContext] = []
-    second_domain_bundle = n10a._load_frozen_bundle(repo_root)
+    second_domain_bundle = n10a._load_frozen_bundle(code_root)
     if n10a.second_domain_pack_supports_design_problem(
         second_domain_bundle,
         resolved_problem,
     ):
         contexts.append(
             n10a._build_frozen_cycle_substrate_context(
-                repo_root,
+                code_root,
                 bundle=second_domain_bundle,
                 design_problem=resolved_problem,
+                source_context=source_context,
             )
         )
-    registry = build_substrate_registry_from_existing_catalogs(repo_root)
-    world = production_composed_world_model_record(repo_root)
+    if source_context is not None:
+        source_context.require_source_owner_root(code_root)
+    registry = build_substrate_registry_from_existing_catalogs(
+        code_root,
+        source_owner_root=source_root if source_context is not None else None,
+    )
+    if source_context is None:
+        world = production_composed_world_model_record(code_root)
+    else:
+        source_context.require_source_owner_root(code_root)
+        world = production_composed_world_model_record(
+            code_root,
+            workspace_dir=source_context.workspace_root,
+            production_data_root=source_root,
+        )
     if registry.content_hash != world.substrate_registry_ref.content_hash:
         raise UniversalityContractError("first_vertical_registry_wmr_mismatch")
     if world.region_or_jurisdiction == resolved_problem.jurisdiction_time.region:
         selected_hashes = tuple(
             entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
         )
-        intervention_substrate = load_l6_intervention_substrate(repo_root)
+        if source_context is not None:
+            source_context.require_source_owner_root(code_root)
+        intervention_substrate = load_l6_intervention_substrate(
+            code_root,
+            source_owner_root=source_root if source_context is not None else None,
+        )
         substrate_input_hash = gy_content_hash(
             {
                 "schema_version": "policyos.layer3.gy.n10.world_context.v1",
@@ -3737,9 +3770,12 @@ async def _n4_recording_from_journal(
     problem: object,
     cycle_substrate_context: object | None,
     journal_path: Path,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> tuple[dict[str, Any], object]:
     """Replay one just-finished live call set before admitting its receipt."""
 
+    if source_context is not None:
+        journal_path = source_context.require_workspace_path(journal_path)
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.design_generation import (
         generate_design_candidate_bundle_under_a,
@@ -3789,25 +3825,48 @@ async def _n4_recording_from_journal(
     return recording, replayed
 
 
-def _append_capture_journal(repo_root: Path, payload: Mapping[str, Any]) -> None:
+def _append_capture_journal(
+    repo_root: Path,
+    payload: Mapping[str, Any],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> None:
     """Persist operational intent/result before any authoritative artifact write."""
 
     path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
-    _append_jsonl(path, payload)
+    _append_jsonl(path, payload, source_context=source_context)
 
 
-def _append_jsonl(path: Path, payload: Mapping[str, Any]) -> None:
+def _append_jsonl(
+    path: Path,
+    payload: Mapping[str, Any],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> None:
     """Append one canonical local evidence row without entering contract identity."""
 
+    if source_context is not None:
+        path = source_context.require_workspace_path(path)
+        source_context.require_workspace_tree(path.parent)
     path.parent.mkdir(parents=True, exist_ok=True)
+    if source_context is not None:
+        path = source_context.require_workspace_path(path)
+        source_context.require_workspace_tree(path.parent)
     with path.open("a", encoding="utf-8") as stream:
         stream.write(_canonical_json(payload) + "\n")
 
 
-def _capture_journal_has_event(repo_root: Path, event: str) -> bool:
+def _capture_journal_has_event(
+    repo_root: Path,
+    event: str,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> bool:
     """Return whether the ignored operational journal already records an event."""
 
     path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
+    if source_context is not None:
+        path = source_context.require_workspace_path(path)
     if not path.is_file():
         return False
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -3828,18 +3887,42 @@ def _local_recording_path(repo_root: Path, *, role: str, kind: str) -> Path:
     return repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{role}-{kind}-recording.json"
 
 
-def _write_local_recording(path: Path, recording: Mapping[str, Any]) -> None:
+def _write_local_recording(
+    path: Path,
+    recording: Mapping[str, Any],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> None:
     """Persist a byte-stable local cache only after owner replay validation."""
 
-    path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
+    if source_context is not None:
+        path = source_context.require_workspace_path(path)
+        temporary = source_context.require_workspace_path(temporary)
+        source_context.require_workspace_tree(path.parent)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if source_context is not None:
+        path = source_context.require_workspace_path(path)
+        temporary = source_context.require_workspace_path(temporary)
+        source_context.require_workspace_tree(path.parent)
     temporary.write_text(_canonical_json(recording) + "\n", encoding="utf-8")
+    if source_context is not None:
+        temporary = source_context.require_workspace_path(temporary)
+        path = source_context.require_workspace_path(path)
     temporary.replace(path)
+    if source_context is not None:
+        source_context.require_workspace_path(path)
 
 
-def _read_local_recording(path: Path) -> dict[str, Any] | None:
+def _read_local_recording(
+    path: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any] | None:
     """Load one prior successful local recording without treating absence as evidence."""
 
+    if source_context is not None:
+        path = source_context.require_workspace_path(path)
     if not path.is_file():
         return None
     return _read_json(path)
@@ -4547,6 +4630,8 @@ async def _capture_domain_run(
     role: str,
     compiler_recording: Mapping[str, Any],
     problem: object,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    workspace_root: Path | None = None,
 ) -> dict[str, Any]:
     """Run one compiled problem through the production recursive/cycle owners."""
 
@@ -4561,6 +4646,7 @@ async def _capture_domain_run(
     context = _cycle_context_for_problem(
         repo_root,
         problem=problem,
+        source_context=source_context,
     )
     replay = _ReplayGateway(compiler_recording)
     span_replay = _ReplayGateway(
@@ -4569,11 +4655,18 @@ async def _capture_domain_run(
             "calls": _mappings(compiler_recording.get("span_calls")),
         }
     )
-    journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{role}-n4.jsonl"
+    journal_root = workspace_root.resolve() if workspace_root is not None else repo_root.resolve()
+    journal_path = journal_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{role}-n4.jsonl"
+    if source_context is not None:
+        journal_path = source_context.require_workspace_path(journal_path)
+        source_context.require_workspace_tree(journal_path.parent)
     journal_path.parent.mkdir(parents=True, exist_ok=True)
+    if source_context is not None:
+        journal_path = source_context.require_workspace_path(journal_path)
+        source_context.require_workspace_tree(journal_path.parent)
     journal_path.unlink(missing_ok=True)
     _append_capture_journal(
-        repo_root,
+        journal_root,
         {
             "event": "domain_run_started",
             "role": role,
@@ -4581,20 +4674,29 @@ async def _capture_domain_run(
             "cycle_substrate_context_content_hash": getattr(context, "content_hash", None),
             "artifact_write": "not_started",
         },
+        source_context=source_context,
     )
     with (
-        TemporaryDirectory(prefix=f"gy-depth-n-{role}-n9-verification-") as temp_dir,
+        TemporaryDirectory(
+            prefix=f"gy-depth-n-{role}-n9-verification-",
+            dir=journal_root if source_context is not None else None,
+        ) as temp_dir,
         _temporary_environment(
             {**_N4_CAPTURE_ENV, "POLISYOS_N4_CALL_JOURNAL_PATH": str(journal_path)}
         ),
     ):
+        state_root = Path(temp_dir)
+        if source_context is not None:
+            state_root = source_context.require_workspace_tree(state_root)
+            source_context.require_workspace_path(state_root / "cas")
+            source_context.require_workspace_path(state_root / "state")
         controller = _governed_verification_recursive_controller(
             repo_root,
             expected_problem=problem,
             model_id=PROOF_MODEL_ID,
             cycle_substrate_context=context,
             n4_generation_port=None,
-            state_root=Path(temp_dir),
+            state_root=state_root,
             sessions_by_node_ref={},
         )
         compiled = await _compile_and_run_verification_recursive_generation_cycle(
@@ -4628,6 +4730,7 @@ async def _capture_domain_run(
             problem=compiled.design_problem,
             cycle_substrate_context=context,
             journal_path=journal_path,
+            source_context=source_context,
         )
         _assert_n4_cycle_binding(compiled, organ_run)
     recording = _domain_run_recording(
@@ -4638,7 +4741,7 @@ async def _capture_domain_run(
         compiled=compiled,
     )
     _append_capture_journal(
-        repo_root,
+        journal_root,
         {
             "event": "domain_run_completed",
             "role": role,
@@ -4646,6 +4749,7 @@ async def _capture_domain_run(
             "compiled_run_content_hash": compiled.content_hash,
             "artifact_write": "not_started",
         },
+        source_context=source_context,
     )
     return recording
 
@@ -4808,16 +4912,26 @@ def _without_authority_source_migration_receipt(
     return current
 
 
-async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
+async def _capture_proof_recordings(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any]:
     """Run the serial proof lane under its explicit long-call envelope."""
 
     with _temporary_environment(_PROOF_COMPILER_CAPTURE_ENV):
-        return await _capture_proof_recordings_configured(repo_root)
+        return await _capture_proof_recordings_configured(repo_root, source_context=source_context)
 
 
-async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any]:
+async def _capture_proof_recordings_configured(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any]:
     """Accumulate compiler evidence, then execute one resumable cold closeout."""
 
+    recording_root = _capture_workspace_root(repo_root, source_context)
+    _require_capture_workspace_sinks(recording_root, source_context)
     from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
     from polisyos.scientist.orchestration.llm.factory import (
         create_traced_gateway_client,
@@ -4826,8 +4940,10 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
         SPAN_SUPPORT_GATEWAY_MODEL_ID,
     )
 
-    _append_capture_journal(
-        repo_root,
+    def append_capture_journal(payload: Mapping[str, Any]) -> None:
+        _append_capture_journal(recording_root, payload, source_context=source_context)
+
+    append_capture_journal(
         {
             "event": "proof_capture_pipeline_started",
             "roles": list(PLAIN_LANGUAGE_PROOF_REQUESTS),
@@ -4837,21 +4953,20 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
         },
     )
     compiled: dict[str, tuple[object, dict[str, Any]]] = {}
-    journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
+    journal_path = recording_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
     for role, raw_request in PLAIN_LANGUAGE_PROOF_REQUESTS.items():
         cache_path = _local_recording_path(
-            repo_root,
+            recording_root,
             role=role,
             kind="compiler",
         )
-        cached = _read_local_recording(cache_path)
+        cached = _read_local_recording(cache_path, source_context=source_context)
         if cached is not None:
             if cached.get("role") != role or cached.get("raw_request") != raw_request:
                 raise UniversalityContractError(f"compiler_local_cache_identity_mismatch:{role}")
             problem = await _replay_compiler_recording(cached)
             compiled[role] = (problem, cached)
-            _append_capture_journal(
-                repo_root,
+            append_capture_journal(
                 {
                     "event": "compiler_local_recording_reused",
                     "role": role,
@@ -4862,8 +4977,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
             continue
 
         for model_id in PROOF_COMPILER_MODEL_PLAN:
-            _append_capture_journal(
-                repo_root,
+            append_capture_journal(
                 {
                     "event": "compiler_capture_attempt_started",
                     "role": role,
@@ -4877,8 +4991,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                 model_variant_id="gy-n10-stage4",
             )
             if inner is None:
-                _append_capture_journal(
-                    repo_root,
+                append_capture_journal(
                     {
                         "event": "compiler_capture_attempt_refused",
                         "role": role,
@@ -4891,6 +5004,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                 inner,
                 journal_path=journal_path,
                 journal_context={"role": role, "model_id": model_id},
+                source_context=source_context,
             )
             span_gateway = _FreshRecordingSpanGateway(
                 model_id=SPAN_SUPPORT_GATEWAY_MODEL_ID,
@@ -4899,6 +5013,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                     "role": role,
                     "compiler_model_id": model_id,
                 },
+                source_context=source_context,
             )
             try:
                 problem, recording = await _capture_compiler_recording(
@@ -4909,8 +5024,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                     span_gateway=span_gateway,
                 )
             except DesignProblemAuthorityError as exc:
-                _append_capture_journal(
-                    repo_root,
+                append_capture_journal(
                     {
                         "event": "compiler_capture_attempt_refused",
                         "role": role,
@@ -4921,8 +5035,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                     },
                 )
             except RuntimeError as exc:
-                _append_capture_journal(
-                    repo_root,
+                append_capture_journal(
                     {
                         "event": "compiler_capture_attempt_refused",
                         "role": role,
@@ -4933,10 +5046,9 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                     },
                 )
             else:
-                _write_local_recording(cache_path, recording)
+                _write_local_recording(cache_path, recording, source_context=source_context)
                 compiled[role] = (problem, recording)
-                _append_capture_journal(
-                    repo_root,
+                append_capture_journal(
                     {
                         "event": "compiler_capture_attempt_succeeded",
                         "role": role,
@@ -4956,19 +5068,23 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
     missing_domain_roles = [
         role
         for role in PLAIN_LANGUAGE_PROOF_REQUESTS
-        if _read_local_recording(_local_recording_path(repo_root, role=role, kind="domain")) is None
+        if _read_local_recording(
+            _local_recording_path(recording_root, role=role, kind="domain"),
+            source_context=source_context,
+        )
+        is None
     ]
     if missing_domain_roles:
         event = (
             "cold_domain_closeout_resumed"
             if _capture_journal_has_event(
-                repo_root,
+                recording_root,
                 "cold_domain_closeout_started",
+                source_context=source_context,
             )
             else "cold_domain_closeout_started"
         )
-        _append_capture_journal(
-            repo_root,
+        append_capture_journal(
             {
                 "event": event,
                 "roles": missing_domain_roles,
@@ -4978,11 +5094,11 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
     for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
         problem, compiler_recording = compiled[role]
         cache_path = _local_recording_path(
-            repo_root,
+            recording_root,
             role=role,
             kind="domain",
         )
-        cached = _read_local_recording(cache_path)
+        cached = _read_local_recording(cache_path, source_context=source_context)
         if cached is not None:
             if cached.get("role") != role:
                 raise UniversalityContractError(f"domain_local_cache_identity_mismatch:{role}")
@@ -4990,10 +5106,10 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                 repo_root,
                 role=role,
                 recording=cached,
+                source_context=source_context,
             )
             domain_recordings[role] = cached
-            _append_capture_journal(
-                repo_root,
+            append_capture_journal(
                 {
                     "event": "domain_local_recording_reused",
                     "role": role,
@@ -5006,17 +5122,19 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
             role=role,
             compiler_recording=compiler_recording,
             problem=problem,
+            source_context=source_context,
+            workspace_root=recording_root,
         )
         await _domain_run_from_recording(
             repo_root,
             role=role,
             recording=recording,
+            source_context=source_context,
         )
-        _write_local_recording(cache_path, recording)
+        _write_local_recording(cache_path, recording, source_context=source_context)
         domain_recordings[role] = recording
     if missing_domain_roles:
-        _append_capture_journal(
-            repo_root,
+        append_capture_journal(
             {
                 "event": "cold_domain_closeout_completed",
                 "roles": missing_domain_roles,
@@ -5031,6 +5149,7 @@ async def _domain_run_from_recording(
     *,
     role: str,
     recording: Mapping[str, Any],
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> dict[str, Any]:
     """Re-derive one semantic run trace from frozen owner-response evidence."""
 
@@ -5038,6 +5157,7 @@ async def _domain_run_from_recording(
         repo_root,
         role=role,
         recording=recording,
+        source_context=source_context,
     )
     return domain_run
 
@@ -5048,6 +5168,7 @@ async def _domain_run_and_normalized_recording(
     role: str,
     recording: Mapping[str, Any],
     historical_domain_run: Mapping[str, Any] | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], tuple[GyComparisonAdmission, ...]]:
     """Re-derive current owners and supersede no-context fixed-vertical evidence."""
 
@@ -5120,6 +5241,7 @@ async def _domain_run_and_normalized_recording(
     context = _cycle_context_for_problem(
         repo_root,
         problem=problem,
+        source_context=source_context,
     )
     observed_context_hash = getattr(context, "content_hash", None)
     recorded_context_hash = recording.get("cycle_substrate_context_content_hash")
@@ -5191,16 +5313,24 @@ async def _domain_run_and_normalized_recording(
     )
     sessions_by_node_ref: dict[str, ConfidenceLedgerSession] = {}
     with (
-        TemporaryDirectory(prefix=f"gy-depth-n-{role}-n9-verification-") as temp_dir,
+        TemporaryDirectory(
+            prefix=f"gy-depth-n-{role}-n9-verification-",
+            dir=source_context.workspace_root if source_context is not None else None,
+        ) as temp_dir,
         _temporary_environment(_mapping(n4_recording.get("effective_environment"))),
     ):
+        state_root = Path(temp_dir)
+        if source_context is not None:
+            state_root = source_context.require_workspace_tree(state_root)
+            source_context.require_workspace_path(state_root / "cas")
+            source_context.require_workspace_path(state_root / "state")
         controller = _governed_verification_recursive_controller(
             repo_root,
             expected_problem=problem,
             model_id=PROOF_MODEL_ID,
             cycle_substrate_context=context,
             n4_generation_port=n4_port,
-            state_root=Path(temp_dir),
+            state_root=state_root,
             sessions_by_node_ref=sessions_by_node_ref,
         )
         compiled = await _compile_and_run_verification_recursive_generation_cycle(
@@ -5920,12 +6050,17 @@ async def _complete_payload_from_recordings(
     *,
     recordings: Mapping[str, Any],
     historical_domain_runs: Mapping[str, Any] | None = None,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
     """Aggregate three cached owner runs over the stable Task-12 evidence graph."""
 
     if set(recordings) != set(PLAIN_LANGUAGE_PROOF_REQUESTS):
         raise UniversalityContractError("proof_recording_domain_denominator_missing")
-    base = _build_pending_payload(repo_root, lane="cached")
+    base = _build_pending_payload(
+        repo_root,
+        lane="cached",
+        source_context=source_context,
+    )
     domain_runs: dict[str, Any] = {}
     normalized_recordings: dict[str, Any] = {}
     recording_admissions: list[GyComparisonAdmission] = []
@@ -5944,6 +6079,7 @@ async def _complete_payload_from_recordings(
                 if historical_domain_runs is not None
                 else None
             ),
+            source_context=source_context,
         )
         domain_runs[role] = domain_run
         normalized_recordings[role] = normalized_recording
@@ -5993,7 +6129,11 @@ def declared_outputs() -> list[str]:
     return [OUTPUT_PATH]
 
 
-def check_provenance_stability(repo_root: Path) -> dict[str, Any]:
+def check_provenance_stability(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any]:
     """Validate and cross-bind every frozen owner on the Stage-4 entry graph.
 
     Args:
@@ -6005,13 +6145,19 @@ def check_provenance_stability(repo_root: Path) -> dict[str, Any]:
     """
 
     root = repo_root.resolve()
+    if source_context is not None:
+        source_context.require_source_owner_root(root)
     dirty_paths = _dirty_upstream_paths(root)
     if dirty_paths:
         return {
             "status": "drifted",
             "issues": [{"code": "upstream_artifact_dirty", "paths": dirty_paths}],
         }
-    return copy.deepcopy(_cached_provenance_stability(root.as_posix()))
+    if source_context is None:
+        return copy.deepcopy(_cached_provenance_stability(root.as_posix()))
+    return copy.deepcopy(
+        _derive_provenance_stability(root.as_posix(), source_context=source_context)
+    )
 
 
 @functools.lru_cache(maxsize=2)
@@ -6042,7 +6188,11 @@ def _suppress_non_contract_process_output() -> Iterator[None]:
         os.close(stderr_fd)
 
 
-def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
+def _derive_provenance_stability(
+    repo_root: str,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any]:
     root = Path(repo_root)
     issues: list[dict[str, Any]] = []
 
@@ -6082,7 +6232,11 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
     _extend_owner_issues(
         issues,
         "n10a",
-        n10a_validator.validate_bundle_payloads(n10a_bundle, root),
+        n10a_validator.validate_bundle_payloads(
+            n10a_bundle,
+            root,
+            source_context=source_context,
+        ),
     )
     composition_report = composition_validator.validate(root)
     _extend_owner_issues(
@@ -6245,7 +6399,13 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
     }
 
 
-def build_live_payload(repo_root: Path, *, lane: str = "lane0") -> dict[str, Any]:
+def build_live_payload(
+    repo_root: Path,
+    *,
+    lane: str = "lane0",
+    source_context: CandidateSubstrateSourceContext | None = None,
+    source_artifact_path: Path | None = None,
+) -> dict[str, Any]:
     """Build either the cheap pending view or the cached completed proof.
 
     Args:
@@ -6260,7 +6420,12 @@ def build_live_payload(repo_root: Path, *, lane: str = "lane0") -> dict[str, Any
         UniversalityContractError: If the entry graph or recordings drift.
     """
 
-    payload, _ = _build_live_payload_with_plan(repo_root, lane=lane)
+    payload, _ = _build_live_payload_with_plan(
+        repo_root,
+        lane=lane,
+        source_context=source_context,
+        source_artifact_path=source_artifact_path,
+    )
     return payload
 
 
@@ -6268,16 +6433,22 @@ def _build_live_payload_with_plan(
     repo_root: Path,
     *,
     lane: str,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    source_artifact_path: Path | None = None,
 ) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
     """Build a payload together with its ephemeral producer-bound plan."""
 
     root = repo_root.resolve()
     if lane == "lane0":
-        payload = _build_pending_payload(root, lane=lane)
+        payload = _build_pending_payload(root, lane=lane, source_context=source_context)
         return payload, GyComparisonProjectionPlan(entries=())
     if lane != "cached":
         raise UniversalityContractError(f"proof_lane_unknown:{lane}")
-    path = root / OUTPUT_PATH
+    path = source_artifact_path or (root / OUTPUT_PATH)
+    if source_artifact_path is not None and source_context is not None:
+        path = _require_candidate_output_path(root, path, source_context)
+    else:
+        path = path.expanduser().resolve()
     if not path.is_file():
         raise UniversalityContractError("proof_recordings_missing")
     committed = _read_json(path)
@@ -6287,15 +6458,21 @@ def _build_live_payload_with_plan(
             root,
             recordings=recordings,
             historical_domain_runs=_mapping(committed.get("domain_runs")),
+            source_context=source_context,
         )
     )
 
 
-def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
+def _build_pending_payload(
+    repo_root: Path,
+    *,
+    lane: str,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any]:
     """Aggregate the stable pre-proof owner graph without claiming domain runs."""
 
     root = repo_root.resolve()
-    stability = check_provenance_stability(root)
+    stability = check_provenance_stability(root, source_context=source_context)
     if stability.get("status") != "stable":
         raise UniversalityContractError("provenance_stability_failed")
 
@@ -6381,7 +6558,11 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
     return payload
 
 
-def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
+def validate_payload(
+    payload: Mapping[str, Any],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> dict[str, Any]:
     """Validate Task-12 honesty and content integrity.
 
     Args:
@@ -6391,6 +6572,8 @@ def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         Structured validation status and issues.
     """
 
+    if source_context is not None:
+        source_context.require_source_owner_root(source_context.code_root)
     issues: list[dict[str, Any]] = []
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "schema_version_mismatch"})
@@ -6418,7 +6601,7 @@ def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         if set(domain_runs or {}) != {"first_vertical", "education", "unseen"}:
             issues.append({"code": "complete_proof_domain_denominator_missing"})
         else:
-            issues.extend(_completed_domain_run_issues(payload))
+            issues.extend(_completed_domain_run_issues(payload, source_context=source_context))
     else:
         issues.append({"code": "proof_status_invalid"})
 
@@ -6467,6 +6650,8 @@ def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
 
 def _completed_domain_run_issues(
     payload: Mapping[str, Any],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
 ) -> list[dict[str, Any]]:
     """Validate exact raw requests, real compiler bindings, and honest terminals."""
 
@@ -6589,7 +6774,10 @@ def _completed_domain_run_issues(
         and sorted(_strings(generation.get("proposed_lever_ids"))) == expected_operators
     )
     try:
-        known_vertical_vocabulary = _known_vertical_vocabulary(payload)
+        known_vertical_vocabulary = _known_vertical_vocabulary(
+            payload,
+            source_context=source_context,
+        )
     except Exception as exc:
         known_vertical_vocabulary = set()
         issues.append(
@@ -6610,7 +6798,11 @@ def _completed_domain_run_issues(
     return issues
 
 
-def _known_vertical_vocabulary(payload: Mapping[str, Any]) -> set[str]:
+def _known_vertical_vocabulary(
+    payload: Mapping[str, Any],
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> set[str]:
     """Derive vertical vocabulary from each resolved owner context and N4 output."""
 
     from polisyos.runtime.quality.design_problem import DesignProblem
@@ -6641,7 +6833,11 @@ def _known_vertical_vocabulary(payload: Mapping[str, Any]) -> set[str]:
         for candidate in candidates:
             values.extend(candidate.values())
         typed_problem = DesignProblem.model_validate(problem)
-        context = _cycle_context_for_problem(REPO_ROOT, problem=typed_problem)
+        context = _cycle_context_for_problem(
+            REPO_ROOT,
+            problem=typed_problem,
+            source_context=source_context,
+        )
         if context is None:
             raise UniversalityContractError(f"known_vertical_cycle_context_unavailable:{role}")
         context_payload = context.model_dump(mode="json")
@@ -7069,7 +7265,66 @@ def _domain_terminal_honesty_issues(
     return issues
 
 
-def write_payload(repo_root: Path, output_path: Path) -> bytes:
+def _capture_workspace_root(
+    repo_root: Path,
+    source_context: CandidateSubstrateSourceContext | None,
+) -> Path:
+    """Return the caller-owned scratch root after revalidating the source profile."""
+
+    if source_context is None:
+        return repo_root.resolve()
+    source_context.require_source_owner_root(repo_root)
+    return source_context.require_workspace_path(source_context.workspace_root)
+
+
+def _require_capture_workspace_sinks(
+    recording_root: Path,
+    source_context: CandidateSubstrateSourceContext | None,
+) -> None:
+    """Preflight every selected cold-capture journal, cache, and temporary sink."""
+
+    if source_context is None:
+        return
+    sinks = [recording_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"]
+    for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+        for kind in ("compiler", "domain"):
+            cache_path = _local_recording_path(recording_root, role=role, kind=kind)
+            sinks.extend((cache_path, cache_path.with_suffix(cache_path.suffix + ".tmp")))
+        sinks.append(recording_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{role}-n4.jsonl")
+    for sink in sinks:
+        source_context.require_workspace_path(sink)
+    source_context.require_workspace_path(recording_root)
+
+
+def _require_candidate_output_path(
+    repo_root: Path,
+    output_path: Path,
+    source_context: CandidateSubstrateSourceContext | None,
+) -> Path:
+    """Bind selected-source candidate output to the disjoint caller workspace."""
+
+    target = output_path.expanduser()
+    if not target.is_absolute():
+        base = source_context.workspace_root.resolve() if source_context is not None else Path.cwd()
+        target = base / target
+    target = (
+        source_context.require_workspace_path(target)
+        if source_context is not None
+        else target.resolve()
+    )
+    if source_context is not None and not target.is_relative_to(
+        _capture_workspace_root(repo_root, source_context)
+    ):
+        raise UniversalityContractError("candidate_output_outside_selected_workspace")
+    return target
+
+
+def write_payload(
+    repo_root: Path,
+    output_path: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+) -> bytes:
     """Write a byte-stable pending test payload or completed canonical proof.
 
     Args:
@@ -7085,13 +7340,19 @@ def write_payload(repo_root: Path, output_path: Path) -> bytes:
     """
 
     root = repo_root.resolve()
-    canonical = output_path.resolve() == (root / OUTPUT_PATH).resolve()
-    previous = _read_json(output_path) if canonical and output_path.is_file() else None
+    output_path = _require_candidate_output_path(root, output_path, source_context)
+    canonical = output_path == (root / OUTPUT_PATH).resolve()
+    previous = _read_json(output_path) if output_path.is_file() else None
+    source_artifact_path = (
+        output_path if source_context is not None and output_path.is_file() else None
+    )
     payload, comparison_plan = _build_live_payload_with_plan(
         root,
-        lane="cached" if canonical else "lane0",
+        lane="cached" if canonical or source_context is not None else "lane0",
+        source_context=source_context,
+        source_artifact_path=source_artifact_path if source_context is not None else None,
     )
-    report = validate_payload(payload)
+    report = validate_payload(payload, source_context=source_context)
     if canonical and report["status"] != "pass":
         raise UniversalityContractError(
             "universality_contract_write_invalid:"
@@ -7100,64 +7361,109 @@ def write_payload(repo_root: Path, output_path: Path) -> bytes:
     if previous is not None:
         payload = _reconcile_artifact_records(previous, payload, comparison_plan)
     data = (_canonical_json(payload) + "\n").encode("utf-8")
+    if source_context is not None:
+        output_path = source_context.require_workspace_path(output_path)
+        source_context.require_workspace_tree(output_path.parent)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    if source_context is not None:
+        output_path = source_context.require_workspace_path(output_path)
+        source_context.require_workspace_tree(output_path.parent)
     output_path.write_bytes(data)
+    if source_context is not None:
+        source_context.require_workspace_path(output_path)
     return data
 
 
-def capture_and_write_payload(repo_root: Path) -> bytes:
-    """Run the single cold closeout and write only after semantic validation."""
+def capture_and_write_payload(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    output_path: Path | None = None,
+) -> bytes:
+    """Run the single cold closeout and write only after semantic validation.
+
+    Selected-source runs persist their candidate artifact only to an explicit
+    destination beneath the caller-owned workspace.
+    """
 
     root = repo_root.resolve()
-    output_path = root / OUTPUT_PATH
+    recording_root = _capture_workspace_root(root, source_context)
+    _require_capture_workspace_sinks(recording_root, source_context)
+    if source_context is not None and output_path is None:
+        raise UniversalityContractError("candidate_output_target_required")
+    output_path = _require_candidate_output_path(
+        root, output_path if output_path is not None else root / OUTPUT_PATH, source_context
+    )
     if output_path.exists():
         raise UniversalityContractError("proof_capture_already_exists")
-    stability = check_provenance_stability(root)
+    stability = check_provenance_stability(root, source_context=source_context)
     if stability.get("status") != "stable":
         raise UniversalityContractError("provenance_stability_failed")
     try:
-        recordings = asyncio.run(_capture_proof_recordings(root))
+        recordings = asyncio.run(_capture_proof_recordings(root, source_context=source_context))
     except Exception as exc:
         _append_capture_journal(
-            root,
+            recording_root,
             {
                 "event": "cold_closeout_failed_before_artifact_write",
                 "error_code": str(exc).partition(":")[0],
                 "error_type": type(exc).__name__,
             },
+            source_context=source_context,
         )
         raise
-    payload, _ = asyncio.run(_complete_payload_from_recordings(root, recordings=recordings))
-    report = validate_payload(payload)
+    payload, _ = asyncio.run(
+        _complete_payload_from_recordings(
+            root, recordings=recordings, source_context=source_context
+        )
+    )
+    report = validate_payload(payload, source_context=source_context)
     if report["status"] != "pass":
         _append_capture_journal(
-            root,
+            recording_root,
             {
                 "event": "cold_closeout_refused_before_artifact_write",
                 "issues": report["issues"],
             },
+            source_context=source_context,
         )
         raise UniversalityContractError(
             "captured_proof_semantically_invalid:"
             + ",".join(str(item.get("code")) for item in report["issues"])
         )
     data = (_canonical_json(payload) + "\n").encode("utf-8")
+    if source_context is not None:
+        output_path = source_context.require_workspace_path(output_path)
+        source_context.require_workspace_tree(output_path.parent)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    if source_context is not None:
+        output_path = source_context.require_workspace_path(output_path)
+        source_context.require_workspace_tree(output_path.parent)
     output_path.write_bytes(data)
+    if source_context is not None:
+        source_context.require_workspace_path(output_path)
     _append_capture_journal(
-        root,
+        recording_root,
         {
             "event": "cold_closeout_artifact_written",
             "contract_content_hash": payload["contract_content_hash"],
         },
+        source_context=source_context,
     )
     return data
 
 
-def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
+def corrupt_field_drift_check(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    artifact_path: Path | None = None,
+) -> dict[str, Any]:
     """Exercise decisive frozen-payload corruptions without entering live owners."""
 
-    frozen_path = repo_root / OUTPUT_PATH
+    frozen_path = artifact_path or (repo_root / OUTPUT_PATH)
+    if artifact_path is not None:
+        frozen_path = _require_candidate_output_path(repo_root, frozen_path, source_context)
     if not frozen_path.is_file():
         return {
             "status": "fail",
@@ -7166,7 +7472,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
             "expected_exit": 1,
         }
     frozen = _read_json(frozen_path)
-    baseline_report = validate_payload(frozen)
+    baseline_report = validate_payload(frozen, source_context=source_context)
     if baseline_report["status"] != "pass":
         return {
             "status": "fail",
@@ -7937,37 +8243,58 @@ def run_source_flip_mutations(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def _check_canonical(repo_root: Path) -> dict[str, Any]:
-    stability = check_provenance_stability(repo_root)
+def _check_canonical(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    artifact_path: Path | None = None,
+) -> dict[str, Any]:
+    stability = check_provenance_stability(repo_root, source_context=source_context)
     if stability.get("status") != "stable":
         return {"status": "fail", "issues": stability.get("issues", [])}
-    path = repo_root / OUTPUT_PATH
+    path = artifact_path or (repo_root / OUTPUT_PATH)
+    if artifact_path is not None:
+        path = _require_candidate_output_path(repo_root, path, source_context)
     if not path.is_file():
         return {
             "status": "fail",
             "issues": [{"code": "universality_contract_artifact_missing"}],
         }
     payload = _read_json(path)
-    report = validate_payload(payload)
+    report = validate_payload(payload, source_context=source_context)
     if payload.get("proof_status") != "complete":
         report["issues"].append({"code": "proof_runs_pending"})
         report["status"] = "fail"
     return report
 
 
-def _rederive_audit(repo_root: Path) -> dict[str, Any]:
-    stability = check_provenance_stability(repo_root)
+def _rederive_audit(
+    repo_root: Path,
+    *,
+    source_context: CandidateSubstrateSourceContext | None = None,
+    artifact_path: Path | None = None,
+) -> dict[str, Any]:
+    stability = check_provenance_stability(repo_root, source_context=source_context)
     if stability.get("status") != "stable":
         return {"status": "fail", "issues": stability.get("issues", [])}
-    path = repo_root / OUTPUT_PATH
+    path = artifact_path or (repo_root / OUTPUT_PATH)
+    if artifact_path is not None:
+        path = _require_candidate_output_path(repo_root, path, source_context)
     if not path.is_file():
         return {
             "status": "fail",
             "issues": [{"code": "universality_contract_artifact_missing"}],
         }
-    live, comparison_plan = _build_live_payload_with_plan(repo_root, lane="cached")
+    live, comparison_plan = _build_live_payload_with_plan(
+        repo_root,
+        lane="cached",
+        source_context=source_context,
+        source_artifact_path=path
+        if source_context is not None and artifact_path is not None
+        else None,
+    )
     committed = _read_json(path)
-    issues = list(validate_payload(committed)["issues"])
+    issues = list(validate_payload(committed, source_context=source_context)["issues"])
     try:
         live = _reconcile_artifact_records(committed, live, comparison_plan)
     except UniversalityContractError as exc:
@@ -7978,16 +8305,48 @@ def _rederive_audit(repo_root: Path) -> dict[str, Any]:
 
 
 def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    root = args.repo_root.resolve()
+    try:
+        from tools.quality.validation.substrate_source_context import (
+            candidate_source_context_for_entrypoint,
+        )
+
+        source_context = candidate_source_context_for_entrypoint(
+            root,
+            source_owner_root=args.source_owner_root,
+            workspace_root=args.workspace_root,
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        return {
+            "status": "fail",
+            "issues": [{"code": str(exc).partition(":")[0], "error": str(exc)}],
+        }, 1
+    output_path = args.output
+    if output_path is not None and not output_path.is_absolute():
+        output_base = source_context.workspace_root if source_context is not None else Path.cwd()
+        output_path = output_base / output_path
     if args.corrupt_field_drift_check:
-        report = corrupt_field_drift_check(REPO_ROOT)
+        report = corrupt_field_drift_check(
+            root, source_context=source_context, artifact_path=output_path
+        )
         return report, 1 if report["status"] == "fail" else 0
     if args.source_flip_mutations:
-        report = run_source_flip_mutations(REPO_ROOT)
+        if source_context is not None:
+            return {
+                "status": "fail",
+                "issues": [{"code": "source_context_not_supported_for_source_flip"}],
+            }, 1
+        report = run_source_flip_mutations(root)
         return report, 0 if report["status"] == "pass" else 1
     if args.rederive_audit:
-        report = _rederive_audit(REPO_ROOT)
+        report = _rederive_audit(root, source_context=source_context, artifact_path=output_path)
         return report, 0 if report["status"] == "pass" else 1
     if args.characterize_compiler:
+        if source_context is not None:
+            return {
+                "status": "fail",
+                "issues": [{"code": "source_context_not_supported_for_characterization"}],
+            }, 1
         with _temporary_environment(
             {
                 "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
@@ -7996,9 +8355,14 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "POLISYOS_LLM_CACHE_MAXSIZE": "0",
             }
         ):
-            report = asyncio.run(_characterize_compiler_conformance(REPO_ROOT))
+            report = asyncio.run(_characterize_compiler_conformance(root))
         return report, 0 if report["status"] == "pass" else 1
     if args.characterize_compiler_capabilities:
+        if source_context is not None:
+            return {
+                "status": "fail",
+                "issues": [{"code": "source_context_not_supported_for_characterization"}],
+            }, 1
         with _temporary_environment(
             {
                 "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
@@ -8007,9 +8371,14 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "POLISYOS_LLM_CACHE_MAXSIZE": "0",
             }
         ):
-            report = asyncio.run(_characterize_structured_compiler_capabilities(REPO_ROOT))
+            report = asyncio.run(_characterize_structured_compiler_capabilities(root))
         return report, 0 if report["status"] == "pass" else 1
     if args.characterize_compiler_structured:
+        if source_context is not None:
+            return {
+                "status": "fail",
+                "issues": [{"code": "source_context_not_supported_for_characterization"}],
+            }, 1
         with _temporary_environment(
             {
                 "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
@@ -8018,11 +8387,13 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "POLISYOS_LLM_CACHE_MAXSIZE": "0",
             }
         ):
-            report = asyncio.run(_characterize_structured_compiler_conformance(REPO_ROOT))
+            report = asyncio.run(_characterize_structured_compiler_conformance(root))
         return report, 0 if report["status"] == "pass" else 1
     if args.capture_proof_runs:
         try:
-            data = capture_and_write_payload(REPO_ROOT)
+            data = capture_and_write_payload(
+                root, source_context=source_context, output_path=output_path
+            )
         except (UniversalityContractError, ValueError) as exc:
             return {
                 "status": "fail",
@@ -8038,11 +8409,14 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             },
         }, 0
     if args.write:
-        stability = check_provenance_stability(REPO_ROOT)
+        if source_context is not None and output_path is None:
+            return {"status": "fail", "issues": [{"code": "candidate_output_target_required"}]}, 1
+        stability = check_provenance_stability(root, source_context=source_context)
         if stability.get("status") != "stable":
             return {"status": "fail", "issues": stability.get("issues", [])}, 1
         try:
-            data = write_payload(REPO_ROOT, REPO_ROOT / OUTPUT_PATH)
+            target = output_path if output_path is not None else root / OUTPUT_PATH
+            data = write_payload(root, target, source_context=source_context)
         except (UniversalityContractError, ValueError) as exc:
             return {
                 "status": "fail",
@@ -8054,7 +8428,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             "issues": [],
             "contract_content_hash": payload["contract_content_hash"],
         }, 0
-    report = _check_canonical(REPO_ROOT)
+    report = _check_canonical(root, source_context=source_context, artifact_path=output_path)
     return report, 0 if report["status"] == "pass" else 1
 
 
@@ -8073,6 +8447,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--characterize-compiler-structured", action="store_true")
     modes.add_argument("--capture-proof-runs", action="store_true")
     modes.add_argument("--write", action="store_true")
+    parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    parser.add_argument("--source-owner-root", type=Path)
+    parser.add_argument("--workspace-root", type=Path)
+    parser.add_argument("--output", type=Path)
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parse_args_for_timing(
         parser,

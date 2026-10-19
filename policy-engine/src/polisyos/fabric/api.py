@@ -168,6 +168,7 @@ def _resolve_connector_for_dataset(
         2) Fall back to calling list_datasets() on CATALOG_BROWSE connectors.
     """
     from polisyos.fabric.connectors.registry import ConnectorNotFoundError
+    from polisyos.fabric.connectors.types import CatalogRegistrySchemaError
     from polisyos.ir.connectors import ConnectorCapability
 
     candidates = [
@@ -187,9 +188,32 @@ def _resolve_connector_for_dataset(
             if desc.dataset_id == dataset_id:
                 return entry.short_id
 
+    registry_failures: list[tuple[str, CatalogRegistrySchemaError]] = []
     for entry in candidates:
-        if _probe_catalog(registry, entry.short_id, dataset_id):
+        try:
+            matched = _probe_catalog(registry, entry.short_id, dataset_id)
+        except CatalogRegistrySchemaError as exc:
+            registry_failures.append((entry.short_id, exc))
+            logger.warning(
+                "catalog registry probe failed for connector '%s' dataset '%s': %s",
+                entry.short_id,
+                dataset_id,
+                exc,
+            )
+            continue
+        if matched:
             return entry.short_id
+
+    if registry_failures:
+        connector_id, cause = registry_failures[0]
+        raise CatalogRegistrySchemaError(
+            message=(
+                f"Catalog discovery is incomplete for dataset {dataset_id!r}: "
+                f"{len(registry_failures)} registry probe(s) failed and no independent "
+                "connector matched"
+            ),
+            connector_id=connector_id,
+        ) from cause
 
     raise ConnectorNotFoundError(
         connector_id=dataset_id,
@@ -209,6 +233,8 @@ def _probe_catalog(
     connector_id: str,
     dataset_id: str,
 ) -> bool:
+    from polisyos.fabric.connectors.types import CatalogRegistrySchemaError
+
     async def _check() -> bool:
         config = _default_config(registry, connector_id)
         handle = await registry.get_connection(connector_id, config)
@@ -227,6 +253,8 @@ def _probe_catalog(
 
     try:
         return bool(run_coro_sync(_check()))
+    except CatalogRegistrySchemaError:
+        raise
     except Exception as exc:
         logger.warning(
             "catalog probe failed for connector '%s' dataset '%s': %s",

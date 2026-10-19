@@ -135,7 +135,6 @@ def test_all_existing_default_consumers_use_original_resources(tmp_path):
     assert loaders._wvs_registry_path() == harvester._wvs_registry_path() == registry
     loaders._wvs_registry_cache = None
     harvester._load_wvs_indicator_registry.cache_clear()
-    wvs._load_wvs_registry_indicators.cache_clear()
     normalized = {str(code).strip().upper(): spec for code, spec in expected.items()}
     assert loaders._load_wvs_registry() == harvester._load_wvs_indicator_registry() == normalized
     wave7 = {
@@ -198,12 +197,29 @@ def test_optional_fallback_and_required_read_policies_survive_missing_defaults(
     monkeypatch.setattr(_resources, "__file__", str(catalog / "_resources.py"))
     proxy_penalties.load_proxy_metric_alignments.cache_clear()
     harvester._load_wvs_indicator_registry.cache_clear()
-    wvs._load_wvs_registry_indicators.cache_clear()
     monkeypatch.setattr(loaders, "_wvs_registry_cache", None)
     try:
         assert proxy_penalties.load_proxy_metric_alignments() == {}
         assert loaders._load_wvs_registry() == harvester._load_wvs_indicator_registry() == {}
+        assert loaders._wvs_legacy_indicators() == dict(loaders._LEGACY_WVS_INDICATORS_STATIC)
+        monkeypatch.setattr(
+            harvester, "_wvs_variable_catalog_path", lambda: tmp_path / "missing.xlsx"
+        )
+        assert (
+            harvester._load_wvs_indicator_catalog_from_local_file()
+            == harvester._WVS_STATIC_INDICATORS
+        )
         assert wvs._load_wvs_registry_indicators() == {}
+
+        async def missing_resource_dataset_ids():
+            connector = wvs.WVSConnector()
+            return {
+                item.dataset_id for item in [item async for item in connector.list_datasets(None)]
+            }
+
+        assert asyncio.run(missing_resource_dataset_ids()) == set(
+            wvs.WVSConnector._WAVE7_INDICATORS
+        )
         with pytest.raises(FileNotFoundError):
             variable_alignment.score_variable_pair(left_name="E", right_name="E")
         with pytest.raises(ValueError, match=r"metrics_map\.yaml not found"):
@@ -211,8 +227,100 @@ def test_optional_fallback_and_required_read_policies_survive_missing_defaults(
     finally:
         proxy_penalties.load_proxy_metric_alignments.cache_clear()
         harvester._load_wvs_indicator_registry.cache_clear()
-        wvs._load_wvs_registry_indicators.cache_clear()
         loaders._wvs_registry_cache = None
+
+
+@pytest.mark.parametrize(
+    "contents",
+    [
+        b"",
+        b"indicators: [malformed\n",
+        b"[]\n",
+        b"indicators: {}\n",
+        b"indicators:\n  A165:\n    title: First value\n    title: Conflicting duplicate\n",
+        b"version: 2\nindicators:\n  A001: {title: Unsupported version}\n",
+        b"version: true\nindicators:\n  A001: {title: Invalid version type}\n",
+        b"indicators:\n  123: {title: Not a string code}\n",
+        b"indicators:\n  A165: []\n",
+        b"indicators:\n  A165:\n    waves: 7\n",
+        b"indicators:\n  A165:\n    title: [not, text]\n",
+        b"indicators:\n  A165:\n    unsupported_field: value\n",
+        b"indicators:\n  a165: {title: lower}\n  A165: {title: upper}\n",
+        b"indicators:\n  A165:\n    waves: [true]\n",
+    ],
+)
+def test_present_invalid_wvs_registry_refuses_all_reader_fallbacks(tmp_path, monkeypatch, contents):
+    from polisyos.data_forge.domains.catalog.batch import harvester
+    from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+    from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+        WVSIndicatorRegistryError,
+    )
+    from polisyos.fabric.connectors.sources import wvs
+    from polisyos.fabric.connectors.types import CatalogRegistrySchemaError, SchemaError
+
+    assert issubclass(CatalogRegistrySchemaError, SchemaError)
+
+    registry_path = tmp_path / "wvs.yaml"
+    registry_path.write_bytes(contents)
+    monkeypatch.setattr(loaders, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(harvester, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(wvs, "catalog_default_resource_path", lambda _name: registry_path)
+    monkeypatch.setattr(harvester, "_wvs_variable_catalog_path", lambda: tmp_path / "missing.xlsx")
+    loaders._load_wvs_registry.cache_clear()
+    harvester._load_wvs_indicator_registry.cache_clear()
+    harvester._load_wvs_indicator_catalog_from_local_file.cache_clear()
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+
+    with pytest.raises(WVSIndicatorRegistryError, match="Invalid WVS indicator registry"):
+        loaders._load_wvs_registry()
+    with pytest.raises(WVSIndicatorRegistryError, match="Invalid WVS indicator registry"):
+        loaders._wvs_legacy_indicators()
+    with pytest.raises(WVSIndicatorRegistryError, match="Invalid WVS indicator registry"):
+        harvester._load_wvs_indicator_registry()
+    with pytest.raises(WVSIndicatorRegistryError, match="Invalid WVS indicator registry"):
+        harvester._load_wvs_indicator_catalog_from_local_file()
+    with pytest.raises(WVSIndicatorRegistryError, match="Invalid WVS indicator registry"):
+        _ = config.run_signature
+    with pytest.raises(CatalogRegistrySchemaError, match="Invalid WVS indicator registry"):
+        wvs._load_wvs_registry_indicators()
+
+    async def malformed_resource_dataset_ids():
+        connector = wvs.WVSConnector()
+        return {item.dataset_id for item in [item async for item in connector.list_datasets(None)]}
+
+    with pytest.raises(CatalogRegistrySchemaError, match="Invalid WVS indicator registry"):
+        asyncio.run(malformed_resource_dataset_ids())
+
+
+def test_valid_wvs_registry_can_have_empty_consumer_projections(tmp_path, monkeypatch):
+    from polisyos.data_forge.domains.catalog.batch import harvester
+    from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+    from polisyos.fabric.connectors.sources import wvs
+
+    registry_path = tmp_path / "wvs.yaml"
+    registry_path.write_text(
+        "indicators:\n  A001:\n    title: Wave one only\n    waves: [1]\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(loaders, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(harvester, "_wvs_registry_path", lambda: registry_path)
+    monkeypatch.setattr(wvs, "catalog_default_resource_path", lambda _name: registry_path)
+    monkeypatch.setattr(harvester, "_wvs_variable_catalog_path", lambda: tmp_path / "unused.xlsx")
+    loaders._load_wvs_registry.cache_clear()
+    harvester._load_wvs_indicator_registry.cache_clear()
+    harvester._load_wvs_indicator_catalog_from_local_file.cache_clear()
+
+    assert loaders._load_wvs_registry() == {"A001": {"title": "Wave one only", "waves": [1]}}
+    assert loaders._wvs_legacy_indicators() == dict(loaders._LEGACY_WVS_INDICATORS_STATIC)
+    assert harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"] == "Wave one only"
+    assert wvs._load_wvs_registry_indicators() == {}
+
+    async def dataset_ids():
+        connector = wvs.WVSConnector()
+        return {item.dataset_id for item in [item async for item in connector.list_datasets(None)]}
+
+    assert asyncio.run(dataset_ids()) == set(wvs.WVSConnector._WAVE7_INDICATORS)
 
 
 def test_runtime_facade_is_the_canonical_path_function():

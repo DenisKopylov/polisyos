@@ -44,8 +44,8 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
 from polisyos.data_forge.domains.catalog.batch.checkpoints import write_json
 from polisyos.data_forge.domains.catalog.batch.material_inputs import (
     _material_file_snapshot,
-    _material_yaml_snapshot,
     _MaterialFileSnapshot,
+    _wvs_indicator_registry_from_snapshot,
 )
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     country_scope_members,
@@ -432,15 +432,8 @@ def _load_wvs_registry() -> dict[str, dict[str, Any]]:
 def _load_wvs_registry_snapshot(
     snapshot: _MaterialFileSnapshot,
 ) -> dict[str, dict[str, Any]]:
-    if snapshot.raw is None:
-        return {}
-    try:
-        data = _material_yaml_snapshot(snapshot)
-        indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
-        return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
-    except Exception:
-        logger.warning("Failed to load WVS indicator registry")
-        return {}
+    indicators = _wvs_indicator_registry_from_snapshot(snapshot)
+    return {} if indicators is None else indicators
 
 
 # Retain the old explicit reset hook while the parsed cache keys on current bytes.

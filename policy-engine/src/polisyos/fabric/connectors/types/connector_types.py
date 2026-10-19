@@ -210,6 +210,10 @@ class SchemaError(ConnectorError):
         super().__init__(message=message, connector_id=connector_id, details=details)
 
 
+class CatalogRegistrySchemaError(SchemaError):
+    """Raised when a supplied connector catalog registry is malformed."""
+
+
 # ============================================================================
 # Supporting Data Structures
 # ============================================================================

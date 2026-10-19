@@ -1,0 +1,48 @@
+id = "2026-10-20-e02-c05-wvs-registry-discovery-refusal"
+title = "Preserve malformed WVS registry refusals through independent catalog discovery"
+type = "fixed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "The WVS connector reads its shared content-bound registry through Data Forge's supported read API; malformed supplied input remains a typed refusal, while discovery can continue to independent matching providers."
+evidence = [
+  "src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+  "src/polisyos/data_forge/read_api/catalog.py",
+  "src/polisyos/fabric/api.py",
+  "src/polisyos/fabric/connectors/sources/wvs.py",
+  "tests/unit/data_forge/read_api/test_wvs_indicator_registry.py",
+  "tests/unit/fabric/test_wvs_catalog_discovery.py",
+]
+compatibility = "Missing WVS registry input retains the existing static fallback. Present malformed input remains a typed schema refusal. An unselected malformed registry does not hide an independent matching provider; when no provider matches, discovery remains typed-incomplete rather than reporting absence."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.catalog; public_stable: polisyos.fabric.connectors"
+migration = "Callers of the Data Forge read API may use read_wvs_indicator_registry(path) and must propagate WVSIndicatorRegistryReadError. Fabric callers must preserve CatalogRegistrySchemaError and must not translate it to ConnectorNotFound or an empty catalog."
+api = "Data Forge exposes a typed Mapping-based registry reader and its typed malformed-input refusal through read_api.catalog. Fabric exports CatalogRegistrySchemaError as a connector-schema subtype. The reader delegates to the existing shared material snapshot parser; no parallel parser or resource resolution is introduced."
+limitations = "The public-surface generator outputs and team-owner review are pending; this fragment keeps public_surface_inventory_reviewed=false until the canonical generator is run and the resulting inventory is reviewed. This slice does not establish all-13-supplier C05 closure, external issuer/law, source custody/currentness, or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-wvs-registry-read-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.catalog.{read_wvs_indicator_registry, WVSIndicatorRegistryReadError}"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Adds a typed read facade over the shared current-byte WVS registry parser; missing input is distinct from a supplied malformed registry."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+
+[[compatibility_change]]
+id = "e02-fabric-catalog-registry-schema-refusal"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.fabric.connectors.CatalogRegistrySchemaError"
+owner = "team-fabric"
+version_owner = "team-fabric"
+deprecation_window = "not_applicable"
+release_note = "Adds a typed connector-registry schema refusal and preserves incomplete discovery when no independent provider matches."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

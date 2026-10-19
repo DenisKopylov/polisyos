@@ -37,10 +37,11 @@ analysis flows.
   reuse; mtime-only edits preserve reuse. Registry, metrics and seed absence
   refuse recomputation. Proxy/WVS policy and selected XLSX absence retain their
   existing empty/static fallback and bind absence distinctly from empty files.
+  A missing WVS registry retains its static fallback; a supplied empty or
+  malformed WVS registry refuses before that fallback and remains content-bound.
   XLSX is unselected while valid nonempty WVS YAML supplies the catalog; it is
   then neither read nor required. Other file-read errors refuse recomputation.
-  Existing malformed WVS YAML fallback remains explicit and its bytes remain
-  bound; malformed proxy policy retains its parsing failure.
+  Malformed proxy policy retains its parsing failure.
   The full singleton profile denominator is conservative: presentation-only
   and unselected profile edits also invalidate. ALL header policy, including
   non-secret content negotiation, credentials and environment auth overlays are

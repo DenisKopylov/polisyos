@@ -144,6 +144,7 @@ from polisyos.fabric.connectors.sources.world_bank import normalize_worldbank_re
 # Error types and supporting structures
 from polisyos.fabric.connectors.types import (
     CapabilityError,
+    CatalogRegistrySchemaError,
     ConfigurationError,
     ConnectionError,
     ConnectorError,
@@ -198,6 +199,7 @@ __all__ = [
     "CachedFetchResult",
     "CachingConnectorProxy",
     "CapabilityError",
+    "CatalogRegistrySchemaError",
     "CircuitBreaker",
     "CircuitBreakerConfig",
     "CircuitOpenError",

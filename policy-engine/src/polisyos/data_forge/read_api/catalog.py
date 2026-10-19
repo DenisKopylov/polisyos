@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 from ._lazy import lazy_dir, load_lazy_export
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Callable, Mapping, Sequence
 
     from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
         confidence_layer_vintage_for_snapshot_digest as confidence_layer_vintage_for_snapshot_digest,  # noqa: E501
@@ -651,6 +651,7 @@ _EXPORTS = {
     "compare_catalog_shadow_bundles": _CATALOG_DOMAIN,
     "default_catalog_source_registry_path": _CATALOG_DOMAIN,
     "catalog_default_resource_path": "polisyos.data_forge.domains.catalog._resources",
+    "WVSIndicatorRegistryError": ("polisyos.data_forge.domains.catalog.batch.material_inputs"),
     "default_seed_alignments_path": (
         "polisyos.data_forge.domains.catalog.knowledge.variable_alignment"
     ),
@@ -1321,11 +1322,41 @@ def _catalog_slug(value: str) -> str:
     return "-".join(part for part in normalized.split("-") if part) or "dataset"
 
 
+class WVSIndicatorRegistryReadError(ValueError):
+    """A present WVS registry does not satisfy the read API's schema contract."""
+
+
+def read_wvs_indicator_registry(
+    path: str | Path,
+) -> Mapping[str, Mapping[str, object]] | None:
+    """Read a present WVS indicator registry through the shared content snapshot.
+
+    Missing input returns ``None``. Present malformed input raises the typed
+    ``WVSIndicatorRegistryReadError`` exported by this facade. Batch readers and
+    Fabric therefore share one parser and a cache keyed by current file bytes.
+    """
+    from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+        WVSIndicatorRegistryError as _WVSIndicatorRegistryError,
+    )
+    from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+        _material_file_snapshot,
+        _wvs_indicator_registry_from_snapshot,
+    )
+
+    snapshot = _material_file_snapshot(Path(path))
+    try:
+        return _wvs_indicator_registry_from_snapshot(snapshot)
+    except _WVSIndicatorRegistryError as exc:
+        raise WVSIndicatorRegistryReadError(str(exc)) from exc
+
+
 __all__ = sorted(
     [
         *_EXPORTS,
         "build_production_data_contract_catalog_graph",
         "build_slice0_fixture_catalog_graph",
+        "read_wvs_indicator_registry",
+        "WVSIndicatorRegistryReadError",
     ]
 )
 

@@ -23,8 +23,8 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import curate_ckan_package
 from polisyos.data_forge.domains.catalog.batch.material_inputs import (
     _material_file_snapshot,
-    _material_yaml_snapshot,
     _MaterialFileSnapshot,
+    _wvs_indicator_registry_from_snapshot,
 )
 from polisyos.data_forge.domains.catalog.batch.normalizer import map_to_polisyos_metrics
 from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
@@ -878,17 +878,8 @@ def _load_wvs_indicator_registry() -> dict[str, dict[str, Any]]:
 def _load_wvs_indicator_registry_snapshot(
     snapshot: _MaterialFileSnapshot,
 ) -> dict[str, dict[str, Any]]:
-    if snapshot.raw is None:
-        return {}
-    try:
-        data = _material_yaml_snapshot(snapshot)
-        indicators = data.get("indicators", {}) if isinstance(data, dict) else {}
-        return {str(k).strip().upper(): v for k, v in indicators.items() if isinstance(v, dict)}
-    except Exception:
-        logger.warning(
-            "Failed to load WVS indicator registry from {}", snapshot.path, exc_info=True
-        )
-        return {}
+    indicators = _wvs_indicator_registry_from_snapshot(snapshot)
+    return {} if indicators is None else indicators
 
 
 def _load_wvs_indicator_catalog_from_local_file() -> tuple[dict[str, Any], ...]:

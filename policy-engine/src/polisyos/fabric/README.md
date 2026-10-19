@@ -49,12 +49,18 @@ maps the current bridges and their gaps.
 | `query_claims()` / `query_events()`     | Helpers for claim and world-event query paths.                                                       |
 | `WorldQueryRequest` / `WorldQueryError` | Request and error surface for governed world queries.                                                |
 | `FabricFetchReceipt`                    | Typed custody receipt for a catalog-bound fetch and its persisted payload.                           |
+| `CatalogRegistrySchemaError`            | Typed refusal when supplied catalog-registry input is malformed or makes discovery incomplete.       |
 | `file_lock()` / `atomic_write_json()`   | Existing filesystem lock and atomic metadata writer, reused by durable runtime admission accounting. |
 | `world`                                 | Lazy-loaded `polisyos.fabric.world` subpackage for lower-level write and materialization helpers.    |
 
 `polisyos.fabric.__all__` is the stable public facade. Catalog and semantic
 discovery surfaces live under `polisyos.fabric.catalog` and are linked from the
 retrieval README rather than being part of the root facade contract.
+`fabric_get_data` continues probing independent providers after an unselected provider has a malformed
+registry; if no provider matches and any registry probe failed, it raises the typed
+`CatalogRegistrySchemaError` refusal instead of reporting absence. A selected WVS
+provider validates its supplied local registry before issuing HTTP. This does not
+establish external source authority or currentness.
 
 ## Semantic Groups
 Supported subpackage routes include `polisyos.fabric.api`, `polisyos.fabric.connectors`, `polisyos.fabric.docs`, `polisyos.fabric.ingestion`, and `polisyos.fabric.retrieval`.

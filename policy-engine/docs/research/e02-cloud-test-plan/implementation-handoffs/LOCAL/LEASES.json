@@ -26208,5 +26208,204 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "c05-material-registry-intake-and-provider-scoped-discovery-r8-20261020": {
+    "slice_base": "977ea4d46f552099588f0688e1a6e88cd69d3bb7",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py": {
+        "operation": "write",
+        "preimage_sha256": "27fda210162bfcd1934b17251a54dc1219ed8c4a2407bee3572c64e029521ed5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/data_forge/domains/catalog/batch/material_inputs.py",
+        "postimage_sha256": "9036054c4cd1eb09bcb27f5953125ae5fc90ac5c04a4411436fe8938ab58d345"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py": {
+        "operation": "write",
+        "preimage_sha256": "3d3d909a5e9fe3cafff6684d469249d5c3b9070605bf73bcf4671fdd414497d0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+        "postimage_sha256": "0f5a857d0353c880af6ce4a6e7961ee439f826e83568bf6b96b0d2fa0e852858"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py": {
+        "operation": "write",
+        "preimage_sha256": "f0c607b5a38d59a22d858aa6d5a85b66c39c0bc1c37cdac87a5ddb26fb6bcdc6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+        "postimage_sha256": "0ce31bac3c78143283b3e3c24960e7f5d2a6b2faffd0436da80ed692bbad04c6"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py": {
+        "operation": "write",
+        "preimage_sha256": "c1b45bd356f9ca7e0a65edf202f827b0145eb9421c89de07512e07de37256fc7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+        "postimage_sha256": "0fa3c0c98ea5f4d4f90339bb21f258f9f221b8a17122516b6aa9e680fd6dc345"
+      },
+      "policy-engine/src/polisyos/fabric/api.py": {
+        "operation": "write",
+        "preimage_sha256": "87efa1dbc0d11569bc8238228cdbb29dab037a2283a6f6124f298f8dbe8f214a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/fabric/api.py",
+        "postimage_sha256": "89260a18d78c25fa5904bd6e5791a5a8798762e21339a0507a5080701fa80d94"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md": {
+        "operation": "write",
+        "preimage_sha256": "11ef01690bb0b626be134fa59d447050fb2a7bf06fe1c539e6d778dc2317abb5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
+        "postimage_sha256": "a5ab1928bc1605c6b3f54e33e48810481ded0271b83d049e4776e3a1d0d54683"
+      },
+      "policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py": {
+        "operation": "write",
+        "preimage_sha256": "62f847792345f52f226481451867314520b6b794d7ce7e159663885e71215f89",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/tests/unit/data_forge/domains/catalog/test_catalog_default_resources.py",
+        "postimage_sha256": "d3f56831998818c3fb3b32e6465fb197965387897557391a71e777ae160cf54d"
+      },
+      "policy-engine/tests/unit/remediation/test_dfi_03.py": {
+        "operation": "write",
+        "preimage_sha256": "1b12698a5334f24938fe1ef32c030beb1d7ce9c53d8dc6abfcbf4bb972e74c0b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/tests/unit/remediation/test_dfi_03.py",
+        "postimage_sha256": "3cb959dc0c1e81d62273944b2baf49582953056f22df342ad8a63d39f005d5be"
+      },
+      "policy-engine/tests/unit/fabric/test_connector_bridge.py": {
+        "operation": "write",
+        "preimage_sha256": "c3610287ce6329da4144e2bee20a011e818cd26043bcfe783ef27e9581af6c0a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/tests/unit/fabric/test_connector_bridge.py",
+        "postimage_sha256": "3b1632fc0b790731881e878f40e76f4064ef1f6b5e8e4c585b9a4c5e178ce283"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/types/connector_types.py": {
+        "operation": "write",
+        "preimage_sha256": "76f3858856955d895cec79f1fdf5ac23173bc49cf4ea01202b5203601eef51a1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+        "postimage_sha256": "4b37d58e3f934a8bde0d4ed83fb37e34d7f211e5663c6391c35129015a2adb8a"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/types/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "76a7f51eef2446ff0b1364ca55fb0536a42184a2d056e2e3656535e614e87bf9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/fabric/connectors/types/__init__.py",
+        "postimage_sha256": "5122802079d312b6c33666919a4b688cc65f32e1d613d6b579303bca696d9c1d"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "749d3861d37a1511fa97047e6505f37e6641dacaaacfa477f38b97ebdb0e299a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/fabric/connectors/__init__.py",
+        "postimage_sha256": "d2977b98f96d5e95d33d76cd1aca9b2a1a49b898a790e75d51ca4c83bbe0be91"
+      },
+      "policy-engine/src/polisyos/data_forge/read_api/catalog.py": {
+        "operation": "write",
+        "preimage_sha256": "e349bff38d4c8e946d4aaf5759fe5286d2e60e43f09faae166a6918c916feabe",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "postimage_sha256": "a558218b0437b323bad732c36cddb84d80b71b51b0a9e7ba3e33db0286bf77a2"
+      },
+      "policy-engine/src/polisyos/data_forge/README.md": {
+        "operation": "write",
+        "preimage_sha256": "c361e32930309b887fd39e4227e7b955eae3904a867696a858352bd261226eb1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/data_forge/README.md",
+        "postimage_sha256": "0a3b2faa510e4c6cb26cdd92cdf6f37b2da2db911267e45673a06c086757a123"
+      },
+      "policy-engine/src/polisyos/fabric/README.md": {
+        "operation": "write",
+        "preimage_sha256": "007d448026fa9fdd1fd9778718d24dc4bb682a454793682d58fb703a2cc16a01",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/src/polisyos/fabric/README.md",
+        "postimage_sha256": "23b8261bbb104070e4cf57a9d350dd81bd97f065620eb312063a42cf30d0ec6a"
+      },
+      "policy-engine/tests/unit/data_forge/read_api/test_wvs_indicator_registry.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/tests/unit/data_forge/read_api/test_wvs_indicator_registry.py",
+        "postimage_sha256": "e33922b599ec0bf5074f0e0c3d8aaf75bc8d7d6296832e0fed952f5e66c6b6c0"
+      },
+      "policy-engine/tests/unit/fabric/test_wvs_catalog_discovery.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/tests/unit/fabric/test_wvs_catalog_discovery.py",
+        "postimage_sha256": "7a6db0c8ef7b6220dd6be8ee33c0779ba14b55803dad73d30b3aa7eb1744b1af"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-c05-wvs-registry-discovery-refusal.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-c05-wvs-registry-discovery-refusal.toml",
+        "postimage_sha256": "58cfbf6431be8b24b13c7699acc887d7b395b7d177d3c26d8b0a0c1b3bcb2488"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-c05-wvs-registry-r8-adoption-20261020/source-application.json",
+      "sha256": "ce0f5bbc565c19c4c5a19ed9e4dc6f501773b60e7b59d8e06e67abf0a1a0d4c7"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-c05-wvs-registry-r8-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/candidate-manifest-r2.json",
+        "sha256": "a208eb79f5e0b337d48d4c04c8181137d789d88ded47ba89a1f2b707309e567a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-repair-20261020-r8-working/candidate-r8.patch",
+        "sha256": "6d8acf5f9db88c8a41272d0832d18feb0c238f8b307f91ff27831215673445a0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-independent-review-r8-20261020/review.json",
+        "sha256": "0a73bc26bc84165323a3c1953e77ae95c59496c8a2a7b797b999ca378154f29b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-wvs-malformed-registry-independent-review-20261020-r2/review.json",
+        "sha256": "0aac0337e2bf763fc68446ef41192ef2900c0f0066ddd8be98226da5e7cade03"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same malformed-vs-absence class widened across all three readers and the complete selected/unselected/no-match discovery path. Architecture/public companions use the permitted Data Forge read facade and preserve existing exports/resources.",
+    "bounded_proof": "R8 R2 independent source GO; complete 18-path pins, 14-Python canonical Ruff check/format/AST and patch applicability. Earlier broad-discovery, forbidden import, and invalid Ruff-command evidence is retained and superseded. Runtime full modules, generated public inventory and installed consumers remain UNRUN.",
+    "limitations": [
+      "Author candidate source only; no G acceptance, release readiness or formal finding closure.",
+      "G-only _resources.py and existing resource resolution and API exports are preserved; additive facade exports need the root-owned composed public-surface inventory generation and review.",
+      "Provider-specific failure preserves unknown/incomplete discovery; it is not a declaration that all provider data or production generations are current.",
+      "The full C05 13-supplier material basis and archive/wheel/default consumers require composed replay; source identity alone is not a runtime receipt.",
+      "Two known-owned incomplete N7/B108 test edits remain unchanged outside this commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run whole default-resource, DFI03, connector bridge and affected reader modules; generate/check/corrupt public surface outputs from composed source, then installed wheel/rebuilt-sdist default-reader/resource consumers at final freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

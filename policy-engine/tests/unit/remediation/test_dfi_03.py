@@ -2413,6 +2413,9 @@ def test_wvs_metadata_fallback_tracks_actual_branch_and_optional_asset(
     from openpyxl import Workbook
 
     from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
+    from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+        WVSIndicatorRegistryError,
+    )
 
     registry_path = tmp_path / "wvs.yaml"
     variable_path = tmp_path / "wvs.xlsx"
@@ -2465,19 +2468,20 @@ def test_wvs_metadata_fallback_tracks_actual_branch_and_optional_asset(
         catalog_harvester._load_wvs_indicator_catalog_from_local_file()[0]["name"] == "Primary YAML"
     )
     registry_path.write_text("indicators: {}\n", encoding="utf-8")
-    with pytest.raises(IsADirectoryError):
+    with pytest.raises(WVSIndicatorRegistryError, match="non-empty mapping"):
         _ = config.run_signature
-    with pytest.raises(IsADirectoryError):
+    with pytest.raises(WVSIndicatorRegistryError, match="non-empty mapping"):
         catalog_harvester._load_wvs_indicator_catalog_from_local_file()
     variable_path.rmdir()
+    registry_path.unlink()
     assert catalog_harvester._load_wvs_indicator_catalog_from_local_file() == (
         catalog_harvester._WVS_STATIC_INDICATORS
     )
     registry_path.write_text("indicators: [malformed\n", encoding="utf-8")
-    assert catalog_harvester._load_wvs_indicator_catalog_from_local_file() == (
-        catalog_harvester._WVS_STATIC_INDICATORS
-    )
-    assert config.run_signature != absent_signature
+    with pytest.raises(WVSIndicatorRegistryError, match="invalid UTF-8 or YAML"):
+        catalog_harvester._load_wvs_indicator_catalog_from_local_file()
+    with pytest.raises(WVSIndicatorRegistryError, match="invalid UTF-8 or YAML"):
+        _ = config.run_signature
 
 
 def test_resolved_legacy_mode_binds_signature_and_actual_dispatch(

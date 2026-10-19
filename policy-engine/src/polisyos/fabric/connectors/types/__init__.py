@@ -58,6 +58,7 @@ from polisyos.fabric.connectors.types.coercion import (
 # =============================================================================
 from polisyos.fabric.connectors.types.connector_types import (
     CapabilityError,
+    CatalogRegistrySchemaError,
     ConfigurationError,
     ConnectionError,
     ConnectorError,
@@ -125,6 +126,7 @@ __all__ = [
     "BaseDimension",
     "BaseUnit",
     "CapabilityError",
+    "CatalogRegistrySchemaError",
     "CoercionError",
     "CoercionPolicy",
     "CoercionResult",

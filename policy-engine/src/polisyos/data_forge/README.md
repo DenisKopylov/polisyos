@@ -97,6 +97,11 @@ Cross-package type-only consumers import these contracts through
 `polisyos.data_forge.read_api.academic`, just as Catalog consumers import its
 run-profile and source-registry contracts through `read_api.catalog`; each facade
 resolves the canonical object rather than maintaining a parallel contract.
+The Catalog read facade also exposes `read_wvs_indicator_registry(path)`: it returns
+a typed mapping for present local bytes, `None` only for a missing file, and raises
+`WVSIndicatorRegistryReadError` for malformed supplied content. It delegates to the same
+content-snapshot parser used by batch readers; this local schema check establishes no
+external authority, custody, or production currentness.
 
 Phase 3 catalog completion has moved catalog source registry contracts,
 per-source source-module planning, harvest/normalize/observation/publish asset

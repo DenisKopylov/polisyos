@@ -6,7 +6,6 @@ import logging
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from functools import lru_cache
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, ClassVar
@@ -14,7 +13,11 @@ from typing import Any, ClassVar
 import pandas as pd
 
 from polisyos.core.canon import streaming_hash
-from polisyos.data_forge.read_api.catalog import catalog_default_resource_path
+from polisyos.data_forge.read_api.catalog import (
+    WVSIndicatorRegistryReadError,
+    catalog_default_resource_path,
+    read_wvs_indicator_registry,
+)
 from polisyos.fabric.connectors.base import (
     ConnectionHandle,
     FetchRequest,
@@ -32,7 +35,11 @@ from polisyos.fabric.connectors.sources.http_common import (
     safe_float,
     safe_int,
 )
-from polisyos.fabric.connectors.types import DatasetDescriptor, FetchError
+from polisyos.fabric.connectors.types import (
+    CatalogRegistrySchemaError,
+    DatasetDescriptor,
+    FetchError,
+)
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -44,28 +51,27 @@ from polisyos.ir.connectors import (
 _log = logging.getLogger(__name__)
 
 
-@lru_cache(maxsize=1)
 def _load_wvs_registry_indicators() -> dict[str, str]:
-    """Load indicator titles from wvs_indicator_registry.yaml (wave 7 only)."""
+    """Load wave-7 titles; only an absent resource selects the static fallback."""
+    registry_path = Path(catalog_default_resource_path("wvs_indicator_registry.yaml"))
     try:
-        import yaml
-
-        registry_path = Path(catalog_default_resource_path("wvs_indicator_registry.yaml"))
-        if not registry_path.exists():
-            return {}
-        with open(registry_path) as fh:
-            data = yaml.safe_load(fh)
-        indicators = data.get("indicators", {})
-        result: dict[str, str] = {}
-        for code, spec in indicators.items():
-            waves = spec.get("waves", [])
-            if 7 in waves:
-                result[code] = spec.get("title", code)
-        _log.debug("WVS registry: loaded %d wave-7 indicators", len(result))
-        return result
-    except Exception:
-        _log.warning("Failed to load WVS indicator registry, using static fallback", exc_info=True)
+        indicators = read_wvs_indicator_registry(registry_path)
+    except WVSIndicatorRegistryReadError as exc:
+        raise CatalogRegistrySchemaError(
+            message=f"Invalid WVS indicator registry: {exc}",
+            connector_id=WVSConnector.connector_id,
+        ) from exc
+    if indicators is None:
         return {}
+
+    result: dict[str, str] = {}
+    for code, spec in indicators.items():
+        waves = spec.get("waves", [])
+        title = spec.get("title", code)
+        if isinstance(waves, list) and 7 in waves and isinstance(title, str):
+            result[code] = title
+    _log.debug("WVS registry: loaded %d wave-7 indicators", len(result))
+    return result
 
 
 class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -255,6 +261,7 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
         handle: ConnectionHandle,
         request: FetchRequest,
     ) -> FetchResult[pd.DataFrame]:
+        _load_wvs_registry_indicators()
         indicator_id = request.dataset_id
         countries = self._parse_countries(request)
         target_year = self._parse_target_year(request)

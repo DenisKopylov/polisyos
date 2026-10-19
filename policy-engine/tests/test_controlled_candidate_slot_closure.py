@@ -264,10 +264,48 @@ def test_registered_and_direct_ncm_outcomes_compose_and_reject_wrong_paths() -> 
         )
 
 
-def test_registered_ncm_outcome_materializes_from_canonical_path_without_override(
+def test_registered_tax_recording_uses_exact_supported_action_and_source_lineage() -> None:
+    """The synthetic tax action changes only its owned fixture bytes and keeps its parent."""
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    source_id = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+
+    recording = next(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("design_problem_id") == source_id
+    )
+    candidate = CANDIDATE_HELPER._controlled_registered_tax_recording(
+        recording,
+        outcome_variable="government.balance",
+        rate=0,
+    )
+    assert candidate["recording_source"] == "synthetic_controlled_overlay_of_recorded_capture"
+    assert candidate["derived_from_recording_id"] == recording["recording_id"]
+    assert candidate["derived_from_content_hash"] == recording["recording_content_hash"]
+    assert candidate["recording_id"] != recording["recording_id"]
+    assert candidate["recording_content_hash"] != recording["recording_content_hash"]
+    assert (
+        candidate["responses"][4]["raw_response_hash"]
+        != recording["responses"][4]["raw_response_hash"]
+    )
+    assert (
+        candidate["responses"][8]["raw_response_hash"]
+        != recording["responses"][8]["raw_response_hash"]
+    )
+    with pytest.raises(ValueError, match="controlled_registered_tax_rate_test_value_unsupported"):
+        CANDIDATE_HELPER._controlled_registered_tax_recording(
+            recording, outcome_variable="government.balance", rate=1
+        )
+
+
+def test_registered_ncm_outcome_materializes_with_supported_registered_input(
     tmp_path: Path,
 ) -> None:
-    """The owner-built WMR binds a registered NCM outcome through its canonical path."""
+    """A minimal all-global SCM binds tax rate to government balance by registry paths."""
     from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.contracts.foundry import FoundryInputBindings
@@ -292,10 +330,12 @@ def test_registered_ncm_outcome_materializes_from_canonical_path_without_overrid
                 "metric_id": "government.balance",
             }
         )
-        candidate_levers = tuple(
-            lever.model_copy(update={"target_slot": "cells.distress_score"})
+        candidate_levers = [
+            lever.model_copy(
+                update={"operator_kind": "tax_relief_rate", "target_slot": "global.tax_rate"}
+            )
             for lever in original.candidate_lever_space.candidate_levers
-        )
+        ]
         objectives = [
             objective.model_copy(
                 update={
@@ -311,7 +351,10 @@ def test_registered_ncm_outcome_materializes_from_canonical_path_without_overrid
                 "outcome_of_interest": outcome,
                 "objectives": objectives,
                 "candidate_lever_space": original.candidate_lever_space.model_copy(
-                    update={"candidate_levers": candidate_levers}
+                    update={
+                        "allowed_operator_kinds": ["tax_relief_rate"],
+                        "candidate_levers": candidate_levers,
+                    }
                 ),
             }
         )
@@ -325,6 +368,13 @@ def test_registered_ncm_outcome_materializes_from_canonical_path_without_overrid
             cell_id="cell-registered-outcome-path",
             tmp_path=tmp_path,
             repo_root=product_root,
+            rule_operator_kind="tax_relief_rate",
+            rule_parameter_id="rate",
+            rule_target_world_slot="global.tax_rate",
+            rule_unit_id="ratio",
+            rule_minimum=0,
+            rule_maximum=0,
+            target_baseline=0.25,
         )
         with tenant_scope(
             None,
@@ -334,15 +384,47 @@ def test_registered_ncm_outcome_materializes_from_canonical_path_without_overrid
             persisted_world = load_world_model_record(store, build.record_ref)
             assert persisted_world == build.record == profile.context_inputs.world_model_record
             assert persisted_world.authority_status == "limited"
+            assert profile.rule.operator_kind == "tax_relief_rate"
+            assert profile.rule.parameter_id == "rate"
+            assert profile.rule.target_world_slot == "global.tax_rate"
+            assert profile.rule.unit_id == "ratio"
+            assert declaration.target_world_slot == "global.tax_rate"
+            assert declaration.target_unit_id == "ratio"
+            assert (
+                declaration.target_baseline == profile.n5.baseline_state["global.tax_rate"] == 0.25
+            )
             assert declaration.outcome_variable == "government.balance"
+            assert declaration.outcome_unit_id == "usd"
             assert declaration.outcome_baseline == profile.n5.baseline_state["government.balance"]
 
+            from polisyos.ir.analytics.ncm import load_ncm_spec
+
             views = world_model_artifact_views(persisted_world)
+            assert len(views.ncm_refs) == 1
+            selected_ncm = load_ncm_spec(
+                CANDIDATE_HELPER._ensure_ir_artifact_store(store), views.ncm_refs[0]
+            )
+            expected_ncm_variables = {"global.tax_rate", "government.balance"}
+            assert set(selected_ncm.endogenous_vars) == expected_ncm_variables
+            assert {
+                specification.associated_endogenous
+                for specification in selected_ncm.exogenous_specs
+            } == expected_ncm_variables
+            assert {equation.variable for equation in selected_ncm.structural_equations} == (
+                expected_ncm_variables
+            )
+
             selected_bundle = load_registry_bundle_content(store, views.registry_bundle_ref)
-            selected_slot = selected_bundle.slot_registry.slots["government.balance"]
             from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
 
-            assert selected_slot == DEFAULT_SLOT_REGISTRY.slots["government.balance"]
+            assert (
+                selected_bundle.slot_registry.slots["government.balance"]
+                == (DEFAULT_SLOT_REGISTRY.slots["government.balance"])
+            )
+            assert (
+                selected_bundle.slot_registry.slots["global.tax_rate"]
+                == (DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"])
+            )
 
             bindings = FoundryInputBindings.model_validate(
                 load_core_json_artifact(store, build.input_bindings_ref)

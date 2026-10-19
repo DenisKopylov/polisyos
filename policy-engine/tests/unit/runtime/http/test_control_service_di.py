@@ -2003,6 +2003,7 @@ async def _run_controlled_simulate_only_job_fixture(
     proposal_source_persistence_failure: bool = False,
     local_sibling_mechanism_witness: bool = False,
     root_input_factory: Callable[[Any], None] | None = None,
+    registered_ncm_outcome: bool = False,
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -2052,8 +2053,10 @@ async def _run_controlled_simulate_only_job_fixture(
         RecursiveLeafContextOwner,
     )
     from tests._helpers.controlled_candidate_profile import (
+        _build_configured_procurement_profile,
         _configured_procurement_profile,
         _controlled_procurement_recording,
+        _controlled_registered_tax_recording,
         _current_compiler_problem,
     )
     from tests.unit.runtime.http.test_control_job_execution_intent import (
@@ -2072,25 +2075,71 @@ async def _run_controlled_simulate_only_job_fixture(
     )
     assert len(recording_matches) == 1
     recording = recording_matches[0]
-    problem = _current_compiler_problem(recording)
-    outcome_variable = problem.outcome_of_interest.target_variable
-    controlled_recording = _controlled_procurement_recording(
-        recording,
-        outcome_variable=outcome_variable,
+    original_problem = _current_compiler_problem(recording)
+    problem_payload = original_problem.model_dump(mode="python")
+    problem_payload["outcome_of_interest"] = {
+        **original_problem.outcome_of_interest.model_dump(mode="python"),
+        "target_variable": "government.balance",
+        # Keep the captured metric id. No source contract binds it to this
+        # changed target, so the empirical consumer must retain not_established.
+    }
+    if registered_ncm_outcome:
+        candidate_levers = list(original_problem.candidate_lever_space.candidate_levers)
+    else:
+        candidate_levers = [
+            lever.model_copy(update={"target_slot": "cells.distress_score"})
+            for lever in original_problem.candidate_lever_space.candidate_levers
+        ]
+    problem_payload.update(
+        {
+            "problem_statement": "Exercise a registered NCM outcome in a controlled served fixture.",
+            "candidate_lever_space": original_problem.candidate_lever_space.model_copy(
+                update={"candidate_levers": candidate_levers}
+            ).model_dump(mode="python"),
+        }
     )
+    # Revalidation through the current union owner materializes the strict v3
+    # qualified outcome type required for a dotted canonical target.
+    problem = type(original_problem).model_validate(problem_payload)
+    outcome_variable = problem.outcome_of_interest.target_variable
+    if registered_ncm_outcome:
+        controlled_recording = _controlled_registered_tax_recording(
+            recording,
+            outcome_variable=outcome_variable,
+            rate=0,
+        )
+    else:
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=outcome_variable,
+        )
     # Scope the CAS before profile, source, and context writes so the fresh
     # tenant-scoped reader resolves the same owner-bound artifacts.
     store = FileSystemCAS(tmp_path / ".polisyos").for_tenant(
         "tenant-fixture",
         "cell-fixture",
     )
-    profile, model_declaration = _configured_procurement_profile(
-        recorded_problem=problem,
-        tmp_path=tmp_path,
-        artifact_store=store,
-        tenant_id="tenant-fixture",
-        cell_id="cell-fixture",
-    )
+    profile_args = {
+        "recorded_problem": problem,
+        "tmp_path": tmp_path,
+        "artifact_store": store,
+        "tenant_id": "tenant-fixture",
+        "cell_id": "cell-fixture",
+        "repo_root": REPO_ROOT,
+    }
+    if registered_ncm_outcome:
+        profile, model_declaration, _ = _build_configured_procurement_profile(
+            **profile_args,
+            rule_operator_kind="tax_relief_rate",
+            rule_parameter_id="rate",
+            rule_target_world_slot="global.tax_rate",
+            rule_unit_id="ratio",
+            rule_minimum=0,
+            rule_maximum=0,
+            target_baseline=0.25,
+        )
+    else:
+        profile, model_declaration = _configured_procurement_profile(**profile_args)
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
     with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
         service = _build_control_service(
@@ -2809,7 +2858,7 @@ async def _run_controlled_simulate_only_job_fixture(
                 == profile.rule.target_world_slot
             )
             assert observed.input_record.materialization.unit_id == profile.rule.unit_id
-            assert observed.input_record.materialization.value == 1
+            assert observed.input_record.materialization.value == profile.rule.maximum
             if observed.observation.world_model_record is not None:
                 assert observed.observation.world_model_record.content_hash == (
                     context_artifact.context.world_model_record.content_hash
@@ -2889,12 +2938,12 @@ async def _run_controlled_simulate_only_job_fixture(
         assert len(selected_interventions) == 1
         selected_intervention = selected_interventions[0]
         assert selected_intervention.kind == profile.rule.operator_kind
-        assert selected_intervention.params == {profile.rule.parameter_id: 1}
+        assert selected_intervention.params == {profile.rule.parameter_id: profile.rule.maximum}
         assert candidate.atom.target_world_slots == (profile.rule.target_world_slot,)
         assert candidate.atom.direct_effect_bundle.params == selected_intervention.params
         assert input_record.materialization.operator_kind == selected_intervention.kind
         assert input_record.materialization.parameter_id == profile.rule.parameter_id
-        assert input_record.materialization.value == 1
+        assert input_record.materialization.value == profile.rule.maximum
         assert input_record.materialization.target_world_slot == profile.rule.target_world_slot
         assert input_record.materialization.unit_id == profile.rule.unit_id
 
@@ -2920,10 +2969,17 @@ async def _run_controlled_simulate_only_job_fixture(
             expected_cell_id="cell-fixture",
             expected_declaration_ref=input_record.model_declaration_ref,
         )
-        assert set(selected_ncm.endogenous_vars) == {
+        expected_ncm_variables = {
             model_declaration.target_world_slot,
             model_declaration.outcome_variable,
         }
+        assert set(selected_ncm.endogenous_vars) == expected_ncm_variables
+        assert {
+            specification.associated_endogenous for specification in selected_ncm.exogenous_specs
+        } == expected_ncm_variables
+        assert {equation.variable for equation in selected_ncm.structural_equations} == (
+            expected_ncm_variables
+        )
         outcome_equation = next(
             equation
             for equation in selected_ncm.structural_equations
@@ -2941,10 +2997,17 @@ async def _run_controlled_simulate_only_job_fixture(
         assert input_record.outcome_variable == problem.outcome_of_interest.target_variable
         target_baseline = profile.n5.baseline_state[model_declaration.target_world_slot]
         outcome_baseline = profile.n5.baseline_state[model_declaration.outcome_variable]
-        assert target_baseline == model_declaration.target_baseline == 0.0
+        assert (
+            target_baseline
+            == model_declaration.target_baseline
+            == (profile.n5.baseline_state[profile.rule.target_world_slot])
+        )
         assert outcome_baseline == model_declaration.outcome_baseline == 0.0
         assert model_declaration.outcome_variable == outcome_variable
-        assert model_declaration.outcome_unit_id == model_declaration.target_unit_id
+        assert model_declaration.target_unit_id == profile.rule.unit_id
+        outcome_binding = context_world.slot_binding(model_declaration.outcome_variable)
+        assert outcome_binding is not None
+        assert model_declaration.outcome_unit_id == outcome_binding.unit
 
         observation = observed.observation
         assert observation.status == "joint_simulated"
@@ -2969,7 +3032,11 @@ async def _run_controlled_simulate_only_job_fixture(
         expected_quantity = model_declaration.outcome_per_target_unit * (
             input_record.materialization.value - target_baseline
         )
-        assert expected_quantity == pytest.approx(0.5, abs=1e-12)
+        assert expected_quantity == pytest.approx(
+            model_declaration.outcome_per_target_unit
+            * (profile.rule.maximum - model_declaration.target_baseline),
+            abs=1e-12,
+        )
         assert len(effects) == profile.n5.replications
         assert effects == pytest.approx(
             [expected_quantity] * profile.n5.replications,
@@ -2995,6 +3062,9 @@ async def _run_controlled_simulate_only_job_fixture(
         fixture = SimpleNamespace(
             service=service,
             job=completed,
+            problem=problem,
+            profile=profile,
+            model_declaration=model_declaration,
             compiled_payload=service._artifact_store.get_bytes(compiled_artifact_ref),
             compiled_ref=str(compiled_ref),
             cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],
@@ -4229,6 +4299,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         PredictiveCalibrationAssociation,
         PredictiveCalibrationRequest,
     )
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
     from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
 
@@ -4259,6 +4330,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             assert evidence.report_ref.manifest_profile_sha256 is not None
             assert report.metadata["run_binding"]["run_id"] == core_run_id
             assert report.metadata["run_binding"]["intent_id"] == stored_association["intent_id"]
+            assert report.metadata["n4_outcome_target_binding"] == {
+                "status": "not_established",
+                "reason_code": "n4_outcome_target_binding_not_established",
+                "n4_target_variable": "government.balance",
+                "n4_metric_id": fixture.problem.outcome_of_interest.metric_id,
+                "observed_target_metric": "metric",
+            }
 
             role_refs = (
                 ("scope_binding", evidence.scope_binding_ref),
@@ -4380,10 +4458,17 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         monkeypatch,
         tmp_path,
         root_input_factory=attach_selected_inputs,
+        registered_ncm_outcome=True,
     )
     request.addfinalizer(fixture.service.close)
     core_run_id = str(fixture.job.progress["core_run_id"])
     job_id = fixture.job.job_id
+    assert fixture.profile.rule.operator_kind == "tax_relief_rate"
+    assert fixture.profile.rule.parameter_id == "rate"
+    assert fixture.profile.rule.target_world_slot == "global.tax_rate"
+    assert fixture.profile.rule.unit_id == "ratio"
+    assert fixture.model_declaration.outcome_variable == "government.balance"
+    assert fixture.model_declaration.outcome_unit_id == "usd"
     fixture_control_store_path = fixture.service._control_store._sqlite_path
     # Fresh API services must read the same durable control store that produced
     # the completed job and its selected core-manifest reference.
@@ -4804,6 +4889,22 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             assert disabled_intent.record is None
             assert cas_byte_inventory() == disabled_cas_before
 
+        s10_owner_supports: list[Any] = []
+        original_produce_s10 = RealValueOwnerGateway.produce_forecast_inputs
+
+        def capture_s10_owner_support(self, **kwargs):
+            result = original_produce_s10(self, **kwargs)
+            if kwargs.get("selected_method_fqn") == calibration_service._METHOD_FQN:
+                support = result.get("forecast_support")
+                if support is not None:
+                    s10_owner_supports.append(support.model_copy(deep=True))
+            return result
+
+        monkeypatch.setattr(
+            RealValueOwnerGateway,
+            "produce_forecast_inputs",
+            capture_s10_owner_support,
+        )
         producer_started = Event()
         release_producer = Event()
         request_completion = Condition()
@@ -4903,6 +5004,23 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         ):
             assert association[field] == "not_established"
         assert association["s10"]["counterfactual_credibility"] == "not_established"
+        assert association["s10"]["outcome_binding_status"] == "not_established"
+        assert association["s10"]["forecast_tier"] == "blocked"
+        assert (
+            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+            in association["s10"]["limitation_refs"]
+        )
+        assert len(s10_owner_supports) == 1
+        actual_s10_support = s10_owner_supports[0]
+        assert association["s10"]["authority_boundary"] == (
+            actual_s10_support.authority_boundary.model_dump(mode="json")
+        )
+        assert tuple(association["s10"]["may_not_use_for"]) == tuple(
+            actual_s10_support.may_not_use_for
+        )
+        assert association["may_not_use_for"] == association["s10"]["may_not_use_for"]
+        assert "causal_effect_authority" in actual_s10_support.may_not_use_for
+        assert "s10_authority" in actual_s10_support.may_not_use_for
         assert association["intent_id"] == body["intent_id"]
         assert association["run_manifest_ref"] == run["manifest_ref"]
         assert association["request_sha256"]
@@ -4983,6 +5101,14 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert reopened_result["association_ref"] == association_ref
         assert reopened_result["association"] == association
         assert reopened_result["association"]["run_manifest_ref"] == run["manifest_ref"]
+        assert len(s10_owner_supports) == 2
+        reopened_s10_support = s10_owner_supports[1]
+        assert reopened_result["association"]["s10"]["authority_boundary"] == (
+            reopened_s10_support.authority_boundary.model_dump(mode="json")
+        )
+        assert tuple(reopened_result["association"]["s10"]["may_not_use_for"]) == tuple(
+            reopened_s10_support.may_not_use_for
+        )
         assert_persisted_evidence_identity(
             fresh_app.state.runtime_api_ctx.store,
             reopened_result["association"],
@@ -5208,7 +5334,15 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         association["s10"]["calibration_status"]
         != comparison_association["s10"]["calibration_status"]
     )
-    assert association["s10"]["forecast_tier"] != comparison_association["s10"]["forecast_tier"]
+    assert association["s10"]["forecast_tier"] == "blocked"
+    assert comparison_association["s10"]["forecast_tier"] == "blocked"
+    assert (
+        association["s10"]["calibration_status"]
+        != (comparison_association["s10"]["calibration_status"])
+    )
+    assert (
+        association["s10"]["limitation_refs"] == (comparison_association["s10"]["limitation_refs"])
+    )
 
     comparison_reader = new_reader_app()
     with TestClient(comparison_reader) as comparison_read_client:

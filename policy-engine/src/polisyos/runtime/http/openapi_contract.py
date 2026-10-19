@@ -2013,11 +2013,14 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
     from polisyos.core.contracts.runtime import ApiMeta
     from polisyos.runtime.http.services.predictive_calibration import (
         _ASSOCIATION_KIND,
+        _N4_OUTCOME_BINDING_LIMITATION_REF,
         PredictiveCalibrationAssociation,
         PredictiveCalibrationResponse,
         PredictiveCalibrationS10Summary,
         _calibration_status,
     )
+    from polisyos.runtime.quality.design_axes.outcome_prediction import build_forecast_support
+    from polisyos.runtime.quality.generation_cycle import _s10_value_authority_boundary
 
     fixture_time = datetime(2026, 2, 11, 12, tzinfo=UTC)
 
@@ -2029,6 +2032,56 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
             media_type="application/json",
         )
 
+    authority = _s10_value_authority_boundary(predictive=True)
+    support = build_forecast_support(
+        support_id="n8.forecast-support.openapi-fixture",
+        support_ref="s10://n8/openapi-fixture/forecast-support",
+        case_id="openapi_predictive_calibration_fixture",
+        source_design_record_ref="design://openapi-fixture",
+        design_graph_ref="design-graph://openapi-fixture",
+        prediction_context_ref="prediction-context://openapi-fixture",
+        policy_context_ref="policy-context://openapi-fixture",
+        candidate_design_ref="candidate://openapi-fixture",
+        baseline_design_ref="baseline://openapi-fixture",
+        alternative_design_refs=[],
+        prediction_horizon_ref="horizon://openapi-fixture",
+        target_outcome_refs=["outcome://openapi-fixture"],
+        jurisdiction_scope_ref="jurisdiction://openapi-fixture",
+        s5_forecast_support_ref="s5://openapi-fixture",
+        s5_support_label="validated_local_dynamic_model",
+        s5_base_origin="validated_local_model",
+        s5_claim_scope="system_effect",
+        s6_firewall_status_refs=["s6://openapi-fixture"],
+        s6_limitation_refs=[_N4_OUTCOME_BINDING_LIMITATION_REF],
+        s8_value_choice_provenance_ref="s8://openapi-fixture/value-choice",
+        s8_value_tradeoff_disclosure_ref="s8://openapi-fixture/tradeoff",
+        source_contract_ref="source-contract://openapi-fixture",
+        method_validity_ref="method-validity://openapi-fixture",
+        sensitivity_analysis_ref="sensitivity://openapi-fixture",
+        dynamic_equilibrium_check_ref="equilibrium-check://openapi-fixture",
+        outcome_distribution_refs=["distribution://openapi-fixture"],
+        welfare_comparison_ref="welfare://openapi-fixture",
+        forecast_authority_disposition_reason=(
+            "Controlled OpenAPI example with an N4 binding limitation."
+        ),
+        method_family="foundry_forecast",
+        limitation_refs=[_N4_OUTCOME_BINDING_LIMITATION_REF],
+        authority_boundary=authority,
+        may_not_use_for=authority["may_not_use_for"],
+        rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
+    )
+    s10_summary = PredictiveCalibrationS10Summary(
+        calibration_status=_calibration_status("insufficient_history"),
+        forecast_tier=support.forecast_tier,
+        counterfactual_credibility="not_established",
+        numerator=0,
+        denominator=0,
+        observed_pass_rate=0.0,
+        outcome_binding_status="not_established",
+        limitation_refs=tuple(support.limitation_refs),
+        authority_boundary=support.authority_boundary.model_copy(deep=True),
+        may_not_use_for=tuple(support.may_not_use_for),
+    )
     association = PredictiveCalibrationAssociation(
         event_id="evt_predictive_calibration_openapi_fixture",
         intent_id="openapi-calibration-fixture",
@@ -2055,14 +2108,8 @@ def _predictive_calibration_success_examples() -> dict[str, Any]:
         observed_denominator=1,
         observed_hit_rate=0.0,
         owner_suitability="limited",
-        s10=PredictiveCalibrationS10Summary(
-            calibration_status=_calibration_status("insufficient_history"),
-            forecast_tier="insufficient_history",
-            counterfactual_credibility="not_established",
-            numerator=0,
-            denominator=0,
-            observed_pass_rate=0.0,
-        ),
+        s10=s10_summary,
+        may_not_use_for=s10_summary.may_not_use_for or (),
         evidence_reason_codes=("explicit_context_missing",),
         created_at=fixture_time,
     )

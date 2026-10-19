@@ -300,6 +300,9 @@ def _current_compiler_problem(recording: dict[str, object]):
             "constraints": constraints,
         }
     )
+    # Controlled current-schema parents pass the complete owner validator;
+    # fixture adapters must not rely on model_copy to establish validity.
+    problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
     recording_id = recording.get("recording_id")
     content_hash = recording.get("recording_content_hash")
     if not isinstance(recording_id, str) or not recording_id:
@@ -362,6 +365,65 @@ def _current_compiler_problem(recording: dict[str, object]):
             },
         }
     )
+
+
+def _controlled_registered_tax_recording(
+    recording: dict[str, object], *, outcome_variable: str, rate: int = 0
+) -> dict[str, object]:
+    """Build a test-only tax action in the registered global slot and legal range.
+
+    The source capture remains immutable and is retained as the overlay's parent.
+    Integer zero is both inside the registered 0..0.5 action range and accepted by
+    the existing exact-set-to candidate profile; this creates no real-world claim.
+    """
+
+    if type(rate) is not int or rate != 0:
+        raise ValueError("controlled_registered_tax_rate_test_value_unsupported")
+    controlled = copy.deepcopy(recording)
+    base_recording_id = str(controlled.get("recording_id") or "recording")
+    base_content_hash = str(controlled.get("recording_content_hash") or "")
+    responses = controlled.get("responses")
+    assert isinstance(responses, list)
+    for index in (4, 8):
+        response = responses[index]
+        assert isinstance(response, dict)
+        raw = response.get("raw_response")
+        assert isinstance(raw, str)
+        trinity = json.loads(raw)
+        interventions = trinity["policy_spec"]["interventions"]
+        tax_action = next(item for item in interventions if item.get("kind") == "tax_relief_rate")
+        tax_action["params"] = {"rate": rate}
+        tax_action["notes"] = [
+            "do.target=global.tax_rate sign=decrease "
+            f"outcome={outcome_variable} "
+            f"effect_path=global.tax_rate,{outcome_variable}"
+        ]
+        rewritten = json.dumps(trinity, sort_keys=True, separators=(",", ":"))
+        response["raw_response"] = rewritten
+        response["raw_response_hash"] = gy_content_hash(rewritten)
+
+    identity_seed = gy_content_hash(
+        {
+            "base_recording_id": base_recording_id,
+            "base_content_hash": base_content_hash,
+            "response_hashes": [
+                item.get("raw_response_hash") for item in responses if isinstance(item, dict)
+            ],
+            "outcome_variable": outcome_variable,
+            "rate": rate,
+        }
+    ).removeprefix("sha256:")[:20]
+    fixture_id = f"synthetic_controlled_registered_tax_n4_{identity_seed}"
+    controlled["fixture_id"] = fixture_id
+    controlled["recording_id"] = fixture_id
+    controlled["recording_source"] = "synthetic_controlled_overlay_of_recorded_capture"
+    controlled["derived_from_recording_id"] = base_recording_id
+    controlled["derived_from_content_hash"] = base_content_hash
+    controlled["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(controlled)
+    return controlled
 
 
 def _controlled_procurement_recording(
@@ -1321,6 +1383,14 @@ def _build_configured_procurement_profile(
     tmp_path: Path,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    rule_operator_kind: str = "procurement_shock_intensity",
+    rule_parameter_id: str = "intensity",
+    rule_target_world_slot: str = "cells.distress_score",
+    rule_unit_id: str = "synthetic_score",
+    rule_minimum: int = 0,
+    rule_maximum: int = 1,
+    target_baseline: float = 0.0,
+    outcome_baseline: float = 0.0,
 ) -> tuple[Any, Any, Any]:
     """Build a candidate profile from its exact owner-persisted WMR source."""
 
@@ -1355,18 +1425,18 @@ def _build_configured_procurement_profile(
     )
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     rule = CandidateScenarioSetToRule(
-        operator_kind="procurement_shock_intensity",
-        parameter_id="intensity",
-        target_world_slot="cells.distress_score",
-        unit_id="synthetic_score",
-        minimum=0,
-        maximum=1,
+        operator_kind=rule_operator_kind,
+        parameter_id=rule_parameter_id,
+        target_world_slot=rule_target_world_slot,
+        unit_id=rule_unit_id,
+        minimum=rule_minimum,
+        maximum=rule_maximum,
     )
     model_parameters = _ControlledCandidateNCMParameters(
         target_world_slot=rule.target_world_slot,
         outcome_variable=outcome_variable,
-        target_baseline=0.0,
-        outcome_baseline=0.0,
+        target_baseline=target_baseline,
+        outcome_baseline=outcome_baseline,
         outcome_per_target_unit=0.5,
         outcome_noise_stddev=0.01,
     )
@@ -1378,7 +1448,7 @@ def _build_configured_procurement_profile(
     candidate_slots = tuple(
         dict.fromkeys(
             [lever.target_slot for lever in recorded_problem.candidate_lever_space.candidate_levers]
-            + ["global.tax_rate", "cells.distress_score", outcome_variable]
+            + ["global.tax_rate", "cells.distress_score", rule.target_world_slot, outcome_variable]
         )
     )
     baseline_state = {
@@ -1450,6 +1520,17 @@ def _build_configured_procurement_profile(
             ),
         }
     )
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    outcome_slot_id = _CONTROLLED_SLOT_ALIASES.get(
+        model_parameters.outcome_variable, model_parameters.outcome_variable
+    )
+    outcome_slot = DEFAULT_SLOT_REGISTRY.slots.get(outcome_slot_id)
+    outcome_unit_id = (
+        outcome_slot.unit.unit_id
+        if outcome_slot is not None and outcome_slot.unit is not None
+        else rule.unit_id
+    )
     declaration_fields = {
         "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
@@ -1458,7 +1539,7 @@ def _build_configured_procurement_profile(
         "target_world_slot": model_parameters.target_world_slot,
         "outcome_variable": model_parameters.outcome_variable,
         "target_unit_id": rule.unit_id,
-        "outcome_unit_id": rule.unit_id,
+        "outcome_unit_id": outcome_unit_id,
         "target_baseline": model_parameters.target_baseline,
         "outcome_baseline": model_parameters.outcome_baseline,
         "outcome_per_target_unit": model_parameters.outcome_per_target_unit,
@@ -1509,6 +1590,14 @@ def _configured_procurement_profile(
     tmp_path: Path,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    rule_operator_kind: str = "procurement_shock_intensity",
+    rule_parameter_id: str = "intensity",
+    rule_target_world_slot: str = "cells.distress_score",
+    rule_unit_id: str = "synthetic_score",
+    rule_minimum: int = 0,
+    rule_maximum: int = 1,
+    target_baseline: float = 0.0,
+    outcome_baseline: float = 0.0,
 ) -> tuple[Any, Any]:
     """Return the profile and declaration from the exact owner-built WMR."""
 
@@ -1520,6 +1609,14 @@ def _configured_procurement_profile(
         tmp_path=tmp_path,
         selected_skg_source=selected_skg_source,
         repo_root=repo_root,
+        rule_operator_kind=rule_operator_kind,
+        rule_parameter_id=rule_parameter_id,
+        rule_target_world_slot=rule_target_world_slot,
+        rule_unit_id=rule_unit_id,
+        rule_minimum=rule_minimum,
+        rule_maximum=rule_maximum,
+        target_baseline=target_baseline,
+        outcome_baseline=outcome_baseline,
     )
     return profile, declaration
 

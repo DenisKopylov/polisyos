@@ -447,8 +447,19 @@ metadata and carries refs to the backtest report, empirical evidence, and
 forecasting uncertainty bundle. It remains limited with
 `authority_scope=predictive_only`; issuer, source-time currentness, population
 scope, and counterfactual credibility remain `not_established`. It is not a
-causal effect, recommendation, promotion, or publication authorization. The
-normal app/container root enables this candidate diagnostic surface; setting
+causal effect, recommendation, promotion, or publication authorization.
+
+The v3 S10 projection also carries `outcome_binding_status`, `limitation_refs`,
+`authority_boundary`, and `may_not_use_for`. When the selected N4 target-to-observed
+metric relation remains not established, S10 stays `blocked`; the owner boundary
+and purpose denials are persisted and compared with a fresh full typed projection
+on GET. A legacy v2 N4 association without that projection returns HTTP 409
+`predictive_calibration_association_invalid`. Its stored artifact and event are
+not rewritten or retroactively upgraded. This limited response does not equate
+the variable, metric id, and observed column or confer causal or policy-selection
+authority.
+
+The v3 response adds fields under the existing `/api/v1` endpoint. Older generated clients use strict response DTOs and may reject these additions; regenerate or update those clients before consuming the updated response. The normal app/container root enables this candidate diagnostic surface; setting
 `allow_candidate_run_predictive_calibration_surface=False` disables both
 operations before producer execution. The setting grants no route permission
 and is separate from artifact-preview diagnostics.

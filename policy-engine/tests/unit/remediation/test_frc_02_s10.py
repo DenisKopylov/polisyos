@@ -1186,3 +1186,66 @@ def test_raw_causal_effect_report_remains_non_positive_characterization() -> Non
     )
     assert inputs["forecast_calibration_record"] is None
     assert inputs["forecast_support"].forecast_tier == "blocked"
+
+
+def test_n4_outcome_forecast_keeps_predictive_grade_but_blocks_unbound_metric_tier(
+    tmp_path: Path,
+) -> None:
+    """A valid series calibration cannot be relabeled as an N4 outcome calibration."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalCandidate
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+
+    store, _report_ref, evidence_ref, evidence, _ = _persist_loaded_evidence(
+        tmp_path,
+        label="n4-outcome-binding",
+        observations=(True, True),
+        threshold=1.0,
+    )
+    candidate = N4CandidateScenarioProposalCandidate.model_construct(
+        candidate_id="candidate_1234567890abcdef"
+    )
+    problem = SimpleNamespace(
+        design_problem_id="n4-unbound-outcome",
+        outcome_of_interest=SimpleNamespace(
+            target_variable="policy_outcome",
+            metric_id="policy_outcome_metric",
+        ),
+    )
+    method_result = _method_result(evidence_ref=evidence_ref)
+    method_result.output["target_metric"] = "unrelated_observed_metric"
+    gateway = RealValueOwnerGateway(
+        repo_root=store.root,
+        empirical_evidence_resolver=_CanonicalEvidenceResolver(store),
+    )
+    n4_result = gateway.produce_forecast_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=SimpleNamespace(
+            world_model_record_id="n4-unbound-world",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2026-Q1",
+            region_or_jurisdiction="UA",
+        ),
+        method_result=method_result,
+        selected_method_fqn=METHOD_FQN,
+    )
+    record = n4_result["forecast_calibration_record"]
+    assert record is not None
+    assert evidence.usable_for_calibration is True
+    assert evidence.floor_passed is True
+    assert record.calibration_status == "pass"
+    assert record.numerator == evidence.recomputed_numerator == 2
+    assert record.denominator == evidence.recomputed_denominator == 2
+    support = n4_result["forecast_support"]
+    assert support.forecast_tier == "blocked"
+    assert support.limitation_refs == [
+        "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+    ]
+    assert support.s6_limitation_refs == support.limitation_refs
+
+    # The same CAS evidence remains valid for its standalone scientific scope.
+    standalone = _produce_forecast_inputs(store=store, evidence_ref=evidence_ref)
+    assert standalone["forecast_calibration_record"].calibration_status == "pass"
+    assert standalone["forecast_support"].forecast_tier == "observable_calibrated"

@@ -14266,6 +14266,10 @@ _S10_PREDICTIVE_DENIALS = frozenset(
         "s10_authority",
     }
 )
+_S10_N4_OUTCOME_BINDING_LIMITATION_CODE = "n4_outcome_target_binding_not_established"
+_S10_N4_OUTCOME_BINDING_LIMITATION_REF = (
+    f"s10://calibration/fail-closed/{_S10_N4_OUTCOME_BINDING_LIMITATION_CODE}"
+)
 
 
 @dataclass(frozen=True)
@@ -14314,6 +14318,20 @@ def _s10_ref_ids(value: object) -> tuple[str, ...] | None:
     if any(ref is None for ref in refs):
         return None
     return tuple(str(ref) for ref in refs)
+
+
+def _s10_n4_outcome_binding_limitation_ref(candidate: object) -> str | None:
+    """Limit N4 outcome calibration until a selected observed-metric relation exists.
+
+    N4's selected source proves its candidate/world-model binding. It does not
+    bind the candidate outcome variable to a selected observed-snapshot metric.
+    This scope check follows the typed producer output, never a caller label.
+    """
+    from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalCandidate
+
+    if type(candidate) is N4CandidateScenarioProposalCandidate:
+        return _S10_N4_OUTCOME_BINDING_LIMITATION_REF
+    return None
 
 
 def _s10_empirical_projection(
@@ -14517,6 +14535,7 @@ def _build_s10_forecast_inputs(
     calibration_evidence: Mapping[str, object] | None = None,
     empirical_evidence: _S10ResolvedEmpiricalEvidence | None = None,
     empirical_evidence_error: str | None = None,
+    additional_limitation_refs: Sequence[str] = (),
 ) -> Mapping[str, Any]:
     from polisyos.runtime.quality.design_axes.outcome_prediction import (
         build_forecast_calibration_record,
@@ -14545,6 +14564,10 @@ def _build_s10_forecast_inputs(
     if empirical_evidence_error is not None or (
         calibration_status is not None and not calibration_bound
     ):
+        effective_forecast_tier = "blocked"
+    if additional_limitation_refs:
+        # Retain the observed-series calibration grade while preventing it from
+        # being presented as calibration of an unbound N4 outcome variable.
         effective_forecast_tier = "blocked"
     method_family = _s10_method_family(selected_method_fqn)
     report_ref = gy_content_hash(
@@ -14632,10 +14655,17 @@ def _build_s10_forecast_inputs(
         s5_base_origin=support_base_origin,
         s5_claim_scope="system_effect",
         s6_firewall_status_refs=[f"s6://{_candidate_id(candidate)}"],
-        s6_limitation_refs=_s10_limitation_refs(
-            evidence=evidence,
-            calibration_bound=calibration_bound,
-            empirical_evidence_error=empirical_evidence_error,
+        s6_limitation_refs=list(
+            dict.fromkeys(
+                (
+                    *_s10_limitation_refs(
+                        evidence=evidence,
+                        calibration_bound=calibration_bound,
+                        empirical_evidence_error=empirical_evidence_error,
+                    ),
+                    *additional_limitation_refs,
+                )
+            )
         ),
         s8_value_choice_provenance_ref=f"s8://{problem.design_problem_id}/value-choice",
         s8_value_tradeoff_disclosure_ref=f"s8://{problem.design_problem_id}/tradeoff",
@@ -14648,21 +14678,29 @@ def _build_s10_forecast_inputs(
         outcome_distribution_refs=[f"distribution://{report_ref}"],
         welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
         forecast_tier=effective_forecast_tier,
-        forecast_authority_disposition_reason=str(
-            evidence.get("forecast_authority_disposition_reason")
-            or (
-                "S10 estimator diagnostics retained; empirical calibration evidence is "
-                "not established."
-                if empirical_evidence_error is None and not calibration_bound
-                else "S10 owner forecast over Foundry method output"
+        forecast_authority_disposition_reason=(
+            str(
+                evidence.get("forecast_authority_disposition_reason")
+                or (
+                    "S10 estimator diagnostics retained; empirical calibration evidence is "
+                    "not established."
+                    if empirical_evidence_error is None and not calibration_bound
+                    else "S10 owner forecast over Foundry method output"
+                )
+                + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
             )
-            + (f" [{empirical_evidence_error}]" if empirical_evidence_error else "")
+            + (
+                "; N4 outcome-to-observed-metric relation is not established; observed-series "
+                "predictive grade is retained without an N4 outcome-calibrated tier."
+                if additional_limitation_refs
+                else ""
+            )
         ),
         method_family=method_family,
         observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
         calibration_record_ref=calibration_ref,
         uncertainty_interval_refs=[f"interval://{report_ref}/95"],
-        limitation_refs=[],
+        limitation_refs=list(dict.fromkeys(additional_limitation_refs)),
         abstention_refs=[],
         authority_boundary=authority,
         may_not_use_for=authority["may_not_use_for"],
@@ -14697,6 +14735,7 @@ def _build_real_s10_forecast_inputs(
         "expected_rule_version_ref",
     )
     expected_temporal_roles = _method_result_field(method_result, "temporal_roles")
+    n4_outcome_binding_limitation_ref = _s10_n4_outcome_binding_limitation_ref(candidate)
     resolved_empirical_evidence, empirical_evidence_error = _resolve_s10_empirical_evidence(
         raw_ref=empirical_evidence_ref,
         resolver=empirical_evidence_resolver,
@@ -14719,6 +14758,11 @@ def _build_real_s10_forecast_inputs(
         calibration_evidence=evidence,
         empirical_evidence=resolved_empirical_evidence,
         empirical_evidence_error=empirical_evidence_error,
+        additional_limitation_refs=(
+            (n4_outcome_binding_limitation_ref,)
+            if n4_outcome_binding_limitation_ref is not None
+            else ()
+        ),
     )
 
 

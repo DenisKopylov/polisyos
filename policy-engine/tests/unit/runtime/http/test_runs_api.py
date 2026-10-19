@@ -1653,6 +1653,11 @@ def test_get_run_predictive_calibration_exposes_only_the_typed_limited_attachmen
         media_type="application/json",
         manifest_profile_sha256="sha256:" + "e" * 64,
     )
+    from polisyos.runtime.http.openapi_contract import _predictive_calibration_success_examples
+
+    association_example = _predictive_calibration_success_examples()[
+        "controlled_insufficient_history_candidate"
+    ]["value"]["association"]
     association = PredictiveCalibrationAssociation(
         event_id="evt_run_predictive_calibration_fixture",
         intent_id="intent-run-predictive-calibration-fixture",
@@ -1675,14 +1680,8 @@ def test_get_run_predictive_calibration_exposes_only_the_typed_limited_attachmen
         observed_denominator=4,
         observed_hit_rate=0.75,
         owner_suitability="limited",
-        s10=PredictiveCalibrationS10Summary(
-            calibration_status="limit",
-            forecast_tier="limited_local_model",
-            counterfactual_credibility="not_established",
-            numerator=3,
-            denominator=4,
-            observed_pass_rate=0.75,
-        ),
+        s10=PredictiveCalibrationS10Summary.model_validate(association_example["s10"]),
+        may_not_use_for=tuple(association_example["may_not_use_for"]),
         created_at=datetime(2026, 10, 12, tzinfo=UTC),
     )
     observed_calls: list[tuple[str, str, str]] = []

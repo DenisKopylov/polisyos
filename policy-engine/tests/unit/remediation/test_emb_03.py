@@ -35,6 +35,7 @@ from polisyos.data_forge.kernel.embeddings import (
     resolve_embedding_generation,
 )
 from polisyos.data_forge.read_api import legal as legal_read_api
+from polisyos.data_forge.read_api.legal import LegalSourceRelationVerificationMissingError
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.store import (
     LegalKnowledgeStore,
@@ -229,6 +230,13 @@ def _remove_entity(db_path: Path, entity_id: str) -> None:
         con.close()
 
 
+def _prepare_candidate_trust_tier(db_path: Path) -> None:
+    """Mark controlled Legal fixtures with their supported candidate disposition."""
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("ALTER TABLE lex_facts ADD COLUMN trust_tier VARCHAR")
+        con.execute("UPDATE lex_facts SET trust_tier = 'search_candidate'")
+
+
 def _entity_ids(output_dir: Path) -> list[str]:
     with np.load(output_dir / "lex_entity_embeddings.npz", allow_pickle=True) as payload:
         return [str(value) for value in payload["ids"]]
@@ -314,6 +322,18 @@ def _legal_query_profiles(output_dir: Path) -> tuple[LegalQueryProfile, ...]:
         assert reference is not None
         profiles.append(LegalQueryProfile.from_generation(reference))
     return tuple(profiles)
+
+
+def _request_generation_intent(output_dir: Path) -> tuple[LegalQueryGenerationIntentV1, ...]:
+    """Bind request intent to the exact producer-selected profile snapshots."""
+    return tuple(
+        LegalQueryGenerationIntentV1(
+            basis_kind=profile.basis_kind,
+            generation_id=profile.generation_id,
+            inventory_json=profile.inventory_bytes.decode("utf-8"),
+        )
+        for profile in _legal_query_profiles(output_dir)
+    )
 
 
 def _search_legal_table(graph: LegalKnowledgeGraph, table: str) -> list[object]:
@@ -833,20 +853,10 @@ def test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallbac
 ) -> None:
     db_path = tmp_path / "lex_knowledge_graph.duckdb"
     _prepare_legal_vector_db(db_path)
-    with duckdb.connect(str(db_path)) as con:
-        con.execute("ALTER TABLE lex_facts ADD COLUMN trust_tier VARCHAR")
-        con.execute("UPDATE lex_facts SET trust_tier = 'grounded_fact'")
+    _prepare_candidate_trust_tier(db_path)
     producer = _DirectionalLegalEncoder()
     _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
-    producer_profiles = _legal_query_profiles(tmp_path)
-    request_intent = tuple(
-        LegalQueryGenerationIntentV1(
-            basis_kind=profile.basis_kind,
-            generation_id=profile.generation_id,
-            inventory_json=profile.inventory_bytes.decode("utf-8"),
-        )
-        for profile in producer_profiles
-    )
+    request_intent = _request_generation_intent(tmp_path)
 
     response = LexPipelineMixin().search_lex_graph(
         LexSearchRequest(
@@ -861,6 +871,32 @@ def test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallbac
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_encoder_assets_unavailable"
     assert [result.fact_id for result in response.results] == ["fact-1"]
+    assert response.results[0].trust_tier == "search_candidate"
+    assert response.legal_relation_refusal is not None
+    assert response.legal_relation_refusal.model_dump() == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }
+
+    # Rebuild after a synthetic authority relabel so the selected generation is
+    # current. Search still requests candidate-band facts, so this row cannot
+    # escape the relation refusal by carrying a self-asserted trust label.
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("UPDATE lex_facts SET trust_tier = 'grounded_fact'")
+    _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
+    relabelled = LexPipelineMixin().search_lex_graph(
+        LexSearchRequest(
+            query="budget",
+            top_k=3,
+            output_dir=str(tmp_path),
+            query_generation_intent=_request_generation_intent(tmp_path),
+        ),
+        request_id="req-relabelled-authority-control",
+    )
+    assert relabelled.search_mode == "text"
+    assert relabelled.vector_refusal_code == "query_encoder_assets_unavailable"
+    assert relabelled.results == []
+    assert relabelled.legal_relation_refusal == response.legal_relation_refusal
 
 
 def test_producer_generation_reaches_native_http_with_typed_runtime_material_refusal(
@@ -875,9 +911,7 @@ def test_producer_generation_reaches_native_http_with_typed_runtime_material_ref
 
     db_path = tmp_path / "lex_knowledge_graph.duckdb"
     _prepare_legal_vector_db(db_path)
-    with duckdb.connect(str(db_path)) as con:
-        con.execute("ALTER TABLE lex_facts ADD COLUMN trust_tier VARCHAR")
-        con.execute("UPDATE lex_facts SET trust_tier = 'grounded_fact'")
+    _prepare_candidate_trust_tier(db_path)
 
     # The real Legal producer persists the selected generation. A second object
     # has identical assets but a replacement callable whose execution must be blocked.
@@ -978,6 +1012,11 @@ def test_producer_generation_reaches_native_http_with_typed_runtime_material_ref
     assert body["search_mode"] == "text"
     assert body["vector_refusal_code"] == "query_encoder_runtime_material_not_established"
     assert [item["fact_id"] for item in body["results"]] == ["fact-1"]
+    assert body["results"][0]["trust_tier"] == "search_candidate"
+    assert body["legal_relation_refusal"] == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }
     assert tuple(producer.encoded_texts) == producer_encode_history
     assert decoy_calls == []
     assert app.state.runtime_container.legal_query_encoder_provider is provider
@@ -1144,21 +1183,13 @@ def test_runtime_and_graph_refuse_same_asset_query_callable_swap(
         graph.close()
 
 
-@pytest.mark.parametrize("operator", ["between", "in"])
-@pytest.mark.parametrize("lower_bound", [0.0, 1e-5])
-@pytest.mark.parametrize("candidate_value", [-1.0, 0.0, 1e-5, 2.0, 5.0, 6.0])
-def test_reopened_threshold_consumer_retains_numeric_scalar(
+def test_owned_generation_and_members_do_not_verify_legal_source_relation(
     tmp_path: Path,
-    operator: str,
-    lower_bound: float,
-    candidate_value: float,
 ) -> None:
     db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    _prepare_legal_vector_db(db_path)
+    _prepare_candidate_trust_tier(db_path)
     with duckdb.connect(str(db_path)) as con:
-        con.execute(
-            "CREATE TABLE lex_facts (fact_id VARCHAR, confidence DOUBLE, trust_tier VARCHAR)"
-        )
-        con.execute("INSERT INTO lex_facts VALUES ('fact-zero', 1.0, 'normative_fact')")
         con.execute(
             "CREATE TABLE lex_rule_thresholds ("
             "threshold_id VARCHAR, fact_id VARCHAR, metric VARCHAR, operator VARCHAR, "
@@ -1166,41 +1197,44 @@ def test_reopened_threshold_consumer_retains_numeric_scalar(
         )
         con.execute(
             "INSERT INTO lex_rule_thresholds VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-                "threshold-zero",
-                "fact-zero",
-                "distance",
-                operator,
-                lower_bound,
-                "5",
-                "km",
-                "firms",
-            ],
+            ["threshold-zero", "fact-1", "distance", "between", 0.0, "5", "km", "firms"],
         )
+
+    producer = _DirectionalLegalEncoder()
+    _build_legal_vectors(db_path, tmp_path, producer, embedding_model=producer.model_name)
+    request_intent = _request_generation_intent(tmp_path)
+    search = LexPipelineMixin().search_lex_graph(
+        LexSearchRequest(
+            query="budget",
+            top_k=3,
+            output_dir=str(tmp_path),
+            query_generation_intent=request_intent,
+        ),
+        request_id="req-current-generation-does-not-verify-source-relation",
+    )
+
+    # The serving reader accepted the producer-selected generation and current
+    # members before returning its typed encoder refusal and candidate result.
+    assert search.search_mode == "text"
+    assert search.vector_refusal_code == "query_encoder_assets_unavailable"
+    assert [result.fact_id for result in search.results] == ["fact-1"]
+    assert search.results[0].trust_tier == "search_candidate"
+    assert search.legal_relation_refusal is not None
+    assert search.legal_relation_refusal.status == "verification_missing"
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        result = store.evaluate_rule_threshold(
-            threshold_id="threshold-zero",
-            candidate_value=candidate_value,
-            candidate_unit="km",
-            applies_to="firms",
-        )
+        with pytest.raises(LegalSourceRelationVerificationMissingError) as caught:
+            store.evaluate_rule_threshold(
+                threshold_id="threshold-zero",
+                candidate_value=2.0,
+                candidate_unit="km",
+                applies_to="firms",
+            )
     finally:
         store.close()
 
-    admitted = (
-        lower_bound <= candidate_value <= 5.0
-        if operator == "between"
-        else candidate_value in {lower_bound, 5.0}
-    )
-    assert result.status == ("admitted" if admitted else "blocked")
-    assert result.reason == ("threshold_satisfied" if admitted else "threshold_violated")
-    assert result.normalized_candidate_value == candidate_value
-    assert result.normalized_threshold_value == lower_bound
-    assert result.canonical_unit == "km"
-    assert result.threshold_id == "threshold-zero"
-    assert result.fact_id == "fact-zero"
+    assert caught.value.refusal.code == "legal_source_relation_verification_not_established"
 
 
 def test_owned_runtime_resolution_waits_for_fresh_intent_and_members(

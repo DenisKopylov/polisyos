@@ -25565,5 +25565,120 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "i4-c12-candidate-serving-and-numeric-refusal-tests-20261020": {
+    "slice_base": "4d8a93f506aa0568b65bf354e0111339a86a19af",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_emb_03.py": {
+        "operation": "write",
+        "preimage_sha256": "bd9378a7759863899f62821390af5025f95d3db5245bd3c860f55d9fb3e29750",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/proposed-postimages/test_emb_03.py",
+        "postimage_sha256": "c7d98424630b7c90f178c4928c4c5c9bcc444405eac69f68b2abb299a533a7ae"
+      },
+      "policy-engine/tests/unit/lex/knowledge/test_threshold_candidate_math.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/proposed-postimages/test_threshold_candidate_math.py",
+        "postimage_sha256": "5bbc170f552ec969b6e786dc591538b8e3359c3c4036b52dc7541f9659ddd343"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-i4-c12-test-boundary-adoption-20261020/source-application.json",
+      "sha256": "2c682b404472b1191a08d2f9594a5529d7cb8609440dce218e41bee72becd1f1"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-i4-c12-test-boundary-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/proposal-manifest-r1.json",
+        "sha256": "aa1498f78d13c13edaaacb46fa923ca4cc71fe449f02881739ffc5e2df784bde"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-test-repair-independent-review-20261020/review-v1.json",
+        "sha256": "a83b1fbf06aead18f435a742608911c04e8367d1f501aec91418ff7d0dc8b625"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/i4-c12-test-repair-r1.patch",
+        "sha256": "f2edf9d9c3fd202f1c4d075021c0cd12ffa003075951e0b8994125ef910ae482"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/source-relation-verifier-decision-r1.md",
+        "sha256": "b434661eb30c4a16798e87aa673c42da9d026e87ca277c07b4e28e36c1b3cda9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/source-relation-verifier-decision-r1.json",
+        "sha256": "f961bd55013d04cf7075b3d6e0c9bfcbae17d6f2bce1b9f3e3d033393e299fa7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/proposed-postimages/test_emb_03.py",
+        "sha256": "c7d98424630b7c90f178c4928c4c5c9bcc444405eac69f68b2abb299a533a7ae"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/repair-proposal-r1/proposed-postimages/test_threshold_candidate_math.py",
+        "sha256": "5bbc170f552ec969b6e786dc591538b8e3359c3c4036b52dc7541f9659ddd343"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Two new classes: shared candidate trust-band fixture mismatch across service/HTTP; repeated public-positive matrix bypassing an existing missing-verifier boundary. Repair shared setup and retain separate candidate arithmetic without weakening the public guard.",
+    "bounded_proof": "Independent static GO and canonical Ruff/format plus exact source-bound baseline101=73PASS26FAIL2SKIP. Postimage runtime is UNRUN until adopted bounded replay.",
+    "limitations": [
+      "No source-relation verifier exists on this path; public normative-positive capability remains verification_missing/held.",
+      "The24numeric cases prove candidate arithmetic only, not admissibility or verified law.",
+      "No production currentness, external issuer facts, authority grant, C12 whole-property closure or G acceptance is proposed.",
+      "Prior21-normal-module replay was capped at4GiB; its partial results remain unqualified. Full22-normal+E5 profile replay awaits composed freeze.",
+      "Two known-owned incomplete N7/B108 test edits remain outside this commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run whole first3modules plus new mirrored candidate-math module on the adopted source with actual R8/JUnit/origin evidence; after composition freeze run complete22NORMAL+E5 profile set and hand source-verifier decision to G.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

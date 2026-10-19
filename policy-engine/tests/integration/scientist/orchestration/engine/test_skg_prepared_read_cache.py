@@ -1485,7 +1485,21 @@ def test_spawn_timeout_refuses_live_prepared_read_before_child_start(
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     run_id = "R_skg_spawn_owned_read"
-    context, _registry = _build_run_context(store, run_id)
+    owner_scope = AccessScope.for_service(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        spiffe_id="spiffe://polisyos.test/cell/cell-a/svc/skg-prepared-read-cache",
+    )
+    with _access_scope_context(owner_scope):
+        context, _registry = _build_run_context(
+            store,
+            run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+    assert context.run.tenant_id == "tenant-a"
+    assert context.run.cell_id == "cell-a"
+    assert context.run.access_scope == owner_scope
     prepared_read = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
     context = replace(context, prepared_skg_read=prepared_read)
     spawn_context = retry_module.mp.get_context("spawn")

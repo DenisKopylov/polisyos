@@ -34,11 +34,15 @@ import numpy as np
 import pytest
 
 from polisyos.common import async_tools
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    FileSystemCAS,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes
 from polisyos.core.contracts.control import PolicyFlags
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import StateSnapshotRef
@@ -1418,6 +1422,8 @@ def _run_child(
                 )
 
                 study_outputs: dict[str, Any] = {}
+                input_receipts: dict[str, dict[str, Any]] = {}
+                input_run_bindings: dict[str, dict[str, Any]] = {}
                 for study_index, state in final_states.items():
                     with tenant_scope(
                         None,
@@ -1450,6 +1456,12 @@ def _run_child(
                             and source.role == "input:causal_observational_data"
                             for source in result_manifest.inputs
                         )
+                        input_manifest = fresh_store.get_manifest(input_data_ref)
+                        input_bytes = fresh_store.get_bytes(input_data_ref)
+                        input_content_sha256 = content_hash(input_bytes, prefix=True)
+                        input_manifest_profile_sha256 = artifact_manifest_profile_sha256(
+                            input_manifest
+                        )
                         evidence_ref = method_results[study_index]["evidence_ref"]
                         evidence = from_canonical_bytes(fresh_store.get_bytes(evidence_ref))
                         assert isinstance(evidence, dict)
@@ -1470,6 +1482,25 @@ def _run_child(
                             tenant_id=_TENANT_IDS[study_index],
                             cell_id=_CELL_IDS[study_index],
                         )
+                        launch_context = launch_context_by_study[study_index]
+                        input_receipts[str(study_index)] = {
+                            "study_index": study_index,
+                            "tenant_id": _TENANT_IDS[study_index],
+                            "cell_id": _CELL_IDS[study_index],
+                            "input_ref": input_data_ref.model_dump(mode="json", exclude_none=False),
+                            "manifest": input_manifest.model_dump(mode="json", exclude_none=False),
+                            "manifest_profile_sha256": input_manifest_profile_sha256,
+                            "content_sha256": input_content_sha256,
+                            "owner_scope": input_owner_scope,
+                        }
+                        input_run_bindings[str(study_index)] = {
+                            "study_index": study_index,
+                            "run_id": str(launch_context["run_id"]),
+                            "job_id": str(launch_context["job_id"]),
+                            "input_ref": input_data_ref.model_dump(mode="json", exclude_none=False),
+                            "tenant_id": _TENANT_IDS[study_index],
+                            "cell_id": _CELL_IDS[study_index],
+                        }
                         result_owner_scope = _owner_scope_observation(
                             fresh_store,
                             ref.artifact_id,
@@ -1618,6 +1649,8 @@ def _run_child(
                     "control_worker_results": dispatched,
                     "pre_dispatch_release": pre_dispatch_release,
                     "study_outputs": study_outputs,
+                    "input_receipts": input_receipts,
+                    "input_run_bindings": input_run_bindings,
                     "bypass": bypass,
                 }
             finally:

@@ -16901,5 +16901,70 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_r4_actual_input_custody_test_companion_20261019": {
+    "slice_base": "cc3d3edd490ff1e674ff996338422c6694f361b0",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py": {
+        "operation": "write",
+        "preimage_sha256": "b1ab06a8c12739c1423b7c05f4ed40dbd19f8c6b8c0893e99173db161d0ebac1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-20261019/r4/postimages/policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "postimage_sha256": "52dd22108824b4f967de434acbb085a24f5c0cd3440d242655e398455691b200",
+        "category": "mechanism",
+        "P39_role": "meaningful_existing_integration_receipt_companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/source-application.json",
+      "sha256": "0baf2a4f67f9dbfe536a9f1f22e80e252d258646e183c37024123f7a36981256"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-20261019/r4/manifest.json",
+        "sha256": "f8a1cef8deb621218cfd7d57021501ff780896d076aecbf0aed876df118823c8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-20261019/r4/candidate.patch",
+        "sha256": "d7ba57310d03708ad70da6397fa4bcc82a1c02f56077d6e6fc307da4ab9c3b12"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-input-custody-test-companion-independent-20261019/review.json",
+        "sha256": "b082c3189fa3f2c3c7bbb9a20721e944213abe10b1d03046b307b2a782cb8df6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+        "sha256": "fa6c2631600bbaa52e887954fb98ee9ee08e7bbcb1583ecd603e63c3d9cc2744"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+        "sha256": "cedb873bdcc2970493498af29fd35145d5fa05c641f30e54c7352664d03b2e8d"
+      }
+    ],
+    "P40": "Same inputcustodyevidence class. ReuseactualCoregetters/canonicalcontenthash/typedJSONmodeldump; no duplicatefakeintegritygate orprefix-specificreceiptvalidator.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Test-only input receipt retention; current R4 competing workload selector remainsUNRUN onnewsource.",
+      "ArtifactRef defaultNone profile selector may be omitted by fieldexclude_if, preserved through typedreconstruction; no literalnull-keyclaim. Computed actual fullmanifestprofile is separate.",
+      "No newcross-profile input gate/assertion; actualdecidingreceipt mustreconcile capturedinputs/digestsperstudyafterrun.",
+      "Syntheticportabletest-ownedworkload establishesonlygenericadmissionandretainedinputidentity; no productioncapacity/safety/promotion claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After composed source/profilefreeze run wholeactual Runtime shared-workload parentselector andthreechildren; retainallstreams,roster,folds,caps,queue/wait/RSS/wall, inputdigests andfreshoutput/provenance acrossprofiles.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -17299,5 +17299,90 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_fbc_phase10_module_package_source_r3_20261019": {
+    "slice_base": "a346e0e784fe0af2d361194f55aaed8851442263",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/tools/test_fabric_best_in_class_inventory.py": {
+        "operation": "write",
+        "preimage_sha256": "f46fdf0b6b6e84530efb62355c1b30b2d1a04d7aad441d0fe5c0307cd1c7ec4e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/postimages/policy-engine/tests/repo_quality/tools/test_fabric_best_in_class_inventory.py",
+        "postimage_sha256": "c697427b80cbc3ba6413a02da17bab24e984e2e1b3375b90a8923eca48a343d3",
+        "category": "mandatory_test_companion",
+        "P39_role": "mandatory_test_companion"
+      },
+      "policy-engine/tests/repo_quality/tools/test_fabric_product_integration.py": {
+        "operation": "write",
+        "preimage_sha256": "66fd87f0a05818e9a26e6dd8e40331cb969b6a7db2bed480ecf7e553be9a65a8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/postimages/policy-engine/tests/repo_quality/tools/test_fabric_product_integration.py",
+        "postimage_sha256": "f6de6d872ef385f454568220e1a9177d277e9ccb757ada2d77396e8b18eccd93",
+        "category": "mandatory_test_companion",
+        "P39_role": "mandatory_test_companion"
+      },
+      "policy-engine/tools/lib/imports.py": {
+        "operation": "write",
+        "preimage_sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/postimages/policy-engine/tools/lib/imports.py",
+        "postimage_sha256": "b5d526162f7038967712b2e99446377ea1a2543185eb46f9731354bda9bd7286",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/fabric_best_in_class_inventory.py": {
+        "operation": "write",
+        "preimage_sha256": "450727f9c5dd34b2a58d383607dbc18c7137b348ab2de5bd21b4808a387e605c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/postimages/policy-engine/tools/quality/validation/fabric_best_in_class_inventory.py",
+        "postimage_sha256": "52b2a42528d93d83b4c0d20793bb5a3cd6818bc472facd69a06cfc98e451a162",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      },
+      "policy-engine/tools/quality/validation/fabric_product_integration.py": {
+        "operation": "write",
+        "preimage_sha256": "0a4716ec24ce312b4cd2c128f82b0e0f104834ddc63ea85553bf3afe939f2930",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/postimages/policy-engine/tools/quality/validation/fabric_product_integration.py",
+        "postimage_sha256": "e130d35fc2c255db7999ae36f00d2aa85d86685cf9d9350f2c7f7aa521a5e38f",
+        "category": "mechanism",
+        "P39_role": "mechanism"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/source-application.json",
+      "sha256": "501d661bde9c1580cd6a88ec5477d242762a3bc4936755ab2189529c788fa821"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-phase10-source-adoption-prepare-20261019/adoption-plan.json",
+        "sha256": "3f58b46b09e6f368f2bd5fcd1108112696b941925112348f1e529b92b005ff04"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r3-20261019/candidate-manifest-r3.json",
+        "sha256": "8a802b6e1e65da901cb40bff3cf8664eb73d198fe08f15ea2886b731ed130e39"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-candidate-r2-20261019/candidate-manifest.json",
+        "sha256": "f988ec080713a5880537bfa173610d014e1f7800a95b954d1c0e7f54cd673bba"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fbc-module-package-source-r3-independent-20261019/review.json",
+        "sha256": "ecde88b9d6ece7251e6746c6ebfcb8bbb069e318f84323ee442a98a4b5eecd8d"
+      }
+    ],
+    "P40": "SAME module/package source-resolution class, second finding; widened shared resolver and both owner companions.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Static source GO only: actual owner regeneration, checks, corruption refusal and whole two-module tests remain UNRUN on this composition.",
+      "Canonical generated companions will be regenerated by their real owners in a separate ordinary source companion commit under the existing user-authorized E02 scope.",
+      "Phase10 static inventory does not prove runtime adapter semantic adequacy or authority.",
+      "Historical 777 input records and 59 surface rows have different denominators and must be recomputed; no count transferred as current."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Freeze blocking source and inputs, then real FBC owner update/check with exact canonical generated companions, one-field content-digest corruption refusal, Phase10 check/report and full two mirrored modules without clearing canonical pytest options.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

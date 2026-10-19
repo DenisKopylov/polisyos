@@ -26,7 +26,10 @@ from tools.lib.fs import (
     measured_is_file,
     measured_read_text,
 )
-from tools.lib.imports import ensure_repo_import_roots
+from tools.lib.imports import (
+    ensure_repo_import_roots,
+    resolve_polisyos_source_module_file,
+)
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
@@ -301,20 +304,23 @@ def _parse_ast_detail(path: Path) -> tuple[ast.Module | None, str | None]:
 
 
 def _module_file(repo_root: Path, module_name: str) -> tuple[Path | None, str | None]:
-    if not module_name.startswith("polisyos"):
-        return None, "external_module"
-    parts = module_name.split(".")
-    source_root = repo_root / "src"
-    if parts[0] != "polisyos":
-        return None, "module_outside_source_root"
-    stem = source_root.joinpath(*parts)
-    candidates = [stem.with_suffix(".py"), stem / "__init__.py"]
-    present = [path for path in candidates if _path_exists(path)]
-    if len(present) == 1:
-        return present[0], None
-    if not present:
-        return candidates[0], "module_missing"
-    return None, "ambiguous_module_path"
+    return resolve_polisyos_source_module_file(
+        repo_root,
+        module_name,
+        is_file=measured_is_file,
+    )
+
+
+def _module_source_locator(repo_root: Path, module_name: str) -> Path:
+    """Return the resolved module file or its conventional source locator.
+
+    Callers that use the path as evidence must separately require a successful
+    ``_module_file`` resolution; this fallback is for stable report locations.
+    """
+    module_path, _ = _module_file(repo_root, module_name)
+    if module_path is not None:
+        return module_path
+    return (repo_root / "src").joinpath(*module_name.split(".")).with_suffix(".py")
 
 
 def _import_bindings(
@@ -1312,7 +1318,8 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "scholar"
         / "orchestrator"
         / "provenance.py",
-        "lex_provenance": repo_root / "src" / "polisyos" / "lex" / "provenance.py",
+        "lex_provenance_facade": _module_source_locator(repo_root, "polisyos.lex.provenance"),
+        "lex_provenance": _module_source_locator(repo_root, "polisyos.lex.provenance.adapter"),
         "foundry_calibration_fabric": repo_root
         / "src"
         / "polisyos"
@@ -1408,7 +1415,7 @@ def _tests_by_plane(repo_root: Path) -> dict[str, list[str]]:
             "tests/unit/runtime/http/test_fabric_integration_routes.py",
             "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
             "tests/unit/scholar/test_fabric_provenance.py",
-            "tests/unit/lex/test_fabric_provenance.py",
+            "tests/unit/lex/provenance/test_adapter.py",
             "tests/unit/foundry/calibration/test_fabric_quality.py",
             "tests/unit/foundry/uncertainty/test_fabric_quality.py",
         ],
@@ -1634,7 +1641,7 @@ def _build_surfaces(
             "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py",
             "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
             "tests/unit/scholar/test_fabric_provenance.py",
-            "tests/unit/lex/test_fabric_provenance.py",
+            "tests/unit/lex/provenance/test_adapter.py",
             "tests/unit/foundry/calibration/test_fabric_quality.py",
             "tests/unit/foundry/uncertainty/test_fabric_quality.py",
         ],
@@ -1699,6 +1706,37 @@ def _build_surfaces(
         and "tests/unit/scientist/governance/test_fabric_trust_gate_pass.py"
         in product_integration_tests
     )
+    lex_facade_path, lex_facade_error = _module_file(repo_root, "polisyos.lex.provenance")
+    lex_adapter_symbol_kinds = {
+        "LexFabricEvidencePath": "class",
+        "lex_evidence_from_evidence_path": "function",
+        "lex_evidence_from_fabric_decision_data": "function",
+    }
+    lex_adapter_module_cache: dict[str, tuple[Path | None, ast.Module | None, str | None]] = {}
+    lex_adapter_resolutions = {
+        symbol: _resolve_class_symbol(
+            repo_root,
+            "polisyos.lex.provenance.adapter",
+            symbol,
+            lex_adapter_module_cache,
+        )
+        for symbol in lex_adapter_symbol_kinds
+    }
+    lex_adapter_implementation_present = all(
+        resolution[0] == expected_kind
+        and resolution[1] == paths["lex_provenance"]
+        and resolution[4] is None
+        for symbol, expected_kind in lex_adapter_symbol_kinds.items()
+        for resolution in (lex_adapter_resolutions[symbol],)
+    )
+    lex_adapter_status = (
+        lex_facade_error is None
+        and lex_facade_path == paths["lex_provenance_facade"]
+        and _path_exists(paths["lex_provenance_facade"])
+        and _has_token(paths["lex_provenance_facade"], "LexFabricEvidencePath")
+        and lex_adapter_implementation_present
+        and "tests/unit/lex/provenance/test_adapter.py" in product_integration_tests
+    )
     product_adapter_status = _status_if(
         _path_exists(paths["product_integration"])
         and _path_exists(paths["scholar_provenance"])
@@ -1707,7 +1745,7 @@ def _build_surfaces(
         and _path_exists(paths["foundry_uncertainty_fabric"])
         and _has_token(paths["product_integration"], "FabricProductEvidencePath")
         and _has_token(paths["scholar_provenance"], "ScholarFabricCitation")
-        and _has_token(paths["lex_provenance"], "LexFabricEvidencePath")
+        and lex_adapter_status
         and _has_token(paths["foundry_calibration_fabric"], "FabricCalibrationContext")
         and _has_token(paths["foundry_uncertainty_fabric"], "FabricUncertaintyContext")
     )
@@ -3166,6 +3204,7 @@ def _build_surfaces(
             source_files=[
                 _rel(paths["product_integration"], repo_root),
                 _rel(paths["scholar_provenance"], repo_root),
+                _rel(paths["lex_provenance_facade"], repo_root),
                 _rel(paths["lex_provenance"], repo_root),
                 _rel(paths["foundry_calibration_fabric"], repo_root),
                 _rel(paths["foundry_uncertainty_fabric"], repo_root),
@@ -3177,7 +3216,7 @@ def _build_surfaces(
                     paths["product_integration"], "FabricProductEvidencePath"
                 ),
                 "scholar": _has_token(paths["scholar_provenance"], "ScholarFabricCitation"),
-                "lex": _has_token(paths["lex_provenance"], "LexFabricEvidencePath"),
+                "lex": lex_adapter_status,
                 "foundry_calibration": _has_token(
                     paths["foundry_calibration_fabric"], "FabricCalibrationContext"
                 ),

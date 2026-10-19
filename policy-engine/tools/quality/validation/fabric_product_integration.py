@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from tools.lib.imports import repo_root_from
+from tools.lib.imports import repo_root_from, resolve_polisyos_source_module_file
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
@@ -92,7 +93,7 @@ FRONTEND_FIXTURES = (
     "fabric-impact.json",
 )
 
-PRODUCT_ADAPTERS: tuple[dict[str, str | tuple[str, ...]], ...] = (
+PRODUCT_ADAPTERS: tuple[dict[str, Any], ...] = (
     {
         "id": "fabric.product_evidence_path",
         "path": "src/polisyos/fabric/product_integration/__init__.py",
@@ -111,8 +112,14 @@ PRODUCT_ADAPTERS: tuple[dict[str, str | tuple[str, ...]], ...] = (
     },
     {
         "id": "lex.fabric_evidence",
-        "path": "src/polisyos/lex/provenance.py",
-        "tokens": ("LexFabricEvidencePath", "lex_evidence_from_fabric_decision_data"),
+        "module": "polisyos.lex.provenance",
+        "implementation_module": "polisyos.lex.provenance.adapter",
+        "symbols": {
+            "LexFabricEvidencePath": "class",
+            "lex_evidence_from_evidence_path": "function",
+            "lex_evidence_from_fabric_decision_data": "function",
+        },
+        "test_path": "tests/unit/lex/provenance/test_adapter.py",
     },
     {
         "id": "foundry.calibration.fabric_quality",
@@ -355,9 +362,265 @@ def _scientist_rows(repo_root: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _top_level_assignment(tree: ast.Module, name: str) -> ast.expr | None:
+    values: list[ast.expr | None] = []
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+            value = node.value
+        elif isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+            value = node.value
+        else:
+            continue
+        if any(isinstance(target, ast.Name) and target.id == name for target in targets):
+            values.append(value)
+    return values[0] if len(values) == 1 and values[0] is not None else None
+
+
+def _literal_string_sequence(tree: ast.Module, name: str) -> tuple[str, ...] | None:
+    value = _top_level_assignment(tree, name)
+    if not isinstance(value, (ast.List, ast.Tuple)):
+        return None
+    if any(
+        not isinstance(item, ast.Constant) or not isinstance(item.value, str) for item in value.elts
+    ):
+        return None
+    return tuple(str(item.value) for item in value.elts)
+
+
+def _literal_string_mapping(tree: ast.Module, name: str) -> dict[str, str] | None:
+    value = _top_level_assignment(tree, name)
+    if not isinstance(value, ast.Dict):
+        return None
+    result: dict[str, str] = {}
+    for key, item in zip(value.keys, value.values, strict=True):
+        if (
+            not isinstance(key, ast.Constant)
+            or not isinstance(key.value, str)
+            or not isinstance(item, ast.Constant)
+            or not isinstance(item.value, str)
+            or key.value in result
+        ):
+            return None
+        result[key.value] = item.value
+    return result
+
+
+def _source_tree(path: Path | None) -> ast.Module | None:
+    if path is None:
+        return None
+    try:
+        return ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except (OSError, UnicodeError, SyntaxError):
+        return None
+
+
+def _defined_symbol_kind(tree: ast.Module | None, symbol: str) -> str | None:
+    if tree is None:
+        return None
+    matches = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == symbol
+    ]
+    if len(matches) != 1:
+        return None
+    return "class" if isinstance(matches[0], ast.ClassDef) else "function"
+
+
+def _lazy_facade_dispatches_to(
+    tree: ast.Module | None, module_name: str, implementation_module: str
+) -> bool:
+    if tree is None:
+        return False
+    importlib_names = {
+        alias.asname or alias.name.split(".", 1)[0]
+        for node in tree.body
+        if isinstance(node, ast.Import)
+        for alias in node.names
+        if alias.name == "importlib"
+    }
+    handlers = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
+    ]
+    if len(handlers) != 1 or not importlib_names:
+        return False
+    handler = handlers[0]
+    imported_names: set[str] = set()
+    for node in ast.walk(handler):
+        if not isinstance(node, ast.Assign):
+            continue
+        value = node.value
+        if (
+            not isinstance(value, ast.Call)
+            or not isinstance(value.func, ast.Attribute)
+            or not isinstance(value.func.value, ast.Name)
+            or value.func.value.id not in importlib_names
+            or value.func.attr != "import_module"
+            or len(value.args) != 1
+            or not isinstance(value.args[0], ast.JoinedStr)
+        ):
+            continue
+        rendered: list[str] = []
+        valid = True
+        for part in value.args[0].values:
+            if isinstance(part, ast.Constant) and isinstance(part.value, str):
+                rendered.append(part.value)
+            elif (
+                isinstance(part, ast.FormattedValue)
+                and isinstance(part.value, ast.Name)
+                and part.value.id == "__name__"
+            ):
+                rendered.append(module_name)
+            else:
+                valid = False
+                break
+        if valid and "".join(rendered) == implementation_module:
+            imported_names.update(
+                target.id for target in node.targets if isinstance(target, ast.Name)
+            )
+
+    loaded_values: set[str] = set()
+    for node in ast.walk(handler):
+        if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Call):
+            continue
+        value = node.value
+        if (
+            isinstance(value.func, ast.Name)
+            and value.func.id == "getattr"
+            and len(value.args) == 2
+            and isinstance(value.args[0], ast.Name)
+            and value.args[0].id in imported_names
+            and isinstance(value.args[1], ast.Subscript)
+            and isinstance(value.args[1].value, ast.Name)
+            and value.args[1].value.id == "_EXPORTS"
+            and isinstance(value.args[1].slice, ast.Name)
+            and value.args[1].slice.id == "name"
+        ):
+            loaded_values.update(
+                target.id for target in node.targets if isinstance(target, ast.Name)
+            )
+
+    caches_loaded_value = any(
+        isinstance(node, ast.Assign)
+        and isinstance(node.value, ast.Name)
+        and node.value.id in loaded_values
+        and any(
+            isinstance(target, ast.Subscript)
+            and isinstance(target.value, ast.Call)
+            and isinstance(target.value.func, ast.Name)
+            and target.value.func.id == "globals"
+            and not target.value.args
+            and isinstance(target.slice, ast.Name)
+            and target.slice.id == "name"
+            for target in node.targets
+        )
+        for node in ast.walk(handler)
+    )
+    returns_loaded_value = any(
+        isinstance(node, ast.Return)
+        and isinstance(node.value, ast.Name)
+        and node.value.id in loaded_values
+        for node in ast.walk(handler)
+    )
+    refuses_unknown_names = any(
+        isinstance(node, ast.Raise)
+        and isinstance(node.exc, ast.Call)
+        and (
+            (isinstance(node.exc.func, ast.Name) and node.exc.func.id == "AttributeError")
+            or (isinstance(node.exc.func, ast.Attribute) and node.exc.func.attr == "AttributeError")
+        )
+        for node in ast.walk(handler)
+    )
+    return bool(
+        loaded_values and caches_loaded_value and returns_loaded_value and refuses_unknown_names
+    )
+
+
+def _module_adapter_row(repo_root: Path, adapter: Mapping[str, Any]) -> dict[str, Any]:
+    module_name = str(adapter["module"])
+    implementation_module = str(adapter["implementation_module"])
+    symbols = adapter.get("symbols")
+    symbols = dict(symbols) if isinstance(symbols, Mapping) else {}
+    facade_path, facade_error = resolve_polisyos_source_module_file(repo_root, module_name)
+    implementation_path, implementation_error = resolve_polisyos_source_module_file(
+        repo_root, implementation_module
+    )
+    facade_tree = _source_tree(facade_path if facade_error is None else None)
+    implementation_tree = _source_tree(
+        implementation_path if implementation_error is None else None
+    )
+    exported_names = _literal_string_sequence(facade_tree, "__all__") if facade_tree else None
+    export_bindings = _literal_string_mapping(facade_tree, "_EXPORTS") if facade_tree else None
+    exports_resolved = bool(
+        symbols
+        and exported_names is not None
+        and export_bindings is not None
+        and all(
+            kind in {"class", "function"}
+            and symbol in exported_names
+            and export_bindings.get(symbol) == symbol
+            for symbol, kind in symbols.items()
+        )
+    )
+    implementation_symbols_resolved = bool(
+        symbols
+        and all(
+            _defined_symbol_kind(implementation_tree, symbol) == kind
+            for symbol, kind in symbols.items()
+        )
+    )
+    facade_dispatch_resolved = _lazy_facade_dispatches_to(
+        facade_tree, module_name, implementation_module
+    )
+    test_path = str(adapter["test_path"])
+    test_present = (repo_root / test_path).is_file()
+    status = (
+        "implemented"
+        if facade_error is None
+        and implementation_error is None
+        and exports_resolved
+        and implementation_symbols_resolved
+        and facade_dispatch_resolved
+        and test_present
+        else "missing"
+    )
+    return {
+        "id": adapter["id"],
+        "path": (
+            facade_path.relative_to(repo_root).as_posix()
+            if facade_path is not None
+            else module_name
+        ),
+        "implementation_path": (
+            implementation_path.relative_to(repo_root).as_posix()
+            if implementation_path is not None
+            else implementation_module
+        ),
+        "status": status,
+        "tokens": list(symbols),
+        "test_path": test_path,
+        "source_resolution": {
+            "facade": facade_error or "resolved",
+            "implementation": implementation_error or "resolved",
+            "exports_resolved": exports_resolved,
+            "implementation_symbols_resolved": implementation_symbols_resolved,
+            "facade_dispatch_resolved": facade_dispatch_resolved,
+            "test_present": test_present,
+        },
+    }
+
+
 def _adapter_rows(repo_root: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for adapter in PRODUCT_ADAPTERS:
+        if "module" in adapter:
+            rows.append(_module_adapter_row(repo_root, adapter))
+            continue
         path = repo_root / str(adapter["path"])
         text = _read(path)
         tokens = adapter["tokens"]

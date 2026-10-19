@@ -15,6 +15,83 @@ def _surface_by_id(manifest: dict[str, object]) -> dict[str, dict[str, object]]:
     return {str(row["id"]): row for row in surfaces}
 
 
+def test_module_file_prefers_package_initializer_over_sibling_module(
+    tmp_path: Path,
+) -> None:
+    source_root = tmp_path / "src" / "polisyos" / "lex"
+    legacy_candidate = source_root / "provenance.py"
+    legacy_candidate.mkdir(parents=True)
+    package_initializer = source_root / "provenance" / "__init__.py"
+    package_initializer.parent.mkdir(parents=True)
+    package_initializer.write_text("__all__ = []\n", encoding="utf-8")
+
+    resolved, error = inventory._module_file(tmp_path, "polisyos.lex.provenance")
+
+    assert resolved == package_initializer
+    assert error is None
+
+    legacy_candidate.rmdir()
+    legacy_candidate.write_text("__all__ = []\n", encoding="utf-8")
+    resolved, error = inventory._module_file(tmp_path, "polisyos.lex.provenance")
+    assert resolved == package_initializer
+    assert error is None
+
+
+def test_module_file_rejects_invalid_and_unsupported_candidates(tmp_path: Path) -> None:
+    source_root = tmp_path / "src" / "polisyos" / "lex"
+    directory_candidate = source_root / "directory_candidate.py"
+    directory_candidate.mkdir(parents=True)
+    (source_root / "directory_candidate.pyi").write_text("value: int\n", encoding="utf-8")
+
+    resolved, error = inventory._module_file(tmp_path, "polisyos.lex.directory_candidate")
+    assert resolved == directory_candidate
+    assert error == "module_missing"
+
+    resolved, error = inventory._module_file(tmp_path, "polisyos.lex..invalid")
+    assert resolved is None
+    assert error == "module_outside_source_root"
+
+    outside_file = tmp_path / "outside.py"
+    outside_file.write_text("value = 1\n", encoding="utf-8")
+    escaped_module = source_root / "escaped.py"
+    escaped_module.symlink_to(outside_file)
+    resolved, error = inventory._module_file(tmp_path, "polisyos.lex.escaped")
+    assert resolved is None
+    assert error == "module_outside_source_root"
+
+
+def test_package_facade_marker_does_not_replace_missing_adapter_implementation(
+    tmp_path: Path,
+) -> None:
+    facade = tmp_path / "src" / "polisyos" / "lex" / "provenance" / "__init__.py"
+    facade.parent.mkdir(parents=True)
+    facade.write_text("LexFabricEvidencePath = object\n", encoding="utf-8")
+
+    kind, module_path, tree, class_node, error = inventory._resolve_class_symbol(
+        tmp_path,
+        "polisyos.lex.provenance.adapter",
+        "LexFabricEvidencePath",
+        {},
+    )
+
+    assert kind == "unknown"
+    assert module_path is None
+    assert tree is None
+    assert class_node is None
+    assert error == "module_missing"
+
+
+def test_product_adapter_surface_tracks_lex_package_and_implementation() -> None:
+    manifest = inventory.build_manifest(REPO_ROOT)
+    surface = _surface_by_id(manifest)["trust.product_evidence_adapters"]
+
+    assert surface["status"] == "implemented"
+    assert surface["evidence"]["lex"] is True
+    assert "src/polisyos/lex/provenance/__init__.py" in surface["source_files"]
+    assert "src/polisyos/lex/provenance/adapter.py" in surface["source_files"]
+    assert "tests/unit/lex/provenance/test_adapter.py" in surface["tests"]
+
+
 def test_manifest_status_model_and_required_surfaces() -> None:
     manifest = inventory.build_manifest(REPO_ROOT)
 

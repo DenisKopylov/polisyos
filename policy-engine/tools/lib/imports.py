@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 _REPO_SENTINELS = ("pyproject.toml", "tools", "src")
@@ -51,3 +52,45 @@ def is_type_checking_test(node: ast.AST) -> bool:
     if isinstance(node, ast.Attribute):
         return node.attr == "TYPE_CHECKING"
     return False
+
+
+def resolve_polisyos_source_module_file(
+    repo_root: str | Path,
+    module_name: str,
+    *,
+    is_file: Callable[[Path], bool] | None = None,
+) -> tuple[Path | None, str | None]:
+    """Resolve a polisyos module using Python's package-before-module precedence.
+
+    The optional probe lets inventory callers account for filesystem reads without
+    implementing their own module/package selection rules. Python's file finder
+    prefers ``name/__init__.py`` when both it and ``name.py`` exist.
+    """
+    if not module_name.startswith("polisyos"):
+        return None, "external_module"
+    parts = module_name.split(".")
+    if not parts or parts[0] != "polisyos" or any(not part.isidentifier() for part in parts):
+        return None, "module_outside_source_root"
+
+    source_root = Path(repo_root) / "src"
+    stem = source_root.joinpath(*parts)
+    package_initializer = stem / "__init__.py"
+    module_file = stem.with_suffix(".py")
+    probe = is_file or Path.is_file
+    selected = (
+        package_initializer
+        if probe(package_initializer)
+        else module_file
+        if probe(module_file)
+        else None
+    )
+
+    if selected is None:
+        return module_file, "module_missing"
+    try:
+        resolved_root = source_root.resolve()
+        if not selected.resolve().is_relative_to(resolved_root):
+            return None, "module_outside_source_root"
+    except OSError:
+        return None, "module_unreadable"
+    return selected, None

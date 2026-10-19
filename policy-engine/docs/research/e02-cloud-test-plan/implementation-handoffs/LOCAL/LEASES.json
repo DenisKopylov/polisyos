@@ -22096,5 +22096,58 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "compare-pure-helper-input-adopted-20261019": {
+    "slice_base": "1eb035af91dbb27cfe0ff3e51ba5de25294a8111",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/features/runs/compare/compare-math.ts": {
+        "preimage_sha256": "f8a35d9b72314d4727f71e0b142f144f9cff4e5e201fc3b62d6a577d24fd15c4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/compare-math-quantity-companion-20261019/postimages/policy-engine/apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+        "postimage_sha256": "d0a90525fd69295cd7a003ecae6705189c94b754ccccebf2d2868768b4b4a759",
+        "operation": "write",
+        "git_base_preimage_sha256": "f8a35d9b72314d4727f71e0b142f144f9cff4e5e201fc3b62d6a577d24fd15c4"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-compare-math-reviewed-adoption-20261019/compare-pure-helper-input/source-application.json",
+      "sha256": "ff086543521db0d35f20eac372e83219afc8886ee14400f73d45afff8c332255"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-compare-math-reviewed-adoption-20261019/compare-pure-helper-input/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/compare-math-quantity-companion-20261019/manifest-v1.json",
+        "sha256": "63ed13e4f1bd35e80d56670181b9d98653fd5859ecf70784e14d7dfe8bfe02e4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/compare-math-quantity-companion-20261019/candidate.patch",
+        "sha256": "23133179240f17cf66895be0622808560673d7fead21db039c11b50cac6f4c0d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/compare-math-quantity-independent-20261019/review.json",
+        "sha256": "4c3816015d00dbc5a10fe13e6f8a48bfb4a773d87b8efd5226dc2137358d9ca2"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same raw/display helper input class one level deeper: narrow all three helper contracts once instead of adding casts or weakening rendered quantities",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime bodies unchanged; existing raw-fixture sorting test retained",
+      "Canonical typecheck and compare module replay pending after this narrow source repair",
+      "Separate hasDistribution undefined/null observation retained as existing behavior; no closure or G acceptance"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run actual canonical TypeScript and complete comparison modules after batching the remaining fixture and generation companions",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

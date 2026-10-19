@@ -1,8 +1,16 @@
 import type {
   ComparabilityStatus,
-  DeltaQuantity,
+  CompareRunsDelta,
   DeltaSignificance,
 } from "./compare-types";
+
+type SalienceInput = Pick<CompareRunsDelta, "decision_salience">;
+type DistributionInput = {
+  delta_distribution?: Pick<
+    NonNullable<CompareRunsDelta["delta_distribution"]>,
+    "mean_shift" | "median_shift" | "quantiles"
+  >;
+};
 
 export function formatSignedNumber(value: number | null | undefined) {
   if (typeof value !== "number" || Number.isNaN(value)) {
@@ -11,7 +19,7 @@ export function formatSignedNumber(value: number | null | undefined) {
   return `${value >= 0 ? "+" : ""}${value.toFixed(Math.abs(value) < 1 ? 3 : 2)}`;
 }
 
-export function saliencePercent(delta: DeltaQuantity) {
+export function saliencePercent(delta: SalienceInput) {
   return Math.round(
     Math.max(0, Math.min(delta.decision_salience ?? 0, 1)) * 100,
   );
@@ -31,13 +39,16 @@ export function comparabilityLabel(value: ComparabilityStatus) {
   return "Blocked";
 }
 
-export function topDeltas(deltas: readonly DeltaQuantity[], limit = 6) {
+export function topDeltas<T extends SalienceInput>(
+  deltas: readonly T[],
+  limit = 6,
+): T[] {
   return [...deltas]
     .sort((left, right) => right.decision_salience - left.decision_salience)
     .slice(0, limit);
 }
 
-export function hasDistribution(delta: DeltaQuantity) {
+export function hasDistribution(delta: DistributionInput) {
   const distribution = delta.delta_distribution;
   return Boolean(
     distribution?.mean_shift !== null ||

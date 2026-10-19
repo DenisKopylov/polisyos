@@ -23848,5 +23848,52 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b154-legacy-abort-message-compatibility-20261019": {
+    "slice_base": "d4061a93d94d4add6295f9e5b20b020efa124ea2",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/_signature_ops.py": {
+        "operation": "write",
+        "preimage_sha256": "9ca96f8de6b55237c20085ef9880d3213a08f484619acb61506763579f8a6f01",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/postimages/_signature_ops.py",
+        "postimage_sha256": "bdac6260738a7118956f6956e44b6cc994a65645428da6da1aef69229c901acf"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/source-application.json",
+      "sha256": "885a2de5f875159cf8479dd32a1948e3bbebfe3c4f8a05389b0334b3feed6a5f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-abort-message-compatibility-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-candidate-20261019/manifest.json",
+        "sha256": "8f6f43b5d381c03c92c433154e84b09aff08d7ed148bef8c766c055a5a9bdc2e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-abort-message-compatibility-independent-review-20261019-v1/review.json",
+        "sha256": "b5eeef15572ae002c42db341746d275cac67afc741c01e95e7ac10df8a89bcc9"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Mandatory compatibility companion of the existing B154 executor/inventory outcome class; one shared typed abort mapping, no test relaxation or new authority.",
+    "bounded_proof": "Actual canonical three-module run 28PASS2FAIL; both failures solely legacy source-failed wording. Independent one-file review GO, exact typed three-reason mapping and unchanged assertion footprint.",
+    "limitations": [
+      "Previous actual30-case run is not candidate runtime proof; whole three modules must run again after adoption.",
+      "No DTO outcome/count/required-reference/authority semantics changed; B154 remains proposal pending actual qualification and G."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run unchanged complete B154/CAS03/phase0 CLI modules at committed source, normal autoload, 60s2GiB and exact inputs/output/module origins.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

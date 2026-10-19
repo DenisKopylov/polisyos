@@ -6,7 +6,7 @@ import threading
 from concurrent.futures import FIRST_COMPLETED, BrokenExecutor, Future, ThreadPoolExecutor, wait
 from contextvars import copy_context
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
 from .signing import (
     ArtifactSigningResult,
@@ -24,6 +24,19 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from .ids import ArtifactID
+
+
+type _BatchAbortReason = Literal["cancelled", "inventory_failed", "executor_failed"]
+_BATCH_ABORT_MESSAGES: dict[_BatchAbortReason, str] = {
+    "cancelled": "Batch cancelled; no new artifacts were submitted",
+    "inventory_failed": "Batch inventory source failed; results are incomplete",
+    "executor_failed": "Batch aborted (executor_failed); results are incomplete",
+}
+
+
+def _batch_abort_message(reason: _BatchAbortReason) -> str:
+    """Return the established diagnostic for a typed batch abort reason."""
+    return _BATCH_ABORT_MESSAGES[reason]
 
 
 class IntegrityVerificationReport(Protocol):
@@ -63,7 +76,7 @@ class _BoundedRun:
     length_hint: int | None
     admitted: int
     inventory_exhausted: bool
-    abort_reason: str | None
+    abort_reason: _BatchAbortReason | None
 
     @property
     def finished(self) -> int:
@@ -91,7 +104,7 @@ def _run_bounded(
     results: list[tuple[int, object]] = []
     next_index = 0
     exhausted = False
-    abort_reason: str | None = None
+    abort_reason: _BatchAbortReason | None = None
     window = _pending_window(max_workers, pending_window)
     length_hint = _source_length_hint(artifact_ids)
 
@@ -341,7 +354,7 @@ def sign_all_artifacts(
             ArtifactSigningResult(
                 artifact_id="<batch>",
                 status="error",
-                message=f"Batch aborted ({run.abort_reason}); results are incomplete",
+                message=_batch_abort_message(run.abort_reason),
             )
         )
 
@@ -401,7 +414,7 @@ def verify_all_signatures(
             SignatureVerificationResult(
                 status=SignatureVerificationStatus.ERROR,
                 artifact_id="<batch>",
-                message=f"Batch aborted ({run.abort_reason}); results are incomplete",
+                message=_batch_abort_message(run.abort_reason),
             )
         )
 

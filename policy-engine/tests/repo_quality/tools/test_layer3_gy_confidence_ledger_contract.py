@@ -577,6 +577,7 @@ def test_enumerated_passport_is_revalidated_before_projection(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core import artifacts
     from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.runtime.quality import acquisition_executor as admission_owner
     from tools.quality.validation.layer3_gy_n13b_reentry import OverlayStateProjection
@@ -632,6 +633,19 @@ def test_enumerated_passport_is_revalidated_before_projection(
         SimpleNamespace(from_provision=lambda **_kwargs: object()),
     )
     calls: list[object] = []
+    reader = SimpleNamespace()
+    opened_roots: list[Path] = []
+    received_readers: list[object] = []
+
+    def open_existing_read_only(_cls: type[object], root: Path) -> object:
+        opened_roots.append(root)
+        return reader
+
+    monkeypatch.setattr(
+        artifacts.FileSystemCAS,
+        "open_existing_read_only",
+        classmethod(open_existing_read_only),
+    )
     parsed_passport = SimpleNamespace(
         passport_id=passport_id,
         epoch_id=1,
@@ -659,8 +673,9 @@ def test_enumerated_passport_is_revalidated_before_projection(
         artifact_store: object,
         authority: object,
     ) -> SimpleNamespace:
-        del artifact_store, authority
+        del authority
         calls.append(passport)
+        received_readers.append(artifact_store)
         return parsed_passport
 
     monkeypatch.setattr(admission_owner, "revalidate_admission_passport", revalidate)
@@ -682,6 +697,8 @@ def test_enumerated_passport_is_revalidated_before_projection(
     )
 
     assert calls == [parsed_passport]
+    assert opened_roots == [tmp_path / adapter.DEFAULT_N13B_CAS]
+    assert received_readers == [reader]
     assert len(rows) == 1
     assert rows[0].passport_id == passport_id
     assert rows[0].status == "admitted"

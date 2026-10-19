@@ -759,7 +759,9 @@ def _load_revalidated_passports(
             baseline_path=catalog_path,
             l5_measurement_registry_path=l5_path,
         )
-        artifact_store = artifacts.FileSystemCAS(Path(repo_root) / DEFAULT_N13B_CAS)
+        artifact_store = artifacts.FileSystemCAS.open_existing_read_only(
+            Path(repo_root) / DEFAULT_N13B_CAS
+        )
     except Exception as exc:  # noqa: BLE001 - fail-closed owner boundary
         raise OwnerProjectionError("n13b_passport_owner_unresolved", str(exc)) from exc
     projections: list[N13bPassportOwnerProjection] = []

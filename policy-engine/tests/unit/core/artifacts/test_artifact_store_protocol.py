@@ -2,21 +2,31 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import os
+import stat
 from pathlib import Path
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from unittest.mock import MagicMock
 
 import pytest
 
-from polisyos.core.artifacts import artifact_manifest_profile_sha256
+from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
+    ArtifactReadOnlyUnavailableError,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.artifacts.ownership import (
     ArtifactOwnershipError,
     ArtifactPublicReadClosureUnavailableError,
+    ArtifactTransactionPendingError,
 )
 from polisyos.core.artifacts.protocol import (
+    ArtifactReader,
     ArtifactStore,
     CoreJSONArtifactStore,
     RootedArtifactStore,
@@ -47,6 +57,22 @@ class TestArtifactStoreProtocol:
         assert artifacts.ArtifactStoreConfig is ArtifactStoreConfig
         assert artifacts.build_artifact_store is build_artifact_store
         assert {"ArtifactStoreConfig", "build_artifact_store"} <= set(artifacts.__all__)
+
+    def test_core_artifacts_facade_exports_read_only_surface(self) -> None:
+        from polisyos.core import artifacts
+        from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError
+        from polisyos.core.artifacts.protocol import ArtifactReader
+        from polisyos.core.artifacts.store import ReadOnlyFileSystemCAS
+
+        assert artifacts.ArtifactReadOnlyUnavailableError is ArtifactReadOnlyUnavailableError
+        assert artifacts.ArtifactReader is ArtifactReader
+        assert artifacts.ReadOnlyFileSystemCAS is ReadOnlyFileSystemCAS
+        assert {
+            "ArtifactReadOnlyUnavailableError",
+            "ArtifactReader",
+            "ReadOnlyFileSystemCAS",
+        } <= set(artifacts.__all__)
+        assert callable(artifacts.FileSystemCAS.open_existing_read_only)
 
     def test_filesystem_cas_satisfies_protocol(self, tmp_path: Path):
         """FileSystemCAS must be a structural match for ArtifactStore."""
@@ -738,3 +764,397 @@ class TestFileSystemCASRoundTrip:
         }
         assert observed_profiles == {owner_default_profile, owner_selected_profile}
         assert foreign_same_profile not in observed_profiles
+
+
+def _cas_tree_state(root: Path) -> dict[str, tuple[int, int, int, int, int, str | None]]:
+    """Capture path type, mode, inode, link count, mtime, size and bytes digest."""
+    state: dict[str, tuple[int, int, int, int, int, str | None]] = {}
+    if not root.exists():
+        return state
+    for path in [root, *sorted(root.rglob("*"))]:
+        info = path.lstat()
+        digest = (
+            hashlib.sha256(path.read_bytes()).hexdigest() if stat.S_ISREG(info.st_mode) else None
+        )
+        relative_path = "." if path == root else path.relative_to(root).as_posix()
+        state[relative_path] = (
+            stat.S_IFMT(info.st_mode),
+            stat.S_IMODE(info.st_mode),
+            info.st_ino,
+            info.st_nlink,
+            info.st_mtime_ns,
+            digest,
+        )
+    return state
+
+
+def test_existing_read_only_cas_uses_reader_protocol_without_filesystem_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    ref = writer.put_bytes(
+        b"immutable-read-only-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    before = _cas_tree_state(root)
+    original_os_open = os.open
+    original_path_open = Path.open
+    original_modes = {path: stat.S_IMODE(path.stat().st_mode) for path in [root, *root.rglob("*")]}
+
+    def read_only_os_open(
+        path: str | bytes | os.PathLike[str],
+        flags: int,
+        *args: object,
+        **kwargs: object,
+    ) -> int:
+        write_flags = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND
+        assert flags & write_flags == 0, "read-only CAS attempted a write-capable open"
+        return original_os_open(path, flags, *args, **kwargs)
+
+    def read_only_path_open(
+        path: Path,
+        mode: str = "r",
+        *args: object,
+        **kwargs: object,
+    ) -> Any:
+        assert not any(flag in mode for flag in "wax+"), "read-only CAS opened a writable path"
+        return original_path_open(path, mode, *args, **kwargs)
+
+    def deny_mkdir(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("read-only CAS attempted to create a directory")
+
+    monkeypatch.setattr(os, "open", read_only_os_open)
+    monkeypatch.setattr(Path, "open", read_only_path_open)
+    monkeypatch.setattr(Path, "mkdir", deny_mkdir)
+    for path, mode in original_modes.items():
+        path.chmod(mode & ~0o222)
+    read_only_before = _cas_tree_state(root)
+    try:
+        reader = FileSystemCAS.open_existing_read_only(root)
+        assert isinstance(reader, ArtifactReader)
+        assert reader.has(ref)
+        assert reader.get_manifest(ref).kind == ref.kind
+        assert reader.get_bytes(ref.artifact_id) == b"immutable-read-only-payload"
+        assert not hasattr(reader, "put_bytes")
+        with pytest.raises(AttributeError):
+            reader.put_bytes(b"forbidden", PutOptions(kind="test.write", media_type="text/plain"))
+        assert _cas_tree_state(root) == read_only_before
+    finally:
+        for path, mode in original_modes.items():
+            path.chmod(mode)
+    assert _cas_tree_state(root) == before
+
+
+def test_read_only_cas_refuses_existing_pending_transaction_without_mutation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    payload = b"a pending transaction must block every read surface"
+    artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+
+    def interrupt_before_first_final(
+        stage_path: Path | None,
+        final_path: Path,
+        *,
+        expected_sha256: str,
+    ) -> bool:
+        raise RuntimeError("simulated interruption after durable transaction intent")
+
+    monkeypatch.setattr(writer, "_publish_transaction_member", interrupt_before_first_final)
+    with pytest.raises(
+        RuntimeError, match="simulated interruption after durable transaction intent"
+    ):
+        writer.put_bytes(
+            payload,
+            PutOptions(kind="test.read_only_pending", media_type="application/octet-stream"),
+        )
+
+    intent_path = writer._ownership_index._transaction_intent_path(artifact_id)
+    assert intent_path.is_file()
+    intent = json.loads(intent_path.read_text(encoding="utf-8"))
+    assert intent["status"] == "pending"
+
+    reader = FileSystemCAS.open_existing_read_only(root)
+    attempts = (
+        ("writer.has", lambda: writer.has(artifact_id)),
+        ("writer.get_manifest", lambda: writer.get_manifest(artifact_id)),
+        ("writer.get_bytes", lambda: writer.get_bytes(artifact_id)),
+        ("reader.has", lambda: reader.has(artifact_id)),
+        ("reader.get_manifest", lambda: reader.get_manifest(artifact_id)),
+        ("reader.get_bytes", lambda: reader.get_bytes(artifact_id)),
+    )
+    before_reads = _cas_tree_state(root)
+    for name, attempt in attempts:
+        with pytest.raises(ArtifactTransactionPendingError) as error:
+            attempt()
+        assert error.value.code == ArtifactTransactionPendingError.code, name
+        assert _cas_tree_state(root) == before_reads, name
+
+
+def test_read_only_cas_refuses_missing_root_without_creating_it(tmp_path: Path) -> None:
+    root = tmp_path / "missing-cas"
+    assert not root.exists()
+
+    with pytest.raises(ArtifactReadOnlyUnavailableError):
+        FileSystemCAS.open_existing_read_only(root)
+
+    assert not root.exists()
+
+
+def test_read_only_cas_refuses_missing_root_lock_without_recreating_it(tmp_path: Path) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    writer.put_bytes(
+        b"root-lock-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    root_lock = root / "artifacts/ownership/transactions/root.lock"
+    root_lock.unlink()
+    before = _cas_tree_state(root)
+
+    with pytest.raises(ArtifactReadOnlyUnavailableError):
+        FileSystemCAS.open_existing_read_only(root)
+
+    assert _cas_tree_state(root) == before
+
+
+def test_read_only_cas_reports_missing_artifact_without_materializing_state(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    existing_ref = writer.put_bytes(
+        b"existing-stripe-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    existing_stripe = int(existing_ref.artifact_id.hex, 16) % 64
+    absent_id = next(
+        candidate
+        for suffix in range(256)
+        if (
+            candidate := ArtifactID.from_sha256_hex(
+                existing_ref.artifact_id.hex[:-2] + f"{suffix:02x}"
+            )
+        )
+        != existing_ref.artifact_id
+        and int(candidate.hex, 16) % 64 == existing_stripe
+    )
+    before = _cas_tree_state(root)
+    reader = FileSystemCAS.open_existing_read_only(root)
+
+    assert not reader.has(absent_id)
+    with pytest.raises(FileNotFoundError):
+        reader.get_bytes(absent_id)
+
+    assert _cas_tree_state(root) == before
+
+
+def test_read_only_cas_refuses_missing_stripe_lock_without_recreating_it(tmp_path: Path) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    ref = writer.put_bytes(
+        b"stripe-lock-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    stripe = int(ref.artifact_id.hex, 16) % 64
+    stripe_lock = root / "artifacts/ownership/transactions/locks" / f"stripe-{stripe:02d}.lock"
+    stripe_lock.unlink()
+    before = _cas_tree_state(root)
+
+    reader = FileSystemCAS.open_existing_read_only(root)
+    with pytest.raises(ArtifactReadOnlyUnavailableError):
+        reader.get_bytes(ref.artifact_id)
+
+    assert _cas_tree_state(root) == before
+
+
+@pytest.mark.parametrize(
+    ("corruption", "expected_error"),
+    [
+        ("blob", ArtifactIntegrityError),
+        ("malformed_manifest", ValueError),
+        ("manifest_identity", ArtifactIntegrityError),
+        ("blob_symlink", ArtifactIntegrityError),
+        ("dangling_blob_symlink", ArtifactIntegrityError),
+        ("dangling_manifest_symlink", ArtifactIntegrityError),
+        ("blob_directory", ArtifactIntegrityError),
+        ("manifest_directory", ArtifactIntegrityError),
+    ],
+)
+def test_read_only_cas_refuses_present_invalid_artifacts_without_repair(
+    tmp_path: Path,
+    corruption: str,
+    expected_error: type[Exception],
+) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    ref = writer.put_bytes(
+        b"integrity-bound-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    artifact_dir = root / "artifacts/sha256" / ref.artifact_id.hex[:2] / ref.artifact_id.hex[2:4]
+    blob_path = artifact_dir / f"{ref.artifact_id.hex}.blob"
+    manifest_path = artifact_dir / f"{ref.artifact_id.hex}.manifest.json"
+    external_blob = tmp_path / "outside-cas.bin"
+    if corruption == "blob":
+        blob_path.write_bytes(b"forged-present-payload")
+    elif corruption in {"blob_symlink", "dangling_blob_symlink"}:
+        target = external_blob
+        if corruption == "blob_symlink":
+            external_blob.write_bytes(b"integrity-bound-payload")
+        else:
+            target = tmp_path / "missing-blob-target"
+        blob_path.unlink()
+        blob_path.symlink_to(target)
+    elif corruption == "dangling_manifest_symlink":
+        manifest_path.unlink()
+        manifest_path.symlink_to(tmp_path / "missing-manifest-target")
+    elif corruption == "blob_directory":
+        blob_path.unlink()
+        blob_path.mkdir()
+    elif corruption == "manifest_directory":
+        manifest_path.unlink()
+        manifest_path.mkdir()
+    elif corruption == "malformed_manifest":
+        manifest_path.write_bytes(b"{")
+    else:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["artifact_id"] = "sha256:" + ("0" * 64)
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    before = _cas_tree_state(root)
+
+    reader = FileSystemCAS.open_existing_read_only(root)
+    with pytest.raises(expected_error):
+        reader.has(ref)
+    with pytest.raises(expected_error):
+        reader.get_bytes(ref.artifact_id)
+
+    assert _cas_tree_state(root) == before
+    if corruption == "blob_symlink":
+        assert external_blob.read_bytes() == b"integrity-bound-payload"
+
+
+def test_read_only_cas_refuses_manifest_without_blob_without_repair(tmp_path: Path) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    ref = writer.put_bytes(
+        b"partial-member-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    blob_dir = root / "artifacts/sha256" / ref.artifact_id.hex[:2] / ref.artifact_id.hex[2:4]
+    (blob_dir / f"{ref.artifact_id.hex}.blob").unlink()
+    before = _cas_tree_state(root)
+
+    reader = FileSystemCAS.open_existing_read_only(root)
+    with pytest.raises(ArtifactIntegrityError, match="manifest exists without its blob"):
+        reader.has(ref)
+
+    assert _cas_tree_state(root) == before
+
+
+def test_read_only_cas_does_not_fall_back_from_missing_selected_profile(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    default_ref = writer.put_bytes(
+        b"default-only-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    selected_ref = ArtifactRef(
+        artifact_id=default_ref.artifact_id,
+        kind=default_ref.kind,
+        media_type=default_ref.media_type,
+        manifest_profile_sha256="sha256:" + "0" * 64,
+    )
+    before = _cas_tree_state(root)
+
+    reader = FileSystemCAS.open_existing_read_only(root)
+    assert reader.has(default_ref)
+    assert not reader.has(selected_ref)
+    with pytest.raises(FileNotFoundError):
+        reader.get_manifest(selected_ref)
+
+    assert _cas_tree_state(root) == before
+
+
+@pytest.mark.parametrize(
+    ("failure_stage", "member"),
+    [
+        ("status", "blob"),
+        ("status", "manifest"),
+        ("read", "blob"),
+        ("read", "manifest"),
+    ],
+)
+def test_read_only_cas_refuses_os_errors_without_claiming_absence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure_stage: str,
+    member: str,
+) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    ref = writer.put_bytes(
+        b"unreadable-member-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    blob_dir = root / "artifacts/sha256" / ref.artifact_id.hex[:2] / ref.artifact_id.hex[2:4]
+    blob_path = blob_dir / f"{ref.artifact_id.hex}.blob"
+    manifest_path = blob_dir / f"{ref.artifact_id.hex}.manifest.json"
+    member_path = blob_path if member == "blob" else manifest_path
+    before = _cas_tree_state(root)
+    reader = FileSystemCAS.open_existing_read_only(root)
+    original_lstat = os.lstat
+    original_open = os.open
+
+    def denied_lstat(path: str | bytes | os.PathLike[str]) -> os.stat_result:
+        if Path(path) == member_path:
+            raise PermissionError("controlled CAS member status denial")
+        return original_lstat(path)
+
+    def denied_open(
+        path: str | bytes | os.PathLike[str],
+        flags: int,
+        *args: object,
+        **kwargs: object,
+    ) -> int:
+        if Path(path) == member_path:
+            raise PermissionError("controlled CAS member read denial")
+        return original_open(path, flags, *args, **kwargs)
+
+    with monkeypatch.context() as patcher:
+        if failure_stage == "status":
+            patcher.setattr(os, "lstat", denied_lstat)
+        else:
+            patcher.setattr(os, "open", denied_open)
+        with pytest.raises(ArtifactReadOnlyUnavailableError):
+            reader.has(ref)
+
+    assert _cas_tree_state(root) == before
+
+
+def test_read_only_cas_refuses_symlinked_member_parent_without_repair(tmp_path: Path) -> None:
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    ref = writer.put_bytes(
+        b"symlinked-parent-payload",
+        PutOptions(kind="test.read_only", media_type="application/octet-stream"),
+    )
+    artifact_dir = root / "artifacts/sha256" / ref.artifact_id.hex[:2] / ref.artifact_id.hex[2:4]
+    external_dir = tmp_path / "external-artifact-dir"
+    artifact_dir.rename(external_dir)
+    artifact_dir.symlink_to(external_dir, target_is_directory=True)
+    before_root = _cas_tree_state(root)
+    before_external = _cas_tree_state(external_dir)
+
+    reader = FileSystemCAS.open_existing_read_only(root)
+    with pytest.raises(ArtifactIntegrityError, match="path crosses a symlink"):
+        reader.has(ref)
+
+    assert _cas_tree_state(root) == before_root
+    assert _cas_tree_state(external_dir) == before_external

@@ -33,6 +33,11 @@ depends on `polisyos.ir`, but not the other way around.
 
 ## Public API
 
+- Read-only local artifact access: `polisyos.core.artifacts.ArtifactReader` and
+  `FileSystemCAS.open_existing_read_only` expose only verified reads over an already-existing
+  CAS. See [the read-only CAS contract](artifacts/README.md#read-only-local-cas-access); this is
+  not an HTTP endpoint or an authority claim.
+
 - Supported package entrypoint: `polisyos.core`
 - Lazy facade exports from `src/polisyos/core/__init__.py`: `artifacts`,
   `backends`, `cache`, `canon`, `components`, `contracts`, `discovery`,

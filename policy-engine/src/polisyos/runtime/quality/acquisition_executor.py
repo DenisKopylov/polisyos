@@ -49,6 +49,7 @@ ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
 ArtifactWriteOptions = artifacts.PutOptions
 ArtifactStore = artifacts.ArtifactStore
+ArtifactReader = artifacts.ArtifactReader
 DataSnapshot = contracts.DataSnapshot
 EvidenceBundle = contracts.EvidenceBundle
 FetchRequest = fabric_connectors.FetchRequest
@@ -514,14 +515,14 @@ class _CanonicalAuthority(Protocol):
         self,
         entry_id: str,
         evidence: object,
-        artifact_store: object,
+        artifact_store: ArtifactReader,
     ) -> bytes: ...
 
     def resolve_live_source_execution(
         self,
         entry_id: str,
         evidence: object,
-        artifact_store: object,
+        artifact_store: ArtifactReader,
     ) -> object: ...
 
 
@@ -2340,7 +2341,7 @@ def resolve_activated_semantic_epoch_admission(
 def revalidate_admission_passport(
     passport: AdmissionPassport,
     *,
-    artifact_store: _ArtifactStore,
+    artifact_store: ArtifactReader,
     authority: _CanonicalAuthority,
 ) -> AdmissionPassport:
     """Resolve decisive owners again immediately before overlay admission."""
@@ -2656,7 +2657,7 @@ def _derive_status(
 
 
 def _cas_bytes_match(
-    artifact_store: _ArtifactStore,
+    artifact_store: ArtifactReader,
     *,
     artifact_id: str,
     expected: bytes,

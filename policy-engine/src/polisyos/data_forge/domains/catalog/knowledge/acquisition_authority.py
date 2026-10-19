@@ -36,6 +36,7 @@ from .overlay import (
 from .variable_alignment import score_variable_pair
 
 ArtifactID = artifacts.ArtifactID
+ArtifactReader = artifacts.ArtifactReader
 ArtifactStore = artifacts.ArtifactStore
 DataSnapshot = contracts.DataSnapshot
 DataSnapshotRef = contracts.DataSnapshotRef
@@ -1241,7 +1242,7 @@ class CanonicalAcquisitionAuthority:
         self,
         entry_id: str,
         evidence: LiveSourceExecutionEvidence,
-        artifact_store: ArtifactStore,
+        artifact_store: ArtifactReader,
     ) -> FetchResult[Any]:
         """Reopen and verify both carriers of one authorized live execution.
 
@@ -1320,7 +1321,7 @@ class CanonicalAcquisitionAuthority:
         self,
         entry_id: str,
         evidence: LiveSourceExecutionEvidence,
-        artifact_store: ArtifactStore,
+        artifact_store: ArtifactReader,
     ) -> bytes:
         """Return deterministic normalized rows after full dual-carrier verification."""
 
@@ -1601,7 +1602,7 @@ class CanonicalAcquisitionAuthority:
 
     @staticmethod
     def _reopen_artifact(
-        artifact_store: ArtifactStore,
+        artifact_store: ArtifactReader,
         artifact_id: ArtifactID,
         *,
         expected_kind: str | None = None,
@@ -1616,7 +1617,7 @@ class CanonicalAcquisitionAuthority:
     @classmethod
     def _reopen_artifact_ref(
         cls,
-        artifact_store: ArtifactStore,
+        artifact_store: ArtifactReader,
         ref: object,
         *,
         expected_kind: str | None = None,

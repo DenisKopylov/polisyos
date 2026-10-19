@@ -144,10 +144,16 @@ from .ownership import (
     ArtifactOwnershipError,
     ArtifactOwnershipIndex,
     ArtifactPublicReadClosureUnavailableError,
+    ArtifactReadOnlyUnavailableError,
     ArtifactTransactionPendingError,
     _ArtifactTransactionLease,
 )
-from .protocol import _CASStorageAdmission, _CASStorageMember, _validate_return_selected_profile
+from .protocol import (
+    ArtifactReader,
+    _CASStorageAdmission,
+    _CASStorageMember,
+    _validate_return_selected_profile,
+)
 from .signing import (
     BulkSigningReport,
     BulkVerificationReport,
@@ -174,6 +180,7 @@ PutOptions = ArtifactWriteOptions
 ArtifactMemberKind = Literal["blob", "manifest", "signature"]
 _TransactionalParams = ParamSpec("_TransactionalParams")
 _TransactionalResult = TypeVar("_TransactionalResult")
+_READ_ONLY_READER_TOKEN = object()
 
 
 class _ResolvedOwner(TypedDict):
@@ -554,7 +561,11 @@ def _transactional_read(
                 )
             transactional_method: Callable[..., _TransactionalResult] = method
             store = store_value
-            with store._coordinator.artifact_lease(aid, exclusive=False):
+            with store._coordinator.artifact_lease(
+                aid,
+                exclusive=False,
+                create_lock_files=not store._read_only,
+            ):
                 store._ownership_index.require_no_pending_transaction(
                     aid,
                     manifest_profile_sha256=profile_sha256,
@@ -616,10 +627,69 @@ class FileSystemCAS:
         ownership_requires_scope: bool = True,
         ownership_index: ArtifactOwnershipIndex | None = None,
     ) -> None:
+        self._initialize(
+            root,
+            signing_config=signing_config,
+            metrics=metrics,
+            tracer=tracer,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            ownership_enforced=ownership_enforced,
+            ownership_requires_scope=ownership_requires_scope,
+            ownership_index=ownership_index,
+            read_only=False,
+        )
+
+    @classmethod
+    def open_existing_read_only(cls, root: Path) -> ReadOnlyFileSystemCAS:
+        """Open an existing CAS through only content-validating read methods.
+
+        The returned handle refuses when its existing root, layout, or root
+        transaction lock cannot be opened without creating filesystem state.
+        """
+        store = cls.__new__(cls)
+        store._initialize(
+            root,
+            signing_config=None,
+            metrics=None,
+            tracer=None,
+            tenant_id=None,
+            cell_id=None,
+            ownership_enforced=False,
+            ownership_requires_scope=True,
+            ownership_index=None,
+            read_only=True,
+        )
+        store._coordinator.validate_existing_root_lock()
+        return ReadOnlyFileSystemCAS(store, _token=_READ_ONLY_READER_TOKEN)
+
+    def _initialize(
+        self,
+        root: Path,
+        *,
+        signing_config: SigningConfig | None,
+        metrics: MetricsRegistry | None,
+        tracer: PolicyOSTracer | None,
+        tenant_id: str | None,
+        cell_id: str | None,
+        ownership_enforced: bool | None,
+        ownership_requires_scope: bool,
+        ownership_index: ArtifactOwnershipIndex | None,
+        read_only: bool,
+    ) -> None:
+        self._read_only = read_only
         requested_root = Path(root)
-        requested_root.mkdir(parents=True, exist_ok=True)
-        canonical_root = requested_root.resolve(strict=True)
-        self._ownership_index = ownership_index or ArtifactOwnershipIndex(canonical_root)
+        if read_only:
+            if requested_root.is_symlink() or not requested_root.is_dir():
+                raise ArtifactReadOnlyUnavailableError("cas_root_missing_or_invalid")
+            canonical_root = requested_root.resolve(strict=True)
+        else:
+            requested_root.mkdir(parents=True, exist_ok=True)
+            canonical_root = requested_root.resolve(strict=True)
+        self._ownership_index = ownership_index or ArtifactOwnershipIndex(
+            canonical_root,
+            read_only=read_only,
+        )
         if self._ownership_index.root != canonical_root:
             raise ValueError("filesystem_cas_ownership_root_mismatch")
         self.root = canonical_root
@@ -631,20 +701,36 @@ class FileSystemCAS:
         self._coordinator = self._ownership_index._coordinator
         self._layout = _CASPathLayout(self.root)
         self.base = self._layout.base
-        self.base.mkdir(parents=True, exist_ok=True)
+        if read_only:
+            if (
+                self.base.is_symlink()
+                or not self.base.is_dir()
+                or self._ownership_index._path_has_symlink_component(self.base)
+            ):
+                raise ArtifactReadOnlyUnavailableError("cas_layout_missing_or_invalid")
+        else:
+            self.base.mkdir(parents=True, exist_ok=True)
         self._files = _AtomicFileWriter()
         self._manifests = _ManifestLifecycle()
-        observability_enabled = is_hpc_observability_enabled()
-        self._tracer = (
-            tracer if tracer is not None else (_default_tracer() if observability_enabled else None)
-        )
-        self._metrics = (
-            metrics
-            if metrics is not None
-            else (_default_metrics() if observability_enabled else None)
-        )
+        if read_only:
+            self._tracer = None
+            self._metrics = None
+        else:
+            observability_enabled = is_hpc_observability_enabled()
+            self._tracer = (
+                tracer
+                if tracer is not None
+                else (_default_tracer() if observability_enabled else None)
+            )
+            self._metrics = (
+                metrics
+                if metrics is not None
+                else (_default_metrics() if observability_enabled else None)
+            )
         self._hpc_enabled = self._tracer is not None or self._metrics is not None
-        self._signing_config = signing_config or SigningConfig.from_env()
+        self._signing_config = signing_config or (
+            SigningConfig() if read_only else SigningConfig.from_env()
+        )
         self._default_signer: Ed25519Signer | None = None
         self._signer_lock = threading.Lock()
         self._storage_admission: _CASStorageAdmission | None = None
@@ -654,7 +740,8 @@ class FileSystemCAS:
             tenant_id is not None if ownership_enforced is None else bool(ownership_enforced)
         )
         self._ownership_requires_scope = bool(ownership_requires_scope)
-        self._ownership_index.recover_orphan_stages()
+        if not read_only:
+            self._ownership_index.recover_orphan_stages()
 
     @contextmanager
     def _capture_public_read_set(self) -> Iterator[_PublicReadSetCapture]:
@@ -856,7 +943,11 @@ class FileSystemCAS:
         released, even if the caller reads only a prefix.
         """
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
-        with self._coordinator.artifact_lease(aid, exclusive=False):
+        with self._coordinator.artifact_lease(
+            aid,
+            exclusive=False,
+            create_lock_files=not self._read_only,
+        ):
             self._ownership_index.require_no_pending_transaction(
                 aid,
                 manifest_profile_sha256=profile_sha256,
@@ -1462,7 +1553,31 @@ class FileSystemCAS:
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         blob, _ = self._paths(aid)
         manifest = self._manifest_path_for_ref(aid, profile_sha256)
-        exists = blob.exists() and manifest.exists()
+        if self._read_only:
+            blob_exists = self._read_only_member_present(blob, member="blob")
+            manifest_exists = self._read_only_member_present(manifest, member="manifest")
+            if manifest_exists and not blob_exists:
+                raise ArtifactIntegrityError("selected CAS manifest exists without its blob")
+            exists = blob_exists and manifest_exists
+            if exists:
+                selected = ref or aid
+                try:
+                    self.get_manifest(selected)
+                    self.get_bytes(selected)
+                except FileNotFoundError as exc:
+                    blob_exists = self._read_only_member_present(blob, member="blob")
+                    manifest_exists = self._read_only_member_present(manifest, member="manifest")
+                    if manifest_exists and not blob_exists:
+                        raise ArtifactIntegrityError(
+                            "selected CAS manifest exists without its blob"
+                        ) from exc
+                    if blob_exists and manifest_exists:
+                        raise ArtifactReadOnlyUnavailableError(
+                            "cas_member_changed_during_read"
+                        ) from exc
+                    exists = False
+        else:
+            exists = blob.exists() and manifest.exists()
         if exists and self._ownership_enforced:
             tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
             if tenant_id is None:
@@ -1482,7 +1597,7 @@ class FileSystemCAS:
                         cell_id=cell_id,
                     )
                 )
-        if ref is not None and exists:
+        if ref is not None and exists and not self._read_only:
             try:
                 self.get_manifest(ref)
             except FileNotFoundError, ValueError, ArtifactOwnershipError:
@@ -1739,7 +1854,11 @@ class FileSystemCAS:
                 ref=ref,
             )
         manp = self._manifest_path_for_ref(aid, profile_sha256)
-        manifest = self._manifests.read(manp)
+        if self._read_only:
+            manifest_bytes = self._read_cas_file_no_follow(manp, member="manifest")
+            manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+        else:
+            manifest = self._manifests.read(manp)
         try:
             _validate_manifest_identity(aid, manifest)
             if profile_sha256 is not None:
@@ -5048,6 +5167,33 @@ class FileSystemCAS:
     def _artifact_id_from_member(path: str) -> ArtifactID | None:
         return _artifact_id_from_member(path)
 
+    def _read_only_member_present(self, path: Path, *, member: str) -> bool:
+        """Classify one CAS member without following links or hiding status errors."""
+        try:
+            relative = path.relative_to(self.root)
+        except ValueError as exc:
+            raise ArtifactReadOnlyUnavailableError("cas_member_outside_root") from exc
+        if not relative.parts:
+            raise ArtifactReadOnlyUnavailableError("cas_member_path_invalid")
+
+        current = self.root
+        for index, component in enumerate(relative.parts):
+            current = current / component
+            try:
+                member_stat = os.lstat(current)
+            except FileNotFoundError:
+                return False
+            except OSError as exc:
+                raise ArtifactReadOnlyUnavailableError(f"cas_{member}_status_unavailable") from exc
+            if stat.S_ISLNK(member_stat.st_mode):
+                raise ArtifactIntegrityError(f"CAS {member} path crosses a symlink")
+            if index < len(relative.parts) - 1:
+                if not stat.S_ISDIR(member_stat.st_mode):
+                    raise ArtifactIntegrityError(f"CAS {member} parent is not a directory")
+            elif not stat.S_ISREG(member_stat.st_mode):
+                raise ArtifactIntegrityError(f"CAS {member} member is not a regular file")
+        return True
+
     def _read_cas_file_no_follow(
         self,
         path: Path,
@@ -5056,10 +5202,11 @@ class FileSystemCAS:
         max_bytes: int | None = None,
     ) -> bytes:
         """Read one regular CAS member through a no-follow file descriptor."""
-        if self._ownership_index._path_has_symlink_component(path):
-            raise ArtifactIntegrityError(f"CAS {member} path crosses a symlink")
-        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        descriptor = -1
         try:
+            if self._ownership_index._path_has_symlink_component(path):
+                raise ArtifactIntegrityError(f"CAS {member} path crosses a symlink")
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
             before = os.fstat(descriptor)
             if not stat.S_ISREG(before.st_mode):
                 raise ArtifactIntegrityError(f"CAS {member} member is not a regular file")
@@ -5077,9 +5224,22 @@ class FileSystemCAS:
             ):
                 raise ArtifactIntegrityError(f"CAS {member} member changed while reading")
             return data
+        except FileNotFoundError:
+            raise
+        except OSError as exc:
+            if self._read_only:
+                raise ArtifactReadOnlyUnavailableError(f"cas_{member}_read_unavailable") from exc
+            raise
         finally:
             if descriptor >= 0:
-                os.close(descriptor)
+                try:
+                    os.close(descriptor)
+                except OSError as exc:
+                    if self._read_only:
+                        raise ArtifactReadOnlyUnavailableError(
+                            f"cas_{member}_close_unavailable"
+                        ) from exc
+                    raise
 
     def _load_signature_for_snapshot(
         self,
@@ -5119,6 +5279,20 @@ class FileSystemCAS:
         *,
         manifest_ref: ArtifactRef | None = None,
     ) -> bytes:
+        if self._read_only:
+            data = self._read_cas_file_no_follow(blob_path, member="blob")
+            manifest = self.get_manifest(manifest_ref or artifact_id)
+            try:
+                _validate_read_integrity_with_digest(
+                    artifact_id,
+                    data=data,
+                    manifest=manifest,
+                    actual_sha256_hex=content_hash(data),
+                )
+            except ArtifactIntegrityError as exc:
+                self._record_integrity_failure(reason=type(exc).__name__)
+                raise
+            return data
         return _read_verified_blob(
             artifact_id,
             blob_path,
@@ -5175,3 +5349,29 @@ class FileSystemCAS:
             actual_sha256_hex=actual_sha256_hex,
             byte_size=len(data),
         )
+
+
+class ReadOnlyFileSystemCAS(ArtifactReader):
+    """Expose a FileSystemCAS read path without exposing its writer interface."""
+
+    __slots__ = ("__store",)
+
+    def __init__(self, store: FileSystemCAS, *, _token: object) -> None:
+        if _token is not _READ_ONLY_READER_TOKEN or not store._read_only:
+            raise TypeError("read_only_filesystem_cas_must_use_existing_root_opener")
+        self.__store = store
+
+    def has(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
+        """Return whether the selected content-bound artifact view exists."""
+        return self.__store.has(artifact_id)
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        """Read bytes after existing owner, transaction, and integrity checks."""
+        return self.__store.get_bytes(artifact_id)
+
+    def get_manifest(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+    ) -> ArtifactManifest:
+        """Read and validate the selected typed manifest view."""
+        return self.__store.get_manifest(artifact_id)

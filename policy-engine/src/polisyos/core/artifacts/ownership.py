@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import threading
 import weakref
 from collections.abc import Iterable, Iterator
@@ -103,6 +104,16 @@ class ArtifactOwnershipError(PermissionError):
     """Raised when a tenant attempts to access an artifact it does not own."""
 
 
+class ArtifactReadOnlyUnavailableError(ArtifactOwnershipError):
+    """Raised when a read-only CAS cannot use its already-existing filesystem state."""
+
+    code = "artifact_read_only_unavailable"
+
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(f"{self.code}: {reason}")
+
+
 class ArtifactTransactionPendingError(ArtifactOwnershipError):
     """A requested artifact surface has an unresolved publication transaction."""
 
@@ -184,34 +195,105 @@ class _RootTransactionCoordinator:
 
     STRIPE_COUNT = 64
 
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, *, initialize: bool = True) -> None:
         self.root = root
         self.transaction_root = root / "artifacts" / "ownership" / "transactions"
         self.lock_directory = self.transaction_root / "locks"
         self.root_lock_path = self.transaction_root / "root.lock"
-        ensure_directory_durable(self.transaction_root)
-        ensure_directory_durable(self.lock_directory)
-        AtomicFileWriter.write_once(self.root_lock_path, b"", durable_parent=True)
+        self._initialization_lock = threading.Lock()
+        self._initialized = False
         self._root_gate = _WriterPreferringRWLock()
         self._artifact_locks = tuple(threading.RLock() for _ in range(self.STRIPE_COUNT))
         self._active = threading.local()
         self._stage_recovery_lock = threading.Lock()
         self._stage_recovery_complete = False
+        if initialize:
+            self.initialize()
+
+    def initialize(self) -> None:
+        """Create the durable lock root for a writer, once per shared coordinator."""
+        with self._initialization_lock:
+            if self._initialized:
+                return
+            ensure_directory_durable(self.transaction_root)
+            ensure_directory_durable(self.lock_directory)
+            AtomicFileWriter.write_once(self.root_lock_path, b"", durable_parent=True)
+            self._initialized = True
+
+    def validate_existing_root_lock(self) -> None:
+        """Require an already-created root lock without creating or repairing it."""
+        with self._lock_file(
+            self.root_lock_path,
+            fcntl.LOCK_SH,
+            create_missing=False,
+        ):
+            return None
 
     def _stripe(self, artifact_id: ArtifactID) -> int:
         return int(artifact_id.hex, 16) % self.STRIPE_COUNT
 
-    @contextmanager
-    def _lock_file(self, path: Path, operation: int) -> Iterator[object]:
-        ensure_directory_durable(path.parent)
-        AtomicFileWriter.write_once(path, b"", durable_parent=True)
-        lock_file = path.open("a+b")
+    def _open_existing_lock(self, path: Path) -> int:
+        """Open one existing regular lock without following or creating any path."""
         try:
-            fcntl.flock(lock_file.fileno(), operation)
+            relative = path.relative_to(self.root)
+        except ValueError as exc:
+            raise ArtifactReadOnlyUnavailableError("lock_path_outside_root") from exc
+        current = self.root
+        try:
+            if not stat.S_ISDIR(os.lstat(current).st_mode):
+                raise ArtifactReadOnlyUnavailableError("cas_root_not_directory")
+            for component in relative.parts[:-1]:
+                current = current / component
+                mode = os.lstat(current).st_mode
+                if not stat.S_ISDIR(mode):
+                    raise ArtifactReadOnlyUnavailableError("lock_parent_not_directory")
+            mode = os.lstat(path).st_mode
+            if not stat.S_ISREG(mode):
+                raise ArtifactReadOnlyUnavailableError("lock_file_not_regular")
+            if not hasattr(os, "O_NOFOLLOW"):
+                raise ArtifactReadOnlyUnavailableError("no_follow_open_unavailable")
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+                os.close(descriptor)
+                raise ArtifactReadOnlyUnavailableError("lock_file_not_regular")
+            return descriptor
+        except ArtifactReadOnlyUnavailableError:
+            raise
+        except OSError as exc:
+            raise ArtifactReadOnlyUnavailableError("required_lock_file_unavailable") from exc
+
+    @contextmanager
+    def _lock_file(
+        self,
+        path: Path,
+        operation: int,
+        *,
+        create_missing: bool = True,
+    ) -> Iterator[object]:
+        if create_missing:
+            ensure_directory_durable(path.parent)
+            AtomicFileWriter.write_once(path, b"", durable_parent=True)
+            lock_file = path.open("a+b")
+        else:
+            if operation != fcntl.LOCK_SH:
+                raise ArtifactReadOnlyUnavailableError("exclusive_read_only_lock_refused")
+            lock_file = os.fdopen(self._open_existing_lock(path), "rb")
+        locked = False
+        try:
+            try:
+                fcntl.flock(lock_file.fileno(), operation)
+                locked = True
+            except OSError as exc:
+                if not create_missing:
+                    raise ArtifactReadOnlyUnavailableError("shared_lock_unavailable") from exc
+                raise
             yield lock_file
         finally:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
-            lock_file.close()
+            try:
+                if locked:
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            finally:
+                lock_file.close()
 
     @contextmanager
     def root_exclusive(self) -> Iterator[None]:
@@ -231,6 +313,7 @@ class _RootTransactionCoordinator:
         artifact_id: ArtifactID,
         *,
         exclusive: bool,
+        create_lock_files: bool = True,
     ) -> Iterator[_ArtifactTransactionLease]:
         """Hold root-shared then one stable artifact stripe in lock-order sequence."""
         active = getattr(self._active, "leases", None)
@@ -251,9 +334,17 @@ class _RootTransactionCoordinator:
         file_operation = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
         with (
             self._root_gate.shared(),
-            self._lock_file(self.root_lock_path, fcntl.LOCK_SH),
+            self._lock_file(
+                self.root_lock_path,
+                fcntl.LOCK_SH,
+                create_missing=create_lock_files,
+            ),
             self._artifact_locks[stripe],
-            self._lock_file(stripe_path, file_operation),
+            self._lock_file(
+                stripe_path,
+                file_operation,
+                create_missing=create_lock_files,
+            ),
         ):
             lease = _ArtifactTransactionLease(
                 coordinator=self,
@@ -336,13 +427,19 @@ _COORDINATORS: weakref.WeakValueDictionary[str, _RootTransactionCoordinator] = (
 )
 
 
-def _coordinator_for_root(root: Path) -> _RootTransactionCoordinator:
+def _coordinator_for_root(
+    root: Path,
+    *,
+    initialize: bool = True,
+) -> _RootTransactionCoordinator:
     key = str(root)
     with _COORDINATOR_REGISTRY_LOCK:
         coordinator = _COORDINATORS.get(key)
         if coordinator is None:
-            coordinator = _RootTransactionCoordinator(root)
+            coordinator = _RootTransactionCoordinator(root, initialize=initialize)
             _COORDINATORS[key] = coordinator
+        elif initialize:
+            coordinator.initialize()
         return coordinator
 
 
@@ -409,11 +506,17 @@ class ArtifactOwnershipIndex:
     current tenant; reads require a matching claim when the CAS is tenant-scoped.
     """
 
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, *, read_only: bool = False) -> None:
         requested_root = Path(root)
-        ensure_directory_durable(requested_root)
-        self.root = requested_root.resolve(strict=True)
-        self._coordinator = _coordinator_for_root(self.root)
+        if read_only:
+            if requested_root.is_symlink() or not requested_root.is_dir():
+                raise ArtifactReadOnlyUnavailableError("cas_root_missing_or_invalid")
+            self.root = requested_root.resolve(strict=True)
+        else:
+            ensure_directory_durable(requested_root)
+            self.root = requested_root.resolve(strict=True)
+        self.read_only = read_only
+        self._coordinator = _coordinator_for_root(self.root, initialize=not read_only)
         self.directory = self.root / "artifacts" / "ownership"
         self.path = self.directory / "index.json"
         self.signature_path = self.directory / "index.signature.json"

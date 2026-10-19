@@ -67,11 +67,13 @@ from .ownership import (
 from .ownership import (
     ArtifactOwnershipError,
     ArtifactOwnershipIndex,
+    ArtifactReadOnlyUnavailableError,
 )
 from .protocol import (
     AUTHORITY_ENVELOPE_ARTIFACT_KIND,
     AUTHORITY_ENVELOPE_SCHEMA_NAME,
     AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+    ArtifactReader,
     ArtifactStore,
     AsyncArtifactStore,
     AsyncRawManifestBytesReader,
@@ -109,6 +111,7 @@ from .store import (
 from .store import (
     FileSystemCAS,
     PutOptions,
+    ReadOnlyFileSystemCAS,
 )
 from .write_contract import ArtifactWriteOptions
 
@@ -214,6 +217,8 @@ __all__ = [
     "ArtifactMemberReceipt",
     "ArtifactOwnershipError",
     "ArtifactOwnershipIndex",
+    "ArtifactReadOnlyUnavailableError",
+    "ArtifactReader",
     "ArtifactRef",
     "ArtifactSameInputClosureInfo",
     "ArtifactSigner",
@@ -253,6 +258,7 @@ __all__ = [
     "ProducerInfo",
     "PutOptions",
     "RawManifestBytesReader",
+    "ReadOnlyFileSystemCAS",
     "RegistryBundle",
     "RegistryBundlePayload",
     "RootedArtifactStore",

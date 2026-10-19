@@ -12,7 +12,7 @@ environment fingerprints.
 
 ## Key Concepts
 
-- **FileSystemCAS** - deterministic on-disk CAS layout with manifest and signature sidecars.
+- `FileSystemCAS` - deterministic on-disk CAS layout with manifest and signature sidecars.
 - **Typed manifests** - `ArtifactManifest` captures payload identity, producer context, and schema/canon metadata.
 - **Ed25519 signing** - detached signatures and trust/revocation policy support.
 - **Exact signed evidence** - `signed_evidence.py` binds the raw blob, exact manifest sidecar,
@@ -24,6 +24,28 @@ environment fingerprints.
 - **Integrity reports** - `CASIntegrityReport` projects verified store reads and manifest authority links into audit proof records.
 
 ## Public API
+
+### Read-only local CAS access
+
+`ArtifactReader` is the narrow read-only interface for consumers that need verified artifact
+reads without a write-capable store surface. `FileSystemCAS.open_existing_read_only` returns
+this interface and requires an already-existing CAS root, layout, root transaction lock, and
+per-artifact stripe lock. It creates no directories or lock files and does not run orphan-stage
+recovery. Use the ordinary `FileSystemCAS` writer for writes and lifecycle management.
+
+`ArtifactReader.has()` addresses the exact selected view. A genuinely missing selected
+manifest returns `False`; an ID or profile-qualified reference never falls back to another
+manifest. When the selected manifest is present, the reader requires its blob and validates the
+exact manifest and blob contents. Dangling symlinks, non-regular members, a present manifest
+without its blob, malformed or mismatched content, and filesystem status/read errors raise typed
+refusals rather than being treated as absence. `get_manifest()` and `get_bytes()` preserve
+their typed failure behavior.
+
+The reader does not establish producer identity, tenant ownership, issuer authority, authenticity,
+or currentness from access to local files. It assumes a stable trusted CAS root and cooperating
+file-lock users; the path checks do not bind every ancestor through directory descriptors and do
+not claim protection against hostile concurrent parent replacement. The read-only opener is a
+local Python API and adds no HTTP endpoint.
 
 - storage: `FileSystemCAS`, `PutOptions`
 - JSON writes bind supplied canonical metadata to the selected encoder specification

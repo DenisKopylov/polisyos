@@ -205,13 +205,8 @@ class AsyncRawManifestBytesReader(Protocol):
 
 
 @runtime_checkable
-class ArtifactStore(Protocol):
-    """Minimal content-addressable store interface.
-
-    Every method must be thread-safe.
-    """
-
-    # -- read ----------------------------------------------------------
+class ArtifactReader(Protocol):
+    """Typed read-only view of one content-addressed artifact store."""
 
     def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:  # pragma: no cover - protocol
         """Check availability for the default ID view or exact typed `ArtifactRef` view."""
@@ -230,6 +225,14 @@ class ArtifactStore(Protocol):
     ) -> ArtifactManifest:  # pragma: no cover - protocol
         """Return the authorized default or exact typed-view manifest."""
         ...
+
+
+@runtime_checkable
+class ArtifactStore(ArtifactReader, Protocol):
+    """Read/write content-addressable store interface.
+
+    Every method must be thread-safe.
+    """
 
     # -- write ---------------------------------------------------------
 

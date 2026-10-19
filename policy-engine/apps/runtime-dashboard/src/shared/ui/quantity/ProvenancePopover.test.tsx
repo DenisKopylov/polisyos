@@ -280,6 +280,35 @@ describe("ProvenancePopover", () => {
     expect(screen.getByText("Raw sources")).toBeInTheDocument();
   });
 
+  it("keeps a profileless quantity with unestablished binding informational", async () => {
+    const profilelessQuantity: QuantityValue = {
+      ...quantity,
+      profile_binding_status: "not_established",
+      profile_binding_temporal_scope: temporalScope,
+    };
+    const getSpy = mockRuntimeGetSuccess({
+      meta,
+      temporal_scope: null,
+      lineage,
+    });
+
+    renderWithProviders(
+      <ProvenancePopover
+        quantity={profilelessQuantity}
+        open
+        onOpenChange={() => undefined}
+      >
+        <button type="button">Open profileless quantity</button>
+      </ProvenancePopover>,
+    );
+
+    expect(
+      await screen.findByTestId("popover-profile-binding-status"),
+    ).toHaveTextContent("Profile binding not established");
+    expect(screen.getByText("0.23 ratio")).toBeVisible();
+    expect(getSpy).not.toHaveBeenCalled();
+  });
+
   it("keeps a source-run candidate informational without an admitted overview context", async () => {
     const profileQuantity = profileBoundQuantity({
       embeddedTrust: true,
@@ -341,7 +370,7 @@ function profileBoundQuantity(
             freshness: "current",
             dispute_status: "none",
             verified_by: "embedded-unbound",
-            temporal_scope,
+            temporal_scope: temporalScope,
           }
         : null,
     },

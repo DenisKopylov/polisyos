@@ -21975,5 +21975,126 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "quantity-intake-nine-companions-adopted-20261019": {
+    "slice_base": "507108e692b6f9bf324c5a2653ab572c942a6d71",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/features/runs/compare/useDiffData.ts": {
+        "preimage_sha256": "bd736ed5d84e1006c6e9d503876f5d74f338025e18c31770d80b0726e01e89ff",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/policy-engine/apps/runtime-dashboard/src/features/runs/compare/useDiffData.ts",
+        "postimage_sha256": "99888c4f2f368859ed534b86ce9ca5ab0676c258fd1de02fda1bd1cb735ddb48",
+        "operation": "write",
+        "git_base_preimage_sha256": "bd736ed5d84e1006c6e9d503876f5d74f338025e18c31770d80b0726e01e89ff"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/compare/compare-types.ts": {
+        "preimage_sha256": "627c4e3afe119b059ac9b9a622dabc7b9b392ce14e86cb4049be2ab34e40a52a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/policy-engine/apps/runtime-dashboard/src/features/runs/compare/compare-types.ts",
+        "postimage_sha256": "72cd10d29a602daafb84256c9efd9d8629c5e71d1e69fd02d5db9f393ca5a5d6",
+        "operation": "write",
+        "git_base_preimage_sha256": "627c4e3afe119b059ac9b9a622dabc7b9b392ce14e86cb4049be2ab34e40a52a"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.tsx": {
+        "preimage_sha256": "c1256d95ba77c250b36290c080ef1e65d6f4c4f7f9b7f63bf7ecdc367773fc33",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.tsx",
+        "postimage_sha256": "127ab81167ea9b78f2350fe181721b12499b671269947b0a43351efc9e629829",
+        "operation": "write",
+        "git_base_preimage_sha256": "c1256d95ba77c250b36290c080ef1e65d6f4c4f7f9b7f63bf7ecdc367773fc33"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx": {
+        "preimage_sha256": "ba69a2a0a176927b401f7529e84b6a5a08a27520c31c64f139d0c1f8d3c4b255",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+        "postimage_sha256": "517da43f287fef4f17c93ea1dfa0293c055508394bf7d54bdd8c78cadab3451d",
+        "operation": "write",
+        "git_base_preimage_sha256": "ba69a2a0a176927b401f7529e84b6a5a08a27520c31c64f139d0c1f8d3c4b255"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.test.tsx": {
+        "preimage_sha256": "9d5b838da980b81dba813f475e95f7f5475cd06e1c382b3d7ceb4c2fbba03dfd",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.test.tsx",
+        "postimage_sha256": "718ad1dbc25745f61c0086cabfcb8ddb552fc36e16ab4b4f58e5d8d93ccd1096",
+        "operation": "write",
+        "git_base_preimage_sha256": "9d5b838da980b81dba813f475e95f7f5475cd06e1c382b3d7ceb4c2fbba03dfd"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.a11y.test.tsx": {
+        "preimage_sha256": "97d0b86f76dc7d4c1173fa02b061eb41e571a1787acebfd36f0f5cfa39c4a287",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/policy-engine/apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.a11y.test.tsx",
+        "postimage_sha256": "8f943bf8c430e43707e456c6db4cc2b38383852dd4852b1701b37bf6ce5db8a1",
+        "operation": "write",
+        "git_base_preimage_sha256": "97d0b86f76dc7d4c1173fa02b061eb41e571a1787acebfd36f0f5cfa39c4a287"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx": {
+        "preimage_sha256": "cb38bc781ade6bf464b60082813923e50a43c9a428c7869e455a60055ebc23b0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-get-spy-types-author-20261019-v2/postimages/policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+        "postimage_sha256": "8f5be3dc9ca37aa673fcc5d04ffe9b945da6e2684eac078d1f28143bab069f60",
+        "operation": "write",
+        "git_base_preimage_sha256": "cb38bc781ade6bf464b60082813923e50a43c9a428c7869e455a60055ebc23b0"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx": {
+        "preimage_sha256": "7a1634bb35b2d84e8a0bc6b6aa0306ed4817b1deee973d443f983cdc8d6ab80b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-get-spy-types-author-20261019-v2/postimages/policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "postimage_sha256": "59cb4b7f620e3eb2de3b1c658458afe6030550b68235aafaedbe25f839d23e13",
+        "operation": "write",
+        "git_base_preimage_sha256": "7a1634bb35b2d84e8a0bc6b6aa0306ed4817b1deee973d443f983cdc8d6ab80b"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx": {
+        "preimage_sha256": "ee0d996af5702e70dc5409668c9930f7392ab0c402d6fdb2d7ff0b21a68c1141",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-get-spy-types-author-20261019-v2/postimages/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+        "postimage_sha256": "f1532e43b73fbe16b58390efa1f2d1ebe3aa3a9d585cba1d1b8c19c2e2aaa884",
+        "operation": "write",
+        "git_base_preimage_sha256": "ee0d996af5702e70dc5409668c9930f7392ab0c402d6fdb2d7ff0b21a68c1141"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-nine-reviewed-adoption-20261019/quantity-intake-nine-companions/source-application.json",
+      "sha256": "cae9d59eb70bc4054bf26e52fbd06f06857ce8956621a69b8c5e2a5896e465ca"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-nine-reviewed-adoption-20261019/quantity-intake-nine-companions/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/quantity-candidate-manifest-v5.json",
+        "sha256": "7894ee30e133f9844f656587e437dafe2c5f9f9e2546d341ede41d038c42959a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/postimages-v5/manifest-v5.json",
+        "sha256": "e52a19b2d0b9eb6e96d6c8783c0c301d3ed3f5e2413b936f3a7cb110b2850bac"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-native-typecheck-companions-feccd-20261019/quantity-candidate-v5.patch",
+        "sha256": "da6129fdbde1450f3f2f5e5174e5246c9b048e0bf89f055e81d0af1328ef4d62"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-get-spy-types-author-20261019-v2/manifest-v1.json",
+        "sha256": "de5e9dbe4e329b973b58cbc85bef15b86ae14f2e338d860a8febf68dd7d7b590"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-get-spy-types-author-20261019-v2/candidate.patch",
+        "sha256": "12a75a42ff7910c7efdc5bfc56443aab274a86fa0e009fdebf480f4e61b3d4e4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-quantity-intake-independent-20261019/review-v5-final.md",
+        "sha256": "4b4d4f5cc851f2405305c596327f35cda814b5f59fe133cca4ad4af3117771f9"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same profile-binding/display-intake composition class widened to the complete current hook importer/mock/consumer set; P38 concrete-scope control must fail when status gate is removed",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Native canonical ESLint, typecheck and semantic Vitest/removal replay pending; static overlay lint not established",
+      "Seven generated DTO/client diagnostics remain separately owned generation work until measured again",
+      "No production lineage/currentness or G acceptance; no formal closures"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run actual canonical native hooks/typecheck and full affected Vitest modules, then actual keep-markers status-gate removal control",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

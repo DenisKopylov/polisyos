@@ -35,7 +35,7 @@ export function PolicyDiffView({ runAId, runBId }: PolicyDiffViewProps) {
   const compareQuery = useDiffData(runAId, runBId);
   const [activeMetricId, setActiveMetricId] = useState<string | null>(null);
   const payload = compareQuery.data;
-  const deltas = payload?.deltas ?? [];
+  const deltas = compareQuery.displayDeltas;
   const [firstDelta] = deltas;
   const metricFromUrl = searchParams.get("metric");
   const selectedMetricId = activeMetricId ?? metricFromUrl;

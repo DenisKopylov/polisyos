@@ -61,7 +61,8 @@ function TraceableProvenancePopover(props: ProvenancePopoverProps) {
   const selectedRef = selectedArtifactRef(lineage.artifact_ref);
   const sourceRunId = lineage.source_run_id ?? null;
   const requiresProfileBinding =
-    selectedRef !== null ||
+    props.quantity.profile_binding_status !== undefined ||
+    lineage.artifact_ref != null ||
     sourceRunId !== null ||
     lineage.artifact_ref_provenance != null;
   const admittedRunId =

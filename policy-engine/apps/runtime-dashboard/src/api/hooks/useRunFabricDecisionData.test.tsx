@@ -184,9 +184,11 @@ describe("useRunFabricDecisionData", () => {
     expect(
       await screen.findByTestId("trust-verification-status"),
     ).toHaveTextContent("verified");
-    expect(getSpy.mock.calls.map(([endpoint]) => endpoint)).toEqual([
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
-    ]);
+      expect.any(Object),
+    );
     expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
       body: {
         lineage_ids: [selector.lineageId],
@@ -230,9 +232,11 @@ describe("useRunFabricDecisionData", () => {
     expect(
       screen.queryByTestId("trust-verification-status"),
     ).not.toBeInTheDocument();
-    expect(getSpy.mock.calls.map(([endpoint]) => endpoint)).toEqual([
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
-    ]);
+      expect.any(Object),
+    );
     expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
       body: {
         lineage_ids: [selector.lineageId],
@@ -270,9 +274,11 @@ describe("useRunFabricDecisionData", () => {
         boundLineageQueryKey(selector, runId, temporalScope),
       ),
     ).toBeUndefined();
-    expect(getSpy.mock.calls.map(([endpoint]) => endpoint)).toEqual([
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
-    ]);
+      expect.any(Object),
+    );
   });
 
   it("does not cache a profile-bound trust grade when the response omits its declaration", async () => {
@@ -306,9 +312,11 @@ describe("useRunFabricDecisionData", () => {
         boundLineageQueryKey(selector, runId, temporalScope),
       ),
     ).toBeUndefined();
-    expect(getSpy.mock.calls.map(([endpoint]) => endpoint)).toEqual([
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
-    ]);
+      expect.any(Object),
+    );
   });
 
   it("keeps trust absent when the exact profile response has no verification metadata", async () => {
@@ -326,9 +334,11 @@ describe("useRunFabricDecisionData", () => {
     expect(
       screen.queryByTestId("trust-verification-status"),
     ).not.toBeInTheDocument();
-    expect(getSpy.mock.calls.map(([endpoint]) => endpoint)).toEqual([
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
-    ]);
+      expect.any(Object),
+    );
   });
 
   it("uses all temporal dimensions in the Fabric decision data cache key", () => {

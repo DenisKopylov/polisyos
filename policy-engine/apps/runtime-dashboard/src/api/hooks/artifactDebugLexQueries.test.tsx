@@ -408,10 +408,33 @@ describe("artifact, debug, and lex query hooks", () => {
         preview: { verdict: "profile-b" },
       },
     });
-    expect(getSpy.mock.calls.map(([, init]) => init?.params?.query)).toEqual([
-      expect.objectContaining({ manifest_profile_sha256: profileA }),
-      expect.objectContaining({ manifest_profile_sha256: profileB }),
-    ]);
+    expect(getSpy).toHaveBeenCalledTimes(2);
+    expect(getSpy).toHaveBeenNthCalledWith(
+      1,
+      "/api/v1/artifacts/{artifact_id}/content",
+      expect.objectContaining({
+        params: expect.objectContaining({
+          path: { artifact_id: artifactId },
+          query: expect.objectContaining({
+            max_bytes: 512,
+            manifest_profile_sha256: profileA,
+          }),
+        }),
+      }),
+    );
+    expect(getSpy).toHaveBeenNthCalledWith(
+      2,
+      "/api/v1/artifacts/{artifact_id}/content",
+      expect.objectContaining({
+        params: expect.objectContaining({
+          path: { artifact_id: artifactId },
+          query: expect.objectContaining({
+            max_bytes: 512,
+            manifest_profile_sha256: profileB,
+          }),
+        }),
+      }),
+    );
   });
 
   it("does not treat a missing profile declaration as the selected profile", async () => {

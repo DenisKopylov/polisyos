@@ -20,6 +20,7 @@ from polisyos.core.contracts.control import (
 )
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.core.llm.traced_client import TracedLLMClient
+from polisyos.fabric.retrieval import RetrievalService as _CanonicalRetrievalService
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -60,10 +61,11 @@ class _FakeMetric:
         return {"metric": "macro.gdp", "value": 1.0}
 
 
-class _FakeRetrievalService:
+class _FakeRetrievalService(_CanonicalRetrievalService):
     instances: ClassVar[list[_FakeRetrievalService]] = []
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self.resolve_profile_calls: list[
             tuple[CatalogRunProfile | None, CatalogRunProfile | None]
         ] = []
@@ -106,6 +108,57 @@ class _FakeRetrievalService:
                 index_size_bytes=10,
             ),
         )
+
+
+def test_runtime_api_env_builder_closes_worker_when_fixture_setup_raises(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import tests._helpers.runtime_http as runtime_http_module
+
+    services: list[dict[str, Any]] = []
+    real_control_service = runtime_http_module.ControlPlaneService
+
+    def _capture_control_service(*args: Any, **kwargs: Any) -> Any:
+        service = real_control_service(*args, **kwargs)
+        services.append(
+            {
+                "service": service,
+                "control_store": getattr(service._control_store, "_target", service._control_store),
+            }
+        )
+        return service
+
+    def _raise_during_fixture_materialization(**_kwargs: Any) -> None:
+        raise RuntimeError("controlled_fixture_setup_failure")
+
+    monkeypatch.setattr(runtime_http_module, "ControlPlaneService", _capture_control_service)
+    monkeypatch.setattr(
+        runtime_http_module,
+        "PromotionCandidate",
+        _raise_during_fixture_materialization,
+    )
+    registered_before = tuple(runtime_http_module._RUNTIME_API_ENVS)
+
+    with pytest.raises(RuntimeError, match="controlled_fixture_setup_failure"):
+        runtime_http_module.build_runtime_api_env(tmp_path, include_test_client=False)
+
+    assert len(services) == 1
+    service = services[0]["service"]
+    control_store = services[0]["control_store"]
+    worker = service._worker
+    assert worker is not None
+    assert worker._thread is not None
+    assert not worker._thread.is_alive()
+    worker_leases = [
+        lease
+        for lease in control_store.list_worker_leases(active_only=False)
+        if lease.worker_id == worker.worker_id
+    ]
+    assert len(worker_leases) == 1
+    assert worker_leases[0].state == "stopped"
+    assert worker_leases[0].active_job_id is None
+    assert tuple(runtime_http_module._RUNTIME_API_ENVS) == registered_before
 
 
 def _forbid_real_gateway_network(monkeypatch: pytest.MonkeyPatch) -> None:

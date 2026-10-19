@@ -662,13 +662,19 @@ def close_runtime_api_env(env: dict[str, object]) -> None:
 
     client = env.get("client")
     client_close = getattr(client, "close", None)
-    if callable(client_close):
-        client_close()
     app = env.get("app")
-    service = getattr(getattr(app, "state", None), "_control_service", None)
+    state = getattr(app, "state", None)
+    service = getattr(state, "_control_service", None)
+    if service is None:
+        container = getattr(state, "runtime_container", None)
+        service = getattr(container, "control_service", None)
     service_close = getattr(service, "close", None)
-    if callable(service_close):
-        service_close()
+    try:
+        if callable(client_close):
+            client_close()
+    finally:
+        if callable(service_close):
+            service_close()
 
 
 def close_registered_runtime_api_envs() -> None:
@@ -1959,122 +1965,132 @@ def build_runtime_api_env(
         allow_fixture_identity=True,
         **(app_kwargs or {}),
     )
-    container = getattr(app.state, "runtime_container", None)
-    shared_store = (
-        container.runtime_api_context.store
-        if container is not None
-        else app.state.runtime_api_ctx.store
-    )
-    if (
-        seed_ledger_cost_events
-        and container is not None
-        and (agent_cost_events is not None or nl_preflight_cost_events is not None)
-    ):
-        _seed_fixture_producer_cost_events(
-            container.llm_producer_settlement_store,
-            (agent_cost_events, nl_preflight_cost_events),
-            run_id=core_run_id,
-            tenant_id=tenant_a,
-            cell_id=cell_a,
-            execution_profile="governed",
-            control_job_id="job_ctrl_fixture_001",
+    env: dict[str, object] = {"app": app, "client": None}
+    try:
+        container = getattr(app.state, "runtime_container", None)
+        shared_store = (
+            container.runtime_api_context.store
+            if container is not None
+            else app.state.runtime_api_ctx.store
         )
-    # Materialize the lazy control service with the container's existing owners.
-    # A standalone service over the same CAS would create a different graph.
-    control_service = (
-        container.control_service
-        if container is not None and container.control_service is not None
-        else ControlPlaneService(
-            cas_root=cas_root,
-            core_runs_root=cas_root / "runs",
-            metrics=app.state.runtime_metrics,
-            tracer=app.state.runtime_tracer,
-            artifact_store=shared_store,
-            **(
-                {
-                    "async_artifact_store": container.runtime_api_context.async_store,
-                    "registry_providers": container.control_registry_providers,
-                    "decision_validity_service": container.decision_validity_service,
-                    "epoch_certificate_issuance_owner": container.epoch_certificate_issuance_owner,
-                    "promotion_runtime": container.promotion_runtime,
-                    "epoch_claim_lifecycle_bridge": container.epoch_claim_lifecycle_bridge,
-                    "normative_authority_trust": container.config.normative_authority_trust,
-                    "cycle_substrate_context_admission_owner": (
-                        container.candidate_simulation_context_admission_owner
-                    ),
-                    "llm_producer_settlement_store": (container.llm_producer_settlement_store),
-                }
-                if container is not None
-                else {}
-            ),
+        if (
+            seed_ledger_cost_events
+            and container is not None
+            and (agent_cost_events is not None or nl_preflight_cost_events is not None)
+        ):
+            _seed_fixture_producer_cost_events(
+                container.llm_producer_settlement_store,
+                (agent_cost_events, nl_preflight_cost_events),
+                run_id=core_run_id,
+                tenant_id=tenant_a,
+                cell_id=cell_a,
+                execution_profile="governed",
+                control_job_id="job_ctrl_fixture_001",
+            )
+        # Materialize the lazy control service with the container's existing owners.
+        # A standalone service over the same CAS would create a different graph.
+        control_service = (
+            container.control_service
+            if container is not None and container.control_service is not None
+            else ControlPlaneService(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
+                metrics=app.state.runtime_metrics,
+                tracer=app.state.runtime_tracer,
+                artifact_store=shared_store,
+                **(
+                    {
+                        "async_artifact_store": container.runtime_api_context.async_store,
+                        "registry_providers": container.control_registry_providers,
+                        "decision_validity_service": container.decision_validity_service,
+                        "epoch_certificate_issuance_owner": container.epoch_certificate_issuance_owner,
+                        "promotion_runtime": container.promotion_runtime,
+                        "epoch_claim_lifecycle_bridge": container.epoch_claim_lifecycle_bridge,
+                        "normative_authority_trust": container.config.normative_authority_trust,
+                        "cycle_substrate_context_admission_owner": (
+                            container.candidate_simulation_context_admission_owner
+                        ),
+                        "llm_producer_settlement_store": (container.llm_producer_settlement_store),
+                    }
+                    if container is not None
+                    else {}
+                ),
+            )
         )
-    )
-    control_service._retrieval._promotion_queue["promotion_fixture_001"] = PromotionCandidate(
-        promotion_id="promotion_fixture_001",
-        metric_id="macro.gdp.real",
-        connector_id="worldbank.wdi",
-        dataset_id="NY.GDP.MKTP.KD",
-        profile_id="worldbank_wdi",
-        source_lane="explorelane",
-        confidence=0.87,
-        status="pending",
-        created_at=datetime.fromisoformat("2026-02-11T12:00:00+00:00"),
-        signals=["new_source", "coverage_gap_closed"],
-        metadata={
-            "profile": "worldbank_wdi",
-            "run_id": core_run_id,
-        },
-    )
-    app.state._control_service = control_service
-    if container is not None:
-        container.control_service = control_service
-        container.install(app)
-    client = (
-        TestClient(app, raise_server_exceptions=raise_server_exceptions)
-        if include_test_client and TestClient is not None
-        else None
-    )
+        # Publish the owner before fixture materialization so the shared teardown path can
+        # close it if any later setup operation raises.
+        app.state._control_service = control_service
+        if container is not None:
+            container.control_service = control_service
+        control_service._retrieval._promotion_queue["promotion_fixture_001"] = PromotionCandidate(
+            promotion_id="promotion_fixture_001",
+            metric_id="macro.gdp.real",
+            connector_id="worldbank.wdi",
+            dataset_id="NY.GDP.MKTP.KD",
+            profile_id="worldbank_wdi",
+            source_lane="explorelane",
+            confidence=0.87,
+            status="pending",
+            created_at=datetime.fromisoformat("2026-02-11T12:00:00+00:00"),
+            signals=["new_source", "coverage_gap_closed"],
+            metadata={
+                "profile": "worldbank_wdi",
+                "run_id": core_run_id,
+            },
+        )
+        if container is not None:
+            container.install(app)
+        client = (
+            TestClient(app, raise_server_exceptions=raise_server_exceptions)
+            if include_test_client and TestClient is not None
+            else None
+        )
 
-    env = {
-        "app": app,
-        "client": client,
-        "cas_root": cas_root,
-        "registry_bundle_ref": registry_ref,
-        "core_run_id": core_run_id,
-        "core_run_id_secondary": core_run_id_secondary,
-        "cross_tenant_run_id": cross_tenant_run_id,
-        "root_artifact_id": str(root_ref.artifact_id),
-        "child_artifact_id": str(child_ref.artifact_id),
-        "binary_artifact_id": str(binary_ref.artifact_id),
-        "secret_artifact_id": str(secret_ref.artifact_id),
-        "governance_artifact_id": str(governance_ref.artifact_id),
-        "decision_card_artifact_id": str(decision_card_ref.artifact_id),
-        "decision_packet_artifact_id": str(decision_packet_ref.artifact_id),
-        "decision_packet_artifact_id_secondary": str(decision_packet_ref_secondary.artifact_id),
-        "reflexion_terminal_artifact_id": str(reflexion_terminal_ref.artifact_id),
-        "workflow_spec_artifact_id": str(workflow_spec_ref.artifact_id),
-        "experiment_state_artifact_id": str(experiment_state_ref.artifact_id),
-        "workflow_report_artifact_id": str(workflow_report_ref.artifact_id),
-        "equilibrium_report_artifact_id": str(equilibrium_report_ref.artifact_id),
-        "execution_plan_artifact_id": str(execution_plan_ref.artifact_id),
-        "preflight_artifact_id": str(preflight_ref.artifact_id),
-        "evaluator_artifact_id": str(evaluator_ref.artifact_id),
-        "reproducibility_artifact_id": str(reproducibility_ref.artifact_id),
-        "capability_manifest_artifact_id": str(capability_manifest_ref.artifact_id),
-        "data_snapshot_artifact_id": str(data_snapshot_ref.artifact_id),
-        "input_bindings_artifact_id": str(input_bindings_ref.artifact_id),
-        "evidence_bundle_artifact_id": str(evidence_bundle_ref.artifact_id),
-        "quality_artifact_id": str(quality_ref.artifact_id),
-        "fabric_retrieval_trace_artifact_id": str(fabric_retrieval_trace_ref.artifact_id),
-        "legal_artifact_id": str(legal_ref.artifact_id),
-        "promotion_candidate_id": "promotion_fixture_001",
-        "tenant_a": tenant_a,
-        "tenant_b": tenant_b,
-        "cell_a": cell_a,
-        **run_paper_metadata,
-    }
-    _RUNTIME_API_ENVS.append(env)
-    return env
+        env.update(
+            {
+                "cas_root": cas_root,
+                "registry_bundle_ref": registry_ref,
+                "core_run_id": core_run_id,
+                "core_run_id_secondary": core_run_id_secondary,
+                "cross_tenant_run_id": cross_tenant_run_id,
+                "root_artifact_id": str(root_ref.artifact_id),
+                "child_artifact_id": str(child_ref.artifact_id),
+                "binary_artifact_id": str(binary_ref.artifact_id),
+                "secret_artifact_id": str(secret_ref.artifact_id),
+                "governance_artifact_id": str(governance_ref.artifact_id),
+                "decision_card_artifact_id": str(decision_card_ref.artifact_id),
+                "decision_packet_artifact_id": str(decision_packet_ref.artifact_id),
+                "decision_packet_artifact_id_secondary": str(
+                    decision_packet_ref_secondary.artifact_id
+                ),
+                "reflexion_terminal_artifact_id": str(reflexion_terminal_ref.artifact_id),
+                "workflow_spec_artifact_id": str(workflow_spec_ref.artifact_id),
+                "experiment_state_artifact_id": str(experiment_state_ref.artifact_id),
+                "workflow_report_artifact_id": str(workflow_report_ref.artifact_id),
+                "equilibrium_report_artifact_id": str(equilibrium_report_ref.artifact_id),
+                "execution_plan_artifact_id": str(execution_plan_ref.artifact_id),
+                "preflight_artifact_id": str(preflight_ref.artifact_id),
+                "evaluator_artifact_id": str(evaluator_ref.artifact_id),
+                "reproducibility_artifact_id": str(reproducibility_ref.artifact_id),
+                "capability_manifest_artifact_id": str(capability_manifest_ref.artifact_id),
+                "data_snapshot_artifact_id": str(data_snapshot_ref.artifact_id),
+                "input_bindings_artifact_id": str(input_bindings_ref.artifact_id),
+                "evidence_bundle_artifact_id": str(evidence_bundle_ref.artifact_id),
+                "quality_artifact_id": str(quality_ref.artifact_id),
+                "fabric_retrieval_trace_artifact_id": str(fabric_retrieval_trace_ref.artifact_id),
+                "legal_artifact_id": str(legal_ref.artifact_id),
+                "promotion_candidate_id": "promotion_fixture_001",
+                "tenant_a": tenant_a,
+                "tenant_b": tenant_b,
+                "cell_a": cell_a,
+                **run_paper_metadata,
+            }
+        )
+        _RUNTIME_API_ENVS.append(env)
+        return env
+    except BaseException:
+        close_runtime_api_env(env)
+        raise
 
 
 @pytest.fixture

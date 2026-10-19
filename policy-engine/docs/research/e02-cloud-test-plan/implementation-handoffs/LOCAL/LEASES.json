@@ -23895,5 +23895,73 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "r3-r4-shared-context-fixture-worker-lifecycle-20261019": {
+    "slice_base": "782e9d3cedf7241d922fd42ba2f9c6dde0d18f55",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/_helpers/runtime_http.py": {
+        "operation": "write",
+        "preimage_sha256": "dda2d971fc85d246a1e07253a7875bcf3d45c68598ad6b2f7a5f632053b1e6a5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-context-fixture-class-20261019/postimages-v3/policy-engine/tests/_helpers/runtime_http.py",
+        "postimage_sha256": "148f42719559b74c36e986d1e416f107b1eebf99235ca6c15b503e154d5e33f4"
+      },
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py": {
+        "operation": "write",
+        "preimage_sha256": "1ee3e0165f90c0f55d67166f09a67495a7039ea02651f802171764fd67a81b02",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-context-fixture-class-20261019/postimages-v3/policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "postimage_sha256": "15c47c0fa4dcbbf3e2c91ef1eb709072e2ae598d937525b096fd493cd2c50760"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "write",
+        "preimage_sha256": "d65379d4db017fde767c3735648f88526b049aa8a50852d5fe26f2438d44edc3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-context-fixture-class-20261019/postimages-v3/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "320abb553d14725dc6bd44fd7c5f6a00a0b88f753b1bf436caad689799445fcd"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-context-fixture-adoption-20261019/source-application.json",
+      "sha256": "468111ea884e60a5852b5ff3b74534499e49ecd81bafced847e6760cddc1e644"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-context-fixture-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-context-fixture-class-20261019/manifest-v3.json",
+        "sha256": "b9cec440557935c0aa1666d3d59108186d8be042824566878f368c8d83c6b462"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-r4-context-fixture-independent-review-20261019/review.json",
+        "sha256": "bf1be77cdf6c9748ee96b6bcf2bc1dfe7eadd721a4be6ca0e0eddbde25baa635"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-r4-context-fixture-independent-review-20261019/review-supplement-container-owner-cleanup.json",
+        "sha256": "84aafed2b12e0859678a7db142868e92d9bacc7cf4f6a0c185ec4f5d45d7aef8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-context-fixture-class-20261019/static-checks-v3/result.json",
+        "sha256": "dabdb32aed88658a832f0a9901dd91012bfb6b5cddb239367848aa49a753d2f1"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME context-fixture composition class, widened once on the second boundary to queue ownership, CAS namespace, and worker lifetime.; one shared fixture/teardown invariant covers the complete queue, storage and worker-lifetime quantity.",
+    "bounded_proof": "Independent final review GO. Actual prior31-case run28PASS2FAIL1expectedouterSKIP had an invalid pre-POST retrieval fake and cross-case/cross-CAS queue lease; corrected candidate has no runtime receipt yet.",
+    "limitations": [
+      "Whole two-module replay including cap1/cap2/12-fold/removal and builder-abort thread/lease checks remains required.",
+      "If builder and teardown both raise, cleanup error is primary and builder error remains in context; bounded diagnostic residual.",
+      "No production CAS guard, executor cap, scientific method, artifact grant or authority changed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run full two modules on committed source with private per-child DB/shared per-child CAS and actual worker\u2192PID/backend/path receipts; meaningful workload/removal controls and R3 HTTP/fresh GET must reach their assertions.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

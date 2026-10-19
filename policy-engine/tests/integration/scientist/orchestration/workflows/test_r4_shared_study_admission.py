@@ -491,17 +491,28 @@ def _run_child(
         lock=queue_observation_lock,
     )
     physical_executor._work_queue = observed_work_queue
-    envs = [
-        build_runtime_api_env(
-            temp_root / f"runtime-{study_index}",
-            include_test_client=True,
-            app_kwargs={
-                "process_worker_capacity": capacity,
-                "process_worker_profile_revision": revision,
-            },
-        )
-        for study_index in range(2)
-    ]
+    envs: list[dict[str, object]] = []
+    runtime_root = temp_root / "runtime-shared"
+    control_store_path = temp_root / "control_plane.sqlite3"
+    try:
+        with pytest.MonkeyPatch.context() as environment_patch:
+            environment_patch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(control_store_path))
+            for _ in range(2):
+                envs.append(
+                    build_runtime_api_env(
+                        runtime_root,
+                        include_test_client=True,
+                        app_kwargs={
+                            "process_worker_capacity": capacity,
+                            "process_worker_profile_revision": revision,
+                        },
+                    )
+                )
+    except BaseException:
+        FileSystemCAS._put_blob_and_manifest_once = original_put_blob_and_manifest_once
+        for env in reversed(envs):
+            close_runtime_api_env(env)
+        raise
     try:
         apps = [env["app"] for env in envs]
         clients = [env["client"] for env in envs]
@@ -544,7 +555,44 @@ def _run_child(
                 worker._store is service._control_store
                 for worker, service in zip(workers, services, strict=True)
             ), "ControlWorker does not consume the guarded control-store proxy"
+            worker_runtime_bindings = []
+            for runtime_index, (service, container, worker) in enumerate(
+                zip(services, containers, workers, strict=True)
+            ):
+                assert worker is not None
+                worker_store = worker._store._target
+                worker_thread = worker._thread
+                worker_runtime_bindings.append(
+                    {
+                        "runtime_index": runtime_index,
+                        "worker_id": worker.worker_id,
+                        "process_id": os.getpid(),
+                        "worker_thread_id": (
+                            worker_thread.ident if worker_thread is not None else None
+                        ),
+                        "worker_backend": service.execution_policy_resolver.worker_backend,
+                        "state_store_backend": (
+                            service.execution_policy_resolver.state_store_backend
+                        ),
+                        "control_store_backend": worker_store.backend,
+                        "control_store_path": str(worker_store._sqlite_path.resolve()),
+                        "runtime_cas_root": str(container.config.cas_root.resolve()),
+                        "artifact_store_root": str(service._artifact_store.root.resolve()),
+                    }
+                )
+            assert len({row["worker_id"] for row in worker_runtime_bindings}) == 2
+            assert len({row["process_id"] for row in worker_runtime_bindings}) == 1
+            assert len({row["control_store_path"] for row in worker_runtime_bindings}) == 1
+            assert len({row["runtime_cas_root"] for row in worker_runtime_bindings}) == 1
+            assert len({row["artifact_store_root"] for row in worker_runtime_bindings}) == 1
+            assert all(
+                row["worker_backend"] == "embedded"
+                and row["state_store_backend"] == "sqlite"
+                and row["control_store_backend"] == "sqlite"
+                for row in worker_runtime_bindings
+            )
             for worker in workers:
+                assert worker is not None
                 worker.stop()
 
             assert async_tools.get_shared_executor() is physical_executor
@@ -1800,6 +1848,7 @@ def _run_child(
                     "observed_fold_count": len(fold_rows),
                     "completed_jobs": len(terminal_jobs),
                     "control_worker_results": dispatched,
+                    "worker_runtime_bindings": worker_runtime_bindings,
                     "pre_dispatch_release": pre_dispatch_release,
                     "study_outputs": study_outputs,
                     "input_receipts": input_receipts,
@@ -1893,6 +1942,7 @@ def _invoke_child(
             "NUMEXPR_NUM_THREADS": "1",
             "POLISYOS_EXECUTION_PROFILE": "dev",
             "POLISYOS_RUNNER_BACKEND": "local",
+            "POLISYOS_CONTROL_SQLITE_PATH": str(receipt_directory / "control_plane.sqlite3"),
             "LOG_LEVEL": "WARNING",
             "POLISYOS_R4_RECEIPT_DIR": str(receipt_directory),
         }
@@ -2174,12 +2224,22 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
     cap_one = profile_results["cap-1-configured"]
     cap_two = profile_results["cap-2-configured"]
     no_bridge = profile_results["cap-1-bridge-removal"]
+    case_control_store_paths: set[str] = set()
     for profile in (cap_one, cap_two, no_bridge):
         assert profile["profile_elapsed_ns"] >= 0
         assert profile["child_process_elapsed_ns"] > 0
         rss = profile["process_peak_rss"]
         assert rss["available"] and type(rss["value"]) is int
         assert rss["units"] in {"KiB", "bytes"}
+        bindings = profile["worker_runtime_bindings"]
+        assert len(bindings) == 2
+        assert len({row["worker_id"] for row in bindings}) == 2
+        assert len({row["process_id"] for row in bindings}) == 1
+        assert len({row["control_store_path"] for row in bindings}) == 1
+        assert len({row["runtime_cas_root"] for row in bindings}) == 1
+        assert len({row["artifact_store_root"] for row in bindings}) == 1
+        case_control_store_paths.add(bindings[0]["control_store_path"])
+    assert len(case_control_store_paths) == 3
     print(
         "R4_NATIVE_PROFILES="
         + json.dumps(

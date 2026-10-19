@@ -201,7 +201,16 @@ def test_foundry_consumer_refuses_changed_recorded_source_with_receipt_markers_i
 
 
 @pytest.mark.parametrize(
-    "changed_member", ["result", "evidence", "input_lineage", "seed", "cost", "timing"]
+    "changed_member",
+    [
+        "result",
+        "evidence",
+        "input_lineage",
+        "seed",
+        "cost",
+        "timing",
+        "manifest_profile",
+    ],
 )
 def test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact(
     recorded_panel_owner,
@@ -239,6 +248,21 @@ def test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact(
         )
     elif changed_member == "seed":
         state.params["random_seed"] = 999
+    elif changed_member == "manifest_profile":
+        changed_profile = _rewrite_artifact(
+            store,
+            original_evidence,
+            lambda payload: None,
+            inputs=[
+                InputRef(
+                    artifact_id=original_result.artifact_id,
+                    role="tampered_method_result",
+                )
+            ],
+        )
+        assert changed_profile.artifact_id == original_evidence.artifact_id
+        assert changed_profile.manifest_profile_sha256 != original_evidence.manifest_profile_sha256
+        state.artifacts_index["causal_method_evidence_ref"] = changed_profile
     else:
         state.artifacts_index["causal_method_evidence_ref"] = _rewrite_artifact(
             store,
@@ -252,11 +276,83 @@ def test_foundry_consumer_refuses_method_artifact_mutation_with_markers_intact(
         "evidence": "foundry_method_evidence_replay_mismatch",
         "input_lineage": "foundry_selected_contract_lineage_mismatch",
         "seed": "foundry_method_evidence_replay_mismatch",
+        "manifest_profile": "foundry_method_artifact_identity_mismatch",
         "cost": "foundry_method_cost_attribution_mismatch",
         "timing": "foundry_method_timing_observation_invalid",
     }[changed_member]
     with pytest.raises(ValueError, match=expected_reason):
         _consume_case(store, binding, state)
+
+
+def test_method_evidence_semantic_projection_retains_attempt_cost_and_provenance(
+    recorded_panel_owner,
+):
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.foundry.methods.backends.dispatch import (
+        estimate_method_execution_cost_usd,
+    )
+    from polisyos.foundry.methods.backends.protocol import MethodTiming
+    from polisyos.foundry.methods.base import ComputeBackend
+
+    store, _, state = _method_owner_case(recorded_panel_owner)
+    original_ref = state.artifacts_index["causal_method_evidence_ref"]
+    original_raw = store.get_bytes(original_ref.artifact_id)
+    original_payload = from_canonical_bytes(original_raw)
+    original_cost = original_payload["artifacts"]["cost_attribution"]
+    original_timing = MethodTiming(
+        wall_time_ms=original_cost["wall_time_ms"],
+        cpu_time_ms=original_cost["cpu_time_ms"],
+        compile_time_ms=original_cost["compile_time_ms"],
+    )
+    assert original_cost["estimated_cost_usd"] == estimate_method_execution_cost_usd(
+        backend=ComputeBackend(original_cost["backend"]),
+        timing=original_timing,
+    )
+
+    changed_wall_time_ms = float(original_cost["wall_time_ms"]) + 7.0
+    changed_timing = MethodTiming(
+        wall_time_ms=changed_wall_time_ms,
+        cpu_time_ms=original_cost["cpu_time_ms"],
+        compile_time_ms=original_cost["compile_time_ms"],
+    )
+    changed_cost_usd = estimate_method_execution_cost_usd(
+        backend=ComputeBackend(original_cost["backend"]),
+        timing=changed_timing,
+    )
+
+    def change_attempt_cost(payload):
+        cost = payload["artifacts"]["cost_attribution"]
+        cost["wall_time_ms"] = changed_wall_time_ms
+        cost["estimated_cost_usd"] = changed_cost_usd
+
+    changed_cost_ref = _rewrite_artifact(store, original_ref, change_attempt_cost)
+    changed_cost_raw = store.get_bytes(changed_cost_ref.artifact_id)
+    changed_cost_payload = from_canonical_bytes(changed_cost_raw)
+    assert changed_cost_ref.artifact_id != original_ref.artifact_id
+    assert changed_cost_payload["result_ref"] == original_payload["result_ref"]
+    assert (
+        changed_cost_payload["artifacts"]["cost_attribution"]["wall_time_ms"]
+        != (original_cost["wall_time_ms"])
+    )
+    assert changed_cost_payload["artifacts"]["cost_attribution"]["estimated_cost_usd"] == (
+        changed_cost_usd
+    )
+    assert original_raw != changed_cost_raw
+    assert constraint_owner._method_evidence_semantics(original_raw) == (
+        constraint_owner._method_evidence_semantics(changed_cost_raw)
+    )
+
+    changed_semantic_ref = _rewrite_artifact(
+        store,
+        original_ref,
+        lambda payload: payload["reproducibility"].update(
+            {"seed": int(payload["reproducibility"]["seed"] or 0) + 1}
+        ),
+    )
+    changed_semantic_raw = store.get_bytes(changed_semantic_ref.artifact_id)
+    assert constraint_owner._method_evidence_semantics(original_raw) != (
+        constraint_owner._method_evidence_semantics(changed_semantic_raw)
+    )
 
 
 @pytest.mark.parametrize(
@@ -266,7 +362,9 @@ def test_foundry_emission_refuses_unverified_or_changed_consumption(
     recorded_panel_owner,
     changed_member,
 ):
-    from polisyos.runtime.quality.workspace.foundry_consumption import FoundryConsumptionResult
+    from polisyos.runtime.quality.workspace.foundry_consumption import (
+        FoundryConsumptionResult,
+    )
 
     store, binding, state = _method_owner_case(recorded_panel_owner)
     consumer = FoundryMethodOutputConsumer(store=store)
@@ -328,7 +426,10 @@ def test_foundry_consumer_refuses_nonobservations_and_unrelated_cas_documents(
     )
     result = store.put_json(
         {"unrelated": "result"},
-        PutOptions(kind="scientist.method_result.causal.inference", media_type="application/json"),
+        PutOptions(
+            kind="scientist.method_result.causal.inference",
+            media_type="application/json",
+        ),
     )
     evidence = store.put_json(
         {"unrelated": "evidence"},
@@ -436,7 +537,8 @@ def test_missing_constraint_basis_is_persisted_and_recomputed(tmp_path):
     store = FileSystemCAS(tmp_path / "constraints")
     owner = ConstraintStoreIngestor(store=store)
     result = owner.produce(
-        workspace_id="ws-missing-constraints", design_problem=_constraint_canonical_problem()
+        workspace_id="ws-missing-constraints",
+        design_problem=_constraint_canonical_problem(),
     )
     packet = from_canonical_bytes(owner.require(result, workspace_id=result.workspace_id))
     assert "snapshot" in packet
@@ -514,7 +616,9 @@ def test_compiled_constraint_preflight_derives_whole_owner_population_without_po
             )
 
 
-def test_oversized_compiled_population_is_a_typed_refusal_with_fresh_cas_basis(tmp_path):
+def test_oversized_compiled_population_is_a_typed_refusal_with_fresh_cas_basis(
+    tmp_path,
+):
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.ir.governance.policy_composition import PolicyLayerLevel
     from polisyos.pdc._impl.layer2_design_search import ConstraintStoreSnapshot
@@ -597,7 +701,8 @@ def test_constraint_admission_cannot_be_recreated_or_mutated(tmp_path, mutation)
     store = FileSystemCAS(tmp_path / "constraints")
     owner = ConstraintStoreIngestor(store=store)
     result = owner.produce(
-        workspace_id="ws-constraint-custody", design_problem=_constraint_canonical_problem()
+        workspace_id="ws-constraint-custody",
+        design_problem=_constraint_canonical_problem(),
     )
     workspace_id = result.workspace_id
     if mutation == "nested_decision":
@@ -622,7 +727,8 @@ def test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact(
     store = FileSystemCAS(tmp_path / "constraints")
     owner = ConstraintStoreIngestor(store=store)
     result = owner.produce(
-        workspace_id="ws-constraint-corruption", design_problem=_constraint_canonical_problem()
+        workspace_id="ws-constraint-corruption",
+        design_problem=_constraint_canonical_problem(),
     )
     artifact_id = str(result.artifact_ref.artifact_id)
     original = store.get_bytes
@@ -640,13 +746,16 @@ def test_constraint_readback_rejects_changed_decisive_bytes_with_markers_intact(
         evaluate_constraint_store_for_phase2(result, owner=owner, workspace_id=result.workspace_id)
 
 
-def test_method_consumption_binds_constraint_custody_and_uses_sealed_decision(recorded_panel_owner):
+def test_method_consumption_binds_constraint_custody_and_uses_sealed_decision(
+    recorded_panel_owner,
+):
     from polisyos.core.canon import from_canonical_bytes
 
     store, binding, state = _method_owner_case(recorded_panel_owner)
     owner = ConstraintStoreIngestor(store=store)
     admission = owner.produce(
-        workspace_id="ws-c3-direct-method-owner", design_problem=_constraint_canonical_problem()
+        workspace_id="ws-c3-direct-method-owner",
+        design_problem=_constraint_canonical_problem(),
     )
     consumer = FoundryMethodOutputConsumer(store=store)
     result = consumer.consume_from_state(
@@ -673,7 +782,9 @@ def test_method_consumption_binds_constraint_custody_and_uses_sealed_decision(re
     assert post["method_report_ref"] is not None
 
 
-def test_actual_phase2_loop_records_constraint_refusal_before_earlier_source_block(tmp_path):
+def test_actual_phase2_loop_records_constraint_refusal_before_earlier_source_block(
+    tmp_path,
+):
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 
@@ -725,7 +836,9 @@ def test_real_method_report_is_reconciled_before_constraint_consumption_without_
         raise AssertionError("Constraint reconciliation may not execute the method twice")
 
     monkeypatch.setattr(
-        method_quality, "build_foundry_method_report_from_execution_outputs", real_report
+        method_quality,
+        "build_foundry_method_report_from_execution_outputs",
+        real_report,
     )
     monkeypatch.setattr(MethodBackend, "run", duplicate_execution)
     admission = owner.reconcile_method(preflight, method_owner=consumer, consumption=consumption)
@@ -768,7 +881,8 @@ def test_real_method_report_is_reconciled_before_constraint_consumption_without_
 
 
 @pytest.mark.parametrize(
-    "mutation", ["deserialized", "different_owner", "different_store", "changed_payload"]
+    "mutation",
+    ["deserialized", "different_owner", "different_store", "changed_payload"],
 )
 def test_post_method_constraint_bridge_refuses_unverified_consumption(
     recorded_panel_owner, tmp_path, mutation
@@ -809,7 +923,9 @@ def test_method_report_recomputation_is_consulted_at_constraint_admission(
         return report
 
     monkeypatch.setattr(
-        method_quality, "build_foundry_method_report_from_execution_outputs", removed_selection
+        method_quality,
+        "build_foundry_method_report_from_execution_outputs",
+        removed_selection,
     )
     with pytest.raises(ValueError, match="constraint_store_recomputation_mismatch"):
         consumer.bind_constraints(consumption=consumption, owner=owner, admission=admission)
@@ -870,7 +986,8 @@ def test_constraint_projection_bytes_bind_the_complete_parent_role_basis(tmp_pat
     owner = ConstraintStoreIngestor(store=store)
     parents = [
         store.put_json(
-            {"source": name}, PutOptions(kind="test.source", media_type="application/json")
+            {"source": name},
+            PutOptions(kind="test.source", media_type="application/json"),
         )
         for name in ("first", "second")
     ]
@@ -907,7 +1024,8 @@ def test_every_constraint_emission_requires_actual_full_readback(
     store = FileSystemCAS(tmp_path / "constraints")
     owner = ConstraintStoreIngestor(store=store)
     source = store.put_json(
-        {"actual_source": True}, PutOptions(kind="test.source", media_type="application/json")
+        {"actual_source": True},
+        PutOptions(kind="test.source", media_type="application/json"),
     )
     parents = [{"artifact_id": str(source.artifact_id), "role": "source_basis"}]
     put = store.put_json
@@ -922,11 +1040,13 @@ def test_every_constraint_emission_requires_actual_full_readback(
             options = replace(options, kind="unverified.kind")
         elif mutation == "producer":
             options = replace(
-                options, producer=ProducerInfo(component="unverified.owner", version="1.0")
+                options,
+                producer=ProducerInfo(component="unverified.owner", version="1.0"),
             )
         else:
             options = replace(
-                options, inputs=[InputRef(artifact_id=source.artifact_id, role="different_role")]
+                options,
+                inputs=[InputRef(artifact_id=source.artifact_id, role="different_role")],
             )
         return put(payload, options, **kwargs)
 
@@ -940,10 +1060,18 @@ def _staged_method_case(recorded_panel_owner, tmp_path):
     import json
     from pathlib import Path
 
-    from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord, BuildRunManifest
-    from polisyos.foundry.data_plane import load_ukraine_foundry_intake, materialize_method_contract
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        ArtifactRecord,
+        BuildRunManifest,
+    )
+    from polisyos.foundry.data_plane import (
+        load_ukraine_foundry_intake,
+        materialize_method_contract,
+    )
     from polisyos.scientist.compute import MethodBackend
-    from tests.unit.foundry.data_plane.test_bindings_multiscale import _ukraine_intake_manifests
+    from tests.unit.foundry.data_plane.test_bindings_multiscale import (
+        _ukraine_intake_manifests,
+    )
 
     _, store, _, _ = recorded_panel_owner
     bound = _produce_recorded(recorded_panel_owner)
@@ -1049,7 +1177,10 @@ def test_workspace_phase2_transports_verified_staged_input_owner_refs(
     from tests.unit.runtime.quality.test_design_problem import _design_problem
 
     store, bound, offered, root, paths = _staged_method_case(recorded_panel_owner, tmp_path)
-    source_fields = {"allowed_root": root, "stage_manifests": tuple(sorted(paths.items()))}
+    source_fields = {
+        "allowed_root": root,
+        "stage_manifests": tuple(sorted(paths.items())),
+    }
     kwargs = {"artifact_store": store}
     if "staged_foundry_inputs" in inspect.signature(loop_owner.WorkspaceLoop).parameters:
         kwargs["staged_foundry_inputs"] = owner.StagedFoundryInputBinding(
@@ -1293,7 +1424,9 @@ def test_workspace_context_reaches_actual_causal_safety_refusal(recorded_panel_o
 
 def test_validated_staged_refs_reach_actual_causal_safety_refusal(recorded_panel_owner, tmp_path):
     from polisyos.core import artifacts
-    from polisyos.runtime.quality.workspace.scientist_node_adapters import _validated_node_state
+    from polisyos.runtime.quality.workspace.scientist_node_adapters import (
+        _validated_node_state,
+    )
 
     _, _, state, _, _ = _staged_method_case(recorded_panel_owner, tmp_path)
     validated = _validated_node_state(state)
@@ -1486,9 +1619,14 @@ def test_staged_input_refusal_retains_completed_selection_in_typed_terminal(
     assert result.phase2_method_selection == selected
 
 
-def test_candidate_requirement_refusal_and_status_survive_fresh_cas_replay(tmp_path) -> None:
+def test_candidate_requirement_refusal_and_status_survive_fresh_cas_replay(
+    tmp_path,
+) -> None:
     from polisyos.core.canon import from_canonical_bytes
-    from polisyos.data_requirement import PolicyGrammarConceptSpineRefs, UniversalAuthorityProfile
+    from polisyos.data_requirement import (
+        PolicyGrammarConceptSpineRefs,
+        UniversalAuthorityProfile,
+    )
     from polisyos.ir.governance.policy_composition import PolicyLayerLevel
 
     store = FileSystemCAS(tmp_path / "constraints")

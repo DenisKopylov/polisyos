@@ -17826,5 +17826,69 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_r4_semantic_evidence_identity_cost_oracle_r2e_native_format_20261019": {
+    "slice_base": "7f90b08f51195c38d26fcf423a1715ed260ec836",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py": {
+        "preimage_sha256": "52dd22108824b4f967de434acbb085a24f5c0cd3440d242655e398455691b200",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/postimage-0.py",
+        "postimage_sha256": "afcf1329b926098716729676d7f545cf1085e248d655258fd26fd0e95da1507f",
+        "operation": "write",
+        "P39_role": "Semantic replay oracle +realCAS profile negative; canonical formatting is mandatory companion with full AST-equivalence control."
+      },
+      "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py": {
+        "preimage_sha256": "10062275ebf8bfde35aee6c91e7b6c9e743b3e211780ffd5a6df31678a8e3779",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/postimage-1.py",
+        "postimage_sha256": "ac5f5e2574b66e51863f4caad7a13190b615b66938f8bd5e806a8fd51beb5f85",
+        "operation": "write",
+        "P39_role": "Semantic replay oracle +realCAS profile negative; canonical formatting is mandatory companion with full AST-equivalence control."
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/source-application.json",
+      "sha256": "db14eb68af15d9924c49f9a4495854c64351e353155318944f3fbac75f996c69"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-cost-semantic-oracle-candidate-r2d-20261019/manifest.json",
+        "sha256": "d88b7946c783a6aac511df1a0ccbe254d29ab88272abc12bf2a8e9cdab033460"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-cost-semantic-oracle-r2d-independent-20261019/review.md",
+        "sha256": "b955ec308f92da3b25d2a9ebbc78fb097f842fd57b6feb60dca02d06dfa0280f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-cost-semantic-oracle-r2d-independent-20261019/review-erratum.json",
+        "sha256": "d83dcb4652183ef7e984e468f125d47bafc02c3e9ec78cfcc8af5ddb74208782"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-shared-two-studies-fa919-actual-20261019/run/result.json",
+        "sha256": "4c37cab4e4934b4a3bfac86ed784c0bf975ef48ea0541a06e106d0d59714a2ed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/format-context-correction.json",
+        "sha256": "831888172bc12a203a736567df4032e675d9521590c39163720b775e5f468e7c"
+      }
+    ],
+    "P40": "SAME_CLASS_DEEPER: separate attempt-cost-bearing raw content identity from stable semantic evidence/provenance. Generic comparator excludes only raw evidence_ref and attempt_cost_attribution; retain evidence_manifest_profile_sha256 equality and same-byte/wrong-profile falsifier.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Actual fa919 R4 one-test FAIL is retained; all3profiles completed12folds withcorrectcap/control behavior, but full cost-bearing raw evidence IDs differed. This test repair does not retroactively turn that run into PASS.",
+      "Both entire test postimages are canonically formatted; independent full AST comparison proves those formatting companions introduce no extra semantics beyond separately pinned minimal R2c patch.",
+      "Exact R4 bounded replay and complete owner unit module are UNRUN after adoption; no full B56 production throughput, qualifying workload, causal calibration or cost settlement authority is established.",
+      "No test failure is described as inherited: source/test input denominator intersects this slice. Historical wrapper exception/benchmark-storage defect is retained and next launcher must use supported options.",
+      "R2d canonical workspace-root formatter preflight failed before source mutation despite pyproject-context formatting success. R2e native context is full-file AST-equivalent to reviewed R2d; all deciding failed outputs retained."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete Foundry consumer owner unit module and selected two-study/three-profile R4 test with fresh source/profile/input freeze, actual content/profile bindings, original bridge-removal markers retained, fixed supported child benchmark/TMPDIR profile, and complete outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

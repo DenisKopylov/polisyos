@@ -360,7 +360,13 @@ def _run_child(
     """Run the two-study native witness in one isolated Runtime process."""
     import importlib
 
-    from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
+    from polisyos.runtime.http.resilience import (
+        BlockingDependencyGuard,
+        GuardedDependencyProxy,
+    )
+    from polisyos.runtime.quality.workspace.foundry_consumption import (
+        _method_evidence_semantics,
+    )
     from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
     revision = f"r4-native-method-cap-{capacity}-v1"
@@ -810,7 +816,8 @@ def _run_child(
                     if on_shared_worker:
                         physical_active_thread_depths[thread_id] += 1
                         physical_active_workers_peak = max(
-                            physical_active_workers_peak, len(physical_active_thread_depths)
+                            physical_active_workers_peak,
+                            len(physical_active_thread_depths),
                         )
                     dispatch_rows.append(
                         {
@@ -1389,7 +1396,10 @@ def _run_child(
                             ],
                         }
                         assert observed_dispatches == observed_dispatch_active == 2
-                        assert pre_dispatch_release["control_futures_done"] == [False, False]
+                        assert pre_dispatch_release["control_futures_done"] == [
+                            False,
+                            False,
+                        ]
                         release_dispatches.set()
                     dispatched = [
                         futures_by_study[study_index].result(timeout=120)
@@ -1463,7 +1473,8 @@ def _run_child(
                             input_manifest
                         )
                         evidence_ref = method_results[study_index]["evidence_ref"]
-                        evidence = from_canonical_bytes(fresh_store.get_bytes(evidence_ref))
+                        evidence_raw = fresh_store.get_bytes(evidence_ref)
+                        evidence = from_canonical_bytes(evidence_raw)
                         assert isinstance(evidence, dict)
                         assert (
                             evidence.get("method_fqn", "").split("@", 1)[0]
@@ -1475,6 +1486,17 @@ def _run_child(
                             and source.role == "method_result"
                             for source in evidence_manifest.inputs
                         )
+                        evidence_manifest_profile_sha256 = artifact_manifest_profile_sha256(
+                            evidence_manifest
+                        )
+                        assert (
+                            evidence_ref.manifest_profile_sha256 == evidence_manifest_profile_sha256
+                        )
+                        # Reuse the consumer's validated semantic projection. The raw CAS
+                        # evidence remains attempt-specific and retains measured cost below.
+                        semantic_evidence = _method_evidence_semantics(evidence_raw)
+                        cost_attribution = evidence["artifacts"]["cost_attribution"]
+                        assert isinstance(cost_attribution, dict)
 
                         input_owner_scope = _owner_scope_observation(
                             fresh_store,
@@ -1545,6 +1567,11 @@ def _run_child(
                         study_outputs[str(study_index)] = {
                             "result_ref": str(ref.artifact_id),
                             "evidence_ref": str(evidence_ref.artifact_id),
+                            "evidence_manifest_profile_sha256": evidence_manifest_profile_sha256,
+                            "semantic_evidence_sha256": hashlib.sha256(
+                                semantic_evidence
+                            ).hexdigest(),
+                            "attempt_cost_attribution": dict(cost_attribution),
                             "input_owner_scope": input_owner_scope,
                             "result_owner_scope": result_owner_scope,
                             "evidence_owner_scope": evidence_owner_scope,
@@ -1594,7 +1621,10 @@ def _run_child(
                     assert physical_active_workers_peak == 0
                 else:
                     assert len(queue_wait_observations) == 2
-                    assert {row["study_index"] for row in queue_wait_observations} == {0, 1}
+                    assert {row["study_index"] for row in queue_wait_observations} == {
+                        0,
+                        1,
+                    }
                     assert all(row["queue_wait_ns"] >= 0 for row in queue_wait_observations)
                     assert all(
                         row["method_fqn"] == TMLEEstimator.signature.fqn.split("@", 1)[0]
@@ -1687,7 +1717,10 @@ def test_r4_native_child(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
     )
     result["process_peak_rss"] = _process_peak_rss_observation()
     assert result["process_peak_rss"]["available"], result["process_peak_rss"]
-    print("R4_NATIVE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False), flush=True)
+    print(
+        "R4_NATIVE_RESULT=" + json.dumps(result, sort_keys=True, allow_nan=False),
+        flush=True,
+    )
 
 
 def _decode_child_stream(output: str | bytes | None) -> str:
@@ -1960,7 +1993,11 @@ def test_r4_profile_driver_attempts_all_cases_before_aggregate_failure() -> None
 
     attempts = _attempt_all_r4_profiles(invoke_controlled_case)
     assert attempted_case_ids == [str(case["case_id"]) for case in _R4_PROFILE_CASES]
-    assert [attempt["status"] for attempt in attempts] == ["child_failed", "passed", "passed"]
+    assert [attempt["status"] for attempt in attempts] == [
+        "child_failed",
+        "passed",
+        "passed",
+    ]
     with pytest.raises(AssertionError, match="attempted all three fresh children"):
         _require_all_r4_profiles_passed(attempts)
 
@@ -2067,7 +2104,40 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
         "cap-2 MethodBackend CAS results were not projected into final Scientist state: "
         + json.dumps(cap_two["study_outputs"], sort_keys=True)
     )
-    assert cap_one["study_outputs"] == cap_two["study_outputs"]
+    for study_index in ("0", "1"):
+        cap_one_output = cap_one["study_outputs"][study_index]
+        cap_two_output = cap_two["study_outputs"][study_index]
+        assert cap_one_output["result_ref"] == cap_two_output["result_ref"]
+        assert (
+            cap_one_output["semantic_evidence_sha256"] == cap_two_output["semantic_evidence_sha256"]
+        )
+        assert (
+            cap_one_output["evidence_manifest_profile_sha256"]
+            == cap_two_output["evidence_manifest_profile_sha256"]
+        )
+        attempt_specific_fields = {"evidence_ref", "attempt_cost_attribution"}
+        cap_one_semantic_output = {
+            key: value
+            for key, value in cap_one_output.items()
+            if key not in attempt_specific_fields
+        }
+        cap_two_semantic_output = {
+            key: value
+            for key, value in cap_two_output.items()
+            if key not in attempt_specific_fields
+        }
+        # Compare the consumer-validated semantic projection, not a raw evidence ID
+        # that commits the legitimately different timing/cost of each attempt.
+        assert cap_one_semantic_output == cap_two_semantic_output
+        for output in (cap_one_output, cap_two_output):
+            cost = output["attempt_cost_attribution"]
+            assert output["evidence_ref"]
+            assert output["evidence_manifest_profile_sha256"]
+            assert cost["method_fqn"] == TMLEEstimator.signature.fqn
+            assert cost["backend"]
+            assert cost["wall_time_ms"] >= 0.0
+            assert cost["estimated_cost_usd"] >= 0.0
+            assert cost["usd_per_ms"] > 0.0
 
     assert no_bridge["capacity"] == 1
     assert no_bridge["dispatch_peak"] == 2

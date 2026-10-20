@@ -9,7 +9,6 @@ import os
 import pickle
 import threading
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import pytest
@@ -28,10 +27,12 @@ from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts import chronology as contract
 from polisyos.core.security.full_prefix import FullPrefixVerifier, build_full_prefix_bundle
-from polisyos.runtime.quality import chronology_proof, chronology_qualification
+from polisyos.runtime.quality import chronology_proof, chronology_qualification, semantic_epoch
 from tests._helpers.chronology_qualification import make_qualification_case
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from polisyos.core.artifacts import ArtifactManifest
 
 
@@ -563,6 +564,17 @@ class _CountingStore:
     def get_manifest(self, artifact_id: ArtifactID) -> ArtifactManifest:
         self._call("get_manifest")
         return self.delegate.get_manifest(artifact_id)
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        self._call("get_raw_manifest_bytes")
+        return self.delegate.get_raw_manifest_bytes(
+            artifact_id, manifest_profile_sha256=manifest_profile_sha256
+        )
 
     def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef:
         self._call("put_bytes")
@@ -1481,6 +1493,117 @@ def test_fork_while_borrowed_and_store_locked_tombstones_child_without_store_cal
     assert not worker.is_alive()
     assert len(parent_outcome) == 1
     assert isinstance(parent_outcome[0], contract.PersistedChronologyProof)
+
+
+@pytest.mark.parametrize("statement_kind", ["verification", "projection"])
+@pytest.mark.parametrize("input_variant", ["missing", "extra", "wrong_profile"])
+def test_epoch_loader_recomputes_chronology_statement_manifest_inputs(
+    tmp_path: Path,
+    statement_kind: str,
+    input_variant: str,
+) -> None:
+    case = _seed_case(tmp_path / "cas")
+    persisted = _persist(case)
+    assert isinstance(persisted, contract.PersistedChronologyProof)
+    if statement_kind == "verification":
+        ref = persisted.verifier_result_ref
+        expected_kind = "core.chronology.full_prefix.verification_result"
+    else:
+        verified = persisted.verification_statement.result
+        assert isinstance(verified, contract.FullPrefixVerified)
+        projection = _appointed_owner(case.store).project_native_result(
+            reconciliation=case.reconciliation,
+            proof_result=verified,
+            bundle_bytes=case.bundle.bundle_bytes,
+        )
+        assert isinstance(projection, contract.PersistedNativeChronologyProjection)
+        ref = projection.artifact_ref
+        expected_kind = "core.chronology.native_projection"
+
+    selected_ref, mapping = semantic_epoch._load_owner_projection_mapping(case.store, ref)
+    assert mapping
+    manifest = case.store.get_manifest(selected_ref)
+    assert manifest.inputs
+    if input_variant == "missing":
+        inputs = list(manifest.inputs[:-1])
+    elif input_variant == "extra":
+        inputs = [*manifest.inputs, manifest.inputs[0].model_copy(update={"role": "extra_edge"})]
+    else:
+        wrong_profile = manifest.inputs[-1].model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        inputs = [*manifest.inputs[:-1], wrong_profile]
+    selected = case.store.put_bytes(
+        case.store.get_bytes(selected_ref),
+        ArtifactWriteOptions(
+            kind=selected_ref.kind,
+            media_type=selected_ref.media_type,
+            schema=manifest.artifact_schema,
+            inputs=inputs,
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+
+    with pytest.raises(ValueError, match="chronology statement manifest input closure differs"):
+        semantic_epoch._load_selected_acquisition_mapping(
+            case.store,
+            selected,
+            expected_kind=expected_kind,
+        )
+
+
+@pytest.mark.parametrize("input_variant", ["missing", "extra", "wrong_profile"])
+def test_bundle_reader_recomputes_native_owner_manifest_inputs(
+    tmp_path: Path,
+    input_variant: str,
+) -> None:
+    case = _seed_case(tmp_path / "cas")
+    persisted = _persist(case)
+    assert isinstance(persisted, contract.PersistedChronologyProof)
+    reader = chronology_proof.ChronologyProofArtifactReader(store=case.store)
+    read_kwargs = {
+        "query": case.query,
+        "expected_domain": case.query.domain,
+        "expected_prefix": case.expected_prefix,
+        "expected_bundle_content_hash": case.bundle.bundle_content_hash,
+        "reconciliation": case.reconciliation,
+    }
+
+    assert isinstance(
+        reader.load_and_verify(bundle_ref=persisted.artifact_ref, **read_kwargs),
+        contract.FullPrefixVerified,
+    )
+    manifest = case.store.get_manifest(persisted.artifact_ref)
+    assert manifest.inputs
+    if input_variant == "missing":
+        inputs = list(manifest.inputs[:-1])
+    elif input_variant == "extra":
+        inputs = [
+            *manifest.inputs,
+            manifest.inputs[0].model_copy(update={"role": "unowned_extra_edge"}),
+        ]
+    else:
+        wrong_profile = manifest.inputs[-1].model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        inputs = [*manifest.inputs[:-1], wrong_profile]
+    selected = case.store.put_bytes(
+        case.store.get_bytes(persisted.artifact_ref),
+        ArtifactWriteOptions(
+            kind=persisted.artifact_ref.kind,
+            media_type=persisted.artifact_ref.media_type,
+            schema=manifest.artifact_schema,
+            inputs=inputs,
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+
+    result = reader.load_and_verify(bundle_ref=selected, **read_kwargs)
+    assert isinstance(result, contract.ChronologyPersistenceManifestMismatch)
+    assert result.artifact_role == "bundle"
+    assert result.disposition == "rejected"
 
 
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork")

@@ -1,0 +1,38 @@
+id = "2026-10-20-e02-chronology-query-context-codec"
+title = "Validate persisted chronology query-context bytes"
+type = "changed"
+component = "core"
+owner = "team-polisyos"
+summary = "Register exact reader profiles for semantic-facet and chronology query-context artifacts, and strictly parse framed canonical NativeChronologyQuery bytes before the shared Core reader returns the opaque empty mapping. Semantic-facet producer attestation is not established because no supported product writer is present."
+evidence = [
+  "src/polisyos/core/contracts/epoch.py",
+  "src/polisyos/core/security/chronology_anchor.py",
+  "src/polisyos/runtime/quality/semantic_epoch.py",
+  "src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+  "tests/unit/runtime/quality/test_semantic_epoch.py",
+  "tests/unit/runtime/quality/test_semantic_epoch_chronology_bridge.py",
+]
+compatibility = "Both existing query-context writers retain their bytes and default/unselected refs. The exact query profile remains kind epoch.chronology_query_context, media_type application/vnd.polisyos.chronology-query+json, no Core CanonInfo, no artifact schema, and no manifest inputs. Well-formed NativeChronologyQuery bytes remain consumable; malformed, noncanonical, mistyped, or multi-frame content now refuses. The semantic-facet reader profile is canonical JSON with the existing epoch CAN, absent schema, and empty manifest inputs; producer attestation is not established because no supported product writer is present. The AcquisitionArtifactCodec tuple shape and payload_format Literal are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts (existing acquisition_artifact_codec behavior); internal: polisyos.runtime.quality shared epoch consumer"
+migration = "No artifact rewrite or selector migration is required for outputs of the existing query-context writers. A query-context artifact with bytes outside the existing strict NativeChronologyQuery codec must be regenerated through its existing producer before the consumer can read it. Semantic-facet artifacts accepted by the reader must match its exact registered reader profile; no supported product writer or producer-attestation claim is established. The reader preserves actual default-manifest selection and does not backfill or restamp manifests."
+api = "No symbol or DTO is added. The existing public acquisition_artifact_codec registry now returns the exact chronology-query kind/media/no-CAN/no-schema codec and the registered semantic-facet reader profile; producer attestation for semantic-facet artifacts is not established. The existing shared query-context reader invokes Core's strict parse_canonical_statement before returning its unchanged empty mapping."
+limitations = "This validates serialization and CAS/profile conformance only; it does not qualify query policy, chronology law, authority, or issuer intent. No new chronology semantics or historical-profile migration is claimed. Public-surface inventory regeneration/review and runtime test replay are not established in this draft."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-chronology-query-context-codec"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.core.contracts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The shared public codec registry describes the registered semantic-facet reader profile and exact chronology-query profile; semantic-facet producer attestation is not established because no supported product writer is present. The shared Core reader strictly validates one framed canonical NativeChronologyQuery before returning the opaque view; existing query-context writer bytes, default-ref behavior, and public tuple/Literal shapes remain unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

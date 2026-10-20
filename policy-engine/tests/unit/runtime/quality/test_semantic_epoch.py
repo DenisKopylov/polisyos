@@ -9,7 +9,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import contracts
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import CanonInfo, FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
@@ -1676,6 +1676,89 @@ def test_connector_cache_graph_uses_real_serializer_media_without_pickle_executi
         assert epoch._resolve_selected_reference_graph(store, selected) is None
         monkeypatch.setattr(epoch_contract, "acquisition_artifact_codec", registered_codec)
     assert forbidden_calls == []
+
+
+def test_semantic_facet_source_uses_registered_reader_profile_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = {"semantic_value": "catalog-semantics"}
+    raw = epoch_contract.canonical_epoch_bytes(payload)
+    options = PutOptions(
+        kind="epoch.semantic_facet_source.v1",
+        media_type="application/vnd.polisyos.epoch+json",
+        canon=epoch_contract.epoch_canon_info(),
+    )
+    selected_ref = store.put_bytes(raw, options, return_selected_profile=True)
+    manifest = store.get_manifest(selected_ref)
+
+    assert manifest.inputs == []
+    assert manifest.artifact_schema is None
+    assert manifest.canon == epoch_contract.epoch_canon_info()
+    assert (
+        epoch._load_selected_acquisition_mapping(
+            store, selected_ref, expected_kind=selected_ref.kind
+        )
+        == payload
+    )
+
+    dependency_ref = store.put_bytes(
+        b"unrelated dependency",
+        PutOptions(kind="fixture.unrelated", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    malformed_options = (
+        PutOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+            inputs=[
+                epoch.artifacts.input_ref_from_artifact_ref(
+                    dependency_ref, role="unexpected_dependency"
+                )
+            ],
+        ),
+        PutOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+        PutOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=CanonInfo(name="polisyos.canon.future"),
+        ),
+        PutOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+            schema=SchemaInfo(name="polisyos.epoch.SemanticFacetSource", version="1"),
+        ),
+    )
+    malformed_refs = tuple(
+        store.put_bytes(raw, malformed, return_selected_profile=True)
+        for malformed in malformed_options
+    )
+    payload_reads: list[str] = []
+    original_verify = type(store).verify
+    original_get_bytes = type(store).get_bytes
+
+    def record_verify(instance: object, selector: object) -> object:
+        payload_reads.append("verify")
+        return original_verify(instance, selector)
+
+    def record_get_bytes(instance: object, selector: object) -> bytes:
+        payload_reads.append("get_bytes")
+        return original_get_bytes(instance, selector)
+
+    monkeypatch.setattr(type(store), "verify", record_verify)
+    monkeypatch.setattr(type(store), "get_bytes", record_get_bytes)
+    for malformed_ref in malformed_refs:
+        with pytest.raises(ValueError, match="canon_profile_typed_artifact_profile_mismatch"):
+            epoch._load_selected_acquisition_mapping(
+                store, malformed_ref, expected_kind=malformed_ref.kind
+            )
+    assert payload_reads == []
 
 
 def test_registered_codec_roles_are_available_from_epoch_owner() -> None:

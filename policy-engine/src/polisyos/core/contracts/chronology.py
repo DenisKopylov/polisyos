@@ -25,6 +25,7 @@ from polisyos.core.artifacts import (
     ArtifactStore,
     ArtifactWriteOptions,
     CanonInfo,
+    InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
@@ -1818,6 +1819,66 @@ class NativeChronologyProjectionStatement(_ChronologyModel):
         if candidate.exterior_limitation_code is not None:
             raise ValueError("limited native result cannot become a positive projection")
         return self
+
+
+def _full_prefix_bundle_manifest_input_refs(
+    reconciliation: NativeChronologyReconciliation,
+) -> tuple[InputRef, ...]:
+    """Derive a bundle's direct inputs from the verified native owner basis.
+
+    The full-prefix bundle is an opaque protocol byte stream and does not carry
+    its owner-reference closure. The persisted native projection supplies that
+    basis; the epoch graph consumer must freshly requalify the projection before
+    treating these refs as an admitted owner closure.
+    """
+    owner_context = reconciliation.owner_context
+    receipt = owner_context.owner_qualified_candidate.owner_relation_verification
+    return (
+        input_ref_from_artifact_ref(
+            receipt.verification_receipt_ref,
+            role="owner_qualification_receipt",
+        ),
+        input_ref_from_artifact_ref(
+            receipt.denominator_identity.artifact_ref,
+            role="native_denominator",
+        ),
+        input_ref_from_artifact_ref(
+            receipt.query_context_identity.artifact_ref,
+            role="query_context",
+        ),
+        *(
+            input_ref_from_artifact_ref(
+                identity.native_artifact_ref,
+                role="native_member",
+            )
+            for identity in receipt.member_identities
+        ),
+    )
+
+
+def _full_prefix_verification_manifest_input_refs(
+    statement: FullPrefixVerificationStatement,
+) -> tuple[InputRef, ...]:
+    """Derive verification-sidecar input edges from its typed bundle ref."""
+    return (input_ref_from_artifact_ref(statement.bundle_ref, role="verified_bundle"),)
+
+
+def _native_chronology_projection_manifest_input_refs(
+    statement: NativeChronologyProjectionStatement,
+) -> tuple[InputRef, ...]:
+    """Derive projection input edges from its typed owner receipt and denominator."""
+    reconciliation = statement.reconciliation
+    receipt = reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
+    return (
+        input_ref_from_artifact_ref(
+            receipt.verification_receipt_ref,
+            role="native_owner_verification",
+        ),
+        input_ref_from_artifact_ref(
+            reconciliation.applicable_predicate_denominator.artifact_ref,
+            role="applicable_predicate_denominator",
+        ),
+    )
 
 
 class PersistedNativeChronologyProjection(_ChronologyModel):

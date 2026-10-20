@@ -70,7 +70,6 @@ _EPOCH_ACQUISITION_ARTIFACT_KINDS = frozenset(
         "epoch.boundary_denominator_receipt",
         "epoch.facet_denominator_receipt",
         "epoch.scope_history",
-        "epoch.chronology_query_context",
         "epoch.l5_scoped_schema_regime_projection",
         "epoch.lex_amendment_window_denominator",
         "l5.schema_regime_denominator_receipt",
@@ -331,6 +330,18 @@ def canonical_external_epoch_statement_bytes(
     return to_canonical_bytes(mapping, _EXTERNAL_STATEMENT_CANON)
 
 
+def _validate_chronology_query_context_payload(payload: bytes) -> None:
+    """Validate the exact framed NativeChronologyQuery wire codec.
+
+    This checks only typed content and canonical bytes. It does not qualify the
+    query, its policy, or its authority.
+    """
+    from polisyos.core.contracts import chronology
+    from polisyos.core.security import parse_canonical_statement
+
+    parse_canonical_statement(payload, chronology.NativeChronologyQuery)
+
+
 def acquisition_artifact_codec(
     kind: str, *, media_type: str | None = None
 ) -> AcquisitionArtifactCodec | None:
@@ -342,6 +353,16 @@ def acquisition_artifact_codec(
     byte resolver and cannot satisfy a selected-evidence read.
     """
     epoch_media = "application/vnd.polisyos.epoch+json"
+    if kind == "epoch.chronology_query_context":
+        query_media = "application/vnd.polisyos.chronology-query+json"
+        if media_type not in (None, query_media):
+            return None
+        return AcquisitionArtifactCodec(
+            query_media,
+            "opaque_bytes",
+            None,
+            require_schema_absent=True,
+        )
     if kind == "epoch.semantic_facet_source.v1":
         if media_type not in (None, epoch_media):
             return None
@@ -1431,6 +1452,7 @@ def _known_epoch_statement_manifest_schema(
         return SchemaInfo(name=codec.schema_name, version=codec.schema_version or "")
     if (
         codec.require_schema_absent
+        or expected_kind == "epoch.semantic_facet_source.v1"
         or expected_kind in _EPOCH_OWNER_STATEMENT_MEDIA_TYPES
         or expected_kind in _EPOCH_ACQUISITION_ARTIFACT_KINDS
         or expected_kind in _RAW_OWNER_SOURCE_KINDS
@@ -1445,19 +1467,27 @@ def _known_epoch_statement_manifest_schema(
 
 
 def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInputExpectation:
-    """Return the input-closure contract declared by an existing writer.
+    """Return the input-closure contract declared by a registered source writer.
 
     The prepared and production-receipt writers persist typed references as
-    manifest inputs. Their readers derive those refs from the exact payload and
-    compare before authority use. The currently registered epoch/external
-    statement writers otherwise omit ``inputs``; that omission is the known
-    empty-list contract, not an unknown value. A newly accepted codec must add
-    its writer contract here before it can use this protected loader.
+    manifest inputs. The semantic-facet and chronology-query-context writers
+    declare no input edges, which is an exact empty-list contract. Newly accepted
+    codecs must add an evidenced writer contract here before protected loading.
     """
     if expected_kind == "epoch.prepared":
         return _PayloadDerivedManifestInputClosure("epoch.prepared", "multiset")
     if expected_kind == "epoch.production_receipt":
         return _PayloadDerivedManifestInputClosure("epoch.production_receipt", "multiset")
+    if expected_kind in {"epoch.semantic_facet_source.v1", "epoch.chronology_query_context"}:
+        return _ExactManifestInputClosure(())
+    if expected_kind == "core.chronology.full_prefix.verification_result":
+        return _PayloadDerivedManifestInputClosure(expected_kind, "ordered")
+    if expected_kind == "core.chronology.native_projection":
+        return _PayloadDerivedManifestInputClosure(expected_kind, "ordered")
+    if expected_kind == "core.chronology.full_prefix.bundle":
+        return _UnownedManifestInputClosure(
+            "opaque bundle inputs require the linked native projection reconciliation"
+        )
     if (
         expected_kind in _EPOCH_ACQUISITION_ARTIFACT_KINDS
         or expected_kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS
@@ -1471,7 +1501,18 @@ def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInput
 def _epoch_statement_manifest_inputs_after_decode(
     expected_kind: str, decoded: dict[str, Any]
 ) -> tuple[InputRef, ...]:
-    """Recompute existing typed epoch-writer input edges from exact statement bytes."""
+    """Recompute registered typed-writer input edges from exact statement bytes."""
+    if expected_kind in {
+        "core.chronology.full_prefix.verification_result",
+        "core.chronology.native_projection",
+    }:
+        from polisyos.core.contracts import chronology as chronology_contract
+
+        if expected_kind == "core.chronology.full_prefix.verification_result":
+            statement = chronology_contract.FullPrefixVerificationStatement.model_validate(decoded)
+            return chronology_contract._full_prefix_verification_manifest_input_refs(statement)
+        statement = chronology_contract.NativeChronologyProjectionStatement.model_validate(decoded)
+        return chronology_contract._native_chronology_projection_manifest_input_refs(statement)
     if expected_kind == "epoch.prepared":
         stamp = SemanticEpochStamp.model_validate(decoded.get("stamp"))
         return (

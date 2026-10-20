@@ -368,6 +368,7 @@ def _load_selected_acquisition_mapping(
         raise ValueError("selected reference has no evidence-byte resolver")
     expected_schema = epoch_contract._known_epoch_statement_manifest_schema(expected_kind, codec)
     if codec.canon is not None:
+        input_expectation = epoch_contract._known_epoch_statement_manifest_inputs(expected_kind)
         manifest = epoch_contract._preflight_core_manifest_profile(
             store=store,
             selector=ref,
@@ -376,12 +377,30 @@ def _load_selected_acquisition_mapping(
             expected_canon=codec.canon,
             expected_schema=expected_schema,
             require_selected_profile=False,
-            expected_inputs=epoch_contract._known_epoch_statement_manifest_inputs(expected_kind),
+            expected_inputs=input_expectation,
         )
     else:
+        input_expectation = (
+            epoch_contract._known_epoch_statement_manifest_inputs(expected_kind)
+            if expected_kind == "epoch.chronology_query_context"
+            else None
+        )
         manifest = store.get_manifest(ref)
-        if not epoch_contract._manifest_schema_matches(manifest, expected_schema):
-            raise ValueError("selected acquisition artifact manifest schema differs")
+        exact_profile_mismatch = isinstance(
+            input_expectation, epoch_contract._ExactManifestInputClosure
+        ) and (
+            getattr(manifest, "artifact_id", None) != ref.artifact_id
+            or getattr(manifest, "kind", None) != expected_kind
+            or getattr(manifest, "media_type", None) != codec.media_type
+            or getattr(manifest, "canon", None) != codec.canon
+            or getattr(manifest, "inputs", None) != list(input_expectation.refs)
+            or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+        )
+        if (
+            not epoch_contract._manifest_schema_matches(manifest, expected_schema)
+            or exact_profile_mismatch
+        ):
+            raise ValueError("selected acquisition artifact manifest profile differs")
     report = store.verify(ref)
     payload = store.get_bytes(ref)
     observed_manifest = store.get_manifest(ref)
@@ -399,6 +418,9 @@ def _load_selected_acquisition_mapping(
         or not epoch_contract._manifest_schema_matches(manifest, expected_schema)
     ):
         raise ValueError("selected acquisition artifact manifest or bytes differ")
+    if expected_kind == "epoch.chronology_query_context":
+        epoch_contract._validate_chronology_query_context_payload(payload)
+        return {}
     if codec.payload_format in {
         "opaque_bytes",
         "native_coordinate",
@@ -450,6 +472,17 @@ def _load_selected_acquisition_mapping(
         canonical_mapping = chronology_contract._raw_model_mapping(statement)
         if chronology_contract._canonical_raw_bytes(canonical_mapping) != records[0]:
             raise ValueError("selected chronology statement differs from typed wire data")
+        input_expectation = epoch_contract._known_epoch_statement_manifest_inputs(expected_kind)
+        if isinstance(input_expectation, epoch_contract._PayloadDerivedManifestInputClosure):
+            expected_inputs = epoch_contract._epoch_statement_manifest_inputs_after_decode(
+                expected_kind, canonical_mapping
+            )
+            epoch_contract._verify_decoded_manifest_input_closure(
+                manifest=manifest,
+                expectation=input_expectation,
+                decoded_inputs=expected_inputs,
+                failure_message="chronology statement manifest input closure differs",
+            )
         return canonical_mapping
     try:
         mapping = (
@@ -949,6 +982,7 @@ def _verify_epoch_production_chronology_chain(
         expected_domain=query.domain,
         expected_prefix=None,
         expected_bundle_content_hash=verification.expected_bundle_content_hash,
+        reconciliation=projection.reconciliation,
     )
     if (
         not isinstance(replay, chronology_contract.FullPrefixVerified)

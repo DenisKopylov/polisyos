@@ -230,13 +230,20 @@ class ChronologyProofArtifactReader:
         expected_domain: contract.ChronologyProofDomain,
         expected_prefix: contract.ExpectedCommitmentPrefix | None,
         expected_bundle_content_hash: contract.Digest,
+        reconciliation: contract.NativeChronologyReconciliation | None = None,
     ) -> (
         contract.FullPrefixVerificationResult
         | ChronologyProofArtifactNotEstablished
         | contract.ChronologyPersistenceManifestMismatch
         | contract.ChronologyPersistenceStoreIntegrityMismatch
     ):
-        """Reload exact bytes and verify them without trusting a sidecar."""
+        """Reload exact bytes and replay the commitment verifier.
+
+        When a native owner reconciliation is supplied, the reader also checks
+        the bundle's direct CAS inputs against that typed owner basis. The
+        caller remains responsible for freshly requalifying the reconciliation;
+        a supplied DTO alone does not establish owner truth.
+        """
         if bundle_ref.kind != _BUNDLE_KIND or bundle_ref.media_type != _MEDIA_TYPE:
             return self._missing(query=query, bundle_ref=bundle_ref)
         try:
@@ -278,7 +285,11 @@ class ChronologyProofArtifactReader:
                 manifest_profile_sha256=bundle_ref.manifest_profile_sha256,
             ),
             schema=_BUNDLE_SCHEMA,
-            inputs=list(manifest.inputs),
+            inputs=(
+                list(manifest.inputs)
+                if reconciliation is None
+                else list(contract._full_prefix_bundle_manifest_input_refs(reconciliation))
+            ),
             created_at=manifest.created_at,
             persisted_schema_version=manifest.manifest_schema_version,
         )
@@ -454,16 +465,7 @@ class _ChronologyPersistenceOwner:
             kind = "core.chronology.native_projection"
             expected_ref = _expected_ref(payload=raw, kind=kind)
             schema = SchemaInfo(name="polisyos.chronology.NativeProjection", version="1")
-            inputs = [
-                core_artifacts.input_ref_from_artifact_ref(
-                    reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification.verification_receipt_ref,
-                    role="native_owner_verification",
-                ),
-                core_artifacts.input_ref_from_artifact_ref(
-                    reconciliation.applicable_predicate_denominator.artifact_ref,
-                    role="applicable_predicate_denominator",
-                ),
-            ]
+            inputs = list(contract._native_chronology_projection_manifest_input_refs(statement))
             write_options = ArtifactWriteOptions(
                 kind=kind,
                 media_type=_MEDIA_TYPE,
@@ -669,29 +671,7 @@ class _ChronologyPersistenceOwner:
 
     @staticmethod
     def _bundle_inputs(payload: _PersistencePayload) -> list[InputRef]:
-        owner_context = payload.reconciliation.owner_context
-        receipt = owner_context.owner_qualified_candidate.owner_relation_verification
-        return [
-            core_artifacts.input_ref_from_artifact_ref(
-                receipt.verification_receipt_ref,
-                role="owner_qualification_receipt",
-            ),
-            core_artifacts.input_ref_from_artifact_ref(
-                receipt.denominator_identity.artifact_ref,
-                role="native_denominator",
-            ),
-            core_artifacts.input_ref_from_artifact_ref(
-                receipt.query_context_identity.artifact_ref,
-                role="query_context",
-            ),
-            *(
-                core_artifacts.input_ref_from_artifact_ref(
-                    identity.native_artifact_ref,
-                    role="native_member",
-                )
-                for identity in receipt.member_identities
-            ),
-        ]
+        return list(contract._full_prefix_bundle_manifest_input_refs(payload.reconciliation))
 
     def _write_and_reload(
         self,
@@ -893,12 +873,7 @@ class _ChronologyPersistenceOwner:
             payload=contract._frame_record(statement_raw),
             kind=_RESULT_KIND,
             schema=_RESULT_SCHEMA,
-            inputs=[
-                core_artifacts.input_ref_from_artifact_ref(
-                    bundle.ref,
-                    role="verified_bundle",
-                )
-            ],
+            inputs=list(contract._full_prefix_verification_manifest_input_refs(statement)),
             missing_code="verification_result_write_not_established",
         )
         if not isinstance(sidecar, _StoredArtifact):

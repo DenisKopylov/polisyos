@@ -87,7 +87,7 @@ from .fairness import (
     PathSpecificFairnessEstimator,
     TVFairnessDecomposer,
 )
-from .forest_dr import ForestDRLearnerEstimator
+from .forest_dr import ForestDRLearnerEstimator, ForestDRLearnerEstimatorV11
 from .frontier import (
     DistributionalTreatmentEffectEstimator,
     NetworkHeterogeneousEffectEstimator,
@@ -98,7 +98,10 @@ from .g_computation import estimate_g_computation_trajectory
 from .g_estimation import StructuralNestedMeanModel
 from .gcm_fit import HybridSCMFit
 from .gcm_query import GCMQuery
-from .graph_reconciliation import ReconcileCausalGraph, compute_reconciliation_diagnostics
+from .graph_reconciliation import (
+    ReconcileCausalGraph,
+    compute_reconciliation_diagnostics,
+)
 from .interference import (
     BipartiteInterferenceEstimator,
     NetworkAIPWEstimator,
@@ -347,6 +350,7 @@ __all__ = [
     "CausalForestEstimator",
     "CausalBCF",
     "ForestDRLearnerEstimator",
+    "ForestDRLearnerEstimatorV11",
     "DoubleMachineLearning",
     "StructuralNestedMeanModel",
     "MetaLearnerEstimator",

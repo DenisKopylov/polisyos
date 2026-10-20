@@ -91,9 +91,8 @@ sensitivity = ["SALib>=1.5,<2.0", "scipy>=1.11.0"]
 # which conflicts with the modern optimization stack used elsewhere.
 causal = ["policy-engine[causal-core]", "policy-engine[causal-dowhy]"]
 causal-core = [
-  # EconML currently resolves to a scikit-learn build path without ready
-  # Python 3.14 wheels in the verified docs environment.
-  "econml>=0.16; python_version < '3.14'",
+  "econml>=0.17,<0.18",
+  "threadpoolctl>=3.2,<4",
 ]
 causal-dowhy = ["dowhy>=0.13,<0.14; python_version < '3.13'", "cvxpy<1.5; python_version < '3.13'"]
 causal-bcf = ["stochtree>=0.1.0"]
@@ -104,7 +103,8 @@ causal-symbolic = ["y0>=0.2,<0.3"]
 causal-symbolic-y0 = ["y0>=0.2,<0.3"]
 causal-symbolic-r = ["rpy2>=3.5,<4.0"]
 causal-full = [
-  "econml>=0.16; python_version < '3.14'",
+  "econml>=0.17,<0.18",
+  "threadpoolctl>=3.2,<4",
   "dowhy>=0.13,<0.14; python_version < '3.13'",
   "cvxpy<1.5; python_version < '3.13'",
   "lightgbm>=4.0",

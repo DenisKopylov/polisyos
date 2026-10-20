@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import replace
 from typing import Any, ClassVar
 
 import numpy as np
@@ -120,12 +121,21 @@ class ForestDRLearnerEstimator:
     )
 
     @staticmethod
-    def pure_step(
-        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    def _run_forest_dr(
+        state: HTEObservationalData | Mapping[str, Any],
+        params: Mapping[str, Any],
+        *,
+        n_jobs: int | None,
     ) -> dict[str, Any]:
+        threadpool_limits: Any | None = None
         try:
             require_econml()
             from econml.dr import ForestDRLearner
+
+            if n_jobs is not None:
+                from threadpoolctl import threadpool_limits as _threadpool_limits
+
+                threadpool_limits = _threadpool_limits
         except Exception as exc:
             report = build_failure_report(
                 method=CausalMethod.FOREST_DR,
@@ -143,6 +153,28 @@ class ForestDRLearnerEstimator:
                 report, warnings=[report.status_reason or "backend unavailable"]
             )
 
+        if threadpool_limits is None:
+            return ForestDRLearnerEstimator._produce_forest_dr(
+                state, params, learner_type=ForestDRLearner, n_jobs=n_jobs
+            )
+
+        # Keep the whole numerical producer path in this scope, including input
+        # preparation, estimator construction, fit, effect/inference extraction,
+        # feature importance (including SHAP), and report materialization.
+        with threadpool_limits(limits=1):
+            return ForestDRLearnerEstimator._produce_forest_dr(
+                state, params, learner_type=ForestDRLearner, n_jobs=n_jobs
+            )
+
+    @staticmethod
+    def _produce_forest_dr(
+        state: HTEObservationalData | Mapping[str, Any],
+        params: Mapping[str, Any],
+        *,
+        learner_type: Any,
+        n_jobs: int | None,
+    ) -> dict[str, Any]:
+        """Produce one ForestDR report and result inside the selected thread scope."""
         data = build_hte_data(state)
         alpha = 1.0 - float(params.get("confidence_level", 0.95))
         seed = params.get("random_state")
@@ -151,18 +183,21 @@ class ForestDRLearnerEstimator:
         seed_int = int(seed)
         rng = np.random.default_rng(seed_int)
 
-        model = ForestDRLearner(
-            n_estimators=int(params.get("n_estimators", 500)),
-            min_samples_leaf=int(params.get("min_samples_leaf", 5)),
-            max_depth=params.get("max_depth"),
-            max_samples=float(params.get("max_samples", 0.45)),
-            honest=bool(params.get("honest", True)),
-            subforest_size=int(params.get("subforest_size", 4)),
-            min_propensity=float(params.get("min_propensity", 1e-3)),
-            cv=int(params.get("cv_folds", 3)),
-            mc_iters=int(params.get("mc_iters", 1)),
-            random_state=seed_int,
-        )
+        estimator_params: dict[str, Any] = {
+            "n_estimators": int(params.get("n_estimators", 500)),
+            "min_samples_leaf": int(params.get("min_samples_leaf", 5)),
+            "max_depth": params.get("max_depth"),
+            "max_samples": float(params.get("max_samples", 0.45)),
+            "honest": bool(params.get("honest", True)),
+            "subforest_size": int(params.get("subforest_size", 4)),
+            "min_propensity": float(params.get("min_propensity", 1e-3)),
+            "cv": int(params.get("cv_folds", 3)),
+            "mc_iters": int(params.get("mc_iters", 1)),
+            "random_state": seed_int,
+        }
+        if n_jobs is not None:
+            estimator_params["n_jobs"] = n_jobs
+        model = learner_type(**estimator_params)
         model.fit(data.y, data.t, X=data.x, W=data.w)
 
         extracted = extract_cate_from_estimator(
@@ -178,6 +213,20 @@ class ForestDRLearnerEstimator:
             n_quantiles=int(params.get("subgroup_quantiles", 4)),
             alpha=alpha,
         )
+
+        econml_params: dict[str, Any] = {
+            "n_estimators": int(params.get("n_estimators", 500)),
+            "min_samples_leaf": int(params.get("min_samples_leaf", 5)),
+            "max_depth": params.get("max_depth"),
+            "max_samples": float(params.get("max_samples", 0.45)),
+            "honest": bool(params.get("honest", True)),
+            "subforest_size": int(params.get("subforest_size", 4)),
+            "min_propensity": float(params.get("min_propensity", 1e-3)),
+            "cv_folds": int(params.get("cv_folds", 3)),
+            "mc_iters": int(params.get("mc_iters", 1)),
+        }
+        if n_jobs is not None:
+            econml_params["n_jobs"] = n_jobs
 
         hte_result = HTEResult(
             method=CausalMethod.FOREST_DR,
@@ -200,23 +249,20 @@ class ForestDRLearnerEstimator:
             n_features=int(data.x.shape[1]),
             feature_names=list(data.feature_names),
             econml_estimator_class="econml.dr.ForestDRLearner",
-            econml_params={
-                "n_estimators": int(params.get("n_estimators", 500)),
-                "min_samples_leaf": int(params.get("min_samples_leaf", 5)),
-                "max_depth": params.get("max_depth"),
-                "max_samples": float(params.get("max_samples", 0.45)),
-                "honest": bool(params.get("honest", True)),
-                "subforest_size": int(params.get("subforest_size", 4)),
-                "min_propensity": float(params.get("min_propensity", 1e-3)),
-                "cv_folds": int(params.get("cv_folds", 3)),
-                "mc_iters": int(params.get("mc_iters", 1)),
-            },
+            econml_params=econml_params,
             feature_display_map={name: name for name in data.feature_names},
             metadata={
                 "warnings": list(extracted["warnings"]),
                 "confounder_names": list(data.confounder_names),
             },
         )
+
+        method_params: dict[str, Any] = {
+            "n_estimators": int(params.get("n_estimators", 500)),
+            "feature_importance_method": str(params.get("feature_importance_method", "tree_based")),
+        }
+        if n_jobs is not None:
+            method_params["n_jobs"] = n_jobs
 
         report = build_success_report(
             method=CausalMethod.FOREST_DR,
@@ -232,12 +278,7 @@ class ForestDRLearnerEstimator:
             pre_periods=0,
             post_periods=0,
             assumptions=dict(ForestDRLearnerEstimator.metadata.assumptions),
-            method_params={
-                "n_estimators": int(params.get("n_estimators", 500)),
-                "feature_importance_method": str(
-                    params.get("feature_importance_method", "tree_based")
-                ),
-            },
+            method_params=method_params,
             metadata={
                 "hte_result_present": True,
                 "n_features": int(data.x.shape[1]),
@@ -249,5 +290,44 @@ class ForestDRLearnerEstimator:
             extras={"hte_result": hte_result},
         )
 
+    @staticmethod
+    def pure_step(
+        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        return ForestDRLearnerEstimator._run_forest_dr(state, params, n_jobs=None)
 
-__all__ = ["ForestDRLearnerEstimator"]
+
+@foundry_method(
+    namespace="causal.hte",
+    version="1.1.0",
+    tags={"causal", "hte", "forest-dr", "doubly-robust"},
+)
+class ForestDRLearnerEstimatorV11:
+    """Serial-worker ABI for ForestDR with an explicit single-job constraint."""
+
+    determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
+    metadata: ClassVar[MethodMetadata] = ForestDRLearnerEstimator.metadata
+    signature: ClassVar[MethodSignature] = replace(
+        ForestDRLearnerEstimator.signature,
+        parameters=ForestDRLearnerEstimator.signature.parameters
+        + (
+            ParameterSpec(
+                name="n_jobs",
+                default=1,
+                bounds=(1, 1),
+                description="Required single-job execution for the bounded worker profile.",
+            ),
+        ),
+    )
+
+    @staticmethod
+    def pure_step(
+        state: HTEObservationalData | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        n_jobs = params.get("n_jobs", 1)
+        if type(n_jobs) is not int or n_jobs != 1:
+            raise ValueError("ForestDRLearnerEstimatorV11 requires n_jobs=1")
+        return ForestDRLearnerEstimator._run_forest_dr(state, params, n_jobs=1)
+
+
+__all__ = ["ForestDRLearnerEstimator", "ForestDRLearnerEstimatorV11"]

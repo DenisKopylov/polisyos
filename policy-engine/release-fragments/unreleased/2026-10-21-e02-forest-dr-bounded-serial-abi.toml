@@ -1,0 +1,38 @@
+id = "2026-10-21-e02-forest-dr-bounded-serial-abi"
+title = "Add a bounded versioned ForestDR method profile"
+type = "added"
+component = "foundry"
+owner = "team-foundry"
+summary = "Register the additive ForestDR 1.1 method profile with fixed n_jobs=1 and one scoped native thread-pool limit across its numerical producer."
+evidence = [
+  "src/polisyos/foundry/methods/catalog/causal/forest_dr.py",
+  "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+  "src/polisyos/foundry/methods/catalog/causal/README.md",
+  "tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+  "pyproject.toml",
+  "uv.lock",
+]
+compatibility = "The change adds internal method FQN causal.hte.forest_dr@1.1.0 with n_jobs fixed to integer 1. The existing causal.hte.forest_dr@1.0.0 signature and historical defaults remain unchanged. This does not add a stable Python facade export or declare the internal catalog package public."
+change_class = "internal"
+surface_classification = "internal: registered polisyos.foundry.methods.catalog.causal method; stable public Foundry facade unchanged"
+migration = "New invocations must pin the full 1.1.0 method FQN and resolved profile before durable acceptance. Historical 1.0.0 intents remain pinned to their original signature and build; unsupported historical execution must refuse rather than silently upgrade."
+api = "The canonical causal catalog registers an additive 1.1.0 ForestDR signature with fixed n_jobs=1. Its producer scopes the existing threadpoolctl limit across input preparation, estimator construction, fitting, effect/inference and feature-importance extraction, and report materialization. The supported public facade remains unchanged."
+limitations = "Runtime exact-version admission, cold selected-profile import, a native ForestDR fit, observed effective pools, persisted result/CAS, fresh GET, and source/wheel consumers are not established by this fragment. The inventory lists polisyos.foundry.methods.causal and currently has unresolved exports; public_surface_inventory_reviewed remains false, and this fragment does not classify catalog.causal as public-stable. The threadpoolctl limit is cooperative and process-local, not a hard CPU quota. No causal identification, law, external validity, calibration, or publication authority is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-forest-dr-bounded-serial-method-v11"
+change_class = "internal"
+impact = "added"
+surface = "internal: registered causal.hte.forest_dr@1.1.0; stable public Foundry facade unchanged"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable: additive versioned FQN; existing 1.0.0 remains available"
+release_note = "Register internal ForestDR 1.1.0 with fixed n_jobs=1 and a scoped cooperative native thread-pool limit; historical 1.0.0 remains unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

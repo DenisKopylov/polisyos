@@ -44987,5 +44987,178 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-econml-forest-dr-r3-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "980ae24932d693ef2321c8326464b51b157c0770",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/pyproject.toml": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "228a229d91c4596c797593fba9bc68f8ae517f9935ac73a046b0a3de997f19ee",
+        "git_base_preimage_sha256": "85efd6ba7ce621eff2d8e9cf213915f83c4ae47b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r1/postimages/policy-engine/pyproject.toml",
+        "postimage_sha256": "9ba07603d14a8d7616be98f268849f9b38b4c06bba441dcc2b40b03d2ffd6827",
+        "bytes": 11219
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-21-e02-forest-dr-bounded-serial-abi.toml": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/postimages/policy-engine/release-fragments/unreleased/2026-10-21-e02-forest-dr-bounded-serial-abi.toml",
+        "postimage_sha256": "d3354a52b3338d85838794d0e7e1b5d42caa0bf99e5d626bd36ba20a6ba54ab6",
+        "bytes": 3096
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "cc7e05babd6b944e66e8577aa533cfdd72bcb26ebac7df40bb0956174df234d2",
+        "git_base_preimage_sha256": "ecdec3956839044812261b6ba7e6a4119a4bb938",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "postimage_sha256": "da28d21f4b9a7e34515260585b357a95d605e612a0fefc481006999eb96895d2",
+        "bytes": 32290
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "9988079c7d39566f3c059861759a8027115581ed8d2eaa994a798ce74fd4ed2e",
+        "git_base_preimage_sha256": "bdac41f4fa8589110117966f44731b92c0bd73b2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+        "postimage_sha256": "5ca88fe70e87d5c9ebbf61e5fbfd6e7760fce09973cd99d0778c8b4ea27675de",
+        "bytes": 16176
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "9764207aba27eeae2beb64fd2bf132c3d43c1e3900829a5ef1408aedf3d1bf33",
+        "git_base_preimage_sha256": "7f9b4477173973f2fe60e70fd0ecf631e541d21a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+        "postimage_sha256": "3e06cd5b6065dbfa251effab4f55e863c3cda9c6fd9ce992ac9a7930f222d944",
+        "bytes": 16862
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/forest_dr.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "5f5e3965891f1d1ff7e986eea75a6d0f9577d9e3fd1281f60d58a6ecc251484e",
+        "git_base_preimage_sha256": "ba6dc60fdbbc690e9c1e42523b7b78d0ad1f058a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/forest_dr.py",
+        "postimage_sha256": "45c1538414083262e1e55a3fe00a7a0f9ddb391e4328115bd3f96cb1d1c9445b",
+        "bytes": 13277
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "2b0ec1a68075eadf670deeea17ee13a64ae860ae9891cf5a6b30f10d123adb98",
+        "git_base_preimage_sha256": "ca3294c1eb480446fdea96d6df7ff4ec7d174a0d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+        "postimage_sha256": "da2babe5fd8453e72632b0ddca4506ea0594c1e2645ea6dac857b1a5572bdb70",
+        "bytes": 9614
+      },
+      "policy-engine/uv.lock": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "03b9a1db187745340234656cbff0b567e0495135f2d75dd0d61562178e2defff",
+        "git_base_preimage_sha256": "c458ee4c24a6967bd7660e087b527294672e8231",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r1/postimages/policy-engine/uv.lock",
+        "postimage_sha256": "484dfe164235ea48164c8bf1b33190b3a25dd883c667a41e8a25b07bf5c5df3c",
+        "bytes": 808745
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-forest-dr-r3-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "69bb855e35993fdaa363c7a2eb5e1554a0152ac5b938fe06e75b5af0d3591a29"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-forest-dr-r3-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r1/candidate.json",
+        "sha256": "c7d949369a46fc60f26f5fec2d43e4afdf0d41b3c43d8e3231c7d808a88fbb2f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r1/candidate.patch",
+        "sha256": "7a85dd19ae20b34a911b3d6cd37a88d8c86c7168c70abc1573de7bb8beedf8b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r1/method-signature.json",
+        "sha256": "a8cbab50aa89044c4a5d5b99fb58c964e6b839f15213324f0966d507d62db8db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r2/candidate-r2.json",
+        "sha256": "aa5dd5be3e03a872199bb1e03c67bfc59297dcf544f26f1388ce51d59f4b06e5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r2/candidate-r2-composed.patch",
+        "sha256": "5a2f843bd6b1e87603e8d829206ebd3139a23a8b703105915ada6cfc1649e3db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r2/r2-validation.json",
+        "sha256": "8f50dbb299ba1a7a6b7d060140b890c0fe152c3116989c4a3c8c15d5d95ab42a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r2/r2-review-delta.md",
+        "sha256": "3e64de2a77a82cb4c82ed7b0b27e3aea93f89010916b8c854db32dcb8cbffe40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r2/r7-readiness-plan.json",
+        "sha256": "ca2e44fec359538e568d0e6666ffa576e5682aa081df2100700f16adf7cbbab5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-forest-dr-bounded-serial-review-20261021-r1/review.json",
+        "sha256": "f8fdb964c606731ee6e457cd2a64e72344d9ded89d29c625213e69061ec8c50e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-forest-dr-r2-reviewed-source-adoption-20261021-r1/canonical-context-preflight.json",
+        "sha256": "dfc6c6e2ad50b90f65c69ad190cb19c28102de98df9fa29f45458b1975fe0784"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/candidate-r3.json",
+        "sha256": "f8b061544dbaa727b7b7a8e4ae1b3ed422711118847ec5876f05afcc5af029f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-forest-dr-bounded-serial-review-20261021-r2/review.json",
+        "sha256": "9f03a078a5f9e429ea461b3cd8d77ef0ee70ff098e3914a2521326f759a11ecf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-forest-dr-bounded-serial-review-20261021-r3/review.json",
+        "sha256": "e11ff27a2d3663af0d86612c52db5fc4052deb41d8296fa2329ab928d2a790ab"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/r7-dd4704ea-validation/r7-validate-only-receipt.json",
+        "sha256": "e29aa3c3fd1f996d11342831f90b03e687a024ffa33af51f81b8a3724cb3ce8b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/econml-forest-dr-bounded-serial-abi-20261021-r3/r7-dd4704ea-validation/canonical-context-preflight.json",
+        "sha256": "31d31382abcd9196a6b04c0f4d93497ce6f3cbfbec7e2907341a512750513571"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same whole bounded-serial implementation class; this R3 is a lint/format and internal class spelling repair only, not a new behavioral repair round.",
+      "falsifier": "R7 native check and format on all four changed Python files with canonical filenames/config; source review confirms only class symbol spelling/formatting changed."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "R3 only prepares unapplied postimages and performs static Ruff checks.",
+      "No canonical source mutation, environment changes, package installation, pytest, product import, model fit, runtime POST/CAS/fresh GET, wheel/sdist consumer, or native pool observation.",
+      "No public inventory review, G acceptance, finding closure, scientific calibration, law, external authority, production workload, or source currentness claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Rebind this exact eight-path postimage set to the next clean source frame after concurrent root-owned commit; run the canonical R7 --validate-only helper with a fresh adoption-plan directory. Then independent delta review; only root adopts canonical source.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -136,6 +136,28 @@ policy authority to the supplied SCM or its output. Selected GCM continues to
 require a fully observed declared static DAG; its existing `ValueError` refusal
 now exposes the typed `reason_code="graph_not_declared_static_dag"`.
 
+### Bounded ForestDR worker profile
+
+`causal.hte.forest_dr@1.1.0` is the additive single-job ABI for the existing
+EconML `ForestDRLearner` producer. It requires the integer parameter
+`n_jobs=1`, passes that value to the estimator, and records the effective
+setting in both `HTEResult.econml_params` and the method report. The existing
+`causal.hte.forest_dr@1.0.0` signature and its historical EconML defaults
+remain available unchanged.
+
+The `causal-core` and `causal-full` profiles resolve EconML 0.17 on the
+supported Python 3.14 baseline. Provision the selected profile before the
+serving process imports the causal facade, or restart that process afterward
+because the optional-backend adapter snapshots backend availability at import.
+For 1.1, `n_jobs=1` is passed to ForestDRLearner and the existing
+`threadpoolctl` mechanism scopes a limit across input preparation, estimator
+construction, fit, effect/inference extraction, feature-importance extraction,
+and report materialization. This is a cooperative limit for recognized native
+thread pools, not an operating-system CPU quota or a deployment-wide cap; the
+actual selected runtime must observe the effective pools during a real fit.
+The profile does not establish causal identification, external validity,
+scientific qualification, or publication authority.
+
 ### HTE observational input admission
 
 `polisyos.foundry.data_plane.prepare_hte_observational_input` is the Foundry

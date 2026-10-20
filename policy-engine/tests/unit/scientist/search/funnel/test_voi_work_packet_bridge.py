@@ -334,7 +334,11 @@ class _PacketStage(FunnelStage):
         )
         result = FunnelStageResult(
             policy_candidate=candidate,
-            objective_value=objective.raw_value,
+            objective_value=(
+                objective.raw_value
+                if objective.score_status is ObjectiveScoreStatus.AVAILABLE
+                else None
+            ),
             is_promising=True,
             score_status=objective.score_status,
             score_assessment=objective.score_assessment,
@@ -428,12 +432,115 @@ def test_explicit_unavailable_invocation_fields_keep_fresh_packet_claim(
     assert result.executed_work_packet_status == "available"
     assert result.score_status is ObjectiveScoreStatus.AVAILABLE
     assert observation.work_packet_claim is not None
-    assert (
-        observation.work_packet_claim.evaluation_attempt_id
-        == (_UNAVAILABLE_INVOCATION["evaluation_attempt_id"])
-    )
+    claim = observation.work_packet_claim
+    candidate_payload = load_core_json_artifact(store, claim.candidate_ref)
+    source_payload = load_core_json_artifact(store, claim.source_result_ref)
+    assert candidate_payload["candidate_id"] != claim.candidate_hash
+    assert source_payload["candidate_id"] == candidate_payload["candidate_id"]
+    assert claim.evaluation_attempt_id == _UNAVAILABLE_INVOCATION["evaluation_attempt_id"]
     restored = PredictiveVOIScheduler.from_snapshot(snapshot, artifact_store=store).snapshot()
-    assert restored.observations[0].work_packet_claim == observation.work_packet_claim
+    assert restored.observations[0].work_packet_claim == claim
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        "claim_candidate_ref",
+        "candidate_profile",
+        "candidate_domain_id",
+        "packet_hash",
+        "claim_hash",
+        "packet_ticket_id",
+        "packet_source_result_ref",
+    ],
+)
+def test_restore_requires_candidate_namespace_and_packet_hash_joins(
+    tmp_path: Path, tamper: str
+) -> None:
+    outcome, snapshot, store = _observe(
+        tmp_path, suffix=f"identity-join-{tamper}", packet_mode="packet"
+    )
+    observation = snapshot.observations[0]
+    claim = observation.work_packet_claim
+    assert claim is not None
+    assert observation.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert observation.metadata["executed_work_packet_status"] == "available"
+    assert claim.candidate_hash == outcome.candidate_hash
+
+    candidate_payload = load_core_json_artifact(store, claim.candidate_ref)
+    source_payload = load_core_json_artifact(store, claim.source_result_ref)
+    assert candidate_payload["candidate_id"] != claim.candidate_hash
+    assert candidate_payload["candidate_id"] == source_payload["candidate_id"]
+    original_restored = (
+        PredictiveVOIScheduler.from_snapshot(snapshot, artifact_store=store)
+        .snapshot()
+        .observations[0]
+    )
+    assert original_restored.work_packet_claim == claim
+
+    alternate_candidate = _candidate(f"candidate-identity-join-{tamper}")
+    alternate_candidate_ref = persist_policy_candidate_schema(
+        store, alternate_candidate, return_selected_profile=True
+    )
+    assert alternate_candidate.candidate_id != candidate_payload["candidate_id"]
+    wire = snapshot.model_dump(mode="json")
+    observation_wire = wire["observations"][0]
+    claim_wire = observation_wire["work_packet_claim"]
+    packet = FunnelExecutedWorkPacket.model_validate(
+        load_core_json_artifact(store, claim.packet_ref)
+    )
+
+    def persist_packet_variant(updated: FunnelExecutedWorkPacket) -> ArtifactRef:
+        packet_ref = persist_funnel_executed_work_packet(store, updated)
+        claim_wire["packet_ref"] = packet_ref.model_dump(mode="json")
+        observation_wire["metadata"]["executed_work_packet_ref"] = packet_ref.model_dump(
+            mode="json"
+        )
+        return packet_ref
+
+    if tamper == "claim_candidate_ref":
+        claim_wire["candidate_ref"] = alternate_candidate_ref.model_dump(mode="json")
+    elif tamper == "candidate_profile":
+        wrong_profile_ref = claim.candidate_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        claim_wire["candidate_ref"] = wrong_profile_ref.model_dump(mode="json")
+        persist_packet_variant(packet.model_copy(update={"candidate_ref": wrong_profile_ref}))
+    elif tamper == "candidate_domain_id":
+        claim_wire["candidate_ref"] = alternate_candidate_ref.model_dump(mode="json")
+        persist_packet_variant(packet.model_copy(update={"candidate_ref": alternate_candidate_ref}))
+    elif tamper == "packet_hash":
+        persist_packet_variant(
+            packet.model_copy(update={"candidate_hash": "different-orchestrator-hash"})
+        )
+    elif tamper == "claim_hash":
+        claim_wire["candidate_hash"] = "different-orchestrator-hash"
+        observation_wire["candidate_id"] = "different-orchestrator-hash"
+    elif tamper == "packet_ticket_id":
+        persist_packet_variant(packet.model_copy(update={"ticket_id": "different-ticket"}))
+    else:
+        assert isinstance(source_payload, dict)
+        source_metadata = dict(source_payload.get("metadata", {}))
+        source_metadata["voi_identity_join_probe"] = "alternate-source-ref"
+        source_payload["metadata"] = source_metadata
+        alternate_vector = PolicyEvaluationVector.model_validate(source_payload)
+        alternate_source_ref = persist_policy_evaluation_vector_to_store(
+            store, candidate_ref=claim.candidate_ref, evaluation_vector=alternate_vector
+        )
+        assert alternate_source_ref != claim.source_result_ref
+        assert alternate_source_ref.manifest_profile_sha256 is not None
+        persist_packet_variant(
+            packet.model_copy(update={"source_result_ref": alternate_source_ref})
+        )
+
+    tampered_snapshot = VOIModelSnapshot.model_validate(wire)
+    restored = PredictiveVOIScheduler.from_snapshot(
+        tampered_snapshot, artifact_store=store
+    ).snapshot()
+    restored_observation = restored.observations[0]
+    assert restored_observation.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert restored_observation.work_packet_claim is None
+    assert restored_observation.metadata["executed_work_packet_status"] == "available"
 
 
 @pytest.mark.parametrize(
@@ -487,13 +594,15 @@ def test_live_work_packet_intake_rejects_absent_invocation_keys_that_match_nulls
     )
 
     result = outcome.stage_results[4]
-    assert result.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert result.objective_value is None
     assert result.executed_work_packet_status == "rejected"
     assert result.feedback["policy_runtime_work_packet_rejection_reason"] == (
         "work_packet_binding_mismatch"
     )
     assert len(snapshot.observations) == 1
-    assert snapshot.observations[0].score_status is ObjectiveScoreStatus.AVAILABLE
+    assert snapshot.observations[0].score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert snapshot.observations[0].actual_objective_value is None
     assert snapshot.observations[0].work_packet_claim is None
 
 

@@ -44308,5 +44308,279 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-voi-restore-r3-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "ee2a5d9e508060c6348ce3e1a02511a99a5cf177",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "98a49ad8ad699a165ce4241d5277334fa122fb7c144c73a90b9f7ac34796cef6",
+        "git_base_preimage_sha256": "98a49ad8ad699a165ce4241d5277334fa122fb7c144c73a90b9f7ac34796cef6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/postimages/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "postimage_sha256": "12496b1e99c4d854156291d454c0209a3dd405476d338ad0eeaf400a61567f69"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "bbd4d2b93f6d5fc8eeb8bb7cac72f16e474c3fbf43401674426f5998e897e838",
+        "git_base_preimage_sha256": "bbd4d2b93f6d5fc8eeb8bb7cac72f16e474c3fbf43401674426f5998e897e838",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/postimages/policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "postimage_sha256": "87cb943dca61aaadaa9cd4fd68f0ba054ac3a5647de9492b2bfe7fe641cac4a7"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-restore-r3-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "251f408cc88971d79028015bf24a3b5e67936020c0a08d1a66a83bedf15bbdba"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-restore-r3-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-terminal-voi-thirteen-whole-f3322082-20261021-r1/actual/cases.jsonl",
+        "sha256": "4574e69c94011441cdf0140a74e6f459718faa9557678d11a27584aefc3e6914"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-terminal-voi-thirteen-whole-f3322082-20261021-r1/actual/collection.json",
+        "sha256": "0ae22bcc237ee96573f64512c33aa8fd93a34ae87fb9e0baef8a340a680a671e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-terminal-voi-thirteen-whole-f3322082-20261021-r1/actual/result.json",
+        "sha256": "38e36984810da714bffc27f57ed79345829d6f51607efc95d64539a1c2dd8087"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-input-r5-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "6b727b911588b60309c81f09052d80ba28601b471a44361e4853f662ef1050db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-source-frame-journal-20261019/frames.jsonl",
+        "sha256": "84fbeee0bd2c29234cdb0abc467ba406068a6ceef012d71409b24f5c64635cde"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-context-preflight.json",
+        "sha256": "3138e7ece5738d97089e021641792b92422fafc147fd3d1a50e07d46a0ec041b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-0-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-0-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-0-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-0-format.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-1-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-1-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-1-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/canonical-preflight-1-format.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/manifest.json",
+        "sha256": "62989d4101e72120632da7e99aaac58e28e40f71b12b3eb0a1bc89db68a12657"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/native-format-diff-command.json",
+        "sha256": "c4277c4c04e7d7604be418dd9264306daa928642a7be51925db3068813dad618"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/native-format-diff.stdout.txt",
+        "sha256": "4a73c9183c0982faa79433ebbcbe9de7c11511cb78cb576bf9cd9880881b1d60"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/native-preflight-addendum.json",
+        "sha256": "389d1970f370aa269f38c71680eb3093f124f6ace6b655f354b7774bb845d6c9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/patch.diff",
+        "sha256": "b9a83c45793efa34c6be2787b7517bbd4a58a98486326ab21afc8e0f78e62927"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r1/plan.json",
+        "sha256": "6f1f578810c7c4fba971106cf66b8970e99d568e6a47689f2a86f3f76ead08d2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-context-preflight.json",
+        "sha256": "7f9ff3d58d79ca82282472aa168a43cdc038c050752ab6b2686ff06963f4562b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-0-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-0-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-0-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-0-format.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-1-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-1-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-1-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/canonical-preflight-1-format.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/final-pins.json",
+        "sha256": "91a178dccb134656983823037ddb605dbfc482037c5bc60b6cdd006b248f85ce"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/identity_join_census.json",
+        "sha256": "e113698181c5ade80f1b9a83787d16e9436504ad12f3e885aab30c0553aa4b40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/identity_join_census.py",
+        "sha256": "0423dc46e64a07b5add5b43a7122003e2a00a69106a3f975223d555e18760d40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/manifest.json",
+        "sha256": "fbebd8a877e8deedeec3d98be2cd4615ad83d3c7f90c39ce43649a5083276ded"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/patch.diff",
+        "sha256": "a543f65241ecf2e6b1edaf1956b65dde83796dfe7379734cd3e0840f7fdae6b0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/plan.json",
+        "sha256": "91d17b03fd725d6084e232659a7e745c737bb4c003570ef8959fe87d75ca3ae5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/postimages/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "sha256": "12496b1e99c4d854156291d454c0209a3dd405476d338ad0eeaf400a61567f69"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/postimages/policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "sha256": "e962df46146aea9387c50a2935c5418501365a89358dc7cd0002ae469b5721a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/r7-validate-only-command.json",
+        "sha256": "0e71732e576c18d4907e7d1ffc3daa0e91720337d47a67a026956aebb57c1ff3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/r7-validate-only.stdout.txt",
+        "sha256": "d8911cb6b2abd92e52dc222ba6b75fc6feb5e6fb4024c2a0de7c230336f1d740"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/static-ast.json",
+        "sha256": "4c82014e6f9030c0ececea3c0116a385e19923ad862ac8c4e8296ffbc5f0450a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r2/verification.json",
+        "sha256": "3844c73bbf1d294f4f70ee29a7508b7979ae5489f5f34d03089b78612aeb810a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/identity_join_census.json",
+        "sha256": "e113698181c5ade80f1b9a83787d16e9436504ad12f3e885aab30c0553aa4b40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/identity_join_census.py",
+        "sha256": "b3695e2fd8c7371cab2ca07e472a468e8b959035b14c1d8683b59c7f22bf2b66"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/postimages/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "sha256": "12496b1e99c4d854156291d454c0209a3dd405476d338ad0eeaf400a61567f69"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/postimages/policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "sha256": "87cb943dca61aaadaa9cd4fd68f0ba054ac3a5647de9492b2bfe7fe641cac4a7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "sha256": "dd80fd13d76787cee52288146b7d140756afa26249f4e500c6d6828ca1b8409f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "sha256": "6ed61cec40b2433d0504d6ef3646d31d6fb3b2b098683ee3e72e6ab8cd0852b4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+        "sha256": "a2fa7bf353e3d432b4cdd2ba4cc60446cd0365f86adc36fc4a812a0df17cabff"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "sha256": "0b7d9eed0f5831698c95e3f263e81810dc6b016c272bee47bc2b88a94394027a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+        "sha256": "0b083c154e5f92805467f9bd3441c59d34803ce90f00fea8c10152a06bfa27d9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/plan.json",
+        "sha256": "84475ab57ae80b95e8075a8fdfd1e8292bbb1bdaae3e7363bf27d5b5647c5406"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/voi-work-packet-repair-r3/manifest.json",
+        "sha256": "cd5c356b2981b11dd41ea9743683864308754a14e2a5a0c0ffba0adbc3b44d64"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-voi-work-packet-r3-review-20261021-r1/review.json",
+        "sha256": "4bdb77083a3d2ddbd40fd82fd6c7f5707c934f36eed42c81750cd1c534ce7489"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same source-replay identity-join class one level deeper: the initial 15-case whole replay exposed restore-time namespace equality, fail-closed invocation controls, and a malformed unscored fixture. Widen over the complete VOI live/restore join quantity in orchestrator._admit_executed_work_packet, VOIObservation validation, _work_packet_claim_matches_store, and _policy_evaluation_vector_source_chain_matches_store; keep the source verifier and all remaining packet/reference predicates intact.",
+      "falsifier": "Keep available score/status markers while changing the claim candidate ref, selected profile, candidate domain ID against the still-bound vector, packet candidate_hash, or claim candidate_hash; restore must drop only the work-packet claim. The genuine live producer positive must retain the claim when candidate schema candidate_id differs from orchestrator candidate_hash but equals the persisted source vector candidate_id."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No stored raw orchestrator candidate is present in _VOIWorkPacketClaim; _stable_candidate_hash hashes the submitted mapping after stripping internal metadata, while PolicyCandidateSchema is a normalized artifact. Hash recomputation from that schema is not defined by the current contract and is not introduced.",
+      "The persisted packet\u2194claim hash/ref relation is validated from content-addressed CAS bytes and typed selected-profile source records; this repair does not add a signer or claim hostile-writer authenticity for a wholly reauthored snapshot+packet.",
+      "Missing invocation fields remain NOT_ESTABLISHED and do not produce an admitted VOI score or packet claim. The fixture will not convert this refusal to AVAILABLE.",
+      "No domain law, causal result, empirical calibration, production currentness, external authority, or qualifying live workload is supplied by these test fixtures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual whole13 Core/terminal/VOI replay after this source commit, alloriginalcases plusnewidentitycontrols; selectedfile-sourceprofilefalsifiers preservemarkers. NoRuntime/causal/custodycurrentness authority.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

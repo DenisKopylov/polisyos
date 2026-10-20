@@ -580,8 +580,9 @@ def _work_packet_claim_matches_store(store: Any, observation: VOIObservation) ->
 
         candidate_payload = load_core_json_artifact(store, packet.candidate_ref)
         candidate = PolicyCandidateSchema.model_validate(candidate_payload)
-        if candidate.candidate_id != claim.candidate_hash:
-            return False
+        # The source-vector candidate_id and orchestrator candidate_hash are
+        # separate identity namespaces. Their persisted joins are checked via
+        # the packet claim above and the candidate-to-vector source chain below.
         if not _policy_evaluation_vector_source_chain_matches_store(
             store,
             packet.source_result_ref,

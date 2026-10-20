@@ -513,8 +513,8 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
         direct_fiscal_measurement
     )
     assert direct_fiscal_measurement == {
-        "usable": True,
-        "normalized_value": 0.0,
+        "usable": False,
+        "normalized_value": None,
         "source_values": {"gov_balance": 0.0},
     }
     assert direct_outcome.stage_results[4].simulation_results["gov_balance"] == 0.0

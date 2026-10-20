@@ -72,6 +72,7 @@ class TerminalCoreRunSource:
     trace_path: Path
     manifest_ref: ArtifactRef
     manifest: CoreRunManifest
+    workflow_finalization_ref: ArtifactRef | None = None
 
 
 def derive_core_run_dir(core_runs_root: Path, run_id: str) -> Path:
@@ -256,6 +257,19 @@ def load_terminal_core_run_source(
         tenant_id=owner.tenant_id,
         cell_id=owner.cell_id,
     )
+    workflow_finalization_ref: ArtifactRef | None = None
+    finalization_outputs = [
+        ref for ref in manifest.outputs if ref.kind == "scientist.workflow_state_finalization"
+    ]
+    if len(terminal.refs.inputs) == 1 and len(finalization_outputs) == 1:
+        candidate = terminal.refs.inputs[0]
+        if (
+            candidate.kind == "scientist.workflow_state_finalization"
+            and candidate.media_type == "application/json"
+            and candidate.manifest_profile_sha256 is not None
+            and finalization_outputs[0] == candidate
+        ):
+            workflow_finalization_ref = candidate
     return TerminalCoreRunSource(
         run_id=owner.run_id,
         tenant_id=owner.tenant_id,
@@ -264,6 +278,7 @@ def load_terminal_core_run_source(
         trace_path=trace_path,
         manifest_ref=manifest_ref,
         manifest=manifest,
+        workflow_finalization_ref=workflow_finalization_ref,
     )
 
 

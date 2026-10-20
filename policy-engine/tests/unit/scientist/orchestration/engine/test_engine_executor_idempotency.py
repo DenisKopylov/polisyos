@@ -554,3 +554,181 @@ def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tm
     assert_one_resumed_terminal_lifecycle(resumed)
     assert sum(record.get("event") == "NODE_CACHE_HIT" for record in records) == 1
     assert terminal.manifest_ref.manifest_profile_sha256 is not None
+
+    from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+
+    finalized_records = [record for record in records if record.get("event") == "RUN_FINALIZED"]
+    assert len(finalized_records) == 1
+    finalization_inputs = finalized_records[0]["refs"]["inputs"]
+    assert len(finalization_inputs) == 1
+    finalization_ref = ArtifactRef.model_validate(finalization_inputs[0])
+    assert terminal.workflow_finalization_ref is not None
+    assert artifact_ref_identity_key(terminal.workflow_finalization_ref) == (
+        artifact_ref_identity_key(finalization_ref)
+    )
+    assert terminal.workflow_finalization_ref.kind == "scientist.workflow_state_finalization"
+    assert terminal.workflow_finalization_ref.media_type == "application/json"
+    assert terminal.workflow_finalization_ref.manifest_profile_sha256 is not None
+    assert (
+        sum(
+            artifact_ref_identity_key(ref)
+            == artifact_ref_identity_key(terminal.workflow_finalization_ref)
+            for ref in terminal.manifest.outputs
+        )
+        == 1
+    )
+
+    original_trace_bytes = terminal.trace_path.read_bytes()
+    original_manifest_bytes = store.get_bytes(terminal.manifest_ref)
+    original_finalization_bytes = store.get_bytes(terminal.workflow_finalization_ref)
+    try:
+        records_without_terminal_input = [
+            json.loads(line)
+            for line in original_trace_bytes.decode("utf-8").splitlines()
+            if line.strip()
+        ]
+        finalized = next(
+            record
+            for record in records_without_terminal_input
+            if record.get("event") == "RUN_FINALIZED"
+        )
+        finalized["refs"]["inputs"] = []
+        terminal.trace_path.write_bytes(
+            b"\n".join(
+                json.dumps(record, separators=(",", ":")).encode("utf-8")
+                for record in records_without_terminal_input
+            )
+            + b"\n"
+        )
+        without_finalization_input = load_terminal_core_run_source(
+            store=store,
+            core_runs_root=root / "runs",
+            run_id=run_id,
+        )
+        assert without_finalization_input.workflow_finalization_ref is None
+        assert artifact_ref_identity_key(without_finalization_input.manifest_ref) == (
+            artifact_ref_identity_key(terminal.manifest_ref)
+        )
+        outputs_without_finalization = [
+            artifact_ref_identity_key(ref) for ref in without_finalization_input.manifest.outputs
+        ]
+        original_outputs = [artifact_ref_identity_key(ref) for ref in terminal.manifest.outputs]
+        assert outputs_without_finalization == original_outputs
+        assert store.get_bytes(without_finalization_input.manifest_ref) == original_manifest_bytes
+        assert store.get_bytes(terminal.workflow_finalization_ref) == original_finalization_bytes
+    finally:
+        terminal.trace_path.write_bytes(original_trace_bytes)
+    assert terminal.trace_path.read_bytes() == original_trace_bytes
+
+
+def test_terminal_finalization_ref_is_unique_selected_profile_and_manifest_linked(
+    monkeypatch,
+) -> None:
+    from pathlib import Path
+    from types import SimpleNamespace
+
+    from polisyos.core.trace import RunTerminality
+    from polisyos.core.trace.record import TraceRecord, TraceRefs
+    from polisyos.runtime.http.services.adapters import core_run
+
+    run_id = "R_terminal_finalization_ref_selection"
+    manifest_ref = ArtifactRef(
+        artifact_id="sha256:" + "1" * 64,
+        kind="core.run_manifest",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+
+    def ref(
+        number: int,
+        *,
+        kind: str = "scientist.workflow_state_finalization",
+        media_type: str = "application/json",
+        profile: str | None = "sha256:" + "b" * 64,
+    ) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=f"sha256:{number:064x}",
+            kind=kind,
+            media_type=media_type,
+            manifest_profile_sha256=profile,
+        )
+
+    finalization = ref(2)
+    prior_state = ref(3, kind="scientist.experiment_state")
+    final_state = ref(4, kind="scientist.experiment_state")
+
+    def load(*, terminal_inputs, manifest_outputs):
+        records = {
+            "started": TraceRecord(
+                run_id=run_id,
+                phase="core",
+                event="RUN_STARTED",
+                run_terminality=RunTerminality.NON_TERMINAL,
+                tenant_id="tenant-test",
+                cell_id="cell-test",
+            ),
+            "finalized": TraceRecord(
+                run_id=run_id,
+                phase="core",
+                event="RUN_FINALIZED",
+                run_terminality=RunTerminality.TERMINAL,
+                tenant_id="tenant-test",
+                cell_id="cell-test",
+                refs=TraceRefs(inputs=terminal_inputs, outputs=[manifest_ref]),
+            ),
+        }
+        manifest = SimpleNamespace(
+            run_id=run_id,
+            tenant_id="tenant-test",
+            cell_id="cell-test",
+            outputs=manifest_outputs,
+        )
+        monkeypatch.setattr(
+            core_run,
+            "_iter_strict_terminal_trace_lines",
+            lambda *_args, **_kwargs: ("started", "finalized"),
+        )
+        monkeypatch.setattr(core_run, "_parse_trace_record", records.__getitem__)
+        monkeypatch.setattr(core_run, "load_bound_terminal_manifest", lambda **_kwargs: manifest)
+        return core_run.load_terminal_core_run_source(
+            store=object(),
+            core_runs_root=Path("/tmp/terminal-finalization-selection"),
+            run_id=run_id,
+        )
+
+    selected = load(
+        terminal_inputs=[finalization],
+        manifest_outputs=[prior_state, final_state, finalization],
+    )
+    assert selected.workflow_finalization_ref == finalization
+
+    profileless = ref(2, profile=None)
+    alternate_profile = ref(2, profile="sha256:" + "c" * 64)
+    wrong_kind = ref(2, kind="scientist.experiment_state")
+    wrong_media = ref(2, media_type="application/octet-stream")
+    cases = [
+        ([], [finalization]),
+        ([finalization, finalization], [finalization]),
+        ([finalization], [finalization, finalization]),
+        ([finalization], [prior_state, final_state]),
+        ([profileless], [finalization]),
+        ([finalization], [alternate_profile]),
+        ([wrong_kind], [wrong_kind]),
+        ([wrong_media], [wrong_media]),
+    ]
+    for terminal_inputs, manifest_outputs in cases:
+        result = load(terminal_inputs=terminal_inputs, manifest_outputs=manifest_outputs)
+        assert result.workflow_finalization_ref is None
+
+    from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
+
+    legacy = TerminalCoreRunSource(
+        run_id="legacy-terminal",
+        tenant_id=None,
+        cell_id=None,
+        run_dir=Path("/tmp/legacy-terminal"),
+        trace_path=Path("/tmp/legacy-terminal/trace.jsonl"),
+        manifest_ref=manifest_ref,
+        manifest=SimpleNamespace(),
+    )
+    assert legacy.workflow_finalization_ref is None

@@ -43445,5 +43445,95 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-terminal-voi-reviewed-boundary-adoption-20261020-r1": {
+    "slice_base": "ca234ee20cb70e71e90ce74f4ce29f7c6aaa9693",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/services/adapters/core_run.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "27483cb8b56fc067a0d0375269d2a531f7e9380467cbdb32fd3d46deb37637d6",
+        "git_base_preimage_sha256": "1ce2d2ea411181a98ea4c7143e5ba932e13c284fd188fe68cd5e6a0a68142462",
+        "postimage_path": "LOCAL/raw/ad03-runtime-core-run-cleanup-20261020-r3/postimages/policy-engine/src/polisyos/runtime/http/services/adapters/core_run.py",
+        "postimage_sha256": "d2c2c0ae43ed4a6ca901351d4dd97247a8f448aa465871e4bb6852e923773973"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "ac51ff9d86bb3d14a89ecdc8eccd562ff163f0853ec2457f6a1c6ed69edf9737",
+        "git_base_preimage_sha256": "ac51ff9d86bb3d14a89ecdc8eccd562ff163f0853ec2457f6a1c6ed69edf9737",
+        "postimage_path": "LOCAL/raw/ad03-runtime-core-run-cleanup-20261020-r3/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "postimage_sha256": "84c782bde832827a8a5a81d84c6d90e60ff0f42b37dcf910df83f834ac4618db"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "7a600cd60c17eae7ef04341be8d062397a419e95a6ea1800f087265ccd424b4c",
+        "git_base_preimage_sha256": "7a600cd60c17eae7ef04341be8d062397a419e95a6ea1800f087265ccd424b4c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-packet-stage-fixture-cost-20261020-r1/postimages/policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "postimage_sha256": "28cfd1816df79332e4b8fa306f0487dcc55953e2b96856d34d2babde0621201e"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "update",
+        "preimage_sha256": "50025180dd397c9c4576abff4d30b70a08c7fb075d74b40a4880547c222ebf13",
+        "postimage_sha256": "9f8d56a135a364264626c0fe9c554c183d8710a3a49214e0ece4c3eb7d259acb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-fiscal-stale-test-expectation-ca234ee-r1/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "git_base_preimage_sha256": "50025180dd397c9c4576abff4d30b70a08c7fb075d74b40a4880547c222ebf13",
+        "mode": "100644",
+        "bytes": 44787
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-voi-reviewed-boundary-adoption-20261020-r1/source-application.json",
+      "sha256": "81b5b1ada99309953f25bc74ae89b9d3d99d8ef7072c664811c7d7c929418565"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-voi-reviewed-boundary-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-voi-reviewed-boundary-preparation-20261020-r1/terminal-r2-review.json",
+        "sha256": "5e76ac4272dcf664839503fb4b6612dfa1b5520b7d2f62c980f5e9d029cb22e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-voi-reviewed-boundary-preparation-20261020-r1/terminal-r3-review.json",
+        "sha256": "392be0956a51669f600618845276a07e8a262806ae1b01f20333f90a642bb565"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-attributed-runtime-adapter-direct-write-incident-20261020-r1/incident.json",
+        "sha256": "7a82a4283691c2743d2b721e266e8befe65897f069e7e471d6ac8b3639657516"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-two-packet-independent-review-20261020-r1/review.json",
+        "sha256": "5b33f18a8ce5e99e6d7819c3bfb10ddc418690c03439d25a80fdbc494cc379d5"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-attributed-runtime-adapter-direct-write-incident-20261020-r1/incident.json",
+      "sha256": "7a82a4283691c2743d2b721e266e8befe65897f069e7e471d6ac8b3639657516"
+    },
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "terminal": "SAME terminal source-reference identity quantity, full input/output/profile/cardinality negatives and real persisted producer removal.",
+      "fixture": "SAME whole test-fixture conformance class; nominal ABC carries all inherited members.",
+      "fiscal": "Narrow stale-oracle correction only; raw fiscal alias semantic law class remains consumer AD01 work and is not closed here."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Product imports and all affected whole-module behavior UNRUN on this adoption; independent reviews and canonical Ruff are static only.",
+      "No G acceptance, formal closure, scientific law or publication authority is asserted.",
+      "The incident bytes and original Git preimage are preserved; this forward adoption includes only attributed necessary work and reviewed companions, with no reset/revert/restore."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run real terminal adapter producer/removal whole module and the nine whole VOI modules on one fresh source-qualified bounded request, retaining all outcomes and full deciding output.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

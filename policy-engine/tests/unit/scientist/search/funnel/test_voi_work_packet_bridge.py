@@ -36,6 +36,7 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelExecutedWorkPacket,
+    FunnelStage,
     FunnelStageResult,
 )
 from polisyos.scientist.methods.search.objective import (
@@ -210,9 +211,21 @@ def _source_results(invocation: dict[str, Any] | None = None) -> dict[str, Any]:
     }
 
 
-class _PacketStage:
-    fidelity_level = 4
-    stage_name = "funnel_L4_full"
+class _PacketStage(FunnelStage):
+    """Nominal full-fidelity stage fixture for VOI packet producer tests."""
+
+    @property
+    def stage_name(self) -> str:
+        return "funnel_L4_full"
+
+    @property
+    def fidelity_level(self) -> int:
+        return 4
+
+    @property
+    def estimated_cost_usd(self) -> float:
+        """Return the fixture's declared finite per-candidate estimate."""
+        return 0.0
 
     def __init__(
         self,

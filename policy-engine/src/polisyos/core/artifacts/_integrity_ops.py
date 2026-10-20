@@ -34,6 +34,17 @@ class ArtifactIntegrityError(ValueError):
     """Raised when a stored blob or manifest fails read-time integrity validation."""
 
 
+class ArtifactReadBoundsError(ValueError):
+    """Raised when a bounded CAS read observes a member larger than its byte limit."""
+
+    def __init__(self, *, member: str, observed_bytes: int, max_bytes: int) -> None:
+        """Retain the actual regular-file size and the caller-selected byte limit."""
+        self.member = member
+        self.observed_bytes = observed_bytes
+        self.max_bytes = max_bytes
+        super().__init__(f"cas_{member}_read_limit_exceeded")
+
+
 @dataclass(frozen=True)
 class VerifiedArtifactSnapshot:
     """Immutable bytes/manifest view produced by one filesystem read."""
@@ -300,6 +311,7 @@ def _normalize_verification_error(detail: str) -> str:
 
 __all__ = [
     "ArtifactIntegrityError",
+    "ArtifactReadBoundsError",
     "VerificationReport",
     "VerifiedArtifactSnapshot",
     "load_verified_artifact_snapshot",

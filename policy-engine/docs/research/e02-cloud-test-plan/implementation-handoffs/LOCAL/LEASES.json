@@ -43535,5 +43535,132 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-bounded-selected-json-r9-adoption-20261021-r1": {
+    "slice_base": "6fd2578f5704b70360001a1c6649e88cb5ff07ae",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-bounded-selected-core-json.toml": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_sha256": "cc6ae9f3d554420a0d23a27f4afd554413f940f8aa500eecdab2fee6e562f3b3",
+        "bytes": 3111,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-bounded-selected-core-json.toml"
+      },
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "480c3588761445983229281ab69824842bcaf0886686288ef04094024dfcfd64",
+        "postimage_sha256": "511e459deb171cb5c470ef40e2981931c7e46fa642fae14b8da888dcd07626a5",
+        "bytes": 29642,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/src/polisyos/core/artifacts/README.md"
+      },
+      "policy-engine/src/polisyos/core/artifacts/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "e51acde35fd2bef91b90db2e8ca2bd7ec2c5f60646960121b9d341719e2a09a6",
+        "postimage_sha256": "e90b10191012615282ba1c57d9ad5311958cbac8a1bbf967c8b9786edf1e8d35",
+        "bytes": 12256,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/src/polisyos/core/artifacts/__init__.py"
+      },
+      "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "45e023bca89f2719966fca18c5b82555f7966a22a5d205e419570d971b02e78b",
+        "postimage_sha256": "631801855e242836b23b82e9c2ef7d1fd2ac416a360e16c8545834463eeb9b21",
+        "bytes": 10293,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py"
+      },
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c431e76b96cd3544f312091793cd1eb09af7c27bdf4d8d446c058bce803d6c52",
+        "postimage_sha256": "1e7c3497cbbfa9a7b858f88f464022261cbbaf5f8e12029cc19ff0cdbc27b41b",
+        "bytes": 77349,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/src/polisyos/core/artifacts/canonical_profile.py"
+      },
+      "policy-engine/src/polisyos/core/artifacts/protocol.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c",
+        "postimage_sha256": "f73d30f6144f3963cd75777e29bef24874e76fcca4244ca09c21ae17f229e836",
+        "bytes": 20938,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/src/polisyos/core/artifacts/protocol.py"
+      },
+      "policy-engine/src/polisyos/core/artifacts/store.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "d8f81f9ce281309c242b23b5ef7aefd2d270a6423ea0c5c0dd752b0961b27be8",
+        "postimage_sha256": "4b465b92e69cd5369c5f7064d7df7d565f2b51e6e5e92e8dd28774ae64122f81",
+        "bytes": 242626,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/src/polisyos/core/artifacts/store.py"
+      },
+      "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_sha256": "3a0bceb0d8c9b09ad7045483a11a3991e2d993a3478c75442f267e07302be9fa",
+        "bytes": 37797,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/postimages/policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-bounded-selected-json-r9-adoption-20261021-r1/source-application.json",
+      "sha256": "d51f51ff94c5276e5837d2e50fc4ae5758b851fb6c6ebfc17294e48829e7cac4"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-bounded-selected-json-r9-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/plan.json",
+        "sha256": "1b003c738eb937c09d824d572b7cf87439f8362f0692cb3b079786972f6c3574"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/manifest.json",
+        "sha256": "54a59305817b1e0cf3592ab2888e66e59b04324e823ca1d8eae883e772e1b9b4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/bounded-core-json-r9-native-fixes.patch",
+        "sha256": "93b92f847f9720d528c833fccf8bddabfaf18e20bce2aee83988c67b7fee4e0e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r9-native-fixes-6fd2578-20261021/canonical-context-preflight.json",
+        "sha256": "c70145520eb495eec18ba775baa6e06565c797e417cf5dd87e49778973963c5a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-json-independent-review-20261020-r8/review.json",
+        "sha256": "f24c1ed561ad123e43e2bbd21bb701a5f07256827ce0146c64d45a8a5d4ff292"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-json-r9-delta-independent-review-20261021-r1/review.json",
+        "sha256": "fd8a3b602eb5a7e9403960dbd2a92de0401f6daccb440a41a49050ca0aafe13f"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "action": "Bind the bounded payload carrier to immutable raw manifest/payload bytes, exact selected ref/profile, policy, and recomputed observations; expose only fresh decoded views. Add an InputRef resolver that selects by exact ID plus explicit profile, parses the same bounded raw bytes, verifies integrity/profile/identity, and derives kind/media only from that manifest. Preserve the existing full ArtifactRef exact kind/media guard.",
+      "classification": "Same NEW bounded carrier-to-typed-consumer content-binding class identified by the R7 independent HOLD; repair the full carrier and both exact selector forms as one mechanism, not a one-field ladder.",
+      "current_scope": "Operational manifest and payload byte/depth/element limits remain explicit. Owner-control metadata remains outside max_manifest_bytes. InputRef role-specific kind/media validation remains with its consumer. No authority or scientific semantic rule is added."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Operational manifest/payload byte/depth/element bounds cover exact selected sidecar/body reads, not owner-control indices/transaction intents, whole requests, RSS, CPU, scientific semantics or external authority.",
+      "Core InputRef helper derives full kind/media from the same bounded selected manifest; role-specific expected-kind/media admission remains with the consumer.",
+      "Immutable byte-backed carriers provide content-bound typed validation and fresh decoded views without storage reread; constructor/interface/ruff checks are not runtime capability proof.",
+      "Current source dependencies HTE/AD01/AD02/AD03 remain separate in-progress candidates; no entire E02 closure or G code acceptance is asserted."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "One source-qualified bounded replay of three whole Core modules (new bounded reader, owned Core JSON, selected-profile Core JSON), then exact 14-module importer cohort at the agreed AD01\u201303 composed freeze; removal and mixed-carrier controls must execute.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -19,7 +19,11 @@ from ._atomic_write import (
 from ._atomic_write import (
     AtomicFileWriter as _AtomicFileWriter,
 )
-from ._integrity_ops import ArtifactIntegrityError, VerificationReport
+from ._integrity_ops import (
+    ArtifactIntegrityError,
+    ArtifactReadBoundsError,
+    VerificationReport,
+)
 from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
 from ._profiled_ref import profile_bound_ref
 from ._transfer_ops import ExportReport, ImportReport
@@ -87,7 +91,12 @@ from .protocol import (
     ArtifactStore,
     AsyncArtifactStore,
     AsyncRawManifestBytesReader,
+    CoreJSONArtifactBoundedInputManifestReader,
+    CoreJSONArtifactBoundedManifestReader,
+    CoreJSONArtifactMemberStream,
+    CoreJSONArtifactProfileReader,
     CoreJSONArtifactStore,
+    CoreJSONArtifactStreamingReader,
     RawManifestBytesReader,
     SignatureVerifyingArtifactStore,
     matches_runtime_protocol,
@@ -131,14 +140,22 @@ from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
     from .canonical_profile import (
+        CoreJsonArtifactBoundedRead,
+        CoreJsonManifestBoundedRead,
+        CoreJsonReadBoundsRefusalError,
+        CoreJsonReadLimits,
         aload_core_json_artifact,
         artifact_ref_for_manifest,
         decode_core_json_payload,
         load_core_json_artifact,
         load_core_json_frame_records,
+        read_core_input_manifest_profile_bounded,
         read_core_json_artifact,
+        read_core_json_artifact_bounded,
         read_core_json_artifact_bytes,
         read_core_manifest_profile,
+        read_core_manifest_profile_bounded,
+        validate_core_model_bounded_read,
         validate_core_model_json_artifact,
     )
     from .ir_adapter import (
@@ -163,14 +180,22 @@ def __getattr__(name: str) -> Any:
         ir_adapter = import_module(".ir_adapter", __name__)
         return getattr(ir_adapter, name)
     if name in {
+        "CoreJsonArtifactBoundedRead",
+        "CoreJsonManifestBoundedRead",
+        "CoreJsonReadBoundsRefusalError",
+        "CoreJsonReadLimits",
         "aload_core_json_artifact",
         "artifact_ref_for_manifest",
         "decode_core_json_payload",
         "load_core_json_artifact",
         "load_core_json_frame_records",
         "read_core_json_artifact",
+        "read_core_json_artifact_bounded",
         "read_core_json_artifact_bytes",
+        "read_core_input_manifest_profile_bounded",
         "read_core_manifest_profile",
+        "read_core_manifest_profile_bounded",
+        "validate_core_model_bounded_read",
         "validate_core_model_json_artifact",
     }:
         canonical_profile = import_module(".canonical_profile", __name__)
@@ -265,6 +290,7 @@ __all__ = [
     "ArtifactMemberReceipt",
     "ArtifactOwnershipError",
     "ArtifactOwnershipIndex",
+    "ArtifactReadBoundsError",
     "ArtifactReadOnlyUnavailableError",
     "ArtifactReader",
     "ArtifactRef",
@@ -287,7 +313,16 @@ __all__ = [
     "CASIntegrityReport",
     "CanonInfo",
     "CoreArtifactOwnerProfile",
+    "CoreJSONArtifactBoundedInputManifestReader",
+    "CoreJSONArtifactBoundedManifestReader",
+    "CoreJSONArtifactMemberStream",
+    "CoreJSONArtifactProfileReader",
     "CoreJSONArtifactStore",
+    "CoreJSONArtifactStreamingReader",
+    "CoreJsonArtifactBoundedRead",
+    "CoreJsonManifestBoundedRead",
+    "CoreJsonReadBoundsRefusalError",
+    "CoreJsonReadLimits",
     "CoreOwnedModelRead",
     "CoreToIRArtifactStoreAdapter",
     "DependencyEdge",
@@ -343,13 +378,17 @@ __all__ = [
     "matches_runtime_protocol",
     "matches_runtime_protocol_definition",
     "profile_bound_ref",
+    "read_core_input_manifest_profile_bounded",
     "read_core_json_artifact",
+    "read_core_json_artifact_bounded",
     "read_core_json_artifact_bytes",
     "read_core_manifest_profile",
+    "read_core_manifest_profile_bounded",
     "require_return_selected_profile_writer",
     "resolve_authority_envelope_ref",
     "resolve_dependency_graph",
     "resolve_manifest_by_profile",
+    "validate_core_model_bounded_read",
     "validate_core_model_json_artifact",
     "validate_owned_core_model_json_artifact",
     "validate_return_selected_profile",

@@ -14,9 +14,10 @@ from __future__ import annotations
 
 import inspect
 import re
+from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, TypeGuard, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, runtime_checkable
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 
     from ._integrity_ops import VerificationReport
     from .ids import ArtifactID
-    from .manifest import ArtifactAuthorityInfo, ArtifactManifest, ArtifactRef
+    from .manifest import ArtifactAuthorityInfo, ArtifactManifest, ArtifactRef, InputRef
     from .signing import Ed25519Verifier, SignatureVerificationResult
     from .write_contract import ArtifactWriteOptions
 
@@ -289,14 +290,93 @@ class ArtifactStore(ArtifactReader, Protocol):
 
 
 @runtime_checkable
-class CoreJSONArtifactStore(ArtifactStore, RawManifestBytesReader, Protocol):
+class CoreJSONArtifactProfileReader(ArtifactReader, RawManifestBytesReader, Protocol):
+    """Read-only profile-aware Core artifact view used by strict JSON readers.
+
+    This composes the existing read and exact-raw-manifest contracts without
+    adding write requirements to a reader.
+    """
+
+
+@runtime_checkable
+class CoreJSONArtifactStore(ArtifactStore, CoreJSONArtifactProfileReader, Protocol):
     """Store with the raw-manifest capability required for semantic Core JSON reads.
 
     ``ArtifactStore`` remains the minimal producer and storage contract. Readers
     that admit Core JSON against its declared canonical profile require this
     stronger boundary so they can inspect the exact persisted manifest bytes
-    before reading or validating the payload.
+    before reading or validating the payload. Existing structural members are
+    unchanged; this protocol composes the profile-read contract with writes.
     """
+
+
+class CoreJSONArtifactMemberStream(Protocol):
+    """Minimal read surface consumed from one owner-held Core artifact member."""
+
+    def read(self, size: int = -1) -> bytes: ...
+
+
+@runtime_checkable
+class CoreJSONArtifactBoundedManifestReader(Protocol):
+    """Read one exact profile-qualified raw manifest under a caller byte limit.
+
+    Implementations inspect actual regular-file size before allocating the sidecar
+    and raise ``ArtifactReadBoundsError`` with the observed size when it exceeds
+    the selected limit.
+    """
+
+    def get_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> bytes:
+        """Read exact manifest bytes without materializing a value beyond the limit."""
+        ...
+
+
+@runtime_checkable
+class CoreJSONArtifactBoundedInputManifestReader(Protocol):
+    """Read a bounded selected manifest from an ID and explicit profile edge.
+
+    ``InputRef`` intentionally does not carry kind or media type. The Core
+    owner resolves those fields from the exact bounded manifest bytes; callers
+    must validate any role-specific expectations against the returned ref.
+    """
+
+    def get_raw_manifest_bytes_bounded_for_input(
+        self,
+        input_ref: InputRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> bytes:
+        """Read the exact profile-qualified manifest selected by one input edge."""
+        ...
+
+
+@runtime_checkable
+class CoreJSONArtifactStreamingReader(
+    CoreJSONArtifactProfileReader,
+    CoreJSONArtifactBoundedManifestReader,
+    Protocol,
+):
+    """Profile-aware read-only view with bounded metadata and selected blob stream."""
+
+    def open_member(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int | None = None,
+        expected_manifest_sha256: str | None = None,
+    ) -> AbstractContextManager[CoreJSONArtifactMemberStream]:
+        """Open the blob after checking its bounded manifest against an optional exact hash.
+
+        When supplied, the manifest limit is enforced before typed parsing. The
+        expected digest must match the exact manifest bytes observed at open time
+        before the selected blob stream becomes available.
+        """
+        ...
 
 
 class ProfileAddressedManifestStore(Protocol):

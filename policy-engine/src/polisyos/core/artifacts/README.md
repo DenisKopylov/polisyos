@@ -163,6 +163,48 @@ local Python API and adds no HTTP endpoint.
   publication. Batch reports are diagnostic, not fresh verification or a transferable attestation.
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`
 
+### Bounded selected Core JSON reads
+
+read_core_json_artifact_bounded(store, selected_ref, *, limits) is the strict
+path for consumers that must bound selected manifest and JSON payload bytes
+before parsing or Core value materialization. The caller supplies a
+profile-qualified ArtifactRef, an explicit CoreJsonReadLimits(max_bytes,
+max_depth, max_elements, max_manifest_bytes) from the selected resource policy,
+and a CoreJSONArtifactStreamingReader. The metadata-byte limit is a separate
+required field; it does not reuse the payload-byte limit. The new read-only
+protocol composes the existing profile reader with a bounded raw-manifest
+reader and selected blob stream; other backends and legacy APIs keep their
+existing contracts. A metadata-only caller can use
+read_core_manifest_profile_bounded(store, selected_ref, *, max_manifest_bytes)
+before payload admission. It returns the exact raw manifest bytes, parsed typed
+manifest, CanonInfo declaration, effective reference, and observed byte count.
+Consumers that hold only a profile-qualified lineage `InputRef` can call
+read_core_input_manifest_profile_bounded(store, input_ref, *, max_manifest_bytes).
+The bounded backend selects by the edge's exact artifact ID and explicit
+profile digest; the Core owner parses those same raw bytes and derives the full
+effective reference, including kind and media type, from the selected manifest.
+Missing or malformed profiles refuse without falling back to a default view.
+Role-specific kind/media expectations remain the consumer's responsibility.
+The strict payload route parses typed and raw profile views from the same
+owner-read byte sequence, then passes its exact SHA-256 and limit into
+open_member so a changed manifest fails before payload streaming. The reader
+measures actual selected payload bytes and scans JSON structure before calling
+Core's existing tagged-value decoder and canonical-profile round-trip.
+max_elements counts containers, scalar values, and object member names.
+
+The result retains the effective reference, typed manifest, exact selected raw
+manifest bytes, profile-conformant CanonicalProfileRead, and observed manifest
+and payload measurements. A value is available only for a declared,
+conformant Core profile. FileSystemCAS bounds selected-manifest allocation
+before parsing and applies the same limit to the hidden manifest lookup inside
+open_member; a raw-byte hash check rejects drift between metadata intake and
+payload open. The CAS ownership index, transaction journal, and their generation
+files are separate owner-control metadata reads and remain outside this
+artifact-manifest limit. These per-member limits do not establish whole-input
+process RSS, concurrent-memory, or all-CAS-metadata bounds. No resource-policy
+default is invented here. The API also does not choose scientific shape limits,
+establish source authority, or prove HTE suitability.
+
 ## Current State
 
 The async adapters accept explicit `unbounded=True` for an owner without a
@@ -172,7 +214,7 @@ Workflow consumers carry their original deadline through the adapter. Native
 async backends retain their own scheduling policy; this option does not preempt
 already-entered filesystem calls or roll back a completed publication.
 
-- Last updated: 2026-10-16
+- Last updated: 2026-10-20
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.
 
@@ -312,6 +354,8 @@ serializing records under the declared Core profile before calling put_bytes.
 ### Profiled Core JSON reads
 
 Use `load_core_json_artifact` or `validate_core_model_json_artifact` for semantic JSON values. These resolve the selected manifest, require a complete supported `CanonInfo`, and verify that the exact selected bytes round-trip under the Core codec before returning a value. The typed reader adapts the decoded value only through the requested Pydantic field schema, preserves Core-native tags, and performs terminal model validation with strict mode. Its union bridge reads direct model choices from Pydantic CoreSchema, selects a model only from a unique declared Literal tag or a unique required-key/extra-policy shape, and leaves final union-mode selection and validators to one terminal model validation. It supports both Core Python-mode writes and JSON-mode model dumps without changing the IR tag contract; unresolved ambiguous model mappings receive no inferred branch. `read_core_json_artifact_bytes` applies the same admission while preserving the original bytes for a downstream typed decoder. `load_core_json_frame_records` applies that check to every length-prefixed record after verifying the complete stored payload identity. Async callers use `aload_core_json_artifact`. Missing or malformed profiles are refusals; the Core-only tag policy remains separate from the IR codec facade.
+
+For a resource-bounded read, call `read_core_json_artifact_bounded` with explicit payload and selected-manifest limits, then pass its result to `validate_core_model_bounded_read` when the consumer needs the same typed-artifact owner checks as `validate_core_model_json_artifact`. The carrier retains immutable selected raw manifest and payload bytes, exact limits, and measured counts. Its `profile_read` and `value` accessors decode a fresh Core value from those bytes; mutating a returned mapping cannot change a later typed validation. The bounded validator rebinds the carrier to the exact selected ref, manifest, canonical profile, payload digest, and recomputed measurements, then runs Core alias/tuple adaptation and strict model/schema validation without storage reads.
 
 The confidence-ledger loaded-deployment identity follows source-declared lazy facade providers before it admits the source closure. Literal PEP 562 dictionaries and guarded name-set branches that import a literal module and return the requested attribute contribute provider edges. Dynamic or ambiguous provider expressions fail closed. After the facade API is frozen, from the repository root run `cd policy-engine && uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline`, then run `cd policy-engine && uv run polisyos-tools architecture guardrails check`. Generated snapshots remain separate from this contract until that review is complete.
 

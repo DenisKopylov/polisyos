@@ -11,7 +11,7 @@ import tempfile
 import threading
 import time
 import uuid
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import datetime
@@ -58,6 +58,7 @@ from ._atomic_write import (
 )
 from ._integrity_ops import (
     ArtifactIntegrityError,
+    ArtifactReadBoundsError,
 )
 from ._integrity_ops import (
     VerificationReport as VerificationReport,
@@ -130,6 +131,7 @@ from .manifest import (
     ArtifactManifest,
     ArtifactRef,
     ArtifactTenantContextInfo,
+    InputRef,
     _canon_info_for_spec,
     _coerce_input_ref,
     artifact_ref_identity_key,
@@ -445,8 +447,38 @@ def _current_cell_id() -> str | None:
     return get_current_cell_id()
 
 
-def _transactional_read_selector(value: object) -> ArtifactID | ArtifactRef | str:
+def _revalidate_input_ref(value: InputRef) -> InputRef:
+    """Revalidate an existing input edge from its raw model fields."""
+    if type(value) is not InputRef:
+        raise TypeError("transactional CAS input selector requires InputRef")
+    fields = dict(value.__dict__)
+    if set(fields) != {"artifact_id", "role", "manifest_profile_sha256"}:
+        raise ValueError("transactional CAS input selector fields are invalid")
+    raw_artifact_id = fields.get("artifact_id")
+    if isinstance(raw_artifact_id, ArtifactID):
+        raw_artifact_id = raw_artifact_id.root
+    artifact_id = ArtifactID.model_validate(raw_artifact_id)
+    role = fields.get("role")
+    if type(role) is not str:
+        raise TypeError("transactional CAS input role must be a string")
+    profile = fields.get("manifest_profile_sha256")
+    if profile is not None and (
+        type(profile) is not str or re.fullmatch(r"sha256:[0-9a-f]{64}", profile) is None
+    ):
+        raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+    return InputRef.model_validate(
+        {
+            "artifact_id": artifact_id,
+            "role": role,
+            "manifest_profile_sha256": profile,
+        }
+    )
+
+
+def _transactional_read_selector(value: object) -> ArtifactID | ArtifactRef | InputRef | str:
     """Normalize compatible selector models through the existing Core adapter."""
+    if type(value) is InputRef:
+        return _revalidate_input_ref(value)
     if isinstance(value, (ArtifactID, ArtifactRef, str)):
         return value
 
@@ -469,6 +501,22 @@ def _selector_annotation_accepts_full_reference(annotation: object) -> bool:
     if origin in (Union, UnionType):
         return any(
             _selector_annotation_accepts_full_reference(argument)
+            for argument in get_args(annotation)
+        )
+    return False
+
+
+def _selector_annotation_accepts_input_reference(annotation: object) -> bool:
+    """Return whether a reader's declared selector accepts an input edge."""
+    if annotation is InputRef:
+        return True
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        arguments = get_args(annotation)
+        return bool(arguments) and _selector_annotation_accepts_input_reference(arguments[0])
+    if origin in (Union, UnionType):
+        return any(
+            _selector_annotation_accepts_input_reference(argument)
             for argument in get_args(annotation)
         )
     return False
@@ -551,7 +599,15 @@ def _transactional_read(
                     "transactional CAS read selector contract "
                     "does not accept full artifact references"
                 )
-            aid, profile_sha256, _ref = _artifact_reference(selector_value)
+            if isinstance(selector_value, InputRef):
+                if not _selector_annotation_accepts_input_reference(selector_annotation):
+                    raise TypeError(
+                        "transactional CAS read selector contract does not accept input references"
+                    )
+                aid = selector_value.artifact_id
+                profile_sha256 = selector_value.manifest_profile_sha256
+            else:
+                aid, profile_sha256, _ref = _artifact_reference(selector_value)
             if profile_parameter is not None:
                 requested_profile = arguments.get(profile_parameter.name, profile_sha256)
                 profile_sha256 = _transactional_read_profile(
@@ -936,6 +992,9 @@ class FileSystemCAS:
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
         member: ArtifactMemberKind,
+        *,
+        max_manifest_bytes: int | None = None,
+        expected_manifest_sha256: str | None = None,
     ) -> Iterator[_VerifiedCASMemberStream]:
         """Stream one selected member under its read lease with bounded memory.
 
@@ -943,6 +1002,16 @@ class FileSystemCAS:
         descriptor interface. The complete member is hashed before the lease is
         released, even if the caller reads only a prefix.
         """
+        if max_manifest_bytes is not None and (
+            type(max_manifest_bytes) is not int or max_manifest_bytes < 1
+        ):
+            raise ValueError("max_manifest_bytes must be a positive integer")
+        if expected_manifest_sha256 is not None and (
+            max_manifest_bytes is None
+            or type(expected_manifest_sha256) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", expected_manifest_sha256) is None
+        ):
+            raise ValueError("expected_manifest_sha256 requires a bounded manifest read")
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         with self._coordinator.artifact_lease(
             aid,
@@ -972,7 +1041,21 @@ class FileSystemCAS:
             manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
             if self._ownership_index._path_has_symlink_component(manifest_path):
                 raise ArtifactIntegrityError("CAS manifest path crosses a symlink")
-            manifest_bytes = manifest_path.read_bytes()
+            if max_manifest_bytes is None:
+                manifest_bytes = manifest_path.read_bytes()
+            else:
+                manifest_bytes = self._read_cas_file_no_follow(
+                    manifest_path,
+                    member="manifest",
+                    max_bytes=max_manifest_bytes,
+                    raise_read_limit=True,
+                )
+            if expected_manifest_sha256 is not None and (
+                hashlib.sha256(manifest_bytes).hexdigest() != expected_manifest_sha256
+            ):
+                raise ArtifactIntegrityError(
+                    f"Selected manifest changed between bounded read and member open for {aid}"
+                )
             manifest = ArtifactManifest.model_validate_json(manifest_bytes)
             _validate_manifest_identity(aid, manifest)
             if profile_sha256 is not None and (
@@ -1942,6 +2025,77 @@ class FileSystemCAS:
                 return stream.read()
         finally:
             os.close(descriptor)
+
+    @_transactional_read()
+    def get_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> bytes:
+        """Read exact selected manifest bytes without allocating beyond the policy limit."""
+        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
+            raise ValueError("max_manifest_bytes must be a positive integer")
+        if (
+            type(artifact_id) is not ArtifactRef
+            or type(artifact_id.manifest_profile_sha256) is not str
+            or not artifact_id.manifest_profile_sha256
+        ):
+            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+        aid, selected_profile, ref = _artifact_reference(artifact_id)
+        if selected_profile is None:
+            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+        self._require_blob_owner(aid, operation="read_raw_manifest_bounded", ref=ref)
+        self._require_manifest_view_owner(
+            aid,
+            selected_profile,
+            operation="read_raw_manifest_bounded",
+            ref=ref,
+        )
+        manifest_path = self._manifest_path_for_ref(aid, selected_profile)
+        return self._read_cas_file_no_follow(
+            manifest_path,
+            member="manifest",
+            max_bytes=max_manifest_bytes,
+            raise_read_limit=True,
+        )
+
+    @_transactional_read()
+    def get_raw_manifest_bytes_bounded_for_input(
+        self,
+        input_ref: InputRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> bytes:
+        """Read one bounded profile-qualified manifest selected by a lineage edge.
+
+        InputRef carries no kind or media type. This method therefore selects
+        only by its exact artifact ID and explicit profile digest; Core derives
+        the complete ArtifactRef from the returned raw manifest bytes.
+        """
+        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
+            raise ValueError("max_manifest_bytes must be a positive integer")
+        selected = _revalidate_input_ref(input_ref)
+        aid = selected.artifact_id
+        selected_profile = selected.manifest_profile_sha256
+        if selected_profile is None:
+            raise ValueError("bounded_manifest_read_requires_profile_qualified_input")
+        self._require_blob_owner(
+            aid,
+            operation="read_raw_manifest_bounded_input",
+        )
+        self._require_manifest_view_owner(
+            aid,
+            selected_profile,
+            operation="read_raw_manifest_bounded_input",
+        )
+        manifest_path = self._manifest_path_for_ref(aid, selected_profile)
+        return self._read_cas_file_no_follow(
+            manifest_path,
+            member="manifest",
+            max_bytes=max_manifest_bytes,
+            raise_read_limit=True,
+        )
 
     @_transactional_read()
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
@@ -5203,6 +5357,7 @@ class FileSystemCAS:
         *,
         member: str,
         max_bytes: int | None = None,
+        raise_read_limit: bool = False,
     ) -> bytes:
         """Read one regular CAS member through a no-follow file descriptor."""
         descriptor = -1
@@ -5214,11 +5369,23 @@ class FileSystemCAS:
             if not stat.S_ISREG(before.st_mode):
                 raise ArtifactIntegrityError(f"CAS {member} member is not a regular file")
             if max_bytes is not None and before.st_size > max_bytes:
+                if raise_read_limit:
+                    raise ArtifactReadBoundsError(
+                        member=member,
+                        observed_bytes=before.st_size,
+                        max_bytes=max_bytes,
+                    )
                 raise ArtifactIntegrityError(f"CAS {member} member exceeds its size bound")
             with os.fdopen(descriptor, "rb") as stream:
                 descriptor = -1
                 data = stream.read(-1 if max_bytes is None else max_bytes + 1)
                 after = os.fstat(stream.fileno())
+            if max_bytes is not None and len(data) > max_bytes and raise_read_limit:
+                raise ArtifactReadBoundsError(
+                    member=member,
+                    observed_bytes=len(data),
+                    max_bytes=max_bytes,
+                )
             if (
                 len(data) != before.st_size
                 or after.st_size != before.st_size
@@ -5372,6 +5539,22 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
         """Read bytes after existing owner, transaction, and integrity checks."""
         return self.__store.get_bytes(artifact_id)
 
+    def open_member(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        member: ArtifactMemberKind,
+        *,
+        max_manifest_bytes: int | None = None,
+        expected_manifest_sha256: str | None = None,
+    ) -> AbstractContextManager[_VerifiedCASMemberStream]:
+        """Stream one exact selected member through the existing owner-verified CAS path."""
+        return self.__store.open_member(
+            artifact_id,
+            member,
+            max_manifest_bytes=max_manifest_bytes,
+            expected_manifest_sha256=expected_manifest_sha256,
+        )
+
     def get_manifest(
         self,
         artifact_id: ArtifactID | ArtifactRef | str,
@@ -5397,6 +5580,30 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
         return self.__store.get_raw_manifest_bytes(
             artifact_id,
             manifest_profile_sha256=manifest_profile_sha256,
+        )
+
+    def get_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> bytes:
+        """Read exact selected manifest bytes under the explicit metadata bound."""
+        return self.__store.get_raw_manifest_bytes_bounded(
+            artifact_id,
+            max_manifest_bytes=max_manifest_bytes,
+        )
+
+    def get_raw_manifest_bytes_bounded_for_input(
+        self,
+        input_ref: InputRef,
+        *,
+        max_manifest_bytes: int,
+    ) -> bytes:
+        """Read exact bounded manifest bytes selected by one explicit input edge."""
+        return self.__store.get_raw_manifest_bytes_bounded_for_input(
+            input_ref,
+            max_manifest_bytes=max_manifest_bytes,
         )
 
     def verify(

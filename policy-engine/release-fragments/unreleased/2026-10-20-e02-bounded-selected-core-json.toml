@@ -1,0 +1,21 @@
+id = "2026-10-20-e02-bounded-selected-core-json"
+title = "Bound selected Core JSON reads before decoding"
+type = "fixed"
+component = "core"
+owner = "team-core"
+summary = "Bind bounded Core JSON consumers to immutable selected bytes and resolve profile-qualified InputRef manifests without synthesizing kind or media type."
+evidence = [
+  "src/polisyos/core/artifacts/canonical_profile.py",
+  "src/polisyos/core/artifacts/store.py",
+  "tests/unit/core/artifacts/test_bounded_core_json_artifact.py",
+]
+compatibility = "Existing Core JSON read APIs retain their current behavior. Bounded payload reads require a profile-qualified ArtifactRef plus explicit metadata and payload limits. A separate bounded metadata API accepts InputRef only with an explicit profile digest and derives kind/media from the selected raw manifest. Narrow read-only Core protocols are additive; other backends and legacy defaults are not widened."
+change_class = "internal"
+surface_classification = "public_stable: additive polisyos.core.artifacts bounded JSON read API; public-surface inventory still requires regeneration and review."
+migration = "Qualifying consumers pin max_manifest_bytes separately from payload max_bytes, max_depth, and max_elements, then use CoreJSONArtifactStreamingReader. Metadata-only consumers with a complete ArtifactRef can use read_core_manifest_profile_bounded; consumers holding a profile-qualified InputRef can use read_core_input_manifest_profile_bounded and validate role-specific kind/media expectations against its manifest-derived effective_ref. Consumers needing Core typed-model owner/schema validation after bounded admission pass the result to validate_core_model_bounded_read. The carrier keeps raw selected bytes and limits, recomputes their measurements and identity, and produces fresh decoded views so mutation cannot alter subsequent validation. Legacy stores continue using legacy APIs and cannot claim bounded selected-manifest or payload reads."
+api = "Exports ArtifactReadBoundsError, CoreJSONArtifactBoundedManifestReader, CoreJSONArtifactBoundedInputManifestReader, CoreJSONArtifactStreamingReader, CoreJSONArtifactMemberStream, CoreJsonReadLimits, CoreJsonReadBoundsRefusalError, CoreJsonManifestBoundedRead, CoreJsonArtifactBoundedRead, read_core_manifest_profile_bounded, read_core_input_manifest_profile_bounded, read_core_json_artifact_bounded, and validate_core_model_bounded_read from polisyos.core.artifacts."
+limitations = "The element count is a generic JSON lexical-node bound, not an HTE shape contract. The selected artifact manifest and payload each have explicit per-member limits. Owner-control metadata (ownership index, transaction journal, and generation files) remains outside max_manifest_bytes; no whole-input, concurrent-memory, or process-RSS bound is claimed. This does not establish scientific validity, source authority, or production qualification. Runtime tests and public-surface inventory regeneration remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

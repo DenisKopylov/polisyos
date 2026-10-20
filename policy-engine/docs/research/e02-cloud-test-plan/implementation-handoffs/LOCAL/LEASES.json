@@ -39799,5 +39799,88 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-b108-real-consumer-fixture-companions-20261020-r1": {
+    "slice_base": "848119384c95bc6527deaeb549bf669c01c80617",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py": {
+        "operation": "update",
+        "preimage_sha256": "4aa458eed84466164766a3fe591d978278c14f2c2e2baa88ac3b552c97796572",
+        "postimage_sha256": "a4c3e27a282c2973f62f42f07f94caa5d6dedd1f27bbd48a4eba827c3d07a8b1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-reporting-consumer-fixture-author-20261020-r1/postimages/policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py": {
+        "operation": "update",
+        "preimage_sha256": "9fd9368300940e3f6583b42867b311b4c169fa9990b09e416eb1739d7783aca3",
+        "postimage_sha256": "9db3f4b0751a4aa1e8e4938b49c366ebea3c05fb59eb943fa67a532a59893924",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-float-producer-profile-parity-author-20261020-r1/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-real-consumer-fixture-companions-20261020-r1/source-application.json",
+      "sha256": "1d6e20be6d787050e517d9f98ae65ea145ad0643ca761a991ae9ec12275d7457"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-real-consumer-fixture-companions-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fixture-companion-independent-review-20261020-r1/manifest.json",
+        "sha256": "911a1f6d31a3360c33332e90650e7c1717a5432fe9514ef966cfaed5dd6c86c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fixture-companion-independent-review-20261020-r1/review.md",
+        "sha256": "1b9655e83d7e80d7a1825c166830d5b6d11519acb5a0ac065babd85ba7a5d60f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-reporting-consumer-fixture-author-20261020-r1/manifest.json",
+        "sha256": "2edcd45a1b2949976a107e2c2ad787e7218e3d393a02750eee6298356b4eb02b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-reporting-consumer-fixture-author-20261020-r1/candidate.patch",
+        "sha256": "05da44c7a0932f2e7de5f9caf02cda3cabed529e9710aa31b439d88ce260e847"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-reporting-consumer-fixture-author-20261020-r1/postimages/policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py",
+        "sha256": "a4c3e27a282c2973f62f42f07f94caa5d6dedd1f27bbd48a4eba827c3d07a8b1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-float-producer-profile-parity-author-20261020-r1/manifest.json",
+        "sha256": "90858ebebac8d6207d714912fcf16f0c119b02be31340b546736d41f9ba562a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-float-producer-profile-parity-author-20261020-r1/candidate.patch",
+        "sha256": "5b27801926d39a24f2f498b492c019943fb4f314b0ce3688c5a2aafa92fa41ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-float-producer-profile-parity-author-20261020-r1/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "sha256": "9db3f4b0751a4aa1e8e4938b49c366ebea3c05fb59eb943fa67a532a59893924"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Two NEW test-input boundary classes, independently diagnosed/reviewed; no production semantics change.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Postimage actual tests UNRUN; earlier9modules184P12F are exactbaseline evidence only",
+      "No formalfindingclosure or Gacceptance"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Rerun corrected reporter node and wholeproduction-sourcejoin module after generic objective status fix; include full9module composed replay after blockingpatch batch.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

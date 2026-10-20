@@ -218,8 +218,11 @@ def test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs(tmp_path
         evidence_bundle=evidence_bundle,
         evidence_ref=evidence_ref,
         outcome=_outcome(
-            objective_value=float("inf"),
-            feedback={"stage_marker": "ranking-sentinel-retained-in-memory"},
+            objective_value=0.375,
+            feedback={
+                "stage_marker": "ranking-sentinel-retained-in-memory",
+                "diagnostic_probe": {"value": float("inf")},
+            },
         ),
     )
     artifacts_before = _artifact_id_snapshot(ctx.store)
@@ -234,7 +237,7 @@ def test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs(tmp_path
     )
     assert any(
         item["kind"] == "positive_infinity"
-        and item["location"] == "$.stage_results['4'].objective_value"
+        and item["location"] == "$.stage_results['4'].feedback.diagnostic_probe.value"
         for item in result.error.details["non_finite_values"]
     )
     assert result.state is state

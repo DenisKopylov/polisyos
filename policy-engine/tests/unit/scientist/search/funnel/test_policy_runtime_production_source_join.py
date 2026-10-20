@@ -13,6 +13,7 @@ import pytest
 from polisyos.core.artifacts import input_ref_from_artifact_ref, load_core_json_artifact
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     Metrics,
@@ -170,6 +171,7 @@ def _put_profiled_balance_source(
                 version=Metrics.ARTIFACT_SCHEMA_VERSION,
             ),
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
     metrics_ref = MetricsRef.model_validate(metrics_ref_raw.model_dump(mode="python"))

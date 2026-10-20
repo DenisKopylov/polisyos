@@ -67,30 +67,28 @@ def _put_tenant_owned_json_artifact(
     from polisyos.core.canon import CanonSpec
 
     store = service._artifact_store  # noqa: SLF001
-    ref = store.put_json(
-        payload,
-        ArtifactWriteOptions(
-            kind=kind,
-            media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=schema_version),
-            producer=ProducerInfo(
-                component="polisyos.tests.workspace_loop_transition",
-                version="1.0",
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        ref = store.put_json(
+            payload,
+            ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version=schema_version),
+                producer=ProducerInfo(
+                    component="polisyos.tests.workspace_loop_transition",
+                    version="1.0",
+                ),
+                inputs=inputs,
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ),
             ),
-            inputs=inputs,
-            tenant_context=ArtifactTenantContextInfo(
-                tenant_id=tenant_id,
-                cell_id=cell_id,
-            ),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
-    store.record_artifact_owner(
-        ref.artifact_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        writer="tests.unit.runtime.http.test_workspace_loop_transition",
-    )
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    if ref.manifest_profile_sha256 is None:
+        raise AssertionError("tenant_fixture_producer_did_not_return_selected_profile")
     return ref
 
 
@@ -1197,31 +1195,11 @@ def test_http_control_route_persists_production_and_replay_proofs(
             roles=frozenset({PolicyOSRole.ANALYST}),
         ),
     )
-    service._artifact_store.record_artifact_owner(
-        runtime_api_env["root_artifact_id"],
-        tenant_id=admitted_tenant,
-        cell_id=admitted_cell,
-        writer="test_http_control_route_persists_production_and_replay_proofs",
-    )
-    from polisyos.core.artifacts import ArtifactID, profile_bound_ref
-
-    with tenant_scope(None, tenant_id=admitted_tenant, cell_id=admitted_cell):
-        root_manifest = service._artifact_store.get_manifest(  # noqa: SLF001
-            ArtifactID(runtime_api_env["root_artifact_id"])
-        )
-        source_ref = profile_bound_ref(
-            service._artifact_store,  # noqa: SLF001
-            CoreArtifactRef(
-                artifact_id=root_manifest.artifact_id,
-                kind=root_manifest.kind,
-                media_type=root_manifest.media_type,
-            ),
-        )
-    snapshot_ref = _data_snapshot_ref_for_source(
+    snapshot_ref = _owner_bound_data_snapshot_ref(
         service,
-        source_ref,
         tenant_id=admitted_tenant,
         cell_id=admitted_cell,
+        params={"fixture_id": "r14_served_workflow_custody"},
     )
     stop_embedded_control_worker(service)
     headers = {
@@ -2246,6 +2224,8 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The authorized public route persists N4 while authority stages remain unrun."""
+    import inspect
+
     import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
     from polisyos.core.security.access_scope import AccessScope
     from polisyos.core.security.identity import PolicyOSRole
@@ -2387,11 +2367,17 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         binding_results: list[dict[str, object]] = []
         measurement_scope_bindings: list[tuple[object, object]] = []
         read_events: list[str] = []
+        capture = {"active": True, "phase": "worker_dispatch"}
 
         def capture_job_artifact_read(ref: str, *, kind: str):
-            if ref in {job.payload_ref, job.capability_manifest_ref}:
+            if capture["active"] and ref in {job.payload_ref, job.capability_manifest_ref}:
                 read_kind = "payload" if ref == job.payload_ref else "manifest"
                 read_events.append(read_kind)
+                frame = inspect.currentframe()
+                caller = frame.f_back if frame is not None else None
+                caller_module = caller.f_globals.get("__name__") if caller is not None else None
+                caller_function = caller.f_code.co_name if caller is not None else None
+                caller_line = caller.f_lineno if caller is not None else None
                 access_scope = get_current_access_scope_or_none()
                 tenant_id = get_current_tenant_id_or_none()
                 cell_id = get_current_cell_id()
@@ -2420,6 +2406,10 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
                         "access_scope_roles": tuple(
                             sorted(getattr(role, "value", str(role)) for role in scope_roles)
                         ),
+                        "phase": capture["phase"],
+                        "caller_module": caller_module,
+                        "caller_function": caller_function,
+                        "caller_line": caller_line,
                         "job_id": job.job_id,
                         "run_id": str(job.run_id),
                         "selected_payload_ref": job.payload_ref,
@@ -2511,7 +2501,16 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         finally:
             reset_current_access_scope(access_token)
         assert dispatched_job_id == job_id
-        completed = service.get_job_status(job_id)
+        capture["phase"] = "authenticated_status_readback"
+        status_response = client.get(
+            f"/api/v1/control/jobs/{job_id}",
+            headers=headers,
+        )
+        assert status_response.status_code == 200, status_response.text
+        from polisyos.core.contracts.control import ControlJobResponse
+
+        completed = ControlJobResponse.model_validate(status_response.json())
+        capture["active"] = False
         assert completed.state == "completed"
         assert compiler_gateway.generate_calls
         assert generation_gateway._cursor > 0
@@ -2575,17 +2574,33 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
 
         assert binding_results
         intent_binding = binding_results[0]
-        assert {item["read_kind"] for item in reads} >= {"payload", "manifest"}
+        dispatch_reads = [row for row in reads if row["phase"] == "worker_dispatch"]
+        status_reads = [row for row in reads if row["phase"] == "authenticated_status_readback"]
+        assert {row["read_kind"] for row in dispatch_reads} == {"payload", "manifest"}
         assert all(
             row["tenant_id"] == admitted_tenant
             and row["cell_id"] == cell_id
             and row["access_scope"] is None
-            for row in reads
+            for row in dispatch_reads
         ), (
-            "N4 job artifact reads must use the admitted tenant/cell with no inherited "
-            "request access scope; observed owner/ref/type/role evidence: "
-            f"{reads!r}"
+            "N4 worker reads must use the admitted tenant/cell with no inherited request "
+            "access scope; observed owner/ref/type/role/caller evidence: "
+            f"{dispatch_reads!r}"
         )
+        assert status_reads
+        assert all(
+            row["tenant_id"] == admitted_tenant and row["cell_id"] == cell_id
+            for row in status_reads
+        ), (
+            "authenticated status projection reads must retain the request owner context: "
+            f"{status_reads!r}"
+        )
+        assert any(
+            row["read_kind"] == "payload"
+            and row["caller_module"] == "polisyos.runtime.http.services.control.run_lifecycle"
+            and row["caller_function"] == "_normative_owned_job_source"
+            for row in status_reads
+        ), f"status payload read origin changed: {status_reads!r}"
         assert read_events.index("payload") < read_events.index("manifest")
         assert read_events.index("manifest") < read_events.index("binding")
         assert intent_binding["admission_surface"] == "served_route"

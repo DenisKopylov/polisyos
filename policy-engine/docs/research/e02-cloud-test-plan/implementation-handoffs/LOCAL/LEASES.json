@@ -28005,5 +28005,107 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "la021-tenant-owned-selected-producer-fixture-and-served-read-phase-v4-20261020": {
+    "slice_base": "cbd061390e4867befa5ef85af83ccde6639fa57a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py": {
+        "operation": "write",
+        "preimage_sha256": "3e009e6a0c4e0245ff6abd65ef5f00510ec7d8c7827c5ed42e3f8390221b5e0e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-diagnostic-rootcause-v4-20261020/postimages/policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+        "postimage_sha256": "90467a8062fda14060b01304a95c88627e93835ee9f7fbb9ce1337f3a52bfcde"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-owner-fixture-and-read-phase-v4-adoption-20261020/source-application.json",
+      "sha256": "edda099b7067c6807fb8d29546df17deb04eb008a7e7514b5798f3603070aece"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-owner-fixture-and-read-phase-v4-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-diagnostic-rootcause-v4-20261020/manifest-v4.json",
+        "sha256": "efeacf7a76d12816c885d1001bf0c749b556dedf5965526e44425c821d67032e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-diagnostic-rootcause-v4-20261020/candidate-v4.patch",
+        "sha256": "7ca69a95d8f09831c77bbaf96862c51747b306228894bd5f57f2d6a822e2bc83"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-diagnostic-rootcause-v4-20261020/attribution-caveat-v1.md",
+        "sha256": "eb1f8120c51a3bb2f0c99b1bcba240fc70eeebf541082524a5e548875a1a3295"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-diagnostic-independent-review-v4-20261020-r1/review.json",
+        "sha256": "4865047c09425f785b5fac770ba31d68f6d55c8e635afcf02c73ad1ae4f2a2d4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-node-diagnostic-ab222d06-20261020/attempt-1/actual-run/result.json",
+        "sha256": "5dbd8bc4575ec5eea791672a3791b6d893553e92a4453e4eca1576aa3b24d29f"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same test fixture/source identity and owner-scope verification class. Production predicates remain unchanged; old third-read caller attribution is not established and new actual capture must discriminate it.",
+    "bounded_proof": "Independent full-postimage source GO4865047c with canonical Ruff/AST/apply check; no new runtime yet.",
+    "limitations": [
+      "Test-only one-file candidate; production ownership checks and typed selected-profile mutation refusal unchanged.",
+      "Old 3-node diagnostic passed authority replay but failed 2 HTTP tests; the third N4 caller was not captured. Status-readback attribution remains a hypothesis pending actual current caller/phase capture.",
+      "The original manifest diagnosis is qualified by the separately pinned attribution caveat; do not repeat its stronger attribution as runtime fact.",
+      "Two known-owned incomplete N7/B108 tests remain unchanged.",
+      "No G acceptance, closure, global source freeze or native-green claim.",
+      "No deletion or Trash operation; generic helper relocation wording is inapplicable."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the three prior failed/now-control nodes as an explicit discriminating diagnostic, then both whole authority/workspace modules and the complete lifecycle module after scanner admission repair at a coherent source/profile/input freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

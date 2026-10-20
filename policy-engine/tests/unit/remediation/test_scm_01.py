@@ -79,10 +79,13 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
     with pytest.raises(ValueError, match="require an EMPIRICAL mechanism"):
         StructuralCausalModelSpec(
             graph=spec.graph,
+            source_graph=spec.source_graph,
+            source_graph_ref=spec.source_graph_ref,
+            graph_projection=spec.graph_projection,
             mechanisms=[mechanism for mechanism in spec.mechanisms if mechanism.variable != "Z"]
             + [non_empirical_root],
             fitted=True,
-            fit_method="gcm",
+            fit_method=spec.fit_method,
         )
 
     broken_root = mechanisms["Z"].model_copy(
@@ -96,10 +99,13 @@ def test_observed_roots_are_carried_into_query_without_normal_default(
     with pytest.raises(ValueError, match="share one row count"):
         StructuralCausalModelSpec(
             graph=spec.graph,
+            source_graph=spec.source_graph,
+            source_graph_ref=spec.source_graph_ref,
+            graph_projection=spec.graph_projection,
             mechanisms=[mechanism for mechanism in spec.mechanisms if mechanism.variable != "Z"]
             + [broken_root],
             fitted=True,
-            fit_method="gcm",
+            fit_method=spec.fit_method,
         )
 
     query = SCMQueryData(
@@ -172,11 +178,11 @@ def test_missing_root_is_declared_hypothesis_instead_of_fitted_law() -> None:
                     "intercept": 0.0,
                     "coefficients": {"X": 1.0, "Z": 1.0},
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             )
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
     missing_query = SCMQueryData(
@@ -203,7 +209,7 @@ def test_missing_root_is_declared_hypothesis_instead_of_fitted_law() -> None:
     assert result["envelope"].gate_eligible is False
 
 
-def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_linear() -> None:
+def test_declared_polynomial_candidate_executes_and_linear_control_remains_linear() -> None:
     graph = _graph(("X", "Y"), nodes=["X", "Y"])
 
     polynomial_spec = StructuralCausalModelSpec(
@@ -214,7 +220,7 @@ def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_lin
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -226,11 +232,11 @@ def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_lin
                     "poly_coefficients": {"__intercept__": 0.0, "X^1": 0.0, "X^2": 1.0},
                     "noise_std": 0.0,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
     polynomial_result = GCMQuery.pure_step(
@@ -256,7 +262,7 @@ def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_lin
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -267,11 +273,11 @@ def test_fitted_polynomial_executes_as_polynomial_and_linear_control_remains_lin
                     "coefficients": {"X": 3.0},
                     "noise_std": 0.0,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
     linear = next(item for item in linear_spec.mechanisms if item.variable == "Y")
     assert linear.family is MechanismFamily.LINEAR
@@ -300,7 +306,7 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -312,11 +318,11 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
                     "poly_coefficients": {"__intercept__": 0.0, "X^1": 0.0, "X^2": 1.0},
                     "noise_std": 0.25,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
     result = TwinNetworkQuery.pure_step(
         TwinNetworkQueryData(
@@ -346,8 +352,8 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
     invalid_spec = StructuralCausalModelSpec(
         graph=spec.graph,
         mechanisms=[spec.mechanisms[0], invalid_polynomial],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
     with pytest.raises(ValueError, match="invalid additive_noise polynomial payload"):
         TwinNetworkQuery.pure_step(
@@ -373,8 +379,8 @@ def test_twin_query_reuses_shared_noise_with_polynomial_payload() -> None:
     fractional_spec = StructuralCausalModelSpec(
         graph=spec.graph,
         mechanisms=[spec.mechanisms[0], fractional_polynomial],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
     with pytest.raises(ValueError, match="invalid additive_noise polynomial payload"):
         TwinNetworkQuery.pure_step(

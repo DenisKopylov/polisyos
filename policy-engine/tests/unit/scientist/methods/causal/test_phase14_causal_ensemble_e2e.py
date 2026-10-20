@@ -82,14 +82,14 @@ def _scm_for_graph(graph: CausalGraphModel, coef: float) -> StructuralCausalMode
                     "coefficients": dict.fromkeys(parents, coef),
                     "noise_std": 0.05,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             )
         )
     return StructuralCausalModelSpec(
         graph=graph,
         mechanisms=mechanisms,
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

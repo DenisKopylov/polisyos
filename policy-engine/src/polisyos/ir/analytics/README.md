@@ -69,18 +69,21 @@ available without dropping a caller-supplied selected view.
 
 ## Structural model schema compatibility
 
-`StructuralCausalModelSpec` defaults to schema 1.1, matching the selected GCM
-producer, schema snapshot and reflection catalog. A selected `fit_method="gcm"`
-model requires training rows and observed worker provenance; the schema version
-alone does not establish source custody or causal authority. The existing
-source-bound reader reopens the actual CAS source and validates that provenance.
+`StructuralCausalModelSpec` defaults to schema 1.2, matching the current
+selected producer, schema snapshot and reflection catalog. A selected
+`fit_method="gcm"` model requires source-bound training rows and observed
+worker provenance. Schema 1.2 fitted `gcm` and `native_hybrid` models also
+retain the complete source graph and typed projection disposition. Schema
+versions and graph receipts do not establish source custody, graph truth, or
+causal authority by themselves.
 
-Current readers also accept schema 1.0. They retain 1.0 when a historical CAS
-manifest omits the payload version, rather than inheriting the new constructor
-default. Historical/manual fixtures should declare `schema_version="1.0"`
-explicitly when replaying that profile. Reading or rewriting them does not
-create selected worker provenance. Old 1.0 readers are not declared compatible
-with a new 1.1 producer.
+The current reader directly accepts schema 1.0 and 1.1 and preserves each
+artifact's manifest and payload version; it does not migrate historical bytes
+or upgrade their backend claims. Historical manifests without a payload version
+remain schema 1.0. Older strict 1.0/1.1 readers do not declare forward
+compatibility with schema 1.2 artifacts. Historical/manual replay should use
+its recorded schema profile explicitly when constructing or rewriting an
+artifact.
 
 ## Twin result audit persistence
 

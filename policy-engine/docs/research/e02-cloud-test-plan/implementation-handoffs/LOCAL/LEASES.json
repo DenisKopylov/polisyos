@@ -45226,5 +45226,277 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-scm-r8-reviewed-source-adoption-20261021-r2": {
+    "slice_base": "da35a0f80f9c06d93bf335c089b3113b5be7d4fe",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_actual_causality.py": {
+        "bytes": 15368,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_actual_causality.py",
+        "postimage_sha256": "8d9772a2cae0761b7c46abadf7400d88bfbac7713cb1fe4d40f65ae1e7543bfb",
+        "preimage_sha256": "c565bf256786fb896445b5a06152bd523055a6494b19b33ef03d09b28800b7aa"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_hp_actual_causality.py": {
+        "bytes": 28857,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_hp_actual_causality.py",
+        "postimage_sha256": "26877583a9341669db04323fd1b426b23e5b5754285251c546813137d1335a66",
+        "preimage_sha256": "0c02a7601c1d2b9d4bcd4a2964ab4b7206e1bddabebbba38f94c4cd1951b0754"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py": {
+        "bytes": 22967,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py",
+        "postimage_sha256": "c82c3b48447157d6f635cdf167a1e92ba9bd81e91942dfcc21b06d5f92e2a902",
+        "preimage_sha256": "1b1ea84d5ef9a02fa0328485960eb0e4ac2838a90fd6ed1f52749600a0aa0a75"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py": {
+        "bytes": 12930,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+        "postimage_sha256": "24dcd4ce08107d9809786f0c10d32053faf46a08405450b10a517d0efec8c7de",
+        "preimage_sha256": "40f3c533b8980559fe7f38b25907deac4e920111d868f08c999a8752549ce23a"
+      },
+      "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py": {
+        "bytes": 8248,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+        "postimage_sha256": "8160b4b0da0e8ab1b5ad15c647f06ee022ae418a3f63a3243b812be909966daf",
+        "preimage_sha256": "e65940a3294dcd9ef4733a861e01aacad8ee388fe7c19614d11bc47dd094a1f2"
+      },
+      "policy-engine/tests/unit/remediation/test_scm_01.py": {
+        "bytes": 13383,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/remediation/test_scm_01.py",
+        "postimage_sha256": "11c784be62cbe16e433ef0d8bd1f8a1f4812383670b16240452763a271e2b566",
+        "preimage_sha256": "540cea3d50bae0d1fed9126800e6142c73cc312f05357c591d8e9876173fb7ce"
+      },
+      "policy-engine/tests/unit/remediation/test_scm_02.py": {
+        "bytes": 38761,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/remediation/test_scm_02.py",
+        "postimage_sha256": "3493f6530eb754daf79c277da4bb9800060126251b62620cec4922c13db9fcd6",
+        "preimage_sha256": "6b110e96cacb0439eaff2c7d28a9be2fa83f3ca33753a6b0ba7fcfc2d31bf049"
+      },
+      "policy-engine/tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py": {
+        "bytes": 9429,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py",
+        "postimage_sha256": "98e6a8b1dd961baf1f68d721a6ab27ee2ad06c6684a05a9e2641555e4fcc34cf",
+        "preimage_sha256": "4a42139ffafadc17d879efb263d14d60d84642ef7f4705e64c0cd86ea956b304"
+      },
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py": {
+        "bytes": 13573,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py",
+        "postimage_sha256": "7290e2202e702ba42a35d1aff84e26f67ca8204e72fb3bf90338e9b7669f963f",
+        "preimage_sha256": "f42b5e18c51517c55dc7fbe329a38b4e4ea83ba81dfaf35ad9efd6feb7628329"
+      },
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_queries_node.py": {
+        "bytes": 6648,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/tests/unit/scientist/methods/causal/test_run_causal_queries_node.py",
+        "postimage_sha256": "3e9a343911e62b87148c1748eb6eccb408201ab12fe30e73ea40293a26faa69d",
+        "preimage_sha256": "3c62ff6fabe613ca8d291f95f2fba2e029be2c1c54a289f6c65138677d2097f4"
+      },
+      "policy-engine/src/polisyos/ir/migrations/schema_registry.py": {
+        "bytes": 5832,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+        "postimage_sha256": "b60a27ea0319511f90a8e084ac2b034d03887c9cb56fc9856908b2aebd53af1d",
+        "preimage_sha256": "ded5e983f7c9863ae12c9e2eb60ab610d7bd3e9963d7f739652a833b820740c7"
+      },
+      "policy-engine/src/polisyos/ir/analytics/README.md": {
+        "bytes": 18610,
+        "mode": "100644",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/src/polisyos/ir/analytics/README.md",
+        "postimage_sha256": "6a05825c5085d2ef5cd86e8101e27ad6cf95f08415f3881e24bb4df3779efcd0",
+        "preimage_sha256": "d681fff0d56869485fa8138f0b702aaf0fdb1287d3c6dc76c24a39f6365aa457"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-21-scm-schema-1-2-reader-compatibility.toml": {
+        "bytes": 3785,
+        "mode": "100644",
+        "operation": "create",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimages/policy-engine/release-fragments/unreleased/2026-10-21-scm-schema-1-2-reader-compatibility.toml",
+        "postimage_sha256": "db26f0aebd34daaee06e4434d84a30b04399ff3d461c751dde29dacf69120205",
+        "preimage_sha256": null
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scm-r8-reviewed-source-adoption-20261021-r2/source-application.json",
+      "sha256": "5e982dabe3c8504e1aca8ab4559d7b177bdc2294ca08086252dd5b7af713e8da"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scm-r8-reviewed-source-adoption-20261021-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-scm-sixteen-whole-c1bdda35-20261021-r2/actual/result.json",
+        "sha256": "e184610850c59974deae09a6363478dea2530f395dc3540e1d8df23e938fb7c6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-scm-sixteen-whole-c1bdda35-20261021-r2/actual/cases.jsonl",
+        "sha256": "568e2d6fc32f2e854dd0b3d1814a6551e5751fb5a27596e060b85b58fb725ea0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-scm-sixteen-whole-c1bdda35-20261021-r2/actual/pytest.xml",
+        "sha256": "bf13346c61f8c703a9558131c3980cdf417bfc4e1bf7af8c41c75c46d7754fdf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r6-test-companions-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "c0da467ca8a95b02051b2acac28d0cf85a16bb147ad0d0b10159222edf5a3425"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-r6-batch-20261021-r1/review.json",
+        "sha256": "30d0258be6a4ec67eac7ec5fefaee9ce6999491196f07423383cccb0e20c88e3"
+      },
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+        "sha256": "3f2b2de8ff552879ee663a5bc4fa456b137c432b85cfb4ceaaa3c8e51ccaa0c0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/ncm.py",
+        "sha256": "10424b06697b2d598d34a0aaa79172e7acecdd258a71752ea0e0d9be5e9b75dd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/migrations/base.py",
+        "sha256": "0ce02caf7f2a110c60715a849f7a4b24c6a01f1e4cb525129013a52138fa2a38"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+        "sha256": "2e7b465db1eb09a27830fe38f94c1cbf48caeec3f183c08876cadd0783c94985"
+      },
+      {
+        "path": "policy-engine/docs/reference/foundry/structural-causal-models.md",
+        "sha256": "7b34ff75fbb1249ad1aaf0d16238e42a207ed0a29f2cc986ed3eb530516a7f83"
+      },
+      {
+        "path": "policy-engine/docs/reference/schemas.md",
+        "sha256": "1cbc55cba9de278c926378c2cb32833055d6b806d0be36a3f89b87ecbc68f393"
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+        "sha256": "3f8820a3504650b9f30711d924600691218dbc67e1f1e6367a8c3989166ab9e3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "sha256": "d681fff0d56869485fa8138f0b702aaf0fdb1287d3c6dc76c24a39f6365aa457"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+        "sha256": "eefa64331fb42dcfde9727b3420b283777a79d7deb103d3a57b470d5c35cbb7e"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml",
+        "sha256": "6868dbc2c06ebc0e35d4d9fc45e4afc5495ab03cee7e947ca01db5157d37646b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-compute-coordination-20261020-r1/with_source_freeze_lock.py",
+        "sha256": "662f9c1bbd665244c5c53cd846ade1ccc64ea0f23ced30f7570bb0f77218364f"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ruff-first-party-r3-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "e971083b51450bea40b884d6ddb17b44829080247dfda6b8e0860a6010bdef5a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r7/plan.json",
+        "sha256": "7ddf031688338057d4946e7f4adddb31830f6a6d700d2aed639962419d6c4470"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r7/canonical-context-preflight.json",
+        "sha256": "b0f6eb07105037918363bdb8ff217f0c3343161079f9a474dece16a9b0f3a113"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/unapplied.patch",
+        "sha256": "9a981065fe104a0bb91bb040191b1ec24bc51aaabed542ed17f391dc141bd519"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/failure-partition.json",
+        "sha256": "e357d3a3b8d585b3885e0cf0d8e849d361d67142926dab945b955b562ebe5ffa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/static-verification.json",
+        "sha256": "49b1f1c1a2416eb395d3085513381b6569eed78e4870a7fa30402a3754b2e0ed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/postimage-manifest.json",
+        "sha256": "93606aa2b588e28369bdfdb0e44ed9322f464f1121dd387f729144f1f7e8dd6b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/native-validation.json",
+        "sha256": "9b43fb0bc7d0152f4e11bd81a341fea49092a30b0400800cb808bc8248a4e5b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-scm-r8-source-review-20261021-r1/review.json",
+        "sha256": "932faf8590e75a4d3bbc7d02ad8dcd966847956e491125c9e9c846de3352c7ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-scm-1-2-compatibility-fixture-class-20261021-r8/canonical-context-preflight.json",
+        "sha256": "41c7efd4290588ea5e6e5208919194923c994024f4990ff116c29a3f64b03176"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scm-r8-reviewed-source-adoption-20261021-r1/plan.json",
+        "sha256": "5db2fbfd9dfa3e90fa72ffee8b9d149508549cc3522c6bbb2e6b7adada71c2cf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scm-r8-reviewed-source-adoption-20261021-r1/outer-preflight-failure.json",
+        "sha256": "5adb77f2007d7ee3bac17d8598d43331dfd42cc4e3485db53f986eef5ae71b34"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "One class-level repair: manually assembled SCM fixtures made unsupported GCM/data-fitted assertions across the full ten-module importer set. Two validator tests were masked at the same earlier source-disposition gate.",
+      "falsifier": "Mutate actual native-hybrid negative probe inputs while preserving their real source disposition and assert the intended validator messages; remove the source disposition while retaining markers and prove the earlier guard refuses. Fresh 1.0/1.1 reads preserve wire versions while 1.2 direct compatibility remains directional.",
+      "repair": "Widen to all manually authored model fixtures in the complete selected risk set; preserve actual fitted producer output and native-hybrid validation probes with exact source graph disposition. Do not repair one node/assertion at a time."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "The original actual GCM worker test fails because the locked DoWhy 0.14 worker bridge is unavailable in this Python 3.12 environment; this candidate intentionally preserves its real positive requirement and does not fake, skip, or replace it.",
+      "Two optional EconML tests remain skipped in the source run; no support claim is made.",
+      "This fixture/schema compatibility repair does not establish graph truth, causal identification, empirical calibration, or publication authority.",
+      "This is an unapplied RAW candidate; root applies after review. Generated schema-catalog/public-surface reconciliation remains pending its owner.",
+      "Since the source run, the exact seven locked EconML distributions were added to the existing CPython3.14 venv; prior optional skips must be rerun, not carried forward. Public schema catalog/snapshots remain not established until canonical regeneration."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Full original16whole HTE/SCM cohort plus ForestDR importer/real-fit controls at this composed source/profile; genuine Linux CPython3.12 DoWhy worker positive separately. Canonical schema catalog regeneration/check and corrupt drift required before release closeout.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

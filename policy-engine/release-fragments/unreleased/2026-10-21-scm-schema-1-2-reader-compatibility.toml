@@ -1,0 +1,44 @@
+id = "2026-10-21-scm-schema-1-2-reader-compatibility"
+title = "Declare direct SCM 1.2 reader compatibility"
+type = "fixed"
+component = "ir"
+owner = "team-ir"
+summary = "Complete the schema registry declaration for the existing StructuralCausalModelSpec 1.2 reader and preserve exact historical 1.0/1.1 wire profiles."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir.StructuralCausalModelSpec CAS artifact"
+compatibility = "Schema 1.2 is the current StructuralCausalModelSpec writer profile. The current reader directly accepts bound schema 1.0 and 1.1 payloads and retains their exact payload/manifest version without migration. Schema 1.2 adds source_graph, source_graph_ref, and graph_projection; strict 1.0/1.1 readers are not declared compatible with 1.2. GCM and native_hybrid schema 1.2 fits require the typed source-graph disposition in addition to their applicable fit-custody fields."
+migration = "No stored bytes are rewritten. Keep historical artifacts under their original manifest/payload version and use a 1.2-capable reader for new artifacts; old strict readers must be upgraded before reading 1.2 fields. Reading a historical version does not promote its fit method, provenance, source graph, or authority."
+api = "The SCM schema registry declares the existing direct-read behavior as BACKWARD with explicit readable versions 1.0 and 1.1. New model constructors and default writes use 1.2. Historical schema 1.0 missing-payload-version handling remains unchanged. The source schema and worker implementation are unchanged by this compatibility declaration."
+limitations = "Schema negotiation is not source custody or causal identification. Manually specified equations remain candidate assumptions. This candidate preserves the genuine locked DoWhy GCM producer test; its pinned DoWhy 0.14 worker remains unavailable in the current Python 3.12 test environment, so no actual selected-worker pass is claimed here. Generated schema-catalog/public-surface reconciliation remains pending its designated owner."
+evidence = [
+  "src/polisyos/ir/migrations/schema_registry.py",
+  "src/polisyos/ir/analytics/README.md",
+  "tests/unit/ir/test_structural_causal_model_versions.py",
+  "tests/unit/foundry/methods/catalog/causal/test_actual_causality.py",
+  "tests/unit/foundry/methods/catalog/causal/test_hp_actual_causality.py",
+  "tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py",
+  "tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+  "tests/unit/remediation/test_scm_01.py",
+  "tests/unit/remediation/test_scm_02.py",
+  "tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py",
+  "tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py",
+  "tests/unit/scientist/methods/causal/test_run_causal_queries_node.py",
+]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/ir/analytics/README.md", "docs/reference/ir/schema-catalog.md", "docs/reference/foundry/structural-causal-models.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scm-schema-1-2-direct-reader-compatibility"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_stable: polisyos.ir StructuralCausalModelSpec CAS schema"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Register schema 1.2 as the current SCM reader profile, directly reading historical 1.0/1.1 artifacts without rewriting their wire versions or upgrading their fit claims."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/ir/analytics/README.md", "docs/reference/ir/schema-catalog.md"]
+runbook_docs = []

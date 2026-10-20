@@ -45,6 +45,17 @@ def register_default_schema_rules() -> None:
         ),
     )
     register_schema_version(
+        "structural_causal_model_spec",
+        "1.2",
+        compatibility=CompatibilityMode.BACKWARD,
+        readable_versions=("1.0", "1.1"),
+        additive_optional_fields=("source_graph", "source_graph_ref", "graph_projection"),
+        notes=(
+            "The 1.2 reader accepts and preserves exact historical 1.0/1.1 payload versions without rewriting or upgrading their fit provenance.",
+            "Schema 1.2 fitted GCM/native_hybrid artifacts require a typed source-graph disposition; older strict readers do not declare compatibility with 1.2.",
+        ),
+    )
+    register_schema_version(
         "trinity_bundle",
         "1.0",
         compatibility=CompatibilityMode.FULL,

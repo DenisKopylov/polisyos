@@ -15,7 +15,13 @@ from polisyos.foundry import causal_worker_execution_context, validate_source_bo
 from polisyos.foundry.methods.catalog.causal import _dowhy_worker as worker_bridge
 from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    GraphProjectionStatus,
+    GraphType,
+    graph_projection_disposition,
+)
 from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     load_structural_causal_model_spec,
@@ -33,12 +39,16 @@ def _root_graph():
 def test_current_scm_default_and_real_catalog_advertise_same_version():
     model = StructuralCausalModelSpec(graph=_root_graph(), fit_method="manual")
     entry = inspect_ir_schema("StructuralCausalModelSpec")
-    assert model.schema_version == entry.schema_version == "1.1"
+    assert model.schema_version == entry.schema_version == "1.2"
     assert entry.compat_mode == CompatibilityMode.BACKWARD.value
-    assert entry.compat_readable_versions == ("1.0",)
-    decision = negotiate_schema_version("structural_causal_model_spec", "1.0", "1.1")
-    assert decision.can_read and not decision.migration_required
-    assert not negotiate_schema_version("structural_causal_model_spec", "1.1", "1.0").can_read
+    assert entry.compat_readable_versions == ("1.0", "1.1")
+    for historical_version in ("1.0", "1.1"):
+        decision = negotiate_schema_version(
+            "structural_causal_model_spec", historical_version, "1.2"
+        )
+        assert decision.can_read and not decision.migration_required
+    assert not negotiate_schema_version("structural_causal_model_spec", "1.2", "1.1").can_read
+    assert not negotiate_schema_version("structural_causal_model_spec", "1.2", "1.0").can_read
 
 
 def test_current_scm_generated_snapshot_and_manifest_match_catalog():
@@ -47,8 +57,8 @@ def test_current_scm_generated_snapshot_and_manifest_match_catalog():
         (root / "schemas/snapshots/ir/structural_causal_model_spec.schema.json").read_text()
     )
     manifest = json.loads((root / "schemas/snapshots/ir/_manifest.json").read_text())
-    assert snapshot["properties"]["schema_version"]["default"] == "1.1"
-    assert manifest["models"]["structural_causal_model_spec"]["schema_version"] == "1.1"
+    assert snapshot["properties"]["schema_version"]["default"] == "1.2"
+    assert manifest["models"]["structural_causal_model_spec"]["schema_version"] == "1.2"
 
 
 @pytest.mark.parametrize("explicit_version", [True, False])
@@ -90,18 +100,42 @@ def test_actual_legacy_manifest_preserves_version_without_worker_authority(
     )
 
 
+def test_actual_1_1_manifest_is_read_without_version_upgrade(tmp_path):
+    store = FileSystemCAS(tmp_path)
+    model = StructuralCausalModelSpec(
+        schema_version="1.1", graph=_root_graph(), fit_method="manual"
+    )
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
+    assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
+
+    loaded = load_structural_causal_model_spec(
+        _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref
+    )
+    assert loaded == model
+    assert loaded.schema_version == "1.1"
+    assert loaded.fit_provenance is None and loaded.training_rows is None
+
+
 def test_current_default_gcm_cannot_inherit_legacy_missing_worker_marker():
+    graph = _root_graph()
+    disposition = graph_projection_disposition(graph, graph, status=GraphProjectionStatus.IDENTITY)
     with pytest.raises(
         ValueError, match="selected GCM fit requires training rows and observed worker provenance"
     ):
-        StructuralCausalModelSpec(graph=_root_graph(), fit_method="gcm", fitted=True)
+        StructuralCausalModelSpec(
+            graph=graph,
+            source_graph=graph,
+            graph_projection=disposition,
+            fit_method="gcm",
+            fitted=True,
+        )
 
 
 def test_new_manual_model_cas_envelope_uses_current_version(tmp_path):
     store = FileSystemCAS(tmp_path)
     model = StructuralCausalModelSpec(graph=_root_graph(), fit_method="manual")
     ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
-    assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
+    assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.2"
     loaded = load_structural_causal_model_spec(
         _ensure_ir_artifact_store(FileSystemCAS(tmp_path)), ref
     )
@@ -144,7 +178,7 @@ def test_actual_selected_gcm_producer_manifest_and_fresh_reader(monkeypatch, tmp
     assert (
         model.schema_version
         == inspect_ir_schema("StructuralCausalModelSpec").schema_version
-        == "1.1"
+        == "1.2"
     )
     assert model.fit_method == "gcm" and model.fit_provenance.versions["dowhy"] == "0.14"
     assert model.fit_provenance.worker_response["result"]["fit_function"] == "dowhy.gcm.fit"
@@ -153,7 +187,7 @@ def test_actual_selected_gcm_producer_manifest_and_fresh_reader(monkeypatch, tmp
         expected[1], abs=1e-12
     )
     ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
-    assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.1"
+    assert store.get_manifest(ref.artifact_id).artifact_schema.version == "1.2"
     fresh_store = FileSystemCAS(tmp_path)
     loaded = load_structural_causal_model_spec(_ensure_ir_artifact_store(fresh_store), ref)
     validate_source_bound_gcm_spec(loaded, fresh_store)

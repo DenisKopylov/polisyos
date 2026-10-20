@@ -78,7 +78,7 @@ def _linear_chain(
                     "coefficients": {},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -89,11 +89,11 @@ def _linear_chain(
                     "coefficients": {"X": coefficient},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 
@@ -141,7 +141,7 @@ def _empirical_covariate_scm() -> StructuralCausalModelSpec:
                 parents=[],
                 family=MechanismFamily.LINEAR,
                 family_params={"intercept": 0.0, "coefficients": {}, "noise_std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Z",
@@ -155,7 +155,7 @@ def _empirical_covariate_scm() -> StructuralCausalModelSpec:
                     "observed_sample_alignment": "row-index",
                     "joint_sample_group": "scm-02-fixture",
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -166,11 +166,11 @@ def _empirical_covariate_scm() -> StructuralCausalModelSpec:
                     "coefficients": {"X": 1.0, "Z": 1.0},
                     "noise_std": 0.0,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

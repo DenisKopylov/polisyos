@@ -58,11 +58,11 @@ def _minimal_scm() -> StructuralCausalModelSpec:
                     "coefficients": {"X": 1.0},
                     "noise_std": 0.05,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             )
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

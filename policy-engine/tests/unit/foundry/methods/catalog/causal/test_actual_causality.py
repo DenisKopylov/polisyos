@@ -67,7 +67,7 @@ def _make_scm(
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -78,11 +78,11 @@ def _make_scm(
                     "coefficients": {"T": coeff_t},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

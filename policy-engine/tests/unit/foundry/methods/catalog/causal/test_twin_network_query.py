@@ -47,7 +47,7 @@ def _chain_scm(*, noise_std: float = 0.5) -> StructuralCausalModelSpec:
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -58,11 +58,11 @@ def _chain_scm(*, noise_std: float = 0.5) -> StructuralCausalModelSpec:
                     "coefficients": {"X": 2.0},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 
@@ -87,7 +87,7 @@ def _fork_scm(*, noise_std: float = 0.5) -> StructuralCausalModelSpec:
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="X",
@@ -98,7 +98,7 @@ def _fork_scm(*, noise_std: float = 0.5) -> StructuralCausalModelSpec:
                     "coefficients": {"Z": 1.0},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -109,11 +109,11 @@ def _fork_scm(*, noise_std: float = 0.5) -> StructuralCausalModelSpec:
                     "coefficients": {"X": 1.5, "Z": 0.8},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

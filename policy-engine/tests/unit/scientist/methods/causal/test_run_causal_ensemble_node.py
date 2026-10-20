@@ -65,15 +65,15 @@ def _build_scm(
                     "coefficients": {parent: float(coefficient_scale) for parent in parents},
                     "noise_std": 0.05,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             )
         )
 
     return StructuralCausalModelSpec(
         graph=graph,
         mechanisms=mechanisms,
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

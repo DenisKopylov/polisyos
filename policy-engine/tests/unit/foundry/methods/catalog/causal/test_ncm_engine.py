@@ -64,7 +64,7 @@ def _chain_scm(*, noise_std: float = 0.0) -> StructuralCausalModelSpec:
                 parents=[],
                 family=MechanismFamily.EMPIRICAL,
                 family_params={"mean": 0.0, "std": 1.0},
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(
                 variable="Y",
@@ -75,11 +75,11 @@ def _chain_scm(*, noise_std: float = 0.0) -> StructuralCausalModelSpec:
                     "coefficients": {"X": 2.0},
                     "noise_std": noise_std,
                 },
-                source=MechanismSource.DATA_FITTED,
+                source=MechanismSource.DEFAULT,
             ),
         ],
-        fitted=True,
-        fit_method="gcm",
+        fitted=False,
+        fit_method="manual",
     )
 
 

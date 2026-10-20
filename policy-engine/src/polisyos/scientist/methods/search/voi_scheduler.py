@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Mapping, Sequence
 from decimal import Decimal
@@ -332,6 +333,68 @@ class VOIModelSnapshot(BaseModel):
     calibration_state: dict[str, Any] = Field(default_factory=dict)
 
 
+def _policy_runtime_source_concordance(vector: Any) -> dict[str, Any] | None:
+    """Recompute the persisted fiscal projection from its content-bound source fields."""
+    try:
+        from polisyos.scientist.methods.search.objective import (
+            _BALANCE_ALIASES,
+            _DEFICIT_ALIASES,
+            BudgetDeficitObjective,
+        )
+        from polisyos.scientist.policy_design.objectives import _score_source_projection
+
+        score_source = vector.score_source
+        metadata = vector.metadata
+        if not isinstance(score_source, Mapping) or not isinstance(metadata, Mapping):
+            return None
+        source = dict(score_source)
+        projection = _score_source_projection(source)
+        if projection is None:
+            return None
+
+        def encode(value: Any) -> str:
+            return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+        if encode(projection) != encode(source):
+            return None
+
+        measurement = metadata.get("policy_runtime_fiscal_measurement")
+        if not isinstance(measurement, Mapping) or set(measurement) != {
+            "usable",
+            "normalized_value",
+            "source_values",
+        }:
+            return None
+        fiscal_aliases = (*_BALANCE_ALIASES, *_DEFICIT_ALIASES)
+        source_values = {name: source[name] for name in fiscal_aliases if name in source}
+        claimed_source_values = measurement.get("source_values")
+        if not isinstance(claimed_source_values, Mapping):
+            return None
+        if encode(dict(claimed_source_values)) != encode(source_values):
+            return None
+
+        objective = BudgetDeficitObjective().evaluate(source_values)
+        usable = objective.score_status is ObjectiveScoreStatus.AVAILABLE
+        normalized_value = objective.raw_value if usable else None
+        expected = {
+            "usable": usable,
+            "normalized_value": normalized_value,
+            "source_values": source_values,
+        }
+        if encode(dict(measurement)) != encode(expected):
+            return None
+        if (
+            type(source.get("budget_deficit_objective_usable")) is not bool
+            or "budget_deficit_objective_value" not in source
+            or source.get("budget_deficit_objective_usable") is not usable
+            or encode(source["budget_deficit_objective_value"]) != encode(normalized_value)
+        ):
+            return None
+        return source
+    except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
+        return None
+
+
 def _policy_evaluation_vector_source_chain_matches_store(
     store: Any,
     source_result_ref: ArtifactRef,
@@ -431,20 +494,7 @@ def _policy_evaluation_vector_source_chain_matches_store(
         if actual_input_keys != expected_input_keys:
             return False
 
-        fiscal_measurement = vector.metadata.get("policy_runtime_fiscal_measurement")
-        if not isinstance(fiscal_measurement, Mapping):
-            return False
-        fiscal_aliases = ("gov_balance", "government_balance", "budget_deficit", "deficit")
-        expected_fiscal_measurement = {
-            "usable": vector.score_source.get("budget_deficit_objective_usable"),
-            "normalized_value": vector.score_source.get("budget_deficit_objective_value"),
-            "source_values": {
-                alias: vector.score_source[alias]
-                for alias in fiscal_aliases
-                if alias in vector.score_source
-            },
-        }
-        return dict(fiscal_measurement) == expected_fiscal_measurement
+        return _policy_runtime_source_concordance(vector) is not None
     except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
         return False
 
@@ -611,31 +661,12 @@ def _work_packet_claim_matches_store(store: Any, observation: VOIObservation) ->
         ]:
             return False
 
-        fiscal_measurement = metadata.get("policy_runtime_fiscal_measurement")
-        score_source = result_vector.score_source
-        if not isinstance(fiscal_measurement, Mapping) or not isinstance(score_source, Mapping):
+        source_concordance = _policy_runtime_source_concordance(result_vector)
+        if source_concordance is None:
             return False
-        source_values = fiscal_measurement.get("source_values")
-        units = score_source.get("metric_units")
-        if not isinstance(source_values, Mapping) or not isinstance(units, Mapping):
-            return False
-        recomputed_source = dict(source_values)
-        recomputed_source["budget_deficit_objective_usable"] = fiscal_measurement.get("usable")
-        recomputed_source["budget_deficit_objective_value"] = fiscal_measurement.get(
-            "normalized_value"
-        )
-        for name in (
-            "metric_units",
-            "objective_channels",
-            "feasible",
-            "blocking_reasons",
-            "bootstrap",
-        ):
-            if name in score_source:
-                recomputed_source[name] = score_source[name]
         if (
-            not score_assessment_matches_source(assessment, recomputed_source)
-            or _project_score_assessment_source(assessment, recomputed_source)
+            not score_assessment_matches_source(assessment, source_concordance)
+            or _project_score_assessment_source(assessment, source_concordance)
             != observation.objective_source
         ):
             return False

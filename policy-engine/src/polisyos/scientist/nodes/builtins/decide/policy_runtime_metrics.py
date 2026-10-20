@@ -13,6 +13,8 @@ from polisyos.foundry.methods import AmbiguityCertificate
 from polisyos.ir import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics import CausalEffectReport, DistributionalReport
 from polisyos.scientist.methods.search.objective import (
+    _BALANCE_ALIASES,
+    _DEFICIT_ALIASES,
     BudgetDeficitObjective,
     ObjectiveScoreStatus,
 )
@@ -32,12 +34,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
     from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
-_FISCAL_METRIC_ALIASES = (
-    "gov_balance",
-    "government_balance",
-    "budget_deficit",
-    "deficit",
-)
+_FISCAL_METRIC_ALIASES = (*_BALANCE_ALIASES, *_DEFICIT_ALIASES)
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
     AttributeError,

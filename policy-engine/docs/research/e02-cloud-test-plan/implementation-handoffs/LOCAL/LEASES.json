@@ -42859,5 +42859,94 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-voi-source-concordance-r2-adoption-20261020-r1": {
+    "slice_base": "a17cdb010beb490f9242a691f28529c1f401b9c3",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py": {
+        "operation": "update",
+        "preimage_sha256": "bc25f3d4f6fe07660c0236ccfb475050bee856be55211da6d897e150a241cdbd",
+        "postimage_sha256": "176b330311653d8132483a60f940b5f7b2db1b04b28d83069f361a072323dbd6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r2/candidate/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/policy_design/objectives.py": {
+        "operation": "update",
+        "preimage_sha256": "b682c9f333d8a97e39cdef42b43f7b95d892dbdee0b119a6763cac5df5189ec8",
+        "postimage_sha256": "f353a209aa1773b9ca2208bfdbc23f0f4bdc727b72d5d9fcec73ee0edcf9823a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r2/candidate/src/polisyos/scientist/policy_design/objectives.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py": {
+        "operation": "update",
+        "preimage_sha256": "4afd27e6a5d3e463726f936c506d54159d45eb5ae9ab22feac80e012f8ad8af4",
+        "postimage_sha256": "6b1fa26b61b70809b906aa850e15f80329b28edd86450a1bbd2e8cc5eabe171e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r2/candidate/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py": {
+        "operation": "update",
+        "preimage_sha256": "c4590fc1d6a20da6c48022667df3923cd338cbf6b77b33de6cdf7381d4a9d039",
+        "postimage_sha256": "47b1d4557ae125d1754b08ebf118ec48c7d31b81955717b3e8e220c11216938e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r2/candidate/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "update",
+        "preimage_sha256": "62701f98c1b7e6023d529b9353206f88632cfbe6d0e5643cf8be7d20696c3385",
+        "postimage_sha256": "654ec7873cf56884b99ce7ae1eb63fa9f017d2126fa5ff1206ecd606755eaaa3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r2/candidate/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-source-concordance-r2-adoption-20261020-r1/source-application.json",
+      "sha256": "1adc3ec32b1dad1d862e160f947c7f70e4a001c8b9ce92ce88d2c97ddbccbe92"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-source-concordance-r2-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r2/selected-profile-chain-source-freeze-manifest-r2.json",
+        "sha256": "6ba807088d5461d597f5b3da5330e7e42728a9694f25ddede37456f42b313d4d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-independent-review-20261020-r1/r2-independent-review.json",
+        "sha256": "bd5afc9088a83da3ce62d3895987e6a535fab7da2f538a44cbe615756453e958"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-diagnostic-20261020-r1/selected-profile-chain-source-freeze-manifest-r1.json",
+        "sha256": "c3f69c98945ada73848be21c5100e3c618b49fb5b13b8c5287ade8f361b7e072"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-profile-chain-independent-review-20261020-r1/review.json",
+        "sha256": "31c246559e2d4fc31de5d36647a905c56b8933667cc6ae314fa35bf78e696c4c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW source projection/verifier content-concordance class repaired at shared relation; marker-only/malformed inputs fail closed.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Actual old nine-module result129PASS/40FAIL remains historical; candidate runtime UNRUN.",
+      "SourceMetricObservation remains government-balance-only; 35 USD stock does not establish budget-deficit metric.",
+      "G b7adafe selects AD01/02/03 engineering contracts; this change alone does not implement them or create acceptance/closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Source-bound composed nine-module then complete importer checks after all blocking source reviews; pending AD01 typed metric observations remain distinct.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

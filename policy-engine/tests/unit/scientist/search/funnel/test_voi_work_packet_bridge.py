@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import re
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -110,11 +112,12 @@ def _persist_profileless_legacy_packet(
 
 
 def _candidate(identifier: str) -> PolicyCandidateSchema:
+    problem_slug = re.sub(r"[^a-z0-9_]+", "_", identifier.lower()).strip("_") or "candidate"
+    problem_digest = hashlib.sha256(identifier.encode()).hexdigest()[:8]
+    problem_id = f"problem_{problem_slug}_{problem_digest}"
     return PolicyCandidateSchema.from_trinity_bundle(
         TrinityBundle(
-            problem_frame=ProblemFrame(
-                problem_id=f"problem-{identifier}", domain=ProblemDomain.FISCAL
-            ),
+            problem_frame=ProblemFrame(problem_id=problem_id, domain=ProblemDomain.FISCAL),
             policy_spec=PolicySpec(policy_id=f"policy-{identifier}"),
             model_spec=ModelSpec(
                 model_id=f"model-{identifier}",

@@ -28,6 +28,8 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.scientist.agent.constraint_context import extract_budget_envelope
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.objective import (
+    _BALANCE_ALIASES,
+    _DEFICIT_ALIASES,
     _POLICY_RUNTIME_INVOCATION_ABSENT,
     _POLICY_RUNTIME_INVOCATION_FIELDS,
     ObjectiveScoreAssessment,
@@ -760,6 +762,18 @@ def _score_source_projection(source: Mapping[str, Any]) -> dict[str, Any] | None
             for name in _POLICY_RUNTIME_INVOCATION_FIELDS
             if name in raw_bootstrap
         }
+    fiscal_source_fields = (
+        *_BALANCE_ALIASES,
+        *_DEFICIT_ALIASES,
+        "budget_deficit_objective_usable",
+        "budget_deficit_objective_value",
+    )
+    fiscal_projection = {name: source[name] for name in fiscal_source_fields if name in source}
+    try:
+        json.dumps(fiscal_projection, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    projection.update(fiscal_projection)
     return projection
 
 

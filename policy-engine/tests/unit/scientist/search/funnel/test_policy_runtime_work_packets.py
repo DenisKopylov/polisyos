@@ -32,7 +32,10 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
-from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
+from polisyos.scientist.methods.search.voi_scheduler import (
+    PredictiveVOIScheduler,
+    _policy_runtime_source_concordance,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _budget_deficit_measurement,
     _build_policy_simulation_results_impl,
@@ -48,7 +51,12 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _PolicyRuntimeWorkflowEngine,
 )
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
+    PolicyEvaluationVector,
+)
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
@@ -140,6 +148,109 @@ class _RecordingWorkflowEngine(_PolicyRuntimeWorkflowEngine):
             deepcopy({key: initial_state.get(key) for key in _CONFIG_KEYS})
         )
         return super().run(initial_state)
+
+
+def _runtime_vector_for_fiscal_source(metrics: dict[str, Any]) -> PolicyEvaluationVector:
+    """Build the real runtime score-source projection around supplied fiscal aliases."""
+    invocation = _policy_runtime_execution_metadata(
+        evaluation_attempt_id="attempt-fiscal-source",
+        effective_estimation_config={"n_bootstrap": 0},
+    )
+    fiscal_measurement = _budget_deficit_measurement(metrics)
+    vector = PolicyEvaluationVector(
+        candidate_id="candidate_fiscal_source_contract",
+        primary={
+            "policy_value": ObjectiveChannelValue(
+                name="policy_value",
+                kind=ObjectiveKind.PRIMARY,
+                value=0.1,
+                direction=ObjectiveDirection.MAXIMIZE,
+                expected_unit="fixture-unit",
+            )
+        },
+        metadata={
+            "policy_runtime_invocation": invocation,
+            "policy_runtime_fiscal_measurement": fiscal_measurement,
+        },
+    )
+    source = {
+        "objective_channels": {"policy_value": 0.1},
+        "metric_units": {"channel:primary:policy_value": "fixture-unit"},
+        "feasible": True,
+        "blocking_reasons": [],
+        "bootstrap": dict(invocation),
+        "budget_deficit_objective_usable": fiscal_measurement["usable"],
+        "budget_deficit_objective_value": fiscal_measurement["normalized_value"],
+        **metrics,
+    }
+    return vector.with_score_source_results(source)
+
+
+@pytest.mark.parametrize(
+    ("metrics", "present_alias"),
+    [
+        ({}, None),
+        ({"gov_balance": None}, "gov_balance"),
+        ({"budget_deficit": "malformed"}, "budget_deficit"),
+        ({"budget_deficit": 0.0}, "budget_deficit"),
+    ],
+    ids=("absent", "explicit-null", "malformed-present", "numeric-present"),
+)
+def test_runtime_source_concordance_recomputes_fiscal_projection_and_keeps_presence(
+    metrics: dict[str, Any], present_alias: str | None
+) -> None:
+    vector = _runtime_vector_for_fiscal_source(metrics)
+
+    concordant = _policy_runtime_source_concordance(vector)
+
+    assert concordant is not None
+    measurement = vector.metadata["policy_runtime_fiscal_measurement"]
+    assert measurement["source_values"] == metrics
+    fiscal_aliases = ("gov_balance", "government_balance", "budget_deficit", "deficit")
+    assert {key for key in fiscal_aliases if key in concordant} == set(metrics)
+    if present_alias is not None:
+        assert present_alias in concordant
+        assert concordant[present_alias] == metrics[present_alias]
+    assert concordant["budget_deficit_objective_usable"] is measurement["usable"]
+    assert concordant["budget_deficit_objective_value"] == measurement["normalized_value"]
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        "marker_only",
+        "metadata_absent",
+        "metadata_null",
+        "metadata_wrong_type",
+        "source_value_drift",
+        "source_value_marker_absent",
+    ],
+)
+def test_runtime_source_concordance_rejects_unbound_fiscal_projection(tamper: str) -> None:
+    vector = _runtime_vector_for_fiscal_source({})
+    metadata = dict(vector.metadata)
+    score_source = dict(vector.score_source or {})
+    if tamper == "marker_only":
+        score_source["budget_deficit_objective_usable"] = True
+        score_source["budget_deficit_objective_value"] = 1.0
+    elif tamper == "source_value_marker_absent":
+        score_source.pop("budget_deficit_objective_value")
+    elif tamper == "metadata_absent":
+        metadata.pop("policy_runtime_fiscal_measurement")
+    elif tamper == "metadata_null":
+        metadata["policy_runtime_fiscal_measurement"] = None
+    elif tamper == "metadata_wrong_type":
+        measurement = dict(metadata["policy_runtime_fiscal_measurement"])
+        measurement["usable"] = "false"
+        metadata["policy_runtime_fiscal_measurement"] = measurement
+    else:
+        measurement = dict(metadata["policy_runtime_fiscal_measurement"])
+        measurement["source_values"] = {"gov_balance": None}
+        metadata["policy_runtime_fiscal_measurement"] = measurement
+
+    tampered = vector.model_copy(update={"metadata": metadata, "score_source": score_source})
+
+    assert _policy_runtime_source_concordance(tampered) is None
 
 
 def _policy_candidate() -> PolicyCandidateSchema:
@@ -809,6 +920,7 @@ def test_work_packet_consumer_rejects_nonexact_input_edge_multiset(
             inputs=packet_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     stage.evaluate = lambda _candidate, _context: stage_result_with_packet(
         packet_ref,

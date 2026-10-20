@@ -29336,5 +29336,212 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b2004-core-ir-test-fixture-adapter-r2-20261020": {
+    "slice_base": "2775b1091299aa675ae3bca79ce880566ebc0c67",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py": {
+        "operation": "write",
+        "preimage_sha256": "95943c67063f94eec8fb7233bcf1127e1bd4583b5222f20cf9892bf1a4536b98",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b2004-core-ir-fixture-adapter-r2-adoption-20261020/postimages/policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+        "postimage_sha256": "cdd222cf456d00dcfeed21ba85ed896c5224b2f9e47a9d2c7802f2df68d4b5a8"
+      },
+      "policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py": {
+        "operation": "write",
+        "preimage_sha256": "6e4c1457671607ca0b60bc1a105aa0921aa434c2d5477a2cd7bb11fe201732c0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b2004-core-ir-fixture-adapter-r2-adoption-20261020/postimages/policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+        "postimage_sha256": "d866260b80fb5f87cf88fe68b39d41f9e6d21bceba6c4dceb426c35495b7d26c"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b2004-core-ir-fixture-adapter-current-r3-20261020/source-application.json",
+      "sha256": "aea0f43306903f87b946c357fe44422dcd50023c2188c3c18a4d84fcbd0d2ed9"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b2004-core-ir-fixture-adapter-current-r3-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/manifest-r2.json",
+        "sha256": "be35d07c03fe9515cd210b7cec396cbe756a3faaa466aef42edaf35938cd20cc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/candidate.patch",
+        "sha256": "e86b88b55f207f63b82d5e5190c774de9750482e9000891c5d57948151c8f9c6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-core-ir-adapter-independent-review-20261020/review.json",
+        "sha256": "f888982eda788b6a65c5134df47256268dd6490b63d23a9ccf049d79c314bf52"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-core-ir-adapter-independent-review-20261020/manifest.json",
+        "sha256": "b825240cabb23a8af479ebbaed8c01f80116df3d38659054ce462a4aff4e44e5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/static-validation.json",
+        "sha256": "00c190dac36e08f9722b4d7e94e819a26132f7fe86cacc31d44979842f926714"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/apply-check-be09.json",
+        "sha256": "89fc18dd10ad4b0840651319065e3ea24880e2efee4be4edb06384755972f6c8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/boundary-discriminator-run.json",
+        "sha256": "b786ed56c6177be27e159e7528c9b54889e67207c9b23f00e5b71f77671b80f8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/boundary_discriminator.py",
+        "sha256": "1f4bc2d7bd7c993ee4688a003434224c000dc37c11acc4aff007111498f4bf69"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/boundary-discriminator.stdout.txt",
+        "sha256": "f17b64de963f951cdf11d6691191840ff3d12c6380658b9e05c961b2385f6d77"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/caller-audit-current-frame.json",
+        "sha256": "8449832be7e872868cc38bb9f6280d02bafaaeeea815212bbf1a6e01f5d30efe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b2004-ir-core-typed-boundary-r1-20261020/caller_audit.py",
+        "sha256": "dcb83db8bae4d95437f5c283d047fe8c980d9c6079e1c4f6c6004e0e069de682"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b199-b200-four-whole-module-wave-20261020/attempt-3/actual-run/result.json",
+        "sha256": "57851fc64f9a41e2fae9c7b4a2e194df147d1c480e493d0e3423061c961dfd8a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b199-b200-four-whole-module-wave-20261020/attempt-3/actual-run/pytest-case-reports.jsonl",
+        "sha256": "4b5606b24c911ad754c272758ba935311445cc0c7bbfc1ce7f0b5eab0dc981c3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-typed-batch-abort-r2-adoption-20261020/plan.json",
+        "sha256": "435a0b38724ed8cf64148724a8d6d1019081427fb9ab79a0f8407663489b9d7b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256": "77484ec5b8b60c1a95a8ce9fde9ffb46def7f0c29a8d76f3e1a21be98cea7ac1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "sha256": "665c2449d412e97460bf4a679f17af85d0adf63a151c000ca1dd05c0ab21ab9b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "sha256": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "d8f81f9ce281309c242b23b5ef7aefd2d270a6423ea0c5c0dd752b0961b27be8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "sha256": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "e51acde35fd2bef91b90db2e8ca2bd7ec2c5f60646960121b9d341719e2a09a6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "sha256": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b2004-core-ir-fixture-adapter-r2-adoption-20261020/apply-check-current-base.json",
+        "sha256": "bb59b88ff4de44f7172a13cb90bb0758617d62556bc69c9aba2d0becfdadd50f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b2004-core-ir-fixture-adapter-r2-adoption-20261020/plan.json",
+        "sha256": "e656cd7cfa0f5f85d46234a0479b626f23bc33fb2cf01153bee6f76878318e4f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-i4-v4-v7-r8-known-applied-import-companion-r6-20261020/implementation-readback-preservation-r2.json",
+        "sha256": "f6bf75a8cf193543047a05a13cb2149b82a946d905b25d7c2a6d947cc60a9a9b"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "A single repeated test-fixture Core/IR intake mismatch class across 18 sites; candidate centralizes the repair in one local adapter helper in each affected test module. No product fallback or assertion weakening.",
+    "bounded_proof": "Independent review GO is bound to the exact two source postimages and candidate patch. Test ASTs preserve all existing test bodies after only the fixture-constructor wrap; exact postimages pass native Ruff check/format, and the patch passes git apply --check at this current base. Candidate runtime remains UNRUN.",
+    "limitations": [
+      "The source delta is limited to two test modules; no Core/IR production contract or uncertainty aggregation logic is edited by this candidate.",
+      "The earlier 57-case four-module baseline is diagnostic only; its capture_environment_bound is false and must not be treated as R8-qualified evidence.",
+      "The current four-module replay after adoption is required and must capture actual collection and runtime origins.",
+      "No B199/B200 closure, G acceptance, global test pass, or source-freeze claim is made.",
+      "Both known-owned dirty test files are preserved exactly at their pinned hashes; no restore/reset/stash/delete/Trash action is part of this plan."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After adoption, run all four modules unfiltered in the root-approved native A94/R8 harness using normal project pytest configuration and one worker, recording complete collection/execution/JUnit/origin/stdout/stderr/source-integrity evidence. Re-derive the item count. Modules: tests/unit/remediation/test_uqs_01.py; tests/unit/foundry/uncertainty/test_aggregation_strategies.py; tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py; tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py. The full unit module must retain test_monte_carlo_producer_metadata_stays_per_source_in_both_entrypoints; the boundary discriminator is not a replacement.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

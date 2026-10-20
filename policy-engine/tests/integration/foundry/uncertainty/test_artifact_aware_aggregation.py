@@ -6,7 +6,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
+from polisyos.core.artifacts import (
+    FileSystemCAS,
+    artifact_manifest_profile_sha256,
+    ensure_ir_artifact_store,
+)
 from polisyos.foundry.uncertainty.aggregator import (
     aggregate_envelopes,
     load_aggregated_envelope_fresh,
@@ -23,7 +27,11 @@ from polisyos.ir.analytics.uncertainty import (
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    InputRef,
+    put_json_artifact,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel
 
@@ -36,8 +44,13 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.integration
 
 
+def _ir_store(tmp_path: Path) -> ArtifactStore:
+    """Return a Core filesystem CAS through its supported IR bridge."""
+    return ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+
+
 def _persist_dispatched_envelope(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     source_label: str,
 ) -> UncertaintyEnvelopeRef:
@@ -109,7 +122,7 @@ def _persist_dispatched_envelope(
 def test_real_dispatcher_source_views_are_persisted_aggregated_and_fresh_read(
     tmp_path: Path,
 ) -> None:
-    producer = FileSystemCAS(tmp_path)
+    producer = _ir_store(tmp_path)
     left = _persist_dispatched_envelope(producer, source_label="source-a")
     right = _persist_dispatched_envelope(producer, source_label="source-b")
 
@@ -137,7 +150,7 @@ def test_real_dispatcher_source_views_are_persisted_aggregated_and_fresh_read(
         (left, right),
         method="precision_weighted",
     )
-    fresh = FileSystemCAS(tmp_path)
+    fresh = _ir_store(tmp_path)
     combined = load_aggregated_envelope_fresh(
         fresh,
         combined_ref,

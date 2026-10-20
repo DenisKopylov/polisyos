@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS, ensure_ir_artifact_store
 from polisyos.foundry.uncertainty.aggregator import (
     aggregate_envelopes,
     aggregate_persisted_envelope_views,
@@ -26,7 +26,11 @@ from polisyos.ir.analytics.uncertainty import (
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    InputRef,
+    put_json_artifact,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 
@@ -36,7 +40,12 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.unit
 
 
-def _source_ref(store: FileSystemCAS, label: str) -> ArtifactRefModel:
+def _ir_store(tmp_path: Path) -> ArtifactStore:
+    """Return a Core filesystem CAS through its supported IR bridge."""
+    return ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+
+
+def _source_ref(store: ArtifactStore, label: str) -> ArtifactRefModel:
     return ArtifactRefModel.model_validate(
         put_json_artifact(
             store,
@@ -51,7 +60,7 @@ def _source_ref(store: FileSystemCAS, label: str) -> ArtifactRefModel:
 
 
 def _persist_envelope(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     *,
     source_label: str,
     point: float = 10.0,
@@ -160,7 +169,7 @@ def test_in_memory_fake_origin_and_relation_labels_cannot_narrow() -> None:
 
 
 def test_exact_selected_view_repeats_once_with_ordered_fresh_lineage(tmp_path: Path) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     source = _persist_envelope(
         store,
         source_label="source-a",
@@ -172,7 +181,7 @@ def test_exact_selected_view_repeats_once_with_ordered_fresh_lineage(tmp_path: P
     preview = aggregate_persisted_envelope_views(store, (source, source), method="widest")
     receipt = persist_aggregated_envelope(store, (source, source), method="widest")
     fresh = load_aggregated_envelope_fresh(
-        FileSystemCAS(tmp_path),
+        _ir_store(tmp_path),
         receipt,
         source_refs=(source, source),
         method="widest",
@@ -193,7 +202,7 @@ def test_exact_selected_view_repeats_once_with_ordered_fresh_lineage(tmp_path: P
     assert preview.gate_eligible is True
     with pytest.raises(ValueError, match="manifest_source_mismatch"):
         load_aggregated_envelope_fresh(
-            FileSystemCAS(tmp_path),
+            _ir_store(tmp_path),
             receipt,
             source_refs=(source,),
             method="widest",
@@ -203,7 +212,7 @@ def test_exact_selected_view_repeats_once_with_ordered_fresh_lineage(tmp_path: P
 def test_same_payload_with_distinct_selected_profiles_is_not_deduplicated(
     tmp_path: Path,
 ) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     envelope = UncertaintyEnvelope(
         point_estimate=10.0,
         confidence_interval=(8.04, 11.96),
@@ -277,7 +286,7 @@ def test_recognized_context_conflicts_refuse_in_memory_and_cas(
     with pytest.raises(ValueError, match="explicit_context_mismatch"):
         aggregate_envelopes((left, right), method="widest")
 
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     left_ref = _persist_envelope(
         store, source_label="left-context", unit=None, context=left_context
     )
@@ -301,7 +310,7 @@ def test_same_envelope_context_alias_conflict_refuses_in_memory() -> None:
 def test_same_envelope_context_alias_conflict_refuses_selected_cas_before_dedup(
     tmp_path: Path,
 ) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     conflicting_ref = _persist_envelope(
         store,
         source_label="same-envelope-alias-conflict",
@@ -329,7 +338,7 @@ def test_malformed_recognized_context_refuses_in_memory_and_cas(tmp_path: Path) 
     with pytest.raises(ValueError, match="explicit_context_malformed"):
         aggregate_envelopes((malformed, compatible), method="widest")
 
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     malformed_ref = _persist_envelope(
         store, source_label="malformed-context", unit=None, context={"unit": 17}
     )
@@ -343,7 +352,7 @@ def test_malformed_recognized_context_refuses_in_memory_and_cas(tmp_path: Path) 
 def test_monte_carlo_producer_metadata_stays_per_source_in_both_entrypoints(
     tmp_path: Path,
 ) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     inputs = {
         "x": _memory_envelope(point=1.0),
         "z": _memory_envelope(point=2.0),
@@ -431,7 +440,7 @@ def test_monte_carlo_producer_metadata_stays_per_source_in_both_entrypoints(
     preview = aggregate_persisted_envelope_views(store, selected_refs, method="widest")
     aggregate_ref = persist_aggregated_envelope(store, selected_refs, method="widest")
     fresh = load_aggregated_envelope_fresh(
-        FileSystemCAS(tmp_path), aggregate_ref, source_refs=selected_refs, method="widest"
+        _ir_store(tmp_path), aggregate_ref, source_refs=selected_refs, method="widest"
     )
     assert preview == fresh
     assert preview.metadata["unique_selected_view_count"] == 2
@@ -477,7 +486,7 @@ def test_nondefault_numeric_policy_is_preserved_by_both_entrypoints(
     assert direct.numeric_policy == policy
     assert direct.point_estimate == point
 
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     left = _persist_envelope(
         store, source_label=f"left-{method}", point=point, numeric_policy=policy
     )
@@ -498,7 +507,7 @@ def test_numeric_policy_conflict_refuses_in_memory_and_cas(tmp_path: Path) -> No
     with pytest.raises(ValueError, match="numeric_policy_mismatch"):
         aggregate_envelopes((left_envelope, right_envelope))
 
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     left = _persist_envelope(store, source_label="left-exact", numeric_policy=exact)
     right = _persist_envelope(store, source_label="right-default")
     with pytest.raises(ValueError, match="numeric_policy_mismatch"):
@@ -506,7 +515,7 @@ def test_numeric_policy_conflict_refuses_in_memory_and_cas(tmp_path: Path) -> No
 
 
 def test_explicit_unit_conflict_is_refused(tmp_path: Path) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     dollars = _persist_envelope(store, source_label="dollars", unit="USD")
     pounds = _persist_envelope(store, source_label="pounds", unit="GBP")
 
@@ -522,7 +531,7 @@ def test_explicit_unit_conflict_is_refused(tmp_path: Path) -> None:
 def test_unprofiled_foreign_kind_or_media_refuses_without_default_fallback(
     tmp_path: Path,
 ) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     source = _persist_envelope(store, source_label="source-a")
     unprofiled = source.model_copy(update={"manifest_profile_sha256": None})
     foreign_kind = source.model_copy(update={"kind": "ir.posterior_summary"})
@@ -537,7 +546,7 @@ def test_unprofiled_foreign_kind_or_media_refuses_without_default_fallback(
 
 
 def test_wrong_uncertainty_schema_is_rejected(tmp_path: Path) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     source = _persist_envelope(store, source_label="source-a")
     payload = load_uncertainty_envelope(store, source)
     wrong_schema_raw = put_json_artifact(
@@ -556,14 +565,14 @@ def test_wrong_uncertainty_schema_is_rejected(tmp_path: Path) -> None:
 
 
 def test_changed_source_order_is_rejected_by_fresh_reader(tmp_path: Path) -> None:
-    store = FileSystemCAS(tmp_path)
+    store = _ir_store(tmp_path)
     left = _persist_envelope(store, source_label="source-a")
     right = _persist_envelope(store, source_label="source-b")
     receipt = persist_aggregated_envelope(store, (left, right), method="widest")
 
     with pytest.raises(ValueError, match="manifest_source_mismatch"):
         load_aggregated_envelope_fresh(
-            FileSystemCAS(tmp_path),
+            _ir_store(tmp_path),
             receipt,
             source_refs=(right, left),
             method="widest",

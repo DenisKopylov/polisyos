@@ -45692,5 +45692,147 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-native-ruff-i001-five-reviewed-source-adoption-20261021-r3": {
+    "slice_base": "56b45c52a1519299648a6fcf572693e238892fd4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/archive/migrate_to_trinity.py": {
+        "operation": "update",
+        "mode": "100755",
+        "bytes": 9025,
+        "preimage_sha256": "dec998baa9e959b50ab1dd18aba76724eee670a185c3e7dcc79056ce79a0b473",
+        "base_git_blob": "2fb67e5740a1682ab684313febfee95da4b79197",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/postimages/tools/archive/migrate_to_trinity.py",
+        "postimage_sha256": "71d3e54cbe4f85c0846c63bdeb4a4534ad4b25ffaefcce472ea0331b95a84ffa"
+      },
+      "policy-engine/tools/quality/diagnostics/check_udf_perf.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 6138,
+        "preimage_sha256": "54fc44d47c9fc8f95170cfec0e1f52f1852f344cb2c5a8379d8b8979c939ed1b",
+        "base_git_blob": "a0321bba7dcecca4656527964c2452ea30401dd8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/postimages/tools/quality/diagnostics/check_udf_perf.py",
+        "postimage_sha256": "6436ed29dce8b3184563841f49be23a938546cea0a7250f4cd106312f1cff1d5"
+      },
+      "policy-engine/tools/research/demos/run_mechanism_design.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 17077,
+        "preimage_sha256": "a03ea625d2229ae704e083a052b569934156715c9ead1e2f140c046941eaf485",
+        "base_git_blob": "913371bb219c5fe802e80ca2ca1b076c96d85dd0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/postimages/tools/research/demos/run_mechanism_design.py",
+        "postimage_sha256": "ef7ea802b84e82dcbaa963899dcbe82729a2668ff7208f3c4892e9cf3f260a1f"
+      },
+      "policy-engine/tools/research/demos/run_udf_hybrid_demo.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 2823,
+        "preimage_sha256": "c2631eb401a64f8c16a0e7bff4148bbe65efb722de413cc6fa805e624653f789",
+        "base_git_blob": "bed319a9faa4dc8469ac04e2662201ba3810611f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/postimages/tools/research/demos/run_udf_hybrid_demo.py",
+        "postimage_sha256": "1e576b06270062c1e115fc34f930d1a92d526bf6f560eada6a821ae4296d8fd0"
+      },
+      "policy-engine/tools/research/demos/run_udf_query_demo.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 2238,
+        "preimage_sha256": "2f95113873ee6cf6a2497ff5022b469258113911c5a182e186a78c96694eea52",
+        "base_git_blob": "6cbf98b8d11cce15a7976a034e21cc2b571269ab",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/postimages/tools/research/demos/run_udf_query_demo.py",
+        "postimage_sha256": "28987b18f3df5e774e319b92f6f9ab881532be6a4aaa2789cc330498afd352d7"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-five-reviewed-source-adoption-20261021-r3/source-application.json",
+      "sha256": "1e2ec952639317f69d8df04115c7daccc4ae5e2426c4ea7e479b57b58f55f2ff"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-five-reviewed-source-adoption-20261021-r3/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/manifest.json",
+        "sha256": "7c16e63557d205b0a66b2295ddec68c0e5601188ba6bb0442e26f57d2011befa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r5/proposed-unapplied-i001.patch",
+        "sha256": "9fdcf341278ed8e56dd0e7af9def1779a5323749e0f85ced0c0c5762d231ae53"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-native-ruff-i001-companion-review-20261021-r1/review.json",
+        "sha256": "b72a6d9170d1b98c8b4c096a069250cb77a4db6595a62f4d2350127fec8e31fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-role-gate-20261021-r1/review.json",
+        "sha256": "e266bce633b0d3b657056fd7d2badfab5aa4663debf29b81fd1d33d62393c687"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-role-gate-20261021-r1/request.json",
+        "sha256": "9376a708beb0bbbdaa9c1edd3db56332263d54fbe629a05af9ed9ea4575bc9f5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-role-gate-20261021-r1/result.json",
+        "sha256": "8c7e71637636734e788c3a3283eb1bab5585ebb41e45cef76f3af6f083b01ba4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-role-gate-20261021-r1/file-sets.json",
+        "sha256": "e4ae5bdabb7da497293c09e42aa2a3c72495d173992369d1d50324ea70f62021"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-i001-seven-role-fix-20261021-r3/prepare_candidate.py",
+        "sha256": "5f2f08f75df9eba958c133875b2698d2d39cc61535fdd6b86951fcd3a086e89c"
+      },
+      {
+        "path": "policy-engine/ruff.toml",
+        "sha256": "e9aae7023e86c1ed6446eecbc5d3d14d1192e6186d369ee7b5ddd85221c4be2f"
+      },
+      {
+        "path": "policy-engine/ruff.generated.toml",
+        "sha256": "aba5a903bc9b43394ce29d2d3f68fa3b8596dfd47b74d953dca4bf04db34cfb7"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-existing-mode-outer-20261021-r1/run.py",
+        "sha256": "824171f7c3d1e09fde9e8294f062e8433a94be1d9635ffc6d0d012b99a704678"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-native-ruff-mode-adoption-review-20261021-r1/review.json",
+        "sha256": "fc8da6915db377fabe12c6f1e4a738b602971874fa5d0410c3ad36edc72eeff6"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "SAME stable first-party import classification class; one whole observed five-path native-role companion batch",
+      "falsifier": "After adoption rerun all five native Ruff roles over the complete recomputed file sets; do not infer full native SOTA success from these roles."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Full 6700-input native role replay remains required on adopted bytes.",
+      "No product imports/tests or import-side-effect proof.",
+      "No full SOTA/backend/CI-parity/G acceptance or closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Rerun the exact full authored lint, evidence lint, Phase8 lint, authored format and evidence format role commands; retain complete deciding outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

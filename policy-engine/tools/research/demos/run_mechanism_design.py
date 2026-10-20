@@ -31,7 +31,6 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 import optax
-from polisyos.foundry.domain.state import GlobalState
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -39,6 +38,7 @@ from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, ProgramGra
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry.agent_sim.agents import AgentPolicy
 from polisyos.foundry.compile.api import compile as compile_foundry
+from polisyos.foundry.domain.state import GlobalState
 from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
     create_mechanism_from_spec,
 )
@@ -56,9 +56,8 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 
 if TYPE_CHECKING:
-    from polisyos.foundry.base import Mechanism
-
     from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.foundry.base import Mechanism
 
 # --- CONFIG (TWEAKED) ---
 N_AGENTS = 5000

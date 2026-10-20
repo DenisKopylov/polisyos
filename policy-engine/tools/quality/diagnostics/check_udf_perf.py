@@ -16,10 +16,9 @@ from tools.lib.imports import ensure_repo_import_roots
 REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
 
 try:
+    from polisyos.fabric.io.db import SimulationDB
     from polisyos.fabric.io.graph_store import GraphStore
     from polisyos.fabric.udf.engine import UDFEngine
-
-    from polisyos.fabric.io.db import SimulationDB
     from polisyos.ir.analytics.data_views import (
         AccessTier,
         DataFilter,

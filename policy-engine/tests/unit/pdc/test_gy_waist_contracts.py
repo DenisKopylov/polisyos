@@ -303,8 +303,14 @@ def test_gy_content_hash_streams_five_measurement_rows_and_reduces_peak() -> Non
             tracemalloc.stop()
         return result, peak
 
-    expected_hash, legacy_peak = measure_peak(lambda: _reference_gy_content_hash(payload))
-    actual_hash, streamed_peak = measure_peak(lambda: gy_content_hash(payload))
+    gc_was_enabled = gc.isenabled()
+    gc.disable()
+    try:
+        expected_hash, legacy_peak = measure_peak(lambda: _reference_gy_content_hash(payload))
+        actual_hash, streamed_peak = measure_peak(lambda: gy_content_hash(payload))
+    finally:
+        if gc_was_enabled:
+            gc.enable()
 
     assert actual_hash == expected_hash
     assert streamed_peak < legacy_peak / 2

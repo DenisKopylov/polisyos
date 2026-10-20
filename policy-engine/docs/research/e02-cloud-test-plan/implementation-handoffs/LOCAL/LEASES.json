@@ -41868,5 +41868,139 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-streaming-profile-workload-companions-20261020-r1": {
+    "slice_base": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/pdc/_impl/gy_waist.py": {
+        "operation": "update",
+        "preimage_sha256": "c22843ab9cd3779ce161940eb6ed7e807ad13f98ac2d8d1550bfac227da5b3e5",
+        "postimage_sha256": "dfa76857553445fa7c9e783883dea1e531c6995563ba1ecc13cfc8eaf1a33e09",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-hash-profile-workload-postimages-20261020-r1/policy-engine/src/polisyos/pdc/_impl/gy_waist.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/pdc/test_gy_waist_contracts.py": {
+        "operation": "update",
+        "preimage_sha256": "51d169053f41eeaba076b709bda10cacca4d7b294e0104fd7c00b2b03d5645f5",
+        "postimage_sha256": "4ef589dab0daff20cf435d780c875b1013726cdf7158327166674edf6c12b61c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-hash-profile-workload-postimages-20261020-r1/policy-engine/tests/unit/pdc/test_gy_waist_contracts.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-gy-content-hash-iterative-streaming.toml": {
+        "operation": "update",
+        "preimage_sha256": "fae96e2b9033b34b7c614f09f9b5fd326fc9c70bbdbba240eeb68a0b2088037a",
+        "postimage_sha256": "cd82fcf906866488e489c2c878c7c80425ad45f8598cbb80f9d904eaa69028cc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-hash-profile-workload-postimages-20261020-r1/policy-engine/release-fragments/unreleased/2026-10-20-gy-content-hash-iterative-streaming.toml",
+        "mode": "100644"
+      },
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py": {
+        "operation": "update",
+        "preimage_sha256": "9f947d706f2fbaa906d6e9813fbd3b6129c6b16a69feed85706fe5b34732263c",
+        "postimage_sha256": "3a8ace39b70af577ede15b37bfddc846ec6d6b5875b94c7912dd766983bf6897",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-hash-profile-workload-postimages-20261020-r1/policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py": {
+        "operation": "update",
+        "preimage_sha256": "3b5f9b1d7d6a6829d9752984741877c4310e972f4d549840d6474447e58a00ec",
+        "postimage_sha256": "c0a26f2366eb5bb2e021eec2c2512eb6db5e76c3849d23df531f0476732a3eca",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-retrieval-all-media-selected-copy-author-20261020-r3/postimages/policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/data_forge/read_api/test_lazy_typed_exports.py": {
+        "operation": "update",
+        "preimage_sha256": "4c8545c39b633618dfa1ac3dc1b8226b5e8186d4b21d935aa883bd30473b20de",
+        "postimage_sha256": "a9f77c47302ba8be7fd18ae8f9f92d1a56ff7605e2971e170fe60ac7802d3f6c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-facade-binding-oracle-r3-20261020/postimages/policy-engine/tests/unit/data_forge/read_api/test_lazy_typed_exports.py",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-shared-runtime-admission-scope.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "0671d7f90be06dcb45ab42d218a6742bf6650d208ab08a0bbba91f8d2e0c00b0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-hash-profile-workload-postimages-20261020-r1/shared-admission-decision.md",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-streaming-profile-workload-companions-20261020-r1/source-application.json",
+      "sha256": "b419f668c8692a33e9f050685cbf4137c1ff93abda435919f76b85e7710be593"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-streaming-profile-workload-companions-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-whole-payload-hash-author-20261020-r4/manifest.json",
+        "sha256": "bbea92189920f8717a979e5180913b7214bc0faafac05dd74dcf1688735098af"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-whole-payload-hash-author-20261020-r4/candidate.patch",
+        "sha256": "7a9fd3fb080e30e027a4373aa39b0cba8ebb570daa1eeef36aefb0a7133f8f00"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-whole-payload-hash-r4-independent-delta-review-20261020-r1/review.json",
+        "sha256": "38bc86df7629defc3560b0f39dc230d55148f18890c6734390c793465d012ea8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-actual-parallel-runtime-proof-624f9dee-20261020-r1/proposal-and-source-pins.json",
+        "sha256": "314772434a5b6dbff6af82df3d33103efac4d41bd8c8335ae25b6ea2e275bce8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-actual-parallel-runtime-proof-624f9dee-20261020-r1/r4-independent-review-20261020-r1.json",
+        "sha256": "516ba2655c85b97245f9663388e189bf15632722e1a07679f1eea71e895d0275"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-retrieval-all-media-selected-copy-author-20261020-r3/manifest.json",
+        "sha256": "c9f8bc703585d21a374eebf0166c5c6467879c1885250ba3b292562199ab9131"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-retrieval-all-media-selected-copy-r3-independent-review-20261020-r1.json",
+        "sha256": "f6ce2204590fe88b6c2de73f22aa842a0782ad31341f4009a4a579d598e8d89f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-facade-binding-oracle-r3-20261020/manifest.json",
+        "sha256": "653e822dbfdbdaa9fefd02f344b1c68d2c34b063710bf2d910d12ba3fd61af8b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-facade-binding-oracle-r3-independent-review-20261020-r1/manifest.json",
+        "sha256": "06b29520a0057ddbde08e8f0dd00a2fb4b9e5af44719abae4690e3004faef08b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-hash-profile-workload-postimages-20261020-r1/materialization-readback.json",
+        "sha256": "322e597123c6d05a4ee973b8afaa9a4dfd840fb1b422bea1fb6de4eb1dd09d77"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "hash": "SAME allocation class deeper; all token-emission sites widened once rather than weakening peak gate.",
+      "retrieval": "SAME producer/profile class deeper; whole explicit write intent applied across all media, no per-case reader exception.",
+      "facade": "SAME canonical-owner proxy class deeper; generic all-scopes/all-exports invariant, no item-specific exemption.",
+      "R4": "SAME shared-worker ownership proof class; complete actual request/effective policy and preserved measured roster/cap/removal, bounded residual for inner-fold/production facts."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Product replay on adopted bytes pending, static reviews are not runtime acceptance.",
+      "Unmodified served N7 three-node replay must measure actual process RSS; standalone hash peak is not whole-path proof.",
+      "Actual C12 physical producer generation and selected GET/POST reached vector mode but real consumer result empty; semantic FAIL remains open.",
+      "Score partial-invocation and VOI restore proposals remain HOLD pending complete presence-aware/type/content replay.",
+      "All external authority/currentness/custody/calibration/qualifying production workloads remain separately evidenced or held; G formal acceptance remains independent."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole hash+retrieval110, C12fourwholefacade/forecast modules, unmodifiedservedN7three cases alone3GiB, R3/R4whole13modulesincludingactualcompetingRuntimejobs and matchedremoval.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

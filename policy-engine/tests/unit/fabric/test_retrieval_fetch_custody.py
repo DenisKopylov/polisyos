@@ -1088,7 +1088,7 @@ def _copy_artifact(store, original_ref, payload, *, inputs=None, profiled=True):
             canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
             return_selected_profile=True,
         )
-    return store.put_bytes(payload, options)
+    return store.put_bytes(payload, options, return_selected_profile=profiled)
 
 
 @pytest.mark.parametrize("mutation", ["tail_value", "stable_metadata", "source_changed"])
@@ -1197,7 +1197,7 @@ def test_json_payload_storage_uses_the_encoded_snapshot_when_source_mutates(tmp_
 
 def test_profileless_json_payload_is_not_reclassified_as_verified(tmp_path):
     from polisyos.core import canon
-    from polisyos.core.artifacts import PutOptions, input_ref_from_artifact_ref
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
     from polisyos.fabric.retrieval import custody
 
     with build_recorded_file_fetch_owner(tmp_path) as owner:
@@ -1209,17 +1209,10 @@ def test_profileless_json_payload_is_not_reclassified_as_verified(tmp_path):
             )
         )
         payload = owner.store.get_bytes(receipt.result.data.artifact_id)
-        manifest = owner.store.get_manifest(receipt.result.data.artifact_id)
-        profileless_payload = owner.store.put_bytes(
-            payload,
-            PutOptions(
-                kind=manifest.kind,
-                media_type=manifest.media_type,
-                schema=manifest.artifact_schema,
-                producer=manifest.producer,
-                inputs=[],
-            ),
+        profileless_payload = _copy_artifact(
+            owner.store, receipt.result.data, payload, inputs=[], profiled=False
         )
+        assert profileless_payload.manifest_profile_sha256 is None
         receipt = receipt.model_copy(
             update={"result": receipt.result.model_copy(update={"data": profileless_payload})}
         )

@@ -3,7 +3,7 @@ title = "Stream built-in GY content hashes iteratively"
 type = "changed"
 component = "pdc"
 owner = "team-polisyos"
-summary = "Hash built-in JSON-compatible GY payloads with iterative validation and serialization while retaining the established digest and full payload denominator."
+summary = "Hash built-in JSON-compatible GY payloads with iterative traversal and one-shot scalar encoding while retaining the established digest and full payload denominator."
 evidence = [
   "src/polisyos/pdc/_impl/gy_waist.py",
   "tests/unit/pdc/test_gy_waist_contracts.py",

@@ -92,8 +92,10 @@ _METHOD_PARAMS: dict[str, Any] = {
     "ci_mode": "wald",
     "coverage_guard": "off",
     "inference_profile": "regular_iid",
-    "parallel_folds": False,
-    "max_parallel_folds": 1,
+    # Carry the maximum fold-parallel request through the actual Runtime path.
+    # The current owner intentionally admits the whole job and serializes its folds.
+    "parallel_folds": True,
+    "max_parallel_folds": 0,
 }
 _R4_PROFILE_CASES = (
     {"case_id": "cap-1-configured", "capacity": 1, "bypass": False},
@@ -2313,6 +2315,26 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
         }
         assert diagnostic["executor_queue_submissions"]
     assert cap_one["completed_jobs"] == cap_two["completed_jobs"] == 2
+    expected_fold_policy = {
+        "effective_fold_workers": 1,
+        "requested_parallel_folds": True,
+        "requested_max_parallel_folds": 0,
+        "policy": "serial_folds_within_admitted_job",
+        "aggregate_admission_owner": "Scientist worker pool",
+    }
+    # Read the persisted Runtime→TMLE result: this proves the requested setting
+    # reached the real method consumer while preserving the existing owner policy.
+    for profile in (cap_one, cap_two, no_bridge):
+        assert set(profile["study_outputs"]) == {"0", "1"}
+        for study_index, output in profile["study_outputs"].items():
+            execution_policy = output["numerical"]["result"]["nuisance_diagnostics"][
+                "execution_policy"
+            ]
+            for field, expected in expected_fold_policy.items():
+                assert execution_policy.get(field) == expected, (
+                    f"study {study_index} execution policy field {field!r} did not retain "
+                    f"the expected request/owner value {expected!r}"
+                )
     for profile in (cap_one, cap_two):
         for study_index, output in profile["study_outputs"].items():
             assert output["causal_node_status"] == "ok", (

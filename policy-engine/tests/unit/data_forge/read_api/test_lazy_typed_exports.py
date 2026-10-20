@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import copy
 import importlib
 import importlib.util
 import json
@@ -79,6 +80,17 @@ def _module_exports(module_name: str) -> dict[str, tuple[str, str]]:
 
 def _import_bindings(tree: ast.Module, package: str) -> list[tuple[str, str, str, bool]]:
     bindings: list[tuple[str, str, str, bool]] = []
+
+    def add_import(statement: ast.stmt, type_only: bool) -> None:
+        if isinstance(statement, ast.ImportFrom):
+            owner = _import_path(statement, package)
+            for alias in statement.names:
+                bindings.append((alias.asname or alias.name, owner, alias.name, type_only))
+        elif isinstance(statement, ast.Import):
+            for alias in statement.names:
+                bound_name = alias.asname or alias.name.split(".", 1)[0]
+                bindings.append((bound_name, alias.name, "<module>", type_only))
+
     for node in tree.body:
         if (
             isinstance(node, ast.If)
@@ -86,15 +98,11 @@ def _import_bindings(tree: ast.Module, package: str) -> list[tuple[str, str, str
             and node.test.id == "TYPE_CHECKING"
         ):
             for statement in node.body:
-                if not isinstance(statement, ast.ImportFrom):
-                    continue
-                owner = _import_path(statement, package)
-                for alias in statement.names:
-                    bindings.append((alias.asname or alias.name, owner, alias.name, True))
-        elif isinstance(node, ast.ImportFrom):
-            owner = _import_path(node, package)
-            for alias in node.names:
-                bindings.append((alias.asname or alias.name, owner, alias.name, False))
+                add_import(statement, True)
+            for statement in node.orelse:
+                add_import(statement, False)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            add_import(node, False)
     return bindings
 
 
@@ -104,22 +112,68 @@ def _binding_errors(
     public_name: str,
     owner: str,
     attribute: str,
-    runtime_bound: bool,
 ) -> list[str]:
     bindings = _import_bindings(tree, package)
-    matching = [
-        (type_only, binding_owner, binding_attribute)
+    alias_bindings = [
+        (binding_owner, binding_attribute, type_only)
         for name, binding_owner, binding_attribute, type_only in bindings
-        if name == public_name and binding_owner == owner and binding_attribute == attribute
+        if name == public_name
+    ]
+    matching = [
+        binding for binding in alias_bindings if binding[0] == owner and binding[1] == attribute
     ]
     errors = []
     if not matching:
         errors.append(f"{public_name} has no static import from {owner}.{attribute}")
-    if not any(type_only for type_only, _, _ in matching) and not runtime_bound:
-        errors.append(f"{public_name} is neither imported under TYPE_CHECKING nor bound at runtime")
-    if runtime_bound and not any(not type_only for type_only, _, _ in matching):
-        errors.append(f"{public_name} is runtime-bound without its canonical import")
+
+    conflicting_bindings = [
+        ("TYPE_CHECKING" if type_only else "runtime", binding_owner, binding_attribute)
+        for binding_owner, binding_attribute, type_only in alias_bindings
+        if (binding_owner, binding_attribute) != (owner, attribute)
+    ]
+    if conflicting_bindings:
+        errors.append(
+            f"{public_name} has conflicting static import(s) {conflicting_bindings}; "
+            f"expected only {owner}.{attribute}"
+        )
     return errors
+
+
+def _remove_canonical_import_bindings(
+    tree: ast.Module,
+    package: str,
+    public_name: str,
+    owner: str,
+    attribute: str,
+) -> int:
+    bodies = [tree.body]
+    for node in tree.body:
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Name)
+            and node.test.id == "TYPE_CHECKING"
+        ):
+            bodies.extend((node.body, node.orelse))
+    removed = 0
+    for body in bodies:
+        for statement in list(body):
+            if not isinstance(statement, ast.ImportFrom):
+                continue
+            if _import_path(statement, package) != owner:
+                continue
+            retained = [
+                alias
+                for alias in statement.names
+                if not ((alias.asname or alias.name) == public_name and alias.name == attribute)
+            ]
+            removed += len(statement.names) - len(retained)
+            if len(retained) == len(statement.names):
+                continue
+            if retained:
+                statement.names = retained
+            else:
+                body.remove(statement)
+    return removed
 
 
 def test_all_mapped_exports_have_static_bindings_to_their_canonical_owners() -> None:
@@ -129,62 +183,108 @@ def test_all_mapped_exports_have_static_bindings_to_their_canonical_owners() -> 
         tree = ast.parse(_facade_path(module_name).read_text(encoding="utf-8"))
 
         for public_name, (owner, attribute) in exports.items():
-            runtime_bound = public_name in facade.__dict__
             assert not (
-                errors := _binding_errors(
-                    tree, facade.__package__, public_name, owner, attribute, runtime_bound
-                )
+                errors := _binding_errors(tree, facade.__package__, public_name, owner, attribute)
             ), f"{module_name}: {'; '.join(errors)}"
 
 
-def test_removing_a_type_alias_fails_for_each_incomplete_facade() -> None:
-    removed_by_facade: dict[str, str] = {}
+def test_removing_canonical_bindings_fails_for_every_mapped_export() -> None:
+    checked = 0
     for module_name in READ_API_MODULES:
-        if module_name == "polisyos.data_forge.read_api.catalog":
-            continue
         facade = importlib.import_module(module_name)
-        tree = ast.parse(_facade_path(module_name).read_text(encoding="utf-8"))
+        source_tree = ast.parse(_facade_path(module_name).read_text(encoding="utf-8"))
         exports = _module_exports(module_name)
-        type_block = next(
+
+        for public_name, (owner, attribute) in exports.items():
+            tree = copy.deepcopy(source_tree)
+            removed = _remove_canonical_import_bindings(
+                tree, facade.__package__, public_name, owner, attribute
+            )
+            assert removed, f"{module_name}.{public_name} had no canonical import to remove"
+            errors = _binding_errors(tree, facade.__package__, public_name, owner, attribute)
+            assert f"{public_name} has no static import from {owner}.{attribute}" in errors
+            checked += 1
+
+    assert checked == sum(len(_module_exports(name)) for name in READ_API_MODULES)
+
+
+def _insert_import_binding(tree: ast.Module, statement: ast.stmt, *, scope: str) -> None:
+    if scope == "runtime":
+        tree.body.insert(0, statement)
+        return
+
+    if scope not in {"TYPE_CHECKING", "TYPE_CHECKING-else/runtime"}:
+        raise AssertionError(f"unsupported import scope: {scope}")
+    type_checking_block = next(
+        (
             node
             for node in tree.body
             if isinstance(node, ast.If)
             and isinstance(node.test, ast.Name)
             and node.test.id == "TYPE_CHECKING"
+        ),
+        None,
+    )
+    if type_checking_block is None:
+        type_checking_block = ast.If(
+            test=ast.Name(id="TYPE_CHECKING", ctx=ast.Load()),
+            body=[],
+            orelse=[],
         )
+        tree.body.insert(0, type_checking_block)
+    body = type_checking_block.body if scope == "TYPE_CHECKING" else type_checking_block.orelse
+    body.insert(0, statement)
+
+
+def test_conflicting_static_bindings_fail_for_every_mapped_export() -> None:
+    scope_modes = ("runtime", "TYPE_CHECKING", "TYPE_CHECKING-else/runtime")
+    binding_variants = ("wrong_owner", "wrong_attribute", "module_alias")
+    checked = 0
+    for module_name in READ_API_MODULES:
+        facade = importlib.import_module(module_name)
+        source_tree = ast.parse(_facade_path(module_name).read_text(encoding="utf-8"))
+        exports = _module_exports(module_name)
 
         for public_name, (owner, attribute) in exports.items():
-            if public_name in facade.__dict__:
-                continue
-            for statement in type_block.body:
-                if not isinstance(statement, ast.ImportFrom):
-                    continue
-                if _import_path(statement, facade.__package__) != owner:
-                    continue
-                retained = [alias for alias in statement.names if alias.name != attribute]
-                if len(retained) == len(statement.names):
-                    continue
-                if retained:
-                    statement.names = retained
-                else:
-                    type_block.body.remove(statement)
-                errors = _binding_errors(
-                    tree, facade.__package__, public_name, owner, attribute, False
-                )
-                assert errors
-                assert "no static import" in errors[0]
-                removed_by_facade[module_name] = public_name
-                break
-            if module_name in removed_by_facade:
-                break
+            wrong_owner = "polisyos.data_forge.read_api"
+            if wrong_owner == owner:
+                wrong_owner = "polisyos.data_forge.read_api._lazy"
+            for scope in scope_modes:
+                for variant in binding_variants:
+                    if variant == "wrong_owner":
+                        statement: ast.stmt = ast.ImportFrom(
+                            module=wrong_owner,
+                            names=[ast.alias(name=attribute, asname=public_name)],
+                            level=0,
+                        )
+                    elif variant == "wrong_attribute":
+                        statement = ast.ImportFrom(
+                            module=owner,
+                            names=[
+                                ast.alias(
+                                    name=f"{attribute}__wrong_binding_probe",
+                                    asname=public_name,
+                                )
+                            ],
+                            level=0,
+                        )
+                    else:
+                        statement = ast.Import(
+                            names=[ast.alias(name=wrong_owner, asname=public_name)]
+                        )
 
-    expected = {
-        "polisyos.data_forge.read_api",
-        "polisyos.data_forge.read_api.academic",
-        "polisyos.data_forge.read_api.legal",
-        "polisyos.data_forge.read_api.ukraine",
-    }
-    assert set(removed_by_facade) == expected
+                    tree = copy.deepcopy(source_tree)
+                    _insert_import_binding(tree, statement, scope=scope)
+                    errors = _binding_errors(
+                        tree, facade.__package__, public_name, owner, attribute
+                    )
+                    assert any("conflicting static import(s)" in error for error in errors), (
+                        f"{module_name}.{public_name} accepted {variant} in {scope} scope"
+                    )
+                    checked += 1
+
+    total_exports = sum(len(_module_exports(name)) for name in READ_API_MODULES)
+    assert checked == len(scope_modes) * len(binding_variants) * total_exports
 
 
 def _cold_import_probe_worker(module_name: str, product_root: Path, result_queue: object) -> None:
@@ -208,8 +308,14 @@ def _cold_import_probe_worker(module_name: str, product_root: Path, result_queue
     for name, target in facade._EXPORTS.items():
         resolved[name] = (target, name) if isinstance(target, str) else target
 
+    source_tree = ast.parse(_facade_path(module_name).read_text(encoding="utf-8"))
+    declared_imports = _import_bindings(source_tree, facade.__package__)
     owners = {owner for owner, _ in resolved.values()}
-    prebound = {owner for name, (owner, _) in resolved.items() if name in facade.__dict__}
+    prebound = {
+        owner
+        for name, (owner, attribute) in resolved.items()
+        if (name, owner, attribute, False) in declared_imports
+    }
     loaded_before_resolution = owners.intersection(sys.modules)
     if loaded_before_resolution != prebound:
         raise AssertionError(
@@ -224,6 +330,26 @@ def _cold_import_probe_worker(module_name: str, product_root: Path, result_queue
             )
         )
 
+    static_bindings_before = {
+        name: tuple(_binding_errors(source_tree, facade.__package__, name, owner, attribute))
+        for name, (owner, attribute) in resolved.items()
+    }
+    if any(static_bindings_before.values()):
+        raise AssertionError(
+            "canonical import binding failed in a cold facade: "
+            + json.dumps(
+                {
+                    "facade": module_name,
+                    "errors": {
+                        name: list(errors)
+                        for name, errors in static_bindings_before.items()
+                        if errors
+                    },
+                },
+                sort_keys=True,
+            )
+        )
+
     for name, (owner, attribute) in resolved.items():
         owner_module = importlib.import_module(owner)
         expected = getattr(owner_module, attribute)
@@ -232,6 +358,14 @@ def _cold_import_probe_worker(module_name: str, product_root: Path, result_queue
             raise AssertionError(
                 f"{module_name}.{name} lost canonical identity with {owner}.{attribute}"
             )
+    static_bindings_after = {
+        name: tuple(_binding_errors(source_tree, facade.__package__, name, owner, attribute))
+        for name, (owner, attribute) in resolved.items()
+    }
+    if static_bindings_after != static_bindings_before:
+        raise AssertionError(
+            f"static canonical-binding results changed after warming {module_name}"
+        )
     result_queue.put({"facade": module_name, "checked": len(resolved)})
 
 

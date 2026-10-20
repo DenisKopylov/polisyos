@@ -698,7 +698,11 @@ def _iter_gy_content_hash_json(
     value: object,
     encoder: json.JSONEncoder,
 ) -> Iterator[str]:
-    """Yield compact canonical JSON with explicit container frames."""
+    """Yield compact canonical JSON with explicit container frames.
+
+    Encode each scalar token in one shot to avoid per-token recursive encoder
+    generators while keeping the output format configured on ``encoder``.
+    """
 
     active_ids: set[int] = set()
     frames: list[tuple[bool, int, Iterator[Any], dict[str, object] | None]] = []
@@ -726,7 +730,7 @@ def _iter_gy_content_hash_json(
                     yield "{}"
                     continue
                 yield "{"
-                yield from encoder.iterencode(first_key)
+                yield encoder.encode(first_key)
                 yield ":"
                 frames.append((True, marker, keys, projected))
                 node = projected[first_key]
@@ -751,7 +755,7 @@ def _iter_gy_content_hash_json(
                 has_node = True
                 continue
 
-            yield from encoder.iterencode(node)
+            yield encoder.encode(node)
             continue
 
         if not frames:
@@ -769,7 +773,7 @@ def _iter_gy_content_hash_json(
         yield ","
         if is_mapping:
             key = child
-            yield from encoder.iterencode(key)
+            yield encoder.encode(key)
             yield ":"
             if projected is None:
                 raise _GyContentHashStreamFallbackError

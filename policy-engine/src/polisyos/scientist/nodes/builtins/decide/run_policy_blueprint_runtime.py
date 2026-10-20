@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -94,6 +94,11 @@ from polisyos.scientist.methods.search.funnel.level6_promotion import Level6Prom
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket, FunnelOutcome
 from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.objective import (
+    SourceMetricObservation,
+    objective_metrics_without_unestablished_fiscal_source,
+    recompute_source_government_balance,
+)
 from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
     load_promotion_evidence_bundle,
@@ -331,6 +336,24 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
         candidate = initial_state.get("policy_candidate_schema")
         if not isinstance(candidate, PolicyCandidateSchema):
             raise ValueError("policy_candidate_schema is required for policy runtime workflow.")
+        source_measurement = None
+        raw_source_measurement = initial_state.get("policy_runtime_source_measurement")
+        simulation_metrics = initial_state.get("simulation_metrics")
+        if raw_source_measurement is not None:
+            source_measurement = SourceMetricObservation.model_validate(raw_source_measurement)
+            source_measurement = recompute_source_government_balance(
+                initial_state.get("store"), source_measurement
+            )
+            if source_measurement.model_dump(mode="json", exclude_none=False) != (
+                SourceMetricObservation.model_validate(raw_source_measurement).model_dump(
+                    mode="json", exclude_none=False
+                )
+            ):
+                raise ValueError("policy_runtime_source_measurement_changed_before_execution")
+            simulation_metrics = objective_metrics_without_unestablished_fiscal_source(
+                simulation_metrics,
+                source_measurement,
+            )
         evaluation_attempt_id = str(uuid4())
         effective_estimation_config = initial_state.get("estimation_config")
         if not isinstance(effective_estimation_config, Mapping):
@@ -338,7 +361,7 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
         runtime_artifact = self._backend.evaluate(
             candidate,
             fidelity=self._fidelity,
-            simulation_metrics=initial_state.get("simulation_metrics"),
+            simulation_metrics=simulation_metrics,
             uncertainty=initial_state.get("uncertainty_envelope"),
             distributional_report=initial_state.get("distributional_report"),
             causal_effect_report=initial_state.get("causal_effect_report"),
@@ -348,6 +371,20 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
             evaluation_attempt_id=evaluation_attempt_id,
             effective_estimation_config=effective_estimation_config,
         )
+        if source_measurement is not None:
+            runtime_artifact = replace(
+                runtime_artifact,
+                evaluation_vector=runtime_artifact.evaluation_vector.model_copy(
+                    update={
+                        "metadata": {
+                            **dict(runtime_artifact.evaluation_vector.metadata),
+                            "policy_runtime_source_measurement": source_measurement.model_dump(
+                                mode="json", exclude_none=False
+                            ),
+                        }
+                    }
+                ),
+            )
         work_packet_ref, work_packet_unavailability_reason = _persist_policy_runtime_work_packet(
             initial_state=initial_state,
             fidelity=self._fidelity,

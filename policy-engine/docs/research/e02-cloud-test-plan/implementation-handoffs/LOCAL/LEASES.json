@@ -39512,5 +39512,228 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-b108-credal-composition-20261020-r2": {
+    "slice_base": "d38d25e402f8c7ce610a562c11d2451aadb79e37",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py": {
+        "operation": "update",
+        "preimage_sha256": "45fa36fee13f341112a6215ed7e114e12bb3d38dfa91be09cd967476839dc5be",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "postimage_sha256": "e7c624d83d1d0b3ac85c34ab9f1a8ff3d973f46d6aad34d88065a65c1d450092",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+        "operation": "update",
+        "preimage_sha256": "81ee7fd10123b9ba68b59a81950f7325a93cd0b35374f3b68e91d2f9d06bf96c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "postimage_sha256": "88d2b20e45b4a530cd3853f80b29e11f342d0fc9e64c2865d766c1df23fe5491",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py": {
+        "operation": "update",
+        "preimage_sha256": "bfb33e9cc4e90b042377e296aa094116de0e12f8c51b6025753ca5bd9cf5403b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+        "postimage_sha256": "b6b2e2ac638b557eacfe7d0b1c1df7877b34c3ca69ba453007974dc74f0850ee",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py": {
+        "operation": "update",
+        "preimage_sha256": "88969f72cdbaf207d33b2e2bbc57236130ec159e2bb761d516437f6e2aa48f90",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+        "postimage_sha256": "9f71ce283915d976125f1626035f46f4aab7eb8da632776ab54f8d7e802e27f8",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py": {
+        "operation": "update",
+        "preimage_sha256": "58157917cc1effad5aeea47ed4f7a432fe6ba528818f49376099b70337f068d4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "postimage_sha256": "19cfb1c734d9600c9da83d35c275fa5bb7626628b0d7554bc1a886f141f3a596",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py": {
+        "operation": "update",
+        "preimage_sha256": "f8ae9805a95f944f0bf1e452dc74712dcc75b2d66ffcbbd5151cba8df5142acf",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "postimage_sha256": "75a7f51481afa64e59948b2c1787d2780c2fe235356d41899cc3ececefab4745",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py": {
+        "operation": "update",
+        "preimage_sha256": "2722c7845e7f96e4c00a7008b2c83c55f6726e330be63da845edaee58c960b82",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "postimage_sha256": "9fd9368300940e3f6583b42867b311b4c169fa9990b09e416eb1739d7783aca3",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py": {
+        "operation": "update",
+        "preimage_sha256": "c7f5751a7be4d1fdc6290fe126421f382ddd6fb1a9fa5dcb141ea2da1dac05f8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/postimages/src/polisyos/runtime/quality/credal_reference.py",
+        "postimage_sha256": "11defcecd33ac23ca267406455507e47b37dc7417631dbaac1e2571983b8f9ed",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference_capture_cost.py": {
+        "operation": "update",
+        "preimage_sha256": "4185821efa92946ddddabc7148d32b55a7bd443bcbf10bcd918d621d40edfb51",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/postimages/tests/unit/runtime/quality/test_credal_reference_capture_cost.py",
+        "postimage_sha256": "0f3f8800dcab2ee71117dfad370d8b259a70a0d784e5f2d588106e381ea87923",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-credal-reference-capture.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/postimages/release-fragments/unreleased/2026-10-20-credal-reference-capture.toml",
+        "postimage_sha256": "5c30835fe560c302557a650611e76b5ecb731f26d3004761cc5d43126c93b0ed",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference.py": {
+        "operation": "update",
+        "preimage_sha256": "bfce5f6d09ce6cbe6745f69334bedf6297f73e66da1f9e89b3651de6266040a5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-composed-consumer-cohort-20261020-r7/postimages/policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "postimage_sha256": "be4124f3cd2a22616f4ed3efb5f767e2e96e1ded0004ea4f83dd5e91485a18dd",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-credal-composition-20261020-r2/source-application.json",
+      "sha256": "e8ea75d0e0ab33f31cb3c9cc32e452295c1d4a746bc5752ca85fe137df38e0ec"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-credal-composition-20261020-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/candidate-manifest-r6.json",
+        "sha256": "6a3e544476719749ecb41cbe074ac2ace9bae4115e7a8ba34b7f6b1f609736ef"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "sha256": "e7c624d83d1d0b3ac85c34ab9f1a8ff3d973f46d6aad34d88065a65c1d450092"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "sha256": "30f41d0456bf90c38137f7fa85e4415dcdbc7aaca0c2c23629a31f11ae991922"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "sha256": "88d2b20e45b4a530cd3853f80b29e11f342d0fc9e64c2865d766c1df23fe5491"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+        "sha256": "b6b2e2ac638b557eacfe7d0b1c1df7877b34c3ca69ba453007974dc74f0850ee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+        "sha256": "9f71ce283915d976125f1626035f46f4aab7eb8da632776ab54f8d7e802e27f8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "sha256": "19cfb1c734d9600c9da83d35c275fa5bb7626628b0d7554bc1a886f141f3a596"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+        "sha256": "4afd27e6a5d3e463726f936c506d54159d45eb5ae9ab22feac80e012f8ad8af4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "sha256": "0b7d9eed0f5831698c95e3f263e81810dc6b016c272bee47bc2b88a94394027a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "sha256": "75a7f51481afa64e59948b2c1787d2780c2fe235356d41899cc3ececefab4745"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+        "sha256": "a5c9ad8ba8aaefc94eb3963e4af59aed530680dbfbaff65304dbcf3dadf51a85"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+        "sha256": "9747b96956eed6d47de09a465a3ec7aa6ac2dc134c15f1dd04d0e5c85c429c1d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+        "sha256": "85fbba3b6858b870f3aab6b94a4a299c5b59c0bc66526ead73c2097ce69a2f0d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-implementation-20261020-r6-r14-composition/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "sha256": "9fd9368300940e3f6583b42867b311b4c169fa9990b09e416eb1739d7783aca3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-original-engineering-route-independent-review-r6-20261020/review.json",
+        "sha256": "6dc33ab5d84a29d70ee64fc5d4bce37415465bef0cf3a1c96aad72d0615e7b82"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/manifest.json",
+        "sha256": "fa7365574432261b3bd4f4651dfc253ba5c86a43206d4cdc4f51a9b32b78bcbb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/postimages/release-fragments/unreleased/2026-10-20-credal-reference-capture.toml",
+        "sha256": "5c30835fe560c302557a650611e76b5ecb731f26d3004761cc5d43126c93b0ed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/postimages/src/polisyos/runtime/quality/credal_reference.py",
+        "sha256": "11defcecd33ac23ca267406455507e47b37dc7417631dbaac1e2571983b8f9ed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-provenance-capture-author-20261020-r2/postimages/tests/unit/runtime/quality/test_credal_reference_capture_cost.py",
+        "sha256": "0f3f8800dcab2ee71117dfad370d8b259a70a0d784e5f2d588106e381ea87923"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-capture-independent-review-20261020-r2/review.json",
+        "sha256": "5e848ab1f3ea50e5077935f6e847c352120e652d9bfe5864605415b99bfe444b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-composed-consumer-cohort-20261020-r6/manifest-r6.json",
+        "sha256": "e6fadf1903fcc51e82b3b1d75d30805d190beff0b5e863eed2798d1be443a7ca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-composed-consumer-cohort-20261020-r6/postimages/policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "sha256": "f193d6769e939e26f4564f82f60c1ca95338b0883bebf415b7b5a23ecbb01651"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-composed-consumer-cohort-20261020-r7-independent-review-r1/review.json",
+        "sha256": "4963e4057b805340e2f3234fe6f52bbb6e7520edfe0f6536ab67af10ddbf3f8b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-composed-consumer-cohort-20261020-r7/manifest.json",
+        "sha256": "b00f508c514af734074530be20da617f3f9141a594fdc215e0e1c132dc23be3d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-composed-consumer-cohort-20261020-r7/postimages/policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "sha256": "be4124f3cd2a22616f4ed3efb5f767e2e96e1ded0004ea4f83dd5e91485a18dd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r6-independent-review-20261020-r1/review.json",
+        "sha256": "5300b509cdc8114a6bd795d40de2f41f6f410fe656bdb2b0f27f0148f014b221"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-b108-credal-r14-composition-catalog-20261020-r1/catalog.json",
+        "sha256": "f04f690398a53ee06378cf5156f6515aba02a95c0e4344ac5ccea1d39155b153"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same unit/availability lineage and capture amplification classes widened at actual producer and shared capture seam. Full K_ref retention remains explicit residual, no causal/fiscal calibration claim.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "B108 fiscal unit/period/calibration/equivalence not established; physical government balance is not budget deficit.",
+      "Credal whole module, importers, N7 surviving serving runtime remain UNRUN on this source.",
+      "Source-only candidate; no G acceptance or formal closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Composed seven R14/B108 modules plus both Credal modules and three real N7 consumer nodes; actual collection and semantic/removal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

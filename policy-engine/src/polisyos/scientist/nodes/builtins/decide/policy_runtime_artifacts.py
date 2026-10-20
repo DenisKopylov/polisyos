@@ -59,6 +59,10 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelOutcome,
 )
 from polisyos.scientist.methods.search.judge_stack import to_search_uncertainty_envelope
+from polisyos.scientist.methods.search.objective import (
+    SourceMetricObservation,
+    source_observation_input_refs,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _POLICY_RUNTIME_LOAD_ERRORS,
     _POLICY_RUNTIME_VALIDATION_ERRORS,
@@ -178,6 +182,14 @@ def _persist_policy_evaluation_vector_to_store_impl(
     evaluation_vector: PolicyEvaluationVector,
 ) -> ArtifactRef:
     """Persist a native policy-runtime evaluation vector to the supplied CAS."""
+    inputs = [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
+    raw_observation = evaluation_vector.metadata.get("policy_runtime_source_measurement")
+    if raw_observation is not None:
+        observation = SourceMetricObservation.model_validate(raw_observation)
+        inputs.extend(
+            input_ref_from_artifact_ref(ref, role=role)
+            for role, ref in source_observation_input_refs(observation)
+        )
     return store.put_json(
         evaluation_vector,
         PutOptions(
@@ -187,7 +199,7 @@ def _persist_policy_evaluation_vector_to_store_impl(
                 name="polisyos.scientist.policy_design.PolicyEvaluationVector",
                 version="1.1",
             ),
-            inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
+            inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,

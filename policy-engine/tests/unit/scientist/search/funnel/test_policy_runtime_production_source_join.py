@@ -1,18 +1,35 @@
 from __future__ import annotations
 
+import logging
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
+import jax.numpy as jnp
 import pytest
 
-from polisyos.core.artifacts import load_core_json_artifact
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import input_ref_from_artifact_ref, load_core_json_artifact
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    Metrics,
+    MetricsRef,
+    SimulationResult,
+    SimulationResultRef,
+    StateSnapshotRef,
+)
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.evidence.sources import EvidenceSourcesConfig
 from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import (
@@ -23,15 +40,36 @@ from polisyos.scientist.methods.search.funnel.types import (
 )
 from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreStatus,
+    SourceMetricObservation,
     _assess_search_fiscal_measurement,
+    observe_source_government_balance,
+    source_observation_input_refs,
 )
-from polisyos.scientist.nodes.builtins.decide import policy_runtime_support
+from polisyos.scientist.nodes.builtins.decide import (
+    policy_runtime_support,
+    run_policy_blueprint_runtime,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
+    prepare_runtime_session,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    PolicyRuntimeEvaluationArtifact,
+    PolicyRuntimeProvenance,
     ProductionPolicyEvaluationBackend,
+    persist_funnel_executed_work_packet,
+    persist_policy_evaluation_vector_to_store,
 )
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _PolicyRuntimeWorkflowEngine,
 )
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_METRICS_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_STATE_SNAPSHOT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
@@ -81,6 +119,7 @@ def _run_production_workflow(
     simulation_metrics: dict[str, float],
     *,
     signature: str,
+    source_measurement: SourceMetricObservation | None = None,
 ) -> tuple[FunnelOrchestrator, FunnelTicket, FunnelOutcome]:
     context: dict[str, Any] = {
         **deepcopy(_CONFIG),
@@ -96,6 +135,10 @@ def _run_production_workflow(
             "tenant_hash": "tenant-test",
         },
     }
+    if source_measurement is not None:
+        context["policy_runtime_source_measurement"] = source_measurement.model_dump(
+            mode="json", exclude_none=False
+        )
     engine = _PolicyRuntimeWorkflowEngine(
         fidelity="full",
         backend=ProductionPolicyEvaluationBackend(),
@@ -106,6 +149,261 @@ def _run_production_workflow(
     ticket = orchestrator.submit(_candidate_payload(candidate), context)
     outcome = orchestrator.advance(ticket, target_level=4)
     return orchestrator, ticket, outcome
+
+
+def _put_profiled_balance_source(
+    store: FileSystemCAS,
+    *,
+    value: float = 35.0,
+    snapshot_value: float | None = None,
+    step: int = 3,
+) -> tuple[SimulationResultRef, MetricsRef, StateSnapshotRef]:
+    """Persist exact Foundry result, scalar metric, and materialized state refs."""
+    metrics = Metrics(values={"government_balance": value})
+    metrics_ref_raw = store.put_json(
+        metrics,
+        PutOptions(
+            kind=Metrics.ARTIFACT_KIND,
+            media_type=Metrics.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=Metrics.ARTIFACT_SCHEMA_NAME,
+                version=Metrics.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    metrics_ref = MetricsRef.model_validate(metrics_ref_raw.model_dump(mode="python"))
+
+    state = replace(
+        GlobalState.empty(n_agents=1, n_firms=1),
+        step=jnp.asarray(step, dtype=jnp.int32),
+        government_balance=jnp.asarray(
+            value if snapshot_value is None else snapshot_value,
+            dtype=jnp.float32,
+        ),
+    )
+    snapshot_ref_raw = put_state_snapshot(
+        store,
+        state=state,
+        step=step,
+        return_selected_profile=True,
+    )
+    snapshot_ref = StateSnapshotRef.model_validate(snapshot_ref_raw.model_dump(mode="python"))
+
+    simulation = SimulationResult(
+        schema_version="1.4",
+        exec_plan_ref=ExecPlanRef(artifact_id="sha256:" + "f" * 64),
+        metrics_ref=metrics_ref,
+        state_snapshot_ref=snapshot_ref,
+        execution_source_status="not_recorded",
+    )
+    simulation_ref_raw = store.put_json(
+        simulation,
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=SimulationResult.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(metrics_ref, role="metrics"),
+                input_ref_from_artifact_ref(snapshot_ref, role="state_snapshot"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    simulation_ref = SimulationResultRef.model_validate(
+        simulation_ref_raw.model_dump(mode="python")
+    )
+    return simulation_ref, metrics_ref, snapshot_ref
+
+
+@pytest.mark.integration
+def test_runtime_session_recomputes_indexed_balance_before_selection(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Produce the candidate observation from state refs before selected CAS write."""
+    run_id = "run_profiled_source_measurement_session"
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_bundle = build_default_registry_bundle(store)
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle.bundle_ref,
+        run_id=run_id,
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger(f"test.{run_id}"),
+    )
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(
+        store,
+        candidate,
+        return_selected_profile=True,
+    )
+    simulation_ref, metrics_ref, snapshot_ref = _put_profiled_balance_source(store)
+    state = ExperimentState(
+        run_id=run_id,
+        artifacts_index={
+            ARTIFACT_SIMULATION_RESULT_REF: simulation_ref,
+            ARTIFACT_METRICS_REF: metrics_ref,
+            ARTIFACT_STATE_SNAPSHOT_REF: snapshot_ref,
+        },
+    )
+    synthetic_artifact = PolicyRuntimeEvaluationArtifact(
+        simulation_metrics={},
+        simulation_results={},
+        evaluation_vector=PolicyEvaluationVector(candidate_id=candidate.candidate_id),
+        fidelity="selection",
+        provenance=PolicyRuntimeProvenance(
+            backend_kind="synthetic_transport_fixture",
+            fidelity_mode="selection",
+            promotable_source=False,
+        ),
+    )
+    evaluated_metrics: dict[str, Any] = {}
+
+    def build_evaluation(_candidate: PolicyCandidateSchema, **kwargs: Any) -> Any:
+        evaluated_metrics.update(kwargs["simulation_metrics"])
+        return synthetic_artifact
+
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "ProductionPolicyEvaluationBackend",
+        lambda **_kwargs: SimpleNamespace(),
+    )
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "_world_model_record_from_state",
+        lambda _state: None,
+    )
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "policy_runtime_input_signature",
+        lambda **_kwargs: "synthetic-input-signature",
+    )
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "build_policy_runtime_evaluation",
+        build_evaluation,
+    )
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "_resolve_existing_strategic_output",
+        lambda _state: SimpleNamespace(
+            strategic_scm_ref=None,
+            strategic_response_bundle_ref=None,
+            strategic_response_summary=None,
+        ),
+    )
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "_build_runtime_abstraction_metadata",
+        lambda _ctx, *, artifacts_index: {},
+    )
+    monkeypatch.setattr(
+        run_policy_blueprint_runtime,
+        "_resolve_benchmark_scope",
+        lambda **_kwargs: {
+            "artifact_family": "controlled_source_fixture",
+            "query_type": "policy_runtime",
+            "estimator_name": "matching",
+            "readiness_target": "candidate_only",
+            "claim_mode": "candidate_only",
+        },
+    )
+
+    session = prepare_runtime_session(
+        ctx,
+        state,
+        runtime_request=SimpleNamespace(
+            candidate=candidate,
+            candidate_ref=candidate_ref,
+            cross_graph_profile=None,
+            evidence_sources=EvidenceSourcesConfig(),
+            simulation_metrics={
+                "government_balance": 35.0,
+                "gov_balance": 35.0,
+                "budget_deficit": 0.0,
+                "deficit": 0.0,
+                "gdp_change": 0.1,
+            },
+            uncertainty_envelope=None,
+            distributional_report=None,
+            causal_report=None,
+            governance_report=None,
+            ambiguity_certificate=None,
+            ambiguity_certificate_ref=None,
+        ),
+        owner=run_policy_blueprint_runtime,
+    )
+
+    assert evaluated_metrics == {"gdp_change": 0.1}
+    measurement = session.source_measurement
+    assert measurement is not None
+    assert measurement.source_status == "observed"
+    assert measurement.value == 35.0
+    assert measurement.unit_id == "usd"
+    assert measurement.scope == "global"
+    assert measurement.quantity_kind == "stock"
+    assert measurement.time_basis == "simulation_step"
+    assert measurement.objective_status == "not_established"
+    assert measurement.objective_value is None
+
+    selection_ref = session.selection_vector_ref
+    assert selection_ref is not None
+    assert selection_ref.manifest_profile_sha256 is not None
+    selection_payload = load_core_json_artifact(store, selection_ref)
+    assert selection_payload["metadata"]["policy_runtime_source_measurement"] == (
+        measurement.model_dump(mode="json", exclude_none=False)
+    )
+    manifest = store.get_manifest(selection_ref)
+    expected_inputs = {
+        ("candidate", candidate_ref.artifact_id.hex),
+        *(
+            (role, source_ref.artifact_id.hex)
+            for role, source_ref in source_observation_input_refs(measurement)
+        ),
+    }
+    assert {(item.role, item.artifact_id.hex) for item in manifest.inputs} == expected_inputs
+
+
+def test_profiled_balance_observation_rejects_unselected_or_divergent_sources(
+    tmp_path: Path,
+) -> None:
+    """Require selected profiles and a value reproduced from the bound snapshot."""
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref, metrics_ref, snapshot_ref = _put_profiled_balance_source(
+        store,
+        value=35.0,
+        snapshot_value=34.0,
+    )
+
+    divergent = observe_source_government_balance(
+        store,
+        simulation_result_ref=simulation_ref,
+        metrics_ref=metrics_ref,
+        state_snapshot_ref=snapshot_ref,
+    )
+    assert divergent.source_status == "invalid"
+    assert divergent.predicate_status == "not_established"
+    assert divergent.value is None
+    assert divergent.objective_status == "not_established"
+    assert divergent.objective_value is None
+
+    profileless_result_ref = SimulationResultRef(artifact_id=simulation_ref.artifact_id)
+    profileless = observe_source_government_balance(
+        store,
+        simulation_result_ref=profileless_result_ref,
+        metrics_ref=metrics_ref,
+        state_snapshot_ref=snapshot_ref,
+    )
+    assert profileless.source_status == "invalid"
+    assert profileless.value is None
+    assert profileless.objective_value is None
 
 
 def _assert_fresh_consumer_rejects(
@@ -120,6 +418,114 @@ def _assert_fresh_consumer_rejects(
     assert result.feedback["policy_runtime_work_packet_rejection_reason"] == (
         "work_packet_binding_mismatch"
     )
+
+
+@pytest.mark.integration
+def test_profiled_foundry_balance_is_persisted_but_not_ranked_as_budget_deficit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep physical stock evidence content-bound and outside the fiscal objective score."""
+    monkeypatch.setattr(
+        policy_runtime_support,
+        "_production_policy_evaluation_safety_blockers",
+        lambda **_: (),
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(
+        store,
+        candidate,
+        return_selected_profile=True,
+    )
+    simulation_ref, metrics_ref, snapshot_ref = _put_profiled_balance_source(store)
+    measurement = observe_source_government_balance(
+        store,
+        simulation_result_ref=simulation_ref,
+        metrics_ref=metrics_ref,
+        state_snapshot_ref=snapshot_ref,
+    )
+
+    assert measurement.source_status == "observed"
+    assert measurement.predicate_status == "recomputed"
+    assert measurement.metric_id == "government_balance"
+    assert measurement.slot_id == "government.balance"
+    assert measurement.value == 35.0
+    assert measurement.unit_id == "usd"
+    assert measurement.scope == "global"
+    assert measurement.quantity_kind == "stock"
+    assert measurement.simulation_step == 3
+    assert measurement.time_basis == "simulation_step"
+    assert measurement.objective_status == "not_established"
+    assert measurement.objective_value is None
+    assert all(
+        ref is not None and ref.manifest_profile_sha256 is not None
+        for ref in (
+            measurement.source_result_ref,
+            measurement.source_metrics_ref,
+            measurement.source_snapshot_ref,
+        )
+    )
+
+    orchestrator, ticket, outcome = _run_production_workflow(
+        store,
+        candidate,
+        candidate_ref,
+        {
+            "government_balance": 35.0,
+            "gov_balance": 35.0,
+            "budget_deficit": 0.0,
+            "deficit": 0.0,
+            "gdp_change": 0.1,
+        },
+        signature="profiled-source-balance-not-a-deficit",
+        source_measurement=measurement,
+    )
+
+    result = outcome.stage_results[4]
+    assert result.executed_work_packet_status == "available"
+    packet_ref = result.executed_work_packet_ref
+    assert packet_ref is not None
+    packet = FunnelExecutedWorkPacket.model_validate(load_core_json_artifact(store, packet_ref))
+    source_vector_payload = load_core_json_artifact(store, packet.source_result_ref)
+    stored_measurement = source_vector_payload["metadata"]["policy_runtime_source_measurement"]
+    assert stored_measurement == measurement.model_dump(mode="json", exclude_none=False)
+    assert result.simulation_results["budget_deficit_objective_usable"] is False
+    assert result.simulation_results["budget_deficit_objective_value"] is None
+    assert result.objective_value is None
+    assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert result.actual_score is None
+    assert _FALLBACK_LIMITATION in result.feedback["objective_limitations"]
+
+    source_vector_manifest = store.get_manifest(packet.source_result_ref)
+    expected_source_inputs = {
+        ("candidate", candidate_ref.artifact_id.hex),
+        *(
+            (role, source_ref.artifact_id.hex)
+            for role, source_ref in source_observation_input_refs(measurement)
+        ),
+    }
+    assert {
+        (item.role, item.artifact_id.hex) for item in source_vector_manifest.inputs
+    } == expected_source_inputs
+    assert all(item.manifest_profile_sha256 for item in source_vector_manifest.inputs)
+
+    # Keep the selected-profile lineage and every marker, but alter the observation value.
+    # The fresh consumer must recompute the exact CAS source body and reject the packet.
+    forged_payload = deepcopy(source_vector_payload)
+    forged_payload["metadata"]["policy_runtime_source_measurement"]["value"] = 36.0
+    forged_vector = PolicyEvaluationVector.model_validate(forged_payload)
+    forged_vector_ref = persist_policy_evaluation_vector_to_store(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=forged_vector,
+    )
+    forged_packet = packet.model_copy(update={"source_result_ref": forged_vector_ref})
+    forged_packet_ref = persist_funnel_executed_work_packet(store, forged_packet)
+    mutated_result = deepcopy(result)
+    mutated_result.executed_work_packet_ref = forged_packet_ref
+    _assert_fresh_consumer_rejects(orchestrator, ticket, mutated_result)
 
 
 @pytest.mark.integration

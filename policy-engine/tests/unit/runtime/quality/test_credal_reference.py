@@ -709,6 +709,7 @@ def _assert_phase5_atom_law_lifts(atoms, law_keys: set[str]) -> None:
         for law_key in atom_law_keys:
             projection = atom.reference_lift[law_key]
             assert projection["status"] == "incomplete"
+            assert "source_relation_refusal" in projection
             assert projection["source_relation_refusal"] == expected_refusal
             assert any(
                 completion.get("completion_kind") == "may_exist"

@@ -11,11 +11,330 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Literal, Protocol
 
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.core.artifacts.manifest import ArtifactRef
+
 _MISSING = object()
 _INVALID = object()
 _SOURCE_RESULT_CONTAINERS = ("simulation_results", "metrics")
 _BALANCE_ALIASES = ("gov_balance", "government_balance")
 _DEFICIT_ALIASES = ("budget_deficit", "deficit")
+
+
+class SourceMetricObservation(BaseModel):
+    """A candidate-only, content-bound observation of the canonical balance stock."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    source_status: Literal["observed", "unavailable", "invalid", "not_established"]
+    predicate_status: Literal["recomputed", "not_established"]
+    metric_id: Literal["government_balance"] | None = None
+    slot_id: Literal["government.balance"] | None = None
+    value: float | None = Field(default=None, strict=True)
+    unit_id: Literal["usd"] | None = None
+    scope: Literal["global"] | None = None
+    quantity_kind: Literal["stock"] | None = None
+    simulation_step: int | None = Field(default=None, strict=True, ge=0)
+    time_basis: Literal["simulation_step", "not_established"]
+    source_result_ref: ArtifactRef | None = None
+    source_metrics_ref: ArtifactRef | None = None
+    source_snapshot_ref: ArtifactRef | None = None
+    objective_id: Literal["budget_deficit"] = "budget_deficit"
+    objective_status: Literal["not_established"] = "not_established"
+    objective_value: None = None
+    limitation: str | None = None
+
+    @model_validator(mode="after")
+    def validate_observation_boundary(self) -> SourceMetricObservation:
+        """Keep source observation separate from any unproven fiscal objective mapping."""
+        if self.objective_status != "not_established" or self.objective_value is not None:
+            raise ValueError("government_balance_does_not_establish_budget_deficit")
+        if self.source_status == "observed":
+            if (
+                self.predicate_status != "recomputed"
+                or self.metric_id != "government_balance"
+                or self.slot_id != "government.balance"
+                or self.value is None
+                or not math.isfinite(self.value)
+                or self.unit_id != "usd"
+                or self.scope != "global"
+                or self.quantity_kind != "stock"
+                or self.simulation_step is None
+                or self.time_basis != "simulation_step"
+                or any(
+                    ref is None or ref.manifest_profile_sha256 is None
+                    for ref in (
+                        self.source_result_ref,
+                        self.source_metrics_ref,
+                        self.source_snapshot_ref,
+                    )
+                )
+            ):
+                raise ValueError("observed_government_balance_source_basis_is_incomplete")
+        elif (
+            self.predicate_status != "not_established"
+            or self.value is not None
+            or self.metric_id is not None
+            or self.slot_id is not None
+            or self.unit_id is not None
+            or self.scope is not None
+            or self.quantity_kind is not None
+            or self.simulation_step is not None
+            or self.time_basis != "not_established"
+        ):
+            raise ValueError("non_observed_government_balance_cannot_carry_a_measurement")
+        return self
+
+
+def observe_source_government_balance(
+    store: Any,
+    *,
+    simulation_result_ref: ArtifactRef | None,
+    metrics_ref: ArtifactRef | None,
+    state_snapshot_ref: ArtifactRef | None = None,
+) -> SourceMetricObservation:
+    """Recompute a global USD balance-stock observation from exact Foundry artifacts.
+
+    This routine deliberately stops at the existing ``government.balance`` stock
+    contract. It does not assign a fiscal period or map that stock to the separate
+    ``budget_deficit`` objective.
+    """
+    source_result_ref = simulation_result_ref
+    source_metrics_ref = metrics_ref
+    source_snapshot_ref = state_snapshot_ref
+
+    def not_observed(
+        status: Literal["unavailable", "invalid", "not_established"],
+        reason: str,
+        *,
+        snapshot_ref: ArtifactRef | None = source_snapshot_ref,
+    ) -> SourceMetricObservation:
+        return SourceMetricObservation(
+            source_status=status,
+            predicate_status="not_established",
+            source_result_ref=source_result_ref,
+            source_metrics_ref=source_metrics_ref,
+            source_snapshot_ref=snapshot_ref,
+            time_basis="not_established",
+            limitation=reason,
+        )
+
+    if source_result_ref is None or source_metrics_ref is None:
+        return not_observed("unavailable", "selected_simulation_result_or_metrics_ref_missing")
+
+    try:
+        from polisyos.core.artifacts import (
+            artifact_manifest_profile_sha256,
+            load_core_json_artifact,
+        )
+        from polisyos.core.contracts.foundry import Metrics, SimulationResult, StateSnapshot
+        from polisyos.foundry.execute._internal.snapshots import load_state_snapshot
+        from polisyos.ir.kernel.metrics import DEFAULT_METRIC_REGISTRY
+        from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, SlotKind, SlotScope
+
+        def require_selected_ref(ref: ArtifactRef, expected_kind: str) -> Any:
+            if ref.kind != expected_kind or ref.manifest_profile_sha256 is None:
+                raise ValueError("source_artifact_selected_profile_missing_or_wrong_kind")
+            manifest = store.get_manifest(ref)
+            if (
+                manifest.artifact_id != ref.artifact_id
+                or manifest.kind != expected_kind
+                or manifest.media_type != ref.media_type
+                or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+            ):
+                raise ValueError("source_artifact_manifest_profile_mismatch")
+            return manifest
+
+        result_manifest = require_selected_ref(source_result_ref, "foundry.simulation_result")
+        metrics_manifest = require_selected_ref(source_metrics_ref, Metrics.ARTIFACT_KIND)
+        if (
+            result_manifest.artifact_schema is None
+            or result_manifest.artifact_schema.name != SimulationResult.ARTIFACT_SCHEMA_NAME
+            or metrics_manifest.artifact_schema is None
+            or metrics_manifest.artifact_schema.name != Metrics.ARTIFACT_SCHEMA_NAME
+            or metrics_manifest.artifact_schema.version != Metrics.ARTIFACT_SCHEMA_VERSION
+        ):
+            raise ValueError("source_artifact_schema_identity_unavailable")
+
+        simulation = SimulationResult.model_validate(
+            load_core_json_artifact(store, source_result_ref)
+        )
+        if (
+            simulation.schema_version not in {"1.3", "1.4"}
+            or result_manifest.artifact_schema.version != simulation.schema_version
+        ):
+            return not_observed("invalid", "simulation_result_schema_version_mismatch")
+        if simulation.metrics_ref.model_dump(mode="json") != source_metrics_ref.model_dump(
+            mode="json"
+        ):
+            return not_observed("invalid", "simulation_result_metrics_ref_mismatch")
+        embedded_snapshot_ref = simulation.state_snapshot_ref
+        if state_snapshot_ref is not None and (
+            embedded_snapshot_ref is None
+            or embedded_snapshot_ref.model_dump(mode="json")
+            != state_snapshot_ref.model_dump(mode="json")
+        ):
+            return not_observed(
+                "invalid",
+                "simulation_result_state_snapshot_ref_mismatch",
+                snapshot_ref=embedded_snapshot_ref,
+            )
+        source_snapshot_ref = embedded_snapshot_ref
+        if source_snapshot_ref is None:
+            return not_observed("not_established", "simulation_state_snapshot_ref_missing")
+        snapshot_manifest = require_selected_ref(source_snapshot_ref, "foundry.state_snapshot")
+        if (
+            snapshot_manifest.artifact_schema is None
+            or snapshot_manifest.artifact_schema.name != "polisyos.core.StateSnapshot"
+        ):
+            raise ValueError("state_snapshot_schema_identity_unavailable")
+
+        metrics = Metrics.model_validate(load_core_json_artifact(store, source_metrics_ref))
+        snapshot = StateSnapshot.model_validate(load_core_json_artifact(store, source_snapshot_ref))
+        if snapshot_manifest.artifact_schema.version != f"{snapshot.schema_version}.0":
+            return not_observed(
+                "invalid",
+                "state_snapshot_schema_version_mismatch",
+                snapshot_ref=source_snapshot_ref,
+            )
+        if snapshot.step is None:
+            return not_observed(
+                "not_established",
+                "simulation_step_not_recorded",
+                snapshot_ref=source_snapshot_ref,
+            )
+        if (
+            isinstance(snapshot.step, bool)
+            or not isinstance(snapshot.step, int)
+            or snapshot.step < 0
+        ):
+            return not_observed(
+                "invalid", "simulation_step_invalid", snapshot_ref=source_snapshot_ref
+            )
+
+        slot = DEFAULT_SLOT_REGISTRY.slots.get("government.balance")
+        metric = DEFAULT_METRIC_REGISTRY.metrics.get("government_balance")
+        if (
+            slot is None
+            or metric is None
+            or slot.state_path != "government_balance"
+            or slot.unit is None
+            or slot.unit.unit_id != "usd"
+            or slot.scope is not SlotScope.GLOBAL
+            or slot.kind is not SlotKind.STOCK
+        ):
+            return not_observed(
+                "not_established",
+                "canonical_balance_slot_contract_changed",
+                snapshot_ref=source_snapshot_ref,
+            )
+
+        raw_metric = metrics.values.get("government_balance")
+        if raw_metric is None:
+            return not_observed(
+                "unavailable", "government_balance_metric_missing", snapshot_ref=source_snapshot_ref
+            )
+        if isinstance(raw_metric, bool) or not isinstance(raw_metric, (int, float)):
+            return not_observed(
+                "invalid",
+                "government_balance_metric_not_numeric",
+                snapshot_ref=source_snapshot_ref,
+            )
+        metric_value = float(raw_metric)
+        if not math.isfinite(metric_value):
+            return not_observed(
+                "invalid",
+                "government_balance_metric_not_finite",
+                snapshot_ref=source_snapshot_ref,
+            )
+
+        other_balance = metrics.values.get("gov_balance")
+        if other_balance is not None:
+            if isinstance(other_balance, bool) or not isinstance(other_balance, (int, float)):
+                return not_observed(
+                    "invalid",
+                    "government_balance_alias_not_numeric",
+                    snapshot_ref=source_snapshot_ref,
+                )
+            alias_value = float(other_balance)
+            if not math.isfinite(alias_value) or alias_value != metric_value:
+                return not_observed(
+                    "invalid", "government_balance_alias_conflict", snapshot_ref=source_snapshot_ref
+                )
+
+        materialized_state = load_state_snapshot(store, snapshot_ref=source_snapshot_ref)
+        state_value = float(materialized_state.government_balance)
+        if not math.isfinite(state_value) or state_value != metric_value:
+            return not_observed(
+                "invalid",
+                "government_balance_metrics_snapshot_mismatch",
+                snapshot_ref=source_snapshot_ref,
+            )
+
+        return SourceMetricObservation(
+            source_status="observed",
+            predicate_status="recomputed",
+            metric_id="government_balance",
+            slot_id="government.balance",
+            value=metric_value,
+            unit_id=slot.unit.unit_id,
+            scope=slot.scope.value,
+            quantity_kind=slot.kind.value,
+            simulation_step=snapshot.step,
+            time_basis="simulation_step",
+            source_result_ref=source_result_ref,
+            source_metrics_ref=source_metrics_ref,
+            source_snapshot_ref=source_snapshot_ref,
+            limitation="government_balance_stock_not_budget_deficit_period_measurement",
+        )
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError, OverflowError):
+        return not_observed("invalid", "source_artifact_readback_or_contract_failed")
+
+
+def recompute_source_government_balance(
+    store: Any,
+    observation: SourceMetricObservation,
+) -> SourceMetricObservation:
+    """Re-resolve every exact source ref and reproduce one reported observation."""
+    return observe_source_government_balance(
+        store,
+        simulation_result_ref=observation.source_result_ref,
+        metrics_ref=observation.source_metrics_ref,
+        state_snapshot_ref=observation.source_snapshot_ref,
+    )
+
+
+def source_observation_input_refs(
+    observation: SourceMetricObservation,
+) -> tuple[tuple[str, ArtifactRef], ...]:
+    """Return exact CAS input edges for all selected source artifacts in an observation."""
+    return tuple(
+        (role, ref)
+        for role, ref in (
+            ("source_simulation_result", observation.source_result_ref),
+            ("source_metrics", observation.source_metrics_ref),
+            ("source_state_snapshot", observation.source_snapshot_ref),
+        )
+        if ref is not None
+    )
+
+
+def objective_metrics_without_unestablished_fiscal_source(
+    metrics: Mapping[str, Any] | None,
+    observation: SourceMetricObservation | None,
+) -> dict[str, Any] | None:
+    """Keep an unmapped physical balance out of the budget-deficit score input."""
+    if not isinstance(metrics, Mapping):
+        return None if metrics is None else dict(metrics)
+    if observation is None or observation.source_status not in {"observed", "invalid"}:
+        return dict(metrics)
+    return {
+        key: value
+        for key, value in metrics.items()
+        if key not in {*_BALANCE_ALIASES, *_DEFICIT_ALIASES}
+    }
 
 
 def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> object:

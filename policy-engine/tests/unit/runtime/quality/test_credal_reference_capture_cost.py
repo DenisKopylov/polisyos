@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import json
 from collections import UserDict
+from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_nested_dict_capture_serializes_one_wire_root(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -38,7 +43,7 @@ def test_nested_dict_capture_serializes_one_wire_root(monkeypatch: pytest.Monkey
     assert loads_calls == 0
     assert owner._json_ready(captured) == expected
     assert dumps_calls == 1
-    assert loads_calls == 1
+    assert loads_calls == 0
 
 
 def test_shared_mapping_dag_is_captured_once_and_keeps_repeated_wire_values(
@@ -179,6 +184,12 @@ def test_legacy_wire_matrix_matches_existing_snapshot_rules() -> None:
         {"bytes": b"\x00\xff", "tuple": (1, "two")},
         {"float": [float("inf"), float("-inf"), float("nan"), -0.0]},
         {
+            "duplicate_nan_keys": {
+                float("nan"): "first",
+                float("nan"): "last",
+            }
+        },
+        {
             "subclasses": [
                 StringSubclass("text"),
                 IntegerSubclass(7),
@@ -210,29 +221,241 @@ def test_legacy_wire_matrix_matches_existing_snapshot_rules() -> None:
 
     assert math.copysign(1.0, owner._json_ready(owner._freeze_reference_payload(-0.0))) == -1.0
 
-    with pytest.raises(TypeError):
-        owner._freeze_reference_payload({1: "integer", "mixed": "key"})
+    for invalid_keys in (
+        {1: "integer", "1": "string"},
+        {None: "null", "null": "string"},
+        {True: "boolean", "true": "string"},
+        {1: "integer", "mixed": "key"},
+    ):
+        with pytest.raises(TypeError):
+            owner._freeze_reference_payload(invalid_keys)
 
 
-def test_alias_memo_bounds_volatile_fallback_to_one_source_snapshot() -> None:
-    """Stateful fallback text is sampled once per unique aliased container snapshot."""
+def test_alias_memo_bounds_stateful_mapping_to_one_snapshot_per_capture() -> None:
+    """A Mapping alias shares one fallback sample, while a later capture sees new state."""
 
     from polisyos.runtime.quality import credal_reference as owner
 
-    class VolatileText:
+    class StatefulMapping(UserDict[str, object]):
         def __init__(self) -> None:
+            super().__init__({"value": "before"})
             self.calls = 0
 
         def __str__(self) -> str:
             self.calls += 1
-            return f"sample-{self.calls}"
+            value = self["value"]
+            return f"sample-{self.calls}-{value}"
 
-    fallback = VolatileText()
-    shared = {"fallback": fallback}
-    frozen = owner._freeze_reference_payload({"left": shared, "right": shared})
+    source = StatefulMapping()
+    frozen = owner._freeze_reference_payload({"left": source, "right": source})
 
-    assert fallback.calls == 1
+    assert source.calls == 1
+    assert frozen["left"] is frozen["right"]
     assert owner._json_ready(frozen) == {
-        "left": {"fallback": "sample-1"},
-        "right": {"fallback": "sample-1"},
+        "left": "sample-1-before",
+        "right": "sample-1-before",
     }
+
+    source["value"] = "after"
+    next_snapshot = owner._freeze_reference_payload({"only": source})
+
+    assert source.calls == 2
+    assert owner._json_ready(next_snapshot) == {"only": "sample-2-after"}
+
+
+def test_exact_scalars_skip_mapping_abc_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Exact scalar leaves avoid ABC mapping checks while container dispatch stays intact."""
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    original_mapping = owner.Mapping
+    scalar_types = {bool, type(None), str, int, float, bytes}
+    scalar_checks: list[type[object]] = []
+
+    class MappingProbeMeta(type):
+        def __instancecheck__(cls, instance: object) -> bool:
+            if type(instance) in scalar_types:
+                scalar_checks.append(type(instance))
+            return isinstance(instance, original_mapping)
+
+    class MappingProbe(metaclass=MappingProbeMeta):
+        pass
+
+    monkeypatch.setattr(owner, "Mapping", MappingProbe)
+    values: tuple[object, ...] = (False, None, "text", 17, -0.0, b"bytes")
+    for value in values:
+        assert owner._capture_reference_payload(value) == value
+
+    assert scalar_checks == []
+
+
+def test_cached_wire_projection_preserves_key_coercion_order_and_edge_hash() -> None:
+    """The direct projection equals json.loads of the legacy wire and keeps hashes."""
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    first_nan = float("nan")
+    second_nan = float("nan")
+    provenance = {
+        "selected_source_profile": {
+            "source_read_prepared_at_utc": "2026-06-29T00:00:00Z",
+            "details": {
+                "integer_key": {1: "one"},
+                "duplicate_nan_keys": {first_nan: "first", second_nan: "last"},
+                "sequence": (1, "two"),
+            },
+        },
+        "owner": "L2",
+    }
+    expected_wire_projection = json.loads(
+        json.dumps(provenance, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    edge = owner.CredalReferenceEdge(
+        modality="L2_VARIABLE",
+        edge_id="variable:profile",
+        status="confirmed",
+        admissible_completions=(),
+        provenance=provenance,
+    )
+    actual = edge.with_content_hash()
+
+    assert json.dumps(
+        owner._json_ready(actual.provenance),
+        ensure_ascii=False,
+        sort_keys=False,
+        default=str,
+    ) == json.dumps(
+        expected_wire_projection,
+        ensure_ascii=False,
+        sort_keys=False,
+        default=str,
+    )
+    expected_semantic_provenance = json.loads(
+        json.dumps(expected_wire_projection, ensure_ascii=False, sort_keys=False, default=str)
+    )
+    expected_semantic_provenance["selected_source_profile"].pop("source_read_prepared_at_utc")
+    expected_hash = owner.gy_content_hash(
+        {
+            "admissible_completions": [],
+            "edge_id": "variable:profile",
+            "modality": "L2_VARIABLE",
+            "provenance": expected_semantic_provenance,
+            "scale": None,
+            "status": "confirmed",
+            "unit": None,
+        }
+    )
+
+    assert actual.content_hash == expected_hash
+    assert json.dumps(
+        actual.to_payload(), ensure_ascii=False, sort_keys=False, default=str
+    ) == json.dumps(
+        {
+            "admissible_completions": [],
+            "edge_id": "variable:profile",
+            "modality": "L2_VARIABLE",
+            "provenance": expected_wire_projection,
+            "scale": None,
+            "status": "confirmed",
+            "unit": None,
+            "content_hash": expected_hash,
+        },
+        ensure_ascii=False,
+        sort_keys=False,
+        default=str,
+    )
+
+
+def test_selected_l2_edges_reuse_one_immutable_profile_snapshot(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """The selected profile is dumped once and each edge keeps its legacy hash."""
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    profile_payload = {
+        "source_snapshot_ref": "snapshot-ref-1",
+        "source_snapshot_sha256": "a" * 64,
+        "source_read_prepared_at_utc": "2026-06-29T00:00:00Z",
+        "nested": {"items": [1, "two", None]},
+    }
+
+    class Profile:
+        source_snapshot_ref = "snapshot-ref-1"
+        source_snapshot_sha256 = "a" * 64
+
+        def __init__(self) -> None:
+            self.dump_calls = 0
+
+        def model_dump(self, *, mode: str) -> dict[str, object]:
+            assert mode == "json"
+            self.dump_calls += 1
+            return {
+                **profile_payload,
+                "nested": {"items": [1, "two", None]},
+            }
+
+    profile = Profile()
+    rows = SimpleNamespace(
+        source_snapshot_ref=profile.source_snapshot_ref,
+        source_snapshot_sha256=profile.source_snapshot_sha256,
+        version_id="version-1",
+        synthetic_values=(),
+    )
+    selected = owner._PreparedL2Source(
+        prepared_read=SimpleNamespace(read_credal_source_rows=lambda: rows),
+        profile=profile,
+        version="version-1",
+    )
+    source_edges = tuple(
+        owner.CredalReferenceEdge(
+            modality="L2_VARIABLE",
+            edge_id=f"edge-{index}",
+            status="confirmed",
+            admissible_completions=(),
+            provenance={"owner": "L2", "base": index},
+        )
+        for index in range(2)
+    )
+    monkeypatch.setattr(owner, "_iter_l2_source_edges", lambda *args, **kwargs: iter(source_edges))
+    actual_edges = tuple(owner._iter_selected_l2_edges(tmp_path, selected, catalog_source=object()))
+
+    assert profile.dump_calls == 1
+    assert (
+        actual_edges[0].provenance["selected_source_profile"]
+        is actual_edges[1].provenance["selected_source_profile"]
+    )
+    for index, (source_edge, actual_edge) in enumerate(
+        zip(source_edges, actual_edges, strict=True)
+    ):
+        expected_provenance = json.loads(
+            json.dumps(
+                {
+                    "owner": "L2",
+                    "base": index,
+                    "selected_source_profile": profile_payload,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                default=str,
+            )
+        )
+        expected_hash_provenance = json.loads(
+            json.dumps(expected_provenance, ensure_ascii=False, sort_keys=False, default=str)
+        )
+        expected_hash_provenance["selected_source_profile"].pop("source_read_prepared_at_utc")
+        expected_hash = owner.gy_content_hash(
+            {
+                "admissible_completions": [],
+                "edge_id": source_edge.edge_id,
+                "modality": source_edge.modality,
+                "provenance": expected_hash_provenance,
+                "scale": source_edge.scale,
+                "status": source_edge.status,
+                "unit": source_edge.unit,
+            }
+        )
+
+        assert owner._json_ready(actual_edge.provenance) == expected_provenance
+        assert actual_edge.content_hash == expected_hash

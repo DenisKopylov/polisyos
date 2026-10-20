@@ -12,6 +12,11 @@ from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegist
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
 from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.objective import (
+    SourceMetricObservation,
+    objective_metrics_without_unestablished_fiscal_source,
+    observe_source_government_balance,
+)
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import maybe_artifact_ref
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
@@ -22,6 +27,11 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     build_selection_benchmark_evaluation,
     persist_funnel_executed_work_packet,
     persist_policy_evaluation_vector_to_store,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_METRICS_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
+    ARTIFACT_STATE_SNAPSHOT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -50,6 +60,7 @@ class _RuntimeSession:
     ambiguity_certificate_ref: ArtifactRef | None
     runtime_backend: ProductionPolicyEvaluationBackend
     input_signature: str
+    source_measurement: SourceMetricObservation | None = None
     runtime_artifacts_index: dict[str, ArtifactRef] = field(default_factory=dict)
     selection_artifact: Any = None
     selection_vector: PolicyEvaluationVector | None = None
@@ -112,11 +123,34 @@ def prepare_runtime_session(
         candidate_ref=candidate_ref,
         state=state,
     )
+    source_refs = {
+        ARTIFACT_SIMULATION_RESULT_REF: owner.maybe_artifact_ref(
+            state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
+        ),
+        ARTIFACT_METRICS_REF: owner.maybe_artifact_ref(
+            state.artifacts_index.get(ARTIFACT_METRICS_REF)
+        ),
+        ARTIFACT_STATE_SNAPSHOT_REF: owner.maybe_artifact_ref(
+            state.artifacts_index.get(ARTIFACT_STATE_SNAPSHOT_REF)
+        ),
+    }
+    source_measurement = None
+    if any(ref is not None for ref in source_refs.values()):
+        source_measurement = observe_source_government_balance(
+            ctx.store,
+            simulation_result_ref=source_refs[ARTIFACT_SIMULATION_RESULT_REF],
+            metrics_ref=source_refs[ARTIFACT_METRICS_REF],
+            state_snapshot_ref=source_refs[ARTIFACT_STATE_SNAPSHOT_REF],
+        )
+    simulation_metrics = objective_metrics_without_unestablished_fiscal_source(
+        runtime_request.simulation_metrics,
+        source_measurement,
+    )
     selection_artifact = owner.build_policy_runtime_evaluation(
         candidate,
         backend=runtime_backend,
         fidelity="selection",
-        simulation_metrics=runtime_request.simulation_metrics,
+        simulation_metrics=simulation_metrics,
         uncertainty=runtime_request.uncertainty_envelope,
         distributional_report=runtime_request.distributional_report,
         causal_effect_report=runtime_request.causal_report,
@@ -129,6 +163,15 @@ def prepare_runtime_session(
             "metadata": {
                 **dict(selection_artifact.evaluation_vector.metadata),
                 "evidence_source_statuses": dict(runtime_source_statuses),
+                **(
+                    {}
+                    if source_measurement is None
+                    else {
+                        "policy_runtime_source_measurement": source_measurement.model_dump(
+                            mode="json", exclude_none=False
+                        )
+                    }
+                ),
             }
         }
     )
@@ -230,7 +273,8 @@ def prepare_runtime_session(
         cross_graph_profile=cross_graph_profile,
         evidence_sources=evidence_sources,
         runtime_source_statuses=runtime_source_statuses,
-        simulation_metrics=runtime_request.simulation_metrics,
+        simulation_metrics=simulation_metrics,
+        source_measurement=source_measurement,
         ambiguity_certificate=runtime_request.ambiguity_certificate,
         ambiguity_certificate_ref=ambiguity_certificate_ref,
         runtime_backend=runtime_backend,

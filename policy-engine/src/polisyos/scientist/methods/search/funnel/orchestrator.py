@@ -36,8 +36,11 @@ from polisyos.scientist.methods.search.lessons import (
 from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreAdmission,
     ObjectiveScoreStatus,
+    SourceMetricObservation,
     _unestablished_score_assessment,
+    recompute_source_government_balance,
     reconcile_objective_score_assessment,
+    source_observation_input_refs,
 )
 from polisyos.scientist.methods.search.sentinels import (
     extract_sentinel_metadata,
@@ -1252,6 +1255,49 @@ class FunnelOrchestrator:
                 else None
             )
             source_result_payload = load_core_json_artifact(store, packet.source_result_ref)
+            source_metadata = source_result_payload.get("metadata")
+            source_measurement_payload = (
+                source_metadata.get("policy_runtime_source_measurement")
+                if isinstance(source_metadata, Mapping)
+                else None
+            )
+            expected_source_measurement_payload = ticket.context.get(
+                "policy_runtime_source_measurement"
+            )
+            source_measurement_matches = source_measurement_payload is None
+            expected_result_inputs = [
+                input_ref_from_artifact_ref(packet.candidate_ref, role="candidate")
+            ]
+            if source_measurement_payload is not None:
+                source_measurement = SourceMetricObservation.model_validate(
+                    source_measurement_payload
+                )
+                recomputed_source_measurement = recompute_source_government_balance(
+                    store, source_measurement
+                )
+                expected_source_measurement = (
+                    None
+                    if expected_source_measurement_payload is None
+                    else SourceMetricObservation.model_validate(expected_source_measurement_payload)
+                )
+                source_measurement_dump = source_measurement.model_dump(
+                    mode="json", exclude_none=False
+                )
+                recomputed_source_measurement_dump = recomputed_source_measurement.model_dump(
+                    mode="json", exclude_none=False
+                )
+                source_measurement_matches = (
+                    expected_source_measurement is not None
+                    and source_measurement_dump
+                    == expected_source_measurement.model_dump(mode="json", exclude_none=False)
+                    and source_measurement_dump == recomputed_source_measurement_dump
+                )
+                expected_result_inputs.extend(
+                    input_ref_from_artifact_ref(source_ref, role=role)
+                    for role, source_ref in source_observation_input_refs(source_measurement)
+                )
+            elif expected_source_measurement_payload is not None:
+                source_measurement_matches = False
             expected_packet_inputs = sorted(
                 (
                     item.role,
@@ -1329,7 +1375,26 @@ class FunnelOrchestrator:
                     == bootstrap.get("effective_estimation_config_sha256")
                     and isinstance(fiscal_measurement, Mapping)
                     and dict(fiscal_measurement) == expected_fiscal_measurement
+                    and source_measurement_matches
                 )
+            expected_result_inputs = sorted(
+                (
+                    item.role,
+                    str(item.artifact_id),
+                    item.manifest_profile_sha256 is None,
+                    item.manifest_profile_sha256 or "",
+                )
+                for item in expected_result_inputs
+            )
+            actual_result_inputs = sorted(
+                (
+                    item.role,
+                    str(item.artifact_id),
+                    item.manifest_profile_sha256 is None,
+                    item.manifest_profile_sha256 or "",
+                )
+                for item in result_manifest.inputs
+            )
             if (
                 ref.kind != "scientist.search.funnel_native_work_packet"
                 or packet_manifest.kind != "scientist.search.funnel_native_work_packet"
@@ -1354,7 +1419,7 @@ class FunnelOrchestrator:
                 or candidate_payload.get("candidate_id")
                 != source_result_payload.get("candidate_id")
                 or packet_inputs != expected_packet_inputs
-                or len(result_manifest.inputs) != 1
+                or actual_result_inputs != expected_result_inputs
                 or result_candidate_inputs
                 != [input_ref_from_artifact_ref(packet.candidate_ref, role="candidate")]
                 or packet.requested_draw_count != requested_draw_count

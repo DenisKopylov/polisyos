@@ -790,6 +790,11 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
             state.artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF)
         ),
         "simulation_metrics": session.simulation_metrics,
+        "policy_runtime_source_measurement": (
+            None
+            if session.source_measurement is None
+            else session.source_measurement.model_dump(mode="json", exclude_none=False)
+        ),
         "uncertainty_envelope": session.uncertainty_envelope,
         "uncertainty_basis_ref": owner.maybe_artifact_ref(
             state.params.get("uncertainty_basis_ref")

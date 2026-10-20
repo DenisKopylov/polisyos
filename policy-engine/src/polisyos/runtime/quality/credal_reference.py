@@ -351,6 +351,8 @@ class _FrozenReferenceMapping(Mapping[Any, Any]):
 def _reference_wire_projection(value: object) -> object:
     """Materialize the captured value using the existing JSON-facing rules."""
 
+    if type(value) in (bool, type(None), str, int, float, bytes):
+        return value
     if isinstance(value, _FrozenReferenceMapping):
         if not value._wire_is_dict:
             return value._wire_fallback
@@ -358,6 +360,44 @@ def _reference_wire_projection(value: object) -> object:
     if isinstance(value, _FrozenReferenceList | tuple):
         return [_reference_wire_projection(item) for item in value]
     return value
+
+
+_REFERENCE_JSON_LOAD_FALLBACK = object()
+
+
+def _reference_json_parsed_projection(value: object) -> object:
+    """Project captured string-key JSON directly, or request the legacy wire parser."""
+
+    if type(value) is int:
+        max_digits = sys.get_int_max_str_digits()
+        if max_digits != 0 and value.bit_length() > max_digits * 3:
+            return _REFERENCE_JSON_LOAD_FALLBACK
+        return value
+    if type(value) in (bool, type(None), str, float):
+        return value
+    if type(value) is bytes:
+        return str(value)
+    if isinstance(value, _FrozenReferenceMapping):
+        if not value._wire_is_dict:
+            return value._wire_fallback
+        projected: dict[str, object] = {}
+        for key, item in value._wire_items:
+            if type(key) is not str:
+                return _REFERENCE_JSON_LOAD_FALLBACK
+            projected_item = _reference_json_parsed_projection(item)
+            if projected_item is _REFERENCE_JSON_LOAD_FALLBACK:
+                return _REFERENCE_JSON_LOAD_FALLBACK
+            projected[key] = projected_item
+        return projected
+    if isinstance(value, _FrozenReferenceList | tuple):
+        projected_items = []
+        for item in value:
+            projected_item = _reference_json_parsed_projection(item)
+            if projected_item is _REFERENCE_JSON_LOAD_FALLBACK:
+                return _REFERENCE_JSON_LOAD_FALLBACK
+            projected_items.append(projected_item)
+        return projected_items
+    return str(value)
 
 
 def _capture_reference_payload(
@@ -368,6 +408,8 @@ def _capture_reference_payload(
 ) -> object:
     """Freeze a value once per source-container identity without serializing subtrees."""
 
+    if type(value) in (bool, type(None), str, int, float, bytes):
+        return value
     if isinstance(value, _FrozenReferenceMapping):
         return value
     active_ancestors = ancestors if ancestors is not None else set()
@@ -449,10 +491,6 @@ def _capture_reference_payload(
             return frozen_sequence
         finally:
             active_ancestors.remove(marker)
-    if type(value) is bytes:
-        return value
-    if type(value) in (bool, type(None), str, int, float):
-        return value
     if isinstance(value, str):
         return str.__str__(value)
     if isinstance(value, int):
@@ -474,6 +512,8 @@ def _reference_wire_validation_roots(
     visited: set[tuple[int, bool]] = set()
 
     def visit(node: object, inside_dict_wire: bool) -> None:
+        if type(node) in (bool, type(None), str, int, float, bytes):
+            return
         if isinstance(node, _FrozenReferenceMapping):
             marker = id(node)
             if marker not in captured_nodes:
@@ -1652,6 +1692,7 @@ def _iter_selected_l2_edges(
     synthetic = any(value is True for value in rows.synthetic_values)
     if catalog_source is None:
         catalog_source = _read_data_forge_catalog_source(repo_root)
+    selected_source_profile_snapshot: object | None = None
     for edge in _iter_l2_source_edges(
         repo_root,
         rows=rows,
@@ -1660,7 +1701,11 @@ def _iter_selected_l2_edges(
     ):
         provenance = dict(edge.provenance)
         if provenance.get("owner") == "L2":
-            provenance["selected_source_profile"] = selected.profile.model_dump(mode="json")
+            if selected_source_profile_snapshot is None:
+                selected_source_profile_snapshot = _freeze_reference_payload(
+                    selected.profile.model_dump(mode="json")
+                )
+            provenance["selected_source_profile"] = selected_source_profile_snapshot
         if synthetic:
             provenance.update(
                 {
@@ -3494,7 +3539,10 @@ def _json_list(value: object) -> list[Any]:
 
 def _json_ready(value: object) -> object:
     if isinstance(value, _FrozenReferenceMapping):
-        return json.loads(value._wire_json)
+        projected = _reference_json_parsed_projection(value)
+        if projected is _REFERENCE_JSON_LOAD_FALLBACK:
+            return json.loads(value._wire_json)
+        return projected
     if value is None or type(value) in (bool, str):
         return value
     if type(value) is int:

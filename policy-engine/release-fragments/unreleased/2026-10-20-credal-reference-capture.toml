@@ -1,0 +1,12 @@
+id = "2026-10-20-credal-reference-capture"
+title = "Reduce repeated credal reference payload materialization"
+type = "changed"
+component = "runtime-quality"
+owner = "policyos-runtime"
+summary = "Credal reference edge construction reuses one immutable selected-source profile snapshot per read and projects safe string-key snapshots without changing legacy wire or content hashes."
+evidence = ["tests/unit/runtime/quality/test_credal_reference_capture_cost.py"]
+compatibility = "Internal runtime-quality implementation change; existing edge payload wire values and semantic content hashes are required to remain unchanged."
+surface_classification = "internal: internal-only"
+api = "No public API or schema changes."
+limitations = "The fast path falls back to the validated cached wire for non-string keys and integer digit-limit cases. It does not reduce full K_ref edge-index retention; the R3 attempt remained incomplete and G acceptance is false."
+generated_client_compatibility = "not_applicable"

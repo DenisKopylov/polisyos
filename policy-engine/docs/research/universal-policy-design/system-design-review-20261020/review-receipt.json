@@ -1,0 +1,202 @@
+{
+  "kind": "documentation-research-receipt",
+  "date": "2026-10-20",
+  "input_head": "08be64fb7852696e8aa83823618285257cc8644d",
+  "branch": "codex/e02-integration",
+  "standing": "Research and unapplied proposals only; no G code acceptance, runtime admission, formal closure or ratification.",
+  "constraints": {
+    "product_tests": false,
+    "product_imports": false,
+    "builds": false,
+    "installs": false,
+    "dataset_downloads": false,
+    "heavy_processes": false,
+    "protected_sdd_writes": false,
+    "delegation_levels": 1
+  },
+  "checks": {
+    "kind": "light-document-integrity-only",
+    "base": "08be64fb7852696e8aa83823618285257cc8644d",
+    "counts": {
+      "sdd_files": 20,
+      "sdd_lines": 10985,
+      "families": 26,
+      "grounds": 43,
+      "sources": 113
+    },
+    "ground_streams": {
+      "DAT": 6,
+      "MET": 5,
+      "CAU": 5,
+      "LAW": 6,
+      "VAL": 5,
+      "FEA": 6,
+      "LRN": 5,
+      "QUA": 5
+    },
+    "source_access": {
+      "primary_text_or_selected_sections": 73,
+      "search_extract_only": 22,
+      "abstract_or_metadata": 12,
+      "publisher_metadata_plus_nonpublisher_selected_text": 1,
+      "publisher_metadata_plus_indexed_author_manuscript_sections": 1,
+      "bibliographic_metadata_only": 1,
+      "abstract_only": 2,
+      "publisher_metadata_and_excerpt": 1
+    },
+    "source_refs_resolve": true,
+    "local_links_resolve_except_pending_receipts": [],
+    "all_sdd_bytes_equal_base": true,
+    "actual_sdd_patch_applied": false,
+    "checks": [
+      {
+        "command": "git apply --check policy-engine/docs/research/universal-policy-design/system-design-review-20261020/A-navigation.patch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git apply --check policy-engine/docs/research/universal-policy-design/system-design-review-20261020/B-owner-clarifications.patch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git apply --check policy-engine/docs/research/universal-policy-design/system-design-review-20261020/C-target-choices.patch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "product_tests_builds_imports_executed": false,
+    "link_check_note": "All links resolved after writing both receipts and rerunning the same bounded checker; see final ignored checks output."
+  },
+  "review_fixes": [
+    {
+      "issue": "Theil zero extension and equal-weight versus weighted bound",
+      "resolution": "Distinguished mathematical domain/derivation from Canberra profile; removed repeated table examples."
+    },
+    {
+      "issue": "Atkinson epsilon candidate exploration versus mandate",
+      "resolution": "Hypothetical sensitivity remains available; authority-bearing principal choice requires applicable mandate."
+    },
+    {
+      "issue": "Nonrepresentative-sample adjustment",
+      "resolution": "Root added conditional causal-response transport requirement; target covariate weights alone do not suffice."
+    },
+    {
+      "issue": "FGT boundary and bounded ATE formula edge",
+      "resolution": "Made chosen <= poverty convention explicit; conditional-arm parameterization scoped to 0<p<1."
+    },
+    {
+      "issue": "Reused resource URL alias",
+      "resolution": "Canonical source URL retained; accessed alias separate; no byte-equivalence assertion."
+    },
+    {
+      "issue": "No correspondence acceptance rule overstatement",
+      "resolution": "Atlas corrected against accepted ADR-0179 and named register row; first concrete profiles/positive review remain distinct."
+    },
+    {
+      "issue": "A universal adjudicator implication",
+      "resolution": "A described as assurance role via relation-specific owners; no universal reviewer office appointed."
+    },
+    {
+      "issue": "Causal grounding imposed on value choices",
+      "resolution": "Rejected; causal, measurement and normative/mandate grounds separated."
+    },
+    {
+      "issue": "Synthesis could decide target extension ahead of approval",
+      "resolution": "Joint witness and inference plurality explicitly pending C01/C02; B07 surface extension also explicitly pending."
+    },
+    {
+      "issue": "New SDD duplication",
+      "resolution": "Recommend retaining explanatory synthesis in research; no new governing SDD applied."
+    }
+  ],
+  "root_spot_checks": [
+    "Read all eight SDD reader syntheses; checked disputed original sections and complete ADR-0179.",
+    "Reviewed substantive records, formulas and counterexamples; independently checked legal primary/search extracts.",
+    "Source access failures retained: direct Rada 403/timeout, EUR-Lex bot challenge, legislation.gov.uk unsupported XHTML; no full-current-consolidation claim."
+  ],
+  "genuine_limits": [
+    "Full texts of all cited resources were not read; card-specific access is authoritative for research access.",
+    "No production input, current release bytes, task correspondence, external mandate or qualified appointment was supplied by this corpus.",
+    "Full catalogue read coverage is reported by assigned readers; file hashes and inventory are independently recomputed, not a proof of comprehension.",
+    "No current runtime capability census was performed. Historical code status is kept source/date-qualified."
+  ],
+  "denominator": {
+    "tracked_sdd_files": 20,
+    "lines": 10985,
+    "readers": 8,
+    "substantive_researchers": 8,
+    "independent_critics": 2
+  },
+  "readers": [
+    "sdd_vision_r2",
+    "sdd_target_a_r2",
+    "sdd_target_b_r2",
+    "sdd_operating_r2",
+    "sdd_custody_r2",
+    "sdd_ratification_r2",
+    "sdd_diagnostics_r2",
+    "sdd_surface_r2"
+  ],
+  "source_tree_oid": "53606c2d9f9e76d19e421d076c9aeb6b9d02624c",
+  "actual_sdd_unchanged": true,
+  "pending_approval": [
+    "A-navigation",
+    "B01-B07 owner clarifications (B07 includes a proposed surface requirement)",
+    "C01 joint witness alternatives",
+    "C02 inference profile plurality"
+  ],
+  "new_sdd_recommendation": "Do not add a new governing SDD now; optional synthesis remains research. User approval required for any placement in SDD.",
+  "patch_composition": "A/B/C check independently against input base; B and C share a North Star append location and require explicit textual composition if jointly approved.",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/01-system-reading.md",
+      "sha256": "b600eb2d2d0ab6e15813f25e1c14df7304ca89322e1998fd1ef108b004ad819e",
+      "bytes": 14158
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/02-approval-options.md",
+      "sha256": "77ed632a759c0e75cf6cd6691f5b60ce954463125130e683ea174ec039de0bfe",
+      "bytes": 13336
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/A-navigation.patch",
+      "sha256": "af51346ccd901c73dd27b5b77ae512dde0f0458e28e5ee83a2ec3ecf95d90034",
+      "bytes": 6381
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/B-owner-clarifications.patch",
+      "sha256": "3c0c0908992005e7217ec13e4999abe9ab7bc7b5e9b60d389e9d920f7d78792e",
+      "bytes": 14634
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/C-target-choices.patch",
+      "sha256": "2538a391bed03bd00f1678ab2aab6205053ba00549ceee6580ef9ddb9f9e8840",
+      "bytes": 2082
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/README.md",
+      "sha256": "33c0171e41902f79a6586925ad9afc8477899e0bc5c49b06f01e1b94b14ec00e",
+      "bytes": 3926
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/document-map.json",
+      "sha256": "fc8d31efc6c6f2ae34ae96e44703fb0be9ee7d4cbd79c693904a4f868cc3265e",
+      "bytes": 20694
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/system-design-review-20261020/proposed/policyos-system-synthesis-and-foundation-lifecycle.md",
+      "sha256": "19bd8742df0aa8e7e235d69615f0e2efd261aaf02996836dedb59e3435598465",
+      "bytes": 22819
+    }
+  ]
+}

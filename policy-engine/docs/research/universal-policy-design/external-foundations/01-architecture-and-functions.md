@@ -55,13 +55,13 @@
 
 ## 4. Место в существующей архитектуре
 
-[Best-in-class operating model](../../../system-design-decisions/policy-design-best-in-class-operating-model.md), Target Operating Model §§2–12, описывает целевую композицию concept spine, producer strands, method selection, portfolio, synthesis, arguments и learning. Перечисленные ниже владельцы — карта reuse из документации и выборочных source reads, не новый owner appointment и не утверждение полноты реализации. W5-K07/K08 запрещают подмену correspondence наличием текста/подписи, но не назначают adjudicator и не задают positive acceptance rule. До их отдельного установления конкретная provision→lever relation остаётся candidate.
+[Best-in-class operating model](../../../system-design-decisions/policy-design-best-in-class-operating-model.md), Target Operating Model §§2–12, описывает целевую композицию concept spine, producer strands, method selection, portfolio, synthesis, arguments и learning. Перечисленные ниже владельцы — карта reuse из документации и выборочных source reads, не новый owner appointment и не утверждение полноты реализации. W5-K07/K08 запрещают подмену correspondence наличием текста/подписи. Позднейший [ADR-0179](../../../adr/0179-correspondence-vocabularies-meaning-principles-first-profiles-open.md), CV-Q1, уже принимает смысл defeasible purpose-scoped assessment; общая correspondence acceptance rule описана в одноимённой строке [debt register](../../../plans/active/DEBT-REGISTER.md). Открыты конкретные первые source profile, provision–lever pair и purpose-qualified non-producer reviewer; этот атлас их не назначает. Candidate/conditional analysis остаётся доступным, а protected positive зависит от действительно установленных оснований.
 
 | Существующий владелец | Предполагаемая роль |
 | --- | --- |
 | Data Forge / Fabric / read APIs | Приобретение и версионирование источников; словари, releases, quality, rights, field-level bindings |
 | Scholar и academic SKG внутри Data Forge | Поиск публикаций, claims/parameters, условия и противоречия; SKG не новый peer subsystem |
-| Lex | Нормы, версии, competence/legal-scope facts и candidate mappings; task-specific provision→lever correspondence требует отдельно установленного adjudicator и positive acceptance rule |
+| Lex | Нормы, версии, competence/legal-scope facts и candidate mappings; task-specific provision→lever correspondence следует принятому CV-Q1 meaning principle; конкретные profile, grounds и qualified review должны быть установлены для positive |
 | Foundry и IR | Методы, model/estimand/unit relations, вычисления, uncertainty, sensitivity и welfare |
 | Scientist, DOE, discovery/search | Построение и исполнение портфеля, поиск, exploration/confirmation, память |
 | runtime/quality и claim/argument owners | Admission, acquisition eligibility, смысловая композиция, ограничения и publication boundary |

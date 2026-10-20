@@ -65,7 +65,7 @@ Research proposals, 2026-10-20. Существующие ADR и ratifications э
 | Атака | Контрпример | Исправление в пакете |
 | --- | --- | --- |
 | Каталог незаметно стал онтологической границей | Источник не входит в EF-* и теряется до candidate discovery | EF-* editorial; unknown family допускается; future discriminator проверяет неизвестный facet |
-| Карточка стала знаком authority | Подписанный, но неприменимый акт проходит как governing law | Source, extracted ground и task use раздельны; correspondence остаётся candidate до установления adjudicator и positive acceptance rule |
+| Карточка стала знаком authority | Подписанный, но неприменимый акт проходит как governing law | Source, extracted ground и task use раздельны; общий принцип correspondence уже принят ADR-0179; карточка не устанавливает первый profile, конкретное отношение и qualified review |
 | Основания подбираются под желаемый итог | После результата выбрана удобная метрика и названа confirmatory | Predeclared portfolio; adaptive changes сохраняют новую exploratory версию; independent design для confirmation |
 | Псевдонезависимость | Несколько обзоров повторяют одну cohort | Study/report lineage, common failure modes; число независимых линий не выдумывается из count ссылок |
 | Псевдоконсensus | Процент положительных specifications объявлен probability | Multiverse показывает sensitivity; probabilistic interpretation требует отдельной модели |
@@ -92,3 +92,7 @@ Research proposals, 2026-10-20. Существующие ADR и ratifications э
 Сначала пополнять содержательные объекты и проверять их composition на неодинаковых задачах через existing owners. Когда обнаружен реальный контрактный разрыв, отдельное ADR должно назвать reuse/extend choices, producer/consumer footprint, migration, authority/time semantics и falsifier. Эта последовательность сохраняет интеллектуальную открытость без заявления о несуществующей capability.
 
 Pattern pass: P01/P02/P05/P07/P08/P10/P13/P14/P15/P20/P25/P27/P29/P35/P37/P38. Пакет фиксирует target patterns; implementation status всего репозитория не оценивался.
+
+## Уточнение после полного чтения SDD, 2026-10-20
+
+Первый разбор слишком широко описал отсутствие positive acceptance rule. W5 задаёт границу подмены, а ADR-0179 уже фиксирует положительный смысл и границы CV-Q1–Q5. Неустановленность конкретного profile/reviewer/positive не означает отсутствие общего решения. Аналогично CGF уже допускает set-valued reference: новое хранилище конкурирующих моделей не предлагается. Полный разбор и **неприменённые** поправки находятся в [отдельном пакете согласования](../system-design-review-20261020/README.md).

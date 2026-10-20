@@ -1,0 +1,54 @@
+--- a/policy-engine/docs/system-design-decisions/README.md
++++ b/policy-engine/docs/system-design-decisions/README.md
+@@ -7,8 +7,9 @@
+
+ # PolicyOS System Design Decisions
+
+-This directory captures system design decisions that are broader than a single
+-implementation plan but not yet accepted as formal ADRs.
++This directory contains strategic drafts, accepted target specifications, ratified
++scope decisions, and append-only decision records broader than one implementation
++plan. Each document and dated clause carries its own standing.
+
+ Use this directory for decisions that define how PolicyOS should be shaped as a
+ system: authority boundaries, evidence semantics, cross-component contracts,
+@@ -27,11 +28,15 @@
+ ## Relationship To ADRs
+
+ ADRs in `docs/adr/` are accepted architecture records and may be machine-indexed
+-by repository gates. System design decisions here are a design-review layer
+-before ADR acceptance.
++by repository gates. Some SDDs are drafts awaiting ADR extraction; others record
++ratified scoped decisions. Directory membership is not an acceptance status.
+
+ A document in this directory may later become one or more ADRs. Until then, it
+-is intentionally explicit about status, open questions, and consequences.
++is intentionally explicit about status, open questions, and consequences. A
++ratified clause does not promote all adjacent draft prose. Read dated amendments
++and explicit supersession records before treating old open questions or package
++standings as current. Accepted ADRs remain the stable architecture layer; SDD
++logs cannot narrow them without the explicit later acceptance their rules require.
+
+ For universal Policy Design Case operations, use
+ `docs/reference/policy-design-case-operator-guide.md` as the W5.E operator
+@@ -75,3 +80,20 @@
+ | [Evidence Substitution Boundaries — Ratification Record](wave5-evidence-substitution-ratification.md) | Ratified design decision (2026-08-30) | The eight statements W5-K01–W5-K08 — six ratified 2026-08-30, `W5-K07` added by the dated amendment in §12 on 2026-09-10 (*the existence of a statute may not stand in for the statute governing the lever*); a second candidate was refused there as a duplicate of `W4-K01` — a premise the §13 correction of 2026-09-14 withdrew, because `W4-K01` contains no such statement — and ratified in its own right as `W5-K08` by the §14 amendment of 2026-09-17 (*a signature may not stand in for an established correspondence*) — **what one kind of evidence may not stand in for**, where the four prior acts govern a kind of output or gate: rows in a data stream cannot close a non-data gap (relation, estimand, mandate, capacity, licence, authority, assurance — eight types, 28 preserved pairwise distinctions), surface/enforcement/instrument conformance cannot be projected as human comprehension, post-deployment observation cannot become a causal claim before admission and `diagnosis_unresolved` freezes the update, a protective response and an unresolved cause may share one record but the response is never the evidence, a certificate through `t0` does not determine `t1` when a decisive dependency can change (an information limit, not a claim that authority differs), and translation or locale parity cannot establish source-language authority. Twelve binding negatives; the constitution is not amended and the outcome-vocabulary trigger stays armed |
+ | [Withheld Propositions Register](withheld-propositions-register.md) | Active standing register — append-only (opened 2026-08-30) | Propositions that are researched, evidenced and **deliberately not bound**, because binding them would leave the authority band. Four typed withholding reasons say what would have to change: `constrains_computation` waits for evidence, `constrains_action` for a scope decision, and `presupposes_absent_capability` / `presupposes_absent_institution` are **build targets today** under the identity decision §9 item 5. Seeded with wave 5's thirteen — the seven governed response-action families, the transition charter, the asymmetric restart rule, the eight-condition posterior-update conjunction, the SMDV-1 precedence, the no-universal-numbers discipline, the English-pivot split, the RTL evidence pack. Fed by contract: pipeline §3.6 names the withheld set a consolidation deliverable and §3.7 requires act §9 to cite `WP-` IDs |
+ | [Custody Time Model (CTM)](policy-design-custody-time-model.md) | Accepted target spec (2026-08-02) | The fourth layer of the causal OS (data · grounding · search · **time**): nine primitive temporal roles as a sparse semantic profile, relations instead of clocks, explicit query coordinates instead of an overloaded `as_of`, family-native persistence with adapters, the advisory late-event reaction ladder; refutes the universal persisted event envelope and prescribes the `TimeSourceEnvelopeAudit` narrowing |
++
++
++### Additional design records (index completion, 2026-10-20; SDD-A01)
++
++| Decision | Standing | Scope |
++|---|---|---|
++| [HDS decision log](honest-diagnostics-substrate-decision-log.md) | Active append-only history | ADR-0147-0155 implementation choices; read later closure entries |
++| [Causal OS North Star](policy-design-causal-operating-system-north-star.md) | Proposed strategic frame; §10 references ratified identity | Constructive design, causal model, interventions and learning |
++| [Causal Grounding Firewall](policy-design-causal-grounding-firewall.md) | Accepted GY grounding target; not implementation proof | Grounding and set-valued reference |
++| [Execution topology](policy-design-execution-topology.md) | Proposed | Artifact graph, operation loop and assurance boundary |
++| [Search target](policy-design-search-target-spec.md) | Accepted Phase-5 target; implementation by reuse | Credal/search fronts, acquisition, bounded exits |
++| [D0-D4 target architecture](universal-policy-design-target-architecture-and-gap.md) | B-on-A accepted; remaining draft scopes explicit | Universal grammar, design, search and evaluation proposals |
++
++PDC DL-0016 and HDS DL-0009-0016 record dispositions of earlier log entries;
++“active log” does not mean every historical question remains open. Refer to
++ADR-0179 for the accepted correspondence meaning principles and its explicitly
++open first profiles. A dated snapshot is not a current runtime capability audit.

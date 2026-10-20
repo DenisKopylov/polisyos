@@ -1,0 +1,251 @@
+{
+  "kind": "documentation-research-receipt",
+  "date": "2026-10-20",
+  "input_head": "08be64fb7852696e8aa83823618285257cc8644d",
+  "branch": "codex/e02-integration",
+  "standing": "Research and unapplied proposals only; no G code acceptance, runtime admission, formal closure or ratification.",
+  "constraints": {
+    "product_tests": false,
+    "product_imports": false,
+    "builds": false,
+    "installs": false,
+    "dataset_downloads": false,
+    "heavy_processes": false,
+    "protected_sdd_writes": false,
+    "delegation_levels": 1
+  },
+  "checks": {
+    "kind": "light-document-integrity-only",
+    "base": "08be64fb7852696e8aa83823618285257cc8644d",
+    "counts": {
+      "sdd_files": 20,
+      "sdd_lines": 10985,
+      "families": 26,
+      "grounds": 43,
+      "sources": 113
+    },
+    "ground_streams": {
+      "DAT": 6,
+      "MET": 5,
+      "CAU": 5,
+      "LAW": 6,
+      "VAL": 5,
+      "FEA": 6,
+      "LRN": 5,
+      "QUA": 5
+    },
+    "source_access": {
+      "primary_text_or_selected_sections": 73,
+      "search_extract_only": 22,
+      "abstract_or_metadata": 12,
+      "publisher_metadata_plus_nonpublisher_selected_text": 1,
+      "publisher_metadata_plus_indexed_author_manuscript_sections": 1,
+      "bibliographic_metadata_only": 1,
+      "abstract_only": 2,
+      "publisher_metadata_and_excerpt": 1
+    },
+    "source_refs_resolve": true,
+    "local_links_resolve_except_pending_receipts": [],
+    "all_sdd_bytes_equal_base": true,
+    "actual_sdd_patch_applied": false,
+    "checks": [
+      {
+        "command": "git apply --check policy-engine/docs/research/universal-policy-design/system-design-review-20261020/A-navigation.patch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git apply --check policy-engine/docs/research/universal-policy-design/system-design-review-20261020/B-owner-clarifications.patch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git apply --check policy-engine/docs/research/universal-policy-design/system-design-review-20261020/C-target-choices.patch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "product_tests_builds_imports_executed": false,
+    "link_check_note": "All links resolved after writing both receipts and rerunning the same bounded checker; see final ignored checks output."
+  },
+  "review_fixes": [
+    {
+      "issue": "Theil zero extension and equal-weight versus weighted bound",
+      "resolution": "Distinguished mathematical domain/derivation from Canberra profile; removed repeated table examples."
+    },
+    {
+      "issue": "Atkinson epsilon candidate exploration versus mandate",
+      "resolution": "Hypothetical sensitivity remains available; authority-bearing principal choice requires applicable mandate."
+    },
+    {
+      "issue": "Nonrepresentative-sample adjustment",
+      "resolution": "Root added conditional causal-response transport requirement; target covariate weights alone do not suffice."
+    },
+    {
+      "issue": "FGT boundary and bounded ATE formula edge",
+      "resolution": "Made chosen <= poverty convention explicit; conditional-arm parameterization scoped to 0<p<1."
+    },
+    {
+      "issue": "Reused resource URL alias",
+      "resolution": "Canonical source URL retained; accessed alias separate; no byte-equivalence assertion."
+    },
+    {
+      "issue": "No correspondence acceptance rule overstatement",
+      "resolution": "Atlas corrected against accepted ADR-0179 and named register row; first concrete profiles/positive review remain distinct."
+    },
+    {
+      "issue": "A universal adjudicator implication",
+      "resolution": "A described as assurance role via relation-specific owners; no universal reviewer office appointed."
+    },
+    {
+      "issue": "Causal grounding imposed on value choices",
+      "resolution": "Rejected; causal, measurement and normative/mandate grounds separated."
+    },
+    {
+      "issue": "Synthesis could decide target extension ahead of approval",
+      "resolution": "Joint witness and inference plurality explicitly pending C01/C02; B07 surface extension also explicitly pending."
+    },
+    {
+      "issue": "New SDD duplication",
+      "resolution": "Recommend retaining explanatory synthesis in research; no new governing SDD applied."
+    }
+  ],
+  "root_spot_checks": [
+    "Read all eight SDD reader syntheses; checked disputed original sections and complete ADR-0179.",
+    "Reviewed substantive records, formulas and counterexamples; independently checked legal primary/search extracts.",
+    "Source access failures retained: direct Rada 403/timeout, EUR-Lex bot challenge, legislation.gov.uk unsupported XHTML; no full-current-consolidation claim."
+  ],
+  "genuine_limits": [
+    "Full texts of all cited resources were not read; card-specific access is authoritative for research access.",
+    "No production input, current release bytes, task correspondence, external mandate or qualified appointment was supplied by this corpus.",
+    "Full catalogue read coverage is reported by assigned readers; file hashes and inventory are independently recomputed, not a proof of comprehension.",
+    "No current runtime capability census was performed. Historical code status is kept source/date-qualified."
+  ],
+  "denominator": {
+    "families": 26,
+    "grounds": 43,
+    "source_cards": 113,
+    "new_source_cards": 52
+  },
+  "ground_streams": {
+    "DAT": 6,
+    "MET": 5,
+    "CAU": 5,
+    "LAW": 6,
+    "VAL": 5,
+    "FEA": 6,
+    "LRN": 5,
+    "QUA": 5
+  },
+  "source_access": {
+    "primary_text_or_selected_sections": 73,
+    "search_extract_only": 22,
+    "abstract_or_metadata": 12,
+    "publisher_metadata_plus_nonpublisher_selected_text": 1,
+    "publisher_metadata_plus_indexed_author_manuscript_sections": 1,
+    "bibliographic_metadata_only": 1,
+    "abstract_only": 2,
+    "publisher_metadata_and_excerpt": 1
+  },
+  "direct_researchers": [
+    "grounds_data_r2",
+    "grounds_metrics_r2",
+    "grounds_causal_r2",
+    "grounds_legal_r2",
+    "grounds_values_r2",
+    "grounds_feasibility_r2",
+    "grounds_learning_r2",
+    "grounds_qualitative_r2"
+  ],
+  "independent_critics": [
+    "review_foundations_r2",
+    "review_synthesis_r2"
+  ],
+  "architecture_readers": [
+    "sdd_vision_r2",
+    "sdd_target_a_r2",
+    "sdd_target_b_r2",
+    "sdd_operating_r2",
+    "sdd_custody_r2",
+    "sdd_ratification_r2",
+    "sdd_diagnostics_r2",
+    "sdd_surface_r2"
+  ],
+  "historical_receipt": "research-receipt.json remains the initial-wave record at 08be64fb7852696e8aa83823618285257cc8644d; its file hashes are not a promise about this later version.",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/01-architecture-and-functions.md",
+      "sha256": "bbc316eedc372efc326351276e660ed9465d0b9e103738a374247471f4c1996c",
+      "bytes": 15647
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/02-foundation-map.md",
+      "sha256": "d3aa42da503ef5a144a9f53ec6640ef05a493dd19d2b65b897f94c7a475cf95c",
+      "bytes": 19051
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/03-search-composition-and-learning.md",
+      "sha256": "1224b5b5c10ba8504718c1af4b3a0f51290a78baeb36829dea53d0188e9917ba",
+      "bytes": 18947
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/04-records-and-observability.md",
+      "sha256": "7d0ff54cb021c71ecb3b19eccf5baf13b04d469e75710e26607662071a0b13a9",
+      "bytes": 13954
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/05-acquisition-and-research.md",
+      "sha256": "c4201b5a6b5b4daa039b439a46dd93c10bbc5fb26e9c7d5f6b6cbcd24084be60",
+      "bytes": 14488
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/06-review-and-proposals.md",
+      "sha256": "16ec737e1acbb267d41711d1224c85cb191c2ad4c666c626db9d6f2f5ed63a7e",
+      "bytes": 16430
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/08-substantive-foundations.md",
+      "sha256": "36a65c6d532903bd1991b0c484771294977bab30c66fd25fe0bec88011532df0",
+      "bytes": 18256
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "sha256": "b7203e955ae9e39f513c0e96e3a57e7c67a6115e2be5e799609e801981ce2251",
+      "bytes": 9184
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/examples/one-task-many-bases.md",
+      "sha256": "5ad8eb913a618488408a43a8f7bf258b2ad892420cfc9980d2d247a9bf008259",
+      "bytes": 10068
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "sha256": "f2161026d481de7612b54f5d1babdbab5974f72302fb66685fad1c7bfe931af6",
+      "bytes": 38925
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+      "sha256": "223d853677791eba1f7bf95c776304f2098f1bd03f742ee8877ba57dd3acb385",
+      "bytes": 168568
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/research-receipt.json",
+      "sha256": "3fa54af40772495a766fe4742d6c1c3518ecd928205250e6594777a9f8ad7f17",
+      "bytes": 11970
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json",
+      "sha256": "a680adf5ab82b6522bcfd79fa6d9a163a4ef3ddd04da91215d27f38a91da3c48",
+      "bytes": 208024
+    }
+  ]
+}

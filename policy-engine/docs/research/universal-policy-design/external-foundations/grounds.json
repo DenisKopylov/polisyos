@@ -1,0 +1,1757 @@
+{
+  "format": "editorial-ground-records-v1",
+  "updated_at": "2026-10-20",
+  "scope": "Substantive extracted propositions, methods and constraints for research; not an executable schema, closed taxonomy, production release or positive authority decision. Conditions and root inferences are explicit.",
+  "extension_rule": "Kinds and research_stream are navigation only; unknown families and new forms remain admissible to research.",
+  "grounds": [
+    {
+      "id": "G2-DAT-01",
+      "title": "EU-SILC relative-income poverty series",
+      "kind": "editorial",
+      "statement": "Eurostat table ilc_li02 is an annual aggregate series from EU-SILC and the earlier ECHP, with current page metadata reporting 1995-2025 coverage and a 2026-09-17 data update. Its below-60% poverty measure is the share of people whose equivalised disposable income after social transfers falls below 60% of the national median after transfers; this is a relative low-income measure, not an absolute poverty or wealth measure.",
+      "source_refs": [
+        {
+          "source_id": "S2-DAT-01",
+          "url": "https://ec.europa.eu/eurostat/databrowser/view/ilc_li02/default/table?lang=en",
+          "locator": "Dataset title, code ilc_li02, annual dimensions, coverage and update metadata",
+          "access": "Official page/search metadata only; no cells retrieved."
+        },
+        {
+          "source_id": "S2-DAT-02",
+          "url": "https://ec.europa.eu/eurostat/databrowser/view/tespm010/default/table",
+          "locator": "Indicator description; 60% of national median equivalised disposable income after social transfers",
+          "access": "Official indicator metadata from search result; no cells retrieved."
+        },
+        {
+          "source_id": "S2-DAT-03",
+          "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_sieusilc.htm",
+          "locator": "Sections 3.5-3.6, 8.1, 10.3 and 18.1-18.2: units, target population, release, sampling and annual collection",
+          "access": "Official metadata opened; selected sections only, no national quality reports."
+        },
+        {
+          "source_id": "S2-DAT-04",
+          "url": "https://ec.europa.eu/eurostat/en/web/user-guides/data-browser/api-data-access/api-introduction",
+          "locator": "General introduction: API formats, twice-daily updates, latest-version-only database and no dataset history",
+          "access": "Official API help opened; no API query made."
+        },
+        {
+          "source_id": "S2-DAT-05",
+          "url": "https://ec.europa.eu/eurostat/web/microdata/access",
+          "locator": "Preconditions and proposal workflow for scientific microdata",
+          "access": "Official access guidance opened; no request made."
+        },
+        {
+          "source_id": "S2-DAT-06",
+          "url": "https://ec.europa.eu/eurostat/help/copyright-notice",
+          "locator": "Reuse principles and exceptions, sections 2-4",
+          "access": "Official rights page opened."
+        }
+      ],
+      "scope": "Published annual person-level indicator aggregates in the EU-SILC/ECHP Eurostat domain; reporting geographies and coverage are table- and country-specific. EU-SILC targets private households and usual residents; persons in institutions are generally outside the target population.",
+      "required_inputs": "Pin table code, threshold, GEO, time, age, sex, unit and flags; record the data update date and retrieve the table snapshot. Resolve the income reference period, survey wave, national sampling unit, weights, imputation, non-response and geographic coverage from the matching national quality metadata. Use person weights for person-level rates.",
+      "alternatives": "Absolute consumption or income poverty lines; national deprivation measures; AROPE components; administrative eligibility/benefit records; wealth or household-budget measures. Choose only after defining the policy question.",
+      "non_substitution": "The national-median threshold cannot be substituted for an absolute need standard, deprivation, wealth, disposable resources at a fixed purchasing-power level, or individual eligibility. A survey respondent sample is not the whole population by default; institutional residents are generally out of scope.",
+      "counterexample": "A country's median income can rise while a household's real income stays fixed, changing its relative poverty status without a change in material consumption. A household survey can also omit people in institutional settings whose welfare is central to the policy.",
+      "task_uses": "Use as a relative-income baseline and distributional comparator, with separate sensitivity to threshold, income reference year and national survey design. Do not turn a country ranking into a universal welfare ordering.",
+      "acquisition_next": "Query only the requested ilc_li02 dimensions through the Data Browser or REST API; capture retrieval timestamp, API structure and returned flags because Eurostat exposes only its latest database vintage. If microdata are required, confirm wave availability and apply through the recognized-research-entity and scientific-proposal route.",
+      "research_stream": "DAT",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-DAT-02",
+      "title": "ILOSTAT modelled unemployment rate by sex and age",
+      "kind": "editorial",
+      "statement": "The ILOSTAT catalogue lists an annual percent table, Unemployment rate by sex and age — ILO modelled estimates, November 2025. The unemployment rate is unemployed people divided by the labour force for the matching age and sex group. ILO says the modelled series combines harmonized reported observations with imputed values, including forecasts, and warns against ranking imputed values as if they were observed.",
+      "source_refs": [
+        {
+          "source_id": "S2-DAT-07",
+          "url": "https://ilostat.ilo.org/data/",
+          "locator": "Current catalogue label for annual unemployment rate by sex and age, ILO modelled estimates, Nov. 2025 (%)",
+          "access": "Official dynamic catalogue surfaced through search metadata; no data were downloaded."
+        },
+        {
+          "source_id": "S2-DAT-08",
+          "url": "https://ilostat.ilo.org/blog/avoiding-unemployment-is-not-enough/",
+          "locator": "Paragraphs defining the unemployment-rate numerator, labour-force denominator and limitations of the indicator",
+          "access": "Official ILOSTAT page opened."
+        },
+        {
+          "source_id": "S2-DAT-09",
+          "url": "https://www.ilo.org/resource/news/note-ilo-modelled-estimates-and-country-rankings-or-comparisons",
+          "locator": "Information on use of estimates: harmonized reported observations, imputation, forecast uncertainty and no ranking of imputed observations",
+          "access": "Official ILO page opened."
+        },
+        {
+          "source_id": "S2-DAT-10",
+          "url": "https://www.ilo.org/rights-and-permissions",
+          "locator": "Data section: CC BY 4.0 for datasets and referential metadata published on or after 2023-05-03, with restricted microdata exception",
+          "access": "Official rights page opened."
+        }
+      ],
+      "scope": "Annual country/area by sex and age estimates in the November 2025 ILOEST vintage. There is no single respondent sample for this table: national surveys/censuses and other country inputs feed a harmonization and modelling process; some country-years are imputed.",
+      "required_inputs": "Pin the Nov. 2025 vintage, table code/label, year, country or area, sex, age group, observation status and country notes. Resolve the applicable ICLS definition, population coverage, national input source and whether each value is reported, imputed or forecast before interpretation.",
+      "alternatives": "National labour-force survey estimates with current country methodology; ILO labour-underutilization measures such as LU2/LU3; employment-to-population and participation rates; administrative registrations and vacancy records for service use.",
+      "non_substitution": "An imputed annual model estimate is not a survey observation. An unemployment rate does not measure job quality, hours shortfall, all unmet demand, benefit eligibility, registered jobseekers or total labour-market welfare.",
+      "counterexample": "A jobseeker can leave an employment-service register when an eligibility or registration rule changes while still meeting the ILO unemployment definition. Conversely, a person may be registered but employed, unavailable or not actively seeking work.",
+      "task_uses": "Use for a harmonized labour-market rate only when status, definition, population and vintage are retained; avoid country ranking on imputed values and pair with participation/underutilization measures when the question concerns unmet work needs.",
+      "acquisition_next": "Select the exact Nov. 2025 annual catalogue entry via ILOSTAT's data tools or web service; preserve returned metadata/status and country notes. Compare with the national statistics office series for a chosen country and record differences in period, definitions and coverage.",
+      "research_stream": "DAT",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-DAT-03",
+      "title": "World Population Prospects 2024 population estimates and projections",
+      "kind": "editorial",
+      "statement": "World Population Prospects 2024 is the UN Population Division's 28th revision: historical estimates for 237 countries or areas for 1950-2023, followed by projections from 2024 through 2100 under multiple assumptions. One specific output, total population by sex, is defined as the mid-year number of persons by sex. Historical values are harmonized estimates from empirical sources; values after the projection start are conditional trajectories, not observed counts.",
+      "source_refs": [
+        {
+          "source_id": "S2-DAT-11",
+          "url": "https://population.un.org/wpp/",
+          "locator": "World Population Prospects 2024 release overview, coverage, outputs, portal/API and one-year age/time intervals",
+          "access": "Official page inspected through indexed text; no portal query/download."
+        },
+        {
+          "source_id": "S2-DAT-12",
+          "url": "https://population.un.org/wpp/assets/Files/WPP2024_Methodology.pdf",
+          "locator": "Historical estimate workflow and Section II projection start/scenarios/assumptions",
+          "access": "Official methodology PDF opened; selected sections only."
+        },
+        {
+          "source_id": "S2-DAT-13",
+          "url": "https://population.un.org/dataportal/data/indicators/49/locations/504/start/2022/end/2022/metadata?df=aac36136-a023-413c-827c-e087a0b81807",
+          "locator": "Indicator metadata for total population by sex: mid-year persons, revision 2024, 1950-2100",
+          "access": "Official metadata search extract only; parameterized page timed out and no values were retrieved."
+        }
+      ],
+      "scope": "Annual demographic estimates and projections indexed by country or area, year, age and sex, plus regional/group aggregates. The release starts projections at 1 January 2024 and reports mid-year population for the selected indicator.",
+      "required_inputs": "Pin WPP revision, indicator metadata and location code; distinguish estimate years from projection years; record scenario, sex, age group, mid-year convention and aggregate membership. Treat country/area codes as a source geography, not as a universal policy boundary.",
+      "alternatives": "National census or official population-estimate vintages; civil registration; local population registers; UNHCR or displacement-specific counts; household surveys. Reconcile each source's de facto/de jure population and reference date before joining.",
+      "non_substitution": "A global harmonized estimate cannot replace a national statutory population count or local registry, and a projection scenario is not a forecast with guaranteed realization. Total population is not the exposed or eligible population for an intervention.",
+      "counterexample": "A new census or displacement event can revise the historical population baseline and change a projected denominator even when a policy did not change. A country-area aggregate may also differ from the jurisdiction that controls the policy.",
+      "task_uses": "Use for demographic denominators, age-structure sensitivity or long-horizon scenario inputs; compare national-source alternatives and scenario ranges before projecting service demand.",
+      "acquisition_next": "Use the WPP Data Portal/API for a bounded indicator and location query or request the specific CSV/Excel release. Capture the revision, scenario and query metadata; confirm data-file reuse terms before redistribution because the inspected landing page did not settle them.",
+      "research_stream": "DAT",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-DAT-04",
+      "title": "Eurostat GISCO NUTS 2024 boundary and unit metadata",
+      "kind": "editorial",
+      "statement": "GISCO's NUTS 2024 release supplies statistical-region units/geometries with versioned codes and selected scales/projections. NUTS is hierarchical (levels 0-3); the 2024 classification applies to 2024-2026 data transmission. Reclassification of historical time series depends on feasibility, so a current boundary file does not prove that every historical statistic has been recoded to the same geography.",
+      "source_refs": [
+        {
+          "source_id": "S2-DAT-14",
+          "url": "https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/territorial-units-statistics",
+          "locator": "NUTS product description, geometry types and levels",
+          "access": "Official product page opened; no geometry file accessed."
+        },
+        {
+          "source_id": "S2-DAT-15",
+          "url": "https://gisco-services.ec.europa.eu/distribution/v2/nuts/nuts-2024-units.html",
+          "locator": "NUTS 2024 unit names, HTTP GET GeoJSON route and unit/scale/EPSG/year naming convention",
+          "access": "Official distribution metadata opened; no file or geometry request."
+        },
+        {
+          "source_id": "S2-DAT-16",
+          "url": "https://ec.europa.eu/eurostat/web/nuts/history",
+          "locator": "Version table: NUTS 2021 2021-2023, NUTS 2024 2024-2026; historical-replacement guidance",
+          "access": "Official history page opened."
+        },
+        {
+          "source_id": "S2-DAT-17",
+          "url": "https://ec.europa.eu/eurostat/en/web/gisco/geodata/statistical-units",
+          "locator": "GISCO specific use conditions and required attribution for NUTS boundaries",
+          "access": "Official terms page opened."
+        }
+      ],
+      "scope": "Versioned Eurostat statistical-region classification/geometries; the 2024 vintage has NUTS codes, region/label/line geometry types, generalized map scales and CRS choices. NUTS units can use administrative divisions where they exist and non-administrative groupings elsewhere.",
+      "required_inputs": "Record NUTS vintage, selected unit code, level, geometry type, scale, CRS and source URL. Match the statistic's NUTS vintage and any regional correspondence/reaggregation method; preserve unmatched and changed-boundary cases.",
+      "alternatives": "Local administrative-unit boundaries; national statistical geographies; gridded population; postal-code or point geography. Each has different jurisdiction, privacy, scale and temporal semantics.",
+      "non_substitution": "NUTS is not a universally equivalent administrative map, address geocoder or direct measure of who is governed by an intervention. Commercial reuse of GISCO statistical-unit geometries is restricted unless a separate EuroGeographics arrangement applies.",
+      "counterexample": "A NUTS code can be reassigned or a region split across versions while the joined statistic still appears numerically complete; an overlay can then attribute old outcomes to the wrong area.",
+      "task_uses": "Use for EU regional joins and maps when the data vintage is compatible; otherwise use an explicit boundary crosswalk or a non-NUTS geography selected for the actual jurisdiction.",
+      "acquisition_next": "Choose one NUTS 2024 GeoJSON by unit, geometry, scale and EPSG through the GISCO distribution listing; record its filename/version and obtain the source dataset's own crosswalk or reaggregation evidence. Confirm a commercial license before commercial use.",
+      "research_stream": "DAT",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-DAT-05",
+      "title": "Copernicus ERA5-Land monthly mean exposure field",
+      "kind": "editorial",
+      "statement": "ERA5-Land monthly averaged data is a global land reanalysis from January 1950 onward on a regular 0.1-degree grid (native model resolution 9 km). Its 2 metre temperature variable is an air temperature at 2 metres above the surface, in kelvin. The product is a processed monthly field derived from an hourly reanalysis; near-real-time values can later be overwritten by consolidated values.",
+      "source_refs": [
+        {
+          "source_id": "S2-DAT-18",
+          "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land-monthly-means?tab=overview",
+          "locator": "Data description, horizontal/temporal coverage, update delay, 2m temperature definition, unit, DOI and CC-BY notice",
+          "access": "Official product page opened; no download/API call."
+        },
+        {
+          "source_id": "S2-DAT-19",
+          "url": "https://confluence.ecmwf.int/display/CKB/ERA5-Land%3A%2Bdata%2Bdocumentation",
+          "locator": "Reanalysis production, ERA5-Land-T overwrite/reprocessing, monthly mean variants and acquisition route",
+          "access": "Official ECMWF documentation opened; selected sections only."
+        }
+      ],
+      "scope": "Grid-cell/time environmental estimates rather than a respondent sample. CDS offers hourly and monthly representations; monthly averaged and monthly averaged-by-hour products have distinct temporal aggregation semantics.",
+      "required_inputs": "Pin variable name, units, product ID/DOI, cell/grid, time window, monthly-mean variant, final versus near-real-time status, reprocessing date, spatial aggregation and any boundary overlay.",
+      "alternatives": "Ground station observations; satellite products; national meteorological records; other reanalyses or climate projections. Compare sensor height, calibration, support, missingness and uncertainty.",
+      "non_substitution": "A reanalysis grid is not a station measurement at a household, a daily extreme, a climate-change projection, or evidence of an intervention effect. The 0.1-degree delivery grid is not the native model resolution.",
+      "counterexample": "A monthly mean may show a moderate temperature even when a short heatwave crossed a health threshold; daily/hourly exposure and vulnerable-population location can reverse the policy interpretation.",
+      "task_uses": "Use as a historical climate covariate or exposure surface after aggregation and time-window choices are explicit; retain the source's reanalysis and reprocessing status.",
+      "acquisition_next": "Request only a bounded variable, region and period from the CDS catalogue or API; preserve request metadata, DOI, product format, timestamps and retrieval checksum. Compare the selected field with local observations before using it for local targeting.",
+      "research_stream": "DAT",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-DAT-06",
+      "title": "Ukraine State Employment Service registered-unemployed and vacancy releases",
+      "kind": "editorial",
+      "statement": "Ukraine open-data dataset 333 is a State Employment Service administrative release about registered unemployed people and registered vacancies by characteristics. The catalog declares quarterly updates; the newest linked resource is an XLSX titled January-September 2026 and was added 2026-10-14. The data package manifest inspected here lists resources only through January-June 2026, so its resource index appears behind the catalog activity/item pages.",
+      "source_refs": [
+        {
+          "source_id": "S2-DAT-20",
+          "url": "https://data.gov.ua/dataset/333",
+          "locator": "Description, responsible agency, version, created/updated dates, quarterly frequency, legal basis, dataset ID and re-use statement",
+          "access": "Official Ukrainian catalog metadata opened; no spreadsheet downloaded."
+        },
+        {
+          "source_id": "S2-DAT-21",
+          "url": "https://data.gov.ua/dataset/activity/333",
+          "locator": "Activity entries for the January-September 2026 and January-June 2026 resources",
+          "access": "Official activity metadata opened."
+        },
+        {
+          "source_id": "S2-DAT-22",
+          "url": "https://data.gov.ua/dataset/7a018f22-0e26-4698-ae4c-1b29981803bc/resource/8cc57d7a-705e-48a5-879f-da491369dc94",
+          "locator": "Release title, Jan-Sep 2026 period, XLSX format, 2026-10-14 update and catalog checksum",
+          "access": "Official resource metadata page opened; no preview or file download."
+        },
+        {
+          "source_id": "S2-DAT-23",
+          "url": "https://data.gov.ua/dataset/333/datapackage",
+          "locator": "Data Package resource list and license; inspected list ends at Jan-Jun 2026",
+          "access": "Official JSON manifest opened as text; compared only with separate metadata pages."
+        }
+      ],
+      "scope": "Ukraine-specific administrative service records and released summary counts. The catalog describes registered people and vacancies but does not expose the spreadsheet's indicator definitions on the metadata page.",
+      "required_inputs": "Obtain the current resource schema/passport and define registered-person eligibility, unique-person versus episode counting, vacancy deduplication/status, stock versus period flow, Jan-Sep accumulation, characteristic dimensions, reporting geography, territorial exclusions and any suppression. Reconcile the resource list against the activity feed.",
+      "alternatives": "ILO-defined unemployment from a labour-force survey; national employment survey or census; employment-service individual service events; vacancy postings from other portals. These differ in population, institutional purpose and unit.",
+      "non_substitution": "Registered unemployed are not interchangeable with all ILO-unemployed people: non-registrants are absent and registrants need not meet the ILO search/availability criteria. Registered vacancies are not total labour demand or filled employment.",
+      "counterexample": "A change in registration eligibility, service access or posting duplication can move registered counts while the underlying number of unemployed people or available jobs is unchanged.",
+      "task_uses": "Use for Ukraine-specific registered-service activity or vacancies with its own authority and period semantics. Compare with an independent survey measure before describing economy-wide unemployment.",
+      "acquisition_next": "Resolve the stale Data Package index against the January-September resource page, then inspect the linked passport/structure and the XLSX only under a later authorized acquisition. Retain both catalog update events and a checksum for the exact release.",
+      "research_stream": "DAT",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-MET-01",
+      "title": "Gini — относительная попарная дистанция",
+      "kind": "editorial",
+      "statement": "Для n лиц с доходом yᵢ и средним μ = Σyᵢ/n > 0: G = ΣᵢΣⱼ|yᵢ−yⱼ|/(2n²μ); при нормированных весах лиц pᵢ и μ = Σpᵢyᵢ: G = ΣᵢΣⱼpᵢpⱼ|yᵢ−yⱼ|/(2μ). Безразмерен; интерпретация 0–1 предполагает неотрицательные доходы, а отрицательные могут вывести индекс за этот диапазон. Он измеряет относительную попарную дистанцию, не выбирает порог достатка или общественную цель.",
+      "source_refs": [
+        {
+          "source_id": "S-MEASURE-02",
+          "url": "https://unece.org/DAM/stats/publications/Canberra_Group_Handbook_2nd_edition.pdf",
+          "locator": "Chapter 6, §6.6.4(a), printed p. 78: Lorenz interpretation, formula, 0–1 interpretation and middle sensitivity.",
+          "access": "search_extract_only; official UNECE indexed extract; direct PDF fetch returned 403.",
+          "access_url": "https://unece.org/fileadmin/DAM/stats/groups/cgh/Canbera_Handbook_2011_WEB.pdf",
+          "resource_identity_note": "Same named work/edition cited through this access URL; byte equivalence of URLs was not established."
+        },
+        {
+          "source_id": "S2-MET-01",
+          "url": "https://www.oecd.org/content/dam/oecd/en/about/programmes/oecd-data-collection-programme/society/income-distribution-database/income-distribution-guidelines.pdf",
+          "locator": "§2, Table 1, printed pp. 8–9: Gini formula, ranking and person population; §1, pp. 5–6: OECD nonnegative-income treatment.",
+          "access": "primary_text_or_selected_sections; official PDF opened."
+        }
+      ],
+      "scope": "Within-population monetary income inequality; state whether the reference population is persons or households.",
+      "required_inputs": [
+        "Population, unit, income concept and period.",
+        "Person/sample weights, equivalence scale and sign policy.",
+        "Currency, price basis and reference year."
+      ],
+      "alternatives": [
+        "Market, primary, gross or disposable income; household or person distribution.",
+        "Add another measure if Lorenz curves cross, tail sensitivity or subgroup decomposition matters."
+      ],
+      "non_substitution": "Gini is scale-invariant; it cannot establish absolute living standards, poverty, causal effect or a complete welfare ordering.",
+      "counterexample": "Multiplying all incomes by the same positive factor leaves Gini unchanged while classification against a fixed absolute poverty line can change. Canberra also notes that equal dollar gaps contribute equally at high and low incomes and that Gini is relatively sensitive around the distribution's dense middle.",
+      "task_uses": "Report Gini with the population, income concept, weights, equivalence, price/time basis and edge policy.",
+      "acquisition_next": "Obtain survey documentation, design weights, income definitions, price index and source-specific sign policy.",
+      "research_stream": "MET",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-MET-02",
+      "title": "Atkinson — явный параметр неприятия неравенства",
+      "kind": "editorial",
+      "statement": "Для нормированных весов pᵢ, μ = Σpᵢyᵢ > 0 и ε ≥ 0: Aε = 1 − [Σpᵢ(yᵢ/μ)^(1−ε)]^(1/(1−ε)) при ε ≠ 1; A₁ = 1 − exp(Σpᵢ ln(yᵢ/μ)). Безразмерен. ε — выбранная степень неприятия неравенства, не параметр, извлекаемый из распределения. При ε < 1 нули допустимы; при ε ≥ 1 log/power term для нуля расходится (расширенный предел A = 1), поэтому вычислительный профиль должен объявить этот случай. Отрицательные доходы вне обычной области этого welfare-functional.",
+      "source_refs": [
+        {
+          "source_id": "S-MEASURE-02",
+          "url": "https://unece.org/DAM/stats/publications/Canberra_Group_Handbook_2nd_edition.pdf",
+          "locator": "Chapter 6, §6.6.4(c), printed pp. 79–80: formula and ε interpretation; §6.6.4(e), Table 6.4, p. 81: zero sensitivity.",
+          "access": "search_extract_only; official UNECE indexed extract; direct PDF fetch returned 403.",
+          "access_url": "https://unece.org/fileadmin/DAM/stats/groups/cgh/Canbera_Handbook_2011_WEB.pdf",
+          "resource_identity_note": "Same named work/edition cited through this access URL; byte equivalence of URLs was not established."
+        }
+      ],
+      "scope": "Income-distribution comparison where an explicit lower-income welfare sensitivity and compatible domain are intended.",
+      "required_inputs": [
+        "Person incomes/weights, population and positive mean.",
+        "Income concept, equivalence, currency and price/time basis.",
+        "Declared ε value or sensitivity range; mandate rationale if an authority-bearing ordering is made; zero/negative policy."
+      ],
+      "alternatives": [
+        "Show a declared ε range; ε = 0 yields zero by construction.",
+        "For zeros, declare a defined limit/profile or report unavailable; do not hide a floor or population exclusion."
+      ],
+      "non_substitution": "Atkinson output is conditional on ε and the chosen welfare form, not an objective ranking supplied by the observations.",
+      "counterexample": "Canberra Table 6.4 reports ε = 2 as 0.997 at a $0.01 zero floor, 0.913 at $1 and 0.452 when zero-income people are omitted.",
+      "task_uses": "Use declared hypothetical ε values or a range for candidate sensitivity and show where conclusions change; an authority-bearing ordering or recommendation requires ε authorized by the responsible mandate. Keep ε and edge policy beside every result.",
+      "acquisition_next": "Obtain the decision-maker's rationale for ε and the source data's rules for zero and negative values.",
+      "research_stream": "MET",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-MET-03",
+      "title": "Theil T — декомпозиция, нулевое продолжение и профиль домена",
+      "kind": "editorial",
+      "statement": "Для неотрицательных доходов yᵢ, нормированных весов лиц pᵢ ≥ 0 (Σpᵢ = 1) и μ = Σpᵢyᵢ > 0: T = Σpᵢ(yᵢ/μ) ln(yᵢ/μ), определяя 0 ln 0 := 0 по непрерывному продолжению; слагаемые при pᵢ = 0 игнорируются. Это безразмерная generalized-entropy статистика. На положительной поддержке весов при равных весах максимум равен ln n (n — число лиц в этой поддержке); при неравных положительных весах максимум ln(1/min pᵢ), где минимум берётся только по положительной поддержке, — вывод из формулы, а не утверждение источника. Canberra описывает unweighted предел ln n и аддитивное разложение within/between groups. Его операционный профиль не считает Theil для популяции с нулями или отрицательными значениями и исключает нулевые случаи; это правило профиля, а не математическая необходимость для нулей. Отрицательные значения вне домена стандартной формулы.",
+      "source_refs": [
+        {
+          "source_id": "S-MEASURE-02",
+          "url": "https://unece.org/DAM/stats/publications/Canberra_Group_Handbook_2nd_edition.pdf",
+          "locator": "Chapter 6, §6.6.4(b), printed p. 79: unweighted formula, stated positive-income domain, ln n bound and decomposition; §6.6.4(e), Table 6.4, p. 81: profile-specific zero handling. The 0 ln 0 extension, zero-weight omission and normalized unequal-weight maximum are mathematical derivations from the formula, not claims reported by Canberra.",
+          "access": "search_extract_only; official UNECE indexed extract; direct PDF fetch returned 403.",
+          "access_url": "https://unece.org/fileadmin/DAM/stats/groups/cgh/Canbera_Handbook_2011_WEB.pdf",
+          "resource_identity_note": "Same named work/edition cited through this access URL; byte equivalence of URLs was not established."
+        }
+      ],
+      "scope": "Inequality analysis where within/between subgroup decomposition is useful; the standard formula admits nonnegative incomes when μ > 0, with zero extension stated. If applying Canberra's stricter operational profile, disclose its zero exclusion.",
+      "required_inputs": [
+        "Nonnegative person incomes, normalized person weights (zero-weight terms ignored) and positive mean.",
+        "Population, income concept, equivalence and price/time basis.",
+        "Subgroups, treatment of valid zeros versus Canberra-profile exclusions, and any negative values."
+      ],
+      "alternatives": [
+        "Retain true zeros using 0 ln 0 := 0, or disclose Canberra's stricter exclusion and changed denominator; for negative values use a metric defined for them or mark Theil T unavailable.",
+        "Compare measures where distributions do not Lorenz-dominate."
+      ],
+      "non_substitution": "Decomposability does not make Theil a poverty or welfare measure. Zero has a valid continuous extension in the formula, while negative values fall outside its standard domain; excluding zero-income people changes the population described.",
+      "counterexample": "Canberra Table 6.4 leaves 18.86 million people in the zero-inclusive population with Theil not reported; omitting zeros leaves 18.70 million and yields 0.069, a result for a smaller population.",
+      "task_uses": "For nonnegative data, retain valid zeros with the declared continuous extension; if adopting Canberra's operational profile, disclose its exclusion and the resulting denominator. Treat negatives as outside the standard formula's domain.",
+      "acquisition_next": "Confirm whether nonpositive entries are actual values, losses, missing codes or errors; acquire subgroup and person-weight definitions.",
+      "research_stream": "MET",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-MET-04",
+      "title": "FGT — частота, глубина и тяжесть бедности",
+      "kind": "editorial",
+      "statement": "Для индивидуального дохода или потребления yᵢ и линии бедности z > 0 в тех же валюте, периоде и ценах, нормированных весов лиц pᵢ и α ≥ 0: Pα = ΣpᵢI(yᵢ ≤ z)[(z−yᵢ)/z]^α; P₀ = ΣpᵢI(yᵢ ≤ z). P₀ — доля не выше линии при выбранном здесь правиле ≤, P₁ — средний относительный дефицит, P₂ — квадрат дефицита/тяжесть; показатели безразмерны. Источник использует равный вес каждого человека; для выборки нужно задать веса лиц. При y ≤ 0 разрыв не менее 1; его смысл зависит от концепции благосостояния.",
+      "source_refs": [
+        {
+          "source_id": "S2-MET-02",
+          "url": "https://thedocs.worldbank.org/en/doc/20f02031de132cc3d76b91b5ed8737d0-0050012017/related/lecture-14-1.pdf",
+          "locator": "Lecture 14, slides 27, 29–30, 34–35: headcount limitation, poverty gap, squared gap and FGT formula.",
+          "access": "primary_text_or_selected_sections; official World Bank course PDF opened."
+        },
+        {
+          "source_id": "S-MEASURE-04",
+          "url": "https://www.worldbank.org/en/news/factsheet/2025/06/05/june-2025-update-to-global-poverty-lines",
+          "locator": "Factsheet: international lines in 2021 PPP dollars and national-line evidence.",
+          "access": "primary_text_or_selected_sections; existing atlas card records opened official source."
+        },
+        {
+          "source_id": "S-MEASURE-09",
+          "url": "https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/income-poverty_53d4eac1.html",
+          "locator": "Income poverty, Definition and measurement: OECD relative headcount definition.",
+          "access": "primary_text_or_selected_sections; existing atlas card records opened official section."
+        }
+      ],
+      "scope": "Monetary poverty against a declared absolute, relative or anchored line.",
+      "required_inputs": [
+        "Income or consumption welfare concept; person population and normalized weights.",
+        "Line source/version, geography, currency/PPP/CPI basis and period.",
+        "Threshold rule (≤ or <), α, equivalence and negative/missing policy."
+      ],
+      "alternatives": [
+        "α = 0 incidence, α = 1 depth, α = 2 severity; choose for the question and show relevant sensitivities.",
+        "National-needs, current-relative, anchored or international PPP poverty line."
+      ],
+      "non_substitution": "Headcount ignores gap size; FGT neither chooses the socially acceptable line nor measures nonmonetary hardship.",
+      "counterexample": "A transfer to a very poor person leaves headcount unchanged if the person remains below z; targeting people just below z can reduce headcount without addressing the largest deficits.",
+      "task_uses": "Carry the line source/vintage and α with every result; a global PPP line or OECD relative threshold is not an automatic domestic eligibility rule.",
+      "acquisition_next": "Acquire the survey, person weights, welfare aggregate, local price data and poverty-line authority/version.",
+      "research_stream": "MET",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-MET-05",
+      "title": "Единица, эквивализация, время, цены и граничные значения",
+      "kind": "editorial",
+      "statement": "OECD IDD задаёт один профиль: наблюдение — домохозяйство, индикаторы по лицам с весом по числу членов; DIᵢⱼ = Yᵢ/Sᵢ^0.5; доход годовой и номинальный, год обязателен. Другая шкала OECD задаёт 1.0 первому взрослому, 0.5 дополнительному лицу 14+ и 0.3 ребёнку младше 14. Текущие относительные пороги IDD — 50%/60% текущей медианы; закреплённый — 50% медианы 2019 года (или ближайшего более раннего), с поправкой на CPI. После эквивализации профиль обнуляет перечисленные отрицательные компоненты, затем корректирует трансферты, чтобы первичный/валовой/располагаемый доход не был отрицательным; средние включают нули и положительные значения. Это институциональная конвенция. Мировые линии Всемирного банка 2025 года выражены в долларах PPP 2021 года.",
+      "source_refs": [
+        {
+          "source_id": "S2-MET-01",
+          "url": "https://www.oecd.org/content/dam/oecd/en/about/programmes/oecd-data-collection-programme/society/income-distribution-database/income-distribution-guidelines.pdf",
+          "locator": "§1, printed pp. 2–3: reference units, member weights and 0.5 equivalence; pp. 5–6: nominal period, negative treatment and relative/anchored CPI lines.",
+          "access": "primary_text_or_selected_sections; official PDF opened."
+        },
+        {
+          "source_id": "S-MEASURE-03",
+          "url": "https://www.oecd.org/en/publications/oecd-handbook-on-the-compilation-of-household-distributional-results-on-income-consumption-and-saving-in-line-with-national-accounts-totals_5a3b9119-en/full-report/component-11.html",
+          "locator": "Chapter 9, §9.2: OECD-modified age-weighted equivalence scale and country-specific alternatives.",
+          "access": "primary_text_or_selected_sections; existing atlas card records opened official section."
+        },
+        {
+          "source_id": "S-MEASURE-04",
+          "url": "https://www.worldbank.org/en/news/factsheet/2025/06/05/june-2025-update-to-global-poverty-lines",
+          "locator": "Factsheet: $3.00/day in 2021 PPP dollars; $4.20/$8.30 lines and update basis.",
+          "access": "primary_text_or_selected_sections; existing atlas card records opened official source."
+        },
+        {
+          "source_id": "S-MEASURE-09",
+          "url": "https://www.oecd.org/en/publications/society-at-a-glance-2024_918d8db3-en/full-report/income-poverty_53d4eac1.html",
+          "locator": "Income poverty, Definition and measurement: 50% of current median equivalised disposable household income.",
+          "access": "primary_text_or_selected_sections; existing atlas card records opened official section."
+        },
+        {
+          "source_id": "S-MEASURE-02",
+          "url": "https://unece.org/DAM/stats/publications/Canberra_Group_Handbook_2nd_edition.pdf",
+          "locator": "Chapter 6, §6.6.4(b)–(e), printed pp. 79–81: Theil restrictions and zero treatment counterexample.",
+          "access": "search_extract_only; official UNECE indexed extract; direct PDF fetch returned 403.",
+          "access_url": "https://unece.org/fileadmin/DAM/stats/groups/cgh/Canbera_Handbook_2011_WEB.pdf",
+          "resource_identity_note": "Same named work/edition cited through this access URL; byte equivalence of URLs was not established."
+        },
+        {
+          "source_id": "S2-MET-02",
+          "url": "https://thedocs.worldbank.org/en/doc/20f02031de132cc3d76b91b5ed8737d0-0050012017/related/lecture-14-1.pdf",
+          "locator": "Lecture 14, slide titled 'The problem with relative poverty' (PDF p. 12): income rises while relative headcount rises.",
+          "access": "primary_text_or_selected_sections; official World Bank course PDF opened."
+        }
+      ],
+      "scope": "Сопоставление распределений между людьми, местами или периодами на основе данных домохозяйств.",
+      "required_inputs": [
+        "Population unit, household composition, person and design weights, income concept and period.",
+        "Chosen equivalence rule, currency, local deflator or PPP vintage, poverty line version.",
+        "Meaning/order/treatment of zero, negative, missing and invalid records; retained denominator."
+      ],
+      "alternatives": [
+        "Square-root size elasticity, age-weighted OECD reference scale, or substantiated national scale.",
+        "Current-relative, CPI-anchored, national-needs or international PPP line; nominal single-year or real time series.",
+        "Retain zeros, use a declared floor, exclude with a changed denominator, or report a metric as undefined."
+      ],
+      "non_substitution": "Шкала, CPI, PPP и порог отвечают на разные вопросы; ни один из них не устанавливает фактические потребности домохозяйства или законный порог пособия. Ноль, отрицательное, пропуск и ошибка — разные состояния.",
+      "counterexample": "Лекция Всемирного банка показывает, что относительная бедность может вырасти при росте доходов всех, если медиана растёт быстрее; профили обработки границ в Canberra также показывают, что исключение или нижний предел может изменить как вычислимость метрики, так и охват популяции (пример Atkinson см. в G2-MET-02).",
+      "task_uses": "До сравнения групп или периодов зафиксировать единицу, шкалу, концепцию дохода, год, ценовую базу, порог и обработку граничных значений.",
+      "acquisition_next": "Получить кодбук местного обследования, версию дефлятора/PPP и профиль, предписанный статистическим или ответственным политическим органом.",
+      "research_stream": "MET",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-CAU-01",
+      "title": "Observed association does not determine an intervention effect",
+      "kind": "editorial",
+      "statement": "The observational law P(X,Y) alone need not identify P(Y|do(X)): distinct causal models can induce the same observed distribution and different intervention distributions. A causal effect is identified only relative to a declared estimand plus assumptions or a design that rule out the competing models.",
+      "source_refs": [
+        {
+          "source_id": "S-CAUSAL-01",
+          "url": "https://doi.org/10.1093/biomet/82.4.669",
+          "locator": "Pearl (1995), abstract and article framing: diagrams combine substantive assumptions with statistical information; graphical queries address identification.",
+          "access": "Existing atlas card records Oxford publication metadata/abstract access; the full article was not accessed in this task."
+        },
+        {
+          "source_id": "S-CAUSAL-04",
+          "url": "https://doi.org/10.1609/aaai.v26i1.8232",
+          "locator": "Bareinboim & Pearl (2012), p. 699, Definitions 1–3: an effect is identifiable when uniquely computable across models compatible with the graph and available distributions.",
+          "access": "Official AAAI proceedings page and full paper opened; selected definitions read."
+        }
+      ],
+      "scope": "This is a nonidentification result for observational data without additional restrictions. It does not say every causal query is unidentified: experiments, sufficient adjustment sets, instruments, or other justified designs can identify some queries. The data cannot by themselves verify that one proposed causal structure is the correct one.",
+      "required_inputs": [
+        "A target population, treatment/intervention, outcome, time horizon, and causal contrast.",
+        "Observed joint distribution and its sampling, measurement, and missingness process.",
+        "For point identification, an explicit design or substantive restrictions that distinguish causal models; record which parts are empirically checkable and which are not."
+      ],
+      "alternatives": [
+        "Randomized assignment with a well-defined treatment and adequate assignment probability.",
+        "Adjustment for a justified set of measured pre-treatment common causes under conditional exchangeability.",
+        "Instrumental-variable, front-door, difference-in-differences, or other design-specific identification assumptions when the setting supports them.",
+        "Sensitivity analysis or partial-identification bounds when no point-identifying restriction is defensible."
+      ],
+      "non_substitution": "A structural causal model or DAG is one way to state causal assumptions, not a mandatory single model for every task. Potential-outcome and design-based analyses, IV or quasi-experimental designs, and bounds can be evaluated on their own assumptions. A Bayesian posterior or prior over models does not make an observationally unidentified effect identified by data alone.",
+      "counterexample": {
+        "setup": "Let U be Bernoulli(1/2). Model A: X=U, Y=X. Model B: X=U, Y=U.",
+        "same_observations": "Both models imply P(X=Y=0)=P(X=Y=1)=1/2, hence the same complete observed law for (X,Y).",
+        "different_interventions": "Under do(X=1), Model A gives Y=1 with probability 1; Model B gives Y=U, so P(Y=1)=1/2.",
+        "failure": "No estimator using only P(X,Y) can choose between these two intervention answers without an additional assumption or design."
+      },
+      "task_uses": [
+        "Block association, predictive fit, or a proposed graph from being reported as a causal effect without an identification argument.",
+        "Turn unidentified effects into a concrete assumption-discrimination or acquisition question."
+      ],
+      "acquisition_next": [
+        "Specify the intervention and estimand before choosing a method.",
+        "Seek an assignment design, valid natural experiment, additional measured causes, or discriminating auxiliary evidence.",
+        "If competing models remain compatible, preserve their range of effects or report the effect as unidentified."
+      ],
+      "research_stream": "CAU",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-CAU-02",
+      "title": "Adjustment identifies an average effect only under exchangeability, positivity, and consistency",
+      "kind": "editorial",
+      "statement": "For binary treatment A, baseline covariates L, and a target-population ATE, the g-formula identifies E[Y(1)-Y(0)] = sum_l {E[Y|A=1,L=l] - E[Y|A=0,L=l]} P_target(L=l) if (1) consistency holds for a well-defined treatment and there is no interference (or the estimand names an allocation regime), (2) (Y(0),Y(1)) is conditionally independent of A given L, and (3) 0<P(A=a|L=l)<1 for each treatment a and every target stratum with positive mass. For a nonrepresentative sample, target-stratum weights must also be identified. When the conditional means are estimated in a selected source sample rather than the target population, target covariate weights alone are insufficient: the conditional causal responses must also transport to the target (see G2-CAU-03). The displayed sum is for discrete L; use integration for continuous L.",
+      "source_refs": [
+        {
+          "source_id": "S-CAUSAL-02",
+          "url": "https://miguelhernan.org/whatifbook",
+          "locator": "Hernán & Robins (2020), Chapters 3–4: potential-outcome estimands, exchangeability, positivity, consistency, and adjustment; Chapter 3.3 on target-trial protocol elements.",
+          "access": "The official author page and mutable latest-version notice were opened. Its 11.3 MB PDF exceeded the browser fetch limit; selected indexed text, not the complete book, was available in this task."
+        }
+      ],
+      "scope": "These conditions give a point-identification result for the stated population ATE and treatment contrast; they are not a test that observational adjustment is valid. Exchangeability and well-defined treatment versions are substantive and generally not testable from the observed law. Empirical overlap checks can reveal support problems, but finite data cannot prove population positivity. The formula also does not identify individual effects.",
+      "required_inputs": [
+        "Pre-treatment A, Y, and L measured on compatible definitions, with assignment, follow-up, sampling, and missingness information.",
+        "A justified set L sufficient to block confounding for the stated treatment-outcome contrast; variables must be measured before treatment and not selected merely for prediction.",
+        "Treatment and outcome versions, unit, time zero, follow-up, and target-population distribution P_target(L).",
+        "Evidence for treatment support in every target stratum and a plan for sampling uncertainty or missing outcomes.",
+        "For selected-source data, a defensible conditional response transport relation and source support, not merely observed target covariate weights."
+      ],
+      "alternatives": [
+        "Randomization can make exchangeability plausible by design, while still requiring consistency and attention to attrition and interference.",
+        "An IV, regression discontinuity, difference-in-differences, or longitudinal g-method can use different identifying assumptions where appropriate.",
+        "Unmeasured-confounding sensitivity analysis or partial bounds can preserve uncertainty if exchangeability cannot be defended."
+      ],
+      "non_substitution": "Covariate balance, a good outcome model, cross-validation, or a calibrated prediction does not establish conditional exchangeability. No particular SCM, Bayesian model, or adjustment estimator is required when a different design supplies a defensible identification route.",
+      "counterexample": {
+        "setup": "Let U be an unmeasured binary cause, A=U, and Y=U, with no causal arrow from A to Y.",
+        "observation": "The observed data show A=Y for every unit, so the crude treated-control difference is 1.",
+        "causal_result": "Intervening on A leaves U and Y unchanged, so the ATE is 0. Omitting U violates exchangeability; a precisely estimated difference does not repair it."
+      },
+      "task_uses": [
+        "Make confounder selection, support, treatment versions, and the target population part of the causal claim rather than hidden estimator defaults.",
+        "Separate identification assumptions from sampling error and estimator diagnostics."
+      ],
+      "acquisition_next": [
+        "Collect or locate pre-treatment common causes and their measurement provenance; seek randomization or a credible quasi-experimental assignment when feasible.",
+        "Inspect target-stratum overlap and revise eligibility or estimand when support is absent.",
+        "Run sensitivity or bounds for plausible unmeasured confounding; keep exchangeability labeled as an assumption."
+      ],
+      "research_stream": "CAU",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-CAU-03",
+      "title": "An effect transports only under explicit cross-domain invariance and support conditions",
+      "kind": "editorial",
+      "statement": "A transparent sufficient transport case is: a source experiment identifies conditional means mu_a(l)=E_source[Y|do(A=a),L=l]; treatment and outcome versions are consistent across domains; outcomes have no cross-unit interference (or are defined for the specified allocation regime); E_target[Y(a)|L=l]=E_source[Y(a)|L=l] for each a on target support; and the source experiment has positive assignment probability for every target-relevant l. If the target distribution P_target(L) is observed, then E_target[Y(a)]=sum_l mu_a(l)P_target(L=l). More general selection-diagram cases can be transported by a valid transport formula, but domain labels alone supply no such license.",
+      "source_refs": [
+        {
+          "source_id": "S-CAUSAL-04",
+          "url": "https://doi.org/10.1609/aaai.v26i1.8232",
+          "locator": "Bareinboim & Pearl (2012), p. 699, Definitions 1–3 and age-stratified example/formula; pp. 702–703, nontransportability witness and complete sID algorithm; p. 703 conclusion.",
+          "access": "Official AAAI proceedings page and full 7-page paper opened; selected pages 699–703 read."
+        }
+      ],
+      "scope": "The standardization formula is a sufficient special case, not a universal transport recipe. In the cited framework, transportability is unique computability across all models compatible with a selection diagram and source/target distributions; the diagram's invariance and difference assumptions are substantive inputs. Data can reveal observed population differences and support gaps, but cannot alone establish that all effect-modifying mechanisms have been represented.",
+      "required_inputs": [
+        "Source interventional data or a source design that identifies the conditional causal response, plus assignment probabilities.",
+        "Target data identifying the distribution of the measured transport variables L and relevant sampling frame.",
+        "Harmonized treatment, outcome, units, time, and versions across domains, with no-interference or an explicitly defined allocation-regime estimand.",
+        "A supported account of which mechanisms may differ and which conditional causal responses are invariant; source support for all target-relevant L values."
+      ],
+      "alternatives": [
+        "Reweight or standardize a randomized source effect over measured target effect modifiers when conditional response invariance and overlap hold.",
+        "Use a selection diagram and a justified transport formula when source and target differ through mechanisms beyond a simple covariate distribution shift.",
+        "Run a target-site pilot or randomized study, combine multiple environments, or retain a target-specific bound when invariance is doubtful."
+      ],
+      "non_substitution": "A neighboring jurisdiction, similar label, shared institution type, or source-study average is not evidence of effect invariance. Transportability need not be represented by a single fixed SCM; potential-outcome, design-based, selection-diagram, and sensitivity analyses can express different assumptions. A posterior over domains does not validate an unmeasured invariance claim.",
+      "counterexample": {
+        "setup": "Let C be an unmeasured effect modifier and Y(a)=a(2C-1). In the source trial C=1 for everyone; in the target C=0 for everyone.",
+        "observed_source": "The randomized source trial identifies an effect of +1.",
+        "target_effect": "The target effect is -1. Without measuring C or directly studying the target, source results and shared treatment labels do not determine the target effect."
+      },
+      "task_uses": [
+        "Re-use trial or program evidence across regions, agencies, cohorts, or time periods only with explicit transport conditions.",
+        "Expose target-population differences and unsupported strata as limits or acquisition tasks."
+      ],
+      "acquisition_next": [
+        "Measure candidate effect modifiers and target distributions; retain source and target sampling and assignment metadata.",
+        "Seek target-site outcome data or a pilot intervention to challenge invariance claims.",
+        "Report the transport formula, target support, untested invariance assumptions, and any out-of-support region together."
+      ],
+      "research_stream": "CAU",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-CAU-04",
+      "title": "When point identification fails, bounded outcomes can still yield a sharp ATE interval",
+      "kind": "editorial",
+      "statement": "For binary A, observed outcome Y in [0,1], consistency, and a representative population distribution, let p=P(A=1), mu1=E[Y|A=1], and mu0=E[Y|A=0]. With no exchangeability or outcome-model restriction, the sharp ATE interval is [p*mu1 - (1-p)*mu0 - p, p*mu1 - (1-p)*mu0 + (1-p)]. The interval is identified from the observed law and the justified support bound; it need not identify the effect's sign.",
+      "source_refs": [
+        {
+          "source_id": "S2-CAU-01",
+          "url": "https://www.jstor.org/stable/2006592",
+          "locator": "Manski (1990), pp. 319–323, especially opening setup and §I on nonparametric treatment-effect bounds when mean independence or a latent-variable restriction cannot be asserted.",
+          "access": "JSTOR issue/article metadata checked; full publisher text is subscriber-restricted. Selected first-page text was available only through a nonpublisher reproduction; the full official article was not read."
+        },
+        {
+          "source_id": "S2-CAU-02",
+          "url": "https://doi.org/10.1214/14-STS499",
+          "locator": "Richardson et al. (2014), §2, equations (1)–(3): decomposition of the ATE, [0,1] support bounds, and sharpness under the stated minimal assumptions.",
+          "access": "The PMC author-manuscript search extract exposed the selected equations and surrounding text; direct opening hit a CAPTCHA and the official publisher PDF fetch returned 502, so the whole article was not read directly."
+        }
+      ],
+      "scope": "The interval is sharp under the listed assumptions for the population mean effect; it assumes a well-defined treatment and no interference for unit-level potential outcomes, and does not identify individual effects or the effect distribution. The known [0,1] support for both potential outcomes is substantive. With unbounded outcomes, the same no-assumption argument may produce no finite bound. Sampling uncertainty, nonrepresentative samples, and missing outcomes require separate treatment. The displayed conditional-mean parameterization assumes 0<p<1 so both observed arm means are defined; degenerate-arm cases require their own missing-arm representation.",
+      "required_inputs": [
+        "A binary, well-defined treatment; consistency linking the observed outcome to the received treatment; and representative or correctly weighted observed treatment/outcome data.",
+        "A defensible known range for both potential outcomes, not merely the observed sample minimum and maximum.",
+        "Treatment share p and arm-specific outcome means mu1 and mu0, with uncertainty from their estimation kept distinct from the identification interval."
+      ],
+      "alternatives": [
+        "Add justified assumptions such as conditional exchangeability, monotone response, or valid instrumental-variable restrictions to narrow the identified set.",
+        "Use a sensitivity model to show how the identified set changes as an assumption is relaxed.",
+        "Make a policy choice against the whole interval using a separately declared loss, value, or ambiguity criterion."
+      ],
+      "non_substitution": "A point estimate from a selected model is not the no-assumption result. A Bayesian posterior is one optional representation of added prior/model assumptions; it does not replace the support-based identified interval unless those assumptions are explicitly accepted. A wide interval is a truthful limitation, not evidence for a zero effect.",
+      "counterexample": {
+        "observations": "Suppose p=0.5, mu1=0.8, and mu0=0.2, so the observed mean difference is +0.6.",
+        "identified_set": "The sharp interval under only consistency and [0,1] support is [-0.2, 0.8].",
+        "failure": "The observed difference is compatible with either harm or benefit; reporting +0.6 as a causal effect silently adds an assumption."
+      },
+      "task_uses": [
+        "Represent what the evidence alone permits when confounding or selection cannot be resolved.",
+        "Distinguish an identified interval from sampling confidence intervals and from a policy decision rule."
+      ],
+      "acquisition_next": [
+        "Justify the outcome support from measurement or domain constraints and collect representative treatment/outcome data.",
+        "Acquire covariates, a valid instrument, or experimental assignment only with its own identification argument; recompute the set under each added assumption.",
+        "Carry the interval to the decision layer and state whether any decision is robust across it."
+      ],
+      "research_stream": "CAU",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-CAU-05",
+      "title": "Policy effects may depend on other units' assignments",
+      "kind": "editorial",
+      "statement": "When interference is possible, a unit's potential outcome is Y_ij(z_i), a function of its group's assignment vector, rather than only its own treatment. Under partial interference (no spillovers across the declared groups), a specified two-stage randomized design, consistency, and positive probability for the assignment regimes being compared, direct, indirect, total, and overall effects of those regimes can be estimated. The estimand must name the allocation strategy or exposure mapping.",
+      "source_refs": [
+        {
+          "source_id": "S-CAUSAL-05",
+          "url": "https://doi.org/10.1198/016214508000000292",
+          "locator": "Hudgens & Halloran (2008), §1.1 on interference and partial interference; §2 on group assignment vectors and direct, indirect, total, and overall effects; two-stage randomization estimator sections.",
+          "access": "The PMC author-manuscript record surfaced selected full-text sections in search; direct opening hit a CAPTCHA. The existing atlas card reports the manuscript text was checked; this task did not independently read the whole article."
+        }
+      ],
+      "scope": "The result applies to the stated partial-interference and randomized-design setup. The grouping boundary, no-cross-group-spillover claim, and any compressed exposure mapping are substantive assumptions, often not verifiable from the observed outcomes. General network interference requires richer assignment/exposure information and may remain unidentified; randomization alone does not define a policy-relevant estimand.",
+      "required_inputs": [
+        "Unit and group identities, assignment vectors or a justified exposure mapping, assignment probabilities, and the allocation strategies to compare.",
+        "Outcomes measured at a common follow-up with treatment versions and unit boundaries defined.",
+        "Evidence that the design randomizes the required group and within-group assignments with positive probability.",
+        "A reasoned boundary or sensitivity analysis for cross-group and unrecorded network links."
+      ],
+      "alternatives": [
+        "Use a no-interference design only where separation or evidence supports it.",
+        "Use partial-interference groups, cluster randomization, or randomized treatment saturation when within-group spillovers are the target.",
+        "Use a measured network/exposure mapping or model richer allocation vectors; if the mapping is uncertain, compare mappings or report bounds."
+      ],
+      "non_substitution": "One-unit-at-a-time effects are not a substitute for the effect of a population allocation policy. No single exposure mapping or network SCM is universal; preserve plausible spillover structures, and do not treat a Bayesian network prior as evidence that spillovers are absent.",
+      "counterexample": {
+        "setup": "For two units, let Y1=Z2 and Y2=Z1: each outcome is caused only by the other unit's assignment.",
+        "comparison": "Changing unit 1 alone has zero effect on Y1, but changing both assignments from (0,0) to (1,1) raises the population mean outcome from 0 to 1.",
+        "failure": "A no-interference analysis misses the policy's spillover and gives a different answer from the joint allocation contrast."
+      },
+      "task_uses": [
+        "Assess policies in schools, neighborhoods, labor markets, infectious disease, or other settings where actions change peers' outcomes.",
+        "Keep direct recipient effects separate from spillovers and population-level allocation effects."
+      ],
+      "acquisition_next": [
+        "Collect group/network links and assignment probabilities before choosing the exposure mapping.",
+        "Consider cluster or saturation randomization and collect outcomes under multiple allocation regimes.",
+        "Probe group boundaries and alternative mappings; where cross-group interference is unresolved, cap the claim to the supported regime."
+      ],
+      "research_stream": "CAU",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-LAW-01",
+      "title": "Ukraine: constitutional competence and legal-method constraint",
+      "kind": "editorial",
+      "statement": "Article 19(2) states in Ukrainian: “Органи державної влади та органи місцевого самоврядування, їх посадові особи зобов’язані діяти лише на підставі, в межах повноважень та у спосіб …” (21-word excerpt). It requires state and local self-government bodies and their officials to act on a legal basis, within powers, and by the manner prescribed by the Constitution and laws; Article 19(1) also bars compelling conduct not provided by law. This is a competence-and-method constraint; it does not identify the institution or provision governing a particular lever.",
+      "source_refs": [
+        {
+          "source_id": "S2-LAW-01",
+          "url": "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80",
+          "locator": "Article 19(1)-(2), Ukrainian authentic text; current text shown by the official portal as revised 2020-01-01",
+          "access": "search_extract_only"
+        }
+      ],
+      "scope": "Ukraine; public bodies, local self-government bodies, and their officials; apply the constitutional text and the law in force at the event time.",
+      "required_inputs": [
+        "actor identity and legal status",
+        "the concrete function and lever",
+        "the enabling or delegating provision and its effective period",
+        "required procedure and any sector-specific exceptions"
+      ],
+      "alternatives": [
+        "a law may allocate the function to another public body",
+        "a private actor may not be governed by the public-authority limb",
+        "a special constitutional or statutory regime may add conditions"
+      ],
+      "non_substitution": "A valid citation, an existing statute, or an institutional signature cannot establish that this is the statute governing the lever. W5-K07 §12.2 bars the existence-of-a-statute substitution; no positive adjudicator or acceptance rule is supplied here. ADR-0179 already accepts the meaning principle for a purpose-scoped defeasible assessment; this research card neither selects its first profile nor appoints its reviewer.",
+      "counterexample": "A ministry cites an enacted statute, but the cited provision assigns the decision to a different agency or authorizes only a different function.",
+      "task_uses": "Use as a candidate intake check for actor-to-function-to-provision correspondence; retain unresolved correspondence as a limitation.",
+      "acquisition_next": "Resolve the actor's current organic/sectoral law, delegations, territorial and temporal scope, and authentic text before making any lever-specific claim.",
+      "research_stream": "LAW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-LAW-02",
+      "title": "Ukraine: judicial review tests authority, purpose, evidence, rights, and participation",
+      "kind": "editorial",
+      "statement": "Code of Administrative Procedure of Ukraine Article 2(2) directs administrative courts, when reviewing public-authority decisions, actions, or omissions, to test legal basis and competence, use of power for its granted purpose, consideration of material circumstances, impartiality, good faith, reasonableness, equality and non-discrimination, proportionality between adverse effects on rights and the decision's aims, participation, and timeliness. It is a review standard for disputes within the Code's jurisdiction, not an ex ante grant of power or a complete decision rule for every policy choice.",
+      "source_refs": [
+        {
+          "source_id": "S2-LAW-02",
+          "url": "https://zakon.rada.gov.ua/laws/show/2747-15",
+          "locator": "Article 2(1)-(2), especially points 1-10 of part 2; portal shows current revision 2026-01-01",
+          "access": "search_extract_only"
+        }
+      ],
+      "scope": "Ukraine; challenges to decisions, actions, or omissions of public-authority actors within Ukrainian administrative-court jurisdiction; use the version applicable to the challenged act.",
+      "required_inputs": [
+        "challenged act or omission",
+        "reviewable actor and jurisdiction",
+        "granted purpose and competence provision",
+        "record of reasons, evidence, affected rights, alternatives, participation, and timing"
+      ],
+      "alternatives": [
+        "a special statutory review route may govern",
+        "some acts or actors may fall outside ordinary administrative jurisdiction",
+        "sector law may supply additional substantive requirements"
+      ],
+      "non_substitution": "A court-review checklist is not a policy-maker appointment, not permission to take the action, and not a universal proportionality formula outside Ukraine.",
+      "counterexample": "A decision is within an agency's general subject area but uses the power for a purpose different from the one granted, or imposes a rights burden without balancing it against the stated aim.",
+      "task_uses": "Use the listed dimensions to identify evidence and unresolved questions for a Ukraine-specific candidate justification; do not declare the act lawful from field presence alone.",
+      "acquisition_next": "Reopen the exact current Article 2 text and any applicable special procedure, then resolve which facts and legal tests a competent reviewer would treat as material for the particular dispute.",
+      "research_stream": "LAW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-LAW-03",
+      "title": "Ukraine: personal-data purpose, necessity, and lawful-basis conditions",
+      "kind": "editorial",
+      "statement": "Law of Ukraine No. 2297-VI on Personal Data Protection, current portal revision 2025-06-14 (Law No. 4240-IX), Article 6 requires a stated lawful purpose, transparent processing by means and methods suited to that purpose, adequate and non-excessive data, a specific lawful purpose grounded in consent or law, and retention in identifiable form no longer than necessary. Article 11 enumerates processing bases, including consent, a permission given by law solely for the controller's powers, legal duty, vital interests, and a qualified legitimate-interest basis; the selected basis and purpose must both fit the actor and processing.",
+      "source_refs": [
+        {
+          "source_id": "S2-LAW-03",
+          "url": "https://zakon.rada.gov.ua/laws/show/2297-17",
+          "locator": "Articles 6(1), 6(3), 6(5), 6(8), and 11(1)(1)-(6); current revision shown as 2025-06-14, basis Law No. 4240-IX",
+          "access": "search_extract_only"
+        }
+      ],
+      "scope": "Ukraine; processing of personal data by a controller within the Law's scope; check the processing purpose, subject, controller, applicable exceptions, and law in force at collection and later-use times.",
+      "required_inputs": [
+        "data-subject and data categories",
+        "controller identity and assigned powers",
+        "original and proposed purposes",
+        "specific lawful processing basis",
+        "necessity, data scope, safeguards, retention, and subject rights"
+      ],
+      "alternatives": [
+        "consent for a specified purpose",
+        "a statutory permission or obligation within the controller's powers",
+        "vital-interest grounds",
+        "qualified legitimate interests subject to fundamental-rights balance"
+      ],
+      "non_substitution": "Public availability, an open-data label, a controller's general mission, or a consent for another purpose does not itself establish permission for this processing or disclosure.",
+      "counterexample": "A public body obtained data for administering a named benefit and later reuses identifiable records to rank people for an unrelated enforcement intervention without a compatible purpose or applicable legal basis.",
+      "task_uses": "Map each data acquisition, transformation, reuse, disclosure, and retention to a purpose and legal basis; preserve the missing basis or rights condition as a limitation.",
+      "acquisition_next": "Read the exact current law and sector-specific basis, then resolve compatibility, sensitive-data exceptions, data-subject rights, safeguards, and later amendments for the actual actor and use.",
+      "research_stream": "LAW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-LAW-04",
+      "title": "Ukraine: open-data duty is implemented by a dated government procedure and bounded by privacy conditions",
+      "kind": "editorial",
+      "statement": "Law No. 2939-VI on Access to Public Information Article 10-1 assigns information managers duties to provide, publish, and regularly update open data and authorizes the Cabinet of Ministers to define dataset lists, formats, structures, and update periods. Cabinet Resolution No. 835 (2015-10-21) implements that delegation through a specified dataset regulation and directs covered information managers to publish and update datasets. The statute's Article 10-1(3) limits open-data publication of personal data to its enumerated conditions; the publication duty therefore does not make all held personal data publishable.",
+      "source_refs": [
+        {
+          "source_id": "S2-LAW-04",
+          "url": "https://zakon.rada.gov.ua/laws/show/2939-17",
+          "locator": "Article 10-1(1)-(4); current revision shown as 2025-08-08, Law No. 4321-IX; portal also lists later martial-law-contingent revisions",
+          "access": "search_extract_only"
+        },
+        {
+          "source_id": "S2-LAW-05",
+          "url": "https://zakon.rada.gov.ua/laws/show/835-2015-%D0%BF",
+          "locator": "Resolution clauses 1-3 and Regulation §1; adopted 2015-10-21; official portal lists current revision 2026-09-03, basis Resolution No. 1064-2026-п",
+          "access": "search_extract_only"
+        }
+      ],
+      "scope": "Ukraine; information managers and the datasets listed under the current version of Resolution No. 835, subject to the Access to Public Information Law, personal-data law, protected-information rules, and relevant effective dates.",
+      "required_inputs": [
+        "manager and record custodian",
+        "dataset identity and current annex entry",
+        "source statute and current resolution version",
+        "personal-data content and one Article 10-1(3) condition if applicable",
+        "publication/update channel and schedule"
+      ],
+      "alternatives": [
+        "a dataset may be outside the current enumerated list while still being requestable public information",
+        "restricted information may require withholding or a lawful redacted projection",
+        "a later martial-law-contingent amendment may not yet be in force"
+      ],
+      "non_substitution": "A generic open-data mandate, a record's presence in a public body's system, or the fact that an institution published a similar dataset does not establish permission to publish this row or this person's data.",
+      "counterexample": "A listed dataset contains identifiable personal data, but none of the four Article 10-1(3) conditions is met; the general publication duty alone cannot authorize the disclosure.",
+      "task_uses": "Represent a concrete source-to-publication path with a responsible manager, operative rule version, dataset membership, update duty, and privacy condition; treat the institutional act as implementation evidence rather than general policy authority.",
+      "acquisition_next": "Reopen the current full text and annexes of both acts, establish whether the conditional amendments have commenced, and verify the row-level data and its publication condition with the responsible institution.",
+      "research_stream": "LAW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-LAW-05",
+      "title": "EU: a public-task data basis must connect to a purpose-setting law",
+      "kind": "editorial",
+      "statement": "Regulation (EU) 2016/679 (GDPR), Articles 5(1)(a)-(c), 6(1)(e), and 6(3), requires lawful and transparent processing for specified, explicit, legitimate purposes with data limited to what is necessary. Public-interest or official-authority processing under Article 6(1)(e) must rest on a task or authority vested in the controller; Article 6(3) requires that basis to be laid down by Union or Member State law, determine or support the purpose, and meet a public-interest and proportionality condition. Article 99(2) sets application from 2018-05-25. This does not itself identify the member-state provision or controller's task.",
+      "source_refs": [
+        {
+          "source_id": "S-LEGAL-03",
+          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
+          "locator": "Articles 2-3 (scope), 5(1)(a)-(c), 6(1)(e), 6(3), and 99(2); Official Journal L 119, 2016-05-04; application from 2018-05-25",
+          "access": "search_extract_only"
+        }
+      ],
+      "scope": "EU/EEA personal-data processing within the GDPR's material, territorial, and temporal scope; identify the controller, data subject, processing, member-state or Union task law, and any applicable exception.",
+      "required_inputs": [
+        "controller and public-task/official-authority assignment",
+        "applicable Union or Member State law",
+        "defined processing purpose",
+        "data categories, necessity, safeguards, and affected rights",
+        "processing date and applicable consolidated text"
+      ],
+      "alternatives": [
+        "another Article 6(1) lawful basis may apply",
+        "Article 9 or other special rules may add conditions",
+        "a non-EU jurisdiction may use different authority and privacy rules"
+      ],
+      "non_substitution": "Article 6(1)(e) is not a freestanding grant of public power; the GDPR is not a universal permission and does not supply the missing national or Union task law.",
+      "counterexample": "An EU authority invokes a public-interest purpose but cannot identify a Union or Member State law vesting the relevant task in that controller or defining the processing purpose.",
+      "task_uses": "Use as a comparative example of a typed relation among controller, authority, task law, purpose, and processing; keep EU applicability explicit in every projection.",
+      "acquisition_next": "Resolve the current EUR-Lex consolidation and the relevant member-state/Union enabling act, then determine the task's scope and proportionality for the concrete processing.",
+      "research_stream": "LAW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-LAW-06",
+      "title": "United Kingdom: equality duty attaches to covered public functions but is not an outcome permit",
+      "kind": "editorial",
+      "statement": "Equality Act 2010 section 149(1)-(2) requires a public authority, and a non-public authority exercising public functions for those functions, to have due regard to three specified equality needs when exercising its functions. Sections 149(3)-(5) detail aspects of opportunity and good-relations duties; section 149(6) says compliance may involve more favourable treatment but does not permit conduct otherwise prohibited by the Act. The duty is function- and authority-scoped; it requires due regard and does not by itself prove a particular outcome is lawful or authorize a policy intervention.",
+      "source_refs": [
+        {
+          "source_id": "S2-LAW-06",
+          "url": "https://www.legislation.gov.uk/ukpga/2010/15/section/149",
+          "locator": "Section 149(1)-(9), read with sections 150 and Schedule 19; Equality Act 2010 c.15, current revised Act text checked 2026-10-20",
+          "access": "search_extract_only"
+        }
+      ],
+      "scope": "England, Wales, and Scotland as expressed by the section's extent; covered authorities/functions under sections 149-150 and Schedule 19, subject to Schedule 18 exceptions and the version in force at decision time.",
+      "required_inputs": [
+        "authority identity and Schedule 19 coverage",
+        "public function and any exception",
+        "decision and timing",
+        "affected protected-characteristic groups",
+        "evidence considered and how the three statutory needs were weighed"
+      ],
+      "alternatives": [
+        "a body may be covered only for specified functions",
+        "judicial or other Schedule 18 exceptions may apply",
+        "separate substantive discrimination prohibitions remain independently applicable"
+      ],
+      "non_substitution": "A recorded equality assessment or due-regard process is not a signature that the outcome is lawful; section 149(6) expressly preserves prohibitions elsewhere in the Act.",
+      "counterexample": "A public authority records consideration of equality needs but adopts conduct prohibited by another Equality Act provision; the process record alone does not create permission.",
+      "task_uses": "Use as a comparative example of a purpose-bound procedural duty with separate actor, function, affected-group, and substantive-rights checks.",
+      "acquisition_next": "Check current consolidated section text, Schedule 19/18 coverage, devolved-function scope, commencement, and the relevant substantive discrimination provisions for the specific decision.",
+      "research_stream": "LAW",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Dates and releases describe the accessed or indexed source representation. No content snapshot, complete current consolidation, live release pin, or task applicability is certified here; re-resolve before authority-bearing use."
+    },
+    {
+      "id": "G2-VAL-01",
+      "title": "Classify the elicitation target before choosing a method",
+      "kind": "editorial",
+      "statement": "Separate expert judgments about uncertain quantities, preferences elicited from a defined actor/population under a stated frame, and the mandate authorizing objectives, constraints or weights. Match the method to the object: agreement about uncertainty cannot close preference or mandate questions, and response frequency cannot create authority.",
+      "source_refs": [
+        {
+          "source_id": "S2-VAL-01",
+          "url": "https://doi.org/10.2903/j.efsa.2014.3734",
+          "locator": "Part I §2.1.2; Part II §§3–4, 6–7; Appendix A.4.2–A.4.3",
+          "access": "Publisher-hosted full PDF inspected; EKE covers expert judgments about uncertain quantities and treats preference elicitation as a separate field."
+        },
+        {
+          "source_id": "S-FEAS-02",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026",
+          "locator": "2026 edition, valuation methods, ‘Stated preference’",
+          "access": "Official GOV.UK HTML inspected; WTP is tied to a stated scenario and survey bias is noted. UK appraisal guidance only."
+        }
+      ],
+      "scope": "Candidate routing when uncertain effects, affected parties’ preferences, or authorized objectives shape policy appraisal.",
+      "required_inputs": [
+        "Question, alternatives, comparator, principal, affected groups, jurisdiction and time.",
+        "Expert route: uncertainty, evidence gap, model role, expertise, conflicts and protocol.",
+        "Preference route: respondent group, frame/options, instrument, sampling and limits.",
+        "Mandate route: competent issuer, instrument/delegation, scope, date and provenance."
+      ],
+      "alternatives": [
+        "Use evidence or observation where sufficient; otherwise select a structured EKE method.",
+        "Use interviews, deliberation, surveys, or revealed/stated preference only for the question each can answer.",
+        "If mandate is unclear, compare conditional frames and leave authority unresolved pending the competent act."
+      ],
+      "non_substitution": "EFSA EKE estimates uncertainty for risk assessment; it does not choose objectives. HM Treasury’s stated-preference example estimates WTP in a frame and warns responses may be biased. Neither creates a legal, political, or community mandate.",
+      "counterexample": "Experts agree a measure reduces exposure; an optimizer treats their agreement as public support and chooses who bears its cost. The panel supplied a risk judgment, not a distributional preference or objective-setting authority.",
+      "task_uses": [
+        "Route each input to its epistemic/authority role before decision use.",
+        "Keep missing authority as a scoped limitation; candidate analysis may proceed under an explicit conditional frame."
+      ],
+      "acquisition_next": "Obtain the evidence search and EKE record, the framed preference instrument/process, and the competent authority’s actual decision or delegation.",
+      "research_stream": "VAL",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-VAL-02",
+      "title": "Participation has decision-specific reach and force",
+      "kind": "editorial",
+      "statement": "Interpret participation only within its declared question, decision stage, room to influence, expected output, target groups, recruitment, method, information, access, feedback and authority response. Stratified civic lotteries can aim for broad representation in a deliberative mini-public, but do not prove case-specific representativeness or confer legal authority by themselves.",
+      "source_refs": [
+        {
+          "source_id": "S-VALUE-01",
+          "url": "https://doi.org/10.1787/f765caf6-en",
+          "locator": "Executive Summary, ten-step path; Chapter 2, representative deliberative processes; Chapter 4, Table 4.7",
+          "access": "Official English report and PDF inspected; covers meaningful influence, recruitment, method, public response and evaluation."
+        }
+      ],
+      "scope": "Public/stakeholder participation used to inform policy formation, implementation, evaluation or legitimacy appraisal.",
+      "required_inputs": [
+        "Question/stage, convening authority and promised response.",
+        "Target group, sampling frame, selection, reach, nonresponse and exclusions.",
+        "Method, accessible/balanced information, resources, outputs, dissent and follow-up."
+      ],
+      "alternatives": [
+        "Open consultation for breadth; label self-selection unless sampling supports more.",
+        "Deliberative mini-public for a bounded complex value question where the authority commits to respond.",
+        "Use rights-holder/community procedures where their own institutions govern participation."
+      ],
+      "non_substitution": "Consultation is not a representative sample; a deliberative recommendation is not enactment. Decision force comes from the governing institution or explicit delegation, not the process label.",
+      "counterexample": "Four thousand opt-in comments are called ‘the public’s mandate’ despite no defined population, response analysis, affected-group coverage or promised influence.",
+      "task_uses": [
+        "Bind results to the group and process that produced them; expose who was missing.",
+        "Keep process evidence separate from the authority’s decision and accountability."
+      ],
+      "acquisition_next": "Obtain the process plan, recruitment/participation evidence, participant outputs and dissent, evaluation, and the authority’s written response.",
+      "research_stream": "VAL",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-VAL-03",
+      "title": "Keep plural values visible before a common score",
+      "kind": "editorial",
+      "statement": "Represent relevant value dimensions and their holders before choosing a valuation method or summary score. IPBES distinguishes instrumental, intrinsic and relational perspectives, and reports that local relational/instrumental values can be underrepresented as power shapes whose values enter decisions. Keep qualitative, place-based and non-market values visible before any authorized weighting.",
+      "source_refs": [
+        {
+          "source_id": "S-VALUE-02",
+          "url": "https://zenodo.org/records/7410287",
+          "locator": "2022 Summary for Policymakers, approved at IPBES-9; diverse values and valuation findings",
+          "access": "Existing source card verifies SPM identity/approval and selected official text; full SPM and chapters were not re-read here."
+        },
+        {
+          "source_id": "S2-VAL-02",
+          "url": "https://files.ipbes.net/ipbes-web-prod-public-files/2023-05/IPBES_Values_ILK_Messages_lores_ForWeb_en.pdf",
+          "locator": "Key Message 5, pp.18–19; D1 guidelines 3–6, pp.24–25",
+          "access": "Official IPBES PDF inspected, pp.18–24; accessible messages derived from the nature assessment, not case-specific community evidence."
+        }
+      ],
+      "scope": "Value framing/valuation with multiple affected groups, especially environmental and place-based policy; transfer elsewhere is analogy only.",
+      "required_inputs": [
+        "Options, place, scale, time and affected groups/rights-holders.",
+        "Value perspectives, holders, expression methods, missing/restricted knowledge.",
+        "What is measurable, monetary, qualitative, constrained, disputed or incomparable."
+      ],
+      "alternatives": [
+        "Compare a disaggregated value vector without one ranking.",
+        "Use authorized monetary or multi-criteria weights with sensitivity and omissions shown.",
+        "Preserve conditional rankings or unresolved conflicts."
+      ],
+      "non_substitution": "IPBES categories are broad perspectives, not an exhaustive ontology or universal weights. A monetary estimate or measurable proxy does not exhaust value. The findings concern nature/biodiversity; other domains need their own evidence.",
+      "counterexample": "A flood appraisal monetizes property losses and leisure but omits a wetland’s relational, cultural and rights-bearing significance to local people, then calls net benefit a complete social ranking.",
+      "task_uses": [
+        "Show whose values inform each option and what is absent/unmeasured.",
+        "Do not let a proxy or score close a value claim without authorized weights and adequacy limits."
+      ],
+      "acquisition_next": "Seek place-specific value accounts, affected-rights-holder input, excluded voices and permitted use conditions; preserve language and context.",
+      "research_stream": "VAL",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-VAL-04",
+      "title": "Aggregation needs an authorized rule and visible dissent",
+      "kind": "editorial",
+      "statement": "Aggregation is not a neutral cleanup step. Declare who is included, alternatives/domain, rule, assumptions, weights/constraints, agenda/tie handling and dissent. Expert distributions express uncertainty; preference rankings express evaluation. Use different aggregation methods and show rule sensitivity, or retain a partial order.",
+      "source_refs": [
+        {
+          "source_id": "S-VALUE-03",
+          "url": "https://doi.org/10.1086/256963",
+          "locator": "Part I §1, majority-voting cycle; Part IV §2, possibility theorem and conditions",
+          "access": "Original paper scan hosted by University of Chicago Statistics opened; theorem is conditional on its preference domain and axioms."
+        },
+        {
+          "source_id": "S2-VAL-01",
+          "url": "https://doi.org/10.2903/j.efsa.2014.3734",
+          "locator": "Appendix A.4.2–A.4.3, behavioral/mathematical aggregation",
+          "access": "Publisher full PDF inspected; EFSA recommends reporting dissenting expert distributions with any mathematical aggregate when strong disagreement remains."
+        },
+        {
+          "source_id": "S-VALUE-01",
+          "url": "https://doi.org/10.1787/f765caf6-en",
+          "locator": "Chapter 4, Table 4.7, rough consensus, fallback voting and public response",
+          "access": "Official OECD full report inspected; recommendations receive an authority response and are not enactment."
+        }
+      ],
+      "scope": "Combining expert judgments, preferences or deliberative outputs where principals disagree about a policy choice.",
+      "required_inputs": [
+        "Input type/unit; included and missing groups; alternatives and admissible domain.",
+        "Authorized rule, weights, rights/constraints, agenda, ties and dissent policy.",
+        "Sensitivity to rule choice and decision owner."
+      ],
+      "alternatives": [
+        "Report source-level views plus a declared aggregate and dissent.",
+        "Use deliberation toward rough consensus with a declared fallback and authority response.",
+        "Show non-dominated or conditional options instead of one unsupported ordering."
+      ],
+      "non_substitution": "Arrow’s result is conditional and does not make democratic choice impossible. EFSA pooling concerns expert beliefs, not social objectives. Neither selects whose preferences count or who may authorize the social rule.",
+      "counterexample": "With rankings A>B>C, B>C>A and C>A>B, pairwise majority yields A>B, B>C and C>A. A single ‘majority preference’ hides the cycle, agenda and normative rule.",
+      "task_uses": [
+        "Record aggregation as a replayable, sourced operation.",
+        "Keep expert disagreement, public preference conflict and rights constraints separate; show alternatives to the authorized decision-maker."
+      ],
+      "acquisition_next": "Obtain source-level outputs, the predeclared rule/agenda and its authority, dissent, and sensitivity under plausible rules.",
+      "research_stream": "VAL",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-VAL-05",
+      "title": "Indigenous and local knowledge has its own representation and use conditions",
+      "kind": "editorial",
+      "statement": "When Indigenous/local knowledge or rights are implicated, identify knowledge/rights-holders, their representative procedures and institutions, decision scope, source permissions and use conditions. Preserve provenance, language, context, restrictions and dissent. A public repository or general survey cannot stand in for the relevant community act.",
+      "source_refs": [
+        {
+          "source_id": "S-VALUE-06",
+          "url": "https://digitallibrary.un.org/record/606782",
+          "locator": "A/RES/61/295, Articles 18, 19 and 32(2)",
+          "access": "UN record identifies the resolution; direct PDF returned 403. Existing source card records an earlier UN-system cross-check of Arts.18–19; current-session full-text access is limited."
+        },
+        {
+          "source_id": "S-GOV-01",
+          "url": "https://www.gida-global.org/careprinciples",
+          "locator": "CARE overview: people/purpose orientation; relation to FAIR",
+          "access": "Official GIDA page opened; principles do not grant permission for a specific asset."
+        },
+        {
+          "source_id": "S2-VAL-02",
+          "url": "https://files.ipbes.net/ipbes-web-prod-public-files/2023-05/IPBES_Values_ILK_Messages_lores_ForWeb_en.pdf",
+          "locator": "ILK background, pp.2–4; Key Message 5 and D1, pp.18–25",
+          "access": "Official IPBES excerpt inspected; discusses power asymmetries and respectful representation of rights-/knowledge-holders."
+        }
+      ],
+      "scope": "Tasks involving Indigenous/local knowledge, lands, resources, values, or decisions affecting rights; applicability is case- and jurisdiction-specific.",
+      "required_inputs": [
+        "Rights/knowledge holders and evidence of who represents which scope.",
+        "Applicable jurisdiction, act/project, affected rights and consultation/consent requirements.",
+        "Source custodian, provenance, language, purpose/access/reuse limits, consent and correction path."
+      ],
+      "alternatives": [
+        "Use community-defined procedures and permitted material.",
+        "Ask the competent authority to establish applicability and provide its record.",
+        "If authority/permission is unresolved, carry a limitation and use only independently permitted evidence."
+      ],
+      "non_substitution": "UNDRIP addresses own representative procedures and consultation in specified contexts; it does not establish domestic effect or a case representative. CARE is governance guidance, not consent. PolicyOS can receive and verify these acts but cannot appoint representatives, grant access, give consent or issue a state/community mandate.",
+      "counterexample": "Publicly indexed community knowledge is treated as an unrestricted license, and an opt-in city poll is reported as Indigenous approval of a land-use policy.",
+      "task_uses": [
+        "Keep knowledge permission, rights-holder participation, public input and state action distinct.",
+        "At authority use, hold unresolved required acts as a limitation and expose use restrictions."
+      ],
+      "acquisition_next": "Resolve jurisdiction and competent institution; seek records through rights-holder-designated channels and verify task-specific permission, scope and currentness.",
+      "research_stream": "VAL",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-FEA-01",
+      "title": "Delivery capacity is actor- and time-specific",
+      "kind": "editorial",
+      "statement": "Trace each material delivery task to a named actor and level of government: authority, coordination, staff/skills, funds, procurement, delivery, enforcement where relevant, and operation/maintenance. Ground critical links in current local evidence. Missing evidence stays an explicit unknown/limitation or a capacity-building condition; it cannot be inferred from a model, appropriation, or another jurisdiction.",
+      "source_refs": [
+        {
+          "source_id": "S2-FEA-01",
+          "url": "https://legalinstruments.oecd.org/public/doc/128/body-text.en.html",
+          "locator": "Appendix Q2, Q4–6; Background Note, Question 5 paras. 26–28 and Question 6 paras. 29–31: government effectiveness, authority, institutional capacity, coordination, training, costs.",
+          "access": "primary_text_or_selected_sections; official full HTML opened, selected sections read."
+        },
+        {
+          "source_id": "S-FEAS-03",
+          "url": "https://www.oecd.org/en/about/projects/effective-public-investment-toolkit.html",
+          "locator": "Implementation guide: capacity, procurement, binding constraints, and lifecycle operation/maintenance; existing atlas card records selected sections.",
+          "access": "primary_text_or_selected_sections; reuse existing card; local readiness not established."
+        }
+      ],
+      "scope": "A candidate feasibility assessment with identifiable implementers and delivery horizon; not a universal readiness threshold or finding of incapacity.",
+      "required_inputs": [
+        "Named actors, jurisdiction, tasks, dependencies and legal responsibility.",
+        "Current authority, staffing/skills, budget timing, procurement, schedule, delivery and O&M evidence as relevant.",
+        "Source, provenance, as-of date, revalidation trigger and gaps."
+      ],
+      "alternatives": [
+        "Carry unknowns as limits/conditions and acquire evidence.",
+        "Cost capacity-building, phase/pilot, choose another lawful instrument or delivery level, or defer the affected claim."
+      ],
+      "non_substitution": "OECD guidance says what to assess; it proves no local capacity. An appropriation is not evidence of staff, powers, procurement, or delivery.",
+      "counterexample": "A national budget funds clinics, but local clinics lack hiring authority and a funded supply chain; the budget does not establish timely doses.",
+      "task_uses": "Compare delivery paths, qualify readiness, expose dependencies and specify evidence acquisition.",
+      "acquisition_next": "Obtain current delegations, role assignments, staffing/vacancy, released funds, procurement, delivery schedules, and operating plans from responsible institutions.",
+      "research_stream": "FEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-FEA-02",
+      "title": "Reach, take-up, provision, and compliance are separate transitions",
+      "kind": "editorial",
+      "statement": "When effects require exposure or compliance, represent material transitions from awareness/reach through application, assessment, enrolment, notification, provision/use, and relevant compliance, grievance, updating, or exit. Estimate or bound stage rates by group and context. Eligibility is not receipt or compliance. The World Bank's chain is a social-protection example, not a universal template.",
+      "source_refs": [
+        {
+          "source_id": "S2-FEA-02",
+          "url": "https://documents1.worldbank.org/curated/en/519831596182628993/pdf/Sourcebook-on-the-Foundations-of-Social-Protection-Delivery-Systems.pdf",
+          "locator": "Chapter 1, delivery-systems framework, printed pp. 2–3; Figure 1.1, p. 6; Chapters 3–8 delivery phases.",
+          "access": "primary_text_or_selected_sections; official PDF opened; selected framework and chain sections read."
+        },
+        {
+          "source_id": "S2-FEA-01",
+          "url": "https://legalinstruments.oecd.org/public/doc/128/body-text.en.html",
+          "locator": "Appendix Q10; Background Note Question 10 paras. 38–41: incentives, implementation, compliance rates and evaluation.",
+          "access": "primary_text_or_selected_sections; official HTML opened, selected sections read."
+        }
+      ],
+      "scope": "Policies whose effect depends on target-population reach, take-up, service provision, regulated-actor compliance, or enforcement.",
+      "required_inputs": [
+        "Target population and denominator at each stage.",
+        "Local access rules/frictions, actors, capacity, observed or bounded transition rates and uncertainty.",
+        "For regulated behavior, compliance mechanisms and monitoring/enforcement capacity."
+      ],
+      "alternatives": [
+        "Use local stratified ranges/bounds, not an unsupported point rate.",
+        "If data are absent, keep effects conditional on exposure/compliance and acquire process evidence through a pilot/evaluation."
+      ],
+      "non_substitution": "Entitlement, eligibility, a programme launch, or enforcement power does not establish awareness, enrolment, service use, or compliance.",
+      "counterexample": "A transfer model counts every eligible household as served even though many cannot complete intake; eligibility is not realized exposure.",
+      "task_uses": "Convert nominal coverage to delivery-conditioned effects; locate attrition; distinguish theory failure from implementation failure.",
+      "acquisition_next": "Acquire local process maps and stage counts, access research, service/payment records, and compliance records with dated definitions.",
+      "research_stream": "FEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-FEA-03",
+      "title": "Appraise whole-life costs and incidence",
+      "kind": "editorial",
+      "statement": "For each material option, identify costs over its life: design/transition, procurement and delivery, administration/staff, compliance burden, monitoring/evaluation/enforcement where relevant, operation, maintenance, and exit. Separate fiscal effects from wider social costs, name who bears them, and distinguish transfers from resource costs. Make estimation proportionate to scale, complexity, risk, and evidence limits.",
+      "source_refs": [
+        {
+          "source_id": "S2-FEA-01",
+          "url": "https://legalinstruments.oecd.org/public/doc/128/body-text.en.html",
+          "locator": "Appendix Q3, Q6–7; Background Note Question 6 paras. 29–33: costs to citizens, firms, governments, compliance formalities, enforcement and proportional estimation.",
+          "access": "primary_text_or_selected_sections; official full HTML opened; selected sections read."
+        },
+        {
+          "source_id": "S-FEAS-02",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026",
+          "locator": "Ch. 1 proportionality; Ch. 6 whole-life scope, time horizon, incidence, and capital/operating/maintenance costs.",
+          "access": "primary_text_or_selected_sections; reuse existing atlas card; official 2026 HTML opened."
+        }
+      ],
+      "scope": "Option/BAU comparison; Green Book population, UK social values, and appraisal schedules apply only within its UK institutional scope.",
+      "required_inputs": [
+        "Options, baseline, population, actors and horizon through operation/closure.",
+        "Material public and private costs, timing, bearers, uncertainty and price basis.",
+        "Monitoring/evaluation, compliance and maintenance costs where material; explain omissions and estimation depth."
+      ],
+      "alternatives": [
+        "Use rough/qualitative estimates for low-impact cases, stating uncertainty and omissions.",
+        "Use detailed CBA/CEA or sensitivity when scale, irreversibility, or decision sensitivity warrants it."
+      ],
+      "non_substitution": "Capital budget, fiscal cost, social cost, and transfer incidence differ; a net-benefit estimate does not establish affordability or distribution.",
+      "counterexample": "A comparison counts construction but omits recurring staff, maintenance, and household application time; including them could change the preferred option.",
+      "task_uses": "Compare feasible options, expose cost-shifting/unfunded obligations, and size evidence work to decision stakes.",
+      "acquisition_next": "Obtain delivery/O&M plans, procurement and staff estimates, compliance burden evidence, and monitoring/evaluation costs.",
+      "research_stream": "FEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-FEA-04",
+      "title": "Historical response estimates depend on policy regime",
+      "kind": "editorial",
+      "statement": "Treat observed behavioral relationships as conditional on the rules and expectations under which they were estimated. When policy materially changes incentives or actors' information, either model a supported response mechanism and test uncertainty, or limit the claim to the prior regime/reference margin. Lucas's macroeconomic example is specific: even a temporary income-tax surcharge can change consumption propensity immediately; response also depends on how the rule change is carried out and understood.",
+      "source_refs": [
+        {
+          "source_id": "S2-FEA-03",
+          "url": "https://www.sfu.ca/~kkasa/lucas76.pdf",
+          "locator": "§§4–5, reprint pp. 124–125: behavioral parameters θ(λ), policy-change path/understanding, temporary tax-surcharge example.",
+          "access": "search_extract_only; specific passages surfaced from the SFU faculty-hosted copy; PDF extraction unavailable, publisher full text gated."
+        }
+      ],
+      "scope": "Transport of behavioral/econometric relationships across material rule, incentive, enforcement, or expectation changes.",
+      "required_inputs": [
+        "Reference regime/date and proposed rule, incentive, timing/announcement, and enforcement changes.",
+        "Relevant actor responses and evidence under the new regime, with uncertainty; otherwise a declared transport limit."
+      ],
+      "alternatives": [
+        "Use a supported structural response model and sensitivity.",
+        "Keep projections conditional/time-bounded or stage the change and acquire post-change evidence."
+      ],
+      "non_substitution": "Lucas identifies a transport problem; it supplies neither the local direction/magnitude of response nor proof that every historical relationship fails.",
+      "counterexample": "A pre-change consumption propensity is held fixed after an announced temporary surcharge, although the paper uses that surcharge as an immediate response-change example.",
+      "task_uses": "Flag fragile extrapolation, expose regime assumptions, and focus pilots and monitoring on response mechanisms.",
+      "acquisition_next": "Obtain policy/announcement history, actor incentive and exposure data, and domain-specific response evidence.",
+      "research_stream": "FEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-FEA-05",
+      "title": "A targeted indicator can change its data-generating process",
+      "kind": "editorial",
+      "statement": "If an indicator controls benefits, sanctions, or implementer rewards, treat behavioral and measurement-process response as a hypothesis to test. Preserve changes to definitions, coverage, recording incentives, collection, and processing; compare the target with a separately grounded outcome/cross-check. Do not assume that every targeted indicator fails.",
+      "source_refs": [
+        {
+          "source_id": "S2-FEA-04",
+          "url": "https://www.rba.gov.au/publications/rdp/1983/8301/introduction.html",
+          "locator": "Introduction, discussion of weekly M1 announcements, repo agreements, sweep accounts; footnote 1 attributes maxim to Goodhart (1975, p. 5). U.S. monetary example.",
+          "access": "primary_text_or_selected_sections; official paper introduction/footnote opened; full paper not read; Goodhart attribution is secondary."
+        },
+        {
+          "source_id": "S-DATA-03",
+          "url": "https://unstats.un.org/unsd/methodology/dataquality/references/Module_for_QA_when_using_AOS-2025-03-13.pdf",
+          "locator": "Requirement 12.3: holders report production-process changes; preserve concepts, definitions, classifications, coverage and metadata; reuse existing card.",
+          "access": "primary_text_or_selected_sections; reuse existing UN Statistics Division card; local admission not established."
+        }
+      ],
+      "scope": "A policy/control metric becomes consequential to actors who affect the measured behavior or reporting process.",
+      "required_inputs": [
+        "Indicator construct, source, definition/version, coverage and production pathway.",
+        "Who observes the measure, the reward/sanction that follows, and evidence of behavior or process change.",
+        "Independent or non-targeted cross-check and its limitations."
+      ],
+      "alternatives": [
+        "Keep the metric with qualified interpretation, process metadata and triangulation.",
+        "Reduce direct gaming incentives or pilot/revalidate the measure after regime changes."
+      ],
+      "non_substitution": "“Goodhart” is not evidence of metric failure; a stable target value does not establish a stable construct.",
+      "counterexample": "In Moses's monetary example, expected reaction to reported M1 coincided with innovations that excluded transaction balances from reported components, weakening M1's relation to effective transaction balances. This is not evidence about a modern service metric.",
+      "task_uses": "Detect measurement drift and trigger process/construct revalidation when targets, rules, or recording change.",
+      "acquisition_next": "Obtain source-system/version history, incentives, pre/post coverage and process records, independent outcomes; obtain Goodhart (1975) itself before treating the maxim as more than a prompt.",
+      "research_stream": "FEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-FEA-06",
+      "title": "Compare options under consistent scenarios",
+      "kind": "editorial",
+      "statement": "Keep BAU, each option, and scenario assumptions explicit. Compare BAU and options under the same external conditions and horizon, while allowing policy-specific capacity and behavior to differ when the option changes them. A scenario is a plausible conditional future, not a forecast or probability without separate support; preserve policy version, population, actor response, and external assumptions together.",
+      "source_refs": [
+        {
+          "source_id": "S-FEAS-02",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026",
+          "locator": "Ch. 4 BAU; Ch. 6 scenario analysis/real options; Ch. 8 climate resilience scenarios are plausible futures without assignable probabilities.",
+          "access": "primary_text_or_selected_sections; reuse existing card; official 2026 HTML opened."
+        },
+        {
+          "source_id": "S-FEAS-01",
+          "url": "https://www.oecd.org/en/publications/foresight-toolkit-for-resilient-public-policy_bcdd9304-en.html",
+          "locator": "Official abstract: hypothetical, not predictive disruptions; five-step process creates scenarios and stress-tests strategies.",
+          "access": "abstract_or_metadata; official publication page/abstract opened; full toolkit not inspected."
+        }
+      ],
+      "scope": "Ex ante comparison under external uncertainty, including options with policy-dependent behavior or delivery capacity.",
+      "required_inputs": [
+        "Evidence-grounded BAU and policy version.",
+        "External conditions, horizon, population and actor-response/capacity assumptions for each branch.",
+        "Evidence basis for any scenario probability; otherwise keep likelihood unquantified."
+      ],
+      "alternatives": [
+        "Use central estimate plus what-if sensitivity for low-cost, low-risk proposals.",
+        "Use scenario ranges, decision trees or staged/real-option analysis for uncertain, sequential or hard-to-reverse choices; disclose probability assumptions."
+      ],
+      "non_substitution": "BAU is expected outcome under current arrangements, not zero activity. Scenarios alone establish neither likelihood, effect, nor capacity.",
+      "counterexample": "The option is scored in recession and BAU in growth; the difference conflates policy and external conditions.",
+      "task_uses": "Expose hidden assumptions and compare robustness without implying unsupported forecast precision.",
+      "acquisition_next": "Acquire baseline, local external-condition and response/capacity evidence; seek an authoritative probability basis if probabilities are required.",
+      "research_stream": "FEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-LRN-01",
+      "title": "Досрочная остановка требует временно-валидного вывода",
+      "kind": "editorial",
+      "statement": "Если результат пересматривают по мере поступления данных и остановка зависит от текущего результата, обычный интервал или тест с гарантией только для фиксированной выборки не переносит эту гарантию на все просмотренные моменты. Для продолжающегося наблюдения нужен заранее названный sequential-дизайн или anytime-valid метод. Гарантия confidence sequence относится к заявленному estimand и соблюдению условий стохастического процесса; она сама по себе не устанавливает причинную идентификацию или перенос на другую популяцию.",
+      "source_refs": [
+        {
+          "source_id": "S2-LRN-01",
+          "url": "https://arxiv.org/abs/1810.08240",
+          "locator": "§1, Properties P1–P4; §3.1, Theorem 1; §4.2, Corollary 2",
+          "access": "Полный авторский текст arXiv открыт; проверены определения и указанные разделы."
+        }
+      ],
+      "scope": "Последовательные данные и estimand, индексируемый временем; гарантии статьи требуют подходящих martingale/sub-gamma либо иных явно заданных процессных условий. Пример ATE дополнительно требует ограниченных потенциальных исходов и treatment probabilities, отделённых от 0 и 1.",
+      "required_inputs": [
+        "target estimand и его версия во времени",
+        "порядок наблюдений, временные роли и правило остановки",
+        "предпосылки о процессе, хвостах, рандомизации и допустимых пропусках",
+        "границы исходов и вероятности назначения воздействия, когда применимо",
+        "версия границы, теста и кода расчёта"
+      ],
+      "alternatives": [
+        "фиксированная выборка без просмотра промежуточных результатов",
+        "предзаданный group-sequential дизайн или alpha-spending",
+        "confidence sequence или другой anytime-valid frequentist тест при выполненных предпосылках",
+        "Bayesian sequential analysis с явными likelihood, prior и decision rule; она не заявляет автоматически frequentist coverage",
+        "bounds, partial identification или robust сценарии, если вероятностный режим не установлен"
+      ],
+      "non_substitution": "Ни anytime-valid coverage, ни Bayesian posterior не доказывают причинную структуру, релевантность измерения или transportability. Вычислительная гарантия условна на процесс и правило; эмпирический перенос требует отдельных данных и основания.",
+      "counterexample": "Исследователь ежедневно считает обычный 95% fixed-time интервал и прекращает сбор при первом исключении нуля. Его точечная гарантия не ограничивает ошибку по всем ежедневно просмотренным интервалам.",
+      "task_uses": "Мониторинг эффекта после внедрения, адаптивное назначение эксперимента и получение данных по мере изменения цены/риска решения.",
+      "acquisition_next": "Сохранять фактический график просмотров и остановки; пересчитывать вывод под объявленный sequential-дизайн и создавать новую версию estimand при его изменении.",
+      "research_stream": "LRN",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-LRN-02",
+      "title": "Оценка новой политики по журналу ограничена поддержкой прежней политики",
+      "kind": "editorial",
+      "statement": "Offline policy evaluation по частично наблюдаемым действиям требует достаточной вероятности увидеть действия целевой политики при соответствующих контекстах и историях. Малые logging propensities создают большие веса и дисперсию; при нулевой вероятности действие не имеет наблюдаемой награды в этом журнале. Doubly robust оценка может уменьшить смещение, когда верна модель награды или модель logging policy в условиях метода, но не создаёт эмпирической поддержки для невыбранного действия.",
+      "source_refs": [
+        {
+          "source_id": "S2-LRN-02",
+          "url": "https://icml.cc/2011/papers/554_icmlpaper.pdf",
+          "locator": "§2, equations (1)–(2); §3, Theorem 1 and the condition that fitted models are independent of evaluation sample",
+          "access": "Полный текст первичной ICML статьи открыт; проверены определения, оцениватели и условия анализа смещения."
+        }
+      ],
+      "scope": "Контекстный bandit с конечным набором действий, частично наблюдаемыми наградами и историческим журналом. Перенос к многошаговой политике требует trajectory-level estimand и отдельного off-policy метода.",
+      "required_inputs": [
+        "контекст и история до выбора действия",
+        "назначенное действие, наблюдаемая награда и logging propensity для каждого случая",
+        "целевой policy и population/estimand оценки",
+        "модель награды и/или logging policy с обучающей выборкой и проверяемыми предпосылками",
+        "карта overlap/support и влияние выбора policy на тех же данных"
+      ],
+      "alternatives": [
+        "ограничить estimand областями достаточного overlap и явно показать исключённую область",
+        "собрать prospectively рандомизированные данные с допустимой вероятностью действий",
+        "использовать outcome-модельную экстраполяцию только как candidate при явном допущении и sensitivity/bounds",
+        "оставить действие вне оцениваемой области или ограничить решение"
+      ],
+      "non_substitution": "Doubly robust не означает robust к любому отсутствию overlap: гарантия зависит от правильности одной из nuisance-моделей и условий статьи. Низкая variance в одном benchmark не доказывает transfer на иной контекст, logging policy или outcome.",
+      "counterexample": "Исторический протокол никогда не назначал вмешательство A пациентам с тяжёлым состоянием. Новый policy назначает A именно этой группе. Для такого сегмента inverse propensity не определён; прогноз outcome-модели остаётся непроверенной экстраполяцией.",
+      "task_uses": "Выбор следующего экспериментального воздействия, оценка policy-кандидата на наблюдательном журнале и выявление зон, где требуется новая рандомизация.",
+      "acquisition_next": "Показывать support отдельно от оценки value; накапливать propensity и selection history, а в unsupported-сегменте направлять задачу на допустимый сбор данных, bounds или ограниченный вывод.",
+      "research_stream": "LRN",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-LRN-03",
+      "title": "VOI оценивает изменение решения после информации с учётом цены и задержки",
+      "kind": "editorial",
+      "statement": "Когда вероятностная модель, допустимые альтернативы и уполномоченный критерий полезности защищаемы, ожидаемую ценность нового измерения следует связывать с тем, как информация меняет лучшее решение, а чистую ценность — сопоставлять с расходами на выборку, анализ и задержку. Для адаптивного дизайна учитываются промежуточные анализы, stopping rule и возможное смещение оценок. Энтропия или ожидаемый прирост точности модели могут ранжировать исследовательские запросы, но не заменяют решение-ориентированную ценность.",
+      "source_refs": [
+        {
+          "source_id": "S-LEARN-05",
+          "url": "https://doi.org/10.1016/j.jval.2020.01.004",
+          "locator": "Report 2 abstract: EVPI, EVPPI, EVSI and expected net benefit of sampling",
+          "access": "Переиспользована существующая карточка атласа: доступны PubMed metadata/abstract и индексированный publisher result; полный текст в исходной проверке не читался."
+        },
+        {
+          "source_id": "S2-LRN-04",
+          "url": "https://eprints.whiterose.ac.uk/id/eprint/181245/1/0272989x211045036.pdf",
+          "locator": "Methods, Stage 5 and Stage 6/Step 7; §Strengths and Limitations",
+          "access": "Полная опубликованная версия открыта в репозитории White Rose; проверены указанные разделы."
+        },
+        {
+          "source_id": "S-LEARN-06",
+          "url": "https://mlg.eng.cam.ac.uk/pub/pdf/HouHusGha11a.pdf",
+          "locator": "Introduction: distinction between information-theoretic acquisition and decision-theoretic value",
+          "access": "Переиспользована существующая карточка: в ней указано, что открыт полный авторский manuscript, publisher/conference version не проверялась."
+        }
+      ],
+      "scope": "VOI/EVSI/ENBS при заданных альтернативе решения, распределении будущих данных и payoff model; новая работа Flight et al. оценивает group-sequential клинический trial на примере здравоохранения и не устанавливает универсальный критерий общественной ценности.",
+      "required_inputs": [
+        "допустимые решения и их последствия по указанному времени и population",
+        "основание вероятностей для текущей неопределённости и возможных результатов выборки",
+        "ценностный критерий и его уполномоченный источник",
+        "дизайн сбора, число анализов, правило остановки и ожидаемый размер выборки",
+        "стоимость сбора/анализа и opportunity cost задержки решения"
+      ],
+      "alternatives": [
+        "EVSI/ENBS для ожидаемой полезности при защищаемой вероятностной модели",
+        "информация-ориентированная acquisition score как отдельный критерий модельного обучения",
+        "robust regret, minimax, partial-identification bounds или явно качественный приоритет, если вероятности/ценности не установлены",
+        "не приобретать данные, если допустимый выбор не может измениться или исследование недопустимо"
+      ],
+      "non_substitution": "Изменение энтропии не является изменением решения; высокая EVSI не даёт разрешения на сбор недопустимых данных или действие. Численный score условен на выбранных вероятностях, payoff, горизонте и цене задержки; результат клинического case study не переносится автоматически на иной сектор.",
+      "counterexample": "Новая переменная сильно сокращает неопределённость модели, но для всех возможных результатов сохраняет одно и то же допустимое действие при авторизованных целях; decision EVSI равна нулю, даже если ожидаемый information gain велик.",
+      "task_uses": "Выбор следующего исследования, сравнение фиксированного и адаптивного дизайнов, оценка, стоит ли изучать параметр перед принятием/пересмотром решения.",
+      "acquisition_next": "Сравнивать исследовательские проекты вместе с вариантом без исследования, чувствительностью к целям и цене задержки; отдельно сохранять фактические costs, анализы и stopping outcomes.",
+      "research_stream": "LRN",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-LRN-04",
+      "title": "Адаптивный поиск гипотез расходует общий бюджет ошибок",
+      "kind": "editorial",
+      "statement": "Выбор лучшего сигнала среди нескольких исходов, подгрупп, моделей или спецификаций образует семейство проверок, даже если результаты просматривались по очереди. Для онлайн-последовательности можно использовать специальное FDR-правило с заранее выбранным error budget и условиями на validity p-values; при зависимости нужно применять процедуру с соответствующей гарантией. Online FDR ограничивает ожидаемую долю false discoveries в семействе, но не вероятность ошибки каждого отдельного утверждения.",
+      "source_refs": [
+        {
+          "source_id": "S2-LRN-03",
+          "url": "https://arxiv.org/abs/1502.06197",
+          "locator": "§2.1, Theorem 2.1 and Corollary 2.2; §2.3, dependency-adjusted LOND",
+          "access": "Полный авторский arXiv текст открыт; проверены statement теорем, условия и dependency adjustment."
+        },
+        {
+          "source_id": "S-LEARN-07",
+          "url": "https://doi.org/10.1214/12-AOS1077",
+          "locator": "Abstract and method statement for simultaneous post-selection inference across candidate submodels",
+          "access": "Переиспользована существующая карточка: publisher viewer и индексированные metadata/abstract были доступны; полный текст статьи в исходной проверке не читался."
+        }
+      ],
+      "scope": "Упорядоченный поток тестируемых гипотез, решение о каждой из которых может зависеть от прежних решений. Гарантия зависит от super-uniform/null-valid p-values, выбранной alpha schedule и зависимости тестов; источник рассматривает процедуры LOND/LORD и отдельную adjustment для зависимости.",
+      "required_inputs": [
+        "полное определение family и последовательности проверок, включая candidate-selection",
+        "валидность p-values при null и после применённого отбора",
+        "заранее заданный error target и alpha schedule",
+        "структура зависимости и метод её учёта",
+        "связь между статистической гипотезой и policy claim/estimand"
+      ],
+      "alternatives": [
+        "online FDR rule с проверенными условиями",
+        "FWER/Bonferroni или dependence-adjusted процедура, когда важна вероятность хотя бы одной ошибки",
+        "selection-aware inference по всему заранее определённому набору моделей",
+        "независимая confirmation выборка или anytime-valid метод для другого типа адаптивного просмотра"
+      ],
+      "non_substitution": "FDR не означает, что каждый обнаруженный результат имеет заданную вероятность быть истинным; контроль не действует, если p-values или selection process не соответствуют условиям правила. Численные гарантии статистического алгоритма не подтверждают эмпирический перенос на новую систему.",
+      "counterexample": "В тысяче истинных нулевых исходов выбирают наименьший p-value и публикуют его как единственный заранее выбранный primary outcome. Его номинальный p-value не отражает отбор по остальным исходам.",
+      "task_uses": "Массовый screening результатов, поиск подгрупп и сигналов мониторинга, адаптивная оптимизация policy-кандидатов.",
+      "acquisition_next": "Сохранять весь поток candidate tests, исключения, порядок, зависимости и alpha schedule; маркировать family-level control отдельно от статуса каждого claim.",
+      "research_stream": "LRN",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-LRN-05",
+      "title": "Исследовательский сигнал становится подтверждением только по валидному маршруту",
+      "kind": "editorial",
+      "statement": "Поиск, выбор переменных и анализ по результатам могут адаптироваться; выбранная после просмотра ветвь остаётся exploratory, пока её не подтверждает новая выборка либо метод, чья гарантия прямо учитывает адаптивный выбор и повторное использование данных. Для такого перехода нужно сохранять историю запросов, ветвей и правил остановки. Разделение по статусам должно отражать происхождение и использованный метод, а не только метку, присвоенную автором после результата.",
+      "source_refs": [
+        {
+          "source_id": "S-LEARN-03",
+          "url": "https://doi.org/10.1126/science.aaa9375",
+          "locator": "Abstract: fixed analysis selected before data examination; reusable-holdout mechanism",
+          "access": "Переиспользована существующая карточка: проверены PubMed metadata/abstract; full Science text в исходной проверке не был открыт."
+        },
+        {
+          "source_id": "S-LEARN-07",
+          "url": "https://doi.org/10.1214/12-AOS1077",
+          "locator": "Abstract and simultaneous inference across candidate submodels",
+          "access": "Переиспользована существующая карточка; полный publisher article в исходной проверке не читался."
+        },
+        {
+          "source_id": "S2-LRN-01",
+          "url": "https://arxiv.org/abs/1810.08240",
+          "locator": "§6, sequential hypothesis testing and uniform validity over all inspection times",
+          "access": "Полный авторский arXiv текст открыт; проверены указанные разделы."
+        },
+        {
+          "source_id": "S2-LRN-03",
+          "url": "https://arxiv.org/abs/1502.06197",
+          "locator": "§2, online tests using prior decisions and procedure-specific FDR control",
+          "access": "Полный авторский arXiv текст открыт; проверены указанные разделы."
+        }
+      ],
+      "scope": "Любой поиск или анализ, где выбор следующего query, outcome, subgroup, specification или model зависит от уже увиденных данных. Отдельный confirmatory статус осмыслен только для названного claim/version и маршрута inference.",
+      "required_inputs": [
+        "поисковые запросы, бюджет, просмотренные outputs и отсеянные кандидаты",
+        "версии datasets, preprocessing, estimands, моделей и промежуточных решений",
+        "описание свежей validation выборки или selection-aware/online-valid процедуры",
+        "граница исследовательского и подтверждающего использования и цель authority",
+        "неисполненные альтернативы, чтобы отсутствие результата не считалось отрицательным исходом"
+      ],
+      "alternatives": [
+        "независимые свежие данные или заранее отложенный holdout",
+        "reusable holdout с явно ограниченным механизмом и query budget",
+        "selection-aware inference по candidate set или подходящий online error-control метод",
+        "сохранить статус candidate/exploratory и приобрести подтверждение позже"
+      ],
+      "non_substitution": "Ретроспективная preregistration, одинаковый знак в зависимых обзорах или неизменённая дата публикации не создают независимого подтверждения. Statistical validity не доказывает external validity, causal structure или перенос.",
+      "counterexample": "Из одного набора прогоняют десятки outcomes и specifications, выбирают самый сильный результат, затем регистрируют только эту спецификацию и повторно называют тот же набор confirmatory. Метка не устраняет адаптивный отбор.",
+      "task_uses": "Разделение discovery и подтверждения в исследованиях и monitoring; предотвращение продвижения LLM/search кандидатов к authority через последующее переименование.",
+      "acquisition_next": "При закрытии exploratory ветви зафиксировать точный набор просмотренных данных и выбранный способ будущего подтверждения; если он не определён, оставить claim candidate/limited.",
+      "research_stream": "LRN",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-QUA-01",
+      "title": "Within-case process evidence can warrant a bounded mechanism claim",
+      "kind": "editorial",
+      "statement": "An observed event, testimony, document, or action can support a causal mechanism claim when it is an expected trace of a specified mechanism and discriminates among that claim and plausible rivals. The warrant is the trace's diagnostic force in the case and sequence, not the mere fact that the outcome occurred. Process-tracing tests differ in strength: evidence may be suggestive, necessary to retain a hypothesis, strongly supportive, or unusually discriminating; no label replaces examination of the trace and rivals.",
+      "source_refs": [
+        {
+          "source_id": "S2-QUA-01",
+          "url": "https://polisci.berkeley.edu/sites/default/files/people/u3827/Understanding%20Process%20Tracing.pdf",
+          "locator": "pp. 823–830; CPOs and sequence pp. 824–825; four tests and their implications pp. 826–828",
+          "access": "Full author-hosted article PDF opened."
+        },
+        {
+          "source_id": "S2-QUA-02",
+          "url": "https://press.umich.edu/Books/P/Process-Tracing-Methods",
+          "locator": "publisher description of second edition, four variants, within-case inference, and limitations",
+          "access": "Publisher metadata only; book text not accessed."
+        },
+        {
+          "source_id": "S2-QUA-04",
+          "url": "https://doi.org/10.1080/09636412.2015.1036610",
+          "locator": "publisher abstract, theory testing/development and historical sequence analysis",
+          "access": "Abstract and bibliographic metadata only."
+        }
+      ],
+      "scope": "A named case, mechanism, outcome, and time interval; useful when the decision asks how an observed change, failure, or implementation pathway occurred.",
+      "required_inputs": [
+        "specified outcome and causal question",
+        "candidate mechanism with observable implications at each step",
+        "dated source records and their origin",
+        "plausible rival explanations and predicted traces",
+        "selection and access limits for missing or destroyed evidence",
+        "a negative or deviant observation where available"
+      ],
+      "alternatives": [
+        "outcome occurred through another mechanism",
+        "the apparent trace was produced after the outcome or by reporting incentives",
+        "an expected trace is absent because recording was incomplete",
+        "the same observation is predicted by several rivals"
+      ],
+      "non_substitution": "Within-case mechanism support does not give a population frequency, average effect, or transportability claim. A source count is not independent corroboration where records share an informant, archive, author, or upstream report. Process-tracing test names do not themselves validate evidence or close a mechanism.",
+      "counterexample": "In Collier's Silver Blaze example, the guard dog did not bark; this is compatible with a person known to the dog approaching, but the author treats it as a weak straw-in-the-wind clue, not confirmation that Straker abducted the horse. A similar outcome-compatible trace should not close a policy mechanism when rivals also predict it.",
+      "task_uses": [
+        "implementation failure analysis",
+        "mechanism-grounded causal explanation",
+        "claim limitation or abstention when an intermediate link is unobserved",
+        "selecting records that can distinguish proposed mechanisms"
+      ],
+      "acquisition_next": "Seek contemporaneous records or testimony for every proposed link, source each item to its origin, ask what rival would predict, and search failed or deviant cases. If a trace is unavailable, retain that gap as uncertainty rather than infer the missing step from the outcome.",
+      "research_stream": "QUA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-QUA-02",
+      "title": "Realist synthesis supports conditional mechanism explanations across contexts",
+      "kind": "editorial",
+      "statement": "A synthesis can explain why a program works, fails, or has mixed results by testing how context enables or suppresses mechanisms and produces outcomes. Its useful product is a conditional, empirically revisable explanation, often at middle range; its warrant comes from the coherence and plausibility of the evidence-backed context–mechanism–outcome account and how the account changes when contrary cases are included.",
+      "source_refs": [
+        {
+          "source_id": "S2-QUA-03",
+          "url": "https://link.springer.com/article/10.1186/1741-7015-11-21",
+          "locator": "Background, 'What is a realist synthesis?'; Scope of publication standards; Conclusion",
+          "access": "Open full-text article opened."
+        },
+        {
+          "source_id": "S-EVID-07",
+          "url": "https://www.gov.uk/government/publications/the-magenta-book/magenta-book-annex-a-analytical-methods-for-use-within-an-evaluation-html",
+          "locator": "Annex A discussion of realist evaluation and theory-based methods",
+          "access": "Existing atlas source card S-EVID-07; no duplicate resource record."
+        }
+      ],
+      "scope": "Review or synthesis of a complex intervention where the question is how, for whom, and under what circumstances mechanisms operate, including implementation failure and unintended outcomes.",
+      "required_inputs": [
+        "review question and initial program theory",
+        "search and selection account, including source exclusions",
+        "evidence about context, mechanism, outcomes, and how each was inferred",
+        "success, failure, mixed, and unintended cases",
+        "appraisal of evidence quality and provenance",
+        "record of revisions to the theory and unresolved disagreements"
+      ],
+      "alternatives": [
+        "same intervention package triggers different mechanisms in different settings",
+        "program theory omits a necessary actor, resource, or institution",
+        "apparent pattern reflects source selection or shared underlying studies",
+        "reported outcomes are not caused by the proposed mechanism"
+      ],
+      "non_substitution": "A realist account is not an average effect estimate or a universal law. Repeated CMO labels do not prove a mechanism; an all-success sample cannot establish the failure boundary. Transparency and expert judgment remain part of the method, and reporting standards do not replace conduct guidance.",
+      "counterexample": "A review includes only favorable implementation reports and infers that a staff-training mechanism works whenever training is offered, without checking whether staff had time, authority, or supplies to act. This has not tested the context conditions or a failed case and cannot support that transfer claim.",
+      "task_uses": [
+        "conditional transfer to a new policy context",
+        "explaining heterogeneous implementation",
+        "designing a mechanism-aware monitoring plan",
+        "identifying context changes needed for an intervention to work"
+      ],
+      "acquisition_next": "Retrieve primary studies behind each synthesis claim, including null, failed, and unintended outcomes; map shared data and authorship before calling corroboration independent; test the evolving CMO explanation against a setting where it should not operate.",
+      "research_stream": "QUA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-QUA-03",
+      "title": "Comparative configurations and historical sequences support bounded, non-probability explanations",
+      "kind": "editorial",
+      "statement": "Case comparison can identify whether combinations of conditions recur with an outcome and whether distinct pathways lead to it; historical sequence analysis can establish temporal ordering and trace emergence. In QCA, necessity and sufficiency are evaluated as set relations within a defined case universe. By inference from that set-theoretic definition, consistency and coverage are not population probabilities or effect sizes. A causal interpretation additionally needs credible concepts, calibration, case knowledge, counterfactual assumptions, and evidence for the proposed mechanism.",
+      "source_refs": [
+        {
+          "source_id": "S2-QUA-05",
+          "url": "https://doi.org/10.1163/156913210X12493538729793",
+          "locator": "Schneider and Wagemann, pp. 397–418; article abstract and methods scope",
+          "access": "Publisher abstract/metadata opened; full article unavailable in session."
+        },
+        {
+          "source_id": "S2-QUA-06",
+          "url": "https://journals.sagepub.com/doi/pdf/10.1177/1525822X15598974",
+          "locator": "pp. 300–303 on QCA's set relations and limited diversity; pp. 312–313 on procedure-specific problems",
+          "access": "Full publisher PDF opened."
+        },
+        {
+          "source_id": "S2-QUA-04",
+          "url": "https://doi.org/10.1080/09636412.2015.1036610",
+          "locator": "publisher abstract on historical explanation and sequential analysis",
+          "access": "Abstract and bibliographic metadata only."
+        }
+      ],
+      "scope": "Small or medium, substantively bounded case sets; historical comparisons where concepts, observation windows, and case boundaries are stated.",
+      "required_inputs": [
+        "case universe and inclusion logic",
+        "case-level evidence and source lineage",
+        "concept definitions and calibration rationale",
+        "truth table, contradictions, logical remainders, and minimization assumptions",
+        "separate analyses for presence and absence of the outcome",
+        "within-case mechanism evidence for causal interpretation"
+      ],
+      "alternatives": [
+        "another condition calibration changes the configuration",
+        "unobserved combinations are doing the explanatory work",
+        "a sufficient-looking configuration is merely a description or prediction",
+        "the same outcome follows distinct mechanisms or the same mechanism fails under a different context"
+      ],
+      "non_substitution": "A bounded QCA solution does not estimate a frequency or intervention effect and does not by itself identify the causal mechanism. Historical order does not alone show that an earlier event caused a later one. Do not generalize beyond cases and periods without an added transport warrant.",
+      "counterexample": "Cooper and Glaesser's critique uses Stokke's ten fisheries-regime shaming cases to show how logical remainders and counterfactual simplification can alter conclusions about necessary conditions; they also show procedure-specific problems with enhanced standard analysis. This is a warning about assumptions and method choices, not evidence that QCA as a whole is invalid.",
+      "task_uses": [
+        "identify conjunctural requirements for an outcome",
+        "compare mechanisms across cases",
+        "test whether proposed conditions are necessary or only one route",
+        "bound transfer claims to observed configurations"
+      ],
+      "acquisition_next": "Use the complete bounded case set, include failed and contradictory cases, prerecord calibration choices where feasible, expose every logical remainder and simplification assumption, and trace at least one key configuration within cases before making causal claims.",
+      "research_stream": "QUA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-QUA-04",
+      "title": "Lived and collective knowledge is evidence about situated meanings and consequences",
+      "kind": "editorial",
+      "statement": "First-person and collective knowledge can establish how people experience a policy, what local categories mean, where delivery breaks down, which burdens or outcomes are missing from current measures, and which groups have not been heard. Its warrant depends on situated experience, elicitation conditions, inclusion and representation, interpretation, and the authority and permissions of knowledge holders. It is a distinct evidence contribution, not a degraded proxy for a population statistic.",
+      "source_refs": [
+        {
+          "source_id": "S2-QUA-07",
+          "url": "https://iris.who.int/bitstream/handle/10665/342704/9789240027794-eng.pdf",
+          "locator": "Chapter 3, especially pp. 60–71 on quantitative, qualitative, symbolic, substantive, and typical representation; Chapters 5 and 7 on participation and uptake",
+          "access": "Full handbook PDF opened; selected chapters examined."
+        },
+        {
+          "source_id": "S2-QUA-08",
+          "url": "https://datascience.codata.org/articles/10.5334/dsj-2020-043",
+          "locator": "Introduction; exposition of CARE principles; 'The CARE Principles in Action' and conclusion",
+          "access": "Open full-text article opened."
+        }
+      ],
+      "scope": "Questions about meanings, access, implementation, acceptability, exposure, lived burden, local outcome definitions, and collective knowledge governance; participation should be designed for the question and the affected knowledge holders.",
+      "required_inputs": [
+        "who provided or governs the knowledge and why they were included",
+        "language, elicitation, setting, consent, and recording conditions",
+        "interpretation and disagreement records",
+        "who was absent, silenced, or unable to participate",
+        "permissions, future-use limits, and community-defined benefit or harm conditions where applicable",
+        "corroborating records or observations when a separate factual or causal claim requires them"
+      ],
+      "alternatives": [
+        "experience varies within a community",
+        "a formal representative is not trusted or authorized by every affected group",
+        "participation is shaped by power, resources, or a pre-decided policy",
+        "a translated or aggregated category loses the original meaning"
+      ],
+      "non_substitution": "Participant accounts do not by themselves estimate prevalence, establish an average causal effect, or establish consensus. Statistical samples answer a different question and should not erase situated evidence. Participation does not itself authorize normative weights or an outsider's reuse of Indigenous or collective knowledge.",
+      "counterexample": "The WHO handbook distinguishes purposive qualitative representation from quantitative representation and notes that a formally elected representative may not understand constituents' needs. A consultation with one official representative, without checking whose experience is missing or whether participants can affect the decision, cannot stand for the whole affected public.",
+      "task_uses": [
+        "discover missing constructs and harms",
+        "ground local mechanism and implementation hypotheses",
+        "identify affected groups and unresolved disagreement",
+        "shape consented monitoring and policy adaptation"
+      ],
+      "acquisition_next": "Engage the relevant people through an accessible, purpose-fit process; retain provenance and disagreement; for Indigenous or collective knowledge, follow the relevant holders' own governance and permission protocols and record restrictions before reuse. Seek independent records for separate causal claims without treating them as a veto over lived experience.",
+      "research_stream": "QUA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G2-QUA-05",
+      "title": "Make the warrant between evidence and claim explicit",
+      "kind": "editorial",
+      "statement": "A decision record should expose the claim, its grounds, the inferential warrant that connects them, the warrant's backing, the scope qualifier, and conditions that rebut or defeat it. Qualitative or historical grounds can support a bounded claim even when they do not yield a probability; their force is assessed through the relevant field's standards, source quality, and response to criticism. Explicit structure makes an inference inspectable; it does not make the warrant true.",
+      "source_refs": [
+        {
+          "source_id": "S2-QUA-09",
+          "url": "https://www.cambridge.org/core/books/the-uses-of-argument/26CF801BC12004587B66778297D5567C",
+          "locator": "Essay III, 'The Layout of Arguments' (contents pp. 87–95); publisher excerpt, Introduction pp. 7–9 on grounds, backing, field-dependent assessment, and non-entailing evidence",
+          "access": "Publisher contents and introduction excerpt; full Essay III not accessed."
+        }
+      ],
+      "scope": "Any evidence-supported policy claim whose support depends on interpretation, mechanism, analogy, testimony, historical sequence, comparative configuration, or a field-specific rule.",
+      "required_inputs": [
+        "claim and audience/scope",
+        "source grounds with provenance",
+        "warrant stated as the reason those grounds support this claim",
+        "backing for the warrant",
+        "qualifier and known defeaters",
+        "alternative warrants and the evidence that would change the conclusion"
+      ],
+      "alternatives": [
+        "the ground is authentic but the warrant is not valid in this domain",
+        "the warrant applies only under unstated conditions",
+        "the claim is broader than its evidence",
+        "a rival interpretation explains the same ground"
+      ],
+      "non_substitution": "A warrant field, rationale paragraph, or fluent narrative is not evidence. Toulmin's argument layout is a tool for exposing reasoning, not a universal scoring rule, causal model, or source-authority test. Do not turn a qualitative warrant into a fabricated numeric confidence value.",
+      "counterexample": "An interviewee reports that a permit was denied and an analyst concludes that a new rule caused the denial. If the record does not establish when the rule changed, how the office applied it, or whether a competing eligibility reason explains the decision, the causal warrant is absent even though the testimony itself may be valid evidence of experience.",
+      "task_uses": [
+        "auditability of qualitative and historical conclusions",
+        "separate observation from interpretation and recommendation",
+        "state uncertainty and defeaters without false precision",
+        "compare evidence types without forcing them onto one probability scale"
+      ],
+      "acquisition_next": "For each consequential claim, write the evidence-to-claim bridge and its boundary; ask a domain expert and an affected knowledge holder to challenge it where relevant; record the strongest rival and the observation that would distinguish it.",
+      "research_stream": "QUA",
+      "standing": "editorial research ground; not task-admitted evidence or authority"
+    }
+  ]
+}

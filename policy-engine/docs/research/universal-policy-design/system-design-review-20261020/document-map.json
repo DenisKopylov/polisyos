@@ -1,0 +1,434 @@
+{
+  "format": "documentary-reading-map-v1",
+  "input_head": "08be64fb7852696e8aa83823618285257cc8644d",
+  "denominator": "Every tracked file under policy-engine/docs/system-design-decisions at the named commit; all are Markdown",
+  "file_count": 20,
+  "line_count": 10985,
+  "documents": [
+    {
+      "path": "policy-engine/docs/system-design-decisions/README.md",
+      "bytes": 10446,
+      "lines": 77,
+      "sha256": "2fa33be65fedfd53a89095cb5b26733d2ed3ea2d6bf3afada091746ddd5577d5",
+      "git_blob": "482f1db701b9116aefd0d3b0354c95207e6fd5c3",
+      "frontmatter_status": "active",
+      "frontmatter_decision_status": null,
+      "assigned_readers": [
+        "sdd_surface_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          77
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "A-navigation",
+      "role_and_reading_scope": "Navigation and document standing; not a ratification of all linked text"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "bytes": 17720,
+      "lines": 283,
+      "sha256": "50718961ac73d261dd649e93494f1e0c7daaecb836cc5388723c0f212a8c4fdb",
+      "git_blob": "389ee6cbadd3344d9712bc4085add27177dbf53f",
+      "frontmatter_status": "active append-only log",
+      "frontmatter_decision_status": null,
+      "assigned_readers": [
+        "sdd_diagnostics_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          283
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Append-only HDS implementation choices and later closure entries"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "bytes": 46553,
+      "lines": 1059,
+      "sha256": "b083ba18af2ced88f360ef74f75c64cdf5c1a840ee2fb25b1f9e4353e8ff01d7",
+      "git_blob": "2f270c68bbd2a9d2b5e789e2c894f5a476703c5e",
+      "frontmatter_status": "draft design decision",
+      "frontmatter_decision_status": null,
+      "assigned_readers": [
+        "sdd_diagnostics_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          1059
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Runtime provenance, mode, phase, claim binding, observability; umbrella over accepted ADR-0147–0155"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "bytes": 28402,
+      "lines": 439,
+      "sha256": "cec0658a3df7828e19a9f2c3e20b56629f8bc8e0db32aa703d1ed215214fd7fe",
+      "git_blob": "ea1ab50f4aa0dce5c1cabb53490d63a6f6176d71",
+      "frontmatter_status": "ratified design decision — the nine public-verification and disclosure invariants",
+      "frontmatter_decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-05); this document is the acceptance record for all nine statements, for the refutation list, and for the three architect corrections applied to the consolidation",
+      "assigned_readers": [
+        "sdd_custody_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          439
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "PV-K01–K09: separate verification vector, public projection, privacy and authenticity"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "bytes": 23774,
+      "lines": 379,
+      "sha256": "04a7aeb685ba210d2a5d1477ef840d9b7e75b3a04d39d7b29504d5fb2e7af201",
+      "git_blob": "57e34bb71ce1fc87a57b494f8d84a6e984173315",
+      "frontmatter_status": "ratified design decision — the eight INT-wave claim-semantics invariants",
+      "frontmatter_decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-04); this document is the acceptance record for all eight statements, for the refutation list, and for the current standing of INT-R9",
+      "assigned_readers": [
+        "sdd_custody_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          379
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "INT-K01–K08: basis-relative quantification, uncertainty and no-number procedural claims"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+      "bytes": 86690,
+      "lines": 1410,
+      "sha256": "f1910b0aadc4758a6b08b9976df6926f43974267dbabfedddae2eb251787dc9e",
+      "git_blob": "215f040e01467131778dcba26f16c57b99eb7562",
+      "frontmatter_status": "draft design decision",
+      "frontmatter_decision_status": null,
+      "assigned_readers": [
+        "sdd_operating_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          1410
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Intent-to-claim operating model, portfolios, argument, oversight and learning"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "bytes": 49188,
+      "lines": 437,
+      "sha256": "a3c43d8e99452826145d14e606a9fd3d3d4ac84860983a4135d8928ca4b20b58",
+      "git_blob": "ea32bf04cf50d8cd115720154c779b8ac0dfc206",
+      "frontmatter_status": "active append-only log",
+      "frontmatter_decision_status": null,
+      "assigned_readers": [
+        "sdd_surface_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          437
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Append-only case-design implementation decisions, ADR relation and later dispositions"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-causal-grounding-firewall.md",
+      "bytes": 11006,
+      "lines": 150,
+      "sha256": "2ec8b6d1351027ae7476e42a5c7d3443679a3c20f1ec39da790b2e4712ed03be",
+      "git_blob": "e02e808f13dbf5623b7a816827819a24f2d415b0",
+      "frontmatter_status": "draft design decision — formal target spec for the GY grounding block (Phase 5)",
+      "frontmatter_decision_status": "accepted as the target spec the GY grounding block (GY-CG) is subordinated to",
+      "assigned_readers": [
+        "sdd_vision_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          150
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Grounding target, admissible completions and set-valued causal reference"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "bytes": 9789,
+      "lines": 167,
+      "sha256": "46f6502a1a29c160d99a258ea3a6209e08ae55dfcb95836790403ec26c8998e2",
+      "git_blob": "cf2f3193561a546a4e8acf543048ad73d8172021",
+      "frontmatter_status": "draft design decision — strategic direction (north star)",
+      "frontmatter_decision_status": "proposed — the strategic frame the whole build is converging toward",
+      "assigned_readers": [
+        "sdd_vision_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          167
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Constructive causal-OS strategic frame, atom, model, simulation, learning; §10 cites ratified identity"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md",
+      "bytes": 14810,
+      "lines": 224,
+      "sha256": "0691783add6af224e5f09e3aa9645622c1283ce9e17376df258d7a9b81338229",
+      "git_blob": "88b37a10efed21c04fc9fc0f9bf52d07a7893921",
+      "frontmatter_status": "draft design decision — target temporal spec for custody-bearing work",
+      "frontmatter_decision_status": "accepted as the target spec every custody-bearing temporal contract is subordinated to; ratified in pair with S0-K09",
+      "assigned_readers": [
+        "sdd_custody_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          224
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Sparse time roles and relations, owner-native persistence, historical replay and currentness"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "bytes": 17738,
+      "lines": 241,
+      "sha256": "686ed2ced9c0db4f5fc5efd31f08370e5c76fc300b163d85420cca4fdd0e97e3",
+      "git_blob": "1c22f4fe07bff56fb230379fad24b1045b831880",
+      "frontmatter_status": "draft design decision — execution-topology approach and vision",
+      "frontmatter_decision_status": "proposed — the execution model the universal policy designer runs on",
+      "assigned_readers": [
+        "sdd_operating_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          241
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Proposed artifact graph and operations loop, applicability and assurance bands"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-search-target-spec.md",
+      "bytes": 11732,
+      "lines": 179,
+      "sha256": "253e062814827adc0467866d2c60aec4d9777824f707f6d96782a6b87f7c0ba8",
+      "git_blob": "a83586140ae7b88a63c4aabecccc80ca9d4ed801",
+      "frontmatter_status": "draft design decision — formal target spec for Phase 5 (B-on-A generation cycle)",
+      "frontmatter_decision_status": "accepted as the target spec the GY Phase-5 cycle is subordinated to",
+      "assigned_readers": [
+        "sdd_operating_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          179
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Accepted Phase-5 credal/search target, existing substrate reuse, acquisition and scoped exits"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "bytes": 30009,
+      "lines": 604,
+      "sha256": "ad3a19c641a97d5d3593f63ec7596c48cd338b20c78956f145537c5268bdbe4b",
+      "git_blob": "a47babfb04d689c0b56822f6d66c7f24dc4ccdb2",
+      "frontmatter_status": "draft design decision - derived surface constitution",
+      "frontmatter_decision_status": "proposed - derives frontend and design-system laws from the Universal Policy Design constitution",
+      "assigned_readers": [
+        "sdd_surface_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          604
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Derived draft surface and frontend constitution with dated implementation snapshot"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "bytes": 21556,
+      "lines": 305,
+      "sha256": "f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce",
+      "git_blob": "873198b24d7fe8edf204be44374d20c9256cd24e",
+      "frontmatter_status": "ratified design decision — system identity and scope boundary",
+      "frontmatter_decision_status": "accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten. Amended additively again 2026-08-31 by a third principal ruling, recorded as §9 item 6 — an appointment binds the act it names, never the vocabulary that describes it; verifying a signature is not signing. Nothing prior is rewritten. Amended additively again 2026-09-17 by a fourth principal ruling, recorded as §9 item 7 — a decision is recorded so that it is visible, with its options, premises, remainder and revisit trigger, and a later change is made by a dated record that names what moved it. Nothing prior is rewritten.",
+      "assigned_readers": [
+        "sdd_vision_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          305
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Ratified signature rule, institutional boundaries and later principal rulings"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "bytes": 16120,
+      "lines": 264,
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7",
+      "git_blob": "6397ec2b9ba043c742f096813a0229418721fbfb",
+      "frontmatter_status": "ratified design decision — the sixteen Stage-0 custody invariants",
+      "frontmatter_decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-02); this document is the acceptance record for all sixteen statements and for the three amendments applied to them",
+      "assigned_readers": [
+        "sdd_custody_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          264
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "S0-K01–K16 and amendments: custody, planes, candidate/authority distinction"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "bytes": 32695,
+      "lines": 467,
+      "sha256": "791d7028932d0b8097c8d6b1962e068b956136ae5d314ae0c7f60d5863d8b44d",
+      "git_blob": "ace72e4066409340b3367459a4d8e56ccd1b7282",
+      "frontmatter_status": "draft design decision — organizing constitution (post-S14 synthesis)",
+      "frontmatter_decision_status": "proposed — the durable laws that govern how the Layer 2 system is built and extended",
+      "assigned_readers": [
+        "sdd_vision_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Proposed universal grammar/facets, narrow waist, reuse and open discovery rules"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "bytes": 181491,
+      "lines": 2705,
+      "sha256": "000736b6d70f52f4d3aeb8550f34bacf539e8d22fb8e4e926ec6eb5d78610a79",
+      "git_blob": "afb1c0f01222385b579e7114f31d3348adba2de3",
+      "frontmatter_status": "draft design decision — NORTH STAR ACCEPTED (B-on-A, shadow-first)",
+      "frontmatter_decision_status": "accepted — B-on-A is the north star; A is the release gate, B is the product ambition",
+      "assigned_readers": [
+        "sdd_target_a_r2",
+        "sdd_target_b_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          1350
+        ],
+        [
+          1351,
+          2705
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "B-owner-clarifications",
+      "role_and_reading_scope": "Accepted B-on-A selection with draft D1–D4 mechanisms and historical gap matrix"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "bytes": 30297,
+      "lines": 454,
+      "sha256": "ee20f0569cb0bab69be4094fb4aafd07d131d245d0c5993e54420fa412820819",
+      "git_blob": "ddafd69de13c3f4b85f8097947f02c6d5d381b9c",
+      "frontmatter_status": "ratified design decision — the six statements governing what a deciding procedure may turn on",
+      "frontmatter_decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-17); this document is the acceptance record for all six statements, for the refutation list, and for the three architect corrections applied to the consolidation",
+      "assigned_readers": [
+        "sdd_ratification_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          454
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "W4-K01–K06: holder-relative set facts, premise provenance and property versus proxy"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "bytes": 41016,
+      "lines": 639,
+      "sha256": "e3e9265b9a48a9cf1b7110f657616c61770e3a73ed812da5de4853291ab7338a",
+      "git_blob": "367c21f0f6c3171a72d8ced5e8bf9643ae0de552",
+      "frontmatter_status": "ratified design decision — the six wave-5 evidence-substitution invariants",
+      "frontmatter_decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-30); this document is the acceptance record for all six statements and for the refutation list in §5. It does not amend the constitution and does not amend any prior kernel.",
+      "assigned_readers": [
+        "sdd_ratification_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          639
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "W5-K01–K08: non-substitution rules and dated amendments preserving earlier history"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "bytes": 27629,
+      "lines": 502,
+      "sha256": "f026e87b7c028cfcc853eb2232de491c03cc8d73ea6c13ae576a7afc1cea5115",
+      "git_blob": "b78970fb1c739415f504999f6b2d801a26f5b358",
+      "frontmatter_status": "active standing register — append-only",
+      "frontmatter_decision_status": "opened by the human principal's ruling of 2026-08-30 that propositions withheld from ratification carry real intellectual and functional value and must have a permanent, appendable home",
+      "assigned_readers": [
+        "sdd_ratification_r2"
+      ],
+      "reported_full_read_ranges": [
+        [
+          1,
+          502
+        ]
+      ],
+      "coverage_qualification": "reader-reported full textual reading; not machine proof of comprehension or runtime audit",
+      "proposed_change": "none",
+      "role_and_reading_scope": "Append-only researched but non-binding propositions and activation/non-effect conditions"
+    }
+  ]
+}

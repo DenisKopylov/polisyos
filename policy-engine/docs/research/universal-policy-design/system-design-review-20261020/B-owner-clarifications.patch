@@ -1,0 +1,232 @@
+--- a/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md
++++ b/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md
+@@ -165,3 +165,33 @@
+ institutions — fleets, portfolios, interagency reliance) is reached by institutional
+ **adoption** of this custodial core, never by building an ERP. Scope adjudication:
+ `policyos-identity-and-custody-boundary.md`.
++
++## Proposed reading clarification — 2026-10-20 (SDD-B01)
++
++This dated clarification preserves the historical strategic frame above. It does
++not ratify a new runtime contract or certify implementation.
++
++- In §2, a singular world-model reference need not mean a single certain causal
++  structure. The CGF §3 and search target already admit credal/set-valued
++  references and competing admissible completions. Reuse those targets.
++- In §3, `do()` is a model-side intervention. An institutional lever requires a
++  separately grounded implementation relation, capacity, take-up/compliance,
++  and relevant strategic responses. PolicyOS owns its scoped prediction and
++  justification, not the external act or its execution (identity boundary).
++- In §5, required versus available data is one part of required versus available
++  grounds. W5-K01 also distinguishes relations, estimands, mandate, capacity,
++  licence, authority and assurance. More observations cannot substitute for
++  these objects. The size of a data gap is task-relative, not necessarily
++  positive for every bounded task.
++- In §7, grounding is claim-type-specific: causal effects and asserted causal
++  relations require causal grounds; measurement claims require construct and
++  method grounds; value choices require a declared frame and, for use on behalf
++  of a principal, the applicable mandate. Causal identification cannot prove a
++  political objective. Hypothetical value frames remain usable for explicit
++  conditional candidate analysis under S0-K06.
++
++Discriminator for future implementation: retain the same observation, trace,
++model fit and source signature while falsifying the claimed semantic relation;
++authority must not survive on those proxies. Conversely, an explicitly
++hypothetical value frame must remain available for exploration without being
++published as the principal's choice. No such test was run for this clarification.
+--- a/policy-engine/docs/system-design-decisions/policy-design-search-target-spec.md
++++ b/policy-engine/docs/system-design-decisions/policy-design-search-target-spec.md
+@@ -177,3 +177,32 @@
+ block, the new `GY-N-V` / `GY-N11` / `GY-N12` tasks, the N4–N9 bar-raises, and the
+ Phase-5 deferred list. No code is written from this document directly — it governs the
+ shape of the tasks, the same way the causal-OS north-star governs the frame.
++
++## Proposed source-to-claim qualification — 2026-10-20 (SDD-B02)
++
++The §2 substrate mapping and §3 example identify candidate inputs for credal
++components, not automatic semantic admission. A CI, design tier, transport score,
++record ID or signature does not establish that an estimate constrains the named
++claim. Resolve and content-bind the construct, intervention/comparator, outcome,
++population, estimand, time, method/identification grounds and any transport
++relation needed by that claim. An imported result remains usable within its
++established relation and scope; import alone neither admits nor disqualifies it.
++
++W5-K07/K08 give substitution boundaries. ADR-0179 accepts the correspondence
++meaning principles and distinguishes evidential assessment from a constitutive
++act; its first concrete profiles remain open. This note neither appoints a
++universal adjudicator nor demands a new institutional act for every computable
++relation. Candidate uses may carry declared assumptions; protected positives
++need the applicable relation-specific acceptance grounds and any review
++specifically required by that relation/profile; no universal review office is
++appointed.
++
++The §4 acquisition-family labels describe this search target, not an exhaustive
++source, domain or acquisition-route allowlist. Actual route eligibility follows
++ADR-0166; existing discovery/construct owners follow ADR-0174. Historical target
++mapping is not a present runtime capability census.
++
++Future discriminator: a correctly signed estimate for the wrong population or
++outcome must not narrow the target's world/identification set; a harmless format
++change preserving an established relation must not cause refusal. No runtime
++check was performed in this documentary review.
+--- a/policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md
++++ b/policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md
+@@ -1408,3 +1408,27 @@
+ - at least one substrate-critical invariant is specified or model-checked
+   outside unit tests;
+ - no ADR weakens the existing honest diagnostics substrate invariants.
++
++## Proposed portfolio and applicability clarification — 2026-10-20 (SDD-B03)
++
++Read §7 with accepted ADR-0160: the obligation concerns major empirical policy
++claims. A confirmatory portfolio is bound to a claim/version before its
++confirmatory lines execute. Exploratory discovery and screening may adapt;
++post-result selection does not become confirmation by later registration.
++Changes must retain their history and use an inference route whose guarantees
++cover the actual selection. Non-empirical claims need their own appropriate
++normative, semantic or institutional grounds, not a pretend empirical portfolio.
++
++The listed minimum record families are a shared vocabulary. Their applicability
++and required maturity follow the intent, claim obligations and authority scope;
++the list is not a closed family/domain allowlist or a requirement to instantiate
++every record for every case. This does not waive an applicable obligation.
++
++Success, failure and opportunity can inform future discovery through ADR-0172;
++reused memory is influence, not current evidence for a new claim. Published
++claims retain the identity decision's lifetime-custody obligations; external
++execution and institutional decisions remain external signatures.
++
++Future discriminator: an exploratory winner cannot be represented as a
++predeclared confirmation; a newly encountered conforming resource must not be
++excluded solely for lacking a family label. No implementation standing changes.
+--- a/policy-engine/docs/system-design-decisions/policy-design-execution-topology.md
++++ b/policy-engine/docs/system-design-decisions/policy-design-execution-topology.md
+@@ -239,3 +239,27 @@
+ The full type schemas (all 17 Ring-1/Ring-2 contracts), the build tasks, sequencing,
+ acceptance gates, and the integration of every Task 0 audit finding are in
+ `docs/plans/active/layer3-slices/GY-engine-subordination.md`.
++
++## Proposed promotion and reuse clarification — 2026-10-20 (SDD-B04)
++
++An applicability/type gate decides whether an operation may run with its named
++inputs. It does not establish that its output supports a policy claim. Ring-2
++promotion requires the claim-specific semantic grounds and verifier evidence
++required by the existing authority profile. Unknown correspondence can remain a
++candidate obligation or a scoped limited exit; type correctness cannot promote
++it. A names the assurance role here, not a universal sovereign adjudicator of
++science, law and values; ADR-0179's relation-specific principles still apply.
++
++In §8, building directly toward the loop does not authorize a parallel
++orchestration subsystem. Reuse the canonical search/orchestration owners,
++adapters, accepted Phase-5 target, ADR-0166 acquisition and ADR-0174 discovery.
++Discovery, execution support and authority admission are separate properties.
++
++A replayable query log proves the recorded search path, not completeness of
++retrieval. Source/index release, omission/selection boundaries, freshness and
++known relevant seed cases belong in bounded search evaluation. This preserves
++organizing Rule 12 without claiming open-world recall.
++
++Future discriminator: a well-typed result with false claim correspondence cannot
++promote; a novel compatible source remains discoverable without per-domain
++allowlisting. No runtime result is asserted by this clarification.
+--- a/policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
++++ b/policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
+@@ -2703,3 +2703,31 @@
+ 13. Only then write the Layer-2 implementation plan (D5), starting with the MVP
+     search loop and canonical Design Record rather than the full control-plane
+     wishlist.
++
++## Proposed dated reading reconciliation — 2026-10-20 (SDD-B05)
++
++This appendix preserves the historical gap map and draft D1-D4 proposals. The
++accepted B-on-A decision does not ratify every draft mechanism or threshold.
++
++- D1's cluster-map Missing row is not a current absence claim: D0 and the later
++  narrow-waist discussion identify the governed cluster map. Artifact existence
++  does not establish a complete capability; use the actual owner and current
++  chain evidence for implementation standing.
++- D3.2 search/control proposals are subordinate to the later accepted Phase-5
++  target and its reuse-first mapping, not permission to build another controller.
++- CouplingGraph/facet expression records a proposed decomposition and relations;
++  it does not prove a causal structure or empirical coupling. CGF and claim
++  evidence obligations still govern the asserted effects.
++- Instrument-family and domain examples are seeds. A conforming new resource
++  should enter through discovery; a genuinely new primitive or verifier may
++  require a declared capability extension. Unknown remains expressible as a
++  candidate rather than silently becoming an unsupported concrete scope.
++- D3.8 promotion of a result and S14's public universality envelope are different
++  claims. D4.2's proposed breadth numbers are not a ratified sufficiency floor.
++- Deployment/custody applies to PolicyOS's claims for as long as their public
++  signature stands. Institutional administration, payment, enforcement and
++  rollback execution remain external functions under the identity boundary.
++
++Future discriminator: a successful small benchmark cannot establish an
++open-world envelope, while a novel candidate must not be refused merely because
++it lies outside that certified envelope. Runtime capability is not audited here.
+--- a/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md
++++ b/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md
+@@ -1057,3 +1057,32 @@
+ Deferred ADR candidates:
+
+ - ADR: diagnostic supply-chain signing policy beyond the attestation baseline.
++
++## Proposed custody and learning cross-reference — 2026-10-20 (SDD-B06)
++
++Accepted ADR-0147-0155 remain the architectural core. Read the historical open
++questions alongside decision-log DL-HDS-0009-0016; retired implementation
++questions are not automatically live architecture blockers.
++
++Under S0-K06, fail-closed protects authority admission, protected actions,
++published claims and custody facts. Candidate/shadow work may carry declared
++unknowns without promotion. External institutions own their acts; PolicyOS owns
++its evidence intake and scoped claim reaction.
++
++Runtime events, CAS identity, traces and attestations prove their stated
++provenance/execution properties, not the substantive truth of every payload.
++Existing semantic/claim binding must refer to the appropriate grounds: causal
++claims to grounding/identification, measurement to construct/method, normative
++choices to their purpose and mandate. No second grounds registry is implied.
++CTM supplies owner-native time roles and replay coordinates; a generic event
++clock or `as_of` cannot replace them.
++
++Failure lessons are one memory stream. ADR-0172 also covers successes and
++opportunities, retained with scope and version; their reuse influences search
++but does not admit a new claim. W5-K03 freezes causal updating while diagnosis
++remains unresolved. An exploratory anomaly cannot be relabelled as confirmed
++effect, and a protective response is not evidence of its proposed cause.
++
++Future discriminator: a correct trace attached to the wrong semantic basis does
++not grant claim authority; a valid scoped success can inform exploration without
++being laundered into new empirical evidence. No implementation tests were run.
+--- a/policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
++++ b/policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
+@@ -602,3 +602,29 @@
+ 8. At least one surface closes a real `surface_missing` or
+    `implemented_but_not_orchestrated` capability link without weakening the
+    runtime authority boundary.
++
++## Proposed surface re-derivation note — 2026-10-20 (SDD-B07)
++
++The full-ground detail requirement below is a proposed extension of this
++derived surface draft, pending explicit approval, not a previously ratified UI
++obligation. The historical 2026-06-10 snapshot is not a current
++runtime survey. Changes to the ratified identity boundary, S0, INT, PV, CTM and
++later amendments require re-deriving affected authority/time/audience projections;
++this appendix does not silently refresh the old implementation snapshot.
++
++Keep runtime authority, interaction state and capability-reality/readiness as
++separate axes. A surface readiness label cannot promote a claim. The board's
++single weakest-link summary may stay concise; the authorized expert/MACHINE
++case detail must preserve the full required grounds and material countergrounds,
++limitations and alternative design branches under their actual standing. Public
++projection remains subject to PV disclosure constraints, not unrestricted detail.
++
++Candidate designs may be rich and useful while visibly candidate. Rendering
++quality, source count or completed UI must not fill approval/publication slots.
++Show method/value/assumption-sensitive comparisons rather than hiding disagreement
++behind a single score. Reuse existing claim/portfolio/design projections.
++
++Future discriminator: a mixed grounded/contested/candidate case retains its
++runtime disposition; the detail reveals material dependencies; the public view
++neither launders authority nor leaks protected basis/search metadata. No UI or
++runtime check was performed for this note.

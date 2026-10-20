@@ -1,0 +1,31 @@
+--- a/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md
++++ b/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md
+@@ -165,3 +165,28 @@
+ institutions — fleets, portfolios, interagency reliance) is reached by institutional
+ **adoption** of this custodial core, never by building an ERP. Scope adjudication:
+ `policyos-identity-and-custody-boundary.md`.
++
++## Proposed target extension — requires separate explicit choice (SDD-C01/C02)
++
++These alternatives are proposed changes to target wording, not interpretations
++already ratified by this appendix. Adopt either independently only by a dated
++decision identifying its scope and affected target owners.
++
++**C01 — joint evaluation witness.** Retain the whole-design joint evaluation
++obligation in §§4/8. In addition to simulation, allow an exact joint derivation
++or another validated joint witness to establish the concrete property it
++actually proves. This is not permission to replace joint analysis by pairwise
++checks or sums of marginal effects. Neither mathematical exactness nor simulation
++establishes the empirical truth of the model; grounding and implementation
++obligations remain separate. Cost: each alternative needs an explicit property,
++assumptions, consumer and falsifier. Revisit if a shortcut omits an interaction.
++
++**C02 — inference plurality.** Retain Bayesian confirmatory updates as a supported
++target, while permitting explicitly justified frequentist, sequential, robust
++or partial-identification profiles for the proposition they support. Do not
++silently mix posterior probability, coverage, identification sets and procedural
++no-number claims. This expands the wording of §6; it does not appoint a method
++owner or authorize posterior mutation. W5-K03 diagnosis/admission and current
++profile-specific obligations still apply. Cost: inference semantics and bridges
++must be qualified per method. Revisit if changing methods changes the estimand
++or the claimed guarantee without being exposed.

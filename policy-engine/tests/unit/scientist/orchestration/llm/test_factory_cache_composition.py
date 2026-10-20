@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import threading
@@ -54,7 +55,11 @@ def _principal(tenant: str) -> Iterator[None]:
 
 
 @contextmanager
-def _local_gateway() -> Iterator[tuple[str, list[dict[str, Any]], threading.Lock]]:
+def _local_gateway(
+    *,
+    request_entered: threading.Event | None = None,
+    response_release: threading.Event | None = None,
+) -> Iterator[tuple[str, list[dict[str, Any]], threading.Lock]]:
     """Stub only the external HTTP provider while retaining the real client stack."""
     requests: list[dict[str, Any]] = []
     requests_lock = threading.Lock()
@@ -69,6 +74,11 @@ def _local_gateway() -> Iterator[tuple[str, list[dict[str, Any]], threading.Lock
             with requests_lock:
                 requests.append(payload)
                 request_number = len(requests)
+            if request_entered is not None:
+                request_entered.set()
+            if response_release is not None and not response_release.wait(timeout=5.0):
+                self.send_error(504)
+                return
             body = json.dumps(
                 {
                     "id": f"fixture-completion-{request_number}",
@@ -310,3 +320,131 @@ async def test_factory_cache_reuse_settlement_and_scope_currentness_composition(
     )
     assert snapshot.state.spent["run"] == Decimal("0.06")
     assert len({row.event_id for row in records}) == len(records)
+
+
+@pytest.mark.asyncio
+async def test_factory_cache_scoped_singleflight_success_settles_each_waiter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Share one current CAS-authorized provider success and settle each logical caller."""
+    request_entered = threading.Event()
+    response_release = threading.Event()
+    with _local_gateway(
+        request_entered=request_entered,
+        response_release=response_release,
+    ) as (base_url, provider_requests, requests_lock):
+        ledger_path = tmp_path / "producer-ledger.json"
+        middleware = BudgetMiddleware(
+            BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))}),
+            ledger=FileBudgetLedger(ledger_path),
+        )
+        owner = _SnapshotOwner(tmp_path / "snapshot-cas")
+        observations: list[dict[str, Any]] = []
+        client = create_traced_gateway_client(
+            model_name="fixture-model",
+            provider_hint="local-http-fixture",
+            run_id="factory-cache-concurrent-success-run",
+            config=GatewayLLMConfig(
+                base_url=base_url,
+                api_key="sk-fixture-factory-cache-concurrent-success-key",
+                timeout_s=4.0,
+                max_retries=0,
+                cache_ttl_s=60.0,
+                cache_maxsize=8,
+                enable_prompt_sanitizer=False,
+            ),
+            cache_reuse_authorizer=owner,
+            producer_settlement_store=middleware,
+            producer_budget_key="run",
+            call_observer=observations.append,
+            tracer=_Tracer(),
+            metrics=_Metrics(),
+        )
+        assert client is not None
+        cache_client = client._client
+        assert type(cache_client) is CachingLLMClient
+        cache_session = session_for_cache_client(cache_client)
+        assert cache_session is not None and cache_session.owns(cache_client)
+        gateway = client.unwrap()
+
+        actual_shield = asyncio.shield
+        observed_flights: list[asyncio.Task[Any]] = []
+        all_waiting = asyncio.Event()
+
+        def observe_flight_wait(future: Any) -> Any:
+            protected = actual_shield(future)
+            if any(flight.task is future for flight in cache_client._inflight.values()):
+                observed_flights.append(future)
+                if len(observed_flights) == 4:
+                    all_waiting.set()
+            return protected
+
+        monkeypatch.setattr(asyncio, "shield", observe_flight_wait)
+
+        async def generate_for_current_tenant() -> Any:
+            with _principal("tenant-a"):
+                return await client.generate(
+                    user="Compare the same policy option against the admitted snapshot.",
+                    temperature=0.0,
+                    metadata=owner.metadata("tenant-a"),
+                )
+
+        tasks = [asyncio.create_task(generate_for_current_tenant()) for _ in range(4)]
+        try:
+            assert await asyncio.wait_for(asyncio.to_thread(request_entered.wait, 3.0), timeout=4.0)
+            await asyncio.wait_for(all_waiting.wait(), timeout=3.0)
+            assert len({id(task) for task in observed_flights}) == 1
+            assert len(cache_client._inflight) == 1
+            with requests_lock:
+                assert len(provider_requests) == 1
+            assert len(owner.requests) == 4
+            assert all(request == owner.requests[0] for request in owner.requests)
+
+            response_release.set()
+            concurrent_results = await asyncio.gather(*tasks)
+            assert all(result.content == "fixture answer" for result in concurrent_results)
+            assert len({id(result) for result in concurrent_results}) == 4
+            assert cache_client._inflight == {}
+
+            # A later request still resolves the current owner before using the cached bytes.
+            sequential_result = await generate_for_current_tenant()
+            assert sequential_result.content == "fixture answer"
+            with requests_lock:
+                assert len(provider_requests) == 1
+
+            # A current-owner revocation turns the same request into a provider miss.
+            owner.active_tenants.remove("tenant-a")
+            owner.epochs["tenant-a"] = "grant-a-revoked"
+            revoked_result = await generate_for_current_tenant()
+            assert revoked_result.content == "fixture answer"
+            with requests_lock:
+                assert len(provider_requests) == 2
+        finally:
+            response_release.set()
+            await asyncio.gather(*tasks, return_exceptions=True)
+            await gateway.aclose()
+
+    assert len(observations) == 6
+    reported_observations = [row for row in observations if row["cost_origin"] == "reported"]
+    reuse_observations = [row for row in observations if row["cost_origin"] == "reuse"]
+    assert len(reported_observations) == 2
+    assert len(reuse_observations) == 4
+    assert sum(row["provider_call"] is True for row in observations) == 2
+    assert sum(row["provider_call"] is False for row in observations) == 4
+    assert all(row["settlement_status"] == "committed" for row in observations)
+
+    # Reopen through a fresh ledger reader; one physical event has four linked zero-cost reuses.
+    snapshot = FileBudgetLedger(ledger_path).snapshot()
+    records = tuple(snapshot.producer_settlements.values())
+    provider_records = tuple(row for row in records if row.cost_origin == "reported")
+    reuse_records = tuple(row for row in records if row.cost_origin == "reuse")
+    assert len(records) == 6
+    assert len(provider_records) == 2
+    assert len(reuse_records) == 4
+    assert all(row.status == "committed" for row in records)
+    assert all(row.amount == Decimal("0.02") for row in provider_records)
+    assert all(row.amount == Decimal(0) for row in reuse_records)
+    reuse_origins = {row.origin_event_id for row in reuse_records}
+    assert len(reuse_origins) == 1
+    assert reuse_origins.issubset({row.event_id for row in provider_records})
+    assert snapshot.state.spent["run"] == Decimal("0.04")

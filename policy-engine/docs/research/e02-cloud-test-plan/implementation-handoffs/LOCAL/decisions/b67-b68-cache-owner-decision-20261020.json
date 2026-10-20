@@ -1,0 +1,154 @@
+{
+  "schema": "b67_b68_cache_owner_decision_v3",
+  "status": "candidate_for_G_review_not_accepted",
+  "decision_scope": "Adopt one bounded local cache-owner composition test as evidence; keep production authority and formal closure open.",
+  "source_frame": {
+    "adoption_base": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+      "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+    },
+    "reviewed_candidate_frame": {
+      "head": "6dad99365eda4907b7128a24b1ab5c85ccc72d44",
+      "tree": "8dc7412484fa26c1b6211ae95477e7e5ca49959c",
+      "parent": "d3008898be4f075dd6be66265b8fd933193ff9d1"
+    },
+    "prior_input_rebind": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-cache-owner-adoption-20261020-r1/source-rebind-v1.json",
+      "sha256": "b6e6de4941efdb043e1b957aa22ab647d07918e2ac6070935b3988dfa5154687",
+      "head": "d64342783124988af49aa1e7457526b655fbc5eb",
+      "count": 34
+    },
+    "root_advance_recheck": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-cache-owner-adoption-20261020-r1/source-advance-recheck-v1.json",
+      "sha256": "066ca91a3b31a28cddb07e42ff7df16813fa9e0becd428f415a4a36aa4691811",
+      "count": 34,
+      "all_match_adoption_HEAD": true
+    },
+    "source_freeze": false,
+    "whole_worktree_cleanliness_or_untracked_inventory_claimed": false
+  },
+  "independent_review": {
+    "verdict": "GO_BOUNDED_TEST_WITNESS",
+    "scope_limit": "Test-only candidate suitable for same-scope, currently authorized local single-flight composition; not B67 production authorization, G acceptance, or B68 closure.",
+    "review_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-r2-independent-review-20261020/review-v1.json",
+      "sha256": "b420c71b271d929508cf081e95a14e828aa1168d8e8b9161b1a5b9c30b69643c"
+    },
+    "review_markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-r2-independent-review-20261020/review-v1.md",
+      "sha256": "597e0891079d5a9bbbe7b76a5ddfc2d50974340a941eaa034cd2c6933d6456a6"
+    },
+    "candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-cache-bridge-author-20261020-r2/manifest-v1.json",
+      "sha256": "8499a300cf564a693ed037abbb5f66384152b81648914d21d351e3c115563ed9"
+    },
+    "candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-cache-bridge-author-20261020-r2/candidate/b68-factory-concurrent-success.patch",
+      "sha256": "d7ab42510fa6b058bbcc7832953c8a483b0c2bafb06e505e43eaf55057a32137"
+    },
+    "candidate_test": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-cache-bridge-author-20261020-r2/candidate/test_factory_cache_composition.py",
+      "sha256": "89c39efbb7a0ebbf9168be0ec1b6bf0a37ca01f85378ef332339acd45bbedb13"
+    },
+    "independent_replay": {
+      "tests": 2,
+      "passed": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 2.892,
+      "max_rss_bytes": 149405696,
+      "stdout_sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "stderr_sha256": "59e3316a3fd7a749813fb00eb00c6593c1dc454f4713080f51f4916a36fbe13c",
+      "junit_sha256": "5bbd955542e497d1c865347dc05bd3b1284b705c3f9e7ea69fc28fbfe1751de8"
+    }
+  },
+  "last_verified_source_observation": {
+    "source_frame_head": "d64342783124988af49aa1e7457526b655fbc5eb",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b67-b68-cache-owner-adoption-20261020-r1/current-source-qualification-v1.json",
+      "sha256": "7a13dd445710da7f1fa06879a63542ba4ca4d681c8b8a4d61d050370a5aa10f1"
+    },
+    "tracked_product_python_denominator": 2792,
+    "factory_python_invocations": 10,
+    "callers_with_cache_reuse_authorizer": 0,
+    "scope_limit": "Last verified at d643 before later root commits. Not recomputed at adoption base; not a whole-source freeze."
+  },
+  "B67": {
+    "state": "bridge_missing",
+    "capability_labels": [
+      "producer_missing",
+      "bridge_missing"
+    ],
+    "evidence": "The optional owner port and exact request checks exist, but no production producer supplies cache-reuse ownership and no product caller passes cache_reuse_authorizer in the last verified source scan; current fallback is a provider call."
+  },
+  "B68": {
+    "state": "bounded_local_test_witness_candidate",
+    "formal_closure": false,
+    "product_capability_label": "verification_missing for production-owner integration",
+    "bounded_observation": "The actual factory/CachingLLMClient, loopback provider, fixture-owned currentness authorizer, immutable FileSystemCAS snapshot, observer, budget middleware, durable ledger, and fresh reader compose. Four same-scope concurrent calls share one in-flight request and return distinct responses; one provider event and three zero-cost origin-linked reuse events are recorded. After fixture grant removal and epoch change, the same request misses. Across six calls, a reopened ledger sees two provider events and four zero-cost reuse rows.",
+    "fixture_limit": "Local fixtures only; no deployment owner, live provider, production permission, or cross-instance proof."
+  },
+  "existing_contract": {
+    "reuse_first": [
+      "wire existing optional CacheReuseAuthorizer port",
+      "extend only when an accountable owner and immutable snapshot producer are supplied",
+      "consolidate through existing exact-request/currentness checks",
+      "build a new permission contract only after explicit G choice"
+    ],
+    "current_guard": "The wrapper recomputes exact request/content binding and requires a matching owner decision with issuer and epoch; absent, throwing, or mismatched owner becomes provider miss.",
+    "AccessScope_limit": "Principal context only, not a purpose grant, CAS binding, content right, or current grant epoch."
+  },
+  "G_decision": {
+    "acceptance": false,
+    "closure_ids": [],
+    "question": "Keep the provider-miss default until an accountable owner exists, or explicitly authorize a new typed deployment cache-purpose permission contract now?",
+    "options": [
+      {
+        "id": "A_preserve_default",
+        "status": "recommended_now",
+        "effect": "Keep the optional port; missing/invalid owner means provider call. B67 remains producer_missing/bridge_missing without asserting a deployment permission denial."
+      },
+      {
+        "id": "B_reuse_existing_owner_port",
+        "status": "preferred_when_real_owner_is_supplied",
+        "effect": "Wire an accountable purpose-specific owner and immutable snapshot producer through the existing port; do not add a second cache subsystem."
+      },
+      {
+        "id": "C_add_deployment_permission_contract",
+        "status": "requires_explicit_G_choice",
+        "effect": "Add typed llm_snapshot_reuse permission, verified caller context, exact CAS binding, and current grant/revocation source. Route permission alone is insufficient."
+      }
+    ],
+    "minimum_external_owner_inputs": [
+      "accountable trusted owner/verifier and accepted trust root",
+      "exact actor/tenant/cell/scope and purpose llm_snapshot_reuse",
+      "producer-owned immutable CAS reference/version and resolved bytes/content hash",
+      "current consumer rights for that snapshot and purpose",
+      "live expiry/currentness/revocation or grant revision checked for each positive read",
+      "owner issuer/revision bound to model and request digest"
+    ],
+    "not_established": [
+      "live owner availability outside reviewed source/config",
+      "production cache-purpose permission or revocation source",
+      "accepted deployment trust root or issuer"
+    ]
+  },
+  "pattern_pass": {
+    "ids": [
+      "P05",
+      "P12",
+      "P27",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Use the existing typed owner port and provider-miss fallback; resolve current owner-controlled CAS bytes and purpose grant before reuse."
+  },
+  "P40": {
+    "classification": "Same bounded local-owner/cache-reuse class; one bounded test witness only; no broader authority or cross-instance claim."
+  }
+}

@@ -1,0 +1,893 @@
+{
+  "schema": "policyos.e02.t1_t2.concrete_input_and_decision_packet.v1",
+  "created_at_utc": "2026-10-20T02:51:07.812692+00:00",
+  "artifact_status": "RAW candidate for root adoption and G review only; not a formal decision or closure.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d3008898be4f075dd6be66265b8fd933193ff9d1",
+    "tree": "c65d6054d57f130197ed227b3bb9e69aeb84a5ec",
+    "parent": "2775b1091299aa675ae3bca79ce880566ebc0c67",
+    "journal_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-source-frame-journal-20261019/frames.jsonl",
+    "journal_sha256": "e3386d63f532187065a54c428774a79c902ed698fa3038558561dd23f7495e6a",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "formal_closure_ids": []
+  },
+  "input_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-custody-protected-positive-external-fact-g-packet-20261020-r1/report.json",
+      "sha256": "1d609a8b7c883b0ee8b8eade14f225b0008bb6872be980dd5ba62995cc169acb",
+      "scope": "18-row original occurrence/source/owner/next-check matrix and exact 7+4 private locator ENOENT observations."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-historical-apr10-source-readonly-pair-recipe-20261020-r2/recipe.json",
+      "sha256": "801908950b54d6fe9cae93305058c5fcb933856781ec1c19b1460c10a936d6af",
+      "scope": "Named May-10 root and Apr-10 selected bundle; exact required-member hashes and mismatch; supported root-read boundary."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-live-serving-discovery-20261020-r1/report.json",
+      "sha256": "585f364dcdce7e091457bfb950be7ff72493672c5b2524d6bf87ab0eb5605429",
+      "scope": "Named L01/L02 metadata and bounded local process/listener check; no verified instance, API request not sent."
+    }
+  ],
+  "coverage_denominator": {
+    "T1_ids": [
+      "B30",
+      "B67",
+      "B148",
+      "LA-027",
+      "LA-050",
+      "B108",
+      "LA-053"
+    ],
+    "T2_ids": [
+      "B05",
+      "B08",
+      "B154",
+      "LA-018",
+      "LA-024",
+      "LA-025",
+      "B131",
+      "B137",
+      "B164",
+      "LA-054",
+      "LA-055"
+    ],
+    "assigned_ids": 18,
+    "bundles": 127,
+    "canonical_source_block_occurrences": 291,
+    "coverage_git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "full_coverage_findings": 282,
+    "occurrence_rule": "one original criterion occurrence per assigned ID verified by ID join; no shared route was added as another closure; repeated IDs outside this scope remain separate in full denominator"
+  },
+  "assigned_occurrence_rule": "Exactly one original source-block occurrence per each of the 18 assigned IDs, joined by ID. This does not collapse repeated occurrences outside this scope; full denominator stays 282 findings / 291 canonical source-block occurrences / 127 bundles.",
+  "private_locator_observation": {
+    "observed_at_utc": "2026-10-20T02:15:33.276889+00:00",
+    "exact_declared_roots": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+        "state_at_recheck": "ENOENT"
+      }
+    ],
+    "private_receipt_count": 7,
+    "private_receipt_paths_checked": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/policy-engine/_build/e02-L01-restart-20261008/private/root-manifest.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/policy-engine/_build/e02-L01-restart-20261008/private/l6-selected-bindings.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/policy-engine/_build/e02-L01-restart-20261008/private/public-alias-index.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos/policy-engine/_build/e02-L01-restart-20261008/agents/legal/private.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/.tmp/l02-restart-20261008/raw/deciding-l6-private-identity.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/.tmp/l02-restart-20261008/prepared/served-readiness.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/policy-engine/.tmp/l02-source-root-20261008/raw/module-origins.json",
+        "state_at_recheck": "ENOENT"
+      }
+    ],
+    "named_l02_d0_count": 4,
+    "named_l02_d0_paths_checked": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/prepared/l02_protected_ab.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/prepared/l02_protected_d.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/prepared/l02_protected_e.json",
+        "state_at_recheck": "ENOENT"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos/.tmp/parallel-20261008-l02/prepared/l02_serving.json",
+        "state_at_recheck": "ENOENT"
+      }
+    ],
+    "scope_limit": "These are the exact 2026-10-20 observations recorded in the pinned R1 packet; no claim is made about other paths or later state."
+  },
+  "historical_source_facts": {
+    "root_manifest": {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json",
+      "sha256": "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105",
+      "generated_at": "2026-05-10T00:00:00Z",
+      "default_runtime_profile": "research"
+    },
+    "selected_descriptor": {
+      "role": "ukraine_simulation",
+      "version_id": "ukraine_agent_simulation_baseline_20260410",
+      "relative_path": "ukraine_agent_simulation_baseline_20260410",
+      "readiness_label": "ready",
+      "inner_manifest_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+      "inner_manifest_sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+      "inner_manifest_root_field": "/srv/polisyos/ukraine-data/final_artifacts_20260410T0916"
+    },
+    "required_members_checked": [
+      {
+        "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "actual_sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+        "actual_size_bytes": 8488,
+        "expected_sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+        "expected_size_bytes": 8488,
+        "relative_path": "FINAL_ARTIFACTS_MANIFEST.json",
+        "sha256_match": true,
+        "size_match": true
+      },
+      {
+        "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/runtime_bundle_manifest.json",
+        "actual_sha256": "2da4c9524e6d5de8aadd3d9ef6b6264628ede650d5f1ba9d6e9d159cb9f326b0",
+        "actual_size_bytes": 3857,
+        "expected_sha256": "2da4c9524e6d5de8aadd3d9ef6b6264628ede650d5f1ba9d6e9d159cb9f326b0",
+        "expected_size_bytes": 3857,
+        "relative_path": "production_bundle/bundles/runtime_bundle_v1/runtime_bundle_manifest.json",
+        "sha256_match": true,
+        "size_match": true
+      },
+      {
+        "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+        "actual_sha256": "005d89f0ab1728a4f6c20cccad5781c1ef7721f82215c8de7c21622f3abe4328",
+        "actual_size_bytes": 581,
+        "expected_sha256": "4f52f0a743a46f5c53cf5608cc73b1b05f0e8d7f8ee360d866e6f127863a840f",
+        "expected_size_bytes": 268,
+        "relative_path": "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+        "sha256_match": false,
+        "size_match": false
+      },
+      {
+        "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/calibration_bundle_manifest.json",
+        "actual_sha256": "1f895e18a44643b1bda5fbc42fafd7c613473b0eae242f477a7b285872e67e54",
+        "actual_size_bytes": 11579,
+        "expected_sha256": "1f895e18a44643b1bda5fbc42fafd7c613473b0eae242f477a7b285872e67e54",
+        "expected_size_bytes": 11579,
+        "relative_path": "production_bundle/bundles/calibration_bundle_v1/calibration_bundle_manifest.json",
+        "sha256_match": true,
+        "size_match": true
+      },
+      {
+        "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/network_contract_bundle_v1.json",
+        "actual_sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+        "actual_size_bytes": 148,
+        "expected_sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+        "expected_size_bytes": 148,
+        "relative_path": "production_bundle/bundles/method_contract_bundle_v1/network_contract_bundle_v1.json",
+        "sha256_match": true,
+        "size_match": true
+      }
+    ],
+    "content_result": {
+      "interpretation": "Static historical versioned source exists, but the intervention knob member is not bound to the checksummed descriptor: expected 268 bytes/SHA 4f52f0a7…a840f, observed 581 bytes/SHA 005d89f0…4328. Do not call this a coherent/qualified positive bundle or repair/rewrite its manifests. The other four required entries match their currently named digests/sizes.",
+      "matching_required_files": 4,
+      "mismatching_required_files": [
+        "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json"
+      ],
+      "required_files_checked": 5
+    },
+    "interpretation": "This is a historical named root/descriptor readback, not a current serving or source-rights receipt. Four of five required member bytes match the recorded descriptor; the intervention dictionary differs in both hash and size. Do not rewrite/repair the manifest or substitute different bytes."
+  },
+  "live_availability": {
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-live-serving-discovery-20261020-r1/report.json",
+    "receipt_sha256": "585f364dcdce7e091457bfb950be7ff72493672c5b2524d6bf87ab0eb5605429",
+    "local_verified_policyos_process_candidates": 0,
+    "documented_default_host": "127.0.0.1",
+    "documented_default_port": 8000,
+    "default_port_listener": "absent",
+    "api_request": {
+      "method": "GET",
+      "path": "/api/v1/control/capabilities",
+      "status": "not_sent",
+      "reason": "No named endpoint or locally verified PolicyOS runtime instance exists in the inspected metadata/process frame; no guessed URL or unrelated listener was probed."
+    },
+    "scope": "Local bounded search only; does not establish nonexistence of remote or separately managed services."
+  },
+  "evidence_axes": {
+    "historical_bundle_content_coherence": "not_established_as_positive; one of five required members conflicts with the named checksum/size.",
+    "live_serving_availability": "not_established; no verified local PolicyOS instance and no API call was made.",
+    "source_identity": "historical manifest/descriptor identity recomputed for the named local path only.",
+    "issuer_owner_custody": "not_established.",
+    "rights_purpose_audience_retention_derived_use": "not_established.",
+    "profile_context": "not_established for any current request; outer `default_runtime_profile=research` is not the API runtime execution profile or selected data-use context.",
+    "currentness_revocation": "not_established.",
+    "production_authority_or_effect": "not_established.",
+    "scientific_effect_or_training_admission": "not_established."
+  },
+  "criterion_matrix": [
+    {
+      "id": "B30",
+      "task": "T1",
+      "bundle": "CYC-05",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          579,
+          592
+        ],
+        "criterion_block_sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Runtime quality source-denominator/strangle receipt -> typed recompute result -> finalization gate; exact deployed build/dependency set and selected consumer are not established."
+      },
+      "source_cut_state": "open",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Runtime quality source-denominator/strangle receipt -> typed recompute result -> finalization gate; exact deployed build/dependency set and selected consumer are not established.",
+      "owner_or_decider": "Source/build-denominator and deployment consumer owners.",
+      "minimum_positive_input": "No authentic caller/build denominator or selected service profile.",
+      "exact_next_check": "Distinguish missing denominator, parse error, real forbidden caller; bind build/dependencies and run the ordinary consumer.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/remediation/test_cyc_05.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_source_build_dependency_denominator_and_deployment_consumer",
+        "relation": "not a data bundle fact"
+      },
+      "why_positive_is_not_established_by_this_packet": "No exact caller/build dependency denominator, selected deployed service profile, and ordinary consumer receipt was supplied. This is an internal build/consumer gap; the Ukraine bundle is unrelated.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B67",
+      "task": "T1",
+      "bundle": "LLM-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          1709,
+          1728
+        ],
+        "criterion_block_sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "CachingLLMClient -> CacheReuseRequest/Evidence -> CacheReuseAuthorizer decision -> cached response or fresh call. Typed hook exists; no authorized immutable current source tuple was supplied."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "CachingLLMClient -> CacheReuseRequest/Evidence -> CacheReuseAuthorizer decision -> cached response or fresh call. Typed hook exists; no authorized immutable current source tuple was supplied.",
+      "owner_or_decider": "Exact source/cache owner and rights authority for frozen content/model/parameters.",
+      "minimum_positive_input": "Exact bytes/ref/hash, profile, model/version/params, current rights and consuming prompt.",
+      "exact_next_check": "Supply owner-authorized immutable CAS bytes/profile/model/params/use scope; positive exact reuse plus byte/model/parameter/rights-denied misses.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_authorized_immutable_source_and_current_use_rights",
+        "relation": "no rights grant"
+      },
+      "why_positive_is_not_established_by_this_packet": "No owner-authorized immutable cache bytes/ref/hash plus exact model/version/parameters/profile, current-use rights, and consuming prompt is present. The Ukraine bundle is not an authorized LLM cache source.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B148",
+      "task": "T1",
+      "bundle": "CAS-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          3917,
+          3928
+        ],
+        "criterion_block_sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Core artifact transfer/import -> staged snapshot and typed ImportReport -> verified publication generation -> subsequent CAS reader. Mechanism and adversarial tests exist at source cut; suite not run by this audit."
+      },
+      "source_cut_state": "open",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Core artifact transfer/import -> staged snapshot and typed ImportReport -> verified publication generation -> subsequent CAS reader. Mechanism and adversarial tests exist at source cut; suite not run by this audit.",
+      "owner_or_decider": "CAS/import owner; G only if cross-owner admission semantics change.",
+      "minimum_positive_input": "Test suite needs ordinary isolated fixture only; an authentic owner profile is needed only if asserting cross-owner admission semantics.",
+      "exact_next_check": "Run exact importer consumer for valid import, malformed/truncated/profile/signature/foreign tenant, interruption and competing publish; prove old published generation stays readable on each refusal.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/remediation/test_cas_02.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "local_transactional_fixture_can_be_tested_without_external_profile",
+        "relation": "only needed if separately asserting cross-owner policy"
+      },
+      "why_positive_is_not_established_by_this_packet": "No test was run in this read-only packet. The mechanism can be tested with an ordinary isolated fixture; an authentic owner profile is required only if asserting cross-owner admission semantics.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-027",
+      "task": "T1",
+      "bundle": "DFK-01",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          1418,
+          1465
+        ],
+        "criterion_block_sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Legacy pipeline.schemas initializer reexports canonical data_forge.kernel.schemas; canonical registry and migration tests exist. Compatibility identity is tested; installed wheel/sdist and support window are not."
+      },
+      "source_cut_state": "open",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Legacy pipeline.schemas initializer reexports canonical data_forge.kernel.schemas; canonical registry and migration tests exist. Compatibility identity is tested; installed wheel/sdist and support window are not.",
+      "owner_or_decider": "Public API/package owner and complete supported caller/release-denominator owners.",
+      "minimum_positive_input": "Complete declared caller/export denominator and public support/retirement decision.",
+      "exact_next_check": "Build/install candidate wheel and rebuilt sdist; compare legacy/canonical object identity and behavior for full declared caller set.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/remediation/test_dfk_01.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_complete_public_caller_denominator_and_support_decision",
+        "relation": "not a production-data source question"
+      },
+      "why_positive_is_not_established_by_this_packet": "No installed wheel/sdist result, complete declared caller/export denominator, or public support/retirement decision is supplied. This is a package/API question, not a production-data rights blocker.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-050",
+      "task": "T1",
+      "bundle": "MIG-04",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          3397,
+          3431
+        ],
+        "criterion_block_sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Common migration adapter and Fabric DatasetManifest schema/registration/CLI route exist; typed converter maps only fields actually supplied. Historical 0.9 positive corpus is not present at named input."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Common migration adapter and Fabric DatasetManifest schema/registration/CLI route exist; typed converter maps only fields actually supplied. Historical 0.9 positive corpus is not present at named input.",
+      "owner_or_decider": "Owner of real historical 0.9 artifact/corpus; G bounds compatibility if unavailable.",
+      "minimum_positive_input": "Exact authentic 0.9 artifact + manifest/provenance; malformed/missing/conflict variants can be local fixtures.",
+      "exact_next_check": "With exact source, run faithful converter through current registration/CLI and compare fields; missing/malformed/conflicting aliases refuse without fabrication.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/remediation/test_mig_04.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_exact_authentic_historical_0_9_artifact",
+        "relation": "Apr-10 simulation baseline is not the requested 0.9 source artifact"
+      },
+      "why_positive_is_not_established_by_this_packet": "The exact authentic historical 0.9 artifact/manifest is not among the named inputs. The Apr-10 Ukraine simulation baseline is a different artifact and cannot supply it.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B108",
+      "task": "T1",
+      "bundle": "OPT-01",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          2897,
+          2910
+        ],
+        "criterion_block_sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Objective evaluation receives result mapping and normalizes a budget-deficit metric; tests distinguish missing/null/zero/nonfinite/conflict. It does not supply a fiscal fact."
+      },
+      "source_cut_state": "open",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Objective evaluation receives result mapping and normalizes a budget-deficit metric; tests distinguish missing/null/zero/nonfinite/conflict. It does not supply a fiscal fact.",
+      "owner_or_decider": "Budget objective input and actual consumer owners; fiscal data owner for a real tuple.",
+      "minimum_positive_input": "Real owner-issued tuple with metric/units/time/source and the actual consumer path.",
+      "exact_next_check": "At actual objective consumer exercise absent, null, zero and valid alternative; require source/time/units on positive; no default substitution.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/scientist/methods/search/test_objective.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_real_owner_issued_metric_units_time_source_and_consumer",
+        "relation": "no source mapping or fiscal owner tuple"
+      },
+      "why_positive_is_not_established_by_this_packet": "No fiscal owner-issued metric tuple (source, units, time) and actual objective consumer mapping is supplied. The simulation bundle does not establish fiscal facts.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-053",
+      "task": "T1",
+      "bundle": "PCL-01",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          3793,
+          3815
+        ],
+        "criterion_block_sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Legacy calibration_curve import path is a compatibility reexport of canonical calibration.curve implementation; rehome tests exist. Installed public surface/caller support is not settled."
+      },
+      "source_cut_state": "open",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Legacy calibration_curve import path is a compatibility reexport of canonical calibration.curve implementation; rehome tests exist. Installed public surface/caller support is not settled.",
+      "owner_or_decider": "PCL/public API owner and complete installed/external caller owners.",
+      "minimum_positive_input": "Exact installed import/export identity and complete API/caller support window.",
+      "exact_next_check": "Build/install wheel and sdist, compare canonical/legacy identity and behavior across full declared import/caller set; owner decides supported alias window.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/calibration/test_package_rehome.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_installed_api_identity_and_caller_support_window",
+        "relation": "not a production-data source question"
+      },
+      "why_positive_is_not_established_by_this_packet": "No installed public import/export identity, complete supported caller set, or support-window decision is supplied. This is an internal package/public-surface gap.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B05",
+      "task": "T2",
+      "bundle": "CYC-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          253,
+          264
+        ],
+        "criterion_block_sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "N5 simulation producer persists joint simulation artifact; recursive generation consumer routes simulation to conditional analysis. A candidate simulation result is not K_world, empirical effect or institutional action. Existing local tests are present but not run in this audit."
+      },
+      "source_cut_state": "limited",
+      "current_audit_internal_gap": "ordinary source-bound producer/consumer proof still needs the frozen per-ID replay",
+      "existing_chain_readout": "N5 simulation producer persists joint simulation artifact; recursive generation consumer routes simulation to conditional analysis. A candidate simulation result is not K_world, empirical effect or institutional action. Existing local tests are present but not run in this audit.",
+      "owner_or_decider": "N5 producer and ordinary conditional-analysis consumer; no external law for candidate simulation.",
+      "minimum_positive_input": "No external fact for candidate simulation; replay must use current N5 input, persisted artifact and ordinary consumer.",
+      "exact_next_check": "Run producer->persisted artifact->ordinary analysis; fail sibling/removal probes; keep K_sim limitation and prove declarations alone cannot set K_world/permission.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "local_mechanism_can_be_tested_without_external_input",
+        "relation": "not needed; ordinary N5 candidate simulation fixture only"
+      },
+      "why_positive_is_not_established_by_this_packet": "No producer→persisted artifact→ordinary analysis consumer run was performed here. A local candidate-simulation fixture suffices; the bundle does not make K_sim a grounded K_world or institutional act.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B08",
+      "task": "T2",
+      "bundle": "CYC-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          289,
+          300
+        ],
+        "criterion_block_sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Value gate consumes treatment/effect claims and fails closed unless treatment assignment is owner-derived; current source explicitly returns treatment_assignment_not_owner_derived on unsupported basis. Tests include fake/self-labeled owner controls."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Value gate consumes treatment/effect claims and fails closed unless treatment assignment is owner-derived; current source explicitly returns treatment_assignment_not_owner_derived on unsupported basis. Tests include fake/self-labeled owner controls.",
+      "owner_or_decider": "Treatment/outcome/split owner and method owner for identification/applicability.",
+      "minimum_positive_input": "Genuine observed treatment/outcome/split plus identified applicable method and owner source binding.",
+      "exact_next_check": "Supply exact owner-bound observations and method basis; run positive and missing/fake/foreign/mismatched source negatives; simulation remains distinct.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/runtime/quality/test_value_gate.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_owner_backed_empirical_treatment_outcome_split_and_method",
+        "relation": "no mapping/permission to claim those inputs"
+      },
+      "why_positive_is_not_established_by_this_packet": "No owner-bound empirical treatment/outcome/split and applicable identification-method binding is supplied. A simulation baseline does not become owner-derived empirical treatment evidence.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B154",
+      "task": "T2",
+      "bundle": "CAS-03",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          3989,
+          4000
+        ],
+        "criterion_block_sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Core per-item signature producer emits BulkVerificationReport with lifecycle rows; CLI exposes diagnostics. Source inventory has no require_complete_valid exact-reference predicate and no all-confirmations publication consumer: internal consumer/bridge gap."
+      },
+      "source_cut_state": "held_internal_gap",
+      "current_audit_internal_gap": "missing aggregate publisher/all-required-ref consumer; requires internal source owner decision",
+      "existing_chain_readout": "Core per-item signature producer emits BulkVerificationReport with lifecycle rows; CLI exposes diagnostics. Source inventory has no require_complete_valid exact-reference predicate and no all-confirmations publication consumer: internal consumer/bridge gap.",
+      "owner_or_decider": "Per-item producer and aggregate publisher/promotion consumer.",
+      "minimum_positive_input": "No external input can fill the missing aggregate consumer; source owner must appoint publisher and required exact-ref contract.",
+      "exact_next_check": "Implement one generic exact-required-ref reconciliation/publisher (or identify existing canonical owner), then test all-valid positive; partial sibling failure, foreign/unsigned/invalid/revoked/missing refs and abort -> zero publish effect.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/remediation/test_cas_03.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_internal_aggregate_publisher_consumer",
+        "relation": "bundle cannot fill missing product consumer"
+      },
+      "why_positive_is_not_established_by_this_packet": "The exact-required-reference aggregate publisher/consumer is missing from the source inventory. No external dataset or local manifest can create that missing internal product consumer.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-018",
+      "task": "T2",
+      "bundle": "HYG-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          571,
+          597
+        ],
+        "criterion_block_sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "The old polisyos.lex.factlog path is absent at source cut; current Fabric world segment reader exists and a compatibility test exercises that owner. Criterion is path compatibility; no issuer condition."
+      },
+      "source_cut_state": "open",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "The old polisyos.lex.factlog path is absent at source cut; current Fabric world segment reader exists and a compatibility test exercises that owner. Criterion is path compatibility; no issuer condition.",
+      "owner_or_decider": "Legacy reader/API and supported caller owner; no issuer requirement in criterion.",
+      "minimum_positive_input": "Full supported legacy-reader/caller set plus API owner support/retirement decision.",
+      "exact_next_check": "Run current compatibility/removal controls in installed consumers; do not add an authority issuer requirement.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/lex/normpack/test_fabric_world_reader.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "local_compatibility_path_test_needs_no_issuer",
+        "relation": "not needed"
+      },
+      "why_positive_is_not_established_by_this_packet": "No current compatibility/removal run across the complete supported legacy caller set or package owner decision was performed here. The criterion does not require an external issuer.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-024",
+      "task": "T2",
+      "bundle": "SCL-01",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          1084,
+          1113
+        ],
+        "criterion_block_sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Both seed/discover and search callers converge on shared fetch_raw transport. Numeric DNS target is pinned to dial and peer; origin Host/SNI/certs/raw metadata preserved; unsupported proxy route refuses. v4 source files match this source cut exactly."
+      },
+      "source_cut_state": "limited: source-bound local transport cycle witness plus content-equal v4 source cut; full two-caller suite still UNRUN here",
+      "current_audit_internal_gap": "ordinary source-bound producer/consumer proof still needs the frozen per-ID replay",
+      "existing_chain_readout": "Both seed/discover and search callers converge on shared fetch_raw transport. Numeric DNS target is pinned to dial and peer; origin Host/SNI/certs/raw metadata preserved; unsupported proxy route refuses. v4 source files match this source cut exactly.",
+      "owner_or_decider": "Both transport caller/API owners; local controlled harness suffices.",
+      "minimum_positive_input": "No live production input for transport behavior; local controlled HTTP/TLS fixtures suffice. Rights to use downloaded source are a separate LA-025 matter.",
+      "exact_next_check": "Run full two-caller local transport modules after source freeze, retaining mixed DNS, peer mismatch, redirect target/downgrade, proxy policy and cycle removal controls; do not claim production network/currentness.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/scholar/search/test_fetcher_dns_pinning.py tests/unit/scholar/search/test_fetcher_security_cache.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "local_controlled_transport_fixture_needs_no_production_input",
+        "relation": "rights are separately LA-025"
+      },
+      "why_positive_is_not_established_by_this_packet": "No current two-caller controlled transport run was performed here. A local HTTP/TLS fixture is sufficient; this bundle is unnecessary and rights are separately LA-025.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-025",
+      "task": "T2",
+      "bundle": "SCL-03",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          1114,
+          1149
+        ],
+        "criterion_block_sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Scholar enrichment carries raw source binding into versioned cache/CAS lineage and refuses absent/mismatched raw bytes in tests. A license field or public URL does not prove authority."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Scholar enrichment carries raw source binding into versioned cache/CAS lineage and refuses absent/mismatched raw bytes in tests. A license field or public URL does not prove authority.",
+      "owner_or_decider": "Scholar source owner and rights holder for bytes, purpose, audience, retention, derived use.",
+      "minimum_positive_input": "Owner-authorized bytes/ref/hash/fetch lineage plus exact purpose/audience/retention/derived-use rights.",
+      "exact_next_check": "With paired authorized bytes: v1 exact reuse; v2 refresh; missing blob, wrong hash, stale lineage and lost-rights refusal on same consumer.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/remediation/test_scl_03.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_source_owner_rights_purpose_audience_retention_and_derived_use",
+        "relation": "no rights source"
+      },
+      "why_positive_is_not_established_by_this_packet": "No source-rights owner supplied exact authorized bytes/ref/fetch lineage with purpose, audience, retention, and derived-use rights. The Apr-10 bundle also has one required member hash/size mismatch.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B131",
+      "task": "T2",
+      "bundle": "TRN-01",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          3459,
+          3472
+        ],
+        "criterion_block_sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "TransferLearningManager binds warm-start history lookup to complete RunFingerprint; WarmStartBridge routes evaluations to benchmarks. Structural controls exist; actual GP training input/split is absent."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "TransferLearningManager binds warm-start history lookup to complete RunFingerprint; WarmStartBridge routes evaluations to benchmarks. Structural controls exist; actual GP training input/split is absent.",
+      "owner_or_decider": "Source data and target training/execution owners for units, metric, estimand, version, split.",
+      "minimum_positive_input": "Owner-bound source/target space, units, metric, estimand, dataset version and permissioned training split.",
+      "exact_next_check": "Supply exact owner-bound run/split; run real GP warm start and incompatible/foreign/hidden-holdout refusal before history read.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/scientist/search/test_warm_start.py tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_owner_bound_training_source_and_split",
+        "relation": "not admitted as training source or permissioned split"
+      },
+      "why_positive_is_not_established_by_this_packet": "No owner-bound source/target space, units, metric, estimand, dataset version, and permissioned training split is supplied. Presence in a static production-data root is not training-source admission.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B137",
+      "task": "T2",
+      "bundle": "TRN-03",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          3543,
+          3556
+        ],
+        "criterion_block_sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Lesson registry persists cards/index and separates access/activity from evidence anchors; repeated-read test refuses confidence restoration. A new source/revalidation event is not supplied."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Lesson registry persists cards/index and separates access/activity from evidence anchors; repeated-read test refuses confidence restoration. A new source/revalidation event is not supplied.",
+      "owner_or_decider": "Lesson/history and new evidence/revalidation owners; G for a new authority rule.",
+      "minimum_positive_input": "Exact fresh current source/version and revalidation event; read/retention time is not verification time.",
+      "exact_next_check": "Cold/warm/restart/cross-process read same object without renewing verification; only new source-bound revalidation advances evidence anchor.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_fresh_source_version_and_revalidation_event",
+        "relation": "historical manifest cannot supply a new event/currentness"
+      },
+      "why_positive_is_not_established_by_this_packet": "No fresh source version and source-bound revalidation event is supplied. Historical manifest/identity timestamps do not establish a new validity event or currentness.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "B164",
+      "task": "T2",
+      "bundle": "FUN-03",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4201,
+          4212
+        ],
+        "criterion_block_sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+        "source_file_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "claim": "Level6 promotion stage is deliberately fail-closed with bridge_missing absent typed owner permit/writer. Barrier test verifies revoke-after-preflight has zero callback effects; there is no selected external permit/verifier/current revocation source or actual writer."
+      },
+      "source_cut_state": "held_internal_gap",
+      "current_audit_internal_gap": "missing typed owner-permit/verifier/revocation/commit-time writer bridge; current stage refuses with bridge_missing",
+      "existing_chain_readout": "Level6 promotion stage is deliberately fail-closed with bridge_missing absent typed owner permit/writer. Barrier test verifies revoke-after-preflight has zero callback effects; there is no selected external permit/verifier/current revocation source or actual writer.",
+      "owner_or_decider": "Permit issuer, independent verifier/revocation source and actual commit-time writer.",
+      "minimum_positive_input": "Owner-issued permit, independent verifier, revocation source/version and actual serialized commit-time writer/policy.",
+      "exact_next_check": "Keep bridge_missing until owner names existing authority/write surface; then test exact valid permit writes once; absent/fake/foreign/wrong/expired/revoked-after-preflight leave actual state byte-for-byte unchanged.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_external_permit_verifier_current_revocation_and_serialized_writer",
+        "relation": "no permit/issuer/writer tuple"
+      },
+      "why_positive_is_not_established_by_this_packet": "Current mechanism is fail-closed `bridge_missing`; there is no owner-issued permit, independent verifier, current revocation source/version, or serialized commit-time writer tuple.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-054",
+      "task": "T2",
+      "bundle": "DDM-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          4053,
+          4107
+        ],
+        "criterion_block_sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Calibration validity checker rebinds report/context and registry gate consumes the typed projection; caller supplies observed_invalidation_triggers, not a complete current feed."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Calibration validity checker rebinds report/context and registry gate consumes the typed projection; caller supplies observed_invalidation_triggers, not a complete current feed.",
+      "owner_or_decider": "Current calibration/report producer and ordinary gate consumer owners.",
+      "minimum_positive_input": "Current exact report + model/detector/calibration/regime/time/budget + authentic trigger feed/cursor and gate.",
+      "exact_next_check": "One current positive through actual gate; stale, basis mismatch, missing ref, revoked trigger, observed-empty vs unavailable and late-but-within-window cases.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/ddm/test_full_acceptance.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "held_for_current_report_and_authentic_trigger_feed_cursor",
+        "relation": "historical bundle does not establish current feed/revocation"
+      },
+      "why_positive_is_not_established_by_this_packet": "No current exact report plus authentic trigger feed/cursor and ordinary gate readback is supplied. Historical bundle identity does not establish live invalidation/currentness.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    },
+    {
+      "id": "LA-055",
+      "task": "T2",
+      "bundle": "DDM-02",
+      "occurrences_in_assigned_scope": 1,
+      "original_source_block": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "lines": [
+          4108,
+          4140
+        ],
+        "criterion_block_sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f",
+        "source_file_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "claim": "Readiness mapper and model registry gate exist; R3/R4 persisted veto and R2 signoff exception are covered. owner_signoff is a bool input; G has not chosen baseline-eligibility versus upstream-veto precedence; no external deploy effect observed."
+      },
+      "source_cut_state": "held",
+      "current_audit_internal_gap": "none found in this scoped source review",
+      "existing_chain_readout": "Readiness mapper and model registry gate exist; R3/R4 persisted veto and R2 signoff exception are covered. owner_signoff is a bool input; G has not chosen baseline-eligibility versus upstream-veto precedence; no external deploy effect observed.",
+      "owner_or_decider": "G for precedence; readiness consumer owner; deployment authority remains with appointed institution.",
+      "minimum_positive_input": "G ratified precedence while preserving R2 exception, appointed owner identity/authority, current registry input and actual downstream consumer.",
+      "exact_next_check": "After G choice run R4/R3, R2 without/with valid signoff, R1/R0, failed certificate and observed-empty/unavailable/stale/revoked through same consumer; prevent flags from performing deployment.",
+      "existing_test_command_not_run": "cd policy-engine && uv run pytest tests/unit/ddm/test_full_acceptance.py",
+      "existing_test_status": "present_at_source_cut; not executed in this read-only audit; existence is not a pass",
+      "historical_apr10_bundle_relation": {
+        "classification": "requires_G_precedence_then_appointed_owner_and_current_registry_input",
+        "relation": "bundle cannot establish institutional deployment authority"
+      },
+      "why_positive_is_not_established_by_this_packet": "G has not chosen the stated precedence while preserving the R2 exception, and no appointed institutional owner identity/current registry input/downstream consumer is supplied. The bundle cannot establish institutional deployment authority.",
+      "formal_G_status": "not_adjudicated",
+      "formal_closure_proposed": false
+    }
+  ],
+  "scope_distinctions": {
+    "B61": "Outside these 18 assigned T1/T2 occurrences. Its separate original file-digest mode can be tested without inventing an external owner contract; no B61 test or closure is claimed here, and the Ukraine bundle is not its SKG database input.",
+    "B148": "One assigned T1 occurrence. Ordinary isolated CAS transaction fixture is sufficient for mechanism testing; authentic profile is only needed if the task asserts cross-owner admission semantics. Its row remains not adjudicated because no test was run here.",
+    "local_vs_external": "B05, B148, LA-018, and LA-024 have local controlled test inputs and are not blocked on external production rights. LA-024 rights remain separately LA-025. B30, B154, LA-027, LA-050, and LA-053 are internal/package inputs, not external-permission failures."
+  },
+  "g_decision_proposal": {
+    "status": "candidate_for_G_review_only",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "decision_question": "When the exact historical L01/L02 private roots are unavailable but protected Git refs and a previously recorded versioned identity receipt remain, may a genuinely owner-bound immutable/versioned replacement be considered for the specific original historical-source check, or must the original private locator be restored?",
+    "candidate_options": [
+      {
+        "id": "A",
+        "proposal": "Permit only a source-owner-bound immutable/versioned replacement as a bounded historical identity input where the original criterion allows it; separately require explicit rights/purpose/audience/retention, actual serving root/profile/context, and currentness/revocation evidence for any corresponding use claim."
+      },
+      {
+        "id": "B",
+        "proposal": "Require restoration of the exact L01/L02 private artifacts for checks whose original criterion requires those locators; keep a replacement outside that criterion until the owner and G approve the substitution."
+      }
+    ],
+    "nonwaivable_limits": "G cannot invent issuer identity, owner custody, use rights, currentness/revocation, serving context, empirical facts, or institutional deployment authority. The checked Apr-10 bundle remains content-inconsistent and is not a positive-source candidate under either option.",
+    "not_decided": "No option is adopted; all 18 formal statuses remain not_adjudicated, all closure_ids remain empty."
+  },
+  "root_adopter_plan": {
+    "canonical_changes_in_this_task": [],
+    "source_code_or_schema_changes": false,
+    "test_execution": false,
+    "raw_payload_or_production_copy": false,
+    "canonical_destination": "Not selected in this packet; root owns placement after review.",
+    "metadata": "If adopted, use the established root handoff/adoption writer to derive lease/index hashes and links from the final tracked bytes. Do not manually edit LEASES.json, index files, or mutable hash inputs from this candidate.",
+    "preserve_root_dirty_pins": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "head_blob": "c31a655cc15c60dc93ca20da0a5914817c5497bd",
+        "head_sha256": "f294d4e076d4e553708a1c0216c23266561431bce4bc53cec2d41c91b7002b25",
+        "head_bytes": 80036,
+        "working_sha256": "988904a5856fdff72dfd6cdb11c0be4abec21dc6732de8148621ec9b034477e0",
+        "working_bytes": 80557,
+        "working_diff_sha256": "6eb1fb340c9eb2097473a3e3d6db25882ff2624ce6bf8af8b2cc3dee7b86c2a3",
+        "working_diff_bytes": 1084,
+        "index_state": "unchanged_unstaged_root_change"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "head_blob": "b477b6a4446ef55d836e9243647b6254df7bd5b7",
+        "head_sha256": "d946641a51c046b82d3781a892df1c9cbe81589e26945c5c5064acb12c4143d5",
+        "head_bytes": 481843,
+        "working_sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+        "working_bytes": 488453,
+        "working_diff_sha256": "a6830d41ec3a48a4b950d17723d3eb05210f0d3f91327f5bd2e642ef6c428a4e",
+        "working_diff_bytes": 9493,
+        "index_state": "unchanged_unstaged_root_change"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "head_blob": "15a404812b405c232497d687eb25a50d055fe55b",
+        "head_sha256": "ddbf1f3b04a11050479b600278b916df9c7f2aa68b011b7e8e10f5e4a3909e6e",
+        "head_bytes": 37662,
+        "working_sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57",
+        "working_bytes": 37653,
+        "working_diff_sha256": "12b467000a9c6ee7651a138ec8d3d2d067711a4cff3ec5b8ffee6e12fa173529",
+        "working_diff_bytes": 689,
+        "index_state": "unchanged_unstaged_root_change"
+      }
+    ],
+    "tracked_worktree_guard": "This task will create only the two candidate files under LOCAL/raw; the three existing unstaged tracked pins above must have identical post-write file hashes and diff hashes.",
+    "post_candidate_write_verification": {
+      "tracked_paths_unchanged": true,
+      "staged_paths": [],
+      "dirty_tracked_paths": [
+        "policy-engine/src/polisyos/runtime/quality/README.md",
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+      ],
+      "proof": "Each path has identical HEAD blob/base SHA, worktree SHA/size, and unstaged patch SHA/size before and after both RAW candidate writes."
+    }
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P05",
+      "P08",
+      "P32",
+      "P35",
+      "P36",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "risks": "Digest/provenance adjacent to a source does not grant rights/currentness (P05/P32/P36); runtime profile and data profile are separate (P08); complete 18/282/291/127 denominator is preserved (P35); live instance predicate remains not_established and API root projection cannot prove inner content (P37/P38); no per-row source-ownership patching (P40); source claims are bound to the actual d300 known frame and not inherited from a nearer base (P41).",
+    "acceptance_signal": "Independent review of the source pins, exact mismatch, 18-row mapping, distinction among content/availability/authority, and root-generated metadata before any tracked adoption."
+  },
+  "packet_activity": {
+    "read_only": true,
+    "canonical_mutation": false,
+    "tests_run": false,
+    "api_requests_sent": 0,
+    "secrets_or_tokens_read_or_emitted": false
+  }
+}

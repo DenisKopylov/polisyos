@@ -1,0 +1,73 @@
+{
+  "schema": "polisyos.e02.native28_decision_evidence_corrigendum.v1",
+  "identity": "native28-gdecision-handoff-d3008898-20261020-v1/A94-corrigendum",
+  "supersedes_no_bytes": true,
+  "prior_decision_json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-remediation-d3008898-20261020/decision-v1.json",
+    "sha256": "3041b5b19fb5ca466e1f2a1655e1e46c9ab052a5769d708dddaf140b35837bdb"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-remediation-independent-review-d3008898-20261020/review-v1.md",
+    "sha256": "105d4d90ba9a4703f1fcf67266601b55504344de77ff396cd19a1a3e39c43b5b",
+    "machine_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-remediation-independent-review-d3008898-20261020/review-v1.json",
+    "machine_sha256": "aa970642e54953c17e1f484727d27df5af41e02b6162cf62e24576f6872ab167"
+  },
+  "A94_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-r3-a94-20261020/resource-limit-error-v2.json",
+    "sha256": "706ec6a3f2e531d4edafaacfa3a17f36e588216994e9d41cb025a9ec24d69ec1"
+  },
+  "A94_argv_addendum": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-r3-a94-20261020/resource-limit-error-v2-addendum.json",
+    "sha256": "393b02874796f15b49e89d390d701bdbee0ff178c54c85cdbadca98e4c423518"
+  },
+  "A94_output_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-r3-a94-20261020/execution-outputs-v2.json",
+    "sha256": "f5d225fa60971a4230e6d14c7d35733c666e5d34f102d84e52e94fbda7a979d3"
+  },
+  "classification": "ERROR_resource_limit_abort",
+  "not_classified_as": [
+    "semantic_fail",
+    "OOM",
+    "exit_137",
+    "PASS",
+    "d300_full_native_gate_result"
+  ],
+  "details": {
+    "attempt_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "be09be99df14d93dd4d22a140696ea06e26c5c8d",
+      "known_dirty_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+      ],
+      "parent": "515f74337353af7a2ec68ad4845c02c9767d0ad2",
+      "tracked_status": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tree": "3c3d5104aa910accc37e38253e7735714a03a95e"
+    },
+    "same_collector_and_test_hashes_at_d300": true,
+    "complete_scanned_source_denominator_reconciled_to_d300": false,
+    "collected": 335,
+    "selected": 237,
+    "deselected": 98,
+    "first_selected_node_started_but_not_completed": true,
+    "rss_cap_bytes": 1073741824,
+    "max_sampled_process_tree_rss_bytes": 1114357760,
+    "return_code": -15,
+    "wall_seconds": 5.068035291973501,
+    "junit_present": false,
+    "R8_session_finish_present": false,
+    "runtime_origins_present": false,
+    "full_d300_13_gate_wave": "UNRUN"
+  },
+  "corrected_recipe": {
+    "ruff": "uv run python -m ruff check ...",
+    "reason": "independent review R2; repository toolchain contract"
+  },
+  "no_change": {
+    "exceptions": false,
+    "baselines": false,
+    "source": false,
+    "formal_closures": false,
+    "G_acceptance": false
+  }
+}

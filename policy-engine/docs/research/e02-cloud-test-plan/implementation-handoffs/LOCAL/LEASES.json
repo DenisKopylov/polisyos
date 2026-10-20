@@ -30616,5 +30616,159 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "e02-t1t2-native28-reviewed-decision-records-20261020-r1": {
+    "slice_base": "70f901afd7554b4eb7b86b78315bc2af3e6918a0",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-concrete-input-decision-packet-20261020-r1/packet.json",
+        "postimage_sha256": "5f60de626d9d73f1a8b3c76632dd3fe8795c58430613d34744beca15c67759f7"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.md": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-concrete-input-decision-packet-20261020-r1/proposal.md",
+        "postimage_sha256": "bbd67ed4a5ba9f2e51dcc8a7cd9f7a04861626fe08ff0a669bc6002ebad7c415"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/handoff-v1.json",
+        "postimage_sha256": "aff8a972c317edb6286615ee439bc21631efc67177a748b5f05fd689b2a34ee9"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.md": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/handoff-v1.md",
+        "postimage_sha256": "db36c1df4cd2e4332cc2a22d4d79b0aba71a5586f644a3340059ebf1bcbc86af"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-a94-evidence-corrigendum-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/a94-corrigendum-v1.json",
+        "postimage_sha256": "854eff09b71eef3eb91da54fc4b063591ddc8a8d547ae018d9d6d9abb606da14"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-t1t2-native28-review-records-20261020-r1/source-application.json",
+      "sha256": "0315ffa92c53c1f3edff81c8938a57c8bbce0a47284e3b1a5f3284b6cfe3ec73"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-t1t2-native28-review-records-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-native28-two-packet-independent-qa-20261020/review.json",
+        "sha256": "b34da3b308b4bfb01902b57dbea92ec86f67037ffaf826422d0bb46b4903d48d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-concrete-input-decision-packet-20261020-r1/packet.json",
+        "sha256": "5f60de626d9d73f1a8b3c76632dd3fe8795c58430613d34744beca15c67759f7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-concrete-input-decision-packet-20261020-r1/proposal.md",
+        "sha256": "bbd67ed4a5ba9f2e51dcc8a7cd9f7a04861626fe08ff0a669bc6002ebad7c415"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/handoff-v1.json",
+        "sha256": "aff8a972c317edb6286615ee439bc21631efc67177a748b5f05fd689b2a34ee9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/handoff-v1.md",
+        "sha256": "db36c1df4cd2e4332cc2a22d4d79b0aba71a5586f644a3340059ebf1bcbc86af"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/a94-corrigendum-v1.json",
+        "sha256": "854eff09b71eef3eb91da54fc4b063591ddc8a8d547ae018d9d6d9abb606da14"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native28-gdecision-handoff-d3008898-20261020-v1/manifest-v1.json",
+        "sha256": "c21027dc33f22c0620c5a23b6697f1c338511c3da4ab4f8c0bae2672d1194db7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-custody-protected-positive-external-fact-g-packet-20261020-r1/report.json",
+        "sha256": "1d609a8b7c883b0ee8b8eade14f225b0008bb6872be980dd5ba62995cc169acb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-historical-apr10-source-readonly-pair-recipe-20261020-r2/recipe.json",
+        "sha256": "801908950b54d6fe9cae93305058c5fcb933856781ec1c19b1460c10a936d6af"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-live-serving-discovery-20261020-r1/report.json",
+        "sha256": "585f364dcdce7e091457bfb950be7ff72493672c5b2524d6bf87ab0eb5605429"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-t1t2-native28-decision-packets-adoption-20261020-r1/plan.json",
+        "sha256": "5e4e6a2604db9045970f376158b42318a5b385d27237bce0595c692024abf6b2"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Record adoption only, not a repair cohort: keep the T1/T2 external-input and occurrence matrix distinct from the native exception/gate decision ledger. Preserve each source packet and its independent GO; do not turn an aggregate status or task result into a formal closure.",
+    "bounded_proof": "Independent QA b34da3b308b4bfb01902b57dbea92ec86f67037ffaf826422d0bb46b4903d48d has verdict GO_TRACKING_RECORDS_ONLY. It verified exact packet bindings, the T1/T2 assigned-ID/criterion joins and global denominator, the native 28-row/13-gate joins, A94 ancestor-frame error classification, and preserved dirty-worktree pins. This is packet QA, not G acceptance or formal adjudication.",
+    "limitations": [
+      "Five record files are added under policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL: the T1/T2 JSON+Markdown, native28 JSON+Markdown, and the referenced A94 evidence corrigendum. Each target is byte-identical to its independently reviewed RAW source; none of the proposal content is rewritten.",
+      "The root adopter appends LEASES.json and candidate-component-delivery-index-20261015.json as mandatory companions, generated from final tracked bytes rather than frozen here. Five content records plus two metadata companions make the seven-path implementation boundary.",
+      "These remain review proposals: G_acceptance=false and closure_ids=[]. Do not update or relabel the historical d300 source freeze; it remains false.",
+      "T1/T2 preserves its 18 assigned occurrence rows and 282-finding / 291-occurrence / 127-bundle denominator. The historical bundle is not a coherent positive (one of five required members mismatches); custody, rights, selected profile/context, currentness/revocation, production authority, and live serving remain not_established. The local API request was not_sent.",
+      "Native28 preserves 28 exception occurrences and 13 registered native gates. A94 remains an ancestor-frame ERROR_resource_limit_abort, not semantic FAIL, OOM, or PASS. The full d300 13-gate wave remains UNRUN; six gates were not_run and seven were preflight_only_not_full_gate.",
+      "The two existing unstaged test edits remain byte-identical and disjoint from all five record targets."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Before adoption, recheck exact base/tree/branch, confirm the five destinations remain absent, revalidate both preserved test hashes and every reviewed input, and run root adopter native checks. Commit the five byte-identical records with automatically derived lease/index companions as one implementation commit. Then read them back from the branch and write a separate receipt commit containing the actual implementation SHA/tree/parents and postimage hashes; never predict a future receipt SHA. G independently decides external inputs, current native gates, integration publication, and formal finding dispositions.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

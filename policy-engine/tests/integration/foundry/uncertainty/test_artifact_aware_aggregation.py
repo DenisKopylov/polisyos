@@ -170,7 +170,20 @@ def test_real_dispatcher_source_views_are_persisted_aggregated_and_fresh_read(
     assert combined.metadata["aggregation_context_assumption"].startswith(
         "candidate_only_conditional_hull:"
     )
-    assert combined.confidence_interval == (8.04, 11.96)
+    source_intervals = (left_envelope.confidence_interval, right_envelope.confidence_interval)
+    source_hull = (
+        min(interval[0] for interval in source_intervals),
+        max(interval[1] for interval in source_intervals),
+    )
+    assert combined.confidence_interval == source_hull
+    # The analytical producer casts covariance to JAX float32 before recomputing
+    # the interval. Half an ULP in the [8, 16) float32 binade is 2**-21;
+    # this nominal check is separate from the exact source-hull assertion above.
+    assert combined.confidence_interval == pytest.approx(
+        (8.04, 11.96),
+        rel=0.0,
+        abs=2.0**-21,
+    )
     assert combined.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
     assert combined.confidence_level is None
     assert combined.gate_eligible is False

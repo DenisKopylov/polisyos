@@ -31383,5 +31383,123 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b200-float32-producer-interval-oracle-correction-20261020-r1": {
+    "slice_base": "ffa801d6dd1e114d303f768337f73ff772da5c52",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b200-interval-oracle-float32-r1-20261020/postimages/policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+        "postimage_sha256": "8e06f4b51aa14fb1a80fe491b31f754089f2257a6be9fea9de68a4e886e58a16",
+        "preimage_sha256": "d866260b80fb5f87cf88fe68b39d41f9e6d21bceba6c4dceb426c35495b7d26c"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-exact-source-hull-oracle-20261020-r2/source-application.json",
+      "sha256": "e994bf550531b12fddcfe1b510f0fcd5cb3f6c3e3b31fa7c585e685b6c7bad4d"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-exact-source-hull-oracle-20261020-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b200-interval-oracle-float32-r1-20261020/candidate-manifest.json",
+        "sha256": "cd8306db678f91431414f519fe6b733ff4506a98cd9d24209bd31d4f1d349440"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b200-interval-oracle-float32-r1-20261020/candidate.patch",
+        "sha256": "1f71a42b034ebc32f023b2bd62254d6093f48bf4d2fb3930ef422c948b940604"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b200-interval-oracle-float32-r1-20261020/diagnosis.md",
+        "sha256": "85c2a47f13b4007b50ce76f6645df3f77a7ff39fb4d165c133a60bb137743108"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/result.json",
+        "sha256": "58d6f9546b463c7f67fce6e80cb1dc3653e3c589aeb9b7764b34c6c33f955a7b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest.xml",
+        "sha256": "37793fcde90473fe25e93af715762e23e4b2be6fa001452bf8b56912de32f77e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/root-adoption-plan.json",
+        "sha256": "aa14671707b92e270b0d9a611b3fc839270059f118d4e203b6449f2bc9159f89"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b200-interval-oracle-float32-r1-20261020/root-adoption-plan-r1.json",
+        "sha256": "9cc83a85df535f3ffe0e0f0f8e73fc663b31799d49d47a5b2be603901c8d9fc2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-float32-oracle-independent-review-20261020/review-v1.json",
+        "sha256": "289f2ad14cae27937025255fd599a62fd1967820393deb97a01369dc9aedff03"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW class: a source-backed numerical result diverges from the integration test\u2019s fixed decimal seed oracle because the real JAX float32 covariance path recomputes endpoints. This is separate from the now-passing Core-to-IR InputRef identity mismatch. The candidate uses exact source-hull equality, with a bounded nominal tolerance derived from binary32 spacing.",
+    "bounded_proof": "The pinned current four-module run exercises the real dispatcher, CAS persistence, and fresh-reader path and contains the exact failure. Source formulas and an independent float32 calculation reproduce the endpoint drift. This package changes only the flawed test oracle; it has not executed the postimage.",
+    "limitations": [
+      "One test-only integration postimage; no production source or numerical behavior changes.",
+      "Use the root-owned R7 disjoint adopter and its original six preservation references; do not hand-edit LEASE or candidate delivery-index metadata.",
+      "Preserve the two known dirty owned test files byte-identically; verify tracked and untracked partitions via the root wrapper; do not claim a clean worktree.",
+      "The prior qualified R8/R10 whole-module run is a failing red witness (59 collected, 58 passed, 1 failed), not a green qualification. This postimage has not been run.",
+      "A full four-module run after adoption remains root-authorized only under a fresh request bound to the actual adoption source frame.",
+      "No authority, production-currentness, G acceptance, or formal closure is claimed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Independent delta review of the immutable postimage and patch. If GO, root validates this plan at its exact base, applies the one reviewed test path through the R7 wrapper with automatic metadata generation and preservation readback, then runs the full four-module suite only with separate root grant.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

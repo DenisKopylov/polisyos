@@ -13,6 +13,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
     NormalizedArtifactManifest,
+    PartAGateCollectionContext,
     PartAGateExecutionReceipt,
     PartAGateManifest,
     PytestCasePhaseReport,
@@ -34,18 +35,54 @@ from tools.ops_runners.ukraine_data.server_bootstrap import (
 )
 
 
+def _synthetic_c7_collection_context() -> PartAGateCollectionContext:
+    """Build collection context for unit stubs, not actual C7 execution proof."""
+
+    return PartAGateCollectionContext(
+        profile="policyos.ukraine.c7.collection.v1",
+        plugin_autoload="disabled",
+        pluggy_version="synthetic-unit-fixture",
+        ambient_controls="sanitized",
+        hook_capture="before_collection_modifyitems",
+        pytest_arguments=[
+            "-q",
+            "-ra",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "-o",
+            "addopts=",
+            "-p",
+            "tools.quality.testing.pytest_workload_receipt",
+            "tests/integration/test_c7_synthetic_full_pipeline.py",
+        ],
+        approved_pytest_addopts=[],
+        repo_plugin_source_digests={
+            "code:tools/quality/testing/pytest_workload_receipt.py": "sha256:" + "4" * 64
+        },
+        keyword_expression="",
+        mark_expression="",
+        collect_only=False,
+        deselected_node_ids=[],
+        ignored_paths=[],
+    )
+
+
 def _passing_part_a_gate() -> PartAGateManifest:
+    """Build a unit-only synthetic gate fixture, not actual C7 execution evidence."""
+
     node_id = "tests/integration/test_c7_synthetic_full_pipeline.py::test_case"
     receipt = PartAGateExecutionReceipt(
+        schema_version="policyos.ukraine.part_a_gate_execution.v2",
         attempt_id="c" * 32,
         test_path="tests/integration/test_c7_synthetic_full_pipeline.py",
         source_sha256="sha256:" + "0" * 64,
         pytest_version="9.0.0",
         config_path="pytest.ini",
         config_sha256="sha256:" + "1" * 64,
+        collection_context=_synthetic_c7_collection_context(),
         node_ids=[node_id],
         phase_reports=[
-            PytestCasePhaseReport(node_id=node_id, when=phase, outcome="passed")
+            PytestCasePhaseReport(node_id=node_id, when=phase, outcome="passed", reason=None)
             for phase in ("setup", "call", "teardown")
         ],
         pytest_exit_status=0,

@@ -45554,5 +45554,143 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-c7-r4-r8-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "3a300900cb0fc4dc47d1c0f526663cee188327ba",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 20767,
+        "preimage_sha256": "3fec80eb0c738fcf60eedb300c5f737f99bd9a040700aae3d1dff6f31f18c760",
+        "base_git_blob": "3e55e5c912274a3d82a6b7a05cbaea9887e434be",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/postimages/policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py",
+        "postimage_sha256": "08411e2a2f6bec648a48c233e966983eca73349c2d105e0bf3117823ab54149f"
+      },
+      "policy-engine/tests/unit/remediation/test_udf_04.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 18073,
+        "preimage_sha256": "47649cbc64d07987fb1c16fd28d12f88b5b6e1eb29003f176f67854b55500f93",
+        "base_git_blob": "f64e79760b84fdc0e5f0d5cdcb5a51d7335c3e9a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/postimages/policy-engine/tests/unit/remediation/test_udf_04.py",
+        "postimage_sha256": "18f20f2c05f8d322bb455a68e2dd1077defdf397d1120a1919e55222a45d0202"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-r4-r8-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "17c86a3db2189373754c2ef38dbc45965088d319038ee3af9ff8ad3a8e8fdd9c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-r4-r8-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c7-r4-r7-whole-contract-review-20261021-r1/review.json",
+        "sha256": "bec0b37d927b2263fad51579d55b928947f559243b1a4b14e03d0d1e171c7e67"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-r7-validation-20261021-r7/canonical-context-preflight.json",
+        "sha256": "6077373737cceffa9faede15fd8f6be0cf76653d541a9fa379ad4aab1ebe823a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-r7-validation-20261021-r7/r7-validation-receipt.json",
+        "sha256": "048ed62c18bb83f4f025143cebe4823feddcf216d89ab31422a06ec48cb02522"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r7/manifest.json",
+        "sha256": "f7d4904c16375671879b88c5212ac4590fb70113792dfa7971fe7b31368c1d54"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r7/payload-contract-crosswalk.json",
+        "sha256": "d82caa7e67aaf5162588f0735ed82180ef0908b9fed8a1b3124cc9e938882991"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r7/proposed-unapplied-complete-contract-r7.patch",
+        "sha256": "94e8f5a6bfc498ff7fb66b9953ad731006eb0bfaf284b1ac64b63d90c81ed2fc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/author-report.json",
+        "sha256": "196fbda9e341b3ee93394a70693be4742794f2dcb25568c8bb77d2b4f83d852b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/base-pins.json",
+        "sha256": "02261a2dd4683a4f66295b44bd82083a8518665f94c5615ee8c2cc278fd469c3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/manifest.json",
+        "sha256": "e5dc375a7f19f2e873ad9c0e55b0f25fde0ca3f90e9ca68e76ea11394c65d11c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/patch-check.json",
+        "sha256": "6dbee32d729f164b1e3daa70a388fc8f057bcaa335e09c7292fea94752dbcae9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/payload-contract-crosswalk.json",
+        "sha256": "9d3233b974c6801c6e3f365e96f057b7a3340d329bb4837e9243321a6fbcb1a1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-unit-companion-source-proposal-20261021-r8/proposed-unapplied-complete-contract-r8.patch",
+        "sha256": "77f13d76d8e835595241302134643e913a8dd246dbc9694c0c7122715dc82234"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-c7-sixteen-whole-dd4704ea-20261021-r1/actual/result.json",
+        "sha256": "f4a52f0df1245c698e1087a314bb23a51aa5147b89b9a5b52cf5f0f17e0a088d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+        "sha256": "1185bb4cb15a5cad3774a1e5345e63bdf1f242c287dc37ee8d333bdb4e512718"
+      },
+      {
+        "path": "policy-engine/tools/lib/timing.py",
+        "sha256": "4f8bac210fa4bd5b12526af3494a48596d0e3eacf01ca1e8d37c4ea2869b30c3"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py",
+        "sha256": "f761fdc48b501687ca98bac109ed9c2a705e2ff2dddf03869afba9f659f8927a"
+      },
+      {
+        "path": "policy-engine/tools/quality/testing/pytest_workload_receipt.py",
+        "sha256": "b9c0f75db2c05ec02a959ac31a7ac7026a0c2423f7aa5cb571a556d9109bba86"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-c7-r4-r8-delta-review-20261021-r1/review.json",
+        "sha256": "b2b19513b58ffb4e2c27d3da77fb9c3af8b6069c04b2dfe1520c9644d6d520b0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-r8-validation-20261021-r8/r8-validation-receipt.json",
+        "sha256": "fcb9d360e96f266a80465f22346cef904cfc418ca68948630bfe5c4a63a85ad3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r4-reviewed-source-adoption-20261021-r8/plan.json",
+        "sha256": "fd466e6594d5898133f5e180236988230de38e4bb9e2df9eaa6689fc25655951"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "SAME whole C7 synthetic fixture-contract class, second escape; stop field-by-field repair and pin the complete nested payload/caller surface in one batch.",
+      "mechanism_count": 0,
+      "mandatory_companion_count": 2,
+      "falsifier": "Rerun both changed modules and the full 16-file profile. In the CLI synthetic positive, remove any required workload/context/phase key, downgrade phase schema, alter attempt/hash, alter plugin source digest, or omit a phase; require rejection by explicit complete-shape checks and/or the actual reader. Keep the stdout-only/no-sidecar removal control red. The real two-case C7 plugin+reader test must pass, and its selection, collect-only, module-skip, earlier-filter, and sidecar-mutation negatives must remain truthful."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No tests or product imports run by this author.",
+      "Synthetic CLI receipt not actual C7 execution proof.",
+      "No supported Linux/UKOPS positive.",
+      "No formal LA-029 closure or G acceptance."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay all three complete C7 controller/intake/caller modules on this composition; retain original 328 Core/terminal/VOI cohort as separate source-bound evidence and rerun composed scope as necessary; real Linux UKOPS three-route remains required.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

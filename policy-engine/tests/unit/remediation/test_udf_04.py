@@ -3,15 +3,18 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shlex
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
 
+import pluggy
 import pytest
 
 from polisyos.data_forge.domains.ukraine import cli, server
 from polisyos.data_forge.domains.ukraine.manifests import (
+    PartAGateCollectionContext,
     PartAGateExecutionReceipt,
     PartAGateManifest,
     PytestCasePhaseReport,
@@ -23,20 +26,65 @@ from tools.lib.timing import (
     PYTEST_WORKLOAD_SCHEMA_VERSION,
     pytest_node_map_digest,
 )
+from tools.ops_runners.ukraine_data.validate_part_a import (
+    _PHASE_RECEIPT_SCHEMA,
+)
+from tools.ops_runners.ukraine_data.validate_part_a import (
+    _WORKLOAD_RECEIPT_SCHEMA as _CONSUMER_WORKLOAD_RECEIPT_SCHEMA,
+)
+from tools.quality.testing.pytest_workload_receipt import (
+    _WORKLOAD_RECEIPT_SCHEMA as _PRODUCER_WORKLOAD_RECEIPT_SCHEMA,
+)
+
+
+def _synthetic_c7_collection_context() -> PartAGateCollectionContext:
+    """Build collection context for unit stubs, not actual C7 execution proof."""
+
+    return PartAGateCollectionContext(
+        profile="policyos.ukraine.c7.collection.v1",
+        plugin_autoload="disabled",
+        pluggy_version="synthetic-unit-fixture",
+        ambient_controls="sanitized",
+        hook_capture="before_collection_modifyitems",
+        pytest_arguments=[
+            "-q",
+            "-ra",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "-o",
+            "addopts=",
+            "-p",
+            "tools.quality.testing.pytest_workload_receipt",
+            "tests/integration/test_c7_synthetic_full_pipeline.py",
+        ],
+        approved_pytest_addopts=[],
+        repo_plugin_source_digests={
+            "code:tools/quality/testing/pytest_workload_receipt.py": "sha256:" + "4" * 64
+        },
+        keyword_expression="",
+        mark_expression="",
+        collect_only=False,
+        deselected_node_ids=[],
+        ignored_paths=[],
+    )
 
 
 def _passing_gate_manifest() -> PartAGateManifest:
+    """Build a unit-only synthetic gate fixture, not actual C7 execution evidence."""
+
     node_id = "tests/integration/test_c7_synthetic_full_pipeline.py::test_case"
     receipt = PartAGateExecutionReceipt(
+        schema_version="policyos.ukraine.part_a_gate_execution.v2",
         attempt_id="b" * 32,
         test_path="tests/integration/test_c7_synthetic_full_pipeline.py",
         source_sha256="sha256:" + "0" * 64,
         pytest_version="9.0.0",
         config_path="pytest.ini",
         config_sha256="sha256:" + "1" * 64,
+        collection_context=_synthetic_c7_collection_context(),
         node_ids=[node_id],
         phase_reports=[
-            PytestCasePhaseReport(node_id=node_id, when=phase, outcome="passed")
+            PytestCasePhaseReport(node_id=node_id, when=phase, outcome="passed", reason=None)
             for phase in ("setup", "call", "teardown")
         ],
         pytest_exit_status=0,
@@ -51,46 +99,116 @@ def _passing_gate_manifest() -> PartAGateManifest:
 
 
 def _write_synthetic_execution_receipts(call: dict[str, object]) -> None:
-    """Write a typed fixture matching the runner's unique per-attempt paths."""
+    """Write a full-shape synthetic receipt for the real C7 reader, not C7 proof."""
 
     environment = cast("dict[str, str]", call["env"])
     workspace = cast("Path", call["cwd"])
+    pytest_command = cast("list[str]", call["command"])
     attempt_id = environment["POLISYOS_PYTEST_RECEIPT_ATTEMPT_ID"]
     workload_path = Path(environment["POLISYOS_PYTEST_RECEIPT_SIDECAR"])
     phases_path = Path(environment["POLISYOS_PYTEST_RECEIPT_PHASES_SIDECAR"])
     test_path = "tests/integration/test_c7_synthetic_full_pipeline.py"
-    node_ids = {test_path: [f"{test_path}::test_case"]}
+    node_id = f"{test_path}::test_case"
+    node_ids = {test_path: [node_id]}
     source_bytes = (workspace / test_path).read_bytes()
     source_digest = "sha256:" + hashlib.sha256(source_bytes).hexdigest()
     config_path = "pytest.ini"
     config_bytes = (workspace / config_path).read_bytes()
     config_digest = "sha256:" + hashlib.sha256(config_bytes).hexdigest()
+    code_root = Path(__file__).resolve().parents[3]
+    plugin_path = code_root / "tools/quality/testing/pytest_workload_receipt.py"
+    plugin_digest = "sha256:" + hashlib.sha256(plugin_path.read_bytes()).hexdigest()
+    assert _PRODUCER_WORKLOAD_RECEIPT_SCHEMA == _CONSUMER_WORKLOAD_RECEIPT_SCHEMA
+    assert _PHASE_RECEIPT_SCHEMA == "policyos.timing.pytest_case_phases.v2"
+    workload_identity = {
+        "schema_version": PYTEST_WORKLOAD_SCHEMA_VERSION,
+        "predicate_provenance": PYTEST_WORKLOAD_PREDICATE_PROVENANCE,
+        "test_paths": [test_path],
+        "source_digests": {test_path: source_digest},
+        "pytest_version": pytest.__version__,
+        "config_path": config_path,
+        "config_digest": config_digest,
+        "node_map_digest": pytest_node_map_digest(node_ids),
+    }
+    collection_context = {
+        "profile": "policyos.ukraine.c7.collection.v1",
+        "plugin_autoload": "disabled",
+        "pluggy_version": pluggy.__version__,
+        "ambient_controls": "sanitized",
+        "hook_capture": "before_collection_modifyitems",
+        "pytest_arguments": pytest_command[3:],
+        "approved_pytest_addopts": shlex.split(environment.get("PYTEST_ADDOPTS", "")),
+        "repo_plugin_source_digests": {
+            "code:tools/quality/testing/pytest_workload_receipt.py": plugin_digest
+        },
+        "keyword_expression": "",
+        "mark_expression": "",
+        "collect_only": False,
+        "deselected_node_ids": [],
+        "ignored_paths": [],
+    }
     workload = {
+        "schema_version": _PRODUCER_WORKLOAD_RECEIPT_SCHEMA,
         "attempt_id": attempt_id,
         "node_ids_by_path": node_ids,
-        "workload_identity": {
-            "schema_version": PYTEST_WORKLOAD_SCHEMA_VERSION,
-            "predicate_provenance": PYTEST_WORKLOAD_PREDICATE_PROVENANCE,
-            "test_paths": [test_path],
-            "source_digests": {test_path: source_digest},
-            "pytest_version": pytest.__version__,
-            "config_path": config_path,
-            "config_digest": config_digest,
-            "node_map_digest": pytest_node_map_digest(node_ids),
-        },
+        "workload_identity": workload_identity,
+        "collection_context": collection_context,
+    }
+    assert set(workload) == {
+        "schema_version",
+        "attempt_id",
+        "node_ids_by_path",
+        "workload_identity",
+        "collection_context",
+    }
+    assert set(workload_identity) == {
+        "schema_version",
+        "predicate_provenance",
+        "test_paths",
+        "source_digests",
+        "pytest_version",
+        "config_path",
+        "config_digest",
+        "node_map_digest",
+    }
+    assert set(collection_context) == {
+        "profile",
+        "plugin_autoload",
+        "pluggy_version",
+        "ambient_controls",
+        "hook_capture",
+        "pytest_arguments",
+        "approved_pytest_addopts",
+        "repo_plugin_source_digests",
+        "keyword_expression",
+        "mark_expression",
+        "collect_only",
+        "deselected_node_ids",
+        "ignored_paths",
     }
     workload_bytes = (json.dumps(workload, sort_keys=True, separators=(",", ":")) + "\n").encode()
     workload_path.write_bytes(workload_bytes)
     phases = {
-        "schema_version": "policyos.timing.pytest_case_phases.v1",
+        "schema_version": _PHASE_RECEIPT_SCHEMA,
         "attempt_id": attempt_id,
         "workload_receipt_sha256": "sha256:" + hashlib.sha256(workload_bytes).hexdigest(),
         "pytest_exit_status": 0,
         "phase_reports": [
-            {"node_id": next(iter(node_ids[test_path])), "when": phase, "outcome": "passed"}
+            {"node_id": node_id, "when": phase, "outcome": "passed", "reason": None}
             for phase in ("setup", "call", "teardown")
         ],
     }
+    assert set(phases) == {
+        "schema_version",
+        "attempt_id",
+        "workload_receipt_sha256",
+        "pytest_exit_status",
+        "phase_reports",
+    }
+    assert all(
+        set(report) == {"node_id", "when", "outcome", "reason"}
+        for report in phases["phase_reports"]
+    )
     phases_path.write_text(
         json.dumps(phases, sort_keys=True, separators=(",", ":")) + "\n",
         encoding="utf-8",
@@ -204,6 +322,11 @@ def test_part_a_gate_requires_structured_execution_evidence(
         "run",
         "pytest",
         "-q",
+        "-ra",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "addopts=",
         "-p",
         "tools.quality.testing.pytest_workload_receipt",
         "tests/integration/test_c7_synthetic_full_pipeline.py",
@@ -339,7 +462,7 @@ def test_console_cli_composes_ops_runner_for_part_a_gate(
     def recording_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
         calls.append({"command": list(command), **kwargs})
         _write_synthetic_execution_receipts(calls[-1])
-        return subprocess.CompletedProcess(command, 0, stdout="3 passed", stderr="")
+        return subprocess.CompletedProcess(command, 0, stdout="1 passed", stderr="")
 
     monkeypatch.setattr(validate_part_a.subprocess, "run", recording_run)
     result = ukraine_data_cli.main(
@@ -359,6 +482,11 @@ def test_console_cli_composes_ops_runner_for_part_a_gate(
         "run",
         "pytest",
         "-q",
+        "-ra",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "addopts=",
         "-p",
         "tools.quality.testing.pytest_workload_receipt",
         "tests/integration/test_c7_synthetic_full_pipeline.py",

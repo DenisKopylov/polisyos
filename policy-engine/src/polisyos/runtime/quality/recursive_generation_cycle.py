@@ -702,6 +702,7 @@ class RecursiveLeafContextOwner:
         resolved = self._context_owner.resolve_for_current_job(
             handoff.context_job_ref,
             problem=capsule.problem,
+            repo_root=self._repo_root,
             verified_nl_job_scope=self._verified_nl_job_scope,
         )
         if (

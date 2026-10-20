@@ -1,0 +1,36 @@
+id = "2026-10-20-e02-candidate-source-profile-root-bridge"
+title = "Forward the configured source root through candidate context replay"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "The served candidate handoff and recursive leaf currentness path now pass the configured repository root when the owner revalidates selected V5 source bytes."
+evidence = [
+  "src/polisyos/runtime/http/services/control/job_nl_admission.py",
+  "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+]
+compatibility = "Internal runtime bridge only. Request/response DTOs and persisted schemas do not change. V1-V4/profileless context reads retain optional-root behavior; selected V5 source reads continue to refuse a missing or mismatched root."
+change_class = "internal"
+surface_classification = "internal: configured candidate source-profile context owner bridge"
+migration = "No caller migration is required: served owners forward the configured local source root they already hold."
+api = "The root remains internal to owner replay; requests cannot supply or select it."
+limitations = "A local root enables byte and selected-source revalidation only. It does not establish external custody, issuer authority, production currentness, causal validity, or publication authority. Profileless acquired-world history remains a separate V3/reissue boundary."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "candidate-source-profile-root-owner-bridge"
+change_class = "internal"
+impact = "non_breaking"
+surface = "internal: configured candidate source-profile owner replay"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Pass the configured repository root through existing V5 source-profile owner reads while keeping profileless V1-V4 compatibility."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

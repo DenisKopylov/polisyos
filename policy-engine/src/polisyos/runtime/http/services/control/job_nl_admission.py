@@ -16,6 +16,7 @@ from .job_scope_admission import _NL_JOB_OWNER_CONTEXT_KEYS
 
 if TYPE_CHECKING:
     from collections.abc import AbstractContextManager
+    from pathlib import Path
 
     from polisyos.core import run
     from polisyos.runtime.quality.design_problem import DesignProblem
@@ -74,6 +75,7 @@ def _candidate_simulation_is_current(
     bound_tenant_id: str | None,
     bound_cell_id: str | None,
     job: ControlJobRecord,
+    repo_root: Path | None,
 ) -> bool:
     """Recompute the selected profile/context under the live worker lease."""
 
@@ -119,6 +121,7 @@ def _candidate_simulation_is_current(
         current_context_job = context_owner.resolve_for_current_job(
             context_ref,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_scope,
         )
     except ControlJobLeaseLostError:
@@ -337,6 +340,7 @@ class ControlNLJobAdmissionMixin:
                 bound_tenant_id=bound_tenant_id,
                 bound_cell_id=bound_cell_id,
                 job=job,
+                repo_root=self._repo_root,
             )
 
         # Compilation calls the context resolver only after this
@@ -422,6 +426,7 @@ class ControlNLJobAdmissionMixin:
                 replayed = context_owner.resolve_for_current_job(
                     context_ref,
                     problem=problem,
+                    repo_root=self._repo_root,
                     verified_nl_job_scope=verified_nl_job_scope,
                 )
                 if replayed.context.content_hash != admitted_context.content_hash:

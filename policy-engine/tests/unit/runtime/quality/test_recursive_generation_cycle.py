@@ -495,7 +495,28 @@ def test_recursive_child_currentness_resolver_replays_exact_capsule_and_live_job
         store=store,
         context_owner=context_owner,
         admission_owner=admission_owner,
+        repo_root=tmp_path,
     )
+    forwarded_roots: list[Path | None] = []
+    original_resolve_for_current_job = context_owner.resolve_for_current_job
+
+    def record_context_owner_resolve(
+        ref: object,
+        *,
+        problem: object,
+        repo_root: Path | None = None,
+        verified_nl_job_scope: object | None = None,
+    ) -> object:
+        forwarded_roots.append(repo_root)
+        assert repo_root == tmp_path.resolve()
+        return original_resolve_for_current_job(
+            ref,
+            problem=problem,
+            repo_root=repo_root,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+
+    monkeypatch.setattr(context_owner, "resolve_for_current_job", record_context_owner_resolve)
     scope = {"tenant_id": "child-tenant", "cell_id": "child-cell"}
     with _authenticated_tenant_scope(**scope):
         offer = admission_owner.admit_context(
@@ -552,6 +573,7 @@ def test_recursive_child_currentness_resolver_replays_exact_capsule_and_live_job
         currentness_resolver = owner.currentness_resolver(capsule_ref, capsule)
         assert currentness_resolver() is True
         assert check_order == ["current", "read"]
+        assert forwarded_roots and all(root == tmp_path.resolve() for root in forwarded_roots)
 
         check_order.clear()
         foreign_payload = capsule.model_dump(mode="json", exclude={"content_hash"})
@@ -928,6 +950,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA,
         CycleSubstrateContextArtifactOwner,
         CycleSubstrateContextJobArtifactV5,
+        CycleSubstrateContextOwnerError,
         VerifiedNLJobScope,
         cycle_job_profile_selection_ref,
         parse_cycle_substrate_context_job_artifact,
@@ -1038,6 +1061,24 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         return ref
 
     def record_resolve(owner: object, ref: object, **kwargs: Any) -> object:
+        if persisted_v5 and ref == persisted_v5[-1][1]:
+            assert kwargs.get("repo_root") == fixture.root
+            missing_root_kwargs = {
+                key: value for key, value in kwargs.items() if key != "repo_root"
+            }
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="candidate_cycle_source_profile_resolve_root_missing",
+            ):
+                original_resolve(owner, ref, **missing_root_kwargs)
+            wrong_root = tmp_path / "wrong-owner-root"
+            wrong_root.mkdir(exist_ok=True)
+            wrong_root_kwargs = {**kwargs, "repo_root": wrong_root}
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="candidate_cycle_source_profile_resolve_owner_refused",
+            ):
+                original_resolve(owner, ref, **wrong_root_kwargs)
         if mutate_owner_source_before_resolve and persisted_v5 and ref == persisted_v5[-1][1]:
             import duckdb
 
@@ -1066,6 +1107,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
                 assert after == 0
         resolved = original_resolve(owner, ref, **kwargs)
         if type(resolved) is CycleSubstrateContextJobArtifactV5:
+            assert kwargs.get("repo_root") == fixture.root
             resolved_v5.append(resolved)
         return resolved
 

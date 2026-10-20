@@ -6,6 +6,7 @@ import os
 from collections.abc import AsyncIterator, Callable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from shutil import copyfile
 from threading import Condition, Event
 from types import SimpleNamespace
@@ -2386,9 +2387,17 @@ async def _run_controlled_simulate_only_job_fixture(
         owner_refs.append(ref)
         return ref
 
-    def record_resolve(owner, ref, *, problem, verified_nl_job_scope=None):
+    def record_resolve(
+        owner,
+        ref,
+        *,
+        problem,
+        repo_root: Path | None = None,
+        verified_nl_job_scope=None,
+    ):
         assert owner._store is service._artifact_store
         assert get_current_access_scope_or_none() is None
+        assert repo_root == REPO_ROOT
         assert verified_nl_job_scope is not None
         verified_scope_observations.append(verified_nl_job_scope)
         if local_sibling_mechanism_witness:
@@ -2407,12 +2416,14 @@ async def _run_controlled_simulate_only_job_fixture(
                         owner,
                         ref,
                         problem=problem,
+                        repo_root=repo_root,
                         verified_nl_job_scope=changed_scope,
                     )
         artifact = original_resolve(
             owner,
             ref,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
         )
         owner_replays.append(artifact)
@@ -4311,10 +4322,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
     from polisyos.core.contracts.runtime import RunCandidateSimulationProjection
     from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.data_forge.read_api.catalog import (
-        CatalogServingSourceSelection,
-        default_acquisition_overlay_path,
-    )
+    from polisyos.data_forge.read_api.catalog import default_acquisition_overlay_path
     from polisyos.ir import CanonSpec, InputRef, put_json_artifact
     from polisyos.ir.analytics.backtest import BacktestReportRef, load_backtest_report
     from polisyos.runtime.http import dev_identity_middleware
@@ -4326,6 +4334,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     )
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
     from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
         catalog_serving_source_scope,
         current_catalog_serving_source,
         resolve_catalog_serving_source,

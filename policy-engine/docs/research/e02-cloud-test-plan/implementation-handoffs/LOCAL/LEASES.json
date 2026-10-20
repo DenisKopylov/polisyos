@@ -40378,5 +40378,84 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-search-record-annotation-owner-20261020-r1": {
+    "slice_base": "c13ecce41fa685b0d2718ef79ee5e79a7e6f95eb",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/contracts.py": {
+        "operation": "update",
+        "preimage_sha256": "16c24c2985f4e77c2a589aba6a7e313c6f00e6e00ebca139943f511a19c8ac4b",
+        "postimage_sha256": "9e70a023a6eff7b0084d15b5e619370fb45d7f0970ed4500fe881e91c56c4337",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/replay-v5/src/polisyos/scientist/methods/search/contracts.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/policy_design/test_search.py": {
+        "operation": "update",
+        "preimage_sha256": "7e507e198654c71cdfca22a816ba2cfb5ba4077cf659be857edf0c428ab20f1f",
+        "postimage_sha256": "e4c357a232fd5ec401fd2635ac8d70c415d9452684c61233cb78d7aec157c76b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-native-format-companion-20261020-r1/postimages/policy-engine/tests/unit/scientist/policy_design/test_search.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-search-legacy-record-annotation-binding.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "1cf16b0393a661d012df07a18035ee16515aa7afa35e1879aa10b1f52a15b0d3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/replay-v5/release-fragments/unreleased/2026-10-20-search-legacy-record-annotation-binding.toml",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/source-application.json",
+      "sha256": "bd8a2deb3bc3cdb6756fe8860f1a69164fe3ebc85d822eb906df449e8cb596ec"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/candidate-manifest-v3.json",
+        "sha256": "59a8994f43abf54360b7c6af90df487d320a8c1839dc0057e1cec375d4548fd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/candidate-r3.patch",
+        "sha256": "9988d99b58bd4c6ce00f3f49b77a0b9992f92f57a3c1f03eba03000166a6d77a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/annotation-ownership-inventory.json",
+        "sha256": "c4156349edeedb23ef0003b7aefe7e6a56c6abc363a9ed577e134ca0324b66ca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-native-format-companion-20261020-r1/manifest.json",
+        "sha256": "adea237f6fec3e5d988b10d672032e5ca4641cc8b7b8f1b91c8fc762805e7420"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-record-annotation-owner-independent-review-20261020-r1/review.json",
+        "sha256": "dd794ce7591c28663d09701441aa0351145244fd42003b7f31e4224f259bc323"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW annotation ownership class; generic over dataclass fields, not per-field facade imports. Wrong author Ruff context corrected by root canonical tests and independent review, no P41 inherited-red claim.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime collection/schema/JSON/pickle tests UNRUN on adopted source",
+      "Synthetic unit-bound objective fixture only, no production authority",
+      "No G acceptance or formal closure"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Fresh frozen whole ten R14/B108/Credal modules plus whole tests/unit/scientist/policy_design/test_search.py; retain any failure and deciding output.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

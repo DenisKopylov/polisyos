@@ -1,0 +1,33 @@
+id = "2026-10-20-search-legacy-record-annotation-binding"
+title = "Bind search history annotations before preserving legacy paths"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-runtime"
+summary = "Resolve relocated search history dataclass annotations in the contracts owner before preserving their historical pickle module paths, so Pydantic schema and JSON round trips use the actual field types."
+evidence = [
+  "src/polisyos/scientist/methods/search/contracts.py",
+  "tests/unit/scientist/policy_design/test_search.py",
+]
+compatibility = "SearchStatus, SearchIteration, SearchResult, GenerationTransition, _EvaluationDisposition, and _EvaluationTransition retain their existing compatibility module names. The source dataclass types and serialized field shape remain unchanged."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No persisted history migration is required."
+api = "No public symbol, DTO field, or wire schema is added."
+limitations = "The added fixture uses a declared synthetic unit to exercise typed assessment round trips; it does not assert policy authority or production measurement provenance. Broader whole-module runtime verification is not run in this candidate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "search-legacy-record-annotation-binding"
+change_class = "internal"
+impact = "internal"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Search history dataclass annotations are bound in the contracts owner before historical module aliases are applied; existing compatibility paths and serialized field shape remain unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

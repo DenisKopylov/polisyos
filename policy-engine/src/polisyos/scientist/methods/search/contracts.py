@@ -11,10 +11,10 @@ from __future__ import annotations
 
 import importlib
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -22,6 +22,7 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreAdmission,
     ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
+    ObjectiveValue,
     _validate_objective_score_state,
 )
 
@@ -30,7 +31,6 @@ if TYPE_CHECKING:
         FunnelOutcome,
         FunnelTicket,
     )
-    from polisyos.scientist.methods.search.objective import ObjectiveValue
 
     # Runtime aliases resolve through __getattr__; avoid importing concrete adapters.
     LegacySearchServiceAdapter: type[Any]
@@ -540,6 +540,22 @@ class _NativeSearchControllerPort(Protocol):
         context: dict[str, Any],
     ) -> _EvaluationTransition: ...
 
+
+# Resolve annotations in their defining module before preserving the historic pickle paths.
+# Pydantic later reflects these dataclasses through the compatibility modules in ``__module__``;
+# retain actual owner-bound types in both annotations and dataclass field metadata so resolution
+# does not depend on whichever names happen to be imported by the legacy facade.
+def _bind_legacy_search_record_annotations(record_type: type[Any]) -> None:
+    resolved = get_type_hints(record_type, globalns=globals(), localns=globals())
+    record_type.__annotations__ = resolved
+    for record_field in fields(record_type):
+        record_field.type = resolved[record_field.name]
+
+
+for _legacy_search_record in (SearchIteration, SearchResult, _EvaluationTransition):
+    _bind_legacy_search_record_annotations(_legacy_search_record)
+del _legacy_search_record
+del _bind_legacy_search_record_annotations
 
 # Preserve the historic lookup paths for serialized search records.
 SearchStatus.__module__ = "polisyos.scientist.methods.search.controller"

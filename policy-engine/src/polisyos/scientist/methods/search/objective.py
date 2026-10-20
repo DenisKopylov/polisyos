@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 
@@ -368,6 +368,91 @@ class ObjectiveScoreStatus(str, Enum):
     UNAVAILABLE = "unavailable"
     INVALID = "invalid"
     NOT_ESTABLISHED = "not_established"
+
+
+_POLICY_RUNTIME_INVOCATION_FIELDS = (
+    "evaluation_attempt_id",
+    "requested_draw_count",
+    "requested_draw_source",
+    "effective_estimation_config_sha256",
+)
+
+
+class _PolicyRuntimeInvocationBinding(BaseModel):
+    """Typed current-schema runtime tuple, including explicitly limited identities."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    evaluation_attempt_id: str | None = Field(default=None, min_length=1)
+    requested_draw_count: int | None = Field(default=None, ge=0, strict=True)
+    requested_draw_source: Literal["effective_estimation_config", "unavailable"] | None = None
+    effective_estimation_config_sha256: str | None = Field(
+        default=None, pattern=r"^[a-f0-9]{64}$", strict=True
+    )
+
+    @model_validator(mode="after")
+    def _validate_draw_request_binding(self) -> _PolicyRuntimeInvocationBinding:
+        if self.requested_draw_source == "effective_estimation_config":
+            if self.effective_estimation_config_sha256 is None:
+                raise ValueError("effective draw configuration digest is required")
+        elif self.requested_draw_source == "unavailable":
+            if (
+                self.requested_draw_count is not None
+                or self.effective_estimation_config_sha256 is not None
+            ):
+                raise ValueError("unavailable draw source cannot carry a request")
+        elif (
+            self.requested_draw_count is not None
+            or self.effective_estimation_config_sha256 is not None
+        ):
+            raise ValueError("draw request values require a declared source")
+        return self
+
+
+def _policy_runtime_invocation_binding(value: Any) -> _PolicyRuntimeInvocationBinding | None:
+    """Parse supplied tuple fields without requiring an invocation to be identifiable."""
+    if not isinstance(value, Mapping):
+        return None
+    supplied = {name: value[name] for name in _POLICY_RUNTIME_INVOCATION_FIELDS if name in value}
+    try:
+        return _PolicyRuntimeInvocationBinding.model_validate(supplied)
+    except (TypeError, ValueError, ValidationError):
+        return None
+
+
+def _policy_runtime_invocation_bindings_status(left: Any, right: Any) -> ObjectiveScoreStatus:
+    """Separate a valid but limited tuple from malformed or fully bound identity."""
+    if left is None and right is None:
+        return ObjectiveScoreStatus.NOT_ESTABLISHED
+    if (left is not None and not isinstance(left, Mapping)) or (
+        right is not None and not isinstance(right, Mapping)
+    ):
+        return ObjectiveScoreStatus.INVALID
+    left_binding = _policy_runtime_invocation_binding(left) if isinstance(left, Mapping) else None
+    right_binding = (
+        _policy_runtime_invocation_binding(right) if isinstance(right, Mapping) else None
+    )
+    if (isinstance(left, Mapping) and left_binding is None) or (
+        isinstance(right, Mapping) and right_binding is None
+    ):
+        return ObjectiveScoreStatus.INVALID
+    if left is None or right is None:
+        return ObjectiveScoreStatus.NOT_ESTABLISHED
+    if left_binding is None or right_binding is None:
+        return ObjectiveScoreStatus.INVALID
+    shared_fields = set(left).intersection(right).intersection(_POLICY_RUNTIME_INVOCATION_FIELDS)
+    if any(left[name] != right[name] for name in shared_fields):
+        return ObjectiveScoreStatus.INVALID
+    if (
+        not set(_POLICY_RUNTIME_INVOCATION_FIELDS).issubset(left)
+        or not set(_POLICY_RUNTIME_INVOCATION_FIELDS).issubset(right)
+        or left_binding.evaluation_attempt_id is None
+        or left_binding.requested_draw_source is None
+    ):
+        return ObjectiveScoreStatus.NOT_ESTABLISHED
+    if left_binding != right_binding:
+        return ObjectiveScoreStatus.INVALID
+    return ObjectiveScoreStatus.AVAILABLE
 
 
 @dataclass(frozen=True, slots=True)

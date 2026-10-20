@@ -96,16 +96,25 @@ def _runtime_vector(
     *,
     values: dict[str, float],
     invocation: dict[str, object] | None = None,
+    unitless_channels: tuple[str, ...] = (),
 ) -> tuple[PolicyEvaluationVector, dict[str, object]]:
-    runtime = invocation or {
-        "evaluation_attempt_id": "attempt-01",
-        "requested_draw_count": 0,
-        "requested_draw_source": "fixture",
-        "effective_estimation_config_sha256": "a" * 64,
-    }
+    runtime = (
+        invocation
+        if invocation is not None
+        else {
+            "evaluation_attempt_id": "attempt-01",
+            "requested_draw_count": 0,
+            "requested_draw_source": "effective_estimation_config",
+            "effective_estimation_config_sha256": "a" * 64,
+        }
+    )
     source = {
         "objective_channels": dict(values),
-        "metric_units": {f"channel:primary:{name}": "fixture-unit" for name in values},
+        "metric_units": {
+            f"channel:primary:{name}": "fixture-unit"
+            for name in values
+            if name not in unitless_channels
+        },
         "feasible": True,
         "blocking_reasons": [],
         "bootstrap": dict(runtime),
@@ -201,20 +210,31 @@ def test_fiscal_reader_reconciles_both_supplied_alias_groups_without_inventing_p
     )
     assert contradicting.score_status is ObjectiveScoreStatus.INVALID
     assert contradicting.raw_value != contradicting.raw_value  # invalid diagnostic is NaN
-    assert not score_assessment_matches_source(
-        contradicting.score_assessment,
-        _with_fixture_units({"gov_balance": -100.0, "budget_deficit": 20.0}),
+    contradicting_source = _with_fixture_units({"gov_balance": -100.0, "budget_deficit": 20.0})
+    # Congruence can faithfully reproduce an INVALID assessment; admission still refuses it.
+    assert score_assessment_matches_source(contradicting.score_assessment, contradicting_source)
+    assert not objective_value_matches_rule(
+        contradicting,
+        contradicting_source,
+        expected_name="budget_deficit",
+        expected_direction=objective.direction,
+        expected_rule_spec=configured_objective_rule_spec(objective) or "",
     )
 
     nested_conflict = objective.evaluate(
         _with_fixture_units({"gov_balance": -100.0, "simulation_results": {"budget_deficit": 20.0}})
     )
     assert nested_conflict.score_status is ObjectiveScoreStatus.INVALID
-    assert not score_assessment_matches_source(
-        nested_conflict.score_assessment,
-        _with_fixture_units(
-            {"gov_balance": -100.0, "simulation_results": {"budget_deficit": 20.0}}
-        ),
+    nested_conflict_source = _with_fixture_units(
+        {"gov_balance": -100.0, "simulation_results": {"budget_deficit": 20.0}}
+    )
+    assert score_assessment_matches_source(nested_conflict.score_assessment, nested_conflict_source)
+    assert not objective_value_matches_rule(
+        nested_conflict,
+        nested_conflict_source,
+        expected_name="budget_deficit",
+        expected_direction=objective.direction,
+        expected_rule_spec=configured_objective_rule_spec(objective) or "",
     )
 
     matching = objective.evaluate(
@@ -370,12 +390,11 @@ def test_selected_rule_binding_is_generic_over_labels_and_rejects_wrong_rule() -
     )
     assert custom_expected._has_complete_objective_basis(custom_evaluation)
 
-    fiscal_zero = BudgetDeficitObjective(expected_unit="fixture-unit").evaluate(
-        _with_fixture_units({"gov_balance": 0.0, "budget_deficit": 0.0})
-    )
+    fiscal_zero_source = _with_fixture_units({"gov_balance": 0.0, "budget_deficit": 0.0})
+    fiscal_zero = BudgetDeficitObjective(expected_unit="fixture-unit").evaluate(fiscal_zero_source)
     assert objective_value_matches_rule(
         fiscal_zero,
-        {"gov_balance": 0.0, "budget_deficit": 0.0},
+        fiscal_zero_source,
         expected_name="budget_deficit",
         expected_direction=BudgetDeficitObjective(expected_unit="fixture-unit").direction,
         expected_rule_spec=budget_rule,
@@ -404,12 +423,243 @@ def test_marker_cannot_upgrade_absent_or_conflicting_fiscal_source() -> None:
     assert conflict.objective_value is None
 
 
+@pytest.mark.parametrize(
+    "invocation",
+    [
+        (
+            {
+                "evaluation_attempt_id": "attempt-effective-draws",
+                "requested_draw_count": 0,
+                "requested_draw_source": "effective_estimation_config",
+                "effective_estimation_config_sha256": "a" * 64,
+            },
+        ),
+        (
+            {
+                "evaluation_attempt_id": "attempt-no-draw-config",
+                "requested_draw_count": None,
+                "requested_draw_source": "unavailable",
+                "effective_estimation_config_sha256": None,
+            },
+        ),
+        (
+            {
+                "evaluation_attempt_id": "attempt-config-count-unknown",
+                "requested_draw_count": None,
+                "requested_draw_source": "effective_estimation_config",
+                "effective_estimation_config_sha256": "b" * 64,
+            },
+        ),
+    ],
+    ids=("effective-draw-config", "identified-no-draw-config", "config-count-unknown"),
+)
+def test_runtime_vector_accepts_complete_emitted_invocation_bindings(
+    invocation: dict[str, object],
+) -> None:
+    vector, source = _runtime_vector(
+        values={"policy_value": 0.25, "employment": 0.1}, invocation=invocation
+    )
+    assert vector.score_assessment is not None
+    assert vector.score_assessment.status is ObjectiveScoreStatus.AVAILABLE
+    assert vector.legacy_scalar_proxy_for_search(source)[1] is ObjectiveScoreStatus.AVAILABLE
+    assert vector.frontier_objectives("equity_aware", source)
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        ({"evaluation_attempt_id": ""},),
+        ({"requested_draw_count": True},),
+        ({"requested_draw_count": -1},),
+        ({"requested_draw_source": "fixture"},),
+        ({"effective_estimation_config_sha256": "g" * 64},),
+        (
+            {
+                "requested_draw_source": "unavailable",
+                "requested_draw_count": 0,
+                "effective_estimation_config_sha256": None,
+            },
+        ),
+        ({"effective_estimation_config_sha256": None},),
+    ],
+    ids=(
+        "blank-identity",
+        "boolean-count",
+        "negative-count",
+        "unknown-source",
+        "malformed-digest",
+        "unavailable-with-count",
+        "effective-source-without-digest",
+    ),
+)
+def test_equal_runtime_binding_values_still_require_the_typed_tuple_contract(
+    overrides: dict[str, object],
+) -> None:
+    invocation: dict[str, object] = {
+        "evaluation_attempt_id": "attempt-01",
+        "requested_draw_count": 0,
+        "requested_draw_source": "effective_estimation_config",
+        "effective_estimation_config_sha256": "a" * 64,
+    }
+    invocation.update(overrides)
+    vector, source = _runtime_vector(
+        values={"policy_value": 0.25, "employment": 0.1}, invocation=invocation
+    )
+    assert source["bootstrap"] == invocation
+    assert vector.score_assessment is not None
+    assert vector.score_assessment.status is ObjectiveScoreStatus.INVALID
+    assert vector.legacy_scalar_proxy_for_search(source) == (
+        None,
+        ObjectiveScoreStatus.INVALID,
+    )
+    assert vector.frontier_objectives("equity_aware", source) == {}
+    assert _policy_rank_key(vector, source) is None
+    assert all(
+        objective.score_status is ObjectiveScoreStatus.INVALID
+        for objective in vector.as_legacy_objectives(source)
+    )
+
+
+@pytest.mark.parametrize(
+    "invocation",
+    [
+        (
+            {
+                "evaluation_attempt_id": None,
+                "requested_draw_count": None,
+                "requested_draw_source": "unavailable",
+                "effective_estimation_config_sha256": None,
+            },
+        ),
+        (
+            {
+                "evaluation_attempt_id": "attempt-incomplete",
+                "requested_draw_source": "unavailable",
+                "effective_estimation_config_sha256": None,
+            },
+        ),
+        (
+            {
+                "evaluation_attempt_id": "attempt-incomplete",
+                "requested_draw_count": None,
+                "effective_estimation_config_sha256": None,
+            },
+        ),
+        (
+            {
+                "requested_draw_count": 0,
+                "requested_draw_source": "effective_estimation_config",
+                "effective_estimation_config_sha256": "a" * 64,
+            },
+        ),
+        (
+            {
+                "evaluation_attempt_id": "attempt-incomplete",
+                "requested_draw_source": "unavailable",
+                "requested_draw_count": None,
+            },
+        ),
+    ],
+    ids=(
+        "explicitly-limited-identity",
+        "missing-draw-count",
+        "missing-draw-source",
+        "missing-identity",
+        "missing-unavailable-digest-field",
+    ),
+)
+def test_valid_limited_or_incomplete_runtime_identity_stays_not_established(
+    invocation: dict[str, object],
+) -> None:
+    vector, source = _runtime_vector(
+        values={"policy_value": 0.25, "employment": 0.1}, invocation=invocation
+    )
+    assert vector.score_source == source
+    assert vector.score_assessment is not None
+    assert vector.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert vector.legacy_scalar_proxy_for_search(source) == (
+        None,
+        ObjectiveScoreStatus.NOT_ESTABLISHED,
+    )
+    assert vector.frontier_objectives("equity_aware", source) == {}
+    assert _policy_rank_key(vector, source) is None
+    assert all(
+        objective.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        for objective in vector.as_legacy_objectives(source)
+    )
+
+
+@pytest.mark.parametrize(
+    "bootstrap_overrides",
+    [
+        ({"evaluation_attempt_id": "attempt-other"},),
+        ({"requested_draw_count": 1},),
+        (
+            {
+                "requested_draw_count": None,
+                "requested_draw_source": "unavailable",
+                "effective_estimation_config_sha256": None,
+            },
+        ),
+        ({"effective_estimation_config_sha256": "b" * 64},),
+    ],
+    ids=("attempt-id", "draw-count", "draw-source", "config-digest"),
+)
+def test_runtime_invocation_mismatch_is_invalid_after_source_rebinding(
+    bootstrap_overrides: dict[str, object],
+) -> None:
+    vector, source = _runtime_vector(values={"policy_value": 0.25, "employment": 0.1})
+    bootstrap = source["bootstrap"]
+    assert isinstance(bootstrap, dict)
+    mismatch = {
+        **source,
+        "bootstrap": {**bootstrap, **bootstrap_overrides},
+    }
+    rebound = vector.with_score_source_results(mismatch)
+    assert rebound.score_assessment is not None
+    assert rebound.score_assessment.status is ObjectiveScoreStatus.INVALID
+    assert rebound.legacy_scalar_proxy_for_search(mismatch) == (
+        None,
+        ObjectiveScoreStatus.INVALID,
+    )
+    assert rebound.frontier_objectives("equity_aware", mismatch) == {}
+    assert all(
+        objective.score_status is ObjectiveScoreStatus.INVALID
+        for objective in rebound.as_legacy_objectives(mismatch)
+    )
+
+
+def test_identified_runtime_axis_remains_available_when_scalar_unit_is_missing() -> None:
+    invocation = {
+        "evaluation_attempt_id": "attempt-partial-axis",
+        "requested_draw_count": None,
+        "requested_draw_source": "unavailable",
+        "effective_estimation_config_sha256": None,
+    }
+    vector, source = _runtime_vector(
+        values={"policy_value": 0.0, "employment": 0.5},
+        invocation=invocation,
+        unitless_channels=("employment",),
+    )
+    assert vector.score_assessment is not None
+    assert vector.score_assessment.status is ObjectiveScoreStatus.UNAVAILABLE
+    assert vector.legacy_scalar_proxy_for_search(source) == (
+        None,
+        ObjectiveScoreStatus.UNAVAILABLE,
+    )
+    assert vector.frontier_objectives("equity_aware", source) == {"policy_value": 0.0}
+    [policy_value, employment] = vector.as_legacy_objectives(source)
+    assert policy_value.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert employment.score_status is ObjectiveScoreStatus.UNAVAILABLE
+
+
 def test_runtime_vector_assessment_fails_after_source_or_invocation_binding_is_stripped() -> None:
     vector, source = _runtime_vector(values={"policy_value": 0.25, "employment": 0.1})
     score, status = vector.legacy_scalar_proxy_for_search(source)
     assert status is ObjectiveScoreStatus.AVAILABLE
     assert score == vector.legacy_scalar_proxy
     assert vector.frontier_objectives("global_feasible", source)
+    assert _policy_rank_key(vector, source) is not None
     persisted = PolicyEvaluationVector.model_validate(vector.model_dump(mode="json"))
     assert persisted.legacy_scalar_proxy_for_search() == (
         vector.legacy_scalar_proxy,
@@ -432,7 +682,48 @@ def test_runtime_vector_assessment_fails_after_source_or_invocation_binding_is_s
         None,
         ObjectiveScoreStatus.NOT_ESTABLISHED,
     )
-    assert stripped.frontier_objectives("global_feasible", source) == {}
+    assert _policy_rank_key(stripped, source) is None
+    assert all(
+        objective.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        for objective in stripped.as_legacy_objectives(source)
+    )
+    for view in ("global_feasible", "equity_aware", "low_risk", "implementation_simple"):
+        assert vector.frontier_objectives(view, source)
+        assert stripped.frontier_objectives(view, source) == {}
+
+    resealed = stripped.with_score_source_results(source)
+    assert resealed.score_assessment is not None
+    assert resealed.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert resealed.legacy_scalar_proxy_for_search(source) == (
+        None,
+        ObjectiveScoreStatus.NOT_ESTABLISHED,
+    )
+    assert _policy_rank_key(resealed, source) is None
+    assert resealed.frontier_objectives("global_feasible", source) == {}
+    assert all(
+        objective.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        for objective in resealed.as_legacy_objectives(source)
+    )
+
+    stripped_basis_vector = PolicyEvaluationVector.model_validate(
+        {
+            key: value
+            for key, value in vector.model_dump(mode="json").items()
+            if key != "score_source"
+        }
+    )
+    assert stripped_basis_vector.frontier_objectives("global_feasible", source) == {}
+    markerless_runtime = vector.model_copy(update={"metadata": {}, "score_assessment": None})
+    assert markerless_runtime.frontier_objectives("global_feasible", source) == {}
+    source_without_invocation = {key: value for key, value in source.items() if key != "bootstrap"}
+    assert vector.frontier_objectives("global_feasible", source_without_invocation) == {}
+    runtime_context = source["bootstrap"]
+    assert isinstance(runtime_context, dict)
+    changed_invocation = {
+        **source,
+        "bootstrap": {**runtime_context, "evaluation_attempt_id": "attempt-02"},
+    }
+    assert vector.frontier_objectives("global_feasible", changed_invocation) == {}
 
     changed_source = {
         **source,
@@ -658,6 +949,7 @@ def test_policy_vector_axis_requires_selected_and_source_unit_without_scalar_gat
         None,
         ObjectiveScoreStatus.UNAVAILABLE,
     )
+    assert vector.frontier_objectives("equity_aware", source) == {"policy_value": 0.0}
 
     evaluation = Evaluation(
         candidate_id="selected-channel-only",
@@ -804,7 +1096,9 @@ def test_multi_objective_training_requires_each_configured_coordinate() -> None:
     optimizer._negate_mask = [-1.0, 1.0]
     assert evaluation.is_valid
     assert not optimizer._has_complete_objective_basis(evaluation)
-    with pytest.raises(ValueError, match="objective basis is missing 'employment'"):
+    with pytest.raises(
+        ValueError, match="objective basis is not reconciled with selected objective rules"
+    ):
         optimizer._objective_vector(evaluation)
 
 
@@ -1273,7 +1567,10 @@ def test_configured_bayesian_binding_keeps_custom_metric_labels_and_rejects_rule
     assert name == custom_metric
     assert direction is OptimizationDirection.MINIMIZE
 
-    source = {"metrics": {custom_metric: 42.0, "budget_deficit": 17.0}}
+    source = {
+        "metrics": {custom_metric: 42.0, "budget_deficit": 17.0},
+        "metric_units": {custom_metric: "fixture-unit"},
+    }
     assessment = _assess_search_metric(
         _with_fixture_units(source), custom_metric, "maximize", "fixture-unit"
     )

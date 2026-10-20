@@ -1,0 +1,11 @@
+id = "2026-10-20-runtime-pareto-axis-source-binding"
+title = "Bind runtime vector projections to emitted source and invocation"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Runtime-bound scalar, legacy per-axis, ranking, and Pareto projections now share a typed invocation-binding check and emitted-source reconciliation; selected axes still have independent unit/status admission."
+surface_classification = "internal: polisyos.scientist.policy_design"
+compatibility = "Persisted vector shapes and optional producer diagnostics remain unchanged. A runtime-origin vector with a valid but missing identity or incomplete tuple remains NOT_ESTABLISHED for scalar, rank, frontier, and legacy projections; a malformed or divergent present tuple is INVALID and refused. An identified invocation may still report draw configuration as unavailable. Non-runtime per-axis projections keep their existing selected-unit behavior."
+migration = "No data migration is required. Re-evaluate historical runtime vectors against their retained emitted source and invocation context before using them in current Pareto views."
+limitations = "This check proves source/invocation congruence only; it does not grant policy authority or validate domain measurement quality. A selected axis can remain available when an unrelated axis makes the aggregate scalar unavailable. Cross-candidate Pareto comparability still needs a common selected rule/unit profile; the registry currently does not resolve that basis."
+evidence = ["tests/unit/scientist/search/test_objective_availability.py", "tests/unit/scientist/search/funnel/test_types.py"]

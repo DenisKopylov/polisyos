@@ -61,6 +61,31 @@ def test_executed_work_packet_separates_completed_runtime_call_from_draw_counts(
     assert packet.unattempted_draw_count is None
 
 
+def test_executed_work_packet_preserves_unavailable_draw_configuration() -> None:
+    packet = FunnelExecutedWorkPacket(
+        run_id="run-unavailable-config",
+        ticket_id="ticket-unavailable-config",
+        candidate_hash="a" * 16,
+        candidate_ref=_artifact_ref("1", "scientist.policy_design.candidate"),
+        stage_level=3,
+        stage_name="funnel_L3_medium",
+        fidelity="medium",
+        evaluation_attempt_id="packet-attempt-1",
+        observed_at=datetime.now(UTC),
+        backend_kind="production",
+        source_result_ref=_artifact_ref("2", "scientist.policy_evaluation_vector"),
+        requested_draw_count=None,
+        requested_draw_source="unavailable",
+        effective_estimation_config_sha256=None,
+    )
+
+    assert packet.schema_version == "1.1"
+    assert packet.evaluation_attempt_id == "packet-attempt-1"
+    assert packet.requested_draw_source == "unavailable"
+    assert packet.requested_draw_count is None
+    assert packet.effective_estimation_config_sha256 is None
+
+
 def test_legacy_work_packet_keeps_its_fidelity_default_source() -> None:
     payload = {
         "schema_version": "1.0",
@@ -87,6 +112,28 @@ def test_legacy_work_packet_keeps_its_fidelity_default_source() -> None:
     payload["requested_draw_source"] = "fidelity_default"
     with pytest.raises(ValueError, match="new work packets require a source-bound"):
         FunnelExecutedWorkPacket.model_validate(payload)
+
+
+def test_executed_work_packet_rejects_an_unavailable_source_with_draw_values() -> None:
+    packet = {
+        "run_id": "run-1",
+        "ticket_id": "ticket-1",
+        "candidate_hash": "a" * 16,
+        "candidate_ref": _artifact_ref("1", "scientist.policy_design.candidate"),
+        "stage_level": 3,
+        "stage_name": "funnel_L3_medium",
+        "fidelity": "medium",
+        "evaluation_attempt_id": "attempt-1",
+        "observed_at": datetime.now(UTC),
+        "backend_kind": "production",
+        "source_result_ref": _artifact_ref("2", "scientist.policy_evaluation_vector"),
+        "requested_draw_count": 64,
+        "requested_draw_source": "unavailable",
+        "effective_estimation_config_sha256": None,
+    }
+
+    with pytest.raises(ValueError, match="runtime invocation tuple is invalid"):
+        FunnelExecutedWorkPacket.model_validate(packet)
 
 
 def test_executed_work_packet_rejects_self_labelled_draw_counts() -> None:

@@ -41303,5 +41303,122 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-runtime-vector-invocation-binding-r3-20261020-r1": {
+    "slice_base": "24eafc05a5e1a761ec3b4727b7d3a85279608790",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+        "operation": "update",
+        "preimage_sha256": "1cebb4d85ea2852a5fb08bff734c82f92f21e879f42eeb27a96530abc08c4d21",
+        "postimage_sha256": "36d80fb9c0146bc78c0ed44d43d80e124aa41e6aeaea231e14fbd7ea926ad46c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/postimages/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py": {
+        "operation": "update",
+        "preimage_sha256": "30f41d0456bf90c38137f7fa85e4415dcdbc7aaca0c2c23629a31f11ae991922",
+        "postimage_sha256": "6ed61cec40b2433d0504d6ef3646d31d6fb3b2b098683ee3e72e6ab8cd0852b4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/policy_design/objectives.py": {
+        "operation": "update",
+        "preimage_sha256": "a5c9ad8ba8aaefc94eb3963e4af59aed530680dbfbaff65304dbcf3dadf51a85",
+        "postimage_sha256": "4d23d110b6c534b72286c093685460643bb5a71e5a8207c6d7737cdbd085c30e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/postimages/policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/test_objective_availability.py": {
+        "operation": "update",
+        "preimage_sha256": "b6ef1cb039b1b3c939b2b772529b16275a7f5ff988402198b6afb1becb85f1e3",
+        "postimage_sha256": "c796d5eb5b6a542ea95693a20f7ae0fb5fdf9ce7eec31adfb8a0cf34332cacd1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/postimages/policy-engine/tests/unit/scientist/search/test_objective_availability.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_types.py": {
+        "operation": "update",
+        "preimage_sha256": "84d949193b18023d4d1a24bc8a4d80dd90a01bf0c5ea4d0fd78e4ed01ba045a9",
+        "postimage_sha256": "6aed7b15aa41b003347d6818906cecf3715b2e209034ba2f6c30b97f4b16b84a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/postimages/policy-engine/tests/unit/scientist/search/funnel/test_types.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-runtime-pareto-axis-source-binding.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "391ed088f629305431d570314d41d0e352d4d515cdb26cb9cb4ec52d332d43e6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/postimages/policy-engine/release-fragments/unreleased/2026-10-20-runtime-pareto-axis-source-binding.toml",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-runtime-vector-invocation-binding-r3-20261020-r1/source-application.json",
+      "sha256": "cee08d9374b2d530c7834b2ab6f37a6721ca238c5df88e860197915b8d4afe36"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-runtime-vector-invocation-binding-r3-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/manifest-r3.json",
+        "sha256": "0e2447254c586f72ca796180bb6d1d6ce6e356c34469c58ad2d9fbd3c9446285"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r3/candidate-r3.patch",
+        "sha256": "e70ab9f79fd948704f823f12432f9b19890c7eb323e9a0e61dd5e1816173d3e5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/objective-vector-source-independent-review-r3-048880-20261020/review.json",
+        "sha256": "b79b7d6da6fcf6baa207986614c6056edefda30c630cbd9145c66395a5a3bc8b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/static-results-r3-final8/result.json",
+        "sha256": "eb363c08c8afc14defc504b39bd4803fa18ecdfa21ea570f0fd07910e2cb723a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/ruff-canonical-fix-r3-v2/result.json",
+        "sha256": "3169c9e14069a9837f664ae80c4befc74ad7d2b8f032ac4ced1e94eec62ec240"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "classification": "SAME runtime-source/invocation admission class, one level deeper from equality-only reconciliation to typed tuple validity. This candidate widens the common gate and persisted packet validation together.",
+      "prior_same_class_findings": 2,
+      "action": "Widen shared mechanism, then stop the instance-fix ladder.",
+      "additional_runtime_findings": "NOT_ESTABLISHED; no product test or runtime was executed."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      {
+        "property": "Cross-candidate Pareto comparability for same-named coordinates with different rules/units/profiles.",
+        "status": "NOT_ESTABLISHED and outside this candidate.",
+        "smallest_missing_capability": "Resolve a common selected rule/unit/profile per coordinate across the compared registry entries before promoting raw values."
+      },
+      {
+        "property": "Producer custody, policy authority, and domain measurement quality.",
+        "status": "NOT_ESTABLISHED; matching invocation/source fields establish congruence only."
+      },
+      {
+        "property": "Whether production currently supplies relevant selected metric units.",
+        "status": "NOT_ESTABLISHED; existing output was observed to lack metric_units for relevant paths; fixture units remain test-only."
+      },
+      "Opaque nonempty attempt ID is a source-congruence selector; producer formatting/custody not independently verified. Whitespace-only ID is not a producer-authentic positive.",
+      "Actual product/runtime tests on the adopted source pending; G acceptance and formal closures open."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Independent delta review of these exact six postimages and patch. After root adoption, run the whole named consumer modules under the canonical project profile, including packet schema compatibility, malformed-present and missing tuple cases, all four mismatch fields, source metadata removal/reseal, JSON persistence, registry/output consumers, and the scalar-unavailable selected-axis positive. Keep the cross-candidate rule/unit profile limitation separate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

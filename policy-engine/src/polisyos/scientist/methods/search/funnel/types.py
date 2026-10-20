@@ -22,6 +22,7 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveScoreAdmission,
     ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
+    _policy_runtime_invocation_binding,
     _validate_objective_score_state,
 )
 from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
@@ -147,14 +148,18 @@ class FunnelExecutedWorkPacket(ArtifactMinimalityMixin):
                 raise ValueError("legacy work packet draw source is invalid")
         elif self.requested_draw_source == "fidelity_default":
             raise ValueError("new work packets require a source-bound draw request")
-        elif self.requested_draw_source == "effective_estimation_config":
-            if self.effective_estimation_config_sha256 is None:
-                raise ValueError("effective draw configuration digest is required")
         elif (
-            self.requested_draw_count is not None
-            or self.effective_estimation_config_sha256 is not None
+            _policy_runtime_invocation_binding(
+                {
+                    "evaluation_attempt_id": self.evaluation_attempt_id,
+                    "requested_draw_count": self.requested_draw_count,
+                    "requested_draw_source": self.requested_draw_source,
+                    "effective_estimation_config_sha256": (self.effective_estimation_config_sha256),
+                }
+            )
+            is None
         ):
-            raise ValueError("unavailable draw source cannot carry a request")
+            raise ValueError("new work packet runtime invocation tuple is invalid")
         return self
 
 

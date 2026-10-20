@@ -44069,5 +44069,102 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-voi-typed-score-context-reviewed-adoption-20261021-r2": {
+    "slice_base": "d391fc1eb797beb4089164ffca24f154905588b5",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "176b330311653d8132483a60f940b5f7b2db1b04b28d83069f361a072323dbd6",
+        "git_base_preimage_sha256": "176b330311653d8132483a60f940b5f7b2db1b04b28d83069f361a072323dbd6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-replay-context-20261021-r2/candidate/postimages/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "postimage_sha256": "98a49ad8ad699a165ce4241d5277334fa122fb7c144c73a90b9f7ac34796cef6"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "9f8d56a135a364264626c0fe9c554c183d8710a3a49214e0ece4c3eb7d259acb",
+        "git_base_preimage_sha256": "9f8d56a135a364264626c0fe9c554c183d8710a3a49214e0ece4c3eb7d259acb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-replay-context-20261021-r2/candidate/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "postimage_sha256": "441257ad03ce6b10a17de6c397f1e4dc541cf85deb73da9e1d0eb989fffe2ce5"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "28cfd1816df79332e4b8fa306f0487dcc55953e2b96856d34d2babde0621201e",
+        "git_base_preimage_sha256": "28cfd1816df79332e4b8fa306f0487dcc55953e2b96856d34d2babde0621201e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-fixture-canonical-format-only-20261021-r1/test_voi_work_packet_bridge.py",
+        "postimage_sha256": "bbd4d2b93f6d5fc8eeb8bb7cac72f16e474c3fbf43401674426f5998e897e838"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-typed-score-context-reviewed-adoption-20261021-r2/source-application.json",
+      "sha256": "3d3f2adb36af862ee591370c794a9c472bca480b332e924a2160fe7bcd9dde81"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-typed-score-context-reviewed-adoption-20261021-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-replay-context-20261021-r2/manifest.json",
+        "sha256": "d534d3613d89e2f855cb265a37f85a8445f5e98db75828b9e8be45fb3477d431"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-replay-context-20261021-r2/verification.json",
+        "sha256": "57dcbf9fe956f52ba967c62e758d4e4e2a0231e4d455083fcccf2c72877aeb9d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-replay-context-20261021-r2/patch.diff",
+        "sha256": "391f9cd3c69a5a2328ddd8e3554a27a386cf8281a97cbcc628872bcde3a1f6d7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-sourceconcordance-fullfixture-20261021-r1/candidate-manifest.json",
+        "sha256": "71d9e57ed6e840cfb20dd7ba522abdc795f437b2a9e28f5be11ad2d28b798292"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-sourceconcordance-fullfixture-20261021-r1/freeze-r1.json",
+        "sha256": "0d120672dfba5b768d7c897e40f20a254fb0142015858f38aa70cc013f8b43ca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-voi-context-and-fixture-20261021-r1/r2-delta-review.json",
+        "sha256": "0f5181e5dae588731245e43f9ecbb7f22c3b3782594b2ed67470df0c240770c6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-voi-context-and-fixture-20261021-r1/review.json",
+        "sha256": "27d2fc9ca2d1745961a7486c734b896d1f97d9e836fc77ea391f57c930d9ffeb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-fixture-canonical-format-only-20261021-r1/preparation.json",
+        "sha256": "1081bcc8e517ed74d7a5de4ae31dc6149bd49bab5fbc1e955112d467dc7b65c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-voi-context-and-fixture-20261021-r1/format-only-delta-review.json",
+        "sha256": "69e58b343bf350a6ca9e9a5ebba65b4661d99b2d3e4f41aa23b40395ef76837b"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same source-concordance bridge quantity across persisted typed vector, existing configured objective channel/unit and fresh VOI score replay; repair the common verifier plus complete fixture, not 17 local assertions.",
+      "falsifier": "Retain packet/manifest/status markers but remove/mismatch the selected vector source, unit or channel; admission/score/learner update refuses. A valid available packet with no qualified score produces no learner observation. Raw fiscal aliases remain false/null/empty in the numerical fixture."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "This fixture coordinate demonstrates candidate numerical replay only; it supplies no fiscal, causal, empirical calibration or external policy authority.",
+      "Actual preimage whole195=176P19F retained, 18 VOI cases addressed by this common bridge/fixture; actual composed recheck remains UNRUN.",
+      "AD01 new owner-qualified method observations and configured objective law are separate pending source, not claimed by this repair."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Execute original nine whole VOI/Search/Objective modules together with three Core and real terminal engine whole modules on the adopted source; retain all semantic removal/control outcomes, origin hashes and full deciding outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

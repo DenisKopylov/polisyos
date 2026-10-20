@@ -40,7 +40,6 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
 )
 from polisyos.scientist.methods.search.objective import (
-    BudgetDeficitObjective,
     ObjectiveScoreStatus,
     SourceMetricObservation,
     observe_source_government_balance,
@@ -194,17 +193,22 @@ def _source_balance_observation(store: FileSystemCAS) -> SourceMetricObservation
     return observation
 
 
-def _source_results(invocation: dict[str, Any] | None = None) -> dict[str, Any]:
+def _source_results(
+    invocation: dict[str, Any] | None = None,
+    *,
+    selected_unit_available: bool = True,
+) -> dict[str, Any]:
     selected_invocation = _INVOCATION if invocation is None else invocation
+    metric_units = (
+        {"channel:primary:fixture_numeric_coordinate": "fixture-unit"}
+        if selected_unit_available
+        else {}
+    )
     return {
-        "gov_balance": 0.0,
-        "metric_units": {
-            "gov_balance": "fixture-currency",
-            "channel:primary:gdp_growth": "fixture-currency",
-        },
-        "budget_deficit_objective_usable": True,
-        "budget_deficit_objective_value": 0.0,
-        "objective_channels": {"gdp_growth": 0.25},
+        "metric_units": metric_units,
+        "budget_deficit_objective_usable": False,
+        "budget_deficit_objective_value": None,
+        "objective_channels": {"fixture_numeric_coordinate": 0.25},
         "feasible": True,
         "blocking_reasons": [],
         "bootstrap": dict(selected_invocation),
@@ -251,21 +255,14 @@ class _PacketStage(FunnelStage):
     def evaluate(self, candidate: dict[str, Any], context: dict[str, Any]) -> FunnelStageResult:
         schema = context["policy_candidate_schema"]
         candidate_ref = context["policy_candidate_ref"]
-        source = _source_results(self._bootstrap_invocation)
+        source = _source_results(
+            self._bootstrap_invocation,
+            selected_unit_available=self._packet_mode != "unscored_packet",
+        )
         source_observation = context.get("policy_runtime_source_measurement")
-        fiscal_source_values = {"gov_balance": 0.0}
-        if source_observation is not None:
-            # Keep the separately observed stock out of the budget-deficit metric.
-            source.pop("gov_balance")
-            source["budget_deficit"] = 0.0
-            source["metric_units"].pop("gov_balance")
-            source["metric_units"]["budget_deficit"] = "fixture-currency"
-            fiscal_source_values = {"budget_deficit": 0.0}
-        measurement = {
-            "usable": True,
-            "normalized_value": 0.0,
-            "source_values": fiscal_source_values,
-        }
+        # A Foundry source observation is kept in its own typed metadata slot; it
+        # is not re-labelled as a fiscal deficit or a score coordinate.
+        measurement = {"usable": False, "normalized_value": None, "source_values": {}}
         vector_metadata = {
             "policy_runtime_invocation": dict(self._metadata_invocation),
             "policy_runtime_fiscal_measurement": measurement,
@@ -275,12 +272,12 @@ class _PacketStage(FunnelStage):
         vector = PolicyEvaluationVector(
             candidate_id=schema.candidate_id,
             primary={
-                "gdp_growth": ObjectiveChannelValue(
-                    name="gdp_growth",
+                "fixture_numeric_coordinate": ObjectiveChannelValue(
+                    name="fixture_numeric_coordinate",
                     kind=ObjectiveKind.PRIMARY,
                     value=0.25,
                     direction=ObjectiveDirection.MAXIMIZE,
-                    expected_unit="fixture-currency",
+                    expected_unit="fixture-unit",
                 )
             },
             metadata=vector_metadata,
@@ -290,8 +287,17 @@ class _PacketStage(FunnelStage):
             candidate_ref=candidate_ref,
             evaluation_vector=vector,
         )
-        objective = BudgetDeficitObjective(expected_unit="fixture-currency").evaluate(source)
+        objective = next(
+            item
+            for item in vector.as_legacy_objectives(source)
+            if item.name == "fixture_numeric_coordinate"
+        )
         assert objective.score_assessment is not None
+        objective_source = {
+            **source,
+            "policy_evaluation": vector.model_dump(mode="python"),
+            "simulation_results": source,
+        }
         packet_ref = None
         if self._packet_mode != "score_only":
             identity = context["policy_runtime_work_identity"]
@@ -318,6 +324,14 @@ class _PacketStage(FunnelStage):
                 packet_ref = _persist_profileless_legacy_packet(self._store, packet)
             else:
                 packet_ref = persist_funnel_executed_work_packet(self._store, packet)
+        reported_packet_ref = (
+            None if self._packet_mode == "marker_without_reference" else packet_ref
+        )
+        producer_status_marker = (
+            "available"
+            if packet_ref is not None or self._packet_mode == "marker_without_reference"
+            else "unavailable"
+        )
         result = FunnelStageResult(
             policy_candidate=candidate,
             objective_value=objective.raw_value,
@@ -326,21 +340,21 @@ class _PacketStage(FunnelStage):
             score_assessment=objective.score_assessment,
             stage_name=self.stage_name,
             duration_seconds=0.1,
-            simulation_results=source,
+            simulation_results=objective_source,
             feedback={
                 "policy_runtime_fidelity": "full",
                 "policy_runtime_backend_kind": "fixture_policy_evaluator",
+                "policy_runtime_work_packet_status": producer_status_marker,
             },
             compute_cost_usd=0.0,
             compute_cost_origin="estimated",
             fidelity_level=4,
-            executed_work_packet_ref=packet_ref,
-            executed_work_packet_status=("unavailable" if packet_ref is None else "available"),
+            executed_work_packet_ref=reported_packet_ref,
+            executed_work_packet_status=(
+                "unavailable" if reported_packet_ref is None else "available"
+            ),
             terminal_action="defer",
         )
-        if self._packet_mode == "marker_without_reference":
-            # Removal control: retain the producer status marker after removing its ref.
-            result.executed_work_packet_ref = None
         return result
 
 
@@ -582,6 +596,36 @@ def test_packet_bound_voi_rechecks_cas_and_keeps_score_only_rows_unqualified(
     assert observation.work_packet_claim.packet_ref == result.executed_work_packet_ref
     assert observation.work_packet_claim.packet_ref.manifest_profile_sha256 is not None
     assert observation.work_packet_claim.source_result_ref != result.executed_work_packet_ref
+    source_payload = load_core_json_artifact(store, observation.work_packet_claim.source_result_ref)
+    assert source_payload["primary"]["fixture_numeric_coordinate"]["value"] == 0.25
+    assert source_payload["score_source"]["objective_channels"] == {
+        "fixture_numeric_coordinate": 0.25
+    }
+    assert source_payload["score_source"]["metric_units"] == {
+        "channel:primary:fixture_numeric_coordinate": "fixture-unit"
+    }
+    assert source_payload["score_source"]["budget_deficit_objective_usable"] is False
+    assert source_payload["score_source"]["budget_deficit_objective_value"] is None
+    assert source_payload["metadata"]["policy_runtime_fiscal_measurement"] == {
+        "usable": False,
+        "normalized_value": None,
+        "source_values": {},
+    }
+    assert observation.actual_objective_value == 0.25
+    assert observation.score_assessment is not None
+    assert observation.score_assessment.source_unit_bindings == (
+        ("channel:primary:fixture_numeric_coordinate", "fixture-unit"),
+    )
+    assert observation.objective_source is not None
+    assert (
+        observation.objective_source["policy_evaluation"]["primary"]["fixture_numeric_coordinate"][
+            "value"
+        ]
+        == 0.25
+    )
+    assert observation.objective_source["simulation_results"]["objective_channels"] == {
+        "fixture_numeric_coordinate": 0.25
+    }
     for selected_ref in (
         observation.work_packet_claim.packet_ref,
         observation.work_packet_claim.candidate_ref,
@@ -653,7 +697,9 @@ def test_packet_bound_voi_rechecks_cas_and_keeps_score_only_rows_unqualified(
     # Supplied source drift fails closed instead of being accepted via the claim marker.
     tampered_wire = snapshot.model_dump(mode="json")
     tampered_source = tampered_wire["observations"][0]["objective_source"]
-    tampered_source["metric_units"]["gov_balance"] = "different-fixture-unit"
+    tampered_source["simulation_results"]["metric_units"][
+        "channel:primary:fixture_numeric_coordinate"
+    ] = "different-fixture-unit"
     with pytest.raises(ValidationError):
         VOIModelSnapshot.model_validate(tampered_wire)
 
@@ -669,14 +715,39 @@ def test_packetless_or_reference_removed_observation_remains_score_only(
         assert observation.score_status is ObjectiveScoreStatus.AVAILABLE
         assert observation.work_packet_claim is None
         if mode == "marker_without_reference":
-            assert result.executed_work_packet_status == "rejected"
+            assert result.executed_work_packet_status == "unavailable"
             assert result.executed_work_packet_ref is None
+            assert result.feedback["policy_runtime_work_packet_status"] == "available"
+            with pytest.raises(
+                ValueError,
+                match="available executed-work status requires a packet reference",
+            ):
+                replace(result, executed_work_packet_status="available")
         restored = (
             PredictiveVOIScheduler.from_snapshot(snapshot, artifact_store=store)
             .snapshot()
             .observations[0]
         )
         assert restored.work_packet_claim is None
+
+
+def test_packet_without_admitted_score_does_not_update_voi_observations_or_learner(
+    tmp_path: Path,
+) -> None:
+    outcome, snapshot, store = _observe(
+        tmp_path, suffix="packet-without-score", packet_mode="unscored_packet"
+    )
+    result = outcome.stage_results[4]
+    assert result.executed_work_packet_status == "available"
+    assert result.executed_work_packet_ref is not None
+    assert result.feedback["policy_runtime_work_packet_status"] == "available"
+    assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert snapshot.observations == []
+    assert snapshot.stage_costs == {}
+    packet = FunnelExecutedWorkPacket.model_validate(
+        load_core_json_artifact(store, result.executed_work_packet_ref)
+    )
+    assert packet.source_result_ref is not None
 
 
 def test_profileless_packet_stays_score_only_and_old_history_remains_readable(
@@ -741,7 +812,41 @@ def test_malformed_or_wrong_present_packet_profile_never_becomes_profileless_suc
     assert downgraded.work_packet_claim is None
 
 
-@pytest.mark.parametrize("tamper", ["extra_vector_field", "measurement_source_drift"])
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        "selected_vector_channel_removed",
+        "source_objective_channel_removed",
+        "selected_unit_changed",
+    ],
+)
+def test_packet_score_rejects_removed_or_rebound_selected_channel_source(
+    tmp_path: Path, tamper: str
+) -> None:
+    _outcome, snapshot, _store = _observe(
+        tmp_path, suffix=f"channel-falsifier-{tamper}", packet_mode="packet"
+    )
+    wire = snapshot.model_dump(mode="json")
+    objective_source = wire["observations"][0]["objective_source"]
+    if tamper == "selected_vector_channel_removed":
+        del objective_source["policy_evaluation"]["primary"]["fixture_numeric_coordinate"]
+    elif tamper == "source_objective_channel_removed":
+        del objective_source["simulation_results"]["objective_channels"][
+            "fixture_numeric_coordinate"
+        ]
+    else:
+        objective_source["policy_evaluation"]["primary"]["fixture_numeric_coordinate"][
+            "expected_unit"
+        ] = "different-fixture-unit"
+
+    with pytest.raises(ValidationError):
+        VOIModelSnapshot.model_validate(wire)
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    ["extra_vector_field", "measurement_source_drift", "fiscal_measurement_removed"],
+)
 def test_snapshot_restore_replays_typed_vector_and_source_observation(
     tmp_path: Path, tamper: str
 ) -> None:
@@ -775,10 +880,19 @@ def test_snapshot_restore_replays_typed_vector_and_source_observation(
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=True,
         )
-    else:
+    elif tamper == "measurement_source_drift":
         # The observation remains structurally valid and keeps every CAS ref,
         # but its claimed value no longer matches the independently read source.
         source_payload["metadata"]["policy_runtime_source_measurement"]["value"] += 1.0
+        tampered_vector = PolicyEvaluationVector.model_validate(source_payload)
+        candidate_ref = claim.candidate_ref
+        tampered_source_ref = persist_policy_evaluation_vector_to_store(
+            store, candidate_ref=candidate_ref, evaluation_vector=tampered_vector
+        )
+    else:
+        # A missing fiscal recomputation is not replaced by the still-present
+        # unavailable marker or by the candidate-grade coordinate channel.
+        source_payload["metadata"].pop("policy_runtime_fiscal_measurement")
         tampered_vector = PolicyEvaluationVector.model_validate(source_payload)
         candidate_ref = claim.candidate_ref
         tampered_source_ref = persist_policy_evaluation_vector_to_store(

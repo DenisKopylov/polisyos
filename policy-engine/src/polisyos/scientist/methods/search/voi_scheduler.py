@@ -334,7 +334,12 @@ class VOIModelSnapshot(BaseModel):
 
 
 def _policy_runtime_source_concordance(vector: Any) -> dict[str, Any] | None:
-    """Recompute the persisted fiscal projection from its content-bound source fields."""
+    """Recompute the source projection and retain the typed vector for score replay.
+
+    Search score assessments may select a ``policy_vector_channel`` rule. Replaying
+    that rule requires both the current typed channel and its emitted simulation
+    source; the projection alone cannot reproduce the assessment.
+    """
     try:
         from polisyos.scientist.methods.search.objective import (
             _BALANCE_ALIASES,
@@ -390,7 +395,11 @@ def _policy_runtime_source_concordance(vector: Any) -> dict[str, Any] | None:
             or encode(source["budget_deficit_objective_value"]) != encode(normalized_value)
         ):
             return None
-        return source
+        return {
+            **source,
+            "policy_evaluation": vector,
+            "simulation_results": source,
+        }
     except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
         return None
 

@@ -31,7 +31,11 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelExecutedWorkPacket,
     FunnelStageResult,
 )
-from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    _project_score_assessment_source,
+    score_assessment_matches_source,
+)
 from polisyos.scientist.methods.search.voi_scheduler import (
     PredictiveVOIScheduler,
     _policy_runtime_source_concordance,
@@ -56,6 +60,7 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveDirection,
     ObjectiveKind,
     PolicyEvaluationVector,
+    _policy_vector_channel_assessment,
 )
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
@@ -227,7 +232,62 @@ def test_complete_empty_runtime_channels_preserve_execution_without_score() -> N
     assert bound.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
     assert bound.score_assessment.value is None
     assert bound.runtime_score_available_for_search(source) is False
-    assert _policy_runtime_source_concordance(bound) == bound.score_source
+    concordance = _policy_runtime_source_concordance(bound)
+    assert concordance == {
+        **bound.score_source,
+        "policy_evaluation": bound,
+        "simulation_results": bound.score_source,
+    }
+
+
+def test_runtime_source_concordance_replays_selected_typed_channel_with_fiscal_unknown() -> None:
+    vector = _runtime_vector_for_fiscal_source({})
+    channel = vector.primary["policy_value"]
+    assessment = _policy_vector_channel_assessment(channel, "primary", vector.score_source)
+
+    concordance = _policy_runtime_source_concordance(vector)
+
+    assert vector.metadata["policy_runtime_fiscal_measurement"] == {
+        "usable": False,
+        "normalized_value": None,
+        "source_values": {},
+    }
+    assert assessment.status is ObjectiveScoreStatus.AVAILABLE
+    assert assessment.value == channel.value
+    assert concordance is not None
+    assert concordance["policy_evaluation"] is vector
+    assert concordance["simulation_results"] == vector.score_source
+    assert all(concordance.get(key) == value for key, value in vector.score_source.items())
+    assert score_assessment_matches_source(assessment, concordance)
+    assert _project_score_assessment_source(assessment, concordance) == {
+        "metric_units": {"channel:primary:policy_value": "fixture-unit"},
+        "policy_evaluation": {"primary": {"policy_value": channel.model_dump(mode="python")}},
+        "simulation_results": {
+            "objective_channels": {"policy_value": channel.value},
+            "metric_units": {"channel:primary:policy_value": "fixture-unit"},
+        },
+    }
+
+    changed_source = dict(concordance)
+    changed_simulation_results = dict(concordance["simulation_results"])
+    changed_channels = dict(changed_simulation_results["objective_channels"])
+    changed_channels["policy_value"] = channel.value + 1.0
+    changed_simulation_results["objective_channels"] = changed_channels
+    changed_source["simulation_results"] = changed_simulation_results
+    assert not score_assessment_matches_source(assessment, changed_source)
+
+    changed_vector = vector.model_copy(
+        update={
+            "primary": {"policy_value": channel.model_copy(update={"value": channel.value + 1.0})}
+        }
+    )
+    assert not score_assessment_matches_source(
+        assessment,
+        {
+            "policy_evaluation": changed_vector,
+            "simulation_results": concordance["simulation_results"],
+        },
+    )
 
 
 @pytest.mark.parametrize(
@@ -283,9 +343,11 @@ def test_runtime_source_concordance_recomputes_fiscal_projection_and_keeps_prese
 ) -> None:
     vector = _runtime_vector_for_fiscal_source(metrics)
 
-    concordant = _policy_runtime_source_concordance(vector)
+    concordance = _policy_runtime_source_concordance(vector)
 
-    assert concordant is not None
+    assert concordance is not None
+    assert concordance["policy_evaluation"] is vector
+    concordant = concordance["simulation_results"]
     measurement = vector.metadata["policy_runtime_fiscal_measurement"]
     assert measurement["source_values"] == metrics
     fiscal_aliases = ("gov_balance", "government_balance", "budget_deficit", "deficit")

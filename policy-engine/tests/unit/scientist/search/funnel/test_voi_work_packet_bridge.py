@@ -111,16 +111,23 @@ def _persist_profileless_legacy_packet(
     )
 
 
+def _fixture_ir_id(prefix: str, identifier: str) -> str:
+    """Build a stable identifier valid for the strict Trinity IR ID fields."""
+    slug = re.sub(r"[^a-z0-9_]+", "_", identifier.lower()).strip("_") or "candidate"
+    digest = hashlib.sha256(identifier.encode("utf-8")).hexdigest()[:8]
+    return f"{prefix}_{slug}_{digest}"
+
+
 def _candidate(identifier: str) -> PolicyCandidateSchema:
-    problem_slug = re.sub(r"[^a-z0-9_]+", "_", identifier.lower()).strip("_") or "candidate"
-    problem_digest = hashlib.sha256(identifier.encode()).hexdigest()[:8]
-    problem_id = f"problem_{problem_slug}_{problem_digest}"
     return PolicyCandidateSchema.from_trinity_bundle(
         TrinityBundle(
-            problem_frame=ProblemFrame(problem_id=problem_id, domain=ProblemDomain.FISCAL),
-            policy_spec=PolicySpec(policy_id=f"policy-{identifier}"),
+            problem_frame=ProblemFrame(
+                problem_id=_fixture_ir_id("problem", identifier),
+                domain=ProblemDomain.FISCAL,
+            ),
+            policy_spec=PolicySpec(policy_id=_fixture_ir_id("policy", identifier)),
             model_spec=ModelSpec(
-                model_id=f"model-{identifier}",
+                model_id=_fixture_ir_id("model", identifier),
                 data_snapshot_ref="sha256:" + "1" * 64,
             ),
         ),

@@ -1,0 +1,34 @@
+id = "2026-10-20-b108-unit-bound-objective-score-finalization"
+title = "Keep unitless objective scores unavailable"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-runtime"
+summary = "Keep objective values empty when final source-unit admission marks a score unavailable, and use a source-bound selection vector in the selected-view regression."
+evidence = [
+  "src/polisyos/scientist/methods/search/objective.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+]
+compatibility = "Unitless fiscal aliases remain available as raw candidate evidence, but their score status remains unavailable and carries no numeric objective value. Conflicting or malformed measurements remain invalid. Selection scoring continues to reject empty or unbound vectors."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No artifact rewrite or configuration migration is required."
+api = "No API, DTO, persisted format, or objective-rule mapping is added."
+limitations = "The source-bound selection fixture is synthetic test evidence only. This change does not assign fiscal units, periods, or authority to the retained aliases, and does not claim production backend certification. The composed test replay remains unrun in this candidate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b108-unit-bound-objective-score-finalization"
+change_class = "internal"
+impact = "internal"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Unitless objective measurements remain unscored after final unit admission, and the selected-view test now supplies a source-bound score basis while retaining the unbound-score refusal control."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

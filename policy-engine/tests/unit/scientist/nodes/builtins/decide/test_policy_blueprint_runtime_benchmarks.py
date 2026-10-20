@@ -53,6 +53,7 @@ from polisyos.scientist.methods.doe.stress_report import (
 )
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
     persist_promotion_evidence_bundle,
@@ -90,7 +91,12 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
+    PolicyEvaluationVector,
+)
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
@@ -907,7 +913,7 @@ def test_policy_runtime_selection_returns_selected_view_to_fresh_promotion_consu
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Carry the real ordinary selection producer through selected CAS to PBE readback."""
+    """Carry a source-bound selection result through CAS to fresh PBE readback."""
     from polisyos.core.artifacts import input_ref_from_artifact_ref
     from polisyos.scientist.methods.search.promotion_evidence import (
         _PolicyRuntimeSelectionSourceBasis,
@@ -926,10 +932,38 @@ def test_policy_runtime_selection_returns_selected_view_to_fresh_promotion_consu
     candidate_ref = ensure_policy_candidate_ref(ctx, state, candidate, None)
     assert candidate_ref.manifest_profile_sha256 is not None
 
-    selection_vector = PolicyEvaluationVector(candidate_id=candidate.candidate_id)
+    runtime_invocation = {
+        "evaluation_attempt_id": "attempt:source-bound-selection-fixture",
+        "requested_draw_count": 0,
+        "requested_draw_source": "test_fixture",
+        "effective_estimation_config_sha256": None,
+    }
+    source_results = {
+        "objective_channels": {"policy_value": 0.2},
+        "metric_units": {"channel:primary:policy_value": "fixture-score-unit"},
+        "feasible": True,
+        "blocking_reasons": [],
+        "bootstrap": dict(runtime_invocation),
+    }
+    selection_vector = PolicyEvaluationVector(
+        candidate_id=candidate.candidate_id,
+        primary={
+            "policy_value": ObjectiveChannelValue(
+                name="policy_value",
+                kind=ObjectiveKind.PRIMARY,
+                value=0.2,
+                direction=ObjectiveDirection.MAXIMIZE,
+                expected_unit="fixture-score-unit",
+            )
+        },
+        metadata={"policy_runtime_invocation": runtime_invocation},
+    ).with_runtime_score_assessment(runtime_invocation)
+    selection_vector = selection_vector.with_score_source_results(source_results)
+    assert selection_vector.score_assessment is not None
+    assert selection_vector.score_assessment.status is ObjectiveScoreStatus.AVAILABLE
     synthetic_artifact = PolicyRuntimeEvaluationArtifact(
-        simulation_metrics={},
-        simulation_results={},
+        simulation_metrics={"policy_value": 0.2},
+        simulation_results=source_results,
         evaluation_vector=selection_vector,
         fidelity="selection",
         provenance=PolicyRuntimeProvenance(

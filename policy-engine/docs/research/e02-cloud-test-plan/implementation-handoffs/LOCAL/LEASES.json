@@ -40171,5 +40171,99 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-b108-objective-final-status-20261020-r1": {
+    "slice_base": "42fd7bdecbffba7e9369478fb916f09343e163b3",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+        "operation": "update",
+        "preimage_sha256": "88d2b20e45b4a530cd3853f80b29e11f342d0fc9e64c2865d766c1df23fe5491",
+        "postimage_sha256": "1cebb4d85ea2852a5fb08bff734c82f92f21e879f42eeb27a96530abc08c4d21",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/postimages/src/polisyos/scientist/methods/search/objective.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py": {
+        "operation": "update",
+        "preimage_sha256": "85fbba3b6858b870f3aab6b94a4a299c5b59c0bc66526ead73c2097ce69a2f0d",
+        "postimage_sha256": "a72bdbcb24743a0acc4163ab5372c699204b8d31ac83e5cb09f0b65086e0f29d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/postimages/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py": {
+        "operation": "update",
+        "preimage_sha256": "b0b278c095e0ef6b0d51b323507e5f431c6bf388fab1c389e04797562811ab49",
+        "postimage_sha256": "b3e117c77c9200e5736c0267813f5544a972d6b4ae34e20140603f25fe6310d3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/postimages/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-b108-unit-bound-objective-score-finalization.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "c9c34e2dfa202a0dfde3b702146327dd401a59041875cb67bd1c1b17b333e75f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-objective-fragment-canonical-retarget-20261020-r1/postimages/policy-engine/release-fragments/unreleased/2026-10-20-b108-unit-bound-objective-score-finalization.toml",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-objective-final-status-20261020-r1/source-application.json",
+      "sha256": "edf6eaaf6d97a0e306220987ec6e1eb6f55e7ae7dc2291074fa7130ec1fd7f83"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-objective-final-status-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/candidate-manifest-v2.json",
+        "sha256": "ee20504b6afac7da9917cec48e38ec60b07bb8e486ebb0e16a0bfc79f2c0961e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/candidate-v2.patch",
+        "sha256": "8798fee4a9f2cfbc759748445aa08b8bb4e288d0354c28a87336dadfda45e4db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/validation-final-r2.json",
+        "sha256": "a664dc948804ee2271d92d00c3934c0c3774054bb878a913994875393de35a86"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-nine-composed-selected-failure-diagnosis-20261020/r2/current-applicability-latest.json",
+        "sha256": "d56304b2f14e97b128c105301f664b19bbab00d5d343fc81ee8b3c4b590172dc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-objective-fragment-canonical-retarget-20261020-r1/retarget.json",
+        "sha256": "c4bf0edcd6def4301b6efdb9b2558fab37617343c1c9363fb72867c9b4143b77"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-objective-fragment-canonical-retarget-20261020-r1/retargeted-fragment.patch",
+        "sha256": "127e61d651cb585646012357b8fa73a28c2a930515c03dd395511c87e106c171"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-objective-final-status-independent-review-20261020-r1/review.json",
+        "sha256": "91f729dddf785f15659224d27f8522626beff330580236ee78ead85b10928d4c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME status/value admission class deeper widenedonce acrossallrules; NEW empty-selected-vector fixture class; wrongreleasepath correctedunchangedbytes perindepreviewcondition.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No sourceunit/period/calibrationauthority invented; syntheticfixtureonly",
+      "Newcomposedwholemodule testsUNRUN; prior196cases184P12Fbaseline exact848119 only",
+      "Stresssource/persistentoutcome repair remainsseparatepending; noGacceptance/formalclosures"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run10completeR14/B108/Credal/objectiveavailability modules underfreshsourcefreeze; pending5adversarialcases explicituntilsharedstresssourcegate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

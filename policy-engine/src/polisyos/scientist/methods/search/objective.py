@@ -1680,6 +1680,13 @@ def _assessment_for_rule_spec(
                 if status is ObjectiveScoreStatus.AVAILABLE:
                     source_unit_bindings = tuple(sorted(bound_units))
 
+    if status is not ObjectiveScoreStatus.AVAILABLE:
+        # A score computed before source-unit admission is diagnostic only.
+        # Do not let it escape on any unavailable or invalid assessment.
+        score = None
+        if "score" in derived_values:
+            derived_values["score"] = None
+
     if status is not ObjectiveScoreStatus.AVAILABLE and limitation is None:
         limitation = (
             "objective_basis_invalid"

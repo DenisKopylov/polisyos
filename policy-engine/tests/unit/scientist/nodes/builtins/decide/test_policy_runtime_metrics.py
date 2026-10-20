@@ -108,6 +108,7 @@ def test_fiscal_aliases_are_retained_but_unavailable_without_source_unit() -> No
     objective = BudgetDeficitObjective().evaluate(projected)
     assert objective.score_status is ObjectiveScoreStatus.UNAVAILABLE
     assert objective.score_assessment is not None
+    assert objective.score_assessment.value is None
     assert objective.score_assessment.limitation == "objective_rule_unit_not_established"
     assert objective.is_satisfied is False
 

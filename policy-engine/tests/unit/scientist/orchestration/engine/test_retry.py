@@ -2851,3 +2851,169 @@ async def test_unbounded_sync_fast_path_preserves_original_error_and_known_spend
     assert caught.value is original
     assert initial.budgets["llm_spent_usd"] == Decimal(7)
     assert initial.params == {}
+
+
+def test_attempt_view_stages_only_typed_worker_receipt_run_writes(tmp_path):
+    """Stage input/output through an attempt facade without exposing parent lifecycle."""
+    import logging
+
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    class MemoryTrace:
+        def __init__(self):
+            self.records = []
+
+        def emit(self, record):
+            self.records.append(record.model_copy(deep=True))
+
+        def emit_many(self, records):
+            self.records.extend(record.model_copy(deep=True) for record in records)
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    run_id = "R_attempt_worker_receipt_composition"
+    parent_run = RunContext.start(
+        store=store,
+        registry_bundle=registry.bundle_ref,
+        run_id=run_id,
+        run_dir=store.root / "runs" / run_id,
+    )
+    parent_capability = WorkerLifecycleCapability.for_parent(parent_run)
+    snapshot = parent_capability.snapshot()
+    invocation_id = "a" * 64
+    dispatch_sha256 = "b" * 64
+    binding = parent_capability.bind_dispatch(
+        invocation_id=invocation_id,
+        dispatch_sha256=dispatch_sha256,
+    )
+    staged = MemoryTrace()
+    worker_capability = WorkerLifecycleCapability.for_worker_context(
+        store=store,
+        trace=staged,
+        run_manifest=snapshot.run_manifest,
+        trace_path=snapshot.trace_path,
+        owner_snapshot_ref=snapshot.owner_snapshot_ref,
+        access_scope=snapshot.access_scope,
+        tenant_id=snapshot.tenant_id,
+        cell_id=snapshot.cell_id,
+        invocation_id=invocation_id,
+        dispatch_sha256=dispatch_sha256,
+    )
+    worker_view = worker_capability.worker_view()
+    worker_context = ExecutionContext(
+        store=store,
+        run=worker_view,
+        logger=logging.getLogger("test.attempt_worker_receipt_composition"),
+    )
+    authority = retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0)
+    attempt_context = retry_module._build_attempt_context(worker_context, authority)
+    node_context = retry_module._node_facing_context(attempt_context)
+
+    input_ref = store.put_json(
+        {"input": "staged"},
+        PutOptions(
+            kind="scientist.test.attempt_worker_input",
+            media_type="application/json",
+            schema=SchemaInfo(name="scientist.test.AttemptWorkerInput", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    output_ref = store.put_json(
+        {"output": "staged"},
+        PutOptions(
+            kind="scientist.test.attempt_worker_output",
+            media_type="application/json",
+            schema=SchemaInfo(name="scientist.test.AttemptWorkerOutput", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    node_context.run.add_input(input_ref)
+    node_context.run.add_output(output_ref)
+    assert [record.event for record in staged.records] == [
+        "RUN_INPUT_ADDED",
+        "RUN_OUTPUT_ADDED",
+    ]
+    assert parent_run.run_manifest.inputs == []
+    assert parent_run.run_manifest.outputs == []
+
+    for name in (
+        "finalize",
+        "suspend_for_resume",
+        "merge_worker_events",
+        "_active_lease",
+        "_owner_snapshot_ref",
+        "_worker_lifecycle_capability",
+        "_EngineNodeRunView__target",
+        "_EngineNodeRunView__stage_worker_receipt_writes",
+    ):
+        with pytest.raises(AttributeError):
+            getattr(node_context.run, name)
+    with pytest.raises(AttributeError):
+        RunContext.add_output(node_context.run, output_ref)
+    for operation in (RunContext.finalize, RunContext.suspend_for_resume):
+        with pytest.raises(AttributeError):
+            operation(node_context.run)
+    with pytest.raises(AttributeError):
+        RunContext.merge_worker_events(
+            node_context.run,
+            invocation_id=invocation_id,
+            dispatch_sha256=dispatch_sha256,
+            owner_snapshot_ref=snapshot.owner_snapshot_ref,
+            records=staged.records,
+        )
+
+    parent_capability.admit_worker_events(binding, staged.records)
+    assert parent_run.run_manifest.inputs == [input_ref]
+    assert parent_run.run_manifest.outputs == [output_ref]
+    assert parent_run.read_runtime_owner_output_refs() == (output_ref,)
+
+    before_revocation = len(staged.records)
+    authority.revoke()
+    node_context.run.add_input(input_ref)
+    node_context.run.add_output(output_ref)
+    expired = retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() - 1.0)
+    expired_context = retry_module._node_facing_context(
+        retry_module._build_attempt_context(worker_context, expired)
+    )
+    expired_context.run.add_input(input_ref)
+    expired_context.run.add_output(output_ref)
+    assert len(staged.records) == before_revocation
+
+    ordinary_attempt = retry_module._build_attempt_context(
+        ExecutionContext(
+            store=store,
+            run=parent_run,
+            logger=logging.getLogger("test.ordinary_attempt_run"),
+        ),
+        retry_module._AttemptAuthority(deadline_monotonic=_time.monotonic() + 5.0),
+    )
+    ordinary_node = retry_module._node_facing_context(ordinary_attempt)
+    for name in ("add_input", "add_output"):
+        with pytest.raises(AttributeError):
+            getattr(ordinary_node.run, name)
+    with pytest.raises(AttributeError, match="add_output"):
+        type(ordinary_node.run).add_output(ordinary_node.run, output_ref)
+
+    with pytest.raises(TypeError, match="created by the executor"):
+        retry_module._EngineNodeRunView(
+            worker_view,
+            _token=object(),
+            stage_worker_receipt_writes=True,
+        )
+    with pytest.raises(TypeError, match="requires the typed attempt view"):
+        retry_module._EngineNodeRunView(
+            worker_view,
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+            stage_worker_receipt_writes=True,
+        )
+    with pytest.raises(TypeError, match="requires the typed attempt view"):
+        retry_module._EngineNodeRunView(
+            ordinary_attempt.run,
+            _token=retry_module._ENGINE_NODE_RUN_VIEW_TOKEN,
+            stage_worker_receipt_writes=True,
+        )
+    parent_run.suspend_for_resume()

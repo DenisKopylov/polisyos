@@ -1,0 +1,18 @@
+id = "2026-10-20-e02-worker-receipt-staged-run-writes"
+title = "Preserve staged run writes through worker attempt views"
+type = "fixed"
+component = "scientist-runtime"
+owner = "team-policyos-runtime"
+summary = "Allow a typed worker receipt view wrapped by the retry attempt facade to stage RunContext input and output events, while keeping parent manifest mutation exclusive to verified receipt admission."
+evidence = [
+  "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+  "tests/unit/scientist/orchestration/engine/test_retry.py",
+]
+compatibility = "Ordinary engine node views remain unable to register run inputs or outputs. The typed worker-receipt path exposes only attempt-gated staging operations; owner lifecycle remains parent-only."
+surface_classification = "internal: scientist orchestration worker-receipt composition"
+api = "No exported API, receipt schema, owner admission rule, or lifecycle authority changed."
+limitations = "Runtime and integrated qualification remain unrun in this candidate packet."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/run/README.md"]
+runbook_docs = []

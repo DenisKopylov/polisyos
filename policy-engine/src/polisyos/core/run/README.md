@@ -37,12 +37,15 @@ external producer, policy authority, or deployment identity.
 Sync and async workflow executors pass ordinary node callbacks a restricted,
 `RunContext`-compatible view. It preserves the typed context identity and
 read-only run metadata, artifact-store access, ordinary non-Core trace events,
-and the existing allowlisted provenance update method. It does not expose the
-raw trace sink, input/output registration methods, suspension, or finalization.
-Generic `emit` refuses every Core-phase event and every `RUN_*` event; the
-engine continues to use the typed Core writers and the existing verified worker
-receipt path. Cached-input preparation and cache-hit validation receive the same
-restricted view as node execution.
+and the existing allowlisted provenance update method. Ordinary views do not
+expose the raw trace sink, input/output registration methods, suspension, or
+finalization. When a callback is composed over a typed `WorkerRunView` through
+the attempt facade, only `add_input` and `add_output` are additionally available;
+they remain attempt-gated and stage receipt events on the worker trace. They do
+not write the parent manifest. The parent continues to admit those events only
+through the existing verified worker receipt path. Generic `emit` refuses every
+Core-phase event and every `RUN_*` event. Cached-input preparation and cache-hit
+validation receive the same restricted view as node execution.
 
 The workflow finalizer may pass its profile-bound
 `scientist.workflow_state_finalization` ref to `RunContext.finalize`. Core writes

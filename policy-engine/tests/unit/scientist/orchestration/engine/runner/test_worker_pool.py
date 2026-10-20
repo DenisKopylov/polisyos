@@ -141,6 +141,17 @@ class TestLocalWorkerPool:
                 ),
                 return_selected_profile=True,
             )
+            output_ref = store.put_json(
+                {"output": "worker"},
+                PutOptions(
+                    kind="scientist.test.local_parent_output",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="scientist.test.LocalParentOutput", version="1.0"),
+                ),
+                return_selected_profile=True,
+            )
+            orphan_payload = {"output": "persisted-before-failure", "run_id": run_id}
+            orphan_refs = []
 
             class ReceiptNode:
                 spec = NodeSpec(
@@ -162,16 +173,18 @@ class TestLocalWorkerPool:
                         "NODE_LOCAL_PARENT_RECEIPT_EMITTED",
                     )
                     worker_context.run.add_input(input_ref)
+                    worker_context.run.add_output(output_ref)
                     worker_state.params["worker_value"] = "from-worker"
                     return NodeOutcome(status="ok", state=worker_state, events=[], artifacts=[])
 
             node = ReceiptNode()
+            nonlocal_node = [node]
             from polisyos.scientist.orchestration.engine import registry as registry_module
 
             monkeypatch.setattr(
                 registry_module,
                 "discover_nodes",
-                lambda actual, **_kwargs: actual.register(node),
+                lambda actual, **_kwargs: actual.register(nonlocal_node[0]),
             )
             state_bytes = serialize_state(ExperimentState(run_id=run_id))
             context_meta = serialize_timeout_context(parent_context, expected_run_id=run_id)
@@ -220,6 +233,66 @@ class TestLocalWorkerPool:
                 ):
                     await router.submit(task)
                 result = await router.submit_with_parent_context(task, parent_context)
+
+                class PutThenFailNode:
+                    spec = NodeSpec(
+                        metadata=ComponentMetadata(
+                            component_id=ComponentId.parse(
+                                "scientist.test.local_parent_put_then_fail@1.0.0"
+                            ),
+                            kind=ComponentKind.SCIENTIST_NODE,
+                            abi_targets={"world_abi": "1.x"},
+                            capabilities=Capability.SCIENTIST_NODE,
+                            display_name="Local parent receipt failure test",
+                            description="Observes a persisted artifact without a staged output receipt.",
+                        ),
+                        state_reads=["params"],
+                        state_writes=["params"],
+                    )
+
+                    def execute(self, worker_context, worker_state):
+                        ref = worker_context.store.put_json(
+                            orphan_payload,
+                            PutOptions(
+                                kind="scientist.test.local_parent_orphan",
+                                media_type="application/json",
+                                schema=SchemaInfo(
+                                    name="scientist.test.LocalParentOrphan",
+                                    version="1.0",
+                                ),
+                            ),
+                            return_selected_profile=True,
+                        )
+                        orphan_refs.append(ref)
+                        raise RuntimeError("failure-after-worker-cas-put")
+
+                nonlocal_node[0] = PutThenFailNode()
+                from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+                failure_dispatch = {
+                    "node_id": str(nonlocal_node[0].spec.metadata.component_id),
+                    "alias": "local-parent-put-then-fail",
+                    "params": {},
+                    "state_bytes": serialize_state(ExperimentState(run_id=run_id)),
+                    "trace_carrier": {},
+                    "timeout_s": None,
+                    "max_retries": 0,
+                    "context_meta": serialize_timeout_context(
+                        parent_context,
+                        expected_run_id=run_id,
+                    ),
+                }
+                failure_task = _make_task(
+                    **{
+                        key: value
+                        for key, value in failure_dispatch.items()
+                        if key != "max_retries"
+                    },
+                    worker_invocation_id="c" * 64,
+                    worker_dispatch_sha256=worker_dispatch_sha256(**failure_dispatch),
+                )
+                with pytest.raises(RuntimeError, match="failure-after-worker-cas-put"):
+                    await router.submit_with_parent_context(failure_task, parent_context)
                 await pool.shutdown()
                 return result
 
@@ -233,6 +306,13 @@ class TestLocalWorkerPool:
                 assert outcome.status == "ok"
                 assert outcome.state.params["worker_value"] == "from-worker"
                 assert input_ref in run.run_manifest.inputs
+                assert output_ref in run.run_manifest.outputs
+                assert run.read_runtime_owner_output_refs() == (output_ref,)
+                assert len(orphan_refs) == 1
+                orphan_ref = orphan_refs[0]
+                assert store.verify(orphan_ref).ok
+                assert orphan_ref not in run.run_manifest.outputs
+                assert orphan_ref not in run.read_runtime_owner_output_refs()
                 assert run.trace_path is not None
                 trace = [
                     TraceRecord.model_validate_json(line)
@@ -243,14 +323,25 @@ class TestLocalWorkerPool:
                     sum(record.event == "NODE_LOCAL_PARENT_RECEIPT_EMITTED" for record in trace)
                     == 1
                 )
-                assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in trace) == 1
-                assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in trace) == 1
+                assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in trace) == 2
+                assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in trace) == 2
+                assert [
+                    record.refs.outputs[0] for record in trace if record.event == "RUN_OUTPUT_ADDED"
+                ] == [output_ref]
+                assert all(
+                    record.worker_invocation_id in {"a" * 64, "c" * 64}
+                    for record in trace
+                    if record.event.startswith("WORKER_INVOCATION_")
+                )
                 assert all(
                     record.worker_invocation_id == "a" * 64
                     for record in trace
-                    if record.event.startswith("WORKER_INVOCATION_")
-                    or record.event == "NODE_LOCAL_PARENT_RECEIPT_EMITTED"
-                    or record.event == "RUN_INPUT_ADDED"
+                    if record.event
+                    in {
+                        "NODE_LOCAL_PARENT_RECEIPT_EMITTED",
+                        "RUN_INPUT_ADDED",
+                        "RUN_OUTPUT_ADDED",
+                    }
                 )
                 from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
 

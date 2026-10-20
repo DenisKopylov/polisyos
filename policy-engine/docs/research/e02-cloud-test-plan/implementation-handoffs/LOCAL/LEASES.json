@@ -42557,5 +42557,89 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-worker-attempt-receipt-composition-adoption-20261020-r1": {
+    "slice_base": "ac1b6bca4e88a49be723dae21571a62c5c25a0d3",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-worker-receipt-staged-run-writes.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "e1d3047fd8f1f223c3abeea79d7e0ad95265fb87305440bb8ff23ef023241bae",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-worker-receipt-staged-run-writes.toml",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/core/run/README.md": {
+        "operation": "update",
+        "preimage_sha256": "3277af2ef980de2a85679d577f57eef476d78dec5912a8230dff517c5a885792",
+        "postimage_sha256": "aa5c9d5b440990d3e2cebd053ddee095d56d20fef0d7e935aaa68def7adf29b2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/postimages/policy-engine/src/polisyos/core/run/README.md",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": {
+        "operation": "update",
+        "preimage_sha256": "3cdd9a5dc9cf291b252353b5e7b256f9338c5aaf5ce67cf65126d247ef0baa7b",
+        "postimage_sha256": "72223984ac7d6a45ca8c820740760fbc684d5ee711193f7fb704bf9a49b85855",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py": {
+        "operation": "update",
+        "preimage_sha256": "08f1b38a6bd0780154bfd52f3f45486b6145c188d181a653cb3023a4bde8e81c",
+        "postimage_sha256": "7046cd21b2bb410b1d70848451801c787a330528213de044997a7a53886aebfc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/postimages/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": {
+        "operation": "update",
+        "preimage_sha256": "be4a874b50cbce4774a9929823516a0f2c885a83c309800f4b82ecb1c1181b22",
+        "postimage_sha256": "3c0796f32e6a73a8d5560f0a5976afd0cdd085f7894cf4eea7b38049c4d35705",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-attempt-receipt-composition-adoption-20261020-r1/source-application.json",
+      "sha256": "ed1b349ac79616fbd02c712d820aef6f93a8c6ff936e4b58761b8045e6384e74"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-attempt-receipt-composition-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/manifest-r2.json",
+        "sha256": "55337d085a7ad2181de8304722de536c18e815b360a1c348dc7e55a5b95802a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-independent-review-20261020/review.json",
+        "sha256": "b71107a565fd5f782363a90e50c8062fa308a0545b6829022169c4daa399abb8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-receipt-attempt-view-composition-r2-20261020/patch-r2.diff",
+        "sha256": "0a40bc66d3d97bddf00e6147fada571fdfe50feb686ad8e64efc60c1fd0c0fdc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Whole worker-view composition class: one conditional typed adapter, no per-method TMLE exemption or receipt/lifecycle authority bypass.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Static independent review only on this R2 candidate; runtime qualification pending.",
+      "Internal R4 driver already passed on76ea, but3native sibling study tests failed add_output. No inherited-red or ordinary HTTP/production workload positive claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay whole worker pool/retry/lifecycle cohorts, actual nativeTMLE52 and internalR4cap1/cap2/removal plus PreparedB13 contours on composed source.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

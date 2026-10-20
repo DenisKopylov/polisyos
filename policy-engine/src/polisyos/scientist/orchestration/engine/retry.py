@@ -956,9 +956,10 @@ _ENGINE_NODE_RUN_VIEW_TOKEN = object()
 
 
 class _EngineNodeRunView(_RunContext):
-    """RunContext-compatible read/trace view without Core lifecycle writers."""
+    """RunContext view with narrow staged receipt writes for worker attempts."""
 
-    __slots__ = ("__target",)
+    __slots__ = ("__stage_worker_receipt_writes", "__target")
+    _STAGED_WORKER_WRITE_METHODS = frozenset({"add_input", "add_output"})
     _READ_FIELDS = frozenset({"access_scope", "cell_id", "store", "tenant_id", "trace_path"})
     _READ_METHODS = frozenset(
         {
@@ -983,12 +984,36 @@ class _EngineNodeRunView(_RunContext):
         }
     )
 
-    def __init__(self, target: Any, *, _token: object) -> None:
+    def __init__(
+        self,
+        target: Any,
+        *,
+        _token: object,
+        stage_worker_receipt_writes: bool = False,
+    ) -> None:
         if _token is not _ENGINE_NODE_RUN_VIEW_TOKEN:
             raise TypeError("engine node run views are created by the executor")
+        if type(stage_worker_receipt_writes) is not bool:
+            raise TypeError("worker receipt staging must be an explicit boolean")
+        if stage_worker_receipt_writes:
+            from polisyos.core.run.worker_lifecycle import WorkerRunView
+
+            if type(target) is not _AttemptRunFacade or not isinstance(
+                target._target, WorkerRunView
+            ):
+                raise TypeError("worker receipt staging requires the typed attempt view")
         object.__setattr__(self, "_EngineNodeRunView__target", target)
+        object.__setattr__(
+            self,
+            "_EngineNodeRunView__stage_worker_receipt_writes",
+            stage_worker_receipt_writes,
+        )
 
     def __getattribute__(self, name: str) -> Any:
+        if name in _EngineNodeRunView._STAGED_WORKER_WRITE_METHODS:
+            if not object.__getattribute__(self, "_EngineNodeRunView__stage_worker_receipt_writes"):
+                raise AttributeError(name)
+            return object.__getattribute__(self, name)
         if name == "run_manifest":
             target = object.__getattribute__(self, "_EngineNodeRunView__target")
             manifest = _unwrap_manifest_value(getattr(target, name))
@@ -1015,6 +1040,20 @@ class _EngineNodeRunView(_RunContext):
         """Forward only the non-Core trace operation accepted by RunContext."""
         target = object.__getattribute__(self, "_EngineNodeRunView__target")
         target.emit(*args, **kwargs)
+
+    def add_input(self, ref: ArtifactRef) -> None:
+        """Stage a worker input through the enclosing attempt facade."""
+        if not object.__getattribute__(self, "_EngineNodeRunView__stage_worker_receipt_writes"):
+            raise AttributeError("add_input")
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        target.add_input(ref)
+
+    def add_output(self, ref: ArtifactRef) -> None:
+        """Stage a worker output through the enclosing attempt facade."""
+        if not object.__getattribute__(self, "_EngineNodeRunView__stage_worker_receipt_writes"):
+            raise AttributeError("add_output")
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        target.add_output(ref)
 
     def update_manifest(self, **changes: object) -> None:
         """Forward the existing allowlisted provenance update operation."""
@@ -1067,7 +1106,14 @@ def _node_facing_context(ctx: Any) -> Any:
     run = ctx.run
     if isinstance(run, (WorkerRunView, _EngineNodeRunView)):
         return ctx
-    run_view = _EngineNodeRunView(run, _token=_ENGINE_NODE_RUN_VIEW_TOKEN)
+    stage_worker_receipt_writes = type(run) is _AttemptRunFacade and isinstance(
+        run._target, WorkerRunView
+    )
+    run_view = _EngineNodeRunView(
+        run,
+        _token=_ENGINE_NODE_RUN_VIEW_TOKEN,
+        stage_worker_receipt_writes=stage_worker_receipt_writes,
+    )
     if isinstance(ctx, ExecutionContext):
         return dataclasses.replace(ctx, run=run_view)
     return _EngineNodeContextView(ctx, run_view)

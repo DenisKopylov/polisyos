@@ -42803,5 +42803,61 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-c12-whole-temporary-mutation-isolation-adoption-20261020-r1": {
+    "slice_base": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_emb_03.py": {
+        "operation": "update",
+        "preimage_sha256": "0f6bd7c179627ca68c3c108b87b77e60fa4a054ed2e446ca7bdbcf83b9d1e227",
+        "postimage_sha256": "144ae0231de46912b1ff717e04598263a5e5115b4be70eefcf9a35a8feb2ab8a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-temp-mutation-isolation-r1-20261020/candidate_test_emb_03.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-whole-temporary-mutation-isolation-adoption-20261020-r1/source-application.json",
+      "sha256": "fe80ecdc5063b8f3523160b64618db061ca37d4b4a93279d3d1c66f0cb38f96f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-whole-temporary-mutation-isolation-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-temp-mutation-isolation-r1-20261020/manifest.json",
+        "sha256": "45cea81776d6cac11f495f37ea00c9212ee6f93ffa65cfc136854c160865a7c9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-temp-mutation-isolation-independent-review-20261020-r1/review.json",
+        "sha256": "6fd14a828720ea3db20113b89810d6fcc078c28606a4e83bde2762c6a9120035"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-temp-mutation-isolation-r1-20261020/candidate_test_emb_03.py",
+        "sha256": "144ae0231de46912b1ff717e04598263a5e5115b4be70eefcf9a35a8feb2ab8a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME liveness/mutation-isolation class one level deeper; whole actual temporary-mutation census closes contamination boundary rather than changing expected refusal/removal behavior.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Source review/static GO only; next whole real-profile replay UNRUN.",
+      "R6completed27P1F recoveryreceipttruthful: normal alternateprofile/refusalpassed, revisionremovalstilltext; nativeexitunobservableaftertoolcontrollerinterrupt. Later controls UNRUN."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "One whole28 realE5profile replay with exact refreshed source/input/profile freeze after companion reviews; verify all callable/weights/revision/member/freshintent refusal/removal controls; record any skipped/backend limits.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

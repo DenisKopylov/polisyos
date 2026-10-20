@@ -2035,6 +2035,9 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         assert runtime_decoy_calls == []
         assert _total_knn_calls() == knn_calls_before_runtime_swap
 
+        assert "encode" not in handle._model.__dict__
+        original_model_encode = handle._model.encode
+        assert getattr(original_model_encode, "__self__", None) is handle._model
         handle._model.encode = _same_assets_decoy  # type: ignore[method-assign]
         assert (
             derive_encoder_identity(
@@ -2117,6 +2120,19 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         assert [row.fact_id for row in decoy_results] == ["fact-decoy"]
         assert decoy_calls == [query]
         assert _total_knn_calls() - knn_calls_before_gate_removal == 1
+
+        # End the temporary instance-level decoy mutation before testing the
+        # separate selected-revision binding. The prior removal control above
+        # proves the decoy wins when that callable gate is absent.
+        assert "encode" in handle._model.__dict__
+        del handle._model.encode
+        assert "encode" not in handle._model.__dict__
+        restored_model_encode = handle._model.encode
+        assert callable(restored_model_encode)
+        assert getattr(restored_model_encode, "__self__", None) is handle._model
+        assert getattr(restored_model_encode, "__func__", None) is getattr(
+            original_model_encode, "__func__", None
+        )
 
         # Republish the actual E5 vectors with a candidate descriptor for a
         # different revision. The generation writer recomputes its member basis,
@@ -2331,6 +2347,7 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
             assert removed_revision_body["vector_refusal_code"] is None
         assert len(encoded_texts) == encoded_before_revision_removal + 1
         assert _total_knn_calls() == knn_before_revision_removal + 1
+        assert decoy_calls == [query]
         assert alternate_reference.inventory["basis"]["generator_rule_version"] == alternate_rule
 
         # Restore a selected descriptor from the currently owner-bound E5

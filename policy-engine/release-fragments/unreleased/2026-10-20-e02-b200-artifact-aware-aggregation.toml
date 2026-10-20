@@ -1,0 +1,48 @@
+id = "2026-10-20-e02-b200-artifact-aware-aggregation"
+title = "Bind uncertainty aggregation to selected artifact views"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "The Foundry uncertainty aggregator no longer treats caller-authored origin strings as source identity; selected-view helpers verify exact CAS profiles, preserve lineage, and reconcile only recognized typed semantic axes."
+evidence = [
+  "src/polisyos/foundry/uncertainty/aggregator.py",
+  "src/polisyos/foundry/uncertainty/__init__.py",
+  "src/polisyos/foundry/uncertainty/README.md",
+  "tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+  "tests/unit/remediation/test_uqs_01.py",
+  "tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+]
+compatibility = "In-memory ID and composition labels no longer authorize deduplication or statistical narrowing. Conflicts in the recognized legacy unit/currency/subject/estimand axes or differing typed numeric policies refuse through both in-memory and selected-CAS entrypoints; matching nondefault numeric policy is preserved by every formula. Unrecognized producer metadata is retained per source and is not compared as shared context. Multiple unresolved inputs produce a declared conditional candidate-only hull with basis statuses not_established. Repeated exact selected CAS views reuse one existing envelope and preserve its interval semantics; equal bytes with different selected profiles remain distinct."
+change_class = "python-public-api; python-runtime-behavior"
+surface_classification = "public_stable: polisyos.foundry.uncertainty"
+migration = "Callers that passed several in-memory envelopes and relied on a self-asserted origin ID to deduplicate them must use exact selected UncertaintyEnvelopeRef views through aggregate_persisted_envelope_views, persist_aggregated_envelope, or load_aggregated_envelope_fresh. Conflicts in recognized unit/currency/subject/estimand axes or unequal NumericPolicySpec refuse through either entrypoint; differences in arbitrary per-source diagnostic metadata remain allowed. Distinct selected views still require a source-owned relation contract before any statistical narrowing."
+api = "The existing Foundry uncertainty facade adds selected-view preview, persistence, and fresh-recompute helpers over the existing IR UncertaintyEnvelope and InputRef schema. Public HTTP and dashboard publication are out of scope for this candidate."
+limitations = "The shared intake projects only recognized legacy unit/currency/subject/estimand string axes and carries compatible typed NumericPolicySpec; caller values are not source-owned evidence for a common estimand, subject, unit, dependence/covariance law, Bayesian role, causal calibration, or external authority. Unrecognized producer metadata remains source-local. Missing context produces only a declared conditional candidate hull. No in-repository production caller invokes the selected-view aggregation API, so production_bridge remains bridge_missing/implemented_but_not_orchestrated. Canonical public-surface inventory regeneration and owner review are pending; this candidate does not claim generated-surface publication. Independent G review remains pending. This is not a formal finding closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-b200-selected-view-aggregation"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.uncertainty.{aggregate_persisted_envelope_views, persist_aggregated_envelope, load_aggregated_envelope_fresh}"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Adds selected-profile CAS aggregation helpers using the existing uncertainty-envelope artifact and source InputRef contracts."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+
+[[compatibility_change]]
+id = "e02-b200-unverified-in-memory-origin-labels"
+change_class = "python-runtime-behavior"
+impact = "breaking"
+surface = "public_stable: polisyos.foundry.uncertainty.aggregate_envelopes"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Stops treating caller-authored IDs, composition labels, or relation strings as content-bound source identity; multiple unverified inputs remain non-gating. Only recognized legacy semantic axes are compared, while unrelated producer diagnostics remain source-local."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

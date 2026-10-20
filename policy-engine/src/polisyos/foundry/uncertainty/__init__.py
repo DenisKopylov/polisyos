@@ -30,7 +30,13 @@ if TYPE_CHECKING:
     )
 
 try:  # pragma: no cover - optional numeric stack dependency
-    from .aggregator import AggregationStrategy, aggregate_envelopes
+    from .aggregator import (
+        AggregationStrategy,
+        aggregate_envelopes,
+        aggregate_persisted_envelope_views,
+        load_aggregated_envelope_fresh,
+        persist_aggregated_envelope,
+    )
     from .dispatcher import PropagationDispatcher
     from .monte_carlo import (
         MonteCarloPropagator,
@@ -50,6 +56,9 @@ except (
 ):  # pragma: no cover
     AggregationStrategy = None  # type: ignore[assignment]
     aggregate_envelopes = None  # type: ignore[assignment]
+    aggregate_persisted_envelope_views = None  # type: ignore[assignment]
+    load_aggregated_envelope_fresh = None  # type: ignore[assignment]
+    persist_aggregated_envelope = None  # type: ignore[assignment]
     PropagationDispatcher = None  # type: ignore[assignment]
     MonteCarloPropagator = None  # type: ignore[assignment]
     PosteriorJointInputMatrix = None  # type: ignore[assignment]
@@ -149,6 +158,9 @@ __all__ = [
     "PosteriorPushforwardResult",
     "QuasiMCSampler",
     "aggregate_envelopes",
+    "aggregate_persisted_envelope_views",
+    "load_aggregated_envelope_fresh",
+    "persist_aggregated_envelope",
     "compute_first_order_indices",
     "extract_std",
     "fabric_uncertainty_context_from_decision_data",

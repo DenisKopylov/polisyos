@@ -27607,5 +27607,148 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b199-b200-selected-view-aggregation-semantic-intake-r6-20261020": {
+    "slice_base": "9fecce37d7c0b5878f2e7a7f2f773abb78794eeb",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py": {
+        "operation": "write",
+        "preimage_sha256": "7ad0a65a8b578b25892c82647ebad447fd7729817ee78e65156018d414f9232d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+        "postimage_sha256": "32208474530f673b007f328055b9d492416488fb927e2a4e7a4e87231a2f2b4a"
+      },
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "c8f4baf878c38b55e8e6c992f46913a093544e50adbb2d72e914265bab956ac8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "postimage_sha256": "1beedaa505ec99afa50d7da9a4bf2eb4329e5679af156211478a3d74462e3e19"
+      },
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+        "operation": "write",
+        "preimage_sha256": "02350476a9bd14ed02ff7c3956a7a5eaffe30a828861ef9fd928f4c6086d1598",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/src/polisyos/foundry/uncertainty/README.md",
+        "postimage_sha256": "cf1eaf108f7174f5ae3a4d223ec54f73e86abc6e8900ecb08b6c8195d73b1615"
+      },
+      "policy-engine/tests/unit/remediation/test_uqs_01.py": {
+        "operation": "write",
+        "preimage_sha256": "a7e6e2301d553fbfb0d9e19c4ba4762241263faa2ef6e52e76d7563d97a26c0d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/tests/unit/remediation/test_uqs_01.py",
+        "postimage_sha256": "9d3b57193c543a55deb56505982d3b7bf5e26e693bfd3b14893e05ff8f3d7046"
+      },
+      "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+        "postimage_sha256": "95943c67063f94eec8fb7233bcf1127e1bd4583b5222f20cf9892bf1a4536b98"
+      },
+      "policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+        "postimage_sha256": "6e4c1457671607ca0b60bc1a105aa0921aa434c2d5477a2cd7bb11fe201732c0"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-b200-artifact-aware-aggregation.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-b200-artifact-aware-aggregation.toml",
+        "postimage_sha256": "5e8c05a54e9f7e029cccd36dea3ba043bcfc0ad37e579d297160b5820a52acdd"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b199-b200-r6-adoption-20261020/source-application.json",
+      "sha256": "865e29994fb0c0ef2ecc4474e23f483cdd23a6676c34c7c682492dcdc72e3a32"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b199-b200-r6-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/manifest.json",
+        "sha256": "4cd758adeb27abbdde037f8810d4c31a20f7168ade02f04de1476d1038ba913b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/candidate.patch",
+        "sha256": "1710d707f182a0c58d35e7514f84428930eace51b5f4f308509658f0c812270f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/native-static-verification.json",
+        "sha256": "b016e0f66491ea6e252688e0cabeb6fcdbf795b236fb60be9dd4387d609b7c91"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-artifact-aware-canonical-postimages-r6-same-envelope-alias-20261020/decision.md",
+        "sha256": "868f33e88cbaee860d47edef27b48dcf37f5df30e00ce7b5146b2cb9ece9b59d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-r6-independent-delta-review-20261020/review.json",
+        "sha256": "102d70e2c3e8ba3ba98307fb161ebf85e6554b44ceb9a7cec1544efd2c22ff1e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-r5-v2-independent-delta-review-20261020/review.json",
+        "sha256": "263cd242a8c831f366c4340e6908bfa10329d500bc0cc1247097620b5de9d13b"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same context-admission class closed at shared intake; paired within-envelope alias refusal controls cover both entrypoints. Source-owned statistical relation and a production bridge remain declared bounded residuals.",
+    "bounded_proof": "Independent R5v2 bounded mechanism review and R6 delta GO102d70e2; canonical source runtime remains UNRUN.",
+    "limitations": [
+      "No in-repository production aggregation caller exists; full B200 remains bridge_missing/implemented_but_not_orchestrated.",
+      "Declared matching unit/subject/estimand strings are consistency inputs, not source-owned units law, covariance, independence, causality or permission.",
+      "Multiple unresolved inputs produce conditional candidate hull only; no statistical authority or information-strength claim.",
+      "Public surface regeneration and actual owner inventory review are pending; reviewed=false remains truthful. Full native release gate is not established.",
+      "R6 first manifest hash12eb was overwritten by its author and is unretained; only final4cd758 manifest is pinned by QA and adoption.",
+      "Two known-owned N7/B108 dirty tests remain unchanged; no G acceptance or formal closure.",
+      "No deletion or Trash operation; helper generic relocation wording is inapplicable."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "At explicit source/input freeze run the four whole B199/B200 modules including real random/Sobol Monte Carlo producer, selected-CAS fresh recomputation and alias/removal controls; run canonical public inventory owner and native release gate before publication.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

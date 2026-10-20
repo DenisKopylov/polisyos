@@ -10,7 +10,6 @@ from polisyos.foundry.uncertainty.aggregator import (
     AggregationStrategy,
     aggregate_envelopes,
 )
-from polisyos.foundry.uncertainty.covariance import extract_std
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
     ComposedFlavour,
@@ -75,33 +74,41 @@ def _inline_provenance_env(point: float, std: float) -> UncertaintyEnvelope:
     return envelope.model_copy(update={"composition_provenance": provenance})
 
 
-def test_widest_preserves_declared_level_and_semantics_for_duplicate_origin() -> None:
-    """Repeating an interval must not silently turn 0.8 into a 0.95 CI."""
+def test_repeated_self_asserted_origin_remains_an_unresolved_hull() -> None:
+    """An in-memory origin label cannot prove that two entries are one source."""
     envelope = _normal_env(10.0, 1.0, origin_id="origin-a")
 
     result = aggregate_envelopes([envelope, envelope], method="widest")
 
-    assert result.confidence_level == pytest.approx(0.8)
-    assert result.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+    assert result.confidence_level is None
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
     assert result.point_estimate == envelope.point_estimate
     assert result.confidence_interval == envelope.confidence_interval
-    assert result.metadata["effective_information_count"] == 1
+    assert result.gate_eligible is False
+    assert result.metadata["source_count"] == 2
+    assert result.metadata["duplicate_source_count"] == 0
+    assert result.metadata["effective_information_count"] is None
+    assert result.sample_size is None
 
 
 @pytest.mark.parametrize(
     "method",
     [AggregationStrategy.PRECISION_WEIGHTED, AggregationStrategy.BAYESIAN_COMBINATION],
 )
-def test_duplicate_origin_is_used_once_for_narrowing(method: AggregationStrategy) -> None:
-    """Two references to one envelope cannot manufacture a second information unit."""
+def test_repeated_origin_label_does_not_enable_narrowing(method: AggregationStrategy) -> None:
+    """A self-asserted duplicate cannot authorize precision or Bayesian narrowing."""
     envelope = _normal_env(10.0, 1.0, origin_id="origin-a")
 
     result = aggregate_envelopes([envelope, envelope], method=method)
 
-    assert extract_std(result) == pytest.approx(1.0, abs=1e-9)
+    assert result.confidence_interval == envelope.confidence_interval
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.gate_eligible is False
     assert result.metadata["source_count"] == 2
-    assert result.metadata["effective_information_count"] == 1
-    assert result.sample_size == 1
+    assert result.metadata["duplicate_source_count"] == 0
+    assert result.metadata["effective_information_count"] is None
+    assert result.sample_size is None
 
 
 @pytest.mark.parametrize(
@@ -168,16 +175,26 @@ def test_caller_asserted_independence_does_not_enable_formula(
     assert result.sample_size is None
 
 
-def test_conflicting_values_for_one_origin_fail_closed() -> None:
-    """A provenance collision cannot be resolved by treating conflicting values as replicas."""
+def test_same_fake_origin_with_different_values_is_retained_as_unresolved() -> None:
+    """A string collision cannot reject or collapse valid, separately supplied inputs."""
     left = _normal_env(10.0, 1.0, origin_id="origin-a")
     right = _normal_env(12.0, 1.0, origin_id="origin-a")
 
-    with pytest.raises(ValueError, match="conflicting envelopes for origin"):
-        aggregate_envelopes(
-            [left, right],
-            method=AggregationStrategy.PRECISION_WEIGHTED,
-        )
+    result = aggregate_envelopes(
+        [left, right],
+        method=AggregationStrategy.PRECISION_WEIGHTED,
+    )
+
+    assert result.confidence_interval == (
+        min(left.ci_lower, right.ci_lower),
+        max(left.ci_upper, right.ci_upper),
+    )
+    assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+    assert result.confidence_level is None
+    assert result.gate_eligible is False
+    assert result.metadata["source_count"] == 2
+    assert result.metadata["duplicate_source_count"] == 0
+    assert result.metadata["effective_information_count"] is None
 
 
 def test_mixed_confidence_and_credible_inputs_do_not_gain_statistical_label() -> None:

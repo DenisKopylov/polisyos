@@ -19,12 +19,33 @@ output metric uncertainty in Foundry simulations.
 - **Aggregation** - envelope merging for multi-strategy or multi-run outputs.
 - **Config-driven fallback** - strategy choice is explicit and inspectable.
 
-Precision-weighted and Bayesian aggregation require resolved independence evidence for distinct
-inputs. Distinct content-bound origin IDs establish identity, not statistical independence; envelope
-metadata labels such as `dependency="independent"` or `independence=true` do not establish that
-relation. Until a source-bound relation resolver is wired, multi-origin inputs retain a conservative
-non-gating hull and an unestablished effective-information count. Exact duplicate origins are still
-collapsed before aggregation.
+Precision-weighted and Bayesian aggregation require a resolved relation basis before they can
+narrow distinct inputs. In-memory IDs, composition labels, and metadata such as
+`dependency="independent"` or `independence=true` cannot establish source identity or statistical
+independence; those inputs retain a conservative non-gating hull and an unestablished
+effective-information count. The artifact-aware selected-view API verifies kind, media, schema,
+content bytes, and the exact manifest profile before collapsing a repeated CAS view. Equal bytes
+under distinct selected profiles remain distinct views. The selected-view API does not establish a
+common estimand, subject, unit, or dependence law, so distinct views remain non-gating.
+
+## Artifact-aware selected-view aggregation
+
+Both public entrypoints share one input-context admission before arithmetic or selected-view
+deduplication. Conflicting overlapping explicit metadata (including currency, unit, subject, and
+estimand context), malformed context values, or unequal typed `NumericPolicySpec` values refuse.
+Matching context labels are only a consistency check; they do not establish a common estimand,
+subject, unit, or dependence law. The exact compatible numeric policy is preserved through widest,
+precision-weighted, and Bayesian result construction. Caller-authored origin IDs and relation labels
+still cannot authorize deduplication or statistical narrowing.
+
+`aggregate_persisted_envelope_views()` accepts only the existing typed
+`UncertaintyEnvelopeRef`. It resolves the selected manifest profile, verifies the JSON kind/schema
+and content-addressed bytes, admits context across every loaded source before deduplicating only a
+repeated `(artifact_id, kind, media_type, manifest_profile_sha256)` view. The persisted and fresh-read
+helpers preserve ordered source InputRef edges and recompute the result on read. Equal payload bytes
+with different selected profiles remain different views. Missing or partial context stays
+`not_established`; distinct unresolved views produce a declared conditional candidate-only hull and
+cannot gate downstream decisions. No output is promoted to authority-grade evidence.
 
 ## Evaluation failure boundaries
 
@@ -53,11 +74,32 @@ draw. Other errors propagate instead of producing a conditional partial distribu
 | `PosteriorPushforwardOutputSummary` | Separate evaluated point, output functionals and equal-tail bounds. |
 | `PosteriorPushforwardResult`     | Candidate-only v1.1 result retaining point, rows and bounds separately. |
 | `QuasiMCSampler`                | Quasi-Monte-Carlo sampler for sampling-based propagation. |
-| `aggregate_envelopes()`         | Combines multiple envelopes into one.                     |
+| `aggregate_envelopes()`         | Conservatively combines in-memory envelopes without trusting identity labels. |
+| `aggregate_persisted_envelope_views()` | Resolves exact selected CAS views and returns a conservative aggregate. |
+| `persist_aggregated_envelope()` | Persists an aggregate with ordered selected source-view edges. |
+| `load_aggregated_envelope_fresh()` | Fresh-reads and recomputes an aggregate from its exact source-view edges. |
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
 | `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
 | Covariance reconciliation constants and builders | Lazy exact-owner exports for covariance construction, reconciliation, and singular-matrix handling. |
 | `EvaluationFailureClassification` and classifier | Bounded exception-graph classification and existing node/edge limits. |
+
+## Envelope aggregation boundaries
+
+The Foundry owner uses one versioned internal `AggregationSemanticContextV1` projection before
+both in-memory arithmetic and selected-CAS view deduplication. It validates only the established
+legacy `unit`, `currency`, `subject`, and `estimand` string axes plus the envelope's typed
+`NumericPolicySpec`. Those supplied values are checked for malformed or conflicting declarations;
+matching values remain caller claims and do not establish a common estimand, unit binding, subject,
+or statistical relation. Unrecognized metadata, including Monte Carlo seeds, sampling methods,
+tail-risk summaries, and sensitivity diagnostics, remains attached to each source envelope and is
+not compared as shared context.
+
+Distinct views with unresolved relations remain a non-gating outer hull with effective information
+`not_established`. Repeating one exact selected CAS view reuses its existing envelope and preserves
+its point, bounds, confidence level, interval semantics, and gate flag. The selected-view APIs have
+controlled producer-to-CAS-to-fresh-reader tests, but no current production orchestration caller
+invokes the aggregate API; that bridge remains `bridge_missing` until a real consumer route is owned.
+No HTTP or dashboard publication is claimed.
 
 → Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
@@ -108,6 +150,6 @@ substitution is applied.
 
 ## Current State
 
-- Last updated: 2026-10-15
+- Last updated: 2026-10-20
 - Files: 13 Python files in this package
-- Exports: 27 names declared in `__all__`
+- Exports: 30 names declared in `__all__`

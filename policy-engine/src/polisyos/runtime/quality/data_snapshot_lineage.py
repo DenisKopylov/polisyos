@@ -15,7 +15,6 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
     CanonInfo,
-    CanonSpec,
     InputRef,
     ProducerInfo,
     SchemaInfo,
@@ -23,7 +22,7 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
     load_core_json_artifact,
 )
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import (
     DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
     AcquiredObservationDataSnapshotLineage,

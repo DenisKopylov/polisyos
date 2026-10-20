@@ -39735,5 +39735,69 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-datasnapshot-canonical-import-20261020-r1": {
+    "slice_base": "7e349c782b03bcae729cc31796c2d0ff30635ce7",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/data_snapshot_lineage.py": {
+        "operation": "update",
+        "preimage_sha256": "0ac343a2d194715975b78539076071ca5ab967580f3a1ade05771c239cd68c43",
+        "postimage_sha256": "0ae78682066e70b2d0378792697d2a12ae3a856d722cc860064a1bcbb3dbffe4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-owner-profile-import-fix-r2-20261020/postimages/data_snapshot_lineage.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-canonical-import-20261020-r1/source-application.json",
+      "sha256": "2b72c1df3914f6930e7e9658c75f358f95e00e097e074a6fee0a664dde72a84a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-canonical-import-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-owner-profile-import-fix-r2-20261020/manifest.json",
+        "sha256": "d901dbad523fb51cf48924392de35792fc6d23c9fd76760620c59c5841b80415"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-owner-profile-import-fix-r2-20261020/postimages/data_snapshot_lineage.py",
+        "sha256": "0ae78682066e70b2d0378792697d2a12ae3a856d722cc860064a1bcbb3dbffe4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-owner-profile-import-fix-independent-review-r1-20261020/review.json",
+        "sha256": "33127f4a25436483dc2f001a3429d3387fa3300a71d16e67fda6b609701e3935"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-owner-profile-import-fix-r2-20261020/native-checks.json",
+        "sha256": "3f63b05d4f65d4ee19c5c077b51b516551a136ef0ae396009b854a2238b75bb9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-owner-profile-import-fix-r2-20261020/patch.diff",
+        "sha256": "eebc9e8061aaf68aec5d1d974a6d59e1707e7ee01efb5d764fc88578a33011ce"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Source/public-import availability prerequisite, separate from semantic nested selected-profile class.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Baseline has only collectionERROR, no semantic profile-removal witness yet.",
+      "Runtime owner tests and whole consumer paths remain unrun; no G acceptance/closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Rerun same actual DefaultFabricPort positive/profile-removal baseline under new committed frame before R5 selected-profile behavior patch.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

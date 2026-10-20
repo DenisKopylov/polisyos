@@ -21,13 +21,15 @@ import hashlib
 import importlib.util
 import json
 import re
+import subprocess
 import sys
 import tomllib
-from collections.abc import Sequence
-from pathlib import Path
+from collections.abc import Iterable, Sequence
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
+from tools.quality.validation.directory_health_inventory import iter_files, iter_git_paths
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -175,6 +177,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
     marker_scan_exclusions = _marker_scan_exclusions_from_generated(generated, issues)
     families = [family for family in generated.get("family", []) if isinstance(family, dict)]
     gy_families = [family for family in families if _is_gy_lifecycle_family(family)]
+    family_output_paths = _validated_gy_family_output_paths(gy_families, issues)
     producer_outputs_by_family = _producer_declared_gy_outputs(
         repo_root,
         gy_families,
@@ -185,20 +188,18 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
         output for outputs in producer_outputs_by_family.values() for output in outputs
     }
     source_committed_outputs = {
-        str(output)
+        output
         for family in gy_families
         if family.get("lifecycle") == "source_committed"
-        for output in family.get("outputs") or []
+        for output in family_output_paths[id(family)]
     }
-    marker_detected_outputs = set(_iter_gy_marked_artifact_files(repo_root, marker_scan_exclusions))
-    discovered = sorted(
-        producer_declared_outputs | source_committed_outputs | marker_detected_outputs
-    )
     output_root_directories = _derive_gy_output_root_directories(
         repo_root,
         gy_families,
+        family_output_paths,
         producer_declared_outputs,
         source_committed_outputs,
+        issues,
     )
     raw_output_root_files = set(
         _iter_contract_derived_output_root_files(
@@ -206,6 +207,16 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
             output_root_directories,
             marker_scan_exclusions,
         )
+    )
+    marker_detected_outputs = set(
+        _iter_gy_marked_artifact_files(
+            repo_root,
+            marker_scan_exclusions,
+            extra_candidate_paths=raw_output_root_files,
+        )
+    )
+    discovered = sorted(
+        producer_declared_outputs | source_committed_outputs | marker_detected_outputs
     )
     owned_non_gy_allowlist = _owned_non_gy_allowlist(
         repo_root,
@@ -241,7 +252,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
 
     for family in gy_families:
         family_id = str(family.get("id") or "")
-        gy_outputs = [str(output) for output in family.get("outputs") or []]
+        gy_outputs = family_output_paths[id(family)]
         if not gy_outputs:
             continue
         family_ids.add(family_id)
@@ -427,50 +438,177 @@ def _discover_gy_artifact_paths(repo_root: Path) -> list[str]:
     if not generated_path.is_file():
         return []
     generated = tomllib.loads(generated_path.read_text(encoding="utf-8"))
-    marker_scan_exclusions = _marker_scan_exclusions_from_generated(generated)
+    issues: list[dict[str, Any]] = []
+    marker_scan_exclusions = _marker_scan_exclusions_from_generated(generated, issues)
     gy_families = [
         family
         for family in generated.get("family", [])
         if isinstance(family, dict) and _is_gy_lifecycle_family(family)
     ]
+    family_output_paths = _validated_gy_family_output_paths(gy_families, issues)
     producer_declared_outputs = {
         output
         for outputs in _producer_declared_gy_outputs(
             repo_root,
             gy_families,
+            issues,
             scope_exclusions=marker_scan_exclusions,
         ).values()
         for output in outputs
     }
     source_committed_outputs = {
-        str(output)
+        output
         for family in gy_families
         if family.get("lifecycle") == "source_committed"
-        for output in family.get("outputs") or []
+        for output in family_output_paths[id(family)]
     }
-    marker_detected_outputs = set(_iter_gy_marked_artifact_files(repo_root, marker_scan_exclusions))
+    output_root_directories = _derive_gy_output_root_directories(
+        repo_root,
+        gy_families,
+        family_output_paths,
+        producer_declared_outputs,
+        source_committed_outputs,
+        issues,
+    )
+    output_root_files = _iter_contract_derived_output_root_files(
+        repo_root,
+        output_root_directories,
+        marker_scan_exclusions,
+    )
+    marker_detected_outputs = set(
+        _iter_gy_marked_artifact_files(
+            repo_root,
+            marker_scan_exclusions,
+            extra_candidate_paths=output_root_files,
+        )
+    )
     return sorted(producer_declared_outputs | source_committed_outputs | marker_detected_outputs)
+
+
+def _validate_declared_output_path(
+    value: object,
+    issues: list[dict[str, Any]],
+    *,
+    source: str,
+    family_id: str | None = None,
+    bad_path_code: str = "layer3_gy_output_path_bad_path",
+    bad_type_code: str = "layer3_gy_output_path_bad_type",
+    workflow: str | None = None,
+) -> str | None:
+    """Validate one exact POSIX repo-relative output path before root derivation."""
+    if not isinstance(value, str):
+        issue: dict[str, Any] = {
+            "code": bad_type_code,
+            "source": source,
+            "value_type": type(value).__name__,
+        }
+        if family_id is not None:
+            issue["family_id"] = family_id
+        if workflow is not None:
+            issue["workflow"] = workflow
+        issues.append(issue)
+        return None
+
+    normalized = _normalize_repo_relative_path(value)
+    if normalized:
+        return normalized
+    issue = {
+        "code": bad_path_code,
+        "source": source,
+        "path": value,
+    }
+    if family_id is not None:
+        issue["family_id"] = family_id
+    if workflow is not None:
+        issue["workflow"] = workflow
+    issues.append(issue)
+    return None
+
+
+def _validated_declared_output_paths(
+    value: object,
+    issues: list[dict[str, Any]],
+    *,
+    source: str,
+    present: bool,
+    family_id: str | None = None,
+    workflow: str | None = None,
+    bad_collection_code: str = "layer3_gy_output_paths_bad_type",
+    bad_path_code: str = "layer3_gy_output_path_bad_path",
+    bad_item_type_code: str = "layer3_gy_output_path_bad_type",
+) -> list[str]:
+    """Validate one declared output collection and every path before root derivation."""
+    if not present:
+        return []
+    if not isinstance(value, (list, tuple, set)):
+        issue: dict[str, Any] = {
+            "code": bad_collection_code,
+            "source": source,
+            "value_type": type(value).__name__,
+        }
+        if family_id is not None:
+            issue["family_id"] = family_id
+        if workflow is not None:
+            issue["workflow"] = workflow
+        issues.append(issue)
+        return []
+
+    outputs: list[str] = []
+    for item in value:
+        output = _validate_declared_output_path(
+            item,
+            issues,
+            source=source,
+            family_id=family_id,
+            workflow=workflow,
+            bad_path_code=bad_path_code,
+            bad_type_code=bad_item_type_code,
+        )
+        if output is not None:
+            outputs.append(output)
+    return outputs
+
+
+def _validated_gy_family_output_paths(
+    gy_families: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> dict[int, list[str]]:
+    """Validate family outputs once so every consumer shares the same path set."""
+    validated: dict[int, list[str]] = {}
+    for family in gy_families:
+        family_id = str(family.get("id") or "")
+        validated[id(family)] = _validated_declared_output_paths(
+            family.get("outputs"),
+            issues,
+            source="generated_artifacts.family.outputs",
+            present="outputs" in family,
+            family_id=family_id,
+        )
+    return validated
 
 
 def _derive_gy_output_root_directories(
     repo_root: Path,
     gy_families: list[dict[str, Any]],
+    family_output_paths: dict[int, list[str]],
     producer_declared_outputs: set[str],
     source_committed_outputs: set[str],
+    issues: list[dict[str, Any]],
 ) -> set[str]:
     output_paths = set(producer_declared_outputs) | set(source_committed_outputs)
     for family in gy_families:
-        output_paths.update(str(output) for output in family.get("outputs") or [])
+        output_paths.update(family_output_paths[id(family)])
     output_paths.update(
         _public_surface_gy_generated_artifact_outputs(
             repo_root,
             gy_family_ids={str(family.get("id") or "") for family in gy_families},
+            issues=issues,
         )
     )
     return {
-        Path(output).parent.as_posix()
+        PurePosixPath(output).parent.as_posix()
         for output in output_paths
-        if Path(output).parent.as_posix() != "."
+        if PurePosixPath(output).parent.as_posix() != "."
     }
 
 
@@ -478,6 +616,7 @@ def _public_surface_gy_generated_artifact_outputs(
     repo_root: Path,
     *,
     gy_family_ids: set[str],
+    issues: list[dict[str, Any]] | None = None,
 ) -> set[str]:
     contract_path = repo_root / "architecture/public_surface/contract.toml"
     if not contract_path.is_file():
@@ -486,14 +625,25 @@ def _public_surface_gy_generated_artifact_outputs(
         contract = tomllib.loads(contract_path.read_text(encoding="utf-8"))
     except (OSError, tomllib.TOMLDecodeError):
         return set()
+    issue_sink = issues if issues is not None else []
     outputs: set[str] = set()
     for family in contract.get("generated_artifact_family", []):
         if not isinstance(family, dict):
             continue
         family_id = str(family.get("id") or "")
-        family_outputs = {str(output) for output in family.get("outputs") or []}
-        if family_id in gy_family_ids or family_id.startswith("policy-design-case-layer3-gy"):
-            outputs.update(family_outputs)
+        if family_id not in gy_family_ids and not family_id.startswith(
+            "policy-design-case-layer3-gy"
+        ):
+            continue
+        outputs.update(
+            _validated_declared_output_paths(
+                family.get("outputs"),
+                issue_sink,
+                source="public_surface.generated_artifact_family.outputs",
+                present="outputs" in family,
+                family_id=family_id,
+            )
+        )
     return outputs
 
 
@@ -502,27 +652,105 @@ def _iter_contract_derived_output_root_files(
     output_root_directories: set[str],
     scope_exclusions: ScanExclusions,
 ) -> list[str]:
-    paths: set[str] = set()
-    for directory in output_root_directories:
-        root = repo_root / directory
-        if not root.exists():
-            continue
-        for path in root.rglob("*"):
-            if path.is_file() and path.suffix in GY_OUTPUT_ROOT_EXTENSIONS:
-                paths.add(path.relative_to(repo_root).as_posix())
-    return sorted(
-        path
-        for path in paths
-        if _is_committed_artifact_scope_path(path, scope_exclusions=scope_exclusions)
+    """Return candidate files under unique, declared output roots only."""
+    return _iter_repo_relative_output_files(
+        repo_root,
+        output_root_directories,
+        scope_exclusions=scope_exclusions,
     )
+
+
+def _minimal_repo_relative_directories(directories: Iterable[str]) -> list[str]:
+    """Collapse overlapping repo-relative roots to their ancestor set."""
+    normalized = {
+        path for directory in directories if (path := _normalize_repo_relative_path(str(directory)))
+    }
+    minimal: list[str] = []
+    for path in sorted(normalized, key=lambda value: (len(PurePosixPath(value).parts), value)):
+        if any(path.startswith(f"{parent}/") for parent in minimal):
+            continue
+        minimal.append(path)
+    return minimal
+
+
+def _safe_repo_directory(repo_root: Path, relative: str) -> Path | None:
+    """Resolve an existing repo directory without crossing a symlink."""
+    repo_root = repo_root.resolve()
+    normalized = _normalize_repo_relative_path(relative)
+    if not normalized:
+        return None
+    path = repo_root
+    for part in PurePosixPath(normalized).parts:
+        path = path / part
+        if path.is_symlink():
+            return None
+    try:
+        path.resolve(strict=True).relative_to(repo_root)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return path if path.is_dir() else None
+
+
+def _repo_file_is_safe(repo_root: Path, relative: str) -> bool:
+    """Require a regular file whose parent traversal stays inside the repo."""
+    normalized = _normalize_discovered_repo_relative_path(relative)
+    if not normalized:
+        return False
+    parts = PurePosixPath(normalized).parts
+    path = repo_root
+    for part in parts[:-1]:
+        path = path / part
+        if path.is_symlink():
+            return False
+    path = repo_root.joinpath(*parts)
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to(repo_root)
+    except (OSError, RuntimeError, ValueError):
+        return False
+    return resolved.is_file()
+
+
+def _iter_repo_relative_output_files(
+    repo_root: Path,
+    directories: Iterable[str],
+    *,
+    scope_exclusions: ScanExclusions,
+) -> list[str]:
+    """Walk coalesced explicit roots without following directory symlinks."""
+    repo_root = repo_root.resolve()
+    paths: set[str] = set()
+    for relative_directory in _minimal_repo_relative_directories(directories):
+        root = _safe_repo_directory(repo_root, relative_directory)
+        if root is None:
+            continue
+        for path in iter_files(root):
+            if path.suffix.lower() not in GY_OUTPUT_ROOT_EXTENSIONS:
+                continue
+            relative = path.relative_to(repo_root).as_posix()
+            if not _is_discovered_artifact_scope_path(
+                relative,
+                scope_exclusions=scope_exclusions,
+            ):
+                continue
+            if _repo_file_is_safe(repo_root, relative):
+                paths.add(relative)
+    return sorted(paths)
 
 
 def _iter_gy_marked_artifact_files(
     repo_root: Path,
     scope_exclusions: ScanExclusions,
+    *,
+    extra_candidate_paths: Iterable[str] = (),
 ) -> list[str]:
+    repo_root = repo_root.resolve()
     paths: set[str] = set()
-    for path in _iter_repo_artifact_candidate_files(repo_root, scope_exclusions):
+    for path in _iter_repo_artifact_candidate_files(
+        repo_root,
+        scope_exclusions,
+        extra_candidate_paths=extra_candidate_paths,
+    ):
         if _artifact_has_gy_provenance(path):
             paths.add(path.relative_to(repo_root).as_posix())
     return sorted(paths)
@@ -531,27 +759,64 @@ def _iter_gy_marked_artifact_files(
 def _iter_repo_artifact_candidate_files(
     repo_root: Path,
     scope_exclusions: ScanExclusions,
+    *,
+    extra_candidate_paths: Iterable[str] = (),
 ) -> list[Path]:
-    paths: list[Path] = []
-    stack = [repo_root]
-    while stack:
-        root = stack.pop()
-        try:
-            children = sorted(root.iterdir(), key=lambda child: child.name)
-        except OSError:
-            continue
-        for child in children:
-            relative = child.relative_to(repo_root).as_posix()
-            if not _is_committed_artifact_scope_path(
-                relative,
+    """Inventory tracked and fresh nonignored files without walking the worktree."""
+    repo_root = repo_root.resolve()
+    prefix = _git_worktree_prefix(repo_root)
+    paths: set[Path] = set()
+    path_sources = (
+        ("ls-files", "--cached", "--full-name"),
+        ("ls-files", "--others", "--exclude-standard", "--full-name"),
+    )
+    for command_args in path_sources:
+        for git_path in iter_git_paths(repo_root, *command_args):
+            if prefix:
+                prefix_with_separator = f"{prefix}/"
+                if not git_path.startswith(prefix_with_separator):
+                    continue
+                relative = git_path[len(prefix_with_separator) :]
+            else:
+                relative = git_path
+            normalized = _normalize_discovered_repo_relative_path(relative)
+            if not normalized or Path(normalized).suffix.lower() not in GY_OUTPUT_ROOT_EXTENSIONS:
+                continue
+            if not _is_discovered_artifact_scope_path(
+                normalized,
                 scope_exclusions=scope_exclusions,
             ):
                 continue
-            if child.is_dir():
-                stack.append(child)
-            elif child.is_file() and child.suffix.lower() in GY_OUTPUT_ROOT_EXTENSIONS:
-                paths.append(child)
-    return paths
+            if _repo_file_is_safe(repo_root, normalized):
+                paths.add(repo_root / normalized)
+    for relative in extra_candidate_paths:
+        normalized = _normalize_discovered_repo_relative_path(relative)
+        if (
+            normalized
+            and Path(normalized).suffix.lower() in GY_OUTPUT_ROOT_EXTENSIONS
+            and _is_discovered_artifact_scope_path(
+                normalized,
+                scope_exclusions=scope_exclusions,
+            )
+            and _repo_file_is_safe(repo_root, normalized)
+        ):
+            paths.add(repo_root / normalized)
+    return sorted(paths)
+
+
+def _git_worktree_prefix(repo_root: Path) -> str:
+    """Return the current directory's prefix relative to its Git worktree."""
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-prefix"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+    )
+    prefix_bytes = result.stdout
+    if prefix_bytes.endswith(b"\n"):
+        prefix_bytes = prefix_bytes[:-1]
+    prefix = prefix_bytes.decode("utf-8", errors="surrogateescape")
+    return prefix.removesuffix("/")
 
 
 def _owned_non_gy_allowlist(
@@ -657,6 +922,7 @@ def _generated_artifact_gy_output_root_allowlist(
     except (OSError, tomllib.TOMLDecodeError):
         return set()
     allowed: set[str] = set()
+    allowed_directories: set[str] = set()
     for entry in generated.get("gy_output_root_allowlist", []):
         if not isinstance(entry, dict):
             continue
@@ -689,8 +955,8 @@ def _generated_artifact_gy_output_root_allowlist(
             ):
                 allowed.add(path)
         for directory in sorted(directories):
-            directory_path = repo_root / directory
-            if not directory_path.is_dir():
+            normalized = _normalize_repo_relative_path(directory)
+            if not normalized or _safe_repo_directory(repo_root, normalized) is None:
                 if issues is not None:
                     issues.append(
                         {
@@ -700,18 +966,20 @@ def _generated_artifact_gy_output_root_allowlist(
                         }
                     )
                 continue
-            for path in directory_path.rglob("*"):
-                if not path.is_file() or path.suffix not in GY_OUTPUT_ROOT_EXTENSIONS:
-                    continue
-                relative = path.relative_to(repo_root).as_posix()
-                if _allowlisted_non_gy_path(
-                    repo_root,
-                    relative,
-                    gy_paths=gy_paths,
-                    issues=issues,
-                    scope_exclusions=scope_exclusions,
-                ):
-                    allowed.add(relative)
+            allowed_directories.add(normalized)
+    for relative in _iter_repo_relative_output_files(
+        repo_root,
+        allowed_directories,
+        scope_exclusions=scope_exclusions,
+    ):
+        if _allowlisted_non_gy_path(
+            repo_root,
+            relative,
+            gy_paths=gy_paths,
+            issues=issues,
+            scope_exclusions=scope_exclusions,
+        ):
+            allowed.add(relative)
     return allowed
 
 
@@ -876,17 +1144,30 @@ def _normalize_exclusion_values(
 
 
 def _normalize_repo_relative_path(value: str) -> str:
-    normalized = value.strip().replace("\\", "/")
-    while normalized.startswith("./"):
-        normalized = normalized[2:]
-    normalized = normalized.strip("/")
-    if not normalized:
+    """Accept only exact, canonical POSIX repository-relative contract paths."""
+    if (
+        not value
+        or value != value.strip()
+        or "\\" in value
+        or value.startswith("/")
+        or Path(value).is_absolute()
+        or re.match(r"^[A-Za-z]:", value)
+    ):
         return ""
-    if normalized == "." or normalized.startswith("../") or "/../" in normalized:
+    parts = value.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
         return ""
-    if Path(normalized).is_absolute():
+    return value
+
+
+def _normalize_discovered_repo_relative_path(value: str) -> str:
+    """Validate a path obtained from the POSIX worktree without rewriting names."""
+    if not value or value.startswith("/") or Path(value).is_absolute():
         return ""
-    return normalized
+    parts = value.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
+        return ""
+    return value
 
 
 def _path_is_marker_scan_excluded(
@@ -911,6 +1192,17 @@ def _is_committed_artifact_scope_path(
     if not normalized:
         return False
     if _path_is_marker_scan_excluded(normalized, scope_exclusions):
+        return False
+    return True
+
+
+def _is_discovered_artifact_scope_path(
+    relative: str,
+    *,
+    scope_exclusions: ScanExclusions,
+) -> bool:
+    normalized = _normalize_discovered_repo_relative_path(relative)
+    if not normalized or _path_is_marker_scan_excluded(normalized, scope_exclusions):
         return False
     return True
 
@@ -1148,32 +1440,32 @@ def _load_producer_declared_outputs(
                 }
             )
         return set()
-    if not isinstance(raw_outputs, (list, tuple, set)):
-        if issues is not None:
-            issues.append(
-                {
-                    "code": "layer3_gy_producer_declared_outputs_bad_type",
-                    "family_id": family_id,
-                    "workflow": workflow,
-                }
-            )
-        return set()
+    issue_sink = issues if issues is not None else []
+    declared_paths = _validated_declared_output_paths(
+        raw_outputs,
+        issue_sink,
+        source="workflow.declared_outputs",
+        present=True,
+        family_id=family_id,
+        workflow=workflow,
+        bad_collection_code="layer3_gy_producer_declared_outputs_bad_type",
+        bad_path_code="layer3_gy_producer_declared_output_bad_path",
+        bad_item_type_code="layer3_gy_producer_declared_output_bad_type",
+    )
     outputs: set[str] = set()
-    for item in raw_outputs:
-        output = str(item).replace("\\", "/")
+    for output in declared_paths:
         if not _is_committed_artifact_scope_path(
             output,
             scope_exclusions=scope_exclusions,
         ):
-            if issues is not None:
-                issues.append(
-                    {
-                        "code": "layer3_gy_producer_declared_output_bad_path",
-                        "family_id": family_id,
-                        "workflow": workflow,
-                        "path": output,
-                    }
-                )
+            issue_sink.append(
+                {
+                    "code": "layer3_gy_producer_declared_output_bad_path",
+                    "family_id": family_id,
+                    "workflow": workflow,
+                    "path": output,
+                }
+            )
             continue
         outputs.add(output)
     return outputs

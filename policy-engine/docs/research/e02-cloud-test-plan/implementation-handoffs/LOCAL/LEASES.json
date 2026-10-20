@@ -28107,5 +28107,127 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "gy-lifecycle-authoritative-inventory-output-intake-r4-20261020": {
+    "slice_base": "3a16ebfb87f11ae8bd95d55e36ce9e8f67ef351c",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py": {
+        "preimage_sha256": "c038e9f95bf73757858acc5eccfc0613fcb1cd819930dd390e4b82c7d41ce5f5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/postimages/check_layer3_gy_generated_public_lifecycle_audit.py",
+        "postimage_sha256": "fe84d5c51c71761a22dae45fe47b298c447681984b5ad0339c81d3dfbf08a9cc",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py": {
+        "preimage_sha256": "c688d5fce44ddb779ff059f8f8e2522ddc89ad5a6812f6a8d4297809be7df198",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/postimages/test_layer3_gy_generated_public_lifecycle_audit.py",
+        "postimage_sha256": "be6a5e9700119218661b091e6949a5cd928c217a0c63498a55780ed4d25f58d1",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py": {
+        "preimage_sha256": "e881d603eea93122758393ef15b3fd381029c87d736f40b913f68d0422b4245d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/postimages/test_layer3_gy_artifact_lifecycle.py",
+        "postimage_sha256": "c19b197ac865424478d73db0af642371e4c073f74e225b0551eb55411e5b3c97",
+        "operation": "write"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-lifecycle-source-inventory-r4-adoption-20261020/source-application.json",
+      "sha256": "90bdd2d9690df7ad1e6b5de4b33d80fea486dac865809006cc7445cb32ee4b1f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-lifecycle-source-inventory-r4-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/manifest-r4.json",
+        "sha256": "818c2f74d7ed017dd4ac5da55e1dbe3d92f41d9cbc6f405dd307cec74b5631fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/patch-r4.diff",
+        "sha256": "def29ca3702d218f264606ce1e464d0685749d5325e43b637b491bec2ce3d32f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/ruff-receipts.json",
+        "sha256": "c982090483fe704f2836baf7e92c4d36103116d0876d0c38932a39f4cd3554b8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/patch-check-receipt.json",
+        "sha256": "b5896b367bdc078b97166e36c048edc5ef553dfe1559cbd8ef01166006ff80e8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-author-r4-20261020/focused-fixture-tests.txt",
+        "sha256": "c4fa7b2bc4de633c8a1d250fb9a39930a82b1c5501665814549eb368c690c2c7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-lifecycle-scope-fix-independent-review-r4-20261020/review-r4.json",
+        "sha256": "4d4771c5e903cf1ef4d1ea25fc538457710edabdb895029f709abd89d3874f61"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-candidate-import-classification-decision-20261020-r1.md",
+        "sha256": "1ded61c078e0bba8ba47a2fa93130d69dfa1fe01fecfa7e173cccf5bfc74b4a0"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same declared-output type admission class widened to collection and element quantity; scope is tracked plus fresh nonignored files and complete canonical GY output-root union, not all ignored workspace payload.",
+    "bounded_proof": "Independent R4GO4d4771c5, 85 focused cases pass with full-validator malformed collection matrix and ignored canonical CAS new-shard marker probe. Complete current GY owner census in QA is47families249outputs16parents collapsed3roots. Actual full lifecycle/repository/runtime remains UNRUN.",
+    "limitations": [
+      "Arbitrary ignored payload outside maintained tracked/nonignored candidates and all declared owner roots is out of scope; no whole-workspace payload census claim.",
+      "Full lifecycle136 and both runtime authority/workspace79 modules remain UNRUN on this candidate; prior scoped traces are not carried as new green.",
+      "Canonical physical Ruff after complete source application is deciding; earlier stdin check sees only its then-present import universe per pinned systemic diagnosis.",
+      "Two known-owned N7/B108 incomplete dirty tests remain byte-identical.",
+      "No G acceptance, formal closure, global source/input freeze or native-green claim.",
+      "No deletion or Trash operation; generic helper relocation wording is inapplicable."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the complete lifecycle module and both complete runtime authority/workspace modules on the same composed source freeze with normal pytest configuration, actual import origins, complete JUnit/case output and resource bounds; retain ignored-owner marker and corrupt declared-output drift failures.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

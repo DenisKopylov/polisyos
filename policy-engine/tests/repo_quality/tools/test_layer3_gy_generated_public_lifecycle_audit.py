@@ -3,7 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import subprocess
+import tempfile
 import tomllib
+from collections.abc import Iterator
 from importlib import import_module
 from pathlib import Path
 from typing import Any
@@ -11,6 +14,13 @@ from typing import Any
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+if not (REPO_ROOT / "architecture/generated_artifacts.toml").is_file():
+    _current = Path.cwd().resolve()
+    _product = _current / "policy-engine"
+    if (_current / "architecture/generated_artifacts.toml").is_file():
+        REPO_ROOT = _current
+    elif (_product / "architecture/generated_artifacts.toml").is_file():
+        REPO_ROOT = _product
 AUDIT_PATH = (
     REPO_ROOT
     / "architecture"
@@ -18,6 +28,10 @@ AUDIT_PATH = (
     / "layer3_gy_task0_audit"
     / "layer3_gy_generated_public_lifecycle_audit.json"
 )
+
+
+def _init_git_repo(repo_root: Path) -> None:
+    subprocess.run(["git", "init", "--quiet"], cwd=repo_root, check=True)
 
 
 def _validator() -> Any:
@@ -147,6 +161,7 @@ def test_lifecycle_custody_rejects_unbounded_namespaces(prefix: str) -> None:
 
 def test_inventory_byte_drift_reaches_its_registered_verifier(tmp_path: Path) -> None:
     """Exercise the real registry's inventory owner through M1's actual consumer."""
+    _init_git_repo(tmp_path)
     relative = "architecture/policy_design_case/inventory.json"
     registry = (REPO_ROOT / "architecture/generated_artifacts.toml").read_text()
     blocks = ["[[family]]" + block for block in registry.split("[[family]]")[1:]]
@@ -181,6 +196,7 @@ def test_inventory_byte_drift_reaches_its_registered_verifier(tmp_path: Path) ->
 
 def test_real_alternative_namespaces_are_discovered_without_registration(tmp_path: Path) -> None:
     """Removing an entire family cannot hide its real producer's schema markers."""
+    _init_git_repo(tmp_path)
     family_ids = {
         "policy-design-case-layer3-gy-n10-cg1-l2-relation-census",
         "policy-design-case-layer3-gy-n13a-acquisition-census",
@@ -201,6 +217,642 @@ def test_real_alternative_namespaces_are_discovered_without_registration(tmp_pat
             expected.add(destination.relative_to(tmp_path).as_posix())
     assert expected == {path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob("*.json")}
     assert set(_validator()._iter_gy_marked_artifact_files(tmp_path, (set(), set()))) == expected
+
+
+def test_marker_scan_covers_git_visible_files_and_refreshes_after_mutation(tmp_path: Path) -> None:
+    git_root = tmp_path
+    repo_root = git_root / "product"
+    repo_root.mkdir()
+    _init_git_repo(git_root)
+    (repo_root / ".gitignore").write_text("ignored-source/\nowner-output/\n", encoding="utf-8")
+    tracked = repo_root / "tracked.json"
+    tracked.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "add", "product/tracked.json"], cwd=git_root, check=True)
+    sibling = git_root / "sibling.json"
+    sibling.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    fresh = repo_root / "fresh-scope" / "new_marker.json"
+    ignored = repo_root / "ignored-source" / "hidden.json"
+    ignored.parent.mkdir()
+    ignored.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    with tempfile.TemporaryDirectory(dir=tmp_path.parent) as outside_dir:
+        outside = Path(outside_dir)
+        (outside / "external.json").write_text(
+            '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+            encoding="utf-8",
+        )
+        (repo_root / "linked-source").symlink_to(outside, target_is_directory=True)
+        validator = _validator()
+        observed = set(validator._iter_gy_marked_artifact_files(repo_root, (set(), set())))
+        assert observed == {"tracked.json"}
+
+        fresh.parent.mkdir()
+        fresh.write_text(
+            '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+            encoding="utf-8",
+        )
+        assert set(validator._iter_gy_marked_artifact_files(repo_root, (set(), set()))) == {
+            "tracked.json",
+            "fresh-scope/new_marker.json",
+        }
+        ignore_file = repo_root / ".gitignore"
+        ignore_file.write_text(
+            "ignored-source/\nowner-output/\nfresh-scope/new_marker.json\n",
+            encoding="utf-8",
+        )
+        assert set(validator._iter_gy_marked_artifact_files(repo_root, (set(), set()))) == {
+            "tracked.json"
+        }
+        ignore_file.write_text("ignored-source/\nowner-output/\n", encoding="utf-8")
+        assert set(validator._iter_gy_marked_artifact_files(repo_root, (set(), set()))) == {
+            "tracked.json",
+            "fresh-scope/new_marker.json",
+        }
+        fresh.write_text('{"schema_version":"ordinary.v1"}\n', encoding="utf-8")
+        assert set(validator._iter_gy_marked_artifact_files(repo_root, (set(), set()))) == {
+            "tracked.json"
+        }
+        fresh.write_text(
+            '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+            encoding="utf-8",
+        )
+        assert "fresh-scope/new_marker.json" in set(
+            validator._iter_gy_marked_artifact_files(repo_root, (set(), set()))
+        )
+        fresh.unlink()
+        assert set(validator._iter_gy_marked_artifact_files(repo_root, (set(), set()))) == {
+            "tracked.json"
+        }
+
+
+@pytest.mark.parametrize(
+    "output_path",
+    [
+        "nested/deep/../marker.json",
+        "nested/../marker.json",
+        "../marker.json",
+        "/nested/marker.json",
+        "C:/nested/marker.json",
+        "nested\\marker.json",
+        "nested//marker.json",
+        "nested/./marker.json",
+        " nested/marker.json",
+        "nested/marker.json/",
+    ],
+)
+@pytest.mark.parametrize("source", ["generated_artifacts", "public_surface", "producer"])
+def test_malformed_declared_gy_output_path_refuses_without_root_walk(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source: str,
+    output_path: str,
+) -> None:
+    """Malformed output declarations must not widen an owner-root scan."""
+    _init_git_repo(tmp_path)
+    nested = tmp_path / "nested" / "deep"
+    nested.mkdir(parents=True)
+    marker = tmp_path / "nested" / "marker.json"
+    marker.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    architecture = tmp_path / "architecture"
+    architecture.mkdir()
+    family_output = json.dumps(output_path)
+    (architecture / "generated_artifacts.toml").write_text(
+        "[[family]]\n"
+        'id = "gy-path-probe"\n'
+        'owner = "tests"\n'
+        "gy_lifecycle_family = true\n"
+        + (
+            'lifecycle = "generated_committed"\n'
+            if source == "producer"
+            else 'lifecycle = "surface_out_of_scope"\n'
+        )
+        + ('workflow = "tools/gy_path_probe.py"\n' if source == "producer" else "")
+        + (
+            'surface_out_of_scope_rationale = "path validation fixture"\n'
+            if source != "producer"
+            else ""
+        )
+        + (
+            "outputs = [" + family_output + "]\n"
+            if source == "generated_artifacts"
+            else "outputs = []\n"
+        ),
+        encoding="utf-8",
+    )
+    if source == "producer":
+        workflow = tmp_path / "tools/gy_path_probe.py"
+        workflow.parent.mkdir()
+        workflow.write_text(
+            "OUTPUTS = [" + family_output + "]\n\ndef declared_outputs():\n    return OUTPUTS\n",
+            encoding="utf-8",
+        )
+    public_surface = architecture / "public_surface"
+    public_surface.mkdir()
+    (public_surface / "contract.toml").write_text(
+        "[[generated_artifact_family]]\n"
+        'id = "gy-path-probe"\n'
+        + (
+            "outputs = [" + family_output + "]\n"
+            if source == "public_surface"
+            else "outputs = []\n"
+        ),
+        encoding="utf-8",
+    )
+
+    validator = _validator()
+    walked: list[Path] = []
+    original_iter_files = validator.iter_files
+
+    def recording_iter_files(root: Path) -> Iterator[Path]:
+        walked.append(root)
+        yield from original_iter_files(root)
+
+    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    report = validator.validate_gy_lifecycle_registry(tmp_path)
+    expected_code = (
+        "layer3_gy_producer_declared_output_bad_path"
+        if source == "producer"
+        else "layer3_gy_output_path_bad_path"
+    )
+
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == expected_code and issue.get("path") == output_path
+        for issue in report["issues"]
+    )
+    assert "nested/marker.json" in report["marker_detected_outputs"]
+    assert walked == []
+
+
+@pytest.mark.parametrize(
+    ("toml_value", "python_value", "expected_type"),
+    [
+        ("42", "42", "int"),
+        ("true", "True", "bool"),
+        ('["nested/deep/marker.json"]', '["nested/deep/marker.json"]', "list"),
+        (
+            '{path = "nested/deep/marker.json"}',
+            '{"path": "nested/deep/marker.json"}',
+            "dict",
+        ),
+    ],
+)
+@pytest.mark.parametrize("source", ["generated_artifacts", "public_surface", "producer"])
+def test_non_string_declared_gy_output_values_refuse_without_root_walk(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source: str,
+    toml_value: str,
+    python_value: str,
+    expected_type: str,
+) -> None:
+    """Non-string declarations must fail before deriving an output root."""
+    _init_git_repo(tmp_path)
+    nested = tmp_path / "nested" / "deep"
+    nested.mkdir(parents=True)
+    marker = tmp_path / "nested" / "marker.json"
+    marker.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    architecture = tmp_path / "architecture"
+    architecture.mkdir()
+    (architecture / "generated_artifacts.toml").write_text(
+        "[[family]]\n"
+        'id = "gy-path-probe"\n'
+        'owner = "tests"\n'
+        "gy_lifecycle_family = true\n"
+        + (
+            'lifecycle = "generated_committed"\n'
+            if source == "producer"
+            else 'lifecycle = "surface_out_of_scope"\n'
+        )
+        + ('workflow = "tools/gy_path_probe.py"\n' if source == "producer" else "")
+        + (
+            'surface_out_of_scope_rationale = "path validation fixture"\n'
+            if source != "producer"
+            else ""
+        )
+        + (
+            "outputs = [" + toml_value + "]\n"
+            if source == "generated_artifacts"
+            else "outputs = []\n"
+        ),
+        encoding="utf-8",
+    )
+    if source == "producer":
+        workflow = tmp_path / "tools/gy_path_probe.py"
+        workflow.parent.mkdir()
+        workflow.write_text(
+            "OUTPUTS = [" + python_value + "]\ndef declared_outputs():\n    return OUTPUTS\n",
+            encoding="utf-8",
+        )
+    public_surface = architecture / "public_surface"
+    public_surface.mkdir()
+    (public_surface / "contract.toml").write_text(
+        "[[generated_artifact_family]]\n"
+        'id = "gy-path-probe"\n'
+        + ("outputs = [" + toml_value + "]\n" if source == "public_surface" else "outputs = []\n"),
+        encoding="utf-8",
+    )
+
+    validator = _validator()
+    walked: list[Path] = []
+    original_iter_files = validator.iter_files
+
+    def recording_iter_files(root: Path) -> Iterator[Path]:
+        walked.append(root)
+        yield from original_iter_files(root)
+
+    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    report = validator.validate_gy_lifecycle_registry(tmp_path)
+    expected_code = (
+        "layer3_gy_producer_declared_output_bad_type"
+        if source == "producer"
+        else "layer3_gy_output_path_bad_type"
+    )
+
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == expected_code
+        and issue.get("value_type") == expected_type
+        and "path" not in issue
+        for issue in report["issues"]
+    )
+    assert "nested/marker.json" in report["marker_detected_outputs"]
+    assert walked == []
+
+
+def test_producer_path_object_is_not_stringified_into_an_output_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A path-like object cannot gain authority by stringifying to a valid path."""
+    _init_git_repo(tmp_path)
+    nested = tmp_path / "nested" / "deep"
+    nested.mkdir(parents=True)
+    marker = tmp_path / "nested" / "marker.json"
+    marker.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    architecture = tmp_path / "architecture"
+    architecture.mkdir()
+    (architecture / "generated_artifacts.toml").write_text(
+        "[[family]]\n"
+        'id = "gy-path-probe"\n'
+        'owner = "tests"\n'
+        "gy_lifecycle_family = true\n"
+        'lifecycle = "generated_committed"\n'
+        'workflow = "tools/gy_path_probe.py"\n'
+        "outputs = []\n",
+        encoding="utf-8",
+    )
+    workflow = tmp_path / "tools/gy_path_probe.py"
+    workflow.parent.mkdir()
+    workflow.write_text(
+        "class OutputPath:\n"
+        "    def __str__(self):\n        return 'nested/marker.json'\n\n"
+        "def declared_outputs():\n    return [OutputPath()]\n",
+        encoding="utf-8",
+    )
+    public_surface = architecture / "public_surface"
+    public_surface.mkdir()
+    (public_surface / "contract.toml").write_text(
+        '[[generated_artifact_family]]\nid = "gy-path-probe"\noutputs = []\n',
+        encoding="utf-8",
+    )
+
+    validator = _validator()
+    walked: list[Path] = []
+    original_iter_files = validator.iter_files
+
+    def recording_iter_files(root: Path) -> Iterator[Path]:
+        walked.append(root)
+        yield from original_iter_files(root)
+
+    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    report = validator.validate_gy_lifecycle_registry(tmp_path)
+
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == "layer3_gy_producer_declared_output_bad_type"
+        and issue.get("value_type") == "OutputPath"
+        and "path" not in issue
+        for issue in report["issues"]
+    )
+    assert "nested/marker.json" in report["marker_detected_outputs"]
+    assert walked == []
+
+
+def test_git_prefix_preserves_carriage_return_path_components(tmp_path: Path) -> None:
+    """The Git prefix terminator is removed without rewriting valid POSIX names."""
+    _init_git_repo(tmp_path)
+    repo_root = tmp_path / "nested\rproduct"
+    repo_root.mkdir()
+    marker = repo_root / "marker.json"
+    marker.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+
+    validator = _validator()
+    assert validator._git_worktree_prefix(repo_root) == "nested\rproduct"
+    assert validator._iter_gy_marked_artifact_files(repo_root, (set(), set())) == ["marker.json"]
+
+
+def _write_ignored_owner_output_registry(
+    tmp_path: Path,
+    *,
+    source: str,
+    output_declaration: str | None = None,
+    producer_return: str | None = None,
+) -> Path:
+    _init_git_repo(tmp_path)
+    (tmp_path / ".gitignore").write_text("owner-output/\n", encoding="utf-8")
+    owner_root = tmp_path / "owner-output"
+    nested = owner_root / "nested"
+    nested.mkdir(parents=True)
+    (owner_root / "manifest.json").write_text('{"kind":"ordinary"}\n', encoding="utf-8")
+    marker = nested / "marker.json"
+    marker.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+
+    architecture = tmp_path / "architecture"
+    architecture.mkdir()
+    family_lines = [
+        "[[family]]",
+        'id = "gy-path-probe"',
+        'owner = "tests"',
+        "gy_lifecycle_family = true",
+    ]
+    if source == "producer":
+        family_lines.extend(
+            [
+                'lifecycle = "generated_committed"',
+                'workflow = "tools/gy_path_probe.py"',
+                "outputs = []",
+            ]
+        )
+        workflow = tmp_path / "tools/gy_path_probe.py"
+        workflow.parent.mkdir()
+        workflow.write_text(
+            "def declared_outputs():\n    return " + str(producer_return) + "\n",
+            encoding="utf-8",
+        )
+    else:
+        family_lines.extend(
+            [
+                'lifecycle = "surface_out_of_scope"',
+                'surface_out_of_scope_rationale = "output collection fixture"',
+            ]
+        )
+        if source == "generated_artifacts":
+            if output_declaration is not None:
+                family_lines.append("outputs = " + output_declaration)
+        else:
+            family_lines.append("outputs = []")
+    (architecture / "generated_artifacts.toml").write_text(
+        "\n".join(family_lines) + "\n", encoding="utf-8"
+    )
+
+    public_surface = architecture / "public_surface"
+    public_surface.mkdir()
+    contract_lines = [
+        "[[generated_artifact_family]]",
+        'id = "gy-path-probe"',
+    ]
+    if source == "public_surface":
+        if output_declaration is not None:
+            contract_lines.append("outputs = " + output_declaration)
+    else:
+        contract_lines.append("outputs = []")
+    (public_surface / "contract.toml").write_text(
+        "\n".join(contract_lines) + "\n", encoding="utf-8"
+    )
+    assert marker.is_file()
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    ("toml_value", "python_expression", "expected_type"),
+    [
+        pytest.param("false", "False", "bool", id="false"),
+        pytest.param("true", "True", "bool", id="true"),
+        pytest.param("0", "0", "int", id="zero"),
+        pytest.param("7", "7", "int", id="positive-int"),
+        pytest.param('""', '""', "str", id="empty-string"),
+        pytest.param(
+            '"owner-output/manifest.json"',
+            '"owner-output/manifest.json"',
+            "str",
+            id="nonempty-string",
+        ),
+        pytest.param("{}", "{}", "dict", id="empty-mapping"),
+        pytest.param(
+            '{path = "owner-output/manifest.json"}',
+            '{"path": "owner-output/manifest.json"}',
+            "dict",
+            id="nonempty-mapping",
+        ),
+    ],
+)
+@pytest.mark.parametrize("source", ["generated_artifacts", "public_surface", "producer"])
+def test_non_collection_declared_outputs_fail_closed_before_root_walk(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source: str,
+    toml_value: str,
+    python_expression: str,
+    expected_type: str,
+) -> None:
+    """Present scalar output collections cannot suppress an ignored-root scan."""
+    repo_root = _write_ignored_owner_output_registry(
+        tmp_path,
+        source=source,
+        output_declaration=toml_value,
+        producer_return=python_expression,
+    )
+    validator = _validator()
+    walked: list[Path] = []
+    original_iter_files = validator.iter_files
+
+    def recording_iter_files(root: Path) -> Iterator[Path]:
+        walked.append(root)
+        yield from original_iter_files(root)
+
+    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    report = validator.validate_gy_lifecycle_registry(repo_root)
+    expected_code = (
+        "layer3_gy_producer_declared_outputs_bad_type"
+        if source == "producer"
+        else "layer3_gy_output_paths_bad_type"
+    )
+    expected_source = {
+        "generated_artifacts": "generated_artifacts.family.outputs",
+        "public_surface": "public_surface.generated_artifact_family.outputs",
+        "producer": "workflow.declared_outputs",
+    }[source]
+    marker_path = "owner-output/nested/marker.json"
+
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == expected_code
+        and issue.get("source") == expected_source
+        and issue.get("value_type") == expected_type
+        and "path" not in issue
+        for issue in report["issues"]
+    )
+    assert (repo_root / marker_path).is_file()
+    assert marker_path not in report["marker_detected_outputs"]
+    assert report["output_root_files"] == []
+    assert walked == []
+
+
+def test_producer_none_output_collection_fails_closed_before_root_walk(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A producer cannot use None to suppress its declared output collection."""
+    repo_root = _write_ignored_owner_output_registry(
+        tmp_path,
+        source="producer",
+        producer_return="None",
+    )
+    validator = _validator()
+    walked: list[Path] = []
+    original_iter_files = validator.iter_files
+
+    def recording_iter_files(root: Path) -> Iterator[Path]:
+        walked.append(root)
+        yield from original_iter_files(root)
+
+    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    report = validator.validate_gy_lifecycle_registry(repo_root)
+
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == "layer3_gy_producer_declared_outputs_bad_type"
+        and issue.get("value_type") == "NoneType"
+        for issue in report["issues"]
+    )
+    assert "owner-output/nested/marker.json" not in report["marker_detected_outputs"]
+    assert report["output_root_files"] == []
+    assert walked == []
+
+
+@pytest.mark.parametrize(
+    ("source", "output_declaration", "producer_return"),
+    [
+        pytest.param("generated_artifacts", None, None, id="family-absent-default"),
+        pytest.param("generated_artifacts", "[]", None, id="family-empty-list"),
+        pytest.param("public_surface", None, None, id="surface-absent-default"),
+        pytest.param("public_surface", "[]", None, id="surface-empty-list"),
+        pytest.param("producer", None, "[]", id="producer-empty-list"),
+    ],
+)
+def test_absent_and_empty_output_collections_remain_valid_defaults(
+    tmp_path: Path,
+    source: str,
+    output_declaration: str | None,
+    producer_return: str | None,
+) -> None:
+    """Absent collection defaults and explicit empty lists remain admissible."""
+    repo_root = _write_ignored_owner_output_registry(
+        tmp_path,
+        source=source,
+        output_declaration=output_declaration,
+        producer_return=producer_return,
+    )
+    report = _validator().validate_gy_lifecycle_registry(repo_root)
+
+    assert report["status"] == "pass"
+    assert report["issues"] == []
+    assert report["output_root_files"] == []
+    assert "owner-output/nested/marker.json" not in report["marker_detected_outputs"]
+    assert (repo_root / "owner-output/nested/marker.json").is_file()
+
+
+@pytest.mark.parametrize("source", ["generated_artifacts", "public_surface", "producer"])
+def test_declared_output_roots_reveal_ignored_owner_markers(tmp_path: Path, source: str) -> None:
+    """A correctly typed root declaration still reveals fresh ignored markers."""
+    repo_root = _write_ignored_owner_output_registry(
+        tmp_path,
+        source=source,
+        output_declaration='["owner-output/manifest.json"]',
+        producer_return='["owner-output/manifest.json"]',
+    )
+    report = _validator().validate_gy_lifecycle_registry(repo_root)
+
+    assert "owner-output/nested/marker.json" in report["output_root_files"]
+    assert "owner-output/nested/marker.json" in report["marker_detected_outputs"]
+    assert not any(
+        issue.get("code")
+        in {
+            "layer3_gy_output_paths_bad_type",
+            "layer3_gy_output_path_bad_type",
+            "layer3_gy_producer_declared_outputs_bad_type",
+            "layer3_gy_producer_declared_output_bad_type",
+        }
+        for issue in report["issues"]
+    )
+
+
+def test_output_root_walks_overlapping_ignored_roots_once_and_skips_symlinks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo_root = tmp_path
+    _init_git_repo(repo_root)
+    owner_root = repo_root / "owner-output"
+    nested = owner_root / "nested"
+    nested.mkdir(parents=True)
+    (repo_root / ".gitignore").write_text("owner-output/\n", encoding="utf-8")
+    owned = nested / "untracked.json"
+    owned.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    with tempfile.TemporaryDirectory(dir=tmp_path.parent) as outside_dir:
+        outside = Path(outside_dir)
+        (outside / "external.json").write_text('{"schema_version":"ordinary.v1"}\n')
+        (owner_root / "linked").symlink_to(outside, target_is_directory=True)
+
+        validator = _validator()
+        original_iter_files = validator.iter_files
+        visited_roots: list[str] = []
+
+        def recording_iter_files(root: Path) -> Iterator[Path]:
+            visited_roots.append(root.relative_to(repo_root).as_posix())
+            yield from original_iter_files(root)
+
+        monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+        observed = validator._iter_contract_derived_output_root_files(
+            repo_root,
+            {"owner-output", "owner-output/nested"},
+            (set(), set()),
+        )
+
+        assert observed == ["owner-output/nested/untracked.json"]
+        assert visited_roots == ["owner-output"]
+        markers = validator._iter_gy_marked_artifact_files(
+            repo_root,
+            (set(), set()),
+            extra_candidate_paths=observed,
+        )
+        assert markers == ["owner-output/nested/untracked.json"]
+        assert visited_roots == ["owner-output"]
 
 
 def test_gy_generated_public_lifecycle_rejects_missing_gy_family_registration() -> None:

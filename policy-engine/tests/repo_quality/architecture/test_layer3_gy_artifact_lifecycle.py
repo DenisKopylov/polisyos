@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import json
 import re
+import subprocess
 import tomllib
 from copy import deepcopy
 from pathlib import Path
@@ -27,6 +28,17 @@ from tools.quality.validation import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+if not (REPO_ROOT / "architecture/generated_artifacts.toml").is_file():
+    _current = Path.cwd().resolve()
+    _product = _current / "policy-engine"
+    if (_current / "architecture/generated_artifacts.toml").is_file():
+        REPO_ROOT = _current
+    elif (_product / "architecture/generated_artifacts.toml").is_file():
+        REPO_ROOT = _product
+
+
+def _init_git_repo(repo_root: Path) -> None:
+    subprocess.run(["git", "init", "--quiet"], cwd=repo_root, check=True)
 
 
 def _write_declaring_workflow(
@@ -36,6 +48,7 @@ def _write_declaring_workflow(
     outputs: list[str],
     include_declared_outputs: bool = True,
 ) -> None:
+    _init_git_repo(repo_root)
     path = repo_root / workflow_path
     path.parent.mkdir(parents=True, exist_ok=True)
     if include_declared_outputs:
@@ -903,32 +916,36 @@ def test_layer3_gy_marker_scan_is_repo_scoped_for_fresh_top_level_json_artifacts
         probe.parent.rmdir()
 
 
-def test_layer3_gy_marker_scan_excludes_owned_test_data() -> None:
-    probe = REPO_ROOT / "tests/fixtures/gy_marker_test_data_probe.json"
-    try:
-        probe.parent.mkdir(parents=True, exist_ok=True)
-        probe.write_text(
-            json.dumps(
+def test_layer3_gy_marker_scan_excludes_owned_test_data(tmp_path: Path) -> None:
+    _init_git_repo(tmp_path)
+    owned = tmp_path / "tests/fixtures/gy_marker_test_data_probe.json"
+    neighbor = tmp_path / "tests/fixtures/gy_unowned_neighbor.json"
+    owned.parent.mkdir(parents=True)
+    payload = '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n'
+    owned.write_text(payload, encoding="utf-8")
+    neighbor.write_text(payload, encoding="utf-8")
+
+    validator = check_layer3_gy_generated_public_lifecycle_audit
+    issues: list[dict[str, object]] = []
+    exclusions = validator._marker_scan_exclusions_from_generated(
+        {
+            "gy_marker_scan_exclusion": [
                 {
-                    "schema_version": "policyos.policy_design_case.layer3_gy_probe.v1",
-                    "producer": "policyos.policy_design_case.layer3_gy_test_fixture",
-                },
-                sort_keys=True,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
+                    "id": "owned-test-data",
+                    "owner": "tests/repo_quality",
+                    "rationale": "The exact fixture path is test input, not a governed artifact.",
+                    "paths": ["tests/fixtures/gy_marker_test_data_probe.json"],
+                    "directories": [],
+                }
+            ]
+        },
+        issues,
+    )
 
-        result = check_layer3_gy_generated_public_lifecycle_audit.validate_gy_lifecycle_registry(
-            REPO_ROOT
-        )
-
-        assert result["status"] == "pass"
-        assert "tests/fixtures/gy_marker_test_data_probe.json" not in set(
-            result["discovered_artifacts"]
-        )
-    finally:
-        probe.unlink(missing_ok=True)
+    assert issues == []
+    assert validator._iter_gy_marked_artifact_files(tmp_path, exclusions) == [
+        "tests/fixtures/gy_unowned_neighbor.json"
+    ]
 
 
 def test_layer3_gy_marker_scan_reads_markdown_lifecycle_markers_repo_wide() -> None:
@@ -985,6 +1002,7 @@ def test_layer3_gy_contract_derived_output_root_rejects_unmarked_stray_file(
     tmp_path: Path,
 ) -> None:
     repo_root = tmp_path
+    _init_git_repo(repo_root)
     (repo_root / "architecture/public_surface").mkdir(parents=True)
     output_dir = repo_root / "architecture/gy_contract_probe"
     output_dir.mkdir(parents=True)
@@ -1036,6 +1054,7 @@ def test_layer3_gy_universe_ignores_unmarked_artifact_outside_marker_and_contrac
     tmp_path: Path,
 ) -> None:
     repo_root = tmp_path
+    _init_git_repo(repo_root)
     (repo_root / "architecture/unowned_scope").mkdir(parents=True)
     (repo_root / "architecture/generated_artifacts.toml").write_text(
         "[generated_artifacts]\nversion = 1\n",

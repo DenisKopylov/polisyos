@@ -963,7 +963,7 @@ class ChronologyPredicatePolicyArtifacts:
 
 
 class ApplicablePredicateDenominatorArtifactFailure(_ChronologyModel):
-    """Typed failure to persist/reload the applicable denominator."""
+    """Typed failure; an evidence_ref locates the attempt, not a success claim."""
 
     code: Literal["applicable_predicate_denominator_artifact_not_established"]
     status: Literal["not_established"]
@@ -1082,10 +1082,12 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
             if reloaded != statement or _denominator_content_hash(reloaded) != denominator_hash:
                 raise ValueError("denominator semantic bytes differ after reload")
         except Exception:
+            # A store can reject a corrupt existing blob before returning its ref.
+            # The content-derived target is a locator only; status stays not_established.
             return self._failure(
                 query=query,
                 denominator_content_hash=denominator_hash,
-                evidence_ref=observed_ref,
+                evidence_ref=observed_ref if observed_ref is not None else expected_ref,
             )
         return PersistedApplicablePredicateDenominator(
             artifact_ref=observed_ref,

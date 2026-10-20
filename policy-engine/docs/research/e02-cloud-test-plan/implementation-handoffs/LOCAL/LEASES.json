@@ -38906,5 +38906,136 @@
     "proposal_ids": [
       "B108#1"
     ]
+  },
+  "root-applied-docs-chronology-failure-ref-20261020-r1": {
+    "slice_base": "daad3753f1db6d321cb465c62af7dcfe03dfd265",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/reference/api/n6-cycle-history.md": {
+        "operation": "update",
+        "preimage_sha256": "d20dd388cb9c4fb5703ab28e379f5706b330b76c97acf5c8b9654a8a44795879",
+        "postimage_sha256": "a9256842e9ed1faafc58c5dffaad14dcdb83f3272ac712972fe3da1e38e1d560",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/postimages/policy-engine/docs/reference/api/n6-cycle-history.md",
+        "mode": "100644"
+      },
+      "policy-engine/docs/reference/api/nl-profiled-run-inputs.md": {
+        "operation": "update",
+        "preimage_sha256": "8902417900af0b45ac0e571e97de135a713188fd1f3c0a09c21a9d4bf4d7a9e0",
+        "postimage_sha256": "825a9c7e3dbbfa9be54c56dc857f868f18986bc3fb464680d0520789506b8efe",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/postimages/policy-engine/docs/reference/api/nl-profiled-run-inputs.md",
+        "mode": "100644"
+      },
+      "policy-engine/docs/reference/contributor-start-here.md": {
+        "operation": "update",
+        "preimage_sha256": "2efe12010931edef0a11666bb1ede0dbea4ba15109462941f443dd8c6c019cc0",
+        "postimage_sha256": "5b0af6ee6338163b8b682188a6566daf3b8bda91b2a322065c32b5f3045115af",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/postimages/policy-engine/docs/reference/contributor-start-here.md",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/core/contracts/chronology.py": {
+        "operation": "update",
+        "preimage_sha256": "509bc220783782e2862493fc78d271fe791f89eb7ebb59607568d80bf3215e7a",
+        "postimage_sha256": "4d478a30bdd04809b94f4d199ab7b1012a9ad97b1aa3e2359a812f4e9922cff2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-failure-ref-r1-20261020/postimages/policy-engine/src/polisyos/core/contracts/chronology.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-chronology-failure-ref.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "0a79d0924c0f0cf62a3fbc067929b1cae0af5c08a1d510ed60d921b948831902",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-release-classification-r3-20261020/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-chronology-failure-ref.toml",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/chronology-denominator-scoped-public-surface-review-20261020.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "a21650cc57b91c4455f4e999a97f06bb28a0048ef5cf68bf7b2b2f9f1ce4ab20",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-release-classification-r3-20261020/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/chronology-denominator-scoped-public-surface-review-20261020.md",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-docs-chronology-failure-ref-20261020-r1/source-application.json",
+      "sha256": "9b717e34ce0723ee1f44640fb4735595f53aae85da899b0f7e6823792df7558f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-docs-chronology-failure-ref-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-failure-ref-independent-review-20261020/review.json",
+        "sha256": "fb9504a17ca88538629803805fad0cf26f2a1ec816fe0a4ba3e4e219fda0e6c2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-failure-ref-r1-20261020/manifest.json",
+        "sha256": "97bba4fc42a1bd639def9fab51212a365871751e414fbc6b29e52649e4cb33f9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-failure-ref-r1-20261020/postimages/policy-engine/src/polisyos/core/contracts/chronology.py",
+        "sha256": "4d478a30bdd04809b94f4d199ab7b1012a9ad97b1aa3e2359a812f4e9922cff2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-release-classification-independent-review-20261020/review.json",
+        "sha256": "d5b72b0c02c1e85eb7b4d6e16febc7980c9fe4b2631adf3d2ccc60baff324ff8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-release-classification-r3-20261020/manifest.json",
+        "sha256": "a1c58ed5ce721010e33222f2586bcbd7496f2ff881089f6e45734fed8e940e75"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-release-classification-r3-20261020/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/chronology-denominator-scoped-public-surface-review-20261020.md",
+        "sha256": "a21650cc57b91c4455f4e999a97f06bb28a0048ef5cf68bf7b2b2f9f1ce4ab20"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-denominator-release-classification-r3-20261020/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-chronology-failure-ref.toml",
+        "sha256": "0a79d0924c0f0cf62a3fbc067929b1cae0af5c08a1d510ed60d921b948831902"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/docs-chrono-post-r14-source-preflight-20261020-r1/postimage-catalog.json",
+        "sha256": "67b595e32e3bbecf702d84c77fb88f16abb04f2a73d7412174bb5bfc4eec3875"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/docs-chrono-post-r14-source-preflight-20261020-r1/review.json",
+        "sha256": "5a1d8ae6f502889ab9a5e3d463071e13c3e44b85c462341a162e5c7bb5db93fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/manifest-r3.json",
+        "sha256": "31663c8d287aa06c6e5868e1955d369bb60581505dea94aab3f064aa385b5f4a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/postimages/policy-engine/docs/reference/api/n6-cycle-history.md",
+        "sha256": "a9256842e9ed1faafc58c5dffaad14dcdb83f3272ac712972fe3da1e38e1d560"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/postimages/policy-engine/docs/reference/api/nl-profiled-run-inputs.md",
+        "sha256": "825a9c7e3dbbfa9be54c56dc857f868f18986bc3fb464680d0520789506b8efe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-reference-metadata-repair-2a55-20261020-r3/postimages/policy-engine/docs/reference/contributor-start-here.md",
+        "sha256": "5b0af6ee6338163b8b682188a6566daf3b8bda91b2a322065c32b5f3045115af"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same failed-CAS evidence locator class; no status/custody promotion. Three doc metadata/link findings share native published-docs contract.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime CAN/chronology and actual native docs CLI UNRUN on this composed source.",
+      "No G acceptance; package-wide public export resolution remains unestablished."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole CAN/chronology modules, actual registered docs accuracy gate; final source-bound native wave after blocking source composition.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

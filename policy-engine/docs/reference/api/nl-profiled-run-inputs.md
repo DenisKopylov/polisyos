@@ -1,5 +1,8 @@
 # Selected forecast inputs for natural-language runs
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/control.py`, `src/polisyos/core/contracts/control.py`, `src/polisyos/runtime/http/services/control/run_lifecycle.py`, `src/polisyos/runtime/http/services/control/job_attempt_publication.py`, `schemas/runtime_api_v1.openapi.json`
+
 This note supplements the [Control Plane API reference](control.md#post-apiv1controlrunsnl). The existing `POST /api/v1/control/runs/nl` route accepts an optional, source-bound input set for N4 candidate generation. Every request still requires `Idempotency-Key`; reuse it only for an exact retry of the same immutable request intent.
 
 ## Selected input bundle

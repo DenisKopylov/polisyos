@@ -1,0 +1,34 @@
+id = "2026-10-20-e02-chronology-failure-ref"
+title = "Retain the denominator locator on persistence failure"
+type = "fixed"
+component = "core-contracts"
+owner = "team-polisyos"
+summary = "On persistence failure, the existing chronology failure result retains the intended content-derived CAS locator when the writer raises before returning its reference; status remains not_established."
+evidence = [
+  "src/polisyos/core/contracts/chronology.py",
+  "tests/unit/core/contracts/test_chronology.py",
+]
+compatibility = "The supported polisyos.core.contracts failure DTO keeps its existing shape. Its optional evidence_ref may now contain the intended locator on this failure path; this is additive observable behavior, not proof that the artifact was persisted."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts.ApplicablePredicateDenominatorArtifactFailure.evidence_ref; scoped identity review also covered NativeApplicablePredicateDenominatorPersistenceFailed; package-wide exports remain unresolved"
+migration = "No migration is required; the optional field, artifact bytes, schema, and status meanings are unchanged."
+api = "No DTO field or schema is added. The existing public failure result may carry its content-derived intended locator in evidence_ref when the writer fails before returning a ref. Consumers must continue to honor status=not_established."
+limitations = "The committed public-surface inventory remains unresolved for package-wide exports. A named scoped review resolved the two affected chronology DTO identities and their facade routes only. The inventory-review flag records local acceptance of that exact review; it does not establish unrelated exports, reviewer affiliation with team-architecture, G acceptance, a published signature, external authority, or persistence of the locator."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "chronology-denominator-failure-locator"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.contracts.ApplicablePredicateDenominatorArtifactFailure.evidence_ref; scoped review covered the related NativeApplicablePredicateDenominatorPersistenceFailed identity"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "A not_established chronology denominator persistence failure can retain the intended CAS locator when the writer raises before returning its reference."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

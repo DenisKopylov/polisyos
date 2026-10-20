@@ -147,5 +147,5 @@ checks the Repository SOTA policy and its deciding gates. Start with
 `uv run polisyos-tools workspace repository-sota-closeout --contract-only` to check the policy
 layer, exception registries, and wiring without the full subprocess wave. That bounded result
 is not a full Repository SOTA result; use the complete command for closeout and retain every
-row's output. See [Repository Hygiene](repository-hygiene.md) and the
-[workspace command reference](../../tools/devx/workspace/README.md) for scope and recipes.
+row's output. See [Repository Hygiene](repository-hygiene.md) for scope and validation and
+[Tools Reference](tools.md) for registered commands.

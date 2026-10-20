@@ -1,0 +1,64 @@
+id = "2026-10-20-e02-nl-profiled-run-intake"
+title = "Bind selected forecast inputs to natural-language run intent"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "The existing natural-language launch accepts an optional all-or-none, profile-qualified forecast input bundle, validates its join to the selected data snapshot before execution, and preserves those exact references as Core run inputs."
+evidence = [
+  "src/polisyos/core/contracts/control.py",
+  "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "apps/runtime-dashboard/src/features/composer/domain/forms.ts",
+  "tests/unit/runtime/http/test_nl_predictive_basis_intake.py",
+  "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+  "docs/reference/api/nl-profiled-run-inputs.md",
+]
+compatibility = "The selected forecast basis is additive. Callers may omit all basis fields to retain the existing profileless N4 request behavior and v1 request-intent representation. When selected, all five basis fields, a typed profile-qualified data snapshot, and the existing N4 candidate-intent literal are required; a partial, explicitly null, malformed, wrong-kind, or non-joining supplied value is refused instead of defaulted. The source references are retained as run inputs; they do not confer authority."
+change_class = "schema-openapi-abi; js-package-api; runtime-state-format"
+surface_classification = "public_stable: polisyos.runtime HTTP API natural-language run request; public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated API types and Composer controls"
+migration = "Regenerate the canonical Runtime API OpenAPI snapshot and both generated TypeScript surfaces before strict clients send the new fields. Callers may keep omitting the full bundle. Callers that select it must preserve every exact CAS artifact id, expected kind, JSON media type, and manifest-profile hash, and must reuse an Idempotency-Key only for the same immutable request."
+api = "POST /api/v1/control/runs/nl adds optional value_data_profile_ref, value_data_unit_id, model_spec_ref, policy_spec_ref, and calibration_rule_ref. Supplying any requires all five, a typed profile-qualified data_source.data_snapshot_ref, and joint_interaction_candidate_intent=n4_unique_parent_source_members.v1. Admission resolves and joins the selected profile and snapshot before N4 and retains the selected refs in the Core run inputs."
+limitations = "The local candidate's full browser journey and canonical OpenAPI/client regeneration remain UNRUN pending composed-source verification. A selected reference does not establish issuer authority, external custody, production currentness, causal validity, successful calibration, or publication permission; generated model output remains a candidate. The public-surface contract classifies polisyos.runtime as public_stable while keeping HTTP subpackages internal unless separately documented; this fragment extends the already documented and previously reviewed natural-language v1 route, adds no Python package export, and leaves the public-surface inventory owner review pending."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/nl-profiled-run-inputs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "natural-language-selected-forecast-basis-request"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API natural-language run request"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Natural-language run requests may carry one complete selected forecast-input basis; omission preserves the profileless request path."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/nl-profiled-run-inputs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "natural-language-selected-forecast-basis-clients"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client; internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Generated request types add the optional selected-basis fields; callers choosing them must send the complete typed input set."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/nl-profiled-run-inputs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "natural-language-selected-forecast-basis-intent"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "internal: immutable natural-language request-intent snapshot and persisted Core run inputs"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Selected forecast refs are captured in request-intent v2 and retained as Core run inputs; legacy v1 intent bytes remain readable."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/api/nl-profiled-run-inputs.md"]
+runbook_docs = []

@@ -44,6 +44,7 @@ from polisyos.core.contracts import (
     ControlPreAdmissionAttemptEventInfo,
     ControlPreAdmissionAttemptResponse,
     ControlPreAdmissionOwnerBinding,
+    DataSnapshot,
     SearchRequest,
 )
 from polisyos.core.contracts.control import (
@@ -63,6 +64,7 @@ from polisyos.core.contracts.control import (
     DataPreviewResponse,
     DataResolveRequest,
     DataResolveResponse,
+    DataSourceBinding,
     DecisionValidityEventRequest,
     DecisionValidityEventResponse,
     DecisionValidityLifecycleSummary,
@@ -92,6 +94,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionTriggerType,
     DecisionValidityStatus,
 )
+from polisyos.core.contracts.fabric import DataSnapshotRef
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import AccessScope, clear_tenant_context
 from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
@@ -132,6 +135,8 @@ from polisyos.runtime.http.services.control.job_attempt_publication import (
     _EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY,
     ControlJobAttemptPublicationMixin,
     _build_nl_authorization_receipt,
+    _nl_request_snapshot_request_values,
+    _nl_request_snapshot_schema,
     _validate_nl_request_json_values,
 )
 from polisyos.runtime.http.services.control.job_attempt_publication import (
@@ -392,7 +397,6 @@ _SCIENTIST_RUNTIME_ONLY_STATE_KEYS = frozenset({"job_id", "tenant_id", "cell_id"
 _EXECUTION_INTENT_BINDING_SCHEMA = "polisyos.runtime.control_execution_intent.v2"
 _NL_AUTHORIZATION_RECEIPT_KEY = "nl_authorization_receipt"
 _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
-_NL_REQUEST_SNAPSHOT_SCHEMA = "polisyos.runtime.control_nl_request_snapshot.v1"
 _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE = (
     "polisyos.runtime.authorization.nl_request_snapshot.canonical_json.v1"
 )
@@ -3949,10 +3953,62 @@ class ControlPlaneService(
                 return core_run_id, core_run_context
             if core_run_id is not None or core_run_context is not None:
                 raise RuntimeError("control_job_core_run_attempt_identity_incomplete")
+            profile_ref: ArtifactRef | None = None
+            snapshot_ref: DataSnapshotRef | None = None
+            predictive_refs: list[ArtifactRef] = []
+            if job.kind == "natural_language_run" and "data_source" in payload:
+                raw_data_source = payload["data_source"]
+                if isinstance(raw_data_source, Mapping):
+                    source_binding = DataSourceBinding.model_validate(dict(raw_data_source))
+                    selected_snapshot = source_binding.data_snapshot_ref
+                    if isinstance(selected_snapshot, DataSnapshotRef):
+                        self._validate_control_nl_data_snapshot(selected_snapshot)
+                        snapshot_ref = selected_snapshot
+            if job.kind == "natural_language_run" and "value_data_profile_ref" in payload:
+                raw_profile_ref = payload["value_data_profile_ref"]
+                if not isinstance(raw_profile_ref, Mapping):
+                    raise ValueError("control_nl_value_data_profile_payload_invalid")
+                try:
+                    profile_ref = ArtifactRef.model_validate(dict(raw_profile_ref))
+                    resolved_profile = self._validate_control_nl_value_data_profile(profile_ref)
+                    profile = getattr(resolved_profile, "profile", None)
+                    unit_id = payload.get("value_data_unit_id")
+                    if not any(
+                        getattr(row, "unit_id", None) == unit_id
+                        for row in getattr(profile, "rows", ())
+                    ):
+                        raise ValueError("selected_value_data_unit_not_in_profile")
+                    if snapshot_ref is None:
+                        raise ValueError("selected_predictive_snapshot_missing")
+                    self._validate_control_nl_predictive_basis(
+                        snapshot_ref,
+                        profile_ref,
+                        unit_id=str(unit_id),
+                        resolved_profile=resolved_profile,
+                    )
+                except Exception as exc:
+                    raise ValueError("control_nl_value_data_profile_not_admitted") from exc
+                for field_name, expected_kind in (
+                    ("model_spec_ref", "ir.model_spec"),
+                    ("policy_spec_ref", "ir.policy_spec"),
+                    ("calibration_rule_ref", "ir.forecast_calibration_rule"),
+                ):
+                    raw_reference = payload.get(field_name)
+                    if not isinstance(raw_reference, Mapping):
+                        raise ValueError("control_nl_predictive_input_payload_invalid")
+                    reference = ArtifactRef.model_validate(dict(raw_reference))
+                    self._validate_control_nl_exact_ref(reference, expected_kind=expected_kind)
+                    predictive_refs.append(reference)
             core_run_id, core_run_context = self._start_generation_run_context(
                 job=job,
                 execution_scope=execution_scope,
             )
+            if snapshot_ref is not None:
+                core_run_context.add_input(snapshot_ref)
+            if profile_ref is not None:
+                core_run_context.add_input(profile_ref)
+            for reference in predictive_refs:
+                core_run_context.add_input(reference)
             return core_run_id, core_run_context
 
         try:
@@ -4595,6 +4651,114 @@ class ControlPlaneService(
 
     # ---- NL launch (agent circuit) ----------------------------------------
 
+    def _validate_control_nl_data_snapshot(self, reference: DataSnapshotRef) -> DataSnapshot:
+        """Resolve and type-check one exact DataSnapshot profile view."""
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir import get_json_artifact
+        from polisyos.runtime.http.services.predictive_calibration import _require_selected_ref
+
+        if type(reference) is not DataSnapshotRef:
+            raise ValueError("control_nl_data_snapshot_ref_untyped")
+        if reference.manifest_profile_sha256 is None:
+            raise ValueError("control_nl_data_snapshot_profile_missing")
+        _require_selected_ref(
+            self._artifact_store,
+            reference,
+            expected_kind="fabric.data_snapshot",
+        )
+        manifest = self._artifact_store.get_manifest(reference)
+        schema = getattr(manifest, "artifact_schema", None)
+        if schema is None or schema.name != "fabric.data_snapshot.v1" or schema.version != "1.0":
+            raise ValueError("control_nl_data_snapshot_schema_mismatch")
+        snapshot = DataSnapshot.model_validate(
+            get_json_artifact(ensure_ir_artifact_store(self._artifact_store), reference)
+        )
+        if snapshot.data_ref.manifest_profile_sha256 is None:
+            raise ValueError("control_nl_data_snapshot_data_profile_missing")
+        _require_selected_ref(self._artifact_store, snapshot.data_ref, expected_kind=None)
+        return snapshot
+
+    def _validate_control_nl_predictive_basis(
+        self,
+        snapshot_ref: DataSnapshotRef,
+        profile_ref: ArtifactRef,
+        *,
+        unit_id: str,
+        resolved_profile: object | None = None,
+    ) -> None:
+        """Recompute the selected profile-to-snapshot join before N4 execution."""
+        from collections.abc import Mapping
+
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir import get_json_artifact
+        from polisyos.runtime.quality.forecast_profile_binding import (
+            join_profile_member_to_observed_series,
+        )
+
+        if type(snapshot_ref) is not DataSnapshotRef or type(profile_ref) is not ArtifactRef:
+            raise ValueError("control_nl_predictive_basis_ref_untyped")
+        snapshot = self._validate_control_nl_data_snapshot(snapshot_ref)
+        binding = resolved_profile or self._validate_control_nl_value_data_profile(profile_ref)
+        profile = getattr(binding, "profile", None)
+        source_projection_ref = getattr(binding, "source_projection_ref", None)
+        projection = getattr(binding, "projection", None)
+        source_passport = getattr(binding, "source_passport", None)
+        if (
+            profile is None
+            or source_projection_ref is None
+            or projection is None
+            or getattr(profile, "outcome", None) is None
+        ):
+            raise ValueError("control_nl_predictive_basis_profile_incomplete")
+        observed_data_ref = ArtifactRef.model_validate(snapshot.data_ref.model_dump(mode="python"))
+        observed_payload = get_json_artifact(
+            ensure_ir_artifact_store(self._artifact_store),
+            observed_data_ref,
+        )
+        if not isinstance(observed_payload, Mapping):
+            raise ValueError("control_nl_predictive_basis_observed_data_invalid")
+        join_profile_member_to_observed_series(
+            profile=profile,
+            profile_ref=profile_ref,
+            source_projection_ref=source_projection_ref,
+            projection=projection,
+            observed_source_ref=ArtifactRef.model_validate(snapshot_ref.model_dump(mode="python")),
+            observed_data_ref=observed_data_ref,
+            target_metric=profile.outcome,
+            unit_id=unit_id,
+            observed_values=observed_payload.get(profile.outcome),
+            source_passport=source_passport,
+        )
+
+    def _validate_control_nl_exact_ref(self, reference: ArtifactRef, *, expected_kind: str) -> None:
+        """Require an exact, selected JSON CAS view of one declared forecast input."""
+        from polisyos.runtime.http.services.predictive_calibration import _require_selected_ref
+
+        if (
+            type(reference) is not ArtifactRef
+            or reference.kind != expected_kind
+            or reference.media_type != "application/json"
+            or reference.manifest_profile_sha256 is None
+        ):
+            raise ValueError("control_nl_predictive_input_ref_invalid")
+        _require_selected_ref(self._artifact_store, reference, expected_kind=expected_kind)
+
+    def _validate_control_nl_value_data_profile(self, reference: ArtifactRef) -> object:
+        """Resolve an exact selected value profile through this app's bound source."""
+        from polisyos.runtime.http.services.predictive_calibration import (
+            _validate_selected_value_data_profile,
+        )
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        if type(reference) is not ArtifactRef:
+            raise ValueError("control_nl_value_data_profile_ref_untyped")
+        return run_catalog_source_call(
+            self._catalog_serving_source,
+            _validate_selected_value_data_profile,
+            self._artifact_store,
+            reference,
+        )
+
     async def launch_nl_run(
         self,
         request: NaturalLanguageRunRequest,
@@ -4613,6 +4777,56 @@ class ControlPlaneService(
         if authorization_proof is None:
             raise ValueError("nl_route_authorization_proof_not_established")
         _validate_nl_request_json_values(request)
+        if request.data_source is not None and isinstance(
+            request.data_source.data_snapshot_ref, DataSnapshotRef
+        ):
+            try:
+                self._validate_control_nl_data_snapshot(request.data_source.data_snapshot_ref)
+            except Exception as exc:
+                reason = getattr(exc, "code", None)
+                raise unprocessable_entity(
+                    "Selected data snapshot is not an exact typed profile in this run scope.",
+                    code="nl_data_snapshot_not_admitted",
+                    extensions={"reason": reason or type(exc).__name__},
+                ) from exc
+        if request.value_data_profile_ref is not None:
+            try:
+                resolved_profile = self._validate_control_nl_value_data_profile(
+                    request.value_data_profile_ref
+                )
+                profile = getattr(resolved_profile, "profile", None)
+                rows = getattr(profile, "rows", ())
+                if not any(
+                    getattr(row, "unit_id", None) == request.value_data_unit_id for row in rows
+                ):
+                    raise ValueError("selected_value_data_unit_not_in_profile")
+                for reference, expected_kind in (
+                    (request.model_spec_ref, "ir.model_spec"),
+                    (request.policy_spec_ref, "ir.policy_spec"),
+                    (request.calibration_rule_ref, "ir.forecast_calibration_rule"),
+                ):
+                    if reference is None:
+                        raise ValueError("selected_predictive_input_missing")
+                    self._validate_control_nl_exact_ref(
+                        reference,
+                        expected_kind=expected_kind,
+                    )
+                snapshot_ref = request.data_source.data_snapshot_ref
+                if type(snapshot_ref) is not DataSnapshotRef:
+                    raise ValueError("selected_predictive_snapshot_not_typed")
+                self._validate_control_nl_predictive_basis(
+                    snapshot_ref,
+                    request.value_data_profile_ref,
+                    unit_id=request.value_data_unit_id or "",
+                    resolved_profile=resolved_profile,
+                )
+            except Exception as exc:
+                reason = getattr(exc, "code", None)
+                raise unprocessable_entity(
+                    "The selected predictive input set does not join to this run's exact source.",
+                    code="nl_predictive_input_basis_not_admitted",
+                    extensions={"reason": reason or type(exc).__name__},
+                ) from exc
         run_id = new_run_id()
         job_id = uuid.uuid4().hex
         request_id = request_id or f"control-job:{job_id}"
@@ -4632,9 +4846,9 @@ class ControlPlaneService(
                 code="llm_model_unconfigured",
             )
         request_snapshot = {
-            "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+            "schema_version": _nl_request_snapshot_schema(request),
             "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
-            "request": request.model_dump(mode="json"),
+            "request": _nl_request_snapshot_request_values(request),
             "normalized_llm_models": list(requested_models),
         }
         request_body_bytes = (
@@ -5073,6 +5287,7 @@ class ControlPlaneService(
         nl_payload = {
             "run_id": run_id,
             "request": request.request,
+            "joint_interaction_candidate_intent": request.joint_interaction_candidate_intent,
             "context": dict(request.context),
             "domain_hint": request.domain_hint,
             "data_source": request.data_source.model_dump(mode="json")
@@ -5096,6 +5311,20 @@ class ControlPlaneService(
             "expected_outputs": request.expected_outputs,
             "provider_preflight": provider_preflight_payload,
         }
+        if request.value_data_profile_ref is not None:
+            for field_name in (
+                "value_data_profile_ref",
+                "value_data_unit_id",
+                "model_spec_ref",
+                "policy_spec_ref",
+                "calibration_rule_ref",
+            ):
+                selected = getattr(request, field_name)
+                nl_payload[field_name] = (
+                    selected.model_dump(mode="json")
+                    if isinstance(selected, ArtifactRef)
+                    else selected
+                )
         nl_payload[_NL_REQUEST_SNAPSHOT_KEY] = request_snapshot
         if authorization_receipt is not None:
             nl_payload[_NL_AUTHORIZATION_RECEIPT_KEY] = authorization_receipt

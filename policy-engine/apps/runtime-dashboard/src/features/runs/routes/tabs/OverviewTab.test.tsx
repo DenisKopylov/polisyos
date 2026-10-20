@@ -530,6 +530,12 @@ describe("OverviewTab", () => {
       media_type: "application/json",
       manifest_profile_sha256: `sha256:${"d".repeat(64)}`,
     };
+    const valueDataProfile = {
+      artifact_id: `sha256:${"2".repeat(64)}`,
+      kind: "runtime.value_data_profile",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"3".repeat(64)}`,
+    };
     const model = {
       ...observed,
       artifact_id: `sha256:${"e".repeat(64)}`,
@@ -554,7 +560,7 @@ describe("OverviewTab", () => {
     overviewState.run = {
       run_id: "run-1",
       root_artifacts: [model, policy, rule],
-      root_input_artifacts: [observed],
+      root_input_artifacts: [observed, valueDataProfile],
       candidate_simulation: {
         run_id: "run-1",
         artifact_status: "resolved",
@@ -629,6 +635,19 @@ describe("OverviewTab", () => {
       });
       fireEvent.change(input, { target: { value } });
     }
+    fireEvent.change(screen.getByTestId("predictive-value-data-profile"), {
+      target: {
+        value: JSON.stringify([
+          valueDataProfile.artifact_id,
+          valueDataProfile.kind,
+          valueDataProfile.media_type,
+          valueDataProfile.manifest_profile_sha256,
+        ]),
+      },
+    });
+    fireEvent.change(screen.getByTestId("predictive-value-data-unit"), {
+      target: { value: "UA" },
+    });
     fireEvent.submit(form);
 
     const submitted =
@@ -640,6 +659,8 @@ describe("OverviewTab", () => {
       model_spec_ref: model,
       policy_spec_ref: policy,
       calibration_rule_ref: rule,
+      value_data_profile_ref: valueDataProfile,
+      value_data_unit_id: "UA",
       split: {
         train_start: 0,
         train_end: 30,

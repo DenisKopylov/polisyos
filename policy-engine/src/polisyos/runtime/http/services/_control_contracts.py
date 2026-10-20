@@ -11,7 +11,7 @@ from typing import Any, Literal, Protocol, cast, get_args
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts import DataViewRequestRef
+from polisyos.core.contracts import DataSnapshotRef, DataViewRequestRef
 from polisyos.core.contracts.control import (
     ControlJobKind,
     DataSourceBinding,
@@ -113,8 +113,8 @@ _OPTIONAL_INPUT_KEYS = {
 }
 
 
-def _resolve_data_source(binding: DataSourceBinding) -> tuple[str, str]:
-    """Return (state_key, ref_string) for the provided data source."""
+def _resolve_data_source(binding: DataSourceBinding) -> tuple[str, str | DataSnapshotRef]:
+    """Return the selected source while retaining a typed snapshot view."""
     for field_name, _kind in _DATA_SOURCE_KEYS.items():
         value = getattr(binding, field_name, None)
         if value:
@@ -130,10 +130,13 @@ def _resolve_workflow_data_source(
 ) -> tuple[str, ArtifactRef, WorkflowDataViewRequestIntent | None]:
     """Preserve the exact typed request through workflow job creation."""
     if binding.data_snapshot_ref is not None:
+        reference = binding.data_snapshot_ref
         return (
             "data_snapshot_ref",
-            _make_artifact_ref(
-                binding.data_snapshot_ref,
+            reference
+            if isinstance(reference, DataSnapshotRef)
+            else _make_artifact_ref(
+                reference,
                 kind=_DATA_SOURCE_KEYS["data_snapshot_ref"],
             ),
             None,

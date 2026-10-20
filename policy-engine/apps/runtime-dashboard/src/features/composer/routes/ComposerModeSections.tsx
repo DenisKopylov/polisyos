@@ -273,6 +273,16 @@ function buildNaturalLanguageDefaults(
     maxIterations: 3,
     checkpointPolicy: "strict",
     nlDataSourceRef: "",
+    nlDataSourceProfileSha256: "",
+    valueDataProfileArtifactId: "",
+    valueDataProfileSha256: "",
+    valueDataUnitId: "",
+    modelSpecArtifactId: "",
+    modelSpecProfileSha256: "",
+    policySpecArtifactId: "",
+    policySpecProfileSha256: "",
+    calibrationRuleArtifactId: "",
+    calibrationRuleProfileSha256: "",
     expectedOutputs: [
       {
         kind: "decision_packet",
@@ -1801,6 +1811,147 @@ export function NaturalLanguageComposerSection({
                   placeholder={t("pages.composer.placeholders.dataSnapshot")}
                   className="atlas-input--mono mt-1"
                 />
+                <details className="border-subtle mt-4 rounded-xl border p-3">
+                  <summary className="cursor-pointer text-sm font-semibold">
+                    {t("pages.composer.predictiveInputs.title")}
+                  </summary>
+                  <p className="text-muted mt-2 text-xs">
+                    {t("pages.composer.predictiveInputs.description")}
+                  </p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.snapshotProfile")}
+                      </span>
+                      <Input
+                        {...form.register("nlDataSourceProfileSha256")}
+                        data-testid="composer-nl-snapshot-profile"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.placeholders.manifestProfile",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.valueProfile")}
+                      </span>
+                      <Input
+                        {...form.register("valueDataProfileArtifactId")}
+                        data-testid="composer-nl-value-profile-id"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.predictiveInputs.artifactId",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t(
+                          "pages.composer.predictiveInputs.valueProfileProfile",
+                        )}
+                      </span>
+                      <Input
+                        {...form.register("valueDataProfileSha256")}
+                        data-testid="composer-nl-value-profile-digest"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.placeholders.manifestProfile",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>{t("pages.composer.predictiveInputs.unit")}</span>
+                      <Input
+                        {...form.register("valueDataUnitId")}
+                        data-testid="composer-nl-value-unit"
+                        placeholder={t(
+                          "pages.composer.predictiveInputs.unitPlaceholder",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.modelSpec")}
+                      </span>
+                      <Input
+                        {...form.register("modelSpecArtifactId")}
+                        data-testid="composer-nl-model-spec-id"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.predictiveInputs.artifactId",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.modelSpecProfile")}
+                      </span>
+                      <Input
+                        {...form.register("modelSpecProfileSha256")}
+                        data-testid="composer-nl-model-spec-digest"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.placeholders.manifestProfile",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.policySpec")}
+                      </span>
+                      <Input
+                        {...form.register("policySpecArtifactId")}
+                        data-testid="composer-nl-policy-spec-id"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.predictiveInputs.artifactId",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.policySpecProfile")}
+                      </span>
+                      <Input
+                        {...form.register("policySpecProfileSha256")}
+                        data-testid="composer-nl-policy-spec-digest"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.placeholders.manifestProfile",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t("pages.composer.predictiveInputs.calibrationRule")}
+                      </span>
+                      <Input
+                        {...form.register("calibrationRuleArtifactId")}
+                        data-testid="composer-nl-rule-id"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.predictiveInputs.artifactId",
+                        )}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span>
+                        {t(
+                          "pages.composer.predictiveInputs.calibrationRuleProfile",
+                        )}
+                      </span>
+                      <Input
+                        {...form.register("calibrationRuleProfileSha256")}
+                        data-testid="composer-nl-rule-digest"
+                        className="atlas-input--mono"
+                        placeholder={t(
+                          "pages.composer.placeholders.manifestProfile",
+                        )}
+                      />
+                    </label>
+                  </div>
+                </details>
               </div>
             </div>
           </AtlasFormSection>

@@ -21,7 +21,7 @@ from .decision_validity import (
     DecisionValidityTransition,
     EpochValidityBatchReceipt,
 )
-from .fabric import DataViewRequestRef
+from .fabric import DataSnapshotRef, DataViewRequestRef
 from .policy_design_case_projection import PolicyDesignCaseProjection
 from .runtime import ApiMeta
 
@@ -171,9 +171,17 @@ class DataSourceBinding(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    data_snapshot_ref: str | None = None
+    data_snapshot_ref: DataSnapshotRef | str | None = None
     input_bindings_ref: str | None = None
     data_view_request_ref: str | None = None
+
+    @model_validator(mode="after")
+    def _require_profile_for_typed_data_snapshot(self) -> Self:
+        """Require exact profile identity when the snapshot selector is typed."""
+        reference = self.data_snapshot_ref
+        if isinstance(reference, DataSnapshotRef) and reference.manifest_profile_sha256 is None:
+            raise ValueError("data_source_snapshot_profile_missing")
+        return self
 
 
 class WorkflowDataSourceBinding(DataSourceBinding):
@@ -183,7 +191,7 @@ class WorkflowDataSourceBinding(DataSourceBinding):
 
     @model_validator(mode="before")
     @classmethod
-    def _require_complete_typed_data_view_request_ref(cls, value: Any) -> Any:
+    def _require_complete_typed_data_view_request_ref(cls, value: object) -> object:
         if isinstance(value, dict):
             raw_ref = value.get("data_view_request_ref")
             if isinstance(raw_ref, dict) and not {
@@ -516,6 +524,75 @@ class NaturalLanguageRunRequest(BaseModel):
     stop_criteria: dict[str, Any] = Field(default_factory=dict)
     governance_constraints: list[dict[str, Any]] = Field(default_factory=list)
     expected_outputs: list[dict[str, Any]] = Field(default_factory=list)
+    value_data_profile_ref: ArtifactRef | None = None
+    value_data_unit_id: str | None = Field(default=None, min_length=1, max_length=256)
+    model_spec_ref: ArtifactRef | None = None
+    policy_spec_ref: ArtifactRef | None = None
+    calibration_rule_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _validate_value_data_profile_selection(self) -> Self:
+        """Require the full exact run-input bundle for predictive calibration."""
+        predictive_fields = (
+            "value_data_profile_ref",
+            "value_data_unit_id",
+            "model_spec_ref",
+            "policy_spec_ref",
+            "calibration_rule_ref",
+        )
+        if any(
+            name in self.model_fields_set and getattr(self, name) is None
+            for name in predictive_fields
+        ):
+            raise ValueError("natural_language_predictive_input_explicit_null")
+
+        selected_values = tuple(getattr(self, name) for name in predictive_fields)
+        if not any(value is not None for value in selected_values):
+            return self
+        if any(value is None for value in selected_values):
+            raise ValueError("natural_language_predictive_input_bundle_incomplete")
+        if (
+            self.data_source is None
+            or type(self.data_source.data_snapshot_ref) is not DataSnapshotRef
+            or sum(
+                getattr(self.data_source, field_name) is not None
+                for field_name in (
+                    "data_snapshot_ref",
+                    "input_bindings_ref",
+                    "data_view_request_ref",
+                )
+            )
+            != 1
+            or self.joint_interaction_candidate_intent != "n4_unique_parent_source_members.v1"
+        ):
+            raise ValueError("natural_language_predictive_input_requires_n4_snapshot")
+
+        profile_ref = self.value_data_profile_ref
+        model_ref = self.model_spec_ref
+        policy_ref = self.policy_spec_ref
+        rule_ref = self.calibration_rule_ref
+        if profile_ref is None or model_ref is None or policy_ref is None or rule_ref is None:
+            raise ValueError("natural_language_predictive_input_bundle_incomplete")
+        exact_json_refs = (
+            (profile_ref, "runtime.value_data_profile"),
+            (model_ref, "ir.model_spec"),
+            (policy_ref, "ir.policy_spec"),
+            (rule_ref, "ir.forecast_calibration_rule"),
+        )
+        for reference, expected_kind in exact_json_refs:
+            if (
+                type(reference) is not ArtifactRef
+                or reference.kind != expected_kind
+                or reference.media_type != "application/json"
+                or reference.manifest_profile_sha256 is None
+            ):
+                raise ValueError("natural_language_predictive_input_ref_invalid")
+        if (
+            not self.value_data_unit_id
+            or self.value_data_unit_id != self.value_data_unit_id.strip()
+        ):
+            raise ValueError("natural_language_predictive_input_unit_invalid")
+        return self
 
 
 # ---------------------------------------------------------------------------

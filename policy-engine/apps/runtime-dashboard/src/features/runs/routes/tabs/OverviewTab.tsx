@@ -8,8 +8,8 @@ import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
 import {
   useCreateRunPredictiveCalibration,
   useRunPredictiveCalibration,
+  type PredictiveCalibrationRequest,
 } from "@/api/hooks/useRunPredictiveCalibration";
-import type { components } from "@/api/types";
 import type { RunArtifactRef, RunDetailsView } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
 import { usePermission } from "@/app/authz/AuthzProvider";
@@ -1206,8 +1206,6 @@ function GenericCycleSimulationPanel({
   );
 }
 
-type PredictiveCalibrationRequest =
-  components["schemas"]["PredictiveCalibrationRequest"];
 type RunDetailsPayload = RunDetailsView;
 
 function fullRunArtifactRefKey(ref: RunArtifactRef): string {
@@ -1262,6 +1260,9 @@ function PredictiveCalibrationPanel({
   const observedSourceRefs = rootInputs.filter(
     (ref) => ref.kind === "fabric.data_snapshot",
   );
+  const valueDataProfileRefs = rootInputs.filter(
+    (ref) => ref.kind === "runtime.value_data_profile",
+  );
   const modelSpecRefs = rootArtifacts.filter(
     (ref) => ref.kind === "ir.model_spec",
   );
@@ -1302,7 +1303,12 @@ function PredictiveCalibrationPanel({
       calibrationRuleRefs,
       String(form.get("calibration_rule_ref") ?? ""),
     );
+    const valueDataProfileRef = selectedValueRef(
+      valueDataProfileRefs,
+      String(form.get("value_data_profile_ref") ?? ""),
+    );
     const textValue = (name: string) => String(form.get(name) ?? "").trim();
+    const valueDataUnitId = textValue("value_data_unit_id");
     const integerValue = (name: string): number | null => {
       const raw = textValue(name);
       if (!raw) return null;
@@ -1376,6 +1382,7 @@ function PredictiveCalibrationPanel({
       methodBeta > 1 ||
       seed === null ||
       !rolesAreValid ||
+      Boolean(valueDataProfileRef) !== Boolean(valueDataUnitId) ||
       !textValue("target_metric")
     ) {
       setFormError(t("pages.runs.predictiveCalibration.formIncomplete"));
@@ -1413,6 +1420,10 @@ function PredictiveCalibrationPanel({
       },
       seed,
     };
+    if (valueDataProfileRef) {
+      request.value_data_profile_ref = valueDataProfileRef;
+      request.value_data_unit_id = valueDataUnitId;
+    }
     setLastIntent(request);
     mutation.mutate(request);
   };
@@ -1597,6 +1608,36 @@ function PredictiveCalibrationPanel({
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>
+                {t("pages.runs.predictiveCalibration.valueDataProfile")}
+              </span>
+              <select
+                name="value_data_profile_ref"
+                defaultValue=""
+                data-testid="predictive-value-data-profile"
+              >
+                <option value="">
+                  {t("pages.runs.predictiveCalibration.profilelessOption")}
+                </option>
+                {valueDataProfileRefs.map((ref) => (
+                  <option
+                    key={fullRunArtifactRefKey(ref)}
+                    value={fullRunArtifactRefKey(ref)}
+                  >
+                    {ref.kind} · {ref.artifact_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.valueDataUnit")}</span>
+              <input
+                name="value_data_unit_id"
+                maxLength={256}
+                data-testid="predictive-value-data-unit"
+              />
             </label>
             <label className="space-y-1 text-sm">
               <span>{t("pages.runs.predictiveCalibration.modelSpec")}</span>

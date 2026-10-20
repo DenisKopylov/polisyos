@@ -68,20 +68,74 @@ export const workflowLaunchDraftSchema = workflowLaunchFieldsSchema
   .strict()
   .superRefine(validateWorkflowProfileSelection);
 
-export const naturalLanguageLaunchSchema = z.object({
-  nlRequest: z.string().trim().min(1),
-  executionIntent: z.string(),
-  domainHint: z.string(),
-  selectedLlmModels: z.array(z.string().trim().min(1)).min(1),
-  maxParallelModels: z.number().int().min(1),
-  runBudgetUsd: z.string(),
-  perModelBudgetUsd: z.string(),
-  maxIterations: z.number().int().min(1),
-  checkpointPolicy: checkpointPolicySchema,
-  nlDataSourceRef: z.string(),
-  expectedOutputs: z.array(outputSchema).min(1),
-  governanceConstraints: z.array(governanceConstraintSchema).min(1),
-});
+export const naturalLanguageLaunchSchema = z
+  .object({
+    nlRequest: z.string().trim().min(1),
+    executionIntent: z.string(),
+    domainHint: z.string(),
+    selectedLlmModels: z.array(z.string().trim().min(1)).min(1),
+    maxParallelModels: z.number().int().min(1),
+    runBudgetUsd: z.string(),
+    perModelBudgetUsd: z.string(),
+    maxIterations: z.number().int().min(1),
+    checkpointPolicy: checkpointPolicySchema,
+    nlDataSourceRef: z.string(),
+    nlDataSourceProfileSha256: z.string().trim().default(""),
+    valueDataProfileArtifactId: z.string().trim().default(""),
+    valueDataProfileSha256: z.string().trim().default(""),
+    valueDataUnitId: z.string().trim().default(""),
+    modelSpecArtifactId: z.string().trim().default(""),
+    modelSpecProfileSha256: z.string().trim().default(""),
+    policySpecArtifactId: z.string().trim().default(""),
+    policySpecProfileSha256: z.string().trim().default(""),
+    calibrationRuleArtifactId: z.string().trim().default(""),
+    calibrationRuleProfileSha256: z.string().trim().default(""),
+    expectedOutputs: z.array(outputSchema).min(1),
+    governanceConstraints: z.array(governanceConstraintSchema).min(1),
+  })
+  .superRefine((values, context) => {
+    const predictiveFields = [
+      "nlDataSourceProfileSha256",
+      "valueDataProfileArtifactId",
+      "valueDataProfileSha256",
+      "valueDataUnitId",
+      "modelSpecArtifactId",
+      "modelSpecProfileSha256",
+      "policySpecArtifactId",
+      "policySpecProfileSha256",
+      "calibrationRuleArtifactId",
+      "calibrationRuleProfileSha256",
+    ] as const;
+    const selected = predictiveFields.some((field) => values[field] !== "");
+    if (!selected) return;
+
+    const requiredFields = ["nlDataSourceRef", ...predictiveFields] as const;
+    for (const field of requiredFields) {
+      if (values[field].trim() === "") {
+        context.addIssue({
+          code: "custom",
+          message: "pages.composer.predictiveInputs.bundleIncomplete",
+          path: [field],
+        });
+      }
+    }
+    for (const field of [
+      "nlDataSourceProfileSha256",
+      "valueDataProfileSha256",
+      "modelSpecProfileSha256",
+      "policySpecProfileSha256",
+      "calibrationRuleProfileSha256",
+    ] as const) {
+      const value = values[field].trim();
+      if (value !== "" && !manifestProfileSha256Pattern.test(value)) {
+        context.addIssue({
+          code: "custom",
+          message: "pages.composer.predictiveInputs.profileInvalid",
+          path: [field],
+        });
+      }
+    }
+  });
 
 export type WorkflowLaunchFormInputValues = z.input<
   typeof workflowLaunchSchema
@@ -262,6 +316,44 @@ export function buildNaturalLanguageLaunchRequest(
   if (values.nlDataSourceRef.trim()) {
     body.data_source = {
       data_snapshot_ref: values.nlDataSourceRef.trim(),
+    };
+  }
+
+  if (values.valueDataProfileArtifactId.trim()) {
+    body.joint_interaction_candidate_intent =
+      "n4_unique_parent_source_members.v1";
+    body.data_source = {
+      data_snapshot_ref: {
+        artifact_id: values.nlDataSourceRef.trim(),
+        kind: "fabric.data_snapshot",
+        media_type: "application/json",
+        manifest_profile_sha256: values.nlDataSourceProfileSha256.trim(),
+      },
+    };
+    body.value_data_profile_ref = {
+      artifact_id: values.valueDataProfileArtifactId.trim(),
+      kind: "runtime.value_data_profile",
+      media_type: "application/json",
+      manifest_profile_sha256: values.valueDataProfileSha256.trim(),
+    };
+    body.value_data_unit_id = values.valueDataUnitId.trim();
+    body.model_spec_ref = {
+      artifact_id: values.modelSpecArtifactId.trim(),
+      kind: "ir.model_spec",
+      media_type: "application/json",
+      manifest_profile_sha256: values.modelSpecProfileSha256.trim(),
+    };
+    body.policy_spec_ref = {
+      artifact_id: values.policySpecArtifactId.trim(),
+      kind: "ir.policy_spec",
+      media_type: "application/json",
+      manifest_profile_sha256: values.policySpecProfileSha256.trim(),
+    };
+    body.calibration_rule_ref = {
+      artifact_id: values.calibrationRuleArtifactId.trim(),
+      kind: "ir.forecast_calibration_rule",
+      media_type: "application/json",
+      manifest_profile_sha256: values.calibrationRuleProfileSha256.trim(),
     };
   }
 

@@ -34,6 +34,13 @@ function stringMapEntries(
   return entries;
 }
 
+function requiredString(value: unknown, fieldName: string): string {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`${fieldName} is missing or is not a non-empty string`);
+  }
+  return value;
+}
+
 function artifactRefIdentity(value: unknown): string | null {
   const ref = asRecord(value);
   if (
@@ -236,6 +243,45 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
     Buffer.from(encodedRequest, "base64").toString("utf8"),
   );
   expect(asRecord(requestBody)?.request).toEqual(expect.any(String));
+  const predictiveDataSource = asRecord(asRecord(requestBody)?.data_source);
+  const selectedPredictiveSnapshot = asRecord(
+    predictiveDataSource?.data_snapshot_ref,
+  );
+  const selectedPredictiveProfile = asRecord(
+    asRecord(requestBody)?.value_data_profile_ref,
+  );
+  const selectedPredictiveModel = asRecord(
+    asRecord(requestBody)?.model_spec_ref,
+  );
+  const selectedPredictivePolicy = asRecord(
+    asRecord(requestBody)?.policy_spec_ref,
+  );
+  const selectedPredictiveRule = asRecord(
+    asRecord(requestBody)?.calibration_rule_ref,
+  );
+  expect(selectedPredictiveSnapshot?.kind).toBe("fabric.data_snapshot");
+  expect(selectedPredictiveSnapshot?.manifest_profile_sha256).toMatch(
+    /^sha256:[0-9a-f]{64}$/u,
+  );
+  expect(selectedPredictiveProfile?.kind).toBe("runtime.value_data_profile");
+  expect(selectedPredictiveProfile?.manifest_profile_sha256).toMatch(
+    /^sha256:[0-9a-f]{64}$/u,
+  );
+  expect(selectedPredictiveModel?.kind).toBe("ir.model_spec");
+  expect(selectedPredictiveModel?.manifest_profile_sha256).toMatch(
+    /^sha256:[0-9a-f]{64}$/u,
+  );
+  expect(selectedPredictivePolicy?.kind).toBe("ir.policy_spec");
+  expect(selectedPredictivePolicy?.manifest_profile_sha256).toMatch(
+    /^sha256:[0-9a-f]{64}$/u,
+  );
+  expect(selectedPredictiveRule?.kind).toBe("ir.forecast_calibration_rule");
+  expect(selectedPredictiveRule?.manifest_profile_sha256).toMatch(
+    /^sha256:[0-9a-f]{64}$/u,
+  );
+  expect(asRecord(requestBody)?.joint_interaction_candidate_intent).toBe(
+    "n4_unique_parent_source_members.v1",
+  );
 
   await page.goto(
     `/evidence?runId=${encodeURIComponent(metadata.core_run_id)}`,
@@ -247,7 +293,9 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   const launchKey =
     "source-bound-e2e-v1-" +
     createHash("sha256").update(requestBodyJson!).digest("hex");
-  const launch = await page.evaluate(
+  const incompleteRequestBody = { ...asRecord(requestBody)! };
+  delete incompleteRequestBody.policy_spec_ref;
+  const incompleteLaunch = await page.evaluate(
     async ({ body, key }) => {
       const response = await fetch("/api/v1/control/runs/nl", {
         method: "POST",
@@ -260,10 +308,158 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
       });
       return { payload: await response.json(), status: response.status };
     },
-    { body: requestBodyJson!, key: launchKey },
+    {
+      body: JSON.stringify(incompleteRequestBody),
+      key: `${launchKey}-incomplete-basis`,
+    },
   );
-  expect(launch.status).toBe(200);
-  const launchPayload = asRecord(launch.payload);
+  expect(incompleteLaunch.status).toBe(422);
+  expect(asRecord(incompleteLaunch.payload)?.job_id).toBeUndefined();
+
+  const requestText = requiredString(
+    asRecord(requestBody)?.request,
+    "source-bound NL request text",
+  );
+  const fixtureModelId = requiredString(
+    asRecord(requestBody)?.llm_model,
+    "source-bound LLM model id",
+  );
+  expect(metadata.source_bound_v1_model_id).toBe(fixtureModelId);
+  const predictiveUnitId = requiredString(
+    asRecord(requestBody)?.value_data_unit_id,
+    "source-bound value data unit id",
+  );
+  expect(metadata.source_bound_predictive_unit_id).toBe(predictiveUnitId);
+
+  const composerInputs: Array<[string, string]> = [
+    [
+      "composer-nl-data-snapshot",
+      requiredString(
+        selectedPredictiveSnapshot?.artifact_id,
+        "snapshot artifact id",
+      ),
+    ],
+    [
+      "composer-nl-snapshot-profile",
+      requiredString(
+        selectedPredictiveSnapshot?.manifest_profile_sha256,
+        "snapshot manifest profile",
+      ),
+    ],
+    [
+      "composer-nl-value-profile-id",
+      requiredString(
+        selectedPredictiveProfile?.artifact_id,
+        "value profile artifact id",
+      ),
+    ],
+    [
+      "composer-nl-value-profile-digest",
+      requiredString(
+        selectedPredictiveProfile?.manifest_profile_sha256,
+        "value profile manifest profile",
+      ),
+    ],
+    ["composer-nl-value-unit", predictiveUnitId],
+    [
+      "composer-nl-model-spec-id",
+      requiredString(
+        selectedPredictiveModel?.artifact_id,
+        "model spec artifact id",
+      ),
+    ],
+    [
+      "composer-nl-model-spec-digest",
+      requiredString(
+        selectedPredictiveModel?.manifest_profile_sha256,
+        "model spec manifest profile",
+      ),
+    ],
+    [
+      "composer-nl-policy-spec-id",
+      requiredString(
+        selectedPredictivePolicy?.artifact_id,
+        "policy spec artifact id",
+      ),
+    ],
+    [
+      "composer-nl-policy-spec-digest",
+      requiredString(
+        selectedPredictivePolicy?.manifest_profile_sha256,
+        "policy spec manifest profile",
+      ),
+    ],
+    [
+      "composer-nl-rule-id",
+      requiredString(
+        selectedPredictiveRule?.artifact_id,
+        "calibration rule artifact id",
+      ),
+    ],
+    [
+      "composer-nl-rule-digest",
+      requiredString(
+        selectedPredictiveRule?.manifest_profile_sha256,
+        "calibration rule manifest profile",
+      ),
+    ],
+  ];
+
+  await page.goto("/compose?mode=nl");
+  await waitForDashboardSurface(page, "composer");
+  await page.getByTestId("composer-nl-brief").fill(requestText);
+  const selectedModel = page.getByTestId(`llm-profile-${fixtureModelId}`);
+  await expect(selectedModel).toBeVisible();
+  await selectedModel.click();
+
+  const predictiveInputsDisclosure = page.locator("details").filter({
+    has: page.getByTestId("composer-nl-value-profile-id"),
+  });
+  await expect(predictiveInputsDisclosure).toHaveCount(1);
+  await predictiveInputsDisclosure.locator("summary").click();
+  for (const [testId, value] of composerInputs) {
+    await page.getByTestId(testId).fill(value);
+  }
+
+  const ordinaryLaunchResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === "/api/v1/control/runs/nl",
+  );
+  const launchButton = page.getByTestId("composer-launch-nl");
+  await expect(launchButton).toBeEnabled();
+  await launchButton.click();
+  const ordinaryLaunchResponse = await ordinaryLaunchResponsePromise;
+  expect(ordinaryLaunchResponse.status()).toBe(200);
+  const ordinaryLaunchRequest = ordinaryLaunchResponse.request();
+  expect(ordinaryLaunchRequest.headers()["idempotency-key"]).toBeTruthy();
+  const ordinaryLaunchBody = asRecord(ordinaryLaunchRequest.postDataJSON());
+  expect(ordinaryLaunchBody?.request).toBe(requestText);
+  expect(ordinaryLaunchBody?.llm_model).toBe(fixtureModelId);
+  expect(ordinaryLaunchBody?.llm_models).toEqual([fixtureModelId]);
+  expect(ordinaryLaunchBody?.joint_interaction_candidate_intent).toBe(
+    "n4_unique_parent_source_members.v1",
+  );
+  const ordinaryDataSource = asRecord(ordinaryLaunchBody?.data_source);
+  expect(artifactRefIdentity(ordinaryDataSource?.data_snapshot_ref)).toBe(
+    artifactRefIdentity(selectedPredictiveSnapshot),
+  );
+  expect(artifactRefIdentity(ordinaryLaunchBody?.value_data_profile_ref)).toBe(
+    artifactRefIdentity(selectedPredictiveProfile),
+  );
+  expect(ordinaryLaunchBody?.value_data_unit_id).toBe(predictiveUnitId);
+  expect(artifactRefIdentity(ordinaryLaunchBody?.model_spec_ref)).toBe(
+    artifactRefIdentity(selectedPredictiveModel),
+  );
+  expect(artifactRefIdentity(ordinaryLaunchBody?.policy_spec_ref)).toBe(
+    artifactRefIdentity(selectedPredictivePolicy),
+  );
+  expect(artifactRefIdentity(ordinaryLaunchBody?.calibration_rule_ref)).toBe(
+    artifactRefIdentity(selectedPredictiveRule),
+  );
+  await expect(page).toHaveURL(/\/runs\/[^/]+\/overview$/u);
+
+  const launchPayload = asRecord(await ordinaryLaunchResponse.json());
   expect(launchPayload?.status).toBe("accepted");
   const jobId = launchPayload?.job_id;
   expect(typeof jobId).toBe("string");
@@ -301,6 +497,7 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   );
   expect(runResponse.status).toBe(200);
   const v1Run = asRecord(asRecord(runResponse.payload)?.run);
+  expect(v1Run).toBeTruthy();
   const v1Projection = asRecord(v1Run?.candidate_simulation);
   expect(v1Projection?.artifact_status).toBe("resolved");
   expect(v1Projection?.authority_purpose).toBe("candidate_observation_only");
@@ -314,6 +511,27 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
     ),
   ).toBe(true);
   expect(Array.isArray(v1Projection?.acquisition_history)).toBe(true);
+  const selectedBasisRefs = [
+    selectedPredictiveSnapshot,
+    selectedPredictiveProfile,
+    selectedPredictiveModel,
+    selectedPredictivePolicy,
+    selectedPredictiveRule,
+  ];
+  const runRootRefs = [
+    ...(Array.isArray(v1Run?.root_input_artifacts)
+      ? v1Run.root_input_artifacts
+      : []),
+    ...(Array.isArray(v1Run?.root_artifacts) ? v1Run.root_artifacts : []),
+  ];
+  for (const ref of selectedBasisRefs) {
+    expect(ref).not.toBeNull();
+    expect(
+      runRootRefs.some(
+        (runRef) => artifactRefIdentity(runRef) === artifactRefIdentity(ref),
+      ),
+    ).toBe(true);
+  }
 
   const agentsResponse = await freshGet(
     page,
@@ -364,6 +582,103 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   await page.goto(`/runs/${encodeURIComponent(v1RunId as string)}/overview`);
   await waitForDashboardSurface(page, "run-overview");
   await expect(page.getByTestId("overview-candidate-simulation")).toBeVisible();
+  const predictiveForm = page.getByTestId(
+    "overview-predictive-calibration-form",
+  );
+  await expect(predictiveForm).toBeVisible();
+  const runCandidateRef = asRecord(
+    n5Observations
+      .map(asRecord)
+      .find((row) => row?.status === "joint_simulated"),
+  )?.n4_source_ref;
+  expect(artifactRefIdentity(runCandidateRef)).not.toBeNull();
+  const predictiveProfile = selectedPredictiveProfile;
+  const predictiveSnapshot = selectedPredictiveSnapshot;
+  const predictiveModel = selectedPredictiveModel;
+  const predictivePolicy = selectedPredictivePolicy;
+  const predictiveRule = selectedPredictiveRule;
+  const rootRefKey = (value: unknown) => artifactRefIdentity(value);
+  const selectedFormRefs: Array<[string, unknown]> = [
+    ["candidate_source_ref", runCandidateRef],
+    ["observed_source_ref", predictiveSnapshot],
+    ["model_spec_ref", predictiveModel],
+    ["policy_spec_ref", predictivePolicy],
+    ["calibration_rule_ref", predictiveRule],
+    ["value_data_profile_ref", predictiveProfile],
+  ];
+  for (const [name, ref] of selectedFormRefs) {
+    const value = rootRefKey(ref);
+    expect(value).not.toBeNull();
+    await predictiveForm.locator(`[name="${name}"]`).selectOption(value!);
+  }
+  await predictiveForm
+    .locator('[name="value_data_unit_id"]')
+    .fill(String(metadata.source_bound_predictive_unit_id));
+  await predictiveForm
+    .locator('[name="target_metric"]')
+    .fill(String(metadata.source_bound_predictive_target_metric));
+  const predictiveValues: Record<string, string> = {
+    calibration_threshold: "0.9",
+    seed: "0",
+    train_start: "0",
+    train_end: "10",
+    holdout_start: "10",
+    holdout_end: "14",
+    horizon: "4",
+    alpha: "0.3",
+    beta: "0.1",
+    data_valid_time: "2026-01-01T00:00",
+    calibration_window_start: "2026-01-02T00:00",
+    calibration_window_end: "2026-01-03T00:00",
+    policy_effective_time: "2026-01-04T00:00",
+    prediction_time: "2026-01-05T00:00",
+    observation_time: "2026-01-06T00:00",
+  };
+  for (const [name, value] of Object.entries(predictiveValues)) {
+    await predictiveForm.locator(`[name="${name}"]`).fill(value);
+  }
+  const predictivePostPromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname ===
+        `/api/v1/runs/${encodeURIComponent(v1RunId as string)}/predictive-calibration`,
+  );
+  await predictiveForm
+    .getByRole("button", { name: /create|evaluate/i })
+    .click();
+  const predictivePost = await predictivePostPromise;
+  expect(predictivePost.status()).toBe(201);
+  const predictivePostBody = asRecord(predictivePost.request().postDataJSON());
+  expect(artifactRefIdentity(predictivePostBody?.value_data_profile_ref)).toBe(
+    artifactRefIdentity(predictiveProfile),
+  );
+  const predictiveResult = asRecord(await predictivePost.json());
+  const predictiveAssociation = asRecord(predictiveResult?.association);
+  expect(predictiveAssociation?.profile_join_status).toBe("joined_candidate");
+  expect(predictiveAssociation?.value_data_profile_ref).toEqual(
+    predictiveProfile,
+  );
+  expect(predictiveAssociation?.assessment).toBe("limited");
+  expect(predictiveAssociation?.authority_scope).toBe("predictive_only");
+  expect(predictiveAssociation?.source_time_status).toBe("not_established");
+
+  const predictiveFreshGet = await freshGet(
+    page,
+    `/api/v1/runs/${encodeURIComponent(v1RunId as string)}/predictive-calibration`,
+  );
+  expect(predictiveFreshGet.status).toBe(200);
+  const reopenedAssociation = asRecord(
+    asRecord(predictiveFreshGet.payload)?.association,
+  );
+  expect(reopenedAssociation).toEqual(predictiveAssociation);
+  await page.goto(`/runs/${encodeURIComponent(v1RunId as string)}/overview`);
+  await waitForDashboardSurface(page, "run-overview");
+  await expect(
+    page.getByTestId("overview-predictive-calibration"),
+  ).toContainText("limited");
+  await expect(
+    page.getByTestId("overview-predictive-calibration"),
+  ).toContainText("not_established");
 
   await page.goto(
     `/evidence?runId=${encodeURIComponent(metadata.core_run_id)}`,

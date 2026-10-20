@@ -7,8 +7,21 @@ import { queryKeys } from "../queryKeys";
 import { useControlPlaneMutation } from "../useControlPlaneMutation";
 import { predictiveCalibrationResponseSchema } from "../validators";
 
-type PredictiveCalibrationRequest =
+type GeneratedPredictiveCalibrationRequest =
   components["schemas"]["PredictiveCalibrationRequest"];
+type SelectedArtifactRef = components["schemas"]["ArtifactRef-Input"] & {
+  media_type: "application/json";
+  manifest_profile_sha256: string;
+};
+
+/** Exact local wire type until the canonical OpenAPI types are regenerated. */
+export type PredictiveCalibrationRequest = Omit<
+  GeneratedPredictiveCalibrationRequest,
+  "value_data_profile_ref" | "value_data_unit_id"
+> & {
+  value_data_profile_ref?: SelectedArtifactRef | null;
+  value_data_unit_id?: string | null;
+};
 
 async function fetchRunPredictiveCalibration(runId: string) {
   const { data, error, response } = await runtimeApiClient.GET(
@@ -33,7 +46,8 @@ async function createRunPredictiveCalibration(
     "/api/v1/runs/{run_id}/predictive-calibration",
     {
       params: { path: { run_id: runId } },
-      body,
+      // API5 regenerates the generated type from the already-typed server DTO.
+      body: body as GeneratedPredictiveCalibrationRequest,
     },
   );
   if (error || !response.ok || !data) {

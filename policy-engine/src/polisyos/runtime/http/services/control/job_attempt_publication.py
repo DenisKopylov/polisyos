@@ -55,7 +55,15 @@ if TYPE_CHECKING:
 _EXECUTION_INTENT_BINDING_SCHEMA = "polisyos.runtime.control_execution_intent.v2"
 _NL_AUTHORIZATION_RECEIPT_KEY = "nl_authorization_receipt"
 _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
-_NL_REQUEST_SNAPSHOT_SCHEMA = "polisyos.runtime.control_nl_request_snapshot.v1"
+_NL_REQUEST_SNAPSHOT_SCHEMA_V1 = "polisyos.runtime.control_nl_request_snapshot.v1"
+_NL_REQUEST_SNAPSHOT_SCHEMA_V2 = "polisyos.runtime.control_nl_request_snapshot.v2"
+_NL_REQUEST_SNAPSHOT_NEW_FIELDS = (
+    "value_data_profile_ref",
+    "value_data_unit_id",
+    "model_spec_ref",
+    "policy_spec_ref",
+    "calibration_rule_ref",
+)
 _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE = (
     "polisyos.runtime.authorization.nl_request_snapshot.canonical_json.v1"
 )
@@ -71,10 +79,37 @@ _NL_ROUTE_ID = "POST /api/v1/control/runs/nl"
 _NL_ROUTE_ACTION = "control.launch_nl_run"
 
 
+def _nl_request_snapshot_schema(request: NaturalLanguageRunRequest) -> str:
+    """Choose the request snapshot version from executable intent and selected inputs."""
+    if request.joint_interaction_candidate_intent is not None or any(
+        getattr(request, field_name) is not None for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS
+    ):
+        return _NL_REQUEST_SNAPSHOT_SCHEMA_V2
+    return _NL_REQUEST_SNAPSHOT_SCHEMA_V1
+
+
+def _nl_request_snapshot_request_values(
+    request: NaturalLanguageRunRequest,
+    *,
+    schema_version: str | None = None,
+) -> dict[str, Any]:
+    """Preserve v1 request bytes while binding newly selected values in v2."""
+    values = request.model_dump(mode="json")
+    selected_schema = schema_version or _nl_request_snapshot_schema(request)
+    if selected_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V1:
+        for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS:
+            values.pop(field_name, None)
+    else:
+        for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS:
+            if field_name not in request.model_fields_set:
+                values.pop(field_name, None)
+    return values
+
+
 def _nl_request_body_bytes(request: NaturalLanguageRunRequest) -> bytes:
     """Serialize a typed request deterministically for non-HTTP owner tests."""
     return json.dumps(
-        request.model_dump(mode="json"),
+        _nl_request_snapshot_request_values(request),
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
@@ -91,7 +126,8 @@ def _validate_nl_request_json_values(request: NaturalLanguageRunRequest) -> None
 def _nl_request_snapshot_content_hash(snapshot: Mapping[str, Any]) -> str:
     """Hash the pinned JSON request snapshot profile, including finite numbers."""
     if (
-        snapshot.get("schema_version") != _NL_REQUEST_SNAPSHOT_SCHEMA
+        snapshot.get("schema_version")
+        not in {_NL_REQUEST_SNAPSHOT_SCHEMA_V1, _NL_REQUEST_SNAPSHOT_SCHEMA_V2}
         or snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE
     ):
         raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
@@ -225,9 +261,9 @@ def _build_nl_authorization_receipt(
     if parsed_request.model_dump(mode="json") != request.model_dump(mode="json"):
         raise ValueError("nl_route_authorization_request_body_mismatch")
     request_snapshot = {
-        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "schema_version": _nl_request_snapshot_schema(request),
         "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
-        "request": request.model_dump(mode="json"),
+        "request": _nl_request_snapshot_request_values(request),
         "normalized_llm_models": list(normalized_llm_models),
     }
     snapshot = AgentActionPermissionSnapshot(
@@ -528,7 +564,11 @@ def _validate_nl_request_snapshot(
         "normalized_llm_models",
     }:
         raise ValueError("nl_authorized_request_snapshot_missing")
-    if raw_snapshot.get("schema_version") != _NL_REQUEST_SNAPSHOT_SCHEMA:
+    snapshot_schema = raw_snapshot.get("schema_version")
+    if snapshot_schema not in {
+        _NL_REQUEST_SNAPSHOT_SCHEMA_V1,
+        _NL_REQUEST_SNAPSHOT_SCHEMA_V2,
+    }:
         raise ValueError("nl_authorized_request_snapshot_schema_invalid")
     if raw_snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE:
         raise ValueError("nl_authorized_request_snapshot_digest_profile_invalid")
@@ -545,9 +585,12 @@ def _validate_nl_request_snapshot(
         request = NaturalLanguageRunRequest.model_validate(dict(raw_request))
     except (TypeError, ValueError) as exc:
         raise ValueError("nl_authorized_request_snapshot_invalid") from exc
-    request_values = request.model_dump(mode="json")
+    request_values = _nl_request_snapshot_request_values(
+        request,
+        schema_version=str(snapshot_schema),
+    )
     snapshot = {
-        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "schema_version": snapshot_schema,
         "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
         "request": request_values,
         "normalized_llm_models": list(normalized_models),
@@ -560,6 +603,7 @@ def _validate_nl_request_snapshot(
         raise ValueError("nl_authorized_request_snapshot_receipt_mismatch")
     expected_payload = {
         "request": request.request,
+        "joint_interaction_candidate_intent": request.joint_interaction_candidate_intent,
         "context": dict(request.context),
         "domain_hint": request.domain_hint,
         "data_source": (
@@ -578,6 +622,34 @@ def _validate_nl_request_snapshot(
         "governance_constraints": request.governance_constraints,
         "expected_outputs": request.expected_outputs,
     }
+    if snapshot_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V1:
+        if any(field_name in raw_request for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS):
+            raise ValueError("nl_authorized_request_snapshot_v1_contains_v2_fields")
+        if any(field_name in payload for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS):
+            raise ValueError("nl_authorized_request_payload_mismatch")
+        # v1 launch payloads predate the explicit N4 intent bridge and must
+        # remain replayable with their original profileless request bytes.
+        expected_payload.pop("joint_interaction_candidate_intent")
+    else:
+        selected_request_fields = {
+            field_name
+            for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS
+            if field_name in raw_request
+        }
+        selected_payload_fields = {
+            field_name for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS if field_name in payload
+        }
+        if selected_payload_fields != selected_request_fields:
+            raise ValueError("nl_authorized_request_payload_mismatch")
+        for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS:
+            if field_name not in raw_request:
+                continue
+            selected = getattr(request, field_name)
+            if selected is None:
+                raise ValueError("nl_authorized_request_predictive_input_explicit_null")
+            expected_payload[field_name] = (
+                selected.model_dump(mode="json") if isinstance(selected, ArtifactRef) else selected
+            )
     _validate_nl_snapshot_payload_fields(payload, expected_payload)
 
 

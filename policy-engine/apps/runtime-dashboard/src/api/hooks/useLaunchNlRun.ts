@@ -11,8 +11,39 @@ import { useControlPreAdmissionRecovery } from "./useControlPreAdmissionRecovery
 import type { components } from "../types";
 import { useControlPlaneMutation } from "../useControlPlaneMutation";
 
-export type NaturalLanguageRunRequest =
+type GeneratedNaturalLanguageRunRequest =
   components["schemas"]["NaturalLanguageRunRequest"];
+type SelectedArtifactRef = components["schemas"]["ArtifactRef-Input"] & {
+  media_type: "application/json";
+  manifest_profile_sha256: string;
+};
+type SelectedDataSnapshotRef = components["schemas"]["DataSnapshotRef"] & {
+  kind: "fabric.data_snapshot";
+  media_type: "application/json";
+  manifest_profile_sha256: string;
+};
+
+/** Exact local wire type until the canonical OpenAPI types are regenerated. */
+export type NaturalLanguageRunRequest = Omit<
+  GeneratedNaturalLanguageRunRequest,
+  | "data_source"
+  | "value_data_profile_ref"
+  | "value_data_unit_id"
+  | "model_spec_ref"
+  | "policy_spec_ref"
+  | "calibration_rule_ref"
+> & {
+  data_source?:
+    | (Omit<components["schemas"]["DataSourceBinding"], "data_snapshot_ref"> & {
+        data_snapshot_ref?: string | SelectedDataSnapshotRef | null;
+      })
+    | null;
+  value_data_profile_ref?: SelectedArtifactRef | null;
+  value_data_unit_id?: string | null;
+  model_spec_ref?: SelectedArtifactRef | null;
+  policy_spec_ref?: SelectedArtifactRef | null;
+  calibration_rule_ref?: SelectedArtifactRef | null;
+};
 export type NaturalLanguageRunLaunchRequest = NaturalLanguageRunRequest & {
   /** Reuse only to replay this exact immutable launch intent. */
   idempotencyKey?: string;
@@ -29,7 +60,9 @@ async function launchNlRun(
   const { data, error, response } = await runtimeApiClient.POST(
     "/api/v1/control/runs/nl",
     {
-      body,
+      // The server schema already accepts typed profile refs; API5 regenerates
+      // this client contract from the source DTO in the next source boundary.
+      body: body as GeneratedNaturalLanguageRunRequest,
       params: { header: { "Idempotency-Key": idempotencyKey } },
     },
   );

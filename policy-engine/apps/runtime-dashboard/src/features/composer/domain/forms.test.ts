@@ -176,4 +176,78 @@ describe("composer form schemas and mappers", () => {
       data_source: { data_snapshot_ref: "sha256:snapshot" },
     });
   });
+
+  it("keeps predictive basis refs typed, exact, and all-or-none", () => {
+    const digest = (char: string) => `sha256:${char.repeat(64)}`;
+    const parsed = naturalLanguageLaunchSchema.parse({
+      nlRequest: "Compare the selected policy candidate.",
+      executionIntent: "",
+      domainHint: "custom",
+      selectedLlmModels: ["simulated-qwen"],
+      maxParallelModels: 1,
+      runBudgetUsd: "",
+      perModelBudgetUsd: "",
+      maxIterations: 1,
+      checkpointPolicy: "strict",
+      nlDataSourceRef: digest("a"),
+      nlDataSourceProfileSha256: digest("b"),
+      valueDataProfileArtifactId: digest("c"),
+      valueDataProfileSha256: digest("d"),
+      valueDataUnitId: "UA",
+      modelSpecArtifactId: digest("e"),
+      modelSpecProfileSha256: digest("f"),
+      policySpecArtifactId: digest("1"),
+      policySpecProfileSha256: digest("2"),
+      calibrationRuleArtifactId: digest("3"),
+      calibrationRuleProfileSha256: digest("4"),
+      expectedOutputs: [{ kind: "candidate", description: "" }],
+      governanceConstraints: [
+        { scope: "candidate", rule: "", severity: "warning" },
+      ],
+    });
+    const body = buildNaturalLanguageLaunchRequest(parsed, {
+      locale: "en",
+      preflightEnabled: true,
+      autoMaterializationEnabled: true,
+      maxParallelConstraint: 1,
+      maxIterationsConstraint: 1,
+    });
+
+    expect(body.joint_interaction_candidate_intent).toBe(
+      "n4_unique_parent_source_members.v1",
+    );
+    expect(body.data_source).toEqual({
+      data_snapshot_ref: {
+        artifact_id: digest("a"),
+        kind: "fabric.data_snapshot",
+        media_type: "application/json",
+        manifest_profile_sha256: digest("b"),
+      },
+    });
+    expect(body.value_data_profile_ref).toEqual({
+      artifact_id: digest("c"),
+      kind: "runtime.value_data_profile",
+      media_type: "application/json",
+      manifest_profile_sha256: digest("d"),
+    });
+    expect(body.value_data_unit_id).toBe("UA");
+    expect(body.model_spec_ref?.kind).toBe("ir.model_spec");
+    expect(body.policy_spec_ref?.kind).toBe("ir.policy_spec");
+    expect(body.calibration_rule_ref?.kind).toBe(
+      "ir.forecast_calibration_rule",
+    );
+
+    expect(
+      naturalLanguageLaunchSchema.safeParse({
+        ...parsed,
+        policySpecProfileSha256: "",
+      }).success,
+    ).toBe(false);
+    expect(
+      naturalLanguageLaunchSchema.safeParse({
+        ...parsed,
+        modelSpecProfileSha256: "sha256:short",
+      }).success,
+    ).toBe(false);
+  });
 });

@@ -339,6 +339,228 @@ def _seed_profiled_workflow_data_view_request(
     }
 
 
+def _seed_predictive_value_profile_basis(
+    *,
+    tmp_root: Path,
+    runtime_api_context: object,
+    stack: ExitStack,
+) -> dict[str, object]:
+    """Produce and persist one source-bound value profile for the browser journey."""
+    from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
+    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api.catalog import default_acquisition_overlay_path
+    from polisyos.ir import CanonSpec, InputRef, put_json_artifact
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.runtime.http.services.predictive_calibration import (
+        _validate_selected_value_data_profile,
+    )
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+    from polisyos.runtime.quality.substrate_registry import (
+        catalog_serving_source_scope,
+        resolve_catalog_serving_source,
+    )
+    from polisyos.scientist.methods.backtesting.forecast_owner import (
+        CalibrationRuleArtifact,
+    )
+    from tests.integration.core_runtime.test_acquisition_world_growth_chain import (
+        _admit_served_wdi_projection,
+    )
+    from tests.integration.core_runtime.test_predictive_calibration_profile_owner_binding import (
+        _persist_profile_pair,
+    )
+
+    class FixtureFinalizers:
+        """Register producer-owned cleanup in the enclosing fixture lifetime."""
+
+        def addfinalizer(self, finalizer: object) -> None:
+            if not callable(finalizer):
+                raise TypeError("predictive_profile_fixture_finalizer_not_callable")
+            stack.callback(finalizer)
+
+    profile_monkeypatch = pytest.MonkeyPatch()
+    try:
+        admitted = asyncio.run(
+            _admit_served_wdi_projection(
+                tmp_root / "predictive-profile-owner",
+                profile_monkeypatch,
+                FixtureFinalizers(),
+                baseline_country_code="UA",
+                baseline_period_count=14,
+                tenant_id=_TENANT_ID,
+                cell_id=_CELL_ID,
+                artifact_store=runtime_api_context.store,
+            )
+        )
+    finally:
+        profile_monkeypatch.undo()
+
+    served = admitted.served
+    repo_root = Path(served.case.authority.repo_root).resolve()
+    overlay_path = Path(served.case.call_args["overlay_path"]).resolve()
+    selected_overlay = default_acquisition_overlay_path(repo_root)
+    selected_overlay.parent.mkdir(parents=True, exist_ok=True)
+    if selected_overlay.exists() or selected_overlay.is_symlink():
+        if not selected_overlay.is_symlink() or selected_overlay.resolve() != overlay_path:
+            raise RuntimeError("predictive_profile_fixture_overlay_binding_conflict")
+    else:
+        selected_overlay.symlink_to(overlay_path)
+
+    store = served.case.bridge.artifact_store
+    source = resolve_catalog_serving_source(
+        repo_root,
+        selection=None,
+        requested_profile=_CATALOG_PROFILE,
+    )
+    gateway = RealValueOwnerGateway(
+        repo_root=repo_root,
+        catalog_overlay_path=overlay_path,
+        artifact_store=store,
+        activated_observation_projection=admitted.projection,
+    )
+    with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+        with catalog_serving_source_scope(source):
+            profile = gateway.load_value_data_profile(
+                candidate=object(),
+                problem=served.closure.design_problem_basis,
+                world_record=object(),
+            )
+        profile_ref = _persist_profile_pair(
+            store,
+            projection=admitted.projection,
+            profile=profile,
+        )
+        unit_id = profile.rows[0].unit_id
+        selected_rows = tuple(
+            sorted(
+                (row for row in profile.rows if row.unit_id == unit_id),
+                key=lambda row: row.period_id,
+            )
+        )
+        if len(selected_rows) < 14:
+            raise RuntimeError("predictive_profile_fixture_unit_period_count_insufficient")
+
+        ir_store = ensure_ir_artifact_store(store)
+        observed_data = {profile.outcome: [row.outcome_value for row in selected_rows]}
+        observed_data_ref = put_json_artifact(
+            ir_store,
+            observed_data,
+            kind="runtime.forecast.observed_series",
+            schema_name="runtime.forecast.observed_series.v1",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        data_ref = ArtifactRef.model_validate(observed_data_ref)
+        snapshot = DataSnapshot(
+            data_ref=data_ref,
+            stats={"rows": len(selected_rows), "source": "real_value_owner_profile"},
+            notes=["controlled source-bound candidate fixture; no authority/currentness claim"],
+        )
+        snapshot_ref_payload = put_json_artifact(
+            ir_store,
+            snapshot.model_dump(mode="json"),
+            kind="fabric.data_snapshot",
+            schema_name="fabric.data_snapshot.v1",
+            schema_version="1.0",
+            inputs=(
+                InputRef(
+                    artifact_id=data_ref.artifact_id,
+                    role="observed_series",
+                    manifest_profile_sha256=data_ref.manifest_profile_sha256,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        snapshot_ref = DataSnapshotRef.model_validate(snapshot_ref_payload)
+
+        model_spec = ModelSpec(
+            model_id="source_bound_value_profile_model",
+            data_snapshot_ref=str(snapshot_ref.artifact_id),
+        )
+        model_ref = put_json_artifact(
+            ir_store,
+            model_spec.model_dump(mode="json"),
+            kind="ir.model_spec",
+            schema_name="ir.model_spec",
+            schema_version="1.0",
+            inputs=(
+                InputRef(
+                    artifact_id=snapshot_ref.artifact_id,
+                    role="data_snapshot",
+                    manifest_profile_sha256=snapshot_ref.manifest_profile_sha256,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        policy_spec = PolicySpec(
+            policy_id="source_bound_value_profile_policy",
+            interventions=[],
+        )
+        policy_ref = put_json_artifact(
+            ir_store,
+            policy_spec.model_dump(mode="json"),
+            kind="ir.policy_spec",
+            schema_name="ir.policy_spec",
+            schema_version="1.0",
+            inputs=(
+                InputRef(
+                    artifact_id=snapshot_ref.artifact_id,
+                    role="data_snapshot",
+                    manifest_profile_sha256=snapshot_ref.manifest_profile_sha256,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        calibration_rule = CalibrationRuleArtifact(
+            schema_version="1.0",
+            rule_id="rolling-origin-residual-conformal.v1",
+            rule_version="1.0",
+            estimand="predictive_interval_coverage",
+            algorithm="rolling_origin_residual_conformal",
+            nominal_coverage=0.9,
+        )
+        calibration_rule_ref = put_json_artifact(
+            ir_store,
+            calibration_rule.model_dump(mode="json"),
+            kind="ir.forecast_calibration_rule",
+            schema_name="ir.forecast_calibration_rule",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+
+        with catalog_serving_source_scope(source):
+            resolved = _validate_selected_value_data_profile(store, profile_ref)
+        if resolved.profile.model_dump(mode="json") != profile.model_dump(mode="json"):
+            raise RuntimeError("predictive_profile_fixture_reopen_mismatch")
+
+    return {
+        "source_bound_predictive_data_snapshot_ref": snapshot_ref.model_dump(mode="json"),
+        "source_bound_predictive_value_data_profile_ref": profile_ref.model_dump(mode="json"),
+        "source_bound_predictive_model_spec_ref": model_ref,
+        "source_bound_predictive_policy_spec_ref": policy_ref,
+        "source_bound_predictive_calibration_rule_ref": calibration_rule_ref,
+        "source_bound_predictive_unit_id": unit_id,
+        "source_bound_predictive_target_metric": profile.outcome,
+        "source_bound_predictive_period_count": len(selected_rows),
+        "source_bound_predictive_source_test": (
+            "tests/integration/core_runtime/test_predictive_calibration_profile_owner_binding.py::"
+            "test_runtime_intake_reopens_owner_projection_and_rejects_self_consistent_forgery"
+        ),
+        "source_bound_predictive_fixture_boundary": (
+            "RealValueOwnerGateway profile from isolated WDI admission; exact projection/profile "
+            "and typed run inputs share the controlled CAS/source; source time remains "
+            "not_established; no authority, causality, production-currentness, or publication claim"
+        ),
+        "source_bound_predictive_repo_root": str(repo_root),
+    }
+
+
 @contextmanager
 def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, object]]:
     """Serve a real configured candidate producer under an explicit test identity."""
@@ -599,6 +821,29 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                 )
             },
         }
+        predictive_basis = _seed_predictive_value_profile_basis(
+            tmp_root=tmp_root,
+            runtime_api_context=serving_runtime_api_context,
+            stack=stack,
+        )
+        snapshot_ref = predictive_basis["source_bound_predictive_data_snapshot_ref"]
+        if not isinstance(snapshot_ref, dict):
+            raise RuntimeError("predictive_profile_fixture_snapshot_ref_missing")
+        request_body.update(
+            {
+                "joint_interaction_candidate_intent": "n4_unique_parent_source_members.v1",
+                "data_source": {"data_snapshot_ref": snapshot_ref},
+                "value_data_profile_ref": predictive_basis[
+                    "source_bound_predictive_value_data_profile_ref"
+                ],
+                "value_data_unit_id": predictive_basis["source_bound_predictive_unit_id"],
+                "model_spec_ref": predictive_basis["source_bound_predictive_model_spec_ref"],
+                "policy_spec_ref": predictive_basis["source_bound_predictive_policy_spec_ref"],
+                "calibration_rule_ref": predictive_basis[
+                    "source_bound_predictive_calibration_rule_ref"
+                ],
+            }
+        )
         serving_app_kwargs = {
             key: value
             for key, value in prepared_v6.app_kwargs.items()
@@ -607,6 +852,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         serving_app_kwargs.update(
             {
                 "catalog_run_profile": _CATALOG_PROFILE,
+                "repo_root": Path(predictive_basis["source_bound_predictive_repo_root"]),
                 "candidate_simulation_profiles": (profile,),
                 "candidate_simulation_model_declarations": (declaration,),
                 "container_overrides": RuntimeContainerOverrides(
@@ -619,6 +865,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
             include_test_client=False,
             app_kwargs=serving_app_kwargs,
         )
+        env.update(predictive_basis)
         env.update(
             {
                 "source_bound_fixture": "1",

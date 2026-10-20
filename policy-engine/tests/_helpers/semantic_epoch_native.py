@@ -507,30 +507,98 @@ def _profile() -> SourceProfile:
     )
 
 
+def _build_acquisition_epoch_fixture_service(
+    *,
+    store: FileSystemCAS,
+    authority: catalog_read_api.CanonicalAcquisitionAuthority,
+    root: Path,
+) -> tuple[
+    epoch.SemanticEpochService,
+    CatalogAcquisitionOverlay,
+    FileSemanticEpochHistoryRepository,
+]:
+    """Compose the registered acquisition owner used by real epoch preparation."""
+    root.mkdir(parents=True, exist_ok=True)
+    overlay = CatalogAcquisitionOverlay(
+        authority.baseline_path,
+        root / "acquisition-overlay.duckdb",
+    )
+    overlay.initialize()
+    facet_ref = store.put_bytes(
+        epoch_contract.canonical_epoch_bytes({"semantic_value": "catalog-semantics"}),
+        ArtifactWriteOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+    )
+    history = FileSemanticEpochHistoryRepository(
+        root=root / "history",
+        artifacts=store,
+    )
+    service = epoch.SemanticEpochService(
+        boundary_registry=epoch.build_boundary_registry(
+            (
+                epoch.EpochBoundarySourceRegistration(
+                    registration_id="n13b-acquisition-native-history",
+                    owner_kind="catalog_acquisition",
+                    owner_source_ref=epoch._sha256(b"test-catalog-owner"),
+                    opaque_scope_binding_ref=epoch._sha256(b"test-catalog-scope"),
+                ),
+            )
+        ),
+        boundary_adapters={
+            "catalog_acquisition": epoch.CatalogAcquisitionEpochBoundaryOwnerAdapter(
+                owner=overlay,
+                artifacts=store,
+            )
+        },
+        facet_registry=epoch.build_facet_registry(
+            (
+                epoch.SemanticFacetRegistration(
+                    facet_id="catalog-semantics",
+                    source_binding_ref=str(facet_ref.artifact_id),
+                ),
+            )
+        ),
+        facet_provider=epoch.ArtifactSemanticFacetProvider(
+            artifacts=store,
+            source_refs={str(facet_ref.artifact_id): facet_ref},
+        ),
+        history=history,
+        artifact_store=store,
+        qualification_consumer=(
+            chronology_qualification.QualificationConsumer.from_unallocated_policy_authority()
+        ),
+        chronology_adapter=(
+            epoch.SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
+                history=history,
+                artifacts=store,
+            )
+        ),
+    )
+    return service, overlay, history
+
+
 def _semantic_handshake(
     store: FileSystemCAS,
     *,
     source_ref: object,
+    authority: catalog_read_api.CanonicalAcquisitionAuthority,
 ) -> tuple[
     epoch_contract.AcquisitionSemanticBoundaryCandidate,
     epoch.PreparedSemanticEpoch,
 ]:
-    """Build exact pre-passport bytes without relying on a future passport ref."""
+    """Build a candidate and prepared epoch through the registered service."""
 
     assert hasattr(source_ref, "artifact_id")
 
-    def put(
-        payload: bytes,
-        *,
-        kind: str,
-        canon: artifacts.CanonInfo | None = None,
-    ):
+    def put(payload: bytes, *, kind: str):
         return store.put_bytes(
             payload,
             ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/vnd.polisyos.epoch+json",
-                canon=canon,
             ),
         )
 
@@ -574,105 +642,38 @@ def _semantic_handshake(
         purpose_admission_cutoff_ref=coordinate_refs["purpose_admission_cutoff"][1],
         requested_query_context_ref=context_ref,
     )
-    candidate_statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
-        source_record_ref=source_ref,
-        source_record_content_hash=str(source_ref.artifact_id),
-        scope_identity_ref=scope.scope_identity_ref,
-        authority_purpose=query.authority_purpose,
-        valid_effect_coordinate_ref=query.valid_effect_coordinate_ref,
-        visibility_knowledge_cutoff_ref=query.visibility_knowledge_cutoff_ref,
-        purpose_admission_cutoff_ref=query.purpose_admission_cutoff_ref,
-        requested_query_context_ref=query.requested_query_context_ref,
+    service_root = (
+        store.root.parent
+        / "semantic-epoch-handshake"
+        / hashlib.sha256(str(source_ref.artifact_id).encode("utf-8")).hexdigest()[:12]
     )
-    candidate = _persist_acquisition_semantic_candidate(
-        artifact_store=store,
-        statement=candidate_statement,
-    )
-    candidate_ref = candidate.candidate_ref
-    manifest_values = {
-        "schema_version": "polisyos.epoch.semantic-manifest.v1",
-        "scope_identity": query.scope_identity.model_dump(mode="json"),
-        "authority_purpose": query.authority_purpose,
-        "valid_effect_coordinate_ref": query.valid_effect_coordinate_ref,
-        "visibility_knowledge_cutoff_ref": query.visibility_knowledge_cutoff_ref,
-        "purpose_admission_cutoff_ref": query.purpose_admission_cutoff_ref,
-        "requested_query_context_ref": query.requested_query_context_ref,
-        "boundary_registry_content_hash": epoch._sha256(b"test-registry"),
-        "facet_registry_content_hash": epoch._sha256(b"test-facets"),
-        "boundary_denominator_hash": epoch._sha256(b"test-boundary"),
-        "facet_denominator_hash": epoch._sha256(b"test-facet"),
-        "boundary_semantic_hashes": [],
-        "facet_semantic_hashes": [],
-        "predecessor_refs": [],
-    }
-    manifest_hash = epoch._model_hash(
-        epoch._MANIFEST_PREFIX,
-        manifest_values,
-    )
-    semantic_manifest = epoch.SemanticEpochManifest(
-        **manifest_values,
-        manifest_content_hash=manifest_hash,
-        epoch_ref=epoch._sha256(
-            epoch._EPOCH_PREFIX,
-            manifest_hash.encode(),
-        ),
-    )
-    semantic_manifest_ref, _ = epoch._persist_model(
+    service, overlay, _history = _build_acquisition_epoch_fixture_service(
         store=store,
-        value=semantic_manifest,
-        kind="epoch.semantic_manifest",
+        authority=authority,
+        root=service_root,
     )
-    boundary_receipt_ref = put(
-        b"boundary-denominator",
-        kind="epoch.boundary_denominator_receipt",
-    )
-    facet_receipt_ref = put(
-        b"facet-denominator",
-        kind="epoch.facet_denominator_receipt",
-    )
-    stamp = epoch_contract.SemanticEpochStamp(
-        epoch_ref=semantic_manifest.epoch_ref,
-        semantic_manifest_ref=semantic_manifest_ref,
-        semantic_manifest_hash=semantic_manifest.manifest_content_hash,
-        boundary_denominator_receipt_ref=boundary_receipt_ref,
-        boundary_denominator_receipt_hash=epoch._sha256(b"boundary-denominator"),
-        facet_denominator_receipt_ref=facet_receipt_ref,
-        facet_denominator_receipt_hash=epoch._sha256(b"facet-denominator"),
-        requested_query_context_ref=context_ref,
-        authority_purpose=query.authority_purpose,
-        valid_effect_coordinate_ref=query.valid_effect_coordinate_ref,
-        visibility_knowledge_cutoff_ref=query.visibility_knowledge_cutoff_ref,
-        purpose_admission_cutoff_ref=query.purpose_admission_cutoff_ref,
-        predicate_provenance_class="independently_reconciled",
-    )
-    bindings = (
-        epoch.PreparedBoundaryCandidateBinding(
-            registration_id="n13b-acquisition-native-history",
-            candidate_refs=(candidate_ref,),
-        ),
-    )
-    statement = {
-        "query": query,
-        "stamp": stamp,
-        "boundary_candidate_refs": (candidate_ref,),
-        "boundary_candidates_by_registration": bindings,
-        "owner_denominator_receipt_refs": (),
-        "status": "prepared",
-    }
-    canonical = epoch_contract.canonical_epoch_bytes(statement)
-    prepared_ref = put(
-        len(canonical).to_bytes(8, "big") + canonical,
-        kind="epoch.prepared",
-        canon=epoch_contract.epoch_canon_info(),
-    )
-    prepared = epoch.PreparedSemanticEpoch(
-        prepared_epoch_ref=prepared_ref,
-        prepared_content_hash=epoch._model_hash(
-            b"polisyos.epoch.prepared.v1\0",
-            statement,
-        ),
-        **statement,
-    )
+    try:
+        native_query = service.acquisition_owner_query(query=query)
+        candidate_statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
+            source_record_ref=source_ref,
+            source_record_content_hash=str(source_ref.artifact_id),
+            scope_identity_ref=native_query.scope_identity_ref,
+            authority_purpose=native_query.authority_purpose,
+            valid_effect_coordinate_ref=native_query.valid_effect_coordinate_ref,
+            visibility_knowledge_cutoff_ref=native_query.visibility_knowledge_cutoff_ref,
+            purpose_admission_cutoff_ref=native_query.purpose_admission_cutoff_ref,
+            requested_query_context_ref=native_query.requested_query_context_ref,
+        )
+        candidate = _persist_acquisition_semantic_candidate(
+            artifact_store=store,
+            statement=candidate_statement,
+        )
+        prepared = service.prepare_acquisition_candidate(
+            query=query,
+            candidate_ref=candidate.candidate_ref,
+        )
+    finally:
+        overlay.close()
     return candidate, prepared
 
 
@@ -1132,6 +1133,7 @@ def _fixture(
     boundary_candidate, prepared_epoch = _semantic_handshake(
         store,
         source_ref=artifact,
+        authority=authority,
     )
     passport = build_admission_passport(
         epoch_id=1,
@@ -1159,66 +1161,10 @@ def _real_epoch_scenario(tmp_path: Path, *, epoch_id: int = 1) -> SimpleNamespac
         store,
     )
     query = fixture_prepared.query
-    overlay = CatalogAcquisitionOverlay(
-        authority.baseline_path,
-        tmp_path / "acquisition-overlay.duckdb",
-    )
-    overlay.initialize()
-    facet_raw = epoch_contract.canonical_epoch_bytes({"semantic_value": "catalog-semantics"})
-    facet_ref = store.put_bytes(
-        facet_raw,
-        ArtifactWriteOptions(
-            kind="epoch.semantic_facet_source.v1",
-            media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
-        ),
-    )
-    history = FileSemanticEpochHistoryRepository(
-        root=tmp_path / "history",
-        artifacts=store,
-    )
-    service = epoch.SemanticEpochService(
-        boundary_registry=epoch.build_boundary_registry(
-            (
-                epoch.EpochBoundarySourceRegistration(
-                    registration_id="n13b-acquisition-native-history",
-                    owner_kind="catalog_acquisition",
-                    owner_source_ref=epoch._sha256(b"test-catalog-owner"),
-                    opaque_scope_binding_ref=epoch._sha256(b"test-catalog-scope"),
-                ),
-            )
-        ),
-        boundary_adapters={
-            "catalog_acquisition": (
-                epoch.CatalogAcquisitionEpochBoundaryOwnerAdapter(
-                    owner=overlay,
-                    artifacts=store,
-                )
-            )
-        },
-        facet_registry=epoch.build_facet_registry(
-            (
-                epoch.SemanticFacetRegistration(
-                    facet_id="catalog-semantics",
-                    source_binding_ref=str(facet_ref.artifact_id),
-                ),
-            )
-        ),
-        facet_provider=epoch.ArtifactSemanticFacetProvider(
-            artifacts=store,
-            source_refs={str(facet_ref.artifact_id): facet_ref},
-        ),
-        history=history,
-        artifact_store=store,
-        qualification_consumer=(
-            chronology_qualification.QualificationConsumer.from_unallocated_policy_authority()
-        ),
-        chronology_adapter=(
-            epoch.SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
-                history=history,
-                artifacts=store,
-            )
-        ),
+    service, overlay, history = _build_acquisition_epoch_fixture_service(
+        store=store,
+        authority=authority,
+        root=tmp_path,
     )
     native_query = service.acquisition_owner_query(query=query)
     candidate_statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
@@ -1401,7 +1347,11 @@ def make_native_multivariable_active_projections(
                 _profile(), max_response_bytes=65_536, max_decompressed_bytes=65_536
             ),
         )
-        candidate0, prepared0 = _semantic_handshake(store, source_ref=source_ref)
+        candidate0, prepared0 = _semantic_handshake(
+            store,
+            source_ref=source_ref,
+            authority=authority,
+        )
         native_query = service.acquisition_owner_query(query=prepared0.query)
         statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
             source_record_ref=candidate0.statement.source_record_ref,

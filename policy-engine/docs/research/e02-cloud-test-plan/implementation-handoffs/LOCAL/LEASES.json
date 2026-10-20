@@ -32456,5 +32456,290 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "readonly-cas-r7-helper-r3-dc626-20261020": {
+    "slice_base": "dc62669006b58096f78e4bd0895c2b20fc337f15",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/_helpers/semantic_epoch_native.py": {
+        "git_base_preimage_sha256": "ce5fc5be9a9ab281c793be64a8f4f13b284091f7c9bccda8459865a6c865a1d5",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/postimages/policy-engine/tests/_helpers/semantic_epoch_native.py",
+        "postimage_sha256": "bed021cd16a0af95e0dc3afcc7d0fc3a8067ce38aa2f9eb3e83e29952df97cde",
+        "preimage_sha256": "ce5fc5be9a9ab281c793be64a8f4f13b284091f7c9bccda8459865a6c865a1d5",
+        "role": "test fixture repair only; canonical product-source behavior unchanged"
+      },
+      "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py": {
+        "git_base_preimage_sha256": "ca0da5d3843a434fd3238b7c88fa21a931d0d4fb8fc50c14c8fca8a31c4259f1",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/postimages/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py",
+        "postimage_sha256": "f6cb3a19b2eb52eb79eeb6fd7a7f19119d6848580b1869c4073b64e27174f5a0",
+        "preimage_sha256": "ca0da5d3843a434fd3238b7c88fa21a931d0d4fb8fc50c14c8fca8a31c4259f1",
+        "role": "test fixture repair only; canonical product-source behavior unchanged"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py": {
+        "git_base_preimage_sha256": "c7bcd3589fefe1837f4429d80184fcaff65fae6bae47218557be4041b2e96476",
+        "operation": "update",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/postimages/policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+        "postimage_sha256": "19c6a8d82081cc00dbcc28e57bf373c937da4cb1f1e13fbf24302ed9ad5544e4",
+        "preimage_sha256": "c7bcd3589fefe1837f4429d80184fcaff65fae6bae47218557be4041b2e96476",
+        "role": "test fixture repair only; canonical product-source behavior unchanged"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-helper-r3-test-companions-20261020-r1/source-application.json",
+      "sha256": "17d76a589bca480928487a531fe166b937a630f74cef75901a7a8f7e6d6fb47a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-helper-r3-test-companions-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/manifest.json",
+        "sha256": "8db8d0bfd80cdf4045afad036b96ef72a925c16577f5a6ee40ef2eb6ac2c21d0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/patch.diff",
+        "sha256": "467e69624d0439433fa6589f6de6b0d683f7889e0be954bdef46cd7c9bdd51e5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-can-r7-companion-static-review-4f523353-20261020/review.json",
+        "sha256": "90a2203e5f1786e192a3c81c2310364a38c4f6ffe47d6e7c333089c552eeea86"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/census.py",
+        "sha256": "519e98a2c16034de24269b8afd659a13f5743b624bcfc93349c5bf9e10252a58"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/census.json",
+        "sha256": "1ba071e4139bf04a4dfeb2cf623de98c2a903654f330d3c08f61e3c6422f3e78"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/classification.md",
+        "sha256": "719178ceeecdab6d835fd6364b408a71b011ca6bb7f29078a0c61e1eb9ea624b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/apply-check.json",
+        "sha256": "51d2c0a0d7665619b46e4b802c2fcee368dfe88a3d75cb98dea17e5d9797919e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/ruff-and-parse-receipts.json",
+        "sha256": "85779504185ff877c4121d7e44d05489d0f4333749cbca460e550b74840019ca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/guard.py",
+        "sha256": "3ae5b88ca68765294d18cb0cea45d799002c9d68d2ff16ef82cce1c7b8bd996b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/manifest-r2.json",
+        "sha256": "520b2bcfc680fb4fa926686852567a216f8e5ae15a1b40066db98be6eff5e19e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/tests/test_guard.py",
+        "sha256": "9ce52e41edd612b96f567b70efe6e573f029624cd32b9fe165b2028d86187fa2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/plan-r2.json",
+        "sha256": "76007f9b6c8892bdf88e2f7c2a265c7757a6350a934d32fe4c7819e80f36a5d2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/partition-preparation-r2.json",
+        "sha256": "fa50b2423a7533a96a628c48c536f887e6b705b3b4be7c5f5eef85132e37d132"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/partition-reconciliation-r2.json",
+        "sha256": "a7844ae0db65d5893e7a4d6d14a12b63fcad432c73a13d6f0a07ac00cad051a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-root-review-20261020-r1/review.json",
+        "sha256": "81b582c2c4541ec3d46569d4065e915b7139a10d71e3a47d66ab2b96a8cefb5c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r1-independent-review-20261020/review.json",
+        "sha256": "c6e0d0f2f15938fb5b96ba41b571ae8188d134cde35a4252315ca50ae4f6f639"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r1-independent-review-20261020/review-amendment-r1.json",
+        "sha256": "490f08c77bf7d09861b92f58517e8db12d50236aa84aeefd97767a69295a9cc2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-test-mechanism-preservation-r2-20261020/apply-and-commit.py",
+        "sha256": "76ac948ddb9505510f90a23db8c64a4c6d9cfc9523ab8fa5346e4e6841676944"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-wrapper-independent-review-r2-20261020/review.json",
+        "sha256": "bfc68d27e8a081d8c7929a3774b95e9491214d8f4dcc16591f594a153f13f9b7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-second-adoption-partition-r4-order-independent-20261020/guard.py",
+        "sha256": "26eb352798f22bd4b512d0965bed1607d0e6cdbaa77112d281921071eeab955b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-second-adoption-partition-r4-order-independent-20261020/tests/test_guard.py",
+        "sha256": "5c098f2f43c89357dd0f1c9af800c92755ee176b8db006da6b448f286c91ea51"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-second-adoption-partition-r4-order-independent-20261020/README.md",
+        "sha256": "088b17e016c34e59b62018b2cd1cf2135a8a35279dee382d2cb402b69994f955"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-second-adoption-partition-r4-order-independent-20261020/manifest-v1.json",
+        "sha256": "1346ab0437c4e496a85470b987ab1da237e9b3b050481daa723a5324fa09fcd7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-single-owned-second-adoption-partition-r3-independent-review-20261020/review.json",
+        "sha256": "b02009c1d24af296a5e4ab47d741cf1136fd72d9b531a52b8fdb0bc9f9612e38"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n7-first-composed-acquisition-reissue-20261020-r1/implementation-readback-preservation-r2.json",
+        "sha256": "51fee4e142f35d7b3d93e40653b3ad7ef477e93fd47eed30298f2fc8a3fe0edb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-r10v2-relative-finite-facade-composition-20261020-r2/plan.json",
+        "sha256": "5746e9fd060e60bbd89b7e39f4deb18679c3fe138e1a4696824cee95e04e1a6d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-r10v2-relative-finite-facade-composition-20261020-r2/implementation-readback-preservation-r2.json",
+        "sha256": "9d4a7727db49868aed77ab682d4e6c3254080356ed92d6f55834933a35f00851"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-r10v2-relative-finite-facade-composition-20261020-r2/source-application.json",
+        "sha256": "c1b807fd8c778c51c44ca2b514ad5d353fdf0a49026f761460fc3864bece706b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-r10v2-relative-finite-facade-composition-20261020-r2/commit-request-preservation-r2.json",
+        "sha256": "7346849423ebf9e1c723b85096a23b9c064191b9ee3a6d650493e32f9187b044"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-la021-r4-commit-only-immutable-input-correction-20261020-r2/plan.json",
+        "sha256": "d5c21ea219157a0e4f40aa9f3039fc48bb9a6984d8ead4cfe4588b986e656e37"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-la021-r4-commit-only-immutable-input-correction-20261020-r2/implementation-readback-preservation-r2.json",
+        "sha256": "13b7931d531ba866fcd3925438a3f2be53a6111c96ac34207702927017e4cdeb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-la021-r4-commit-only-immutable-input-correction-20261020-r2/source-application.json",
+        "sha256": "1a15590224dd867312d0d73169d0b8aac4f121e54e70315b81f1689e25890081"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-la021-r4-commit-only-immutable-input-correction-20261020-r2/commit-request-preservation-r2.json",
+        "sha256": "1fcf3e8b47f587c642a5ae012c6030ec93f3ca555d20a1f026edaf88c4ebc840"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "sha256": "d6a5afe3b11388eb540cd9aa70f865e3c841559040d689537f87278bb638230c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "sha256": "1cbb8686682a46af250ea60a56679c17b946a7060ea545fee7c54bdd86d592ff"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "sha256": "a8a878fdffed0084f5b07e23cc405fa0fad553d0478eafb3bc4f6740f750e4f1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+        "sha256": "4bb061b74455402a5bd130b29fd7594a579a3b3a74bac0a55c3def9df0542531"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/postimages/policy-engine/tests/_helpers/semantic_epoch_native.py",
+        "sha256": "bed021cd16a0af95e0dc3afcc7d0fc3a8067ce38aa2f9eb3e83e29952df97cde"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/postimages/policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py",
+        "sha256": "f6cb3a19b2eb52eb79eeb6fd7a7f19119d6848580b1869c4073b64e27174f5a0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-helper-prepare-companion-b86-20261020-r3/postimages/policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+        "sha256": "19c6a8d82081cc00dbcc28e57bf373c937da4cb1f1e13fbf24302ed9ad5544e4"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+      "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+    },
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/partition-preparation-r2.json",
+        "sha256": "fa50b2423a7533a96a628c48c536f887e6b705b3b4be7c5f5eef85132e37d132"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-disjoint-source-after-first-owned-adoption-r2-20261020/partition-reconciliation-r2.json",
+        "sha256": "a7844ae0db65d5893e7a4d6d14a12b63fcad432c73a13d6f0a07ac00cad051a3"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "classification": "Three prepared-artifact fixture failures are one shared input-closure class repaired at the common helper. The typed optional L5 selected-root context is a distinct fixture/context class.",
+      "patterns": [
+        "P12",
+        "P29",
+        "P31",
+        "P32",
+        "P35",
+        "P40"
+      ],
+      "repair": "Reuse the source-owned SemanticEpochService preparation, owner query, persisted CAS readback, and selected-profile result across current callsites. Keep missing typed L5 context not_established; repo-root mismatch and loader refusal fail closed."
+    },
+    "bounded_proof": {
+      "candidate_review": "Independent static review GO for bounded test-only adoption; production verifier/guard/source is unchanged.",
+      "negative_boundary": "No fake production L5 positive: absent typed context stays not established; wrong-root and loader-refusal controls fail closed.",
+      "owner_semantics": "The candidate uses the real SemanticEpochService preparation, owner query, persisted CAS readback, and selected-profile result; all current caller routes pass their owning CanonicalAcquisitionAuthority.",
+      "preservation": "Authentic N7 readback consumes the first original row; the exact remaining funnel test is preserved, and all three candidate targets are disjoint.",
+      "source_closure": "All three target current bytes and exact dc626 HEAD blobs equal candidate preimages; each candidate postimage matches the manifest SHA-256."
+    },
+    "limitations": [
+      "Test-fixture repair only; no product-source, public API, or authority semantics change.",
+      "Whole candidate test-module replay is UNRUN after patch; author static Ruff/AST checks and bounded reviewer GO do not replace runtime.",
+      "Production L5 positive is UNRUN/not_established until an actual context-bound CatalogServingSourcePaths is supplied; synthetic controlled fixture does not establish external provenance/currentness or authority.",
+      "Whole lifecycle replay, genuine producer verification, GY acceptance/publication, currentness, and formal closure are not claimed.",
+      "Recheck HEAD/tree and all mutable preconditions immediately before any later root adoption."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After root adoption, run the complete canonical test modules tests/unit/runtime/quality/test_semantic_epoch.py and tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py with full deciding outputs. Separately run the named production L5 positive only when a genuine context-bound CatalogServingSourcePaths exists; absent context is not a pass.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

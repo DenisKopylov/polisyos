@@ -83,14 +83,16 @@ from tests._helpers.acquisition_production import (
 from tests._helpers.semantic_epoch_native import _semantic_handshake
 
 
-def _live_semantic_handshake(store: FileSystemCAS, evidence: object):
+def _live_semantic_handshake(
+    store: FileSystemCAS, evidence: object, *, authority: CanonicalAcquisitionAuthority
+):
     manifest = store.get_manifest(evidence.normalized_data_artifact_id)
     source_ref = ArtifactRef(
         artifact_id=manifest.artifact_id,
         kind=manifest.kind,
         media_type=manifest.media_type,
     )
-    return _semantic_handshake(store, source_ref=source_ref)
+    return _semantic_handshake(store, source_ref=source_ref, authority=authority)
 
 
 def _put_epoch_evidence(
@@ -1129,7 +1131,9 @@ def test_live_passport_measures_normalized_snapshot_and_retains_raw_carrier(
     tmp_path: Path,
 ) -> None:
     resolver, _, store, evidence, _, _ = _live_execution_fixture(tmp_path)
-    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(
+        store, evidence, authority=resolver
+    )
 
     passport = build_admission_passport(
         epoch_id=1,
@@ -1174,7 +1178,9 @@ def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
     tmp_path: Path,
 ) -> None:
     resolver, _, store, evidence, _, _ = _live_execution_fixture(tmp_path)
-    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(
+        store, evidence, authority=resolver
+    )
     passport = build_admission_passport(
         epoch_id=1,
         raw_evidence_ref=evidence.raw_evidence_ref,
@@ -1213,7 +1219,9 @@ def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
 
 def test_live_overlay_rejects_mutated_execution_receipt(tmp_path: Path) -> None:
     resolver, _, store, evidence, receipt, _ = _live_execution_fixture(tmp_path)
-    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(
+        store, evidence, authority=resolver
+    )
     passport = build_admission_passport(
         epoch_id=1,
         raw_evidence_ref=evidence.raw_evidence_ref,
@@ -1538,7 +1546,9 @@ def test_live_passport_rejects_source_watermark_not_bound_to_raw_body(
     tmp_path: Path,
 ) -> None:
     resolver, _, store, evidence, _, _ = _live_execution_fixture(tmp_path)
-    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(
+        store, evidence, authority=resolver
+    )
     passport = build_admission_passport(
         epoch_id=1,
         raw_evidence_ref=evidence.raw_evidence_ref,

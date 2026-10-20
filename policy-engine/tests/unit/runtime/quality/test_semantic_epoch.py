@@ -1797,15 +1797,36 @@ def test_registered_codec_keeps_identity_tokens_and_unresolved_refs_distinct(
     assert epoch._resolve_selected_reference_graph(store, {"snapshot": root_ref}) is None
 
 
-def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(
+def _write_controlled_l5_data_owner(root: Path) -> None:
+    """Write minimal non-production data-owner registries for the L5 CAS witness."""
+    root.mkdir(parents=True, exist_ok=True)
+    paths = substrate_registry.default_substrate_catalog_paths(
+        Path(__file__).resolve().parents[4],
+        source_owner_root=root,
+    )
+    payloads = {
+        paths.root_manifest_path: {"fixture_owner": "controlled-test-source-root-v1"},
+        paths.measurement_registry_path: {
+            "coverage_rules": {},
+            "trust_tiers": {},
+            "proxy_mappings": {},
+        },
+        paths.identification_mode_registry_path: {},
+        paths.schema_regime_registry_path: {"regimes": {}},
+    }
+    for path, value in payloads.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+
+
+def _assert_l5_owner_rows_and_registry_files_round_trip_through_cas(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    owner: substrate_registry.L5CatalogAuthority,
 ) -> None:
-    repo_root = Path(__file__).resolve().parents[4]
-    owner = substrate_registry.load_l5_catalog_authority(
-        substrate_registry.default_substrate_catalog_paths(repo_root),
-        repo_root=repo_root,
-    )
     receipt, projection = substrate_registry.resolve_l5_schema_regime_projection(
         owner,
         scope_identity_ref=owner.schema_regime_scope_relations[0].scope_identity_refs[0],
@@ -1905,6 +1926,72 @@ def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(
     )
     with pytest.raises(ValueError, match="no registered content resolver"):
         epoch._load_owner_projection_mapping(store, relation_ref)
+
+
+def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise real production L5 only under its bound source context."""
+    repo_root = Path(__file__).resolve().parents[4]
+    source = substrate_registry.current_catalog_serving_source()
+    if source is None:
+        pytest.skip(
+            "no context-bound CatalogServingSourcePaths was supplied; "
+            "the controlled source-owner witness is separate"
+        )
+    if source.repo_root != repo_root.resolve():
+        raise substrate_registry.SubstrateRegistryError(
+            "catalog_source_repo_root_mismatch",
+            f"selected {source.repo_root}, test code root {repo_root.resolve()}",
+        )
+    owner = substrate_registry.load_l5_catalog_authority(
+        source.substrate_paths,
+        repo_root=repo_root,
+    )
+    _assert_l5_owner_rows_and_registry_files_round_trip_through_cas(
+        tmp_path,
+        monkeypatch,
+        owner,
+    )
+
+
+def test_controlled_l5_owner_rows_and_registry_files_round_trip_through_cas(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify exact owner bytes against a bounded temporary source-root fixture."""
+    repo_root = Path(__file__).resolve().parents[4]
+    source_owner_root = tmp_path / "controlled-l5-source-owner"
+    _write_controlled_l5_data_owner(source_owner_root)
+    paths = substrate_registry.default_substrate_catalog_paths(
+        repo_root,
+        source_owner_root=source_owner_root,
+    )
+    owner = substrate_registry.load_l5_catalog_authority(
+        paths,
+        repo_root=repo_root,
+        source_owner_root=source_owner_root,
+    )
+    data_owner_files = (
+        (owner.measurement_registry_ref, paths.measurement_registry_path),
+        (owner.identification_mode_registry_ref, paths.identification_mode_registry_path),
+        (owner.schema_regime_registry_ref, paths.schema_regime_registry_path),
+    )
+    for owner_ref, source_path in data_owner_files:
+        source_uri = owner_ref.split("#", 1)[0]
+        assert source_uri.startswith("repo://")
+        relative_source = Path(source_uri.removeprefix("repo://"))
+        assert not relative_source.is_absolute()
+        selected_source = (source_owner_root / relative_source).resolve(strict=True)
+        selected_source.relative_to(source_owner_root.resolve(strict=True))
+        assert selected_source == source_path.resolve(strict=True)
+        assert selected_source.read_bytes() == source_path.read_bytes()
+    _assert_l5_owner_rows_and_registry_files_round_trip_through_cas(
+        tmp_path,
+        monkeypatch,
+        owner,
+    )
 
 
 def test_l5_owner_row_role_is_checked_before_cas_or_projection(tmp_path: Path) -> None:
@@ -2182,7 +2269,9 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
     prior_snapshot = DataSnapshot.model_validate(
         from_canonical_bytes(store.get_bytes(live_evidence.data_snapshot_ref))
     )
-    candidate, prepared = _semantic_handshake(store, source_ref=prior_snapshot.data_ref)
+    candidate, prepared = _semantic_handshake(
+        store, source_ref=prior_snapshot.data_ref, authority=authority
+    )
 
     produced_snapshot_ref = asyncio.run(
         _build_snapshot_from_evidence_async(

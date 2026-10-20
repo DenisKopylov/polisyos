@@ -45160,5 +45160,71 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-can-profile-law-g-followup-receipt-adoption-20261021-r1": {
+    "slice_base": "6ebc5f3212d5376b8ac17fab89593ec123b3e7e9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-current-witness-g-followup-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-law-current-witness-g-followup-20261021-r2/postimage.json",
+        "postimage_sha256": "b48157c9c8cfa6dcbba7f0312044d004776e6c55bd2a74c88848b036629dd282",
+        "bytes": 10107
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-profile-law-g-followup-receipt-adoption-20261021-r1/source-application.json",
+      "sha256": "5a16243036cbab055ced465e7ca771b4f7c92a35d89ecd8a7aef48fb19ee7ec9"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-profile-law-g-followup-receipt-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-law-current-witness-g-followup-20261021-r1/postimage.json",
+        "sha256": "f7b5b8e782a12dc32f6a1203bd081e48ad67b8f3591d9aad0685b20e09e22474"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-law-current-witness-g-followup-20261021-r2/postimage.json",
+        "sha256": "b48157c9c8cfa6dcbba7f0312044d004776e6c55bd2a74c88848b036629dd282"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-law-current-witness-g-followup-20261021-r2/delta.json",
+        "sha256": "d8a0dbadcc202d3bbe984dfed9e8182d4b5ede00d53a11fd8bd45da83052bd8b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-law-current-witness-g-followup-20261021-r2/manifest.json",
+        "sha256": "4899d2938265edff71c7a5d80771a2c5771d43d7ed3f21ddcf70dcbd79b61c21"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-can-profile-law-current-witness-review-20261021-r1/review.json",
+        "sha256": "9afe7c58fda3e35628cc4dd5ddc365b531d67e5639c1ed9ab8333791f302ca4b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-can-profile-law-current-witness-r2-review-20261021-r1/review.json",
+        "sha256": "9de1cc8bdb8357d67b67fc9118850a18f54254e0aca7ae023a8cfe962f0ae579"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Retain the unresolved LA-021-1 law choice with exact historical source-bound six-whole and retained-five-case witnesses; preparation-time comparison is explicit and not a current-composition or G-acceptance claim.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Receipt-only; no source law choice selected, no CAS rewrite, no producer-attested or live production currentness claim.",
+      "The author recommends A; G adjudicates law semantics and code acceptance.",
+      "Original evidence is bound to ee2 and comparison to c1, not this later receipt commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "G selects or refines LA-021-1 law alternative; author implements selected contract and runs affected composed readers at a new source/input/profile freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

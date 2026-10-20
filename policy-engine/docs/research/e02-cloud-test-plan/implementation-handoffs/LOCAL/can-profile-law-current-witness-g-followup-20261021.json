@@ -1,0 +1,181 @@
+{
+ "G_choice": {
+  "A_reuse_recommended": "Share byte/profile/hash mechanics; keep strict contextual Core/IR allowlists. No universal tag promise or CAS/schema/ID/API migration; unsupported tags refuse.",
+  "B_extend_if_universal_law": "Define explicit tag-family field or new identity first; then add parser/adapter/writer/reader/consumer and golden compatibility tests. Preserve old bytes/IDs; name migration owner.",
+  "build": "No new tag registry, negotiation, or authority subsystem without owner/need.",
+  "consolidate": "Common mechanics only; law remains open.",
+  "falsifier": "Core persists/decodes array_digest; fresh IR refuses it under 0.2.0. Remove IR contextual rejection with identity intact: acceptance falsifies reuse behavior. For B, wrong-family tags refuse and old bytes/IDs stay stable.",
+  "recommendation": "A, not ratified.",
+  "status_authority_time_migration": {
+   "history_prevalence/producer_attestation": "not_established",
+   "identity_law": "decision_pending",
+   "issuer/currentness/date": "none supplied or inferred",
+   "migration": "No CAS rewrite/readdress. Future family change requires named store/view, bytes/digest, audience/time role, producer/rule provenance.",
+   "whole_LA021": "verification_missing"
+  }
+ },
+ "authority": {
+  "G_acceptance": false,
+  "author": "local E02 candidate",
+  "closure_ids": [],
+  "code_acceptance": false,
+  "formal_closure_ids": [],
+  "publication": false
+ },
+ "b7_crosswalk": {
+  "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+  "docs": {
+   "AD01": {
+    "file": "01-method-output-metric-unit.md",
+    "sha256": "480e1b4052ed58486b7092d52a7f0c8885497b8008f708205cfb7258b0947947"
+   },
+   "AD02": {
+    "file": "02-shared-compute-admission.md",
+    "sha256": "17623220c5dbde2ae6de69a447dd64319e711e25f27c1e13cee06335101d5551"
+   },
+   "AD03": {
+    "file": "03-observational-http-input.md",
+    "sha256": "af03053228ca0f755b9e03e77c137f1c8504874d9e76b1dc96c5f71e695c4687"
+   },
+   "final": {
+    "file": "06-final-decisions-and-solo-review.md",
+    "sha256": "4eb1e7e966194f424d0cc1ab57e91fd664a1534367bf776d07895741b5d8939b"
+   },
+   "order": {
+    "file": "04-implementation-and-verification.md",
+    "sha256": "3e011756d4fee22a8f59ba57ed89fe15c74b7ed3755b42db4c3725bd0f635de1"
+   }
+  },
+  "docs_base": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/",
+  "note": "AD01–03/§04 select metric provenance, shared admission, and typed observational input. AD03 separates canon profile from schema/version; none decides LA-021 Core/IR tag-law meaning."
+ },
+ "next_checks": {
+  "G": "Choose A or B for LA-021-1 in Git.",
+  "external": "Profileless prevalence needs named owner/inventory; issuer/event facts need actual custodian.",
+  "source": "Independent review and 135-input replay at new freeze; ee2 does not transfer by P41."
+ },
+ "question": {
+  "ask": "Does polisyos.canon.json@0.2.0 promise one Core/IR accepted-tag grammar, or only shared byte/profile/hash mechanics with strict facade-specific tag policies?",
+  "decision": "LA-021-1",
+  "finding": "LA-021",
+  "new_questions": [],
+  "prior_proposal": {
+   "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+   "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef"
+  },
+  "reuses_existing": true,
+  "revision": "LA-021-1-task-binding-corrected-r1-20261017",
+  "screen_note": "Reuses the existing open LA-021-1 question from the completed full-ID screen; no closure proposed."
+ },
+ "schema": "policyos.e02.la021_current_witness_g_followup.v1",
+ "source_and_run_scope": {
+  "CAN_origins_equal_at_preparation": 13,
+  "backend": "Local .venv Python + FileSystemCAS; no production input/store or external scientific backend.",
+  "candidate_at_preparation": {
+   "head": "c1bdda3576d81bb9b5ccd55e7e2df0a1a4738a83",
+   "tree": "10f714d54a2518f68e3622e271b4a1b271be027d"
+  },
+  "ee2_runtime_origin_capture": {
+   "module_records": 1763,
+   "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-six-whole-ee2a5d9e-20261021-r1/actual/origins.json",
+   "sha256": "ef300f680548f15c71680f0a731433e59f69c00f6a1cd258ad585eeaf09f875b"
+  },
+  "profile": "polisyos.canon.json@0.2.0; separate from selected manifest profile digest and each facade allowlist.",
+  "scope_limit": "199 PASS is exact for ee2. At the preparation snapshot c1bdda3576d81bb9b5ccd55e7e2df0a1a4738a83/tree10f714d54a2518f68e3622e271b4a1b271be027d, six selectors and 13 CAN origins were byte-equal, while 4/135 pinned inputs differed. These are preparation-time comparisons, not current HEAD. No global/current replay or P41-inherited claim; rebind and replay.",
+  "suite_request": {
+   "inputs": 135,
+   "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-six-whole-ee2a5d9e-20261021-r1/request.json",
+   "pins_changed": [
+    {
+     "current_sha256": "12496b1e99c4d854156291d454c0209a3dd405476d338ad0eeaf400a61567f69",
+     "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py"
+    },
+    {
+     "current_sha256": "87cb943dca61aaadaa9cd4fd68f0ba054ac3a5647de9492b2bfe7fe641cac4a7",
+     "path": "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py"
+    },
+    {
+     "current_sha256": "8d71b3b73d7e9f7f034b169f7459a0ee73579d335493782a7266a26ef11ee05d",
+     "path": "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py"
+    },
+    {
+     "current_sha256": "bc94ef47b3697359ce7b484c15f4d54d59d818d408843b6d900dfc46f0452af8",
+     "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_protocols.py"
+    }
+   ],
+   "pins_changed_note": "Old digests are bound in the cited request.",
+   "pins_matching_at_preparation": 131,
+   "selectors": 6,
+   "sha256": "92d2ad75e1e28373a63ea9fa0a3c19f0282dd1e3ff1ea096b769f83dd72b6296"
+  },
+  "tested_frame": {
+   "branch": "codex/e02-unified-local-20261009",
+   "head": "ee2a5d9e508060c6348ce3e1a02511a99a5cf177",
+   "tree": "01c92c1674064b8c3d38f6a020edb6b529c43bd5"
+  }
+ },
+ "status": "prepared_for_G_review",
+ "tracked_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-current-witness-g-followup-20261021.json",
+ "witnesses": {
+  "retained_probe": {
+   "CAS_artifacts": [
+    "sha256:6d4fab050da31fd0db7c3c2f84aec72d8a8f99b4128814faa5179dfc881a91fb",
+    "sha256:734ef53f9bc50799cbb97e007bf1f4a12059860a8bae1853b905fe026e2e7ff1",
+    "sha256:45ad93d73171ea0139bdcfebb9eb613c2a5ae9aa299bf98faa4592b2446e1d87",
+    "sha256:600bfa81b1561fa6281505a8630327ec94da208976f36c142c781b0b46a95725"
+   ],
+   "CAS_count": 4,
+   "CAS_inventory": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-la021-retained-probe-postrun-20261021-r1/postrun-reconciliation.json",
+    "sha256": "d58463eeaf448f39fa19e48f207497329633f6ffe6a4825ffb70ac861ed524bd"
+   },
+   "CAS_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la021-retained-probe-ee2a5d9e-20261021-r1/actual/state/cas",
+   "chain": "IR writer → Core FileSystemCAS → fresh Core/IR readers; suite includes HTTP refusal.",
+   "checks": "64/64; 5 cases; 13/13 explicit origins",
+   "independent_reconciliation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-la021-retained-probe-postrun-20261021-r1/postrun-reconciliation.json",
+    "sha256": "d58463eeaf448f39fa19e48f207497329633f6ffe6a4825ffb70ac861ed524bd"
+   },
+   "limitations": "Local only; no production history prevalence, live currentness, issuer, custody, or producer-event attestation.",
+   "observed": "Mapping sample verified (Decimal/date); Core array_digest persisted and IR refused; raw float mismatch refused by both; profileless defaults and authority access refused; opt-in is candidate-only.",
+   "profileless_caution": "ArtifactRef has a nonnull manifest_profile_sha256 while raw manifest canon is absent; ref digest is not proof that canon exists.",
+   "request": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la021-retained-probe-ee2a5d9e-20261021-r1/request.json",
+    "sha256": "e78d5e3aa33b43d2d8da9b71a9e2f80688cd88575ef83b09df91523573386377"
+   },
+   "stdout": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la021-retained-probe-ee2a5d9e-20261021-r1/actual/probe.stdout.json",
+    "sha256": "0fa2003f9f104152e0b47a431031925867a7a1fe36a3a0549847467043486375"
+   },
+   "verdict": "PASS_EXPECTED_OBSERVATIONS_RECONCILED"
+  },
+  "whole_module_CAN": {
+   "G_acceptance": false,
+   "actual": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-six-whole-ee2a5d9e-20261021-r1/actual/result.json",
+    "sha256": "64d92d247109711ecb08f2ef9fd7c15c6749192315e23b8fe021e003d5ca0658"
+   },
+   "closure_ids": [],
+   "counts": "199/199 pass; 0 fail/error/skip.",
+   "full_12_field_Mapping_test": {
+    "node": "test_ir_adapter_mapping_write_options_preserve_every_core_option_field",
+    "passing_variants": [
+     "typed-options",
+     "mapping-of-models",
+     "mapping-of-plain-maps"
+    ],
+    "reports": {
+     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-six-whole-ee2a5d9e-20261021-r1/actual/cases.jsonl",
+     "sha256": "cc7c68f88f6dc3681de586d38766c0be408b9af47a4be0bfb22fce36bc20df5e"
+    },
+    "scope_note": "The full option-field coverage is in this suite case; the probe sample checks kind/media_type/warnings only."
+   },
+   "independent": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-can-six-whole-reconciliation-20261021-r1/reconciliation.json",
+    "sha256": "5b7778d80408870e621dffa4ed01914c8d860a34961678cc36da38f4a9e2eafd"
+   },
+   "source_unchanged": true,
+   "verdict": "PASS_SCOPED_REPLAY"
+  }
+ }
+}

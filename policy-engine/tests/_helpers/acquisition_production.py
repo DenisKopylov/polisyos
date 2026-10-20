@@ -74,7 +74,10 @@ from polisyos.runtime.quality.acquisition_executor import (
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
 )
-from polisyos.runtime.quality.acquisition_planner import l1_variable_availability_requirement_gap
+from polisyos.runtime.quality.acquisition_planner import (
+    l1_variable_availability_requirement_gap,
+    validate_persisted_acquisition_planner_report,
+)
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
 from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
 from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
@@ -241,6 +244,9 @@ async def persist_wdi_route(
         parent_child_edges=(),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
+    # The custom factory bypasses the recursive controller's default leaf wiring.
+    # Bind these contract-test leaf controllers to the app CAS so N7 can persist
+    # the compiler and planner artifacts that the served route owner rereads.
     if revised_source:
 
         def cycle_controller_factory(_node_ref: str, _problem: object) -> GenerationCycleController:
@@ -248,6 +254,8 @@ async def persist_wdi_route(
                 generation_port=fixtures._SameCandidateNewBasisGenerator(),
                 grounding_port=_RevisedCycleWdiGrounding(),
                 value_port=_RevisedCycleWdiValuePort(),
+                authority_scope="contract_testing",
+                artifact_store=control._artifact_store,
                 repo_root=generation_cycle_repo_root,
             )
 
@@ -262,6 +270,8 @@ async def persist_wdi_route(
                     target_world_slots=("government.balance",)
                 ),
                 value_port=_WDIGap(),
+                authority_scope="contract_testing",
+                artifact_store=control._artifact_store,
                 repo_root=generation_cycle_repo_root,
             )
 
@@ -353,6 +363,34 @@ async def persist_wdi_route(
             }
             compiled = CompiledRecursiveGenerationCycleRun.model_validate(
                 {**payload, "content_hash": gy_content_hash(payload)}
+            )
+            route_cycles = [
+                cycle
+                for leaf in compiled.recursive_run.leaf_nodes
+                if leaf.cycle_run is not None
+                for cycle in leaf.cycle_run.cycles
+                if cycle.acquisition_routing_report is not None
+            ]
+            assert len(route_cycles) == 1, (
+                "the canonical N7 producer must emit one route report for this fixture"
+            )
+            source_cycle = route_cycles[0]
+            planner_ref = source_cycle.acquisition_routing_report_ref
+            planner_report = source_cycle.acquisition_routing_report
+            requirement = source_cycle.value_port.acquisition_requirement
+            assert planner_ref is not None
+            assert planner_report is not None
+            assert requirement is not None
+            report_issues = validate_persisted_acquisition_planner_report(
+                control._artifact_store,
+                planner_ref,
+                planner_report,
+                expected_scenario_id=compiled.design_problem.design_problem_id,
+                expected_compiled_requirement_ref=requirement.compiled_requirement_ref,
+            )
+            assert report_issues == (), (
+                "the N7 report and compiler basis must resolve from the application CAS",
+                report_issues,
             )
             compiled_artifact_ref = control._put_json_artifact_ref(
                 compiled.model_dump(mode="json"),

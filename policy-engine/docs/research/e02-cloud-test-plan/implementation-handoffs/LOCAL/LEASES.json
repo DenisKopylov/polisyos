@@ -40890,5 +40890,83 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-acquisition-costed-route-fixture-20261020-r1": {
+    "slice_base": "3db12aa6488c461c6473e094ab748a69d24a3c85",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/_helpers/acquisition_production.py": {
+        "operation": "update",
+        "preimage_sha256": "f02da5de7da8304f9460dbe84c1fcef32956714a393c6d47e044426651e9f0c2",
+        "postimage_sha256": "b7e0b33569eccc3c43baa777563a7ff6f7755db544bf2b260b390f013bb70841",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/postimage-acquisition_production.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py": {
+        "operation": "update",
+        "preimage_sha256": "49e49b45364ea681c40a5d25dfb6fb4080aceaf30f436777ce8fa86d5e2b9b1e",
+        "postimage_sha256": "95dd0dbcf2107b7165eda6063c0fc2f60362adbee14bfab39b3ade764d47d639",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/postimage-test_acquisition_world_growth_chain.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/source-application.json",
+      "sha256": "86fe17a4e79eb80ca3fcc26270df9545c86ef4e2bf9e2ff9fa827b99e92a8e68"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/manifest.json",
+        "sha256": "1c9408a50752f7b2a7a7a7d1c55212a57c55ffd407b939b97ff9913f72c66b98"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/proposed.patch",
+        "sha256": "1bac3a01043e822b23694f7e1348171a3ea33aae111b450b5c9af99732b5b989"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/postimage-digests.json",
+        "sha256": "4b602fa41d58a147302402759646603edd72d2128f9bf8a409616f1aaf45c2c7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/source-pins.json",
+        "sha256": "f611f6ba709d7e6f7e825721fda2449117bc433f2c1d133f4f68c00a9d923d39"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/static-receipt.json",
+        "sha256": "311379f6ce61752bc025de9d417a46a53fdce1bce5d80514ad9c1f5d22d09878"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-independent-review-20261020-r2/review.json",
+        "sha256": "66fe6d098b497530b2f28a50c9d922514a2dbc06b0e4c707c68b4f044c22391a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME fixture wiring producer/artifact/consumer class across ordinary and revised-source factories; fix the shared helper rather than thirteen assertions. Production uniqueness and authority gates unchanged.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Full nine-module pytest run ended at the declared sampled process-tree RSS cap; 383 were collected and only 61 calls completed.",
+      "The five failures outside the assigned acquisition-route class are not analyzed here.",
+      "Expected post-patch tests and independent review remain unrun; root owns apply/replay under its budget.",
+      "No product authority or external data is asserted by this test-fixture repair.",
+      "Adoption is not a product replay; independent G acceptance remains open."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole acquisition_world_growth_chain module plus exact no-cost negative on this canonical composition; observe persisted N7 refs and report consumer, then repeat wider DataSnapshot consumers after retrieval companion.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

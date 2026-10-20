@@ -570,8 +570,9 @@ async def test_revised_basis_scope_refuses_before_egress_and_selector_removal_is
     )
     assert served_closure.source_cycle.cycle_index == 0
     assert served_closure.design_problem_basis_ref == served_closure.design_problem_ref
-    # A revised-source route does not currently resolve to one costed route. Isolate
-    # the live binding owner with a typed S/B view; this is not a served N6 producer.
+    # Keep this as a boundary-only negative: the mutated B is deliberately not
+    # an admitted source record or an external authority input. It must be refused
+    # before the live executor or transport sees a request.
     closure = _closure_with_synthetic_revised_basis(served_closure)
     subject = closure.design_problem_ref
     basis = closure.design_problem_basis_ref

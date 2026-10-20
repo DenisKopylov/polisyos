@@ -45498,5 +45498,61 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ruff-currentness-import-companion-reviewed-adoption-20261021-r1": {
+    "slice_base": "670d57f8ff70fbeb7396a6104254ba9ba36836bb",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/governance/test_report_currentness.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "eac8fcb53efcfdd5ee95f699741cf54d022fe5c20fbaae530a79ccbc55f37657",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-last2-i001-currentness-20261021-r1/postimages/policy-engine/tests/unit/scientist/governance/test_report_currentness.py",
+        "postimage_sha256": "d67e4d098419f203e24df0dfe26fc8e672d5e67c10686ec094f19b41af44ab65",
+        "bytes": 37386
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ruff-currentness-import-companion-reviewed-adoption-20261021-r1/source-application.json",
+      "sha256": "3bd8aeac350558b15b8f3c76a13d5fa1aa6e5958f60e4a42c88905be1d1d7f6c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ruff-currentness-import-companion-reviewed-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-last2-i001-currentness-20261021-r1/manifest.json",
+        "sha256": "b8553afcfeeba97d7f4e99b4aa3e332825719f3a6357bb4240113859d7aeb98d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-last2-i001-currentness-20261021-r1/source.patch",
+        "sha256": "4201a74e6627fd5f4463a0518675a82016e7080c97418338c9a5ae0cf7bd3040"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ruff-last2-i001-currentness-review-20261021-r2/review.json",
+        "sha256": "d839704e36c2345a4ad8b7893e0f3b8dc8d3fe8f3f8153bee09e6986024cd4d2"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same Ruff import-ordering class, widened to the full affected test file after the known two finding quantity.",
+      "repair_extent": "One file-level source patch sorts both existing I001 blocks together; no line-by-line patch ladder or other-file cleanup."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No whole repository native Ruff or currentness test result is claimed until actual post-adoption gates run.",
+      "No inherited/G closure claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual full native Ruff for product/workspace selectors; complete test_report_currentness.py and tool-config owner module, with corruption drift.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

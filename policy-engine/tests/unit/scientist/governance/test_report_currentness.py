@@ -4,12 +4,6 @@ import json
 from contextlib import contextmanager
 
 import pytest
-from polisyos.scientist.governance.report_currentness import (
-    GOVERNANCE_REPORT_SOURCE_BASIS_ID,
-    GOVERNANCE_REPORT_SOURCE_READ_PATHS,
-    _state_read_projection,
-    resolve_current_governance_report,
-)
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
@@ -17,6 +11,12 @@ from polisyos.core.contracts.lex import ComplianceIssue
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.scientist.governance.pipeline import ValidationPipeline
 from polisyos.scientist.governance.profiles import ValidationProfile
+from polisyos.scientist.governance.report_currentness import (
+    GOVERNANCE_REPORT_SOURCE_BASIS_ID,
+    GOVERNANCE_REPORT_SOURCE_READ_PATHS,
+    _state_read_projection,
+    resolve_current_governance_report,
+)
 from polisyos.scientist.nodes.builtins.governance import run_governance
 from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -733,12 +733,11 @@ def test_same_component_id_replacement_does_not_prove_canonical_report_producer(
 
 def test_builtin_code_object_is_pinned_before_attempt_capture(monkeypatch) -> None:
     """Mutating the selected builtin callable before capture cannot rebind its owner."""
-    from polisyos.scientist.orchestration.engine.component_identity import (
-        capture_engine_component_identity,
-    )
-
     from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
         BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.orchestration.engine.component_identity import (
+        capture_engine_component_identity,
     )
 
     node = BuildVerifiedPolicyReportNode()

@@ -47,9 +47,15 @@ searching elsewhere.
 ## Server-only boundary and verification
 
 The Part B pipeline keeps its server-only policy. Ops owns bootstrap and the
-subprocess callback for the repository C7 integration gate; a local command
-name, environment marker, or installed package alone is not evidence that the
-gate passed.
+subprocess callback for the repository C7 integration gate. A positive result
+requires a same-child receipt binding the complete pre-filter C7 node set to
+pytest's real lifecycle: passed setup requires call and teardown, while a setup
+skip may omit call but must retain teardown and its reason. The receipt also
+binds the test/configuration bytes and the sanitized plugin/conftest profile.
+Ambient plugin loading is disabled, non-core collectors are refused, and the
+pre-filter node sequence is compared with the final execution sequence. A zero
+exit code, console summary, collect-only run, or narrowed selection is not
+evidence that the gate passed.
 
 The candidate's focused macOS suite exercises the CLI-to-Ops composition and
 workspace/build-root separation. Its installed-wheel test is explicitly

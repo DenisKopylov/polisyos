@@ -44731,5 +44731,172 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-la029-c7-r3-reviewed-source-adoption-20261021-r2": {
+    "slice_base": "2d1f90137bb846c49370cdeb5c3c113c311f840f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/migration/ukraine-data-ops-entrypoint.md": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 4079,
+        "preimage_sha256": "14928753886b9316d6d3b74fbd8983ad79cef510286b3a95f8eb6e4a508396d5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/docs/migration/ukraine-data-ops-entrypoint.md",
+        "postimage_sha256": "797671fd8288f1159058797dfd6aae9d1147bb8858e7f10bb6c048e1d9fe4b6e"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 22913,
+        "preimage_sha256": "6b13307fa999830949169b7081dcac376377f1e8a739d85bf8d52f94224ef350",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+        "postimage_sha256": "1185bb4cb15a5cad3774a1e5345e63bdf1f242c287dc37ee8d333bdb4e512718"
+      },
+      "policy-engine/tests/repo_quality/tools/test_ukraine_c7_gate_receipt.py": {
+        "operation": "create",
+        "mode": "100644",
+        "bytes": 11304,
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/tests/repo_quality/tools/test_ukraine_c7_gate_receipt.py",
+        "postimage_sha256": "d39fc6b60bc8610273f79ab31916f798755c828c0b1e112decc4a2b67bf05827"
+      },
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 19420,
+        "preimage_sha256": "11f14736d9797cf7c02ceb06cb85df07b5a52ac6c1228c9f10603154b23d6b11",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py",
+        "postimage_sha256": "3fec80eb0c738fcf60eedb300c5f737f99bd9a040700aae3d1dff6f31f18c760"
+      },
+      "policy-engine/tests/unit/remediation/test_udf_04.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 13740,
+        "preimage_sha256": "0807475bcf87a83ee0f2fe5cce05152ca8e6bf256ddab0144839338a76ecffa7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/tests/unit/remediation/test_udf_04.py",
+        "postimage_sha256": "47649cbc64d07987fb1c16fd28d12f88b5b6e1eb29003f176f67854b55500f93"
+      },
+      "policy-engine/tools/ops_runners/ukraine_data/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 2561,
+        "preimage_sha256": "ea075cc17f3d4d977672cebb26429bc0b19c9cb097cebf45b1ef515d6d6944bc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/tools/ops_runners/ukraine_data/README.md",
+        "postimage_sha256": "46132eff0964e37813496399274eee3b891fb44c67395e47ff810663a542f33e"
+      },
+      "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 18434,
+        "preimage_sha256": "490848eea1923ea5f3e44a32beccc5881b9536a2b64a8b219e46d26df9456b6a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py",
+        "postimage_sha256": "f761fdc48b501687ca98bac109ed9c2a705e2ff2dddf03869afba9f659f8927a"
+      },
+      "policy-engine/tools/quality/testing/pytest_workload_receipt.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 12379,
+        "preimage_sha256": "e8f03aa2c1b85ff55536efdc507b93dbe8b8980c28ceb57ff342b572d5ced10a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/postimages/policy-engine/tools/quality/testing/pytest_workload_receipt.py",
+        "postimage_sha256": "b9c0f75db2c05ec02a959ac31a7ac7026a0c2423f7aa5cb571a556d9109bba86"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-reviewed-source-adoption-20261021-r2/source-application.json",
+      "sha256": "2904638f6a2bb477d481512645de97c9329fba4bdbf87998438d235d8600ef04"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-reviewed-source-adoption-20261021-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-la029-c7-r2-delta-20261021-r1/review.json",
+        "sha256": "618cb9296222d82700779b9e4dfaf17ee4f509530c8c80f4cee45fc2bdbdc3bf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-p38-repair-ca234ee-r2/proposed-unapplied.patch",
+        "sha256": "4b5cf1e32a41e88f8419e99dba76c1f5ef2bb3980e134996c34f77c38241dbda"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-p38-repair-ca234ee-r2/patch-source.json",
+        "sha256": "c41dc6110800c82d3adb4b02bafc35dbdec4a9a8654b01b2103d1c354cc0b9a6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-p38-repair-ca234ee-r2/r2-review-response.json",
+        "sha256": "e9727820e27e96f6413932978e14e668d6a73b75c080f048f18a69169d6a47d7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-p38-repair-ca234ee-r2/tiny-fixture-tests.out",
+        "sha256": "2b84e900eb870818a05b541308057c09df4a7851633c10dcc32c96eb8fc80fcd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r2-reviewed-source-adoption-20261021-r1-r7-validation/r7-validation-record.json",
+        "sha256": "3b0d2bf1b4ce2bd2e470e7e024dced9260cf01c4bfb183301cce55ae18df43f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r2-reviewed-source-adoption-20261021-r1-r7-validation/canonical-context-preflight.json",
+        "sha256": "e5b7bf386210c68619bc39d0fb92eb4a2f8662beeac7c02e96178efbbe256d72"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/proposed-unapplied-r3.patch",
+        "sha256": "8eb4f8f5a93327bbc72c9cbdc35473575418730a8a322e0d31c127d7cfcb70dd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/patch-check.json",
+        "sha256": "136d0ae47a9353968eae4fc31564875040ec0ee1363538799f52895e63ae0704"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/base-pins.json",
+        "sha256": "8fa819f50402b627254fe7a557645c7249c38f4ea8fdafd805507aaa67268858"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/ast-delta.json",
+        "sha256": "fd8d8238244b124f4e2e84262bb5f84b1c280f4f37ec9e4581979c5ab3d91ce5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/r2-to-r3-style-delta.json",
+        "sha256": "f6ca9201ad4584a5c3d15ff8fbc16eb88512fb21bf53af0e062c9dcec51df068"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-ruff-corrected-source-proposal-20261021-r1/authoring-notes.json",
+        "sha256": "553e4cc877240d2f9d14e1e24a4e8c1e750bc875fe3c0102904c22caf0822c51"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la029-c7-r3-reviewed-source-adoption-20261021-r1/plan.json",
+        "sha256": "0cf4e5c6228d478c6eed550e4ad2d5b29c8709f0c891fe672eb2b3d2d00b3746"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-la029-c7-r3-delta-review-20261021-r1/review.json",
+        "sha256": "8e9f2cf944795621574ba3653b58c9fae6d609b959ff8bd560d86b34cb908c1c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-r4-test-oracle-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "7f20abf7edf9252deffae34fb51c0567df04961dba0b417327a53b267d7a5921"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same P38/P40 collection-admission class as R1/R2; this R3 only closes the canonical native Ruff source-quality gap found by R7. It adds no new contract or behavior class.",
+      "falsifier": "Keep C7 markers and the validator declaration while removing the complete collection/lifecycle property; the existing R2 removal controls must continue to fail. R3 source delta is independently reviewed as style/type/import-only."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "R2 source proposal is independently GO within its bounded profile; this R3 style delta still requires fresh independent review before root adoption.",
+      "R7 Ruff validation is required and must PASS before source adoption; R7 validation does not execute product tests.",
+      "No actual C7 Linux/UKOPS route, full canonical C7 output, or 13-contour integration proof is included.",
+      "No production inputs or external authority/custody/currentness facts were read or inferred.",
+      "LA-029 formal closure and G acceptance remain open."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run R7 validate-only against this exact plan and staged postimages. If R7 passes, request independent review of the exact R3 patch and AST delta. Root then decides whether to apply; after adoption, run the actual supported Linux/UKOPS C7 route and complete imported-consumer/native gates. No closure is proposed here.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

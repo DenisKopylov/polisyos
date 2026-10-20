@@ -13,7 +13,9 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
     NormalizedArtifactManifest,
+    PartAGateExecutionReceipt,
     PartAGateManifest,
+    PytestCasePhaseReport,
     ValidationFinding,
     load_manifest,
     write_manifest,
@@ -30,6 +32,27 @@ from polisyos.data_forge.domains.ukraine.server import OpsCompositionRequiredErr
 from tools.ops_runners.ukraine_data.server_bootstrap import (
     build_orchestrator as build_ops_orchestrator,
 )
+
+
+def _passing_part_a_gate() -> PartAGateManifest:
+    node_id = "tests/integration/test_c7_synthetic_full_pipeline.py::test_case"
+    receipt = PartAGateExecutionReceipt(
+        attempt_id="c" * 32,
+        test_path="tests/integration/test_c7_synthetic_full_pipeline.py",
+        source_sha256="sha256:" + "0" * 64,
+        pytest_version="9.0.0",
+        config_path="pytest.ini",
+        config_sha256="sha256:" + "1" * 64,
+        node_ids=[node_id],
+        phase_reports=[
+            PytestCasePhaseReport(node_id=node_id, when=phase, outcome="passed")
+            for phase in ("setup", "call", "teardown")
+        ],
+        pytest_exit_status=0,
+        workload_receipt_sha256="sha256:" + "2" * 64,
+        phases_receipt_sha256="sha256:" + "3" * 64,
+    )
+    return PartAGateManifest(status="passed", passed=True, execution_receipt=receipt)
 
 
 def test_stage_id_str_enum_preserves_python_and_pydantic_contract() -> None:
@@ -127,7 +150,7 @@ def test_validate_stage_outputs_reports_missing_artifact(tmp_path: Path) -> None
     orchestrator.ensure_layout()
     write_manifest(
         config.build_root.part_a_gate_manifest_path,
-        PartAGateManifest(status="passed", passed=True),
+        _passing_part_a_gate(),
     )
     long_component = f"missing_{'x' * 190}"
     missing_path = tmp_path / long_component / "does_not_exist.json"
@@ -170,7 +193,7 @@ def _seed_explicit_period_d3_inputs(tmp_path: Path) -> UkraineDataOrchestrator:
     orchestrator.ensure_layout()
     write_manifest(
         config.build_root.part_a_gate_manifest_path,
-        PartAGateManifest(status="passed", passed=True),
+        _passing_part_a_gate(),
     )
     write_manifest(
         orchestrator.stage_manifest_path(StageId.D2),
@@ -422,7 +445,7 @@ def test_d4_registry_route_keeps_governance_handoff_purpose_limited(tmp_path: Pa
     orchestrator.ensure_layout()
     write_manifest(
         config.build_root.part_a_gate_manifest_path,
-        PartAGateManifest(status="passed", passed=True),
+        _passing_part_a_gate(),
     )
     write_manifest(
         orchestrator.stage_manifest_path(StageId.D3),

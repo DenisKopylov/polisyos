@@ -314,18 +314,207 @@ class ReleaseManifest(BaseModel):
     lineage: dict[str, Any] = Field(default_factory=dict)
 
 
+class PytestCasePhaseReport(BaseModel):
+    """One pytest setup, call, or teardown result for a collected node."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    node_id: str = Field(..., min_length=1)
+    when: Literal["setup", "call", "teardown"]
+    outcome: Literal["passed", "failed", "skipped", "xpassed"]
+    reason: str | None = Field(default=None, max_length=2000)
+
+    @model_validator(mode="after")
+    def require_nonpass_reason(self) -> PytestCasePhaseReport:
+        """Keep the actual reason for every non-passing phase in the typed receipt."""
+
+        if self.outcome in {"failed", "skipped", "xpassed"} and not (self.reason or "").strip():
+            raise ValueError("non-passing pytest phase requires its reason")
+        return self
+
+
+class PartAGateCollectionContext(BaseModel):
+    """Admitted pytest collection profile, source set, and selection controls for C7."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    profile: Literal["policyos.ukraine.c7.collection.v1"]
+    plugin_autoload: Literal["disabled"]
+    pluggy_version: str = Field(..., min_length=1)
+    ambient_controls: Literal["sanitized"]
+    hook_capture: Literal["before_collection_modifyitems"]
+    pytest_arguments: list[str] = Field(..., min_length=1)
+    approved_pytest_addopts: list[str] = Field(default_factory=list)
+    repo_plugin_source_digests: dict[str, str] = Field(..., min_length=1)
+    keyword_expression: str = ""
+    mark_expression: str = ""
+    collect_only: bool = False
+    deselected_node_ids: list[str] = Field(default_factory=list)
+    ignored_paths: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_source_digest_map(self) -> PartAGateCollectionContext:
+        """Reject unrooted source identities and malformed content digests."""
+
+        for source_id, digest in self.repo_plugin_source_digests.items():
+            prefix, separator, relative_path = source_id.partition(":")
+            if (
+                not separator
+                or prefix not in {"workspace", "code"}
+                or not relative_path
+                or relative_path.startswith("/")
+                or "\\" in relative_path
+                or any(part in {"", ".", ".."} for part in relative_path.split("/"))
+            ):
+                raise ValueError("C7 collection source path is not a rooted relative identity")
+            if (
+                not digest.startswith("sha256:")
+                or len(digest) != 71
+                or any(character not in "0123456789abcdef" for character in digest[7:])
+            ):
+                raise ValueError("C7 collection source digest is malformed")
+        return self
+
+    @property
+    def full_collection(self) -> bool:
+        """Return true only for the admitted unfiltered C7 collection profile."""
+
+        return (
+            not self.keyword_expression
+            and not self.mark_expression
+            and not self.collect_only
+            and not self.deselected_node_ids
+            and not self.ignored_paths
+            and len(self.approved_pytest_addopts) <= 1
+            and all(option.startswith("--junitxml=") for option in self.approved_pytest_addopts)
+        )
+
+
+class PartAGateExecutionReceipt(BaseModel):
+    """Content-bound collection and same-child pytest phase evidence for C7."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.ukraine.part_a_gate_execution.v2"] = (
+        "policyos.ukraine.part_a_gate_execution.v2"
+    )
+    attempt_id: str = Field(..., pattern=r"^[0-9a-f]{32}$")
+    test_path: str = Field(..., min_length=1)
+    source_sha256: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    pytest_version: str = Field(..., min_length=1)
+    config_path: str = Field(..., min_length=1)
+    config_sha256: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    collection_context: PartAGateCollectionContext
+    node_ids: list[str] = Field(..., min_length=1)
+    phase_reports: list[PytestCasePhaseReport] = Field(default_factory=list)
+    pytest_exit_status: int = Field(strict=True)
+    workload_receipt_sha256: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    phases_receipt_sha256: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def validate_phase_report_identity(self) -> PartAGateExecutionReceipt:
+        """Reject duplicate node identities, phases, and reports outside collection."""
+
+        if len(self.node_ids) != len(set(self.node_ids)):
+            raise ValueError("C7 pytest receipt contains duplicate collected node IDs")
+        known_node_ids = set(self.node_ids)
+        phase_keys = [(item.node_id, item.when) for item in self.phase_reports]
+        if any(node_id not in known_node_ids for node_id, _ in phase_keys):
+            raise ValueError("C7 pytest receipt contains a phase for an uncollected node")
+        if len(phase_keys) != len(set(phase_keys)):
+            raise ValueError("C7 pytest receipt contains duplicate node phase reports")
+        return self
+
+    @property
+    def complete_lifecycle(self) -> bool:
+        """Allow only pytest's real setup-skip/failure phase shape and completed teardown."""
+
+        by_node: dict[str, dict[str, PytestCasePhaseReport]] = {}
+        for report in self.phase_reports:
+            by_node.setdefault(report.node_id, {})[report.when] = report
+        if set(by_node) != set(self.node_ids):
+            return False
+        for node_id in self.node_ids:
+            reports = by_node[node_id]
+            setup = reports.get("setup")
+            if setup is None or reports.get("teardown") is None:
+                return False
+            if setup.outcome == "passed":
+                if "call" not in reports:
+                    return False
+            elif "call" in reports:
+                return False
+        return True
+
+    @property
+    def complete_pass(self) -> bool:
+        """Return true only when the full admitted C7 collection passed every phase."""
+
+        return (
+            self.collection_context.full_collection
+            and self.pytest_exit_status == 0
+            and self.complete_lifecycle
+            and all(item.outcome == "passed" for item in self.phase_reports)
+        )
+
+    @property
+    def contains_skip(self) -> bool:
+        """Return true when any observed pytest phase was skipped."""
+
+        return any(item.outcome == "skipped" for item in self.phase_reports)
+
+    @property
+    def complete_skip(self) -> bool:
+        """Return true for a complete, non-failing pytest skip with exit status zero."""
+
+        return (
+            self.collection_context.full_collection
+            and self.pytest_exit_status == 0
+            and self.complete_lifecycle
+            and self.contains_skip
+            and not self.contains_failure
+        )
+
+    @property
+    def contains_failure(self) -> bool:
+        """Return true when any phase failed or unexpectedly passed an xfail case."""
+
+        return any(item.outcome in {"failed", "xpassed"} for item in self.phase_reports)
+
+
 class PartAGateManifest(BaseModel):
     """Server-only manifest recording the Part A integration gate result."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", strict=True)
 
     status: str = Field(..., min_length=1, max_length=120)
     command: list[str] = Field(default_factory=list)
     server_only: bool = True
     passed: bool = False
     skipped: bool = False
+    execution_receipt: PartAGateExecutionReceipt | None = None
     created_at: str = Field(default_factory=utc_now_iso)
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def require_execution_receipt_for_pass(self) -> PartAGateManifest:
+        """Keep a positive gate status inseparable from complete same-run evidence."""
+
+        if self.passed != (self.status == "passed"):
+            raise ValueError("Part A gate passed flag and status disagree")
+        if self.skipped != (self.status == "skipped"):
+            raise ValueError("Part A gate skipped flag and status disagree")
+        if self.passed and (
+            self.execution_receipt is None or not self.execution_receipt.complete_pass
+        ):
+            raise ValueError("Part A gate cannot pass without complete C7 phase evidence")
+        if (
+            self.skipped
+            and self.execution_receipt is not None
+            and not self.execution_receipt.complete_skip
+        ):
+            raise ValueError("Part A gate cannot report a C7 skip without complete skip evidence")
+        return self
 
 
 class ServerCapabilityManifest(BaseModel):
@@ -376,7 +565,10 @@ __all__ = [
     "D5ReleaseHandoffRequest",
     "D5ReleaseProducerFacts",
     "NormalizedArtifactManifest",
+    "PartAGateCollectionContext",
+    "PartAGateExecutionReceipt",
     "PartAGateManifest",
+    "PytestCasePhaseReport",
     "ReleaseManifest",
     "RuntimeBundleManifest",
     "ServerCapabilityManifest",

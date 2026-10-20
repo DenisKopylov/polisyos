@@ -34,8 +34,14 @@ usable checkout is available, the gate records a typed `unavailable` result.
 Server provisioning and subprocess execution stay in this Ops directory. The
 domain CLI requires an explicit typed `orchestrator_factory` when called
 directly; the installed `ukraine-data` console script supplies that factory.
-The workflow retains its server-only policy. A macOS focused test run does not
-verify the Linux installed-wheel path or the C7 server lifecycle gate.
+The workflow retains its server-only policy. The C7 gate records the complete
+pre-filter collected test-node set and every same-process setup, call, and
+teardown result. A real setup skip has no call report but still requires a
+teardown report and a retained skip reason;
+it passes only when the exact source/config identity is reconciled and every
+phase succeeds. A zero exit code, console summary, collect-only run, or narrowed
+selection cannot substitute for that evidence. A macOS focused test run does
+not verify the Linux installed-wheel path or the actual C7 server lifecycle.
 
 Operational rules:
 

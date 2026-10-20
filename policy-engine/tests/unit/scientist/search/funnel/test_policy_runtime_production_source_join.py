@@ -21,6 +21,10 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
     FunnelTicket,
 )
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    _assess_search_fiscal_measurement,
+)
 from polisyos.scientist.nodes.builtins.decide import policy_runtime_support
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     ProductionPolicyEvaluationBackend,
@@ -33,7 +37,7 @@ from polisyos.scientist.policy_design.schema import (
     persist_policy_candidate_schema,
 )
 
-_FALLBACK_LIMITATION = "budget_deficit_unavailable_required_float_legacy_zero"
+_FALLBACK_LIMITATION = "search_objective_fiscal_measurement_unavailable"
 _CONFIG = {
     "data_config": {"subsample_fraction": 1.0, "stratified": False},
     "estimation_config": {"estimator": "matching", "n_bootstrap": 500},
@@ -123,9 +127,11 @@ def test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Join a real production-backend result through CAS and the fresh packet reader.
+    """Carry a unitless production-backend observation through CAS as unavailable.
 
-    The controlled metrics are a typed lower-producer fixture. This test isolates
+    Numeric aliases carry no independently selected fiscal unit in this fixture.
+    Their observation is persisted as candidate evidence, while an
+    available fiscal score is refused. This test isolates
     the source-to-packet join by accepting the separate EvalSafety admission hook;
     it does not claim that EvalSafety was exercised here. Production backend
     evaluation, ObjectiveStack projection, CAS persistence, packet construction,
@@ -151,7 +157,7 @@ def test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer
         candidate,
         candidate_ref,
         {"policy_value": 0.2, "gdp_change": 0.1, "budget_deficit": 0.02},
-        signature="production-source-join-valid-fiscal-input",
+        signature="production-source-join-unitless-fiscal-input",
     )
 
     result = outcome.stage_results[4]
@@ -163,17 +169,18 @@ def test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer
     source_result = load_core_json_artifact(store, packet.source_result_ref)
     source_metadata = source_result["metadata"]
     expected_fiscal = {
-        "usable": True,
-        "normalized_value": 0.02,
+        "usable": False,
+        "normalized_value": None,
         "source_values": {"budget_deficit": 0.02},
     }
     assert source_metadata["policy_runtime_fiscal_measurement"] == expected_fiscal
     assert result.simulation_results["budget_deficit"] == 0.02
-    assert result.simulation_results["budget_deficit_objective_usable"] is True
-    assert result.simulation_results["budget_deficit_objective_value"] == 0.02
-    assert result.objective_value == pytest.approx(-0.09)
-    assert result.actual_score == pytest.approx(-0.09)
-    assert _FALLBACK_LIMITATION not in result.feedback.get("objective_limitations", [])
+    assert result.simulation_results["budget_deficit_objective_usable"] is False
+    assert result.simulation_results["budget_deficit_objective_value"] is None
+    assert result.objective_value is None
+    assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert result.actual_score is None
+    assert _FALLBACK_LIMITATION in result.feedback["objective_limitations"]
 
     bootstrap = result.simulation_results["bootstrap"]
     invocation = source_metadata["policy_runtime_invocation"]
@@ -225,7 +232,9 @@ def test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer
     }
     assert fallback.simulation_results["budget_deficit_objective_usable"] is False
     assert fallback.simulation_results["budget_deficit_objective_value"] is None
-    assert fallback.objective_value == pytest.approx(-0.1)
+    assert fallback.objective_value is None
+    assert fallback.score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert fallback.actual_score is None
     assert _FALLBACK_LIMITATION in fallback.feedback["objective_limitations"]
     assert fallback.executed_work_packet_status == "available"
 
@@ -241,13 +250,19 @@ def test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer
     rebound.executed_work_packet_ref = fallback_packet_ref
     _assert_fresh_consumer_rejects(orchestrator, ticket, rebound)
 
-    # Missing fiscal evidence cannot be relabeled as a measured zero. The stored
-    # vector still binds the fresh reader to unavailable/null, so the claim fails.
-    false_availability = deepcopy(fallback)
-    false_availability.simulation_results["budget_deficit_objective_usable"] = True
-    false_availability.simulation_results["budget_deficit_objective_value"] = 0.0
-    _assert_fresh_consumer_rejects(
-        fallback_orchestrator,
-        fallback_ticket,
-        false_availability,
-    )
+    # Neither a unitless numeric alias nor absent fiscal data can be relabeled as
+    # a measured zero. Keep both markers but falsify availability; the stored
+    # source/vector and fresh consumer must still reject the authority claim.
+    for consumer, selected_ticket, unavailable_result in (
+        (orchestrator, ticket, result),
+        (fallback_orchestrator, fallback_ticket, fallback),
+    ):
+        false_availability = deepcopy(unavailable_result)
+        false_availability.simulation_results["budget_deficit_objective_usable"] = True
+        false_availability.simulation_results["budget_deficit_objective_value"] = 0.0
+        fiscal_value, fiscal_status = _assess_search_fiscal_measurement(
+            false_availability.simulation_results
+        )
+        assert fiscal_value is None
+        assert fiscal_status is ObjectiveScoreStatus.INVALID
+        _assert_fresh_consumer_rejects(consumer, selected_ticket, false_availability)

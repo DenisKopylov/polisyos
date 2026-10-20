@@ -917,18 +917,8 @@ class PolicyArtifactBuilder:
             and source.promotion_result.promotion_decision.promoted
         )
         readiness = source.readiness_contract
-        if promoted and readiness is None:
-            raise ValueError(
-                "Promoted policy bundles require a DecisionReadinessContract before assembly."
-            )
-        if promoted and source.readiness_ref is None:
-            raise ValueError(
-                "Promoted policy bundles require a persisted DecisionReadinessContract ref."
-            )
-        if source.evaluation_vector is None and promoted:
-            raise ValueError(
-                "Promoted policy bundles require a PolicyEvaluationVector for audit completeness."
-            )
+        if promoted:
+            raise ValueError("policy_promotion_owner_receipt_not_established")
         phase3_gate = source.phase3_gate or (
             source.readiness_contract.phase3_gate if source.readiness_contract is not None else None
         )

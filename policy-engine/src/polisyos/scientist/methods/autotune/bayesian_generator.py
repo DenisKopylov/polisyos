@@ -26,6 +26,13 @@ from polisyos.core.artifacts import (
     require_return_selected_profile_writer as _require_return_selected_profile_writer,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    _assess_search_metric,
+    _configured_search_metric_binding,
+    _configured_search_metric_profile_fingerprint,
+    _evaluation_matches_selected_objectives,
+)
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
@@ -218,12 +225,19 @@ class BayesianCandidateGenerator:
         *,
         primary_metric: str = "score",
         direction: MetricDirection = MetricDirection.MAXIMIZE,
+        unit: str | None = None,
         compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
         n_initial: int = 6,
         seed: int = 42,
     ) -> None:
         self._primary_metric = primary_metric
         self._direction = direction
+        self._selected_objective_unit = unit
+        self._selected_objective_binding = _configured_search_metric_binding(
+            primary_metric, direction.value, unit
+        )
+        if self._selected_objective_binding is None:
+            raise ValueError("Bayesian candidate generation requires a configured scalar objective")
         self._compare_split = compare_split
         self._search_space = search_space
         self._n_initial = n_initial
@@ -253,7 +267,14 @@ class BayesianCandidateGenerator:
             BayesianConfig, BayesianOptimizer, _, _, _, _, _ = deps
             try:
                 cfg = BayesianConfig(n_initial=n_initial, seed=seed)
-                self._optimizer = BayesianOptimizer(search_space._native, config=cfg)
+                objective_name, _, _ = self._selected_objective_binding
+                self._optimizer = BayesianOptimizer(
+                    search_space._native,
+                    config=cfg,
+                    objective_name=objective_name,
+                    objective_source_direction=direction.value,
+                    objective_source_unit=unit,
+                )
                 self._botorch_available = True
             except Exception as exc:
                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
@@ -295,7 +316,6 @@ class BayesianCandidateGenerator:
         self._warm_evals.clear()
         self._issued_source_profiles.clear()
         self._search_method_run_profile = None
-        self._set_optimizer_run_profile(context_fingerprint)
 
     def generate(
         self,
@@ -412,6 +432,20 @@ class BayesianCandidateGenerator:
             return
 
         for evaluation in self._warm_evals:
+            objective_name, objective_direction, expected_rule_spec = (
+                self._selected_objective_binding
+            )
+            if not _evaluation_matches_selected_objectives(
+                evaluation,
+                objective_names=[objective_name],
+                objective_directions={objective_name: objective_direction},
+                objective_rule_specs={objective_name: expected_rule_spec},
+                require_scalar_score=True,
+            ):
+                self._warm_start_rejections.append(
+                    {"reason": "selected primary metric rule not reconciled"}
+                )
+                continue
             metadata = getattr(evaluation, "metadata", None)
             if (
                 not isinstance(metadata, Mapping)
@@ -570,12 +604,37 @@ class BayesianCandidateGenerator:
         """Bind the immutable MethodJob/data basis used by this search run."""
         if profile is not None and not isinstance(profile, SearchMethodRunProfile):
             raise TypeError("Search MethodJob run profile must be a validated typed record")
+        if profile is not None:
+            profile_binding = _configured_search_metric_binding(
+                profile.primary_metric, profile.direction, profile.unit
+            )
+            if (
+                profile_binding is None
+                or self._selected_objective_binding is None
+                or profile_binding[:2] != self._selected_objective_binding[:2]
+                or profile.objective_fingerprint
+                != _configured_search_metric_profile_fingerprint(
+                    profile.primary_metric, profile.direction, profile.unit
+                )
+            ):
+                raise ValueError(
+                    "Search MethodJob profile differs from the selected Bayesian objective basis"
+                )
+            if (
+                self._selected_objective_unit is not None
+                and profile.unit != self._selected_objective_unit
+            ):
+                raise ValueError("Search MethodJob profile changes the selected objective unit")
+            self._selected_objective_unit = profile.unit
+            self._selected_objective_binding = profile_binding
         if (
             self._search_method_run_profile is not None
             and profile != self._search_method_run_profile
         ):
             raise RuntimeError("Search MethodJob run profile is immutable for this generator")
         self._search_method_run_profile = profile
+        if profile is not None and self._search_run_context_fingerprint is not None:
+            self._set_optimizer_run_profile(self._search_run_context_fingerprint)
 
     def _persist_gp_fit_basis(self, profile: BayesianSourceProfile) -> ArtifactRef | None:
         """Persist the selected, complete rows required for a fresh native GP refit."""
@@ -688,14 +747,12 @@ class BayesianCandidateGenerator:
             return None
         return basis_ref
 
-    def _objective_profile_fingerprint(self) -> str | None:
-        """Bind the selected metric and direction to native scalar minimization."""
-        return self._profile_fingerprint(
-            {
-                "primary_metric": self._primary_metric,
-                "direction": self._direction.value,
-                "scalarization": "finite_scalar_score_minimize",
-            }
+    def _objective_profile_fingerprint(self, *, unit: str | None = None) -> str | None:
+        """Bind the selected metric rule and declared unit to optimizer compatibility."""
+        if unit is None:
+            unit = self._selected_objective_unit
+        return _configured_search_metric_profile_fingerprint(
+            self._primary_metric, self._direction.value, unit
         )
 
     def _set_optimizer_run_profile(self, context_fingerprint: str | None) -> None:
@@ -713,6 +770,7 @@ class BayesianCandidateGenerator:
                 self._optimizer,
                 context_fingerprint=context_fingerprint,
                 objective_fingerprint=objective_fingerprint,
+                objective_unit=self._selected_objective_unit,
             )
 
     def _configure_source_store(self, store: CoreJSONArtifactStore) -> None:
@@ -982,16 +1040,31 @@ class BayesianCandidateGenerator:
                 stage_b_result=stage_b_result,
                 entry_mapping=entry_mapping,
             )
-            has_score = score not in {_MISSING, _INVALID}
+            assessment = _assess_search_metric(
+                stage_b_result,
+                self._primary_metric,
+                self._direction.value,
+                self._selected_objective_unit,
+            )
+            has_score = (
+                assessment.status is ObjectiveScoreStatus.AVAILABLE
+                and assessment.value is not None
+                and math.isfinite(assessment.value)
+            )
             if has_score:
-                score_value = float(score)
-                scalar = (
-                    score_value
-                    if score_is_scalar or self._direction == MetricDirection.MINIMIZE
-                    else -score_value
-                )
+                scalar = assessment.value
+                objective_raw_value = assessment.value
             else:
-                scalar = math.inf
+                scalar = None
+                if score not in {_MISSING, _INVALID}:
+                    diagnostic_value = float(score)
+                    objective_raw_value = (
+                        diagnostic_value
+                        if score_is_scalar or self._direction == MetricDirection.MINIMIZE
+                        else -diagnostic_value
+                    )
+                else:
+                    objective_raw_value = math.nan
 
             stage_a_passed = bool(
                 getattr(entry, "stage_a_passed", entry_mapping.get("stage_a_passed", True))
@@ -1033,7 +1106,9 @@ class BayesianCandidateGenerator:
             for key, value in identity.items():
                 metadata[key] = value
             if not has_score:
-                metadata["invalid_reason"] = "missing_or_invalid_score"
+                metadata["invalid_reason"] = (
+                    assessment.limitation or f"primary_metric_{assessment.status.value}"
+                )
 
             timestamp = getattr(entry, "timestamp", None)
             if not isinstance(timestamp, datetime):
@@ -1053,8 +1128,10 @@ class BayesianCandidateGenerator:
                 objectives=[
                     ObjectiveValue(
                         name=self._primary_metric,
-                        raw_value=scalar,
+                        raw_value=objective_raw_value,
                         direction=OptimizationDirection.MINIMIZE,
+                        score_status=assessment.status,
+                        score_assessment=assessment,
                     )
                 ],
                 scalar_score=scalar,
@@ -1065,6 +1142,8 @@ class BayesianCandidateGenerator:
                 wall_time_seconds=duration_seconds,
                 provenance_ref=str(provenance_ref) if provenance_ref is not None else None,
                 metadata=metadata,
+                score_status=assessment.status,
+                score_assessment=assessment,
             )
             evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
             proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
@@ -1103,6 +1182,7 @@ def benchmark_to_evaluation(
     split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
     dim: int = 0,
     search_space: Any | None = None,
+    expected_unit: str | None = None,
 ) -> Any | None:
     """Convert a BenchmarkEvaluation to a methods.search strategy Evaluation."""
     deps = _try_import_bayesian()
@@ -1153,7 +1233,23 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
-    scalar = -float(finite_value) if direction == MetricDirection.MAXIMIZE else float(finite_value)
+    declared_source_unit = benchmark_metadata.get("metric_unit")
+    if (
+        not isinstance(expected_unit, str)
+        or not expected_unit.strip()
+        or declared_source_unit != expected_unit
+    ):
+        return None
+    source_result = {
+        "metrics": {primary_metric: float(finite_value)},
+        "metric_units": {primary_metric: declared_source_unit},
+    }
+    assessment = _assess_search_metric(
+        source_result, primary_metric, direction.value, expected_unit
+    )
+    if assessment.status is not ObjectiveScoreStatus.AVAILABLE or assessment.value is None:
+        return None
+    scalar = assessment.value
     split_value = split.value
     metadata = {
         **benchmark_metadata,
@@ -1176,11 +1272,16 @@ def benchmark_to_evaluation(
                 name=primary_metric,
                 raw_value=scalar,
                 direction=OptimizationDirection.MINIMIZE,
+                score_status=assessment.status,
+                score_assessment=assessment,
             )
         ],
         scalar_score=scalar,
         stage_a_passed=True,
+        stage_b_result=source_result,
         status=EvaluationStatus.SUCCESS,
+        score_status=assessment.status,
+        score_assessment=assessment,
         provenance_ref=str(benchmark_metadata["provenance_ref"])
         if benchmark_metadata.get("provenance_ref") is not None
         else None,

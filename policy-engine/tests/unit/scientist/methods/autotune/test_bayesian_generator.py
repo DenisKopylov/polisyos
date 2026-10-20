@@ -20,9 +20,14 @@ from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
     MetricDirection,
+    SearchMethodRunProfile,
 )
 from polisyos.scientist.methods.search.controller import SearchIteration
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    ObjectiveValue,
+    OptimizationDirection,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     EvaluationStatus,
@@ -219,6 +224,54 @@ def test_source_profile_uses_canonical_effective_fit_profile() -> None:
     assert seen == {}
 
 
+def test_method_run_profile_binds_selected_objective_unit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def optional_stack_unavailable() -> None:
+        from polisyos.scientist.methods.search.strategies.errors import (
+            OptionalDependencyUnavailableError,
+        )
+
+        raise OptionalDependencyUnavailableError("run-profile unit binding test")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.methods.search.strategies.bayesian.require_botorch",
+        optional_stack_unavailable,
+    )
+    generator = BayesianCandidateGenerator(
+        search_space=AutotuneSearchSpace([{"name": "x", "lower": 0.0, "upper": 1.0}]),
+        primary_metric="budget_deficit",
+        direction=MetricDirection.MAXIMIZE,
+    )
+    objective_fingerprint = generator._objective_profile_fingerprint(unit="USD per resident")
+    assert objective_fingerprint is not None
+
+    profile = SearchMethodRunProfile(
+        loop_id="loop-unit-binding",
+        suite_ref=_ref(),
+        method_fqn="example.methods.FiscalMethod",
+        method_params_fingerprint="a" * 64,
+        candidate_input_bindings={},
+        data_snapshot_bindings={},
+        method_seed=17,
+        primary_metric="budget_deficit",
+        direction="maximize",
+        split="selection",
+        unit="USD per resident",
+        search_space_fingerprint="b" * 64,
+        context_fingerprint="c" * 64,
+        objective_fingerprint=objective_fingerprint,
+    )
+    generator.set_search_run_context({"loop": "unit-bound"})
+    generator.set_search_method_run_profile(profile)
+    assert generator._objective_profile_fingerprint() == objective_fingerprint
+    assert generator._optimizer._run_objective_fingerprint == objective_fingerprint
+
+    changed_unit = profile.model_copy(update={"unit": "EUR per resident"})
+    with pytest.raises(ValueError, match="selected Bayesian objective basis"):
+        generator.set_search_method_run_profile(changed_unit)
+
+
 def test_search_iteration_history_preserves_origin_params_split_and_full_ids() -> None:
     native_space = _native_space()
     observations = [
@@ -361,6 +414,66 @@ def test_history_without_score_is_not_a_successful_zero_observation() -> None:
     )
 
 
+def test_primary_metric_admission_uses_source_rule_and_retains_unbound_diagnostics() -> None:
+    generator = BayesianCandidateGenerator(
+        search_space=_native_space(),
+        primary_metric="score",
+        direction=MetricDirection.MAXIMIZE,
+    )
+
+    def history_row(
+        stage_b_result: dict[str, object], objective_value: float = 123.0
+    ) -> SearchIteration:
+        return SearchIteration(
+            iteration=0,
+            candidate={"x": 2.0},
+            objective_value=objective_value,
+            objective_details=[
+                ObjectiveValue(
+                    name="score",
+                    raw_value=objective_value,
+                    direction=OptimizationDirection.MINIMIZE,
+                )
+            ],
+            is_promising=True,
+            stage_a_passed=True,
+            stage_b_result=stage_b_result,
+            duration_seconds=0.1,
+            timestamp=datetime.now(UTC),
+        )
+
+    sourced = generator._history_to_evaluations(
+        [history_row({"simulation_results": {"score": 0.8}})]
+    )[0]
+    assert sourced.is_valid
+    assert sourced.scalar_score == -0.8
+    assert sourced.objectives[0].score_status is ObjectiveScoreStatus.AVAILABLE
+    assert sourced.objectives[0].score_assessment is not None
+    assert sourced.objectives[0].score_assessment.rule_spec is not None
+    assert '"source_direction":"maximize"' in sourced.objectives[0].score_assessment.rule_spec
+
+    # Entry-level scalar claims remain visible only as unbound diagnostic values.
+    legacy = generator._history_to_evaluations([history_row({})])[0]
+    assert not legacy.is_valid
+    assert legacy.scalar_score is None
+    assert legacy.objectives[0].raw_value == -123.0
+    assert legacy.score_status is ObjectiveScoreStatus.UNAVAILABLE
+
+    malformed = generator._history_to_evaluations(
+        [history_row({"simulation_results": {"score": "not-a-number"}})]
+    )[0]
+    assert not malformed.is_valid
+    assert malformed.scalar_score is None
+    assert malformed.score_status is ObjectiveScoreStatus.INVALID
+
+    conflicting = generator._history_to_evaluations(
+        [history_row({"score": 0.8, "simulation_results": {"score": 0.9}})]
+    )[0]
+    assert not conflicting.is_valid
+    assert conflicting.scalar_score is None
+    assert conflicting.score_status is ObjectiveScoreStatus.INVALID
+
+
 class TestBenchmarkToEvaluation:
     def test_converts_evaluation(self):
         bench = BenchmarkEvaluation(
@@ -379,6 +492,9 @@ class TestBenchmarkToEvaluation:
         if result is not None:
             assert result.scalar_score == -0.8
             assert result.stage_a_passed is True
+            assert result.is_valid
+            assert result.score_assessment is not None
+            assert result.stage_b_result == {"metrics": {"score": 0.8}}
 
     def test_returns_none_for_missing_metric(self):
         bench = BenchmarkEvaluation(

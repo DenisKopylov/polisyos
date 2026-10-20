@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.scientist.methods.search.funnel.types import FunnelStageResult
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.stages import CorrelationTracker, StageResult
 
 
@@ -54,9 +55,19 @@ class FunnelCorrelationTracker:
         is_sentinel: bool = False,
         metadata: dict[str, Any] | None = None,
     ) -> None:
+        if any(
+            result.score_status is not ObjectiveScoreStatus.AVAILABLE
+            or result.objective_value is None
+            for result in level_results.values()
+        ):
+            return
         rec = FunnelCorrelationRecord(
             candidate_hash=candidate_hash,
-            level_scores={level: result.objective_value for level, result in level_results.items()},
+            level_scores={
+                level: result.objective_value
+                for level, result in level_results.items()
+                if result.objective_value is not None
+            },
             level_passed={level: result.is_promising for level, result in level_results.items()},
             is_sentinel=bool(is_sentinel),
             metadata=dict(metadata or {}),

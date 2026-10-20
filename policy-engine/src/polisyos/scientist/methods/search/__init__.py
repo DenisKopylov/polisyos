@@ -54,6 +54,7 @@ from polisyos.scientist.methods.search.objective import (
     GDPGrowthObjective,
     InequalityObjective,
     ObjectivePresets,
+    ObjectiveScoreStatus,
     ObjectiveValue,
     OptimizationDirection,
 )
@@ -197,6 +198,7 @@ __all__ = [
     "MaxWallTime",
     "NegatedCompositeObjective",
     "ObjectivePresets",
+    "ObjectiveScoreStatus",
     "ObjectiveValue",
     "OptimizationDirection",
     "OrchestratorFunnelService",

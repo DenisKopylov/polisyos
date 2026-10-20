@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import math
 from collections.abc import Mapping
 from copy import deepcopy
@@ -12,6 +13,12 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import CanonSpec, fingerprint
+from polisyos.scientist.methods.search.objective import (
+    OptimizationDirection,
+    _configured_search_metric_binding,
+    _configured_search_metric_profile_fingerprint,
+    _evaluation_matches_selected_objectives,
+)
 
 # Imported lazily through _deps to keep module importable without optional stack.
 from polisyos.scientist.methods.search.strategies._deps import (
@@ -83,6 +90,8 @@ _WARM_REJECTION_REASONS = {
     "incompatible objective fingerprint",
     "source profile is not fitted native GP",
     "native GP profile lacks fresh fit-basis admission",
+    "selected objective rule is not configured",
+    "objective basis does not match configured scalar rule",
 }
 
 
@@ -162,10 +171,41 @@ class BayesianOptimizer(BaseSearchStrategy):
         space,
         config: BayesianConfig | None = None,
         resource_arbiter: ResourceArbiter | None = None,
+        *,
+        objective_name: str | None = None,
+        objective_source_direction: str | None = None,
+        objective_source_unit: str | None = None,
     ):
+        if (objective_name is None) != (objective_source_direction is None):
+            raise ValueError(
+                "selected objective name and source direction must be supplied together"
+            )
+        selected_binding = None
+        if objective_name is not None:
+            if not isinstance(objective_name, str) or not objective_name.strip():
+                raise ValueError("selected objective name must be non-empty")
+            if not isinstance(objective_source_direction, str):
+                raise ValueError("selected objective source direction must be a string")
+            selected_binding = _configured_search_metric_binding(
+                objective_name, objective_source_direction, objective_source_unit
+            )
+            if selected_binding is None:
+                raise ValueError("selected objective source rule is not configured")
         cfg = config or BayesianConfig()
         super().__init__(space=space, seed=cfg.seed)
         self._config = cfg
+        if selected_binding is None:
+            self._selected_objective_name = None
+            self._selected_objective_direction = None
+            self._selected_objective_rule_spec = None
+            self._selected_objective_unit = None
+        else:
+            (
+                self._selected_objective_name,
+                self._selected_objective_direction,
+                self._selected_objective_rule_spec,
+            ) = selected_binding
+            self._selected_objective_unit = objective_source_unit
         self._arbiter = resource_arbiter or ResourceArbiter.from_env()
         self._model: Any = None
         self._train_X: Any = None
@@ -228,8 +268,13 @@ class BayesianOptimizer(BaseSearchStrategy):
                 rejected.append("native GP profile lacks fresh fit-basis admission")
                 self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
-            if not evaluation.is_valid:
-                rejected.append("invalid outcome")
+            if not self._score_is_admissible(evaluation):
+                reason = (
+                    "objective basis does not match configured scalar rule"
+                    if self._selected_objective_name is not None
+                    else "invalid outcome"
+                )
+                rejected.append(reason)
                 self._record_warm_start_rejection(evaluation, rejected[-1])
                 continue
             if self._origin_ref(evaluation) is None:
@@ -298,15 +343,48 @@ class BayesianOptimizer(BaseSearchStrategy):
         *,
         context_fingerprint: str,
         objective_fingerprint: str,
+        objective_unit: str | None = None,
     ) -> None:
         """Bind current and historical evaluations to this run's immutable header."""
         if not context_fingerprint.strip() or not objective_fingerprint.strip():
             raise ValueError("search-run context and objective fingerprints are required")
-        if self._run_context_fingerprint is not None and (
-            self._run_context_fingerprint != context_fingerprint
-            or self._run_objective_fingerprint != objective_fingerprint
+        if self._selected_objective_name is None or self._selected_objective_direction is None:
+            raise ValueError("configured search runs require a selected objective rule")
+        selected_binding = _configured_search_metric_binding(
+            self._selected_objective_name,
+            self._selected_objective_direction.value,
+            objective_unit,
+        )
+        expected_objective_fingerprint = _configured_search_metric_profile_fingerprint(
+            self._selected_objective_name,
+            self._selected_objective_direction.value,
+            objective_unit,
+        )
+        if (
+            selected_binding is None
+            or expected_objective_fingerprint is None
+            or expected_objective_fingerprint != objective_fingerprint
         ):
-            raise RuntimeError("search-run profile is immutable for this optimizer")
+            raise ValueError("configured search run differs from selected objective rule and unit")
+        if objective_unit != self._selected_objective_unit:
+            if (
+                self._run_context_fingerprint is not None
+                or self._warm_evals
+                or self._train_X is not None
+                or self._model is not None
+            ):
+                raise RuntimeError("selected objective unit cannot change after score admission")
+            self._selected_objective_unit = objective_unit
+            self._selected_objective_rule_spec = selected_binding[2]
+        if (
+            self._run_context_fingerprint is not None
+            and (
+                self._run_context_fingerprint != context_fingerprint
+                or self._run_objective_fingerprint != objective_fingerprint
+            )
+            and (self._warm_evals or self._train_X is not None or self._model is not None)
+        ):
+            raise RuntimeError("search-run profile is immutable after score admission")
         if self._warm_evals and (
             self._warm_context_fingerprint != context_fingerprint
             or self._warm_start_target_objective_fingerprint != objective_fingerprint
@@ -356,6 +434,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         fitted_model_is_live = self._fitted_model_matches_recorded_basis()
         eligible = bool(
             self._botorch_ready
+            and self._selected_objective_name is not None
             and proposal_source == "bayesian_acquisition"
             and fitted_model_is_live
             and model_fqn == "botorch.models.gp_regression.SingleTaskGP"
@@ -386,7 +465,9 @@ class BayesianOptimizer(BaseSearchStrategy):
             outcome_transform_state_fingerprint=outcome_transform_state,
             noise_model_fingerprint=noise_model,
             noise_model_state_fingerprint=noise_model_state,
-            objective_fingerprint=objective_fingerprint,
+            objective_fingerprint=(
+                objective_fingerprint if self._selected_objective_name is not None else None
+            ),
             context_fingerprint=context_fingerprint,
             training_corpus_fingerprint=corpus_fingerprint,
             training_observation_count=training_count,
@@ -545,7 +626,7 @@ class BayesianOptimizer(BaseSearchStrategy):
                 "provenance_ref": evaluation.provenance_ref,
                 "params_normalized": list(evaluation.params_normalized),
                 "scalar_score": evaluation.scalar_score,
-                "is_valid": evaluation.is_valid,
+                "is_valid": self._score_is_admissible(evaluation),
             }
             for evaluation in evaluations
         ]
@@ -554,28 +635,25 @@ class BayesianOptimizer(BaseSearchStrategy):
         count = len(fit_x)
         if len(rows) != count or len(fit_y) != count:
             return
-        valid_scores = [
-            evaluation.scalar_score
-            for evaluation in evaluations
-            if evaluation.is_valid and math.isfinite(evaluation.scalar_score)
-        ]
+        valid_scores: list[float] = []
+        for evaluation in evaluations:
+            score = evaluation.scalar_score
+            if (
+                not self._score_is_admissible(evaluation)
+                or score is None
+                or not math.isfinite(score)
+            ):
+                return
+            valid_scores.append(float(score))
         if not valid_scores:
             return
-        worst_valid = max(valid_scores)
         expected_x = self._torch.tensor(
             [list(evaluation.params_normalized) for evaluation in evaluations],
             dtype=self._fitted_train_X.dtype,
             device=self._fitted_train_X.device,
         )
         expected_y = self._torch.tensor(
-            [
-                [
-                    -float(evaluation.scalar_score)
-                    if evaluation.is_valid and math.isfinite(evaluation.scalar_score)
-                    else -(float(worst_valid + self._config.invalid_penalty))
-                ]
-                for evaluation in evaluations
-            ],
+            [[-score] for score in valid_scores],
             dtype=self._fitted_train_y_bo.dtype,
             device=self._fitted_train_y_bo.device,
         )
@@ -605,6 +683,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             return
         corpus_fingerprint = _profile_fingerprint(
             {
+                "selected_objective_binding": self._objective_binding_payload(),
                 "observations": rows,
                 "fitted_normalized_inputs": fit_x,
                 "fitted_minimization_targets": fit_y,
@@ -621,7 +700,9 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._last_acquisition_training_observation_count = None
         self._last_acquisition_training_evaluation_refs = None
         if not evaluations or any(
-            not evaluation.is_valid or not math.isfinite(evaluation.scalar_score)
+            not self._score_is_admissible(evaluation)
+            or evaluation.scalar_score is None
+            or not math.isfinite(evaluation.scalar_score)
             for evaluation in evaluations
         ):
             return
@@ -754,6 +835,51 @@ class BayesianOptimizer(BaseSearchStrategy):
                 "likelihood": f"{type(likelihood).__module__}.{type(likelihood).__qualname__}",
                 "noise": noise,
             }
+        )
+
+    def _objective_binding_payload(self) -> dict[str, str] | None:
+        """Return the immutable consumer-selected scalar basis, if configured."""
+        if (
+            self._selected_objective_name is None
+            or self._selected_objective_direction is None
+            or self._selected_objective_rule_spec is None
+        ):
+            return None
+        payload = {
+            "name": self._selected_objective_name,
+            "direction": self._selected_objective_direction.value,
+            "rule_spec": self._selected_objective_rule_spec,
+        }
+        if self._selected_objective_unit is not None:
+            payload["unit"] = self._selected_objective_unit
+        return payload
+
+    def _score_is_admissible(self, evaluation: Evaluation) -> bool:
+        """Apply the configured scalar rule, or the generic candidate-only contract."""
+        if self._selected_objective_name is None:
+            # The generic strategy contract accepts a caller-supplied numeric objective
+            # for candidate exploration only; it does not resolve configured semantics.
+            score = evaluation.scalar_score
+            status = getattr(evaluation.status, "value", evaluation.status)
+            return bool(
+                status == "success"
+                and evaluation.stage_a_passed is True
+                and isinstance(score, (int, float))
+                and not isinstance(score, bool)
+                and math.isfinite(float(score))
+            )
+        assert self._selected_objective_direction is not None
+        assert self._selected_objective_rule_spec is not None
+        return _evaluation_matches_selected_objectives(
+            evaluation,
+            objective_names=[self._selected_objective_name],
+            objective_directions={
+                self._selected_objective_name: self._selected_objective_direction
+            },
+            objective_rule_specs={
+                self._selected_objective_name: self._selected_objective_rule_spec
+            },
+            require_scalar_score=True,
         )
 
     def _record_warm_start_rejection(self, evaluation: Evaluation, reason: str) -> None:
@@ -890,6 +1016,7 @@ class BayesianOptimizer(BaseSearchStrategy):
 
         metadata: dict[str, Any] = {
             "config": asdict(self._config),
+            "selected_objective_binding": self._objective_binding_payload(),
             "warm_start_rejections": {
                 "version": 1,
                 "complete": self._warm_start_rejection_history_complete,
@@ -933,6 +1060,15 @@ class BayesianOptimizer(BaseSearchStrategy):
         Legacy model snapshots lack enough information for append continuation;
         reject them explicitly rather than invent the missing fitting history.
         """
+        score_state_present = state.model_state is not None or any(
+            field in state.metadata for field in ("train_X", "train_y_bo", "gp_continuation")
+        )
+        if (
+            score_state_present
+            and state.metadata.get("selected_objective_binding")
+            != self._objective_binding_payload()
+        ):
+            raise ValueError("GP continuation objective binding differs from the selected run")
         rejection_history = state.metadata.get("warm_start_rejections")
         if rejection_history is None:
             rejection_records: list[dict[str, Any]] = []
@@ -1047,6 +1183,8 @@ class BayesianOptimizer(BaseSearchStrategy):
         corpus: list[Evaluation] = []
         seen: set[tuple[Any, ...]] = set()
         for evaluation in [*self._warm_evals, *evaluations]:
+            if not self._score_is_admissible(evaluation):
+                continue
             if not self._has_compatible_params(evaluation):
                 continue
             requires_warm_fingerprint = id(evaluation) in self._warm_evaluation_ids
@@ -1182,22 +1320,18 @@ class BayesianOptimizer(BaseSearchStrategy):
         return ("candidate", evaluation.candidate_id, replicate_identity)
 
     def _prepare_training_data(self, evaluations: list[Evaluation]):
-        valid_scores = [
-            e.scalar_score for e in evaluations if e.is_valid and math.isfinite(e.scalar_score)
+        if not evaluations or any(not self._score_is_admissible(item) for item in evaluations):
+            raise RuntimeError(
+                "GP training requires only selected-rule-reconciled objective scores"
+            )
+        x_rows = [
+            [float(value) for value in evaluation.params_normalized] for evaluation in evaluations
         ]
-        if not valid_scores:
-            raise RuntimeError("No valid objective values available for GP fitting")
-
-        worst_valid = max(valid_scores)
-        penalty = self._config.invalid_penalty
-        x_rows: list[list[float]] = []
         y_search: list[float] = []
         for evaluation in evaluations:
-            x_rows.append([float(value) for value in evaluation.params_normalized])
-            if evaluation.is_valid and math.isfinite(evaluation.scalar_score):
-                y_search.append(float(evaluation.scalar_score))
-            else:
-                y_search.append(float(worst_valid + penalty))
+            if evaluation.scalar_score is None or not math.isfinite(evaluation.scalar_score):
+                raise RuntimeError("GP training requires finite selected objective scores")
+            y_search.append(float(evaluation.scalar_score))
 
         X = self._torch.tensor(x_rows, dtype=self._torch.float64)
         y_bo = self._torch.tensor([[-score] for score in y_search], dtype=self._torch.float64)
@@ -1337,12 +1471,13 @@ class BayesianOptimizer(BaseSearchStrategy):
         if n < 5:
             return AcquisitionType.EI
 
-        valid = [e for e in evaluations if e.is_valid]
+        valid = [e for e in evaluations if self._score_is_admissible(e)]
         if len(valid) < 3:
             return AcquisitionType.EI
 
-        recent_scores = [e.scalar_score for e in valid[-5:]]
-        overall_best = min(e.scalar_score for e in valid)
+        valid_scores = [float(e.scalar_score) for e in valid if e.scalar_score is not None]
+        recent_scores = valid_scores[-5:]
+        overall_best = min(valid_scores)
         recent_best = min(recent_scores)
 
         # No improvement in recent window -> explore more

@@ -31,7 +31,6 @@ from polisyos.scientist.evidence.claims.validators import (
 )
 from polisyos.scientist.governance.report import (
     GovernanceReport,
-    load_governance_report_artifact,
 )
 from polisyos.scientist.methods.research_dag.projections import (
     is_research_dag_required_for_publication,
@@ -40,6 +39,9 @@ from polisyos.scientist.methods.research_dag.replay import legacy_research_dag_s
 from polisyos.scientist.nodes.builtins.decide._decision_packet_contracts import (
     _ClaimLedgerAttachment,
     _DecisionPacketBuildRequest,
+)
+from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+    _prepare_policy_candidate_state_for_direct_consumer,
 )
 from polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment import (
     _attach_claim_ledger_to_packet,
@@ -99,6 +101,10 @@ from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
     _build_replay_section,
     _compute_replay_readiness,
     _determine_strategy_hint,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+    _CURRENT_POLICY_PROMOTION_PARAM_KEYS,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
@@ -180,6 +186,10 @@ _SPEC = NodeSpec(
         "run_id",
         "params.random_seed",
         "params.determinism_tier",
+        "params.workflow_id",
+        "params.policy_mode",
+        *(f"params.{key}" for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS),
+        "params.reported_policy_promotion_history",
         "execution_profile",
         "capability_manifest_ref",
         "inputs",
@@ -202,14 +212,19 @@ _SPEC = NodeSpec(
         "artifacts_index.bounds_bundle_ref",
         "artifacts_index.decision_readiness_contract_ref",
     ],
-    state_writes=[
-        f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}",
-        f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
-        f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}",
-        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
-        f"artifacts_index.{ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF}",
-    ],
+    state_writes=list(
+        dict.fromkeys(
+            [
+                f"artifacts_index.{ARTIFACT_DECISION_PACKET_REF}",
+                f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+                f"artifacts_index.{ARTIFACT_CLAIM_LEDGER_V2_REF}",
+                f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                f"artifacts_index.{ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF}",
+                *_CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+            ]
+        )
+    ),
     produces=[
         ARTIFACT_DECISION_PACKET_REF,
         ARTIFACT_CLAIMS_REF,
@@ -229,6 +244,11 @@ class BuildDecisionPacketNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        state = _prepare_policy_candidate_state_for_direct_consumer(
+            ctx,
+            state,
+            preserve_source_bound_candidate_bundle=True,
+        )
         invocation_input_refs = tuple(
             (*state.inputs.values(), *state.artifacts_index.values(), *state.reports_index.values())
         )
@@ -708,13 +728,26 @@ def _build_packet_payload(
 
     if governance_ref is not None:
         try:
-            governance_report_value = load_governance_report_artifact(ctx.store, governance_ref)
+            from polisyos.scientist.governance.report_currentness import (
+                resolve_current_governance_report,
+            )
+
+            governance_admission = resolve_current_governance_report(ctx, state, governance_ref)
+            if not governance_admission.is_current or governance_admission.report is None:
+                governance_report = _GovernanceReportIntakeRefusal(
+                    artifact_ref=str(governance_ref.artifact_id),
+                    reason_code=governance_admission.reason_code,
+                )
+                packet_payload["governance"] = None
+                return packet_payload, governance_report
+            governance_report_value = governance_admission.report
             governance_report = governance_report_value
             packet_payload["governance"] = {
                 "verdict": governance_report_value.verdict,
                 "issues": governance_report_value.issues,
                 "links": governance_report_value.links.model_dump(mode="json"),
                 "notes": governance_report_value.notes,
+                "currentness": "current",
             }
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             _record_decision_packet_degraded(

@@ -6,6 +6,10 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
+    ObjectiveScoreStatus,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _build_evidence_driven_simulation_metrics,
     _build_policy_simulation_results_impl,
@@ -70,7 +74,7 @@ def test_metric_projection_uses_known_signal_and_drops_unknown_nonfinite_project
     assert projected["promotable_source"] is None
 
 
-def test_fiscal_aliases_survive_projection_without_budget_penalty_becoming_balance() -> None:
+def test_fiscal_aliases_are_retained_but_unavailable_without_source_unit() -> None:
     candidate = _candidate()
     mapped, _, _ = _build_evidence_driven_simulation_metrics(
         candidate,
@@ -97,7 +101,15 @@ def test_fiscal_aliases_survive_projection_without_budget_penalty_becoming_balan
     assert projected["budget_deficit"] == 100.0
     assert projected["deficit"] == 100.0
     assert "gov_balance" not in projected
-    assert projected["budget_deficit_objective_usable"] is True
+    assert projected["metric_units"] == {}
+    assert projected["budget_deficit_objective_usable"] is False
+    assert projected["budget_deficit_objective_value"] is None
+
+    objective = BudgetDeficitObjective().evaluate(projected)
+    assert objective.score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert objective.score_assessment is not None
+    assert objective.score_assessment.limitation == "objective_rule_unit_not_established"
+    assert objective.is_satisfied is False
 
 
 def test_runtime_projection_binds_configured_count_without_claiming_executed_draws() -> None:

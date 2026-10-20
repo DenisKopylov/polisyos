@@ -1,5 +1,12 @@
 """Stable policy-verification facade for request frames, legal packs, and verified reports."""
 
+from .currentness import (
+    VERIFIED_POLICY_REPORT_SOURCE_BASIS_ID,
+    VERIFIED_POLICY_REPORT_SOURCE_READ_PATHS,
+    VerifiedPolicyReportAdmission,
+    VerifiedPolicyReportCurrentness,
+    resolve_current_verified_policy_report,
+)
 from .models import (
     LegalCandidatePack,
     LegalRetrievalStatus,
@@ -50,4 +57,9 @@ __all__ = [
     "persist_policy_request_frame",
     "persist_source_verification_report",
     "persist_verified_policy_report",
+    "VERIFIED_POLICY_REPORT_SOURCE_BASIS_ID",
+    "VERIFIED_POLICY_REPORT_SOURCE_READ_PATHS",
+    "VerifiedPolicyReportAdmission",
+    "VerifiedPolicyReportCurrentness",
+    "resolve_current_verified_policy_report",
 ]

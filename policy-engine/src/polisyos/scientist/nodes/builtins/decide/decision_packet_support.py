@@ -221,10 +221,7 @@ def _populate_optional_report_projections(
 ) -> None:
     """Load optional verification and policy-output reports into the packet."""
 
-    from polisyos.core.contracts import (
-        SourceVerificationReportRef,
-        VerifiedPolicyReportRef,
-    )
+    from polisyos.core.contracts import SourceVerificationReportRef
     from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
         _DECISION_PACKET_LOAD_ERRORS,
         _decision_packet_degraded,
@@ -235,9 +232,9 @@ def _populate_optional_report_projections(
         ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
         ARTIFACT_VERIFIED_POLICY_REPORT_REF,
     )
-    from polisyos.scientist.validation.policy_verified import (
-        load_source_verification_report,
-        load_verified_policy_report,
+    from polisyos.scientist.validation.policy_verified import load_source_verification_report
+    from polisyos.scientist.validation.policy_verified.currentness import (
+        resolve_current_verified_policy_report,
     )
 
     source_verification_ref = state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF)
@@ -273,13 +270,14 @@ def _populate_optional_report_projections(
                 ),
             )
 
-    verified_policy_ref = state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF)
+    verified_policy_ref = state.verified_policy_report_ref or state.artifacts_index.get(
+        ARTIFACT_VERIFIED_POLICY_REPORT_REF
+    )
     if verified_policy_ref is not None:
-        try:
-            verified_report = load_verified_policy_report(
-                ctx.store,
-                VerifiedPolicyReportRef.model_validate(verified_policy_ref.model_dump()),
-            )
+        admission = resolve_current_verified_policy_report(ctx, state, verified_policy_ref)
+        if admission.is_current:
+            verified_report = admission.report
+            assert verified_report is not None
             packet_payload["policy_answer"] = {
                 "executive_summary": verified_report.executive_summary,
                 "missing_evidence": list(verified_report.missing_evidence),
@@ -290,13 +288,13 @@ def _populate_optional_report_projections(
             packet_payload["intervention_legal_basis_map"] = dict(
                 verified_report.intervention_legal_basis_map
             )
-        except _DECISION_PACKET_LOAD_ERRORS as exc:
+        else:
             _record_decision_packet_degraded(
                 packet_payload,
                 _decision_packet_degraded(
-                    operation="load_verified_policy_report",
-                    reason="verified_policy_report_load_failed",
-                    exc=exc,
+                    operation="resolve_current_verified_policy_report",
+                    reason="verified_policy_report_currentness_not_established",
+                    exc=ValueError(admission.reason_code),
                     ref=verified_policy_ref,
                     artifact_key=ARTIFACT_VERIFIED_POLICY_REPORT_REF,
                 ),

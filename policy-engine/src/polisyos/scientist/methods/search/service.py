@@ -106,7 +106,8 @@ class _NativeSearchServiceDriver:
         stage_b_result = self._stage_b_result(evaluation)
         self.owner._accept_tell(
             candidate=candidate,
-            objective_value=float(evaluation.objective_value),
+            objective_value=evaluation.objective_value,
+            score_status=evaluation.score_status,
             objective_details=list(evaluation.objective_details),
             is_promising=bool(evaluation.is_promising),
             stage_a_passed=bool(evaluation.stage_a_passed),
@@ -124,9 +125,11 @@ class _NativeSearchServiceDriver:
         stage_b_result = deepcopy(evaluation.stage_b_result or {})
         simulation_results = stage_b_result.get("simulation_results")
         if simulation_results is None:
-            stage_b_result["simulation_results"] = {
-                "objective_value": float(evaluation.objective_value),
-            }
+            stage_b_result["simulation_results"] = (
+                {"objective_value": evaluation.objective_value}
+                if evaluation.objective_value is not None
+                else {}
+            )
         elif not isinstance(simulation_results, dict):
             raise TypeError("EvaluationBundle.stage_b_result.simulation_results must be a mapping")
 
@@ -143,6 +146,9 @@ class _NativeSearchServiceDriver:
                 "APPROVE" if evaluation.is_promising else "REJECT",
             )
 
+        stage_b_result["feedback"].setdefault(
+            "objective_score_status", evaluation.score_status.value
+        )
         if evaluation.policy_evaluation is not None:
             stage_b_result.setdefault("policy_evaluation", evaluation.policy_evaluation)
         return stage_b_result

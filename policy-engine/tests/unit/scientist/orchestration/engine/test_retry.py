@@ -557,24 +557,30 @@ class TestExecuteWithRetrySync:
         started = threading.Event()
         release = threading.Event()
         completed = threading.Event()
+        worker_errors: list[BaseException] = []
 
         class _LateClaimNode:
             def execute(self, passed_ctx, passed_state):
-                assert isinstance(passed_ctx, ClaimCapableExecutionContext)
-                started.set()
-                release.wait(timeout=1.0)
-                passed_ctx.run.run_manifest.status = "late"
-                passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("late")
-                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
-                    passed_ctx.store.put_json({"late": "write"}, object())
-                assert denied.value.code == "attempt_write_revoked"
-                assert denied.value.reason_code == "attempt_write_revoked"
-                passed_ctx.run.emit("late", "LATE_WRITE")
-                passed_ctx.run._audit_sink.emit({"late": "audit"})
-                passed_ctx.audit.append(action="late")
-                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
-                completed.set()
-                return _ok_outcome(passed_state)
+                try:
+                    assert isinstance(passed_ctx, ClaimCapableExecutionContext)
+                    started.set()
+                    release.wait(timeout=1.0)
+                    passed_ctx.run.run_manifest.status = "late"
+                    passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("late")
+                    with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                        passed_ctx.store.put_json({"late": "write"}, object())
+                    assert denied.value.code == "attempt_write_revoked"
+                    assert denied.value.reason_code == "attempt_write_revoked"
+                    passed_ctx.run.emit("late", "LATE_WRITE")
+                    passed_ctx.run._audit_sink.emit({"late": "audit"})
+                    passed_ctx.audit.append(action="late")
+                    passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                    return _ok_outcome(passed_state)
+                except BaseException as exc:
+                    worker_errors.append(exc)
+                    raise
+                finally:
+                    completed.set()
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         _select_timeout_test_route(monkeypatch, "thread")
@@ -595,6 +601,7 @@ class TestExecuteWithRetrySync:
             assert started.wait(timeout=0.5)
             release.set()
             assert completed.wait(timeout=0.5)
+            assert worker_errors == [], repr(worker_errors)
         finally:
             release.set()
             executor.shutdown(wait=True, cancel_futures=True)
@@ -926,22 +933,28 @@ class TestExecuteWithRetrySync:
         started = threading.Event()
         release = threading.Event()
         completed = threading.Event()
+        worker_errors: list[BaseException] = []
 
         class _LateAuthorityNode:
             def execute(self, passed_ctx, passed_state):
                 started.set()
                 release.wait(timeout=1.0)
-                passed_state.params["late_write"] = "unauthorised"
-                passed_ctx.run.run_manifest.status = "late"
-                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
-                    passed_ctx.store.put_json({"late": "write"}, object())
-                assert denied.value.code == "attempt_write_revoked"
-                assert denied.value.reason_code == "attempt_write_revoked"
-                passed_ctx.run.emit("late-authority", "LATE_WRITE")
-                passed_ctx.audit.append(run_id="run", actor="node", action="late")
-                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
-                completed.set()
-                return _ok_outcome(passed_state)
+                try:
+                    passed_state.params["late_write"] = "unauthorised"
+                    passed_ctx.run.run_manifest.status = "late"
+                    with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                        passed_ctx.store.put_json({"late": "write"}, object())
+                    assert denied.value.code == "attempt_write_revoked"
+                    assert denied.value.reason_code == "attempt_write_revoked"
+                    passed_ctx.run.emit("late-authority", "LATE_WRITE")
+                    passed_ctx.audit.append(run_id="run", actor="node", action="late")
+                    passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                    return _ok_outcome(passed_state)
+                except BaseException as exc:
+                    worker_errors.append(exc)
+                    raise
+                finally:
+                    completed.set()
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         monkeypatch.setattr(
@@ -976,7 +989,9 @@ class TestExecuteWithRetrySync:
         class _SuccessfulAuthorityNode:
             def execute(self, passed_ctx, passed_state):
                 passed_state.params["on_time"] = True
-                passed_ctx.run.run_manifest.status = "on_time"
+                manifest_snapshot = passed_ctx.run.run_manifest
+                manifest_snapshot.status = "on_time"
+                assert passed_ctx.run.run_manifest.status == "running"
                 passed_ctx.store.put_json({"on_time": True}, object())
                 passed_ctx.run.emit("on-time", "ON_TIME")
                 passed_ctx.audit.append(run_id="run", actor="node", action="on_time")
@@ -997,7 +1012,7 @@ class TestExecuteWithRetrySync:
             executor.shutdown(wait=True, cancel_futures=True)
 
         assert result.status == "ok"
-        assert recording_run.run_manifest.status == "on_time"
+        assert recording_run.run_manifest.status == "running"
         assert recording_store.put_json_calls
         assert recording_run.emit_calls
         assert recording_audit.append_calls
@@ -1053,6 +1068,7 @@ class TestExecuteWithRetrySync:
         started = asyncio.Event()
         release = asyncio.Event()
         completed = asyncio.Event()
+        worker_errors: list[BaseException] = []
 
         class _LateAsyncAuthorityNode:
             async def execute_async(self, passed_ctx, passed_state):
@@ -1061,17 +1077,22 @@ class TestExecuteWithRetrySync:
                     await release.wait()
                 except asyncio.CancelledError:
                     await release.wait()
-                passed_state.params["late_write"] = "unauthorised"
-                passed_ctx.run.run_manifest.status = "late"
-                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
-                    passed_ctx.store.put_json({"late": "write"}, object())
-                assert denied.value.code == "attempt_write_revoked"
-                assert denied.value.reason_code == "attempt_write_revoked"
-                passed_ctx.run.emit("late-authority", "LATE_WRITE")
-                passed_ctx.audit.append(run_id="run", actor="node", action="late")
-                passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
-                completed.set()
-                return _ok_outcome(passed_state)
+                try:
+                    passed_state.params["late_write"] = "unauthorised"
+                    passed_ctx.run.run_manifest.status = "late"
+                    with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                        passed_ctx.store.put_json({"late": "write"}, object())
+                    assert denied.value.code == "attempt_write_revoked"
+                    assert denied.value.reason_code == "attempt_write_revoked"
+                    passed_ctx.run.emit("late-authority", "LATE_WRITE")
+                    passed_ctx.audit.append(run_id="run", actor="node", action="late")
+                    passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
+                    return _ok_outcome(passed_state)
+                except BaseException as exc:
+                    worker_errors.append(exc)
+                    raise
+                finally:
+                    completed.set()
 
         result_task = asyncio.create_task(
             execute_with_retry_async(
@@ -1095,6 +1116,7 @@ class TestExecuteWithRetrySync:
             await result_task
         await release_task
         await asyncio.wait_for(completed.wait(), timeout=0.5)
+        assert worker_errors == [], repr(worker_errors)
 
         assert state.params == {}
         assert recording_run.run_manifest.status == "running"

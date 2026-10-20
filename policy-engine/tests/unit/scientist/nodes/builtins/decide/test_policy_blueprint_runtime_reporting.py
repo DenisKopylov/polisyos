@@ -255,3 +255,178 @@ def test_reporting_refusal_keeps_prior_state_and_real_cas_evidence_refs(tmp_path
 
 def _artifact_id_snapshot(store: FileSystemCAS) -> tuple[str, ...]:
     return tuple(sorted(str(artifact_id) for artifact_id in store.iter_artifact_ids()))
+
+
+def test_promotion_report_projection_reconciles_score_and_preserves_stale_and_new_reports(
+    tmp_path: Path,
+) -> None:
+    from polisyos.scientist.methods.search.funnel.types import FunnelStageResult, FunnelTraceStep
+    from polisyos.scientist.methods.search.objective import (
+        GDPGrowthObjective,
+        ObjectiveScoreStatus,
+        reconcile_objective_score_assessment,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
+        _project_promotion_feedback,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+        ARTIFACT_JUDGE_VERDICT_REF,
+        ARTIFACT_POLICY_FRONTIER_REPORT_REF,
+        ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    )
+    from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+    ctx = _context(tmp_path, "run_promotion_report_projection")
+    candidate = _candidate()
+    candidate_ref = persist_policy_candidate_schema(ctx.store, candidate)
+    evidence_bundle = PromotionEvidenceBundle(
+        run_id="run_promotion_report_projection",
+        produced_by_run_id="run_promotion_report_projection",
+        candidate_ref=candidate_ref,
+    )
+    evidence_ref = persist_promotion_evidence_bundle(ctx.store, evidence_bundle)
+    typed_result = {
+        "promotion_decision": {
+            "loop_id": "caller-claim",
+            "promoted": True,
+            "reason": "caller supplied",
+        },
+        "judge_verdict": {"composite_decision": "promote"},
+    }
+
+    cases = (
+        (
+            {},
+            {},
+            ObjectiveScoreStatus.UNAVAILABLE,
+            "selected_score_unavailable",
+        ),
+        (
+            {
+                "gdp_change": 0.0,
+                "metric_units": {"gdp_change": "fixture-unit"},
+            },
+            {
+                "gdp_change": 1.0,
+                "metric_units": {"gdp_change": "fixture-unit"},
+            },
+            ObjectiveScoreStatus.INVALID,
+            "selected_score_invalid",
+        ),
+        (
+            {
+                "gdp_change": 0.0,
+                "metric_units": {"gdp_change": "fixture-unit"},
+            },
+            {
+                "gdp_change": 0.0,
+                "metric_units": {"gdp_change": "fixture-unit"},
+            },
+            ObjectiveScoreStatus.AVAILABLE,
+            "protected_owner_receipt_not_established",
+        ),
+    )
+    for index, (source, observed, expected_status, expected_reason) in enumerate(cases):
+        objective = GDPGrowthObjective(expected_unit="fixture-unit").evaluate(source)
+        assessment = objective.score_assessment
+        assert assessment is not None
+        original_admission = reconcile_objective_score_assessment(
+            assessment,
+            source,
+            reported_status=objective.score_status,
+            reported_value=assessment.value,
+        )
+        result = FunnelStageResult(
+            policy_candidate={"candidate_id": candidate.candidate_id},
+            objective_value=assessment.value,
+            is_promising=expected_status is ObjectiveScoreStatus.AVAILABLE,
+            stage_name="funnel_L4_full",
+            score_status=objective.score_status,
+            score_assessment=assessment,
+            score_admission=original_admission,
+            simulation_results=observed,
+            feedback={"promotion_result": typed_result},
+            fidelity_level=4,
+            compute_cost_usd=0.1,
+            compute_cost_origin="estimated",
+        )
+        step = FunnelTraceStep(
+            fidelity_level=4,
+            stage_name="funnel_L4_full",
+            objective_value=assessment.value,
+            is_promising=result.is_promising,
+            duration_seconds=0.1,
+            compute_cost_usd=0.1,
+            compute_cost_origin="estimated",
+            score_status=original_admission.status,
+            score_assessment=assessment,
+            score_admission=original_admission,
+        )
+        outcome = FunnelOutcome(
+            ticket_id=f"ticket-{index}",
+            candidate_hash=candidate.candidate_hash(),
+            trace=[step],
+            stage_results={4: result},
+            final_result=result,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(source="fixture"),
+            compute_cost_usd=0.1,
+            compute_cost_origin="estimated",
+            degradation_mode="normal",
+            final_action="complete",
+            completed=True,
+        )
+        prior_history = [{"record_type": "prior-audit", "source": "saved"}]
+        state = ExperimentState(
+            run_id=f"run-promotion-projection-{index}",
+            params={
+                "policy_promotion_result": {"promotion_decision": {"promoted": True}},
+                "judge_verdict": {"composite_decision": "promote"},
+                "decision_readiness_contract": {"readiness_level": "simulation_ready"},
+                "promotion_decision": {"promoted": True},
+                "policy_brief": {"title": "stale"},
+                "translator_compliance": {"passed": True},
+                "reported_policy_promotion_history": prior_history,
+            },
+            artifacts_index={
+                ARTIFACT_DECISION_READINESS_CONTRACT_REF: candidate_ref,
+                ARTIFACT_JUDGE_VERDICT_REF: candidate_ref,
+                ARTIFACT_POLICY_FRONTIER_REPORT_REF: candidate_ref,
+                ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: candidate_ref,
+            },
+            policy_output_bundle_ref=candidate_ref,
+            policy_brief_ref=candidate_ref,
+            champion_policy_dossier_ref=candidate_ref,
+        )
+        branched = branch_state(state, write_paths=runtime._SPEC.state_writes).state
+        _project_promotion_feedback(
+            branched,
+            dict(result.feedback),
+            outcome=outcome,
+            candidate_ref=candidate_ref,
+            evidence_ref=evidence_ref,
+        )
+
+        status = branched.params["policy_promotion_projection_status"]
+        assert status["status"] == "reported_only"
+        assert status["authority_status"] == "not_established"
+        assert status["reason"] == expected_reason
+        assert status["score_admission"]["status"] == expected_status.value
+        assert "policy_promotion_result" not in branched.params
+        assert "promotion_decision" not in branched.params
+        assert "policy_brief" not in branched.params
+        assert "translator_compliance" not in branched.params
+        assert branched.policy_output_bundle_ref is None
+        assert branched.policy_brief_ref is None
+        assert branched.champion_policy_dossier_ref is None
+        assert not branched.artifacts_index
+        history = branched.params["reported_policy_promotion_history"]
+        assert history[0] == prior_history[0]
+        assert history[1]["record_type"] == "prior_current_projection"
+        assert history[1]["params"]["policy_promotion_result"]["promotion_decision"]["promoted"]
+        assert history[1]["refs"]["artifacts_index"][
+            ARTIFACT_POLICY_FRONTIER_REPORT_REF
+        ] == candidate_ref.model_dump(mode="json")
+        assert history[2]["record_type"] == "current_run_reported_feedback"
+        assert history[2]["incoming_feedback"]["promotion_result"]["promotion_decision"]["promoted"]

@@ -5,13 +5,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.scientist.methods.search.judge_stack import PolicyPromotionResult
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
     _parse_model,
+    _prepare_policy_candidate_state_for_direct_consumer,
     _resolve_candidate,
     _resolve_readiness_contract,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+    _CURRENT_POLICY_PROMOTION_PARAM_KEYS,
+    _resolve_current_policy_promotion_result,
 )
 from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
     _brief_required,
@@ -54,9 +59,13 @@ _SPEC = NodeSpec(
         "inputs",
         "params.policy_brief",
         "params.policy_promotion_result",
+        *_CURRENT_POLICY_PROMOTION_PARAM_KEYS,
+        "params.reported_policy_promotion_history",
         f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
     ],
-    state_writes=["params.translator_compliance"],
+    state_writes=list(
+        dict.fromkeys(["params.translator_compliance", *_CURRENT_POLICY_PROJECTION_WRITE_PATHS])
+    ),
 )
 
 
@@ -71,6 +80,22 @@ class RunTranslatorComplianceNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
+        state = _prepare_policy_candidate_state_for_direct_consumer(
+            ctx, state, preserve_source_bound_candidate_bundle=True
+        )
+        promotion_result, promotion_reason = _resolve_current_policy_promotion_result(state)
+        if promotion_result is None:
+            return NodeOutcome(
+                status="skip",
+                state=state,
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Translator compliance remains candidate-only without a protected owner receipt.",
+                        attrs={"reason": promotion_reason},
+                    )
+                ],
+            )
 
         readiness_ref = state.artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
         readiness = _resolve_readiness_contract(ctx, state, readiness_ref)
@@ -88,10 +113,6 @@ class RunTranslatorComplianceNode:
                 ),
             )
 
-        promotion_result = _parse_model(
-            state.params.get("policy_promotion_result"),
-            PolicyPromotionResult,
-        )
         candidate, candidate_ref = _resolve_candidate(ctx, state)
         if candidate is None or readiness is None or promotion_result is None:
             return NodeOutcome(

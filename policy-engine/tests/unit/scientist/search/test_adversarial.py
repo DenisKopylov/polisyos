@@ -394,6 +394,19 @@ def test_run_stress_test_search_loop_reverses_order_for_minimize_cost() -> None:
     assert [item.objective_value for item in report.vulnerabilities] == [10.0]
 
 
+_FIXTURE_BUDGET_DEFICIT_UNIT = "fixture-budget-deficit-unit"
+
+
+def _budget_deficit_simulation_result(value: object) -> dict[str, Any]:
+    """Return a synthetic fiscal result with an explicit test-only unit."""
+    return {
+        "simulation_results": {
+            "budget_deficit": value,
+            "metric_units": {"budget_deficit": _FIXTURE_BUDGET_DEFICIT_UNIT},
+        }
+    }
+
+
 def test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case() -> None:
     """Use the real composite cost objective rather than a direction surrogate."""
     plan = AdversarialPlan(
@@ -406,11 +419,13 @@ def test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case()
 
     def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         del candidate, context
-        return {"simulation_results": {"budget_deficit": next(costs)}}
+        return _budget_deficit_simulation_result(next(costs))
 
     report = run_stress_test(
         adversarial_plan=plan,
-        base_objective=CompositeObjective([BudgetDeficitObjective()]),
+        base_objective=CompositeObjective(
+            [BudgetDeficitObjective(expected_unit=_FIXTURE_BUDGET_DEFICIT_UNIT)]
+        ),
         stage_b_evaluator=stage_b,
         context={},
     )
@@ -424,15 +439,15 @@ def test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case()
     [
         pytest.param(None, id="missing"),
         pytest.param(
-            {"simulation_results": {"budget_deficit": "not-a-number"}},
+            _budget_deficit_simulation_result("not-a-number"),
             id="non_numeric",
         ),
         pytest.param(
-            {"simulation_results": {"budget_deficit": math.nan}},
+            _budget_deficit_simulation_result(math.nan),
             id="nan",
         ),
         pytest.param(
-            {"simulation_results": {"budget_deficit": math.inf}},
+            _budget_deficit_simulation_result(math.inf),
             id="inf",
         ),
     ],
@@ -458,11 +473,13 @@ def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
         calls += 1
         if calls == 33:
             return invalid_result
-        return {"simulation_results": {"budget_deficit": 1.0}}
+        return _budget_deficit_simulation_result(1.0)
 
     report = run_stress_test(
         adversarial_plan=plan,
-        base_objective=CompositeObjective([BudgetDeficitObjective()]),
+        base_objective=CompositeObjective(
+            [BudgetDeficitObjective(expected_unit=_FIXTURE_BUDGET_DEFICIT_UNIT)]
+        ),
         stage_b_evaluator=stage_b,
         candidate_generator=adapter,
         context={},

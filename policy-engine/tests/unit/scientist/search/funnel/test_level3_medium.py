@@ -10,6 +10,7 @@ from polisyos.scientist.methods.search.funnel.level3_medium import (
     _FORBIDDEN_PRUNING_METRICS,
     Level3MediumFidelity,
 )
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 
 
 def _make_candidate():
@@ -30,6 +31,10 @@ def _make_mock_engine(result=None):
             "simulation_results": {
                 "gdp_change": 0.03,
                 "gov_balance": -0.01,
+                "metric_units": {
+                    "gdp_change": "fixture-unit",
+                    "gov_balance": "fixture-unit",
+                },
             },
             "feedback": {"verdict": "APPROVE"},
         }
@@ -37,17 +42,25 @@ def _make_mock_engine(result=None):
     return engine
 
 
+def _configured_stage(engine, **kwargs):
+    return Level3MediumFidelity(
+        workflow_engine=engine,
+        expected_objective_unit="fixture-unit",
+        **kwargs,
+    )
+
+
 class TestLevel3MediumFidelity:
     def test_stage_metadata(self):
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         assert stage.stage_name == "funnel_L3_medium"
         assert stage.fidelity_level == 3
         assert stage.estimated_cost_usd > 0
 
     def test_successful_evaluation(self):
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         result = stage.evaluate(_make_candidate(), {})
 
         assert result.is_promising is True
@@ -61,6 +74,7 @@ class TestLevel3MediumFidelity:
             subsample_fraction=0.15,
             bootstrap_draws=30,
             estimator_tier="matching",
+            expected_objective_unit="fixture-unit",
         )
         stage.evaluate(_make_candidate(), {})
 
@@ -74,7 +88,7 @@ class TestLevel3MediumFidelity:
 
     def test_cardinal_rule_disclaimer(self):
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         result = stage.evaluate(_make_candidate(), {})
 
         assert result.feedback["level3_disclaimer"] == "routing_signal_only"
@@ -86,6 +100,7 @@ class TestLevel3MediumFidelity:
             workflow_engine=engine,
             subsample_fraction=0.3,
             bootstrap_draws=40,
+            expected_objective_unit="fixture-unit",
         )
         result = stage.evaluate(_make_candidate(), {})
 
@@ -97,22 +112,30 @@ class TestLevel3MediumFidelity:
         engine = MagicMock()
         engine.run.side_effect = RuntimeError("engine crash")
 
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         result = stage.evaluate(_make_candidate(), {})
 
         assert result.is_promising is False
-        assert result.objective_value == float("inf")
+        assert result.objective_value is None
+        assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
         assert any(fc.failure_type == "workflow_error" for fc in result.failure_cards)
 
     def test_objective_matches_expensive_stage_formula(self):
         """Objective formula must match ExpensiveStage._compute_default_objective."""
         engine = _make_mock_engine(
             {
-                "simulation_results": {"gdp_change": 0.05, "gov_balance": -0.02},
+                "simulation_results": {
+                    "gdp_change": 0.05,
+                    "gov_balance": -0.02,
+                    "metric_units": {
+                        "gdp_change": "fixture-unit",
+                        "gov_balance": "fixture-unit",
+                    },
+                },
                 "feedback": {"verdict": "APPROVE"},
             }
         )
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         result = stage.evaluate(_make_candidate(), {})
 
         expected = -(0.05 - 0.5 * 0.02)  # -(gdp - 0.5 * deficit)
@@ -125,28 +148,51 @@ class TestLevel3MediumFidelity:
                     "gdp_change": 0.05,
                     "budget_deficit": 0.02,
                     "budget_deficit_objective_usable": True,
+                    "metric_units": {
+                        "gdp_change": "fixture-unit",
+                        "budget_deficit": "fixture-unit",
+                    },
                 },
                 "feedback": {"verdict": "APPROVE"},
             }
         )
-        result = Level3MediumFidelity(workflow_engine=engine).evaluate(_make_candidate(), {})
+        result = _configured_stage(engine).evaluate(_make_candidate(), {})
 
         assert abs(result.objective_value - (-(0.05 - 0.5 * 0.02))) < 1e-10
 
     @pytest.mark.parametrize(
-        ("simulation_results", "expected_score", "limited"),
+        ("simulation_results", "expected_score", "expected_status"),
         [
-            pytest.param({"gdp_change": 0.05}, -0.05, True, id="marker-absent"),
             pytest.param(
-                {"gdp_change": 0.05, "budget_deficit_objective_usable": True},
-                -0.05,
-                True,
-                id="stale-available-marker",
+                {
+                    "gdp_change": 0.05,
+                    "metric_units": {"gdp_change": "fixture-unit"},
+                },
+                None,
+                "unavailable",
+                id="marker-absent",
             ),
             pytest.param(
-                {"gdp_change": 0.05, "budget_deficit": 0.02},
+                {
+                    "gdp_change": 0.05,
+                    "budget_deficit_objective_usable": True,
+                    "metric_units": {"gdp_change": "fixture-unit"},
+                },
+                None,
+                "invalid",
+                id="incomplete-available-marker",
+            ),
+            pytest.param(
+                {
+                    "gdp_change": 0.05,
+                    "budget_deficit": 0.02,
+                    "metric_units": {
+                        "gdp_change": "fixture-unit",
+                        "budget_deficit": "fixture-unit",
+                    },
+                },
                 -0.04,
-                False,
+                "available",
                 id="valid-alias-marker-absent",
             ),
             pytest.param(
@@ -154,34 +200,80 @@ class TestLevel3MediumFidelity:
                     "gdp_change": 0.05,
                     "budget_deficit": 0.02,
                     "budget_deficit_objective_usable": False,
+                    "budget_deficit_objective_value": None,
+                    "metric_units": {
+                        "gdp_change": "fixture-unit",
+                        "budget_deficit": "fixture-unit",
+                    },
+                },
+                None,
+                "invalid",
+                id="conflicting-unavailable-marker",
+            ),
+            pytest.param(
+                {
+                    "gdp_change": 0.05,
+                    "budget_deficit": 0.02,
+                    "budget_deficit_objective_usable": True,
+                    "budget_deficit_objective_value": 0.02,
+                    "metric_units": {
+                        "gdp_change": "fixture-unit",
+                        "budget_deficit": "fixture-unit",
+                    },
                 },
                 -0.04,
-                False,
-                id="stale-unavailable-marker",
+                "available",
+                id="producer-paired-marker",
             ),
         ],
     )
     def test_objective_limitation_comes_from_fiscal_assessment(
-        self, simulation_results, expected_score, limited
+        self, simulation_results, expected_score, expected_status
     ):
         feedback = {"verdict": "APPROVE"}
-        if not limited:
-            feedback["objective_limitations"] = [
-                "budget_deficit_unavailable_required_float_legacy_zero"
-            ]
+        if expected_status == "available":
+            feedback["objective_limitations"] = ["search_objective_fiscal_measurement_unavailable"]
         engine = _make_mock_engine({"simulation_results": simulation_results, "feedback": feedback})
 
-        result = Level3MediumFidelity(workflow_engine=engine).evaluate(_make_candidate(), {})
+        result = _configured_stage(engine).evaluate(_make_candidate(), {})
 
-        assert result.objective_value == pytest.approx(expected_score)
-        assert (
-            "budget_deficit_unavailable_required_float_legacy_zero"
-            in result.feedback.get("objective_limitations", [])
-        ) is limited
+        assert result.score_status.value == expected_status
+        if expected_score is None:
+            assert result.objective_value is None
+        else:
+            assert result.objective_value == pytest.approx(expected_score)
+        if expected_status == "available":
+            assert "objective_limitations" not in result.feedback
+        else:
+            assert result.feedback["objective_limitations"] == [
+                f"search_objective_fiscal_measurement_{expected_status}"
+            ]
+
+    def test_approved_verdict_with_missing_unit_is_limited_not_promoted(self):
+        engine = _make_mock_engine(
+            {
+                "simulation_results": {
+                    "gdp_change": 0.0,
+                    "budget_deficit": 0.0,
+                    "metric_units": {},
+                },
+                "feedback": {"verdict": "APPROVE"},
+            }
+        )
+        result = Level3MediumFidelity(
+            workflow_engine=engine,
+            expected_objective_unit="fixture-unit",
+        ).evaluate(_make_candidate(), {})
+
+        assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert result.objective_value is None
+        assert result.is_promising is False
+        assert result.terminal_action == "defer"
+        assert result.feedback["selected_objective_admission"] == "unavailable"
 
     def test_duration_based_cost_is_explicitly_estimated(self):
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         result = stage.evaluate(_make_candidate(), {})
         assert result.compute_cost_usd is not None
         assert result.compute_cost_usd >= 0.0
@@ -189,7 +281,7 @@ class TestLevel3MediumFidelity:
 
     def test_uncertainty_envelope_has_model(self):
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         result = stage.evaluate(_make_candidate(), {})
 
         from polisyos.scientist.methods.search.funnel.types import UncertaintyType
@@ -198,7 +290,7 @@ class TestLevel3MediumFidelity:
 
     def test_as_stage_b_callable(self):
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         callable_fn = stage.as_stage_b_callable()
 
         result = callable_fn(_make_candidate(), {})
@@ -209,7 +301,7 @@ class TestLevel3MediumFidelity:
     def test_context_keys_propagated(self):
         """Non-reserved context keys should be propagated to engine."""
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         stage.evaluate(_make_candidate(), {"custom_key": "value"})
 
         call_args = engine.run.call_args[0][0]
@@ -218,7 +310,7 @@ class TestLevel3MediumFidelity:
     def test_funnel_context_keys_excluded(self):
         """Keys starting with _funnel_ should not be propagated."""
         engine = _make_mock_engine()
-        stage = Level3MediumFidelity(workflow_engine=engine)
+        stage = _configured_stage(engine)
         stage.evaluate(_make_candidate(), {"_funnel_L1_result": "should_not_appear"})
 
         call_args = engine.run.call_args[0][0]

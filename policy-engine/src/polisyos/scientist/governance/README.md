@@ -68,3 +68,8 @@ uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/s
 ## Last Updated
 
 - Last updated: 2026-08-26
+
+
+## Current report admission
+
+A persisted `GovernanceReport` remains readable as historical evidence. Decision consumers use it as current only after `resolve_current_governance_report(...)` finds the exact successful RunGovernance output, verifies the captured in-process builtin identity, and recomputes the full source maps passed to the selected validation pipeline. The engine's terminal-state receipt lets the reader distinguish its exact report/research-DAG finalization writes from a later source mutation. This is source-currentness, not a claim that arbitrary dynamic validator code, external law, or an issuer is attested. Schema-1 and unbound reports remain loadable but are not current by inference.

@@ -31,7 +31,6 @@ from polisyos.ir.registry import (
 )
 from polisyos.scientist.governance.report import (
     GovernanceReport,
-    load_governance_report_artifact,
 )
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
@@ -192,7 +191,7 @@ def _run_promotion_with_evidence(
     hidden_holdout = _load_benchmark_evaluation(ctx, hidden_holdout_ref)
     platform_meta = load_platform_meta_evaluation_report(store, platform_meta_ref)
     governance_report = (
-        _load_governance_report_from_ref(ctx, evidence_bundle.governance_report_ref)
+        _load_governance_report_from_ref(ctx, state, evidence_bundle.governance_report_ref)
         if evidence_bundle.governance_report_ref is not None
         else _load_governance_report(ctx, state)
     )
@@ -414,17 +413,23 @@ def _load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> Causal
 def _load_governance_report(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
-    ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
-    if ref is None:
-        return None
-    return load_governance_report_artifact(ctx.store, ref)
+    from polisyos.scientist.governance.report_currentness import (
+        load_current_governance_report,
+    )
+
+    return load_current_governance_report(ctx, state)
 
 
 def _load_governance_report_from_ref(
     ctx: ExecutionContext,
+    state: ExperimentState,
     ref: ArtifactRef,
 ) -> GovernanceReport | None:
-    return load_governance_report_artifact(ctx.store, ref)
+    from polisyos.scientist.governance.report_currentness import (
+        load_current_governance_report,
+    )
+
+    return load_current_governance_report(ctx, state, ref)
 
 
 def _load_cross_graph_profile(

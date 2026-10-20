@@ -22,7 +22,9 @@ from polisyos.scientist.methods.search.funnel.types import (
     statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.methods.search.stages import ExpensiveStage
-from polisyos.scientist.methods.search.uncertainty import search_uncertainty_observation_ref
+from polisyos.scientist.methods.search.uncertainty import (
+    search_uncertainty_observation_ref,
+)
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 logger = get_logger(__name__)
@@ -38,10 +40,14 @@ class Level4FullFidelity(FunnelStage):
         expensive_stage: ExpensiveStage | None = None,
         estimated_cost_usd: float = 1.0,
         cost_per_second_usd: float = 0.01,
+        expected_objective_unit: str | None = None,
     ) -> None:
         if expensive_stage is None and workflow_engine is None:
             raise ValueError("Level4FullFidelity requires workflow_engine or expensive_stage")
-        self._stage = expensive_stage or ExpensiveStage(workflow_engine=workflow_engine)  # type: ignore[arg-type]
+        self._stage = expensive_stage or ExpensiveStage(
+            workflow_engine=workflow_engine,  # type: ignore[arg-type]
+            expected_objective_unit=expected_objective_unit,
+        )
         self._estimated_cost_usd = float(estimated_cost_usd)
         self._cost_per_second_usd = float(cost_per_second_usd)
 
@@ -114,7 +120,10 @@ class Level4FullFidelity(FunnelStage):
             },
             metadata={
                 "approved": result.is_promising,
-                "compute_cost_evidence": {"amount_usd": cost_usd, "origin": "estimated"},
+                "compute_cost_evidence": {
+                    "amount_usd": cost_usd,
+                    "origin": "estimated",
+                },
             },
         )
         store = resolve_actionable_store(context=context)
@@ -134,6 +143,8 @@ class Level4FullFidelity(FunnelStage):
             policy_candidate=result.policy_candidate,
             objective_value=result.objective_value,
             is_promising=result.is_promising,
+            score_status=result.score_status,
+            score_assessment=result.score_assessment,
             stage_name=self.stage_name,
             duration_seconds=duration,
             simulation_results=result.simulation_results,

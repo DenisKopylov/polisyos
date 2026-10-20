@@ -185,7 +185,7 @@ def _persist_policy_evaluation_vector_to_store_impl(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-                version="1.0",
+                version="1.1",
             ),
             inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
         ),
@@ -375,10 +375,11 @@ def _load_governance_report_impl(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
     """Load governance report."""
-    ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
-    if ref is None:
-        return None
-    return load_governance_report_artifact(ctx.store, ref)
+    from polisyos.scientist.governance.report_currentness import (
+        load_current_governance_report,
+    )
+
+    return load_current_governance_report(ctx, state)
 
 
 def _load_cross_graph_profile_impl(
@@ -490,7 +491,10 @@ def _load_governance_report_from_ref_impl(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport:
-    """Load governance report from ref."""
+    """Load governance bytes from a ref as candidate evidence only.
+
+    Decision and promotion consumers must use the state-bound currentness resolver.
+    """
     return load_governance_report_artifact(ctx.store, ref)
 
 

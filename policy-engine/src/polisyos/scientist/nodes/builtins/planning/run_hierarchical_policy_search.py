@@ -16,12 +16,24 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.trinity import TrinityBundle
@@ -39,6 +51,11 @@ from polisyos.scientist.methods.search.controller import (
     SearchResult,
     SearchStatus,
 )
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    reconcile_objective_score_assessment,
+    score_assessment_matches_source,
+)
 from polisyos.scientist.methods.search.strategies.transfer import RunFingerprint
 from polisyos.scientist.methods.search.strategies.types import Evaluation
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -48,8 +65,12 @@ from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
 from polisyos.scientist.nodes.builtins.causal.counterfactual_identification_gate import (
     evaluate_counterfactual_gate,
 )
-from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
-from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import RunCausalReadinessNode
+from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
+    ResolveParametersNode,
+)
+from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import (
+    RunCausalReadinessNode,
+)
 from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PolicyRuntimeEvaluationSafetyError,
@@ -580,23 +601,61 @@ class HierarchicalPolicySearchAdapter:
                     },
                 }
                 stage_b_result = stage_b_evaluator(candidate_payload, context)
+                evaluation = _coerce_policy_evaluation(stage_b_result)
+                source_results = stage_b_result.get("simulation_results")
+                if evaluation is not None:
+                    objective_value, score_status = evaluation.legacy_scalar_proxy_for_search(
+                        source_results if isinstance(source_results, dict) else None
+                    )
+                    score_assessment = evaluation.score_assessment
+                    score_source = {
+                        "policy_evaluation": evaluation.model_dump(mode="python"),
+                        "simulation_results": source_results,
+                    }
+                else:
+                    objective_value = None
+                    score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                    score_assessment = None
+                    score_source = source_results
+                score_admission = reconcile_objective_score_assessment(
+                    score_assessment,
+                    score_source,
+                    reported_status=score_status,
+                    reported_value=objective_value,
+                )
+                score_status = score_admission.status
+                has_usable_score = (
+                    score_status is ObjectiveScoreStatus.AVAILABLE
+                    and evaluation is not None
+                    and evaluation.score_assessment_matches_channels(
+                        source_results if isinstance(source_results, dict) else None
+                    )
+                    and objective_value is not None
+                )
+                if not has_usable_score:
+                    objective_value = None
                 state.parameter_search_results[structure.structure_id] = SearchResult(
                     search_id=f"{loop_id}:{structure.structure_id}",
                     status=SearchStatus.CONVERGED,
-                    best_candidate=candidate_payload,
-                    best_objective=float(stage_b_result.get("objective_value", 0.0)),
+                    best_candidate=candidate_payload if has_usable_score else None,
+                    best_objective=float(objective_value) if has_usable_score else math.inf,
                     iterations_completed=1,
                     history=[
                         SearchIteration(
                             iteration=0,
                             candidate=candidate_payload,
-                            objective_value=float(stage_b_result.get("objective_value", 0.0)),
+                            objective_value=(
+                                float(objective_value) if objective_value is not None else None
+                            ),
                             objective_details=[],
                             is_promising=bool(stage_b_result.get("feasible", True)),
                             stage_a_passed=True,
                             stage_b_result=stage_b_result,
                             duration_seconds=0.0,
-                            policy_evaluation=stage_b_result.get("policy_evaluation"),
+                            policy_evaluation=evaluation,
+                            score_status=score_status,
+                            score_assessment=score_assessment,
+                            score_admission=score_admission,
                         )
                     ],
                     stopping_reason="parameter_search_not_required",
@@ -759,7 +818,10 @@ class RunHierarchicalPolicySearchNode:
         try:
             search_config = _runtime_search_config_from_state(state)
             candidate_only_seed_evaluations = _load_candidate_only_transfer_evaluations(
-                ctx, loop_id=loop_id, intent=transfer_intent
+                ctx,
+                loop_id=loop_id,
+                intent=transfer_intent,
+                candidate=candidate,
             )
             search_result = adapter.run_search(
                 candidate,
@@ -781,9 +843,8 @@ class RunHierarchicalPolicySearchNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        champion = _select_champion_candidate(candidate, search_result)
-        if champion is None:
-            champion = candidate
+        selected_champion = _select_champion_candidate(search_result)
+        champion = selected_champion or candidate
 
         champion_trinity_ref = _persist_trinity_bundle(
             ctx,
@@ -809,8 +870,13 @@ class RunHierarchicalPolicySearchNode:
         new_state.params["policy_candidate_schema"] = champion
         new_state.params["policy_search_result"] = {
             **search_result.model_dump(mode="json"),
-            "champion_candidate_id": champion.candidate_id,
-            "champion_candidate_hash": champion.candidate_hash(),
+            "champion_candidate_id": (
+                None if selected_champion is None else selected_champion.candidate_id
+            ),
+            "champion_candidate_hash": (
+                None if selected_champion is None else selected_champion.candidate_hash()
+            ),
+            "champion_status": ("not_established" if selected_champion is None else "selected"),
         }
         new_state.inputs[INPUT_TRINITY_BUNDLE_REF] = champion_trinity_ref
         if frontier_ref is not None:
@@ -840,6 +906,7 @@ def _load_candidate_only_transfer_evaluations(
     *,
     loop_id: str,
     intent: _CandidateOnlyPolicyTransferIntent | None,
+    candidate: PolicyCandidateSchema,
 ) -> list[Evaluation] | None:
     """Load index-bound V5 history candidates for current policy re-evaluation."""
     if intent is None:
@@ -847,12 +914,30 @@ def _load_candidate_only_transfer_evaluations(
     fingerprint = intent.query_fingerprint
     if fingerprint.run_id != loop_id:
         raise ValueError("candidate transfer fingerprint must identify this policy-search loop")
+    selected_objectives = HierarchicalSearchCoordinator().build_optimizer_objective_spec(candidate)
+    if (
+        set(fingerprint.objective_names) != set(selected_objectives.objective_names)
+        or fingerprint.objective_directions
+        != dict(
+            zip(
+                selected_objectives.objective_names,
+                [direction.value for direction in selected_objectives.directions],
+                strict=True,
+            )
+        )
+        or fingerprint.objective_rule_specs != selected_objectives.objective_rule_specs
+    ):
+        raise ValueError(
+            "candidate transfer fingerprint does not match the selected objective rules"
+        )
     if not ctx.run.tenant_id or fingerprint.tenant_id != ctx.run.tenant_id:
         raise ValueError("candidate transfer tenant identity does not match the current run")
 
     from polisyos.scientist.agent.vector_memory import VectorMemoryStore
     from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+    from polisyos.scientist.methods.search.strategies.transfer import (
+        TransferLearningManager,
+    )
 
     index = VectorMemoryStore()
     index.load_from_artifact(ctx.store, intent.index_ref)
@@ -890,6 +975,7 @@ def _load_candidate_only_transfer_evaluations(
             "origin": source.origin,
             "tenant_id": source.tenant_id,
             "objective_directions": dict(source.objective_directions),
+            "objective_rule_specs": dict(source.objective_rule_specs),
             "history_ref": history_ref.model_dump(mode="json"),
         }
         evaluation.metadata["candidate_only_transfer_index_ref"] = intent.index_ref.model_dump(
@@ -1090,11 +1176,14 @@ def _evaluate_candidate_payload(
             }
         }
     )
+    simulation_results = dict(evaluation_artifact.simulation_results)
+    objective_value, score_status = evaluation.legacy_scalar_proxy_for_search(simulation_results)
     return {
         "status": "ok",
         "feasible": bool(evaluation.feasible),
-        "objective_value": float(evaluation.legacy_scalar_proxy),
-        "simulation_results": dict(evaluation_artifact.simulation_results),
+        "objective_value": objective_value,
+        "objective_score_status": score_status.value,
+        "simulation_results": simulation_results,
         "policy_evaluation": evaluation.model_dump(mode="json"),
         "counterfactual_gate_summary": gate_summary,
         "baseline_policy_value": resolve_baseline_policy_value(
@@ -1139,10 +1228,12 @@ def _rejected_stage_b_result(
             },
         }
     )
+    objective_value, score_status = evaluation.legacy_scalar_proxy_for_search({})
     return {
         "status": "rejected",
         "feasible": False,
-        "objective_value": float(evaluation.legacy_scalar_proxy),
+        "objective_value": objective_value,
+        "objective_score_status": score_status.value,
         "simulation_results": {},
         "policy_evaluation": evaluation.model_dump(mode="json"),
         "blocked_reason": blocked_reason,
@@ -1150,33 +1241,42 @@ def _rejected_stage_b_result(
     }
 
 
-def _select_champion_candidate(
-    fallback_candidate: PolicyCandidateSchema,
-    search_result: Any,
-) -> PolicyCandidateSchema | None:
-    ranked = sorted(
-        _iter_candidate_records(search_result),
-        key=_candidate_rank_key,
-        reverse=True,
-    )
-    if ranked:
-        return ranked[0].candidate
-    structure_candidates = [
-        item.candidate for item in search_result.state.structure_candidates if item.accepted
+def _select_champion_candidate(search_result: Any) -> PolicyCandidateSchema | None:
+    ranked = [
+        (record, rank_key)
+        for record in _iter_candidate_records(search_result)
+        if (rank_key := _candidate_rank_key(record)) is not None
     ]
-    if structure_candidates:
-        return structure_candidates[0]
-    return fallback_candidate
+    ranked.sort(key=lambda item: item[1], reverse=True)
+    if ranked:
+        return ranked[0][0].candidate
+    return None
 
 
 def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationRecord]:
     records: list[_CandidateEvaluationRecord] = []
-    structure_map = {
-        item.structure_id: item.candidate for item in search_result.state.structure_candidates
-    }
     for structure_id, result in search_result.state.parameter_search_results.items():
         for iteration in result.history:
+            source_payload = getattr(iteration, "stage_b_result", None)
+            source_results = (
+                source_payload.get("simulation_results")
+                if isinstance(source_payload, dict)
+                else None
+            )
+            assessment = getattr(iteration, "score_assessment", None)
             evaluation = _coerce_policy_evaluation(getattr(iteration, "policy_evaluation", None))
+            source_is_valid = (
+                evaluation.score_assessment_matches_channels(
+                    source_results if isinstance(source_results, dict) else None
+                )
+                if evaluation is not None
+                else score_assessment_matches_source(assessment, source_results)
+            )
+            if (
+                getattr(iteration, "score_status", None) is not ObjectiveScoreStatus.AVAILABLE
+                or not source_is_valid
+            ):
+                continue
             candidate_payload = iteration.candidate or result.best_candidate
             if not isinstance(candidate_payload, dict):
                 continue
@@ -1184,11 +1284,17 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                 _candidate_payload_without_hash(candidate_payload)
             )
             if evaluation is None:
+                objective_value = getattr(iteration, "objective_value", None)
+                if objective_value is None:
+                    continue
                 feasible = bool(getattr(iteration, "is_promising", False))
-                objective_value = float(getattr(iteration, "objective_value", 0.0))
             else:
                 feasible = bool(evaluation.feasible)
-                objective_value = float(evaluation.legacy_scalar_proxy)
+                objective_value, score_status = evaluation.legacy_scalar_proxy_for_search(
+                    source_results if isinstance(source_results, dict) else None
+                )
+                if score_status.value != "available" or objective_value is None:
+                    continue
             records.append(
                 _CandidateEvaluationRecord(
                     structure_id=structure_id,
@@ -1199,28 +1305,21 @@ def _iter_candidate_records(search_result: Any) -> list[_CandidateEvaluationReco
                     metadata=dict(getattr(iteration, "stage_b_result", {}) or {}),
                 )
             )
-    if records:
-        return records
-    for structure_id, candidate in structure_map.items():
-        records.append(
-            _CandidateEvaluationRecord(
-                structure_id=structure_id,
-                candidate=candidate,
-                evaluation=None,
-                feasible=True,
-                objective_value=0.0,
-                metadata={},
-            )
-        )
     return records
 
 
-def _candidate_rank_key(record: _CandidateEvaluationRecord) -> tuple[float, float, float, int]:
+def _candidate_rank_key(
+    record: _CandidateEvaluationRecord,
+) -> tuple[float, float, float, int] | None:
     evaluation = record.evaluation
+    if evaluation is None:
+        return (1.0 if record.feasible else 0.0, -float(record.objective_value), 0.0, 0)
     policy_value = _objective_value(evaluation, "policy_value")
     welfare = _objective_value(evaluation, "welfare")
     employment = _objective_value(evaluation, "employment")
-    blocking_count = 0 if evaluation is None else len(evaluation.blocking_reasons)
+    if policy_value is None or welfare is None or employment is None:
+        return None
+    blocking_count = len(evaluation.blocking_reasons)
     return (
         1.0 if record.feasible else 0.0,
         policy_value,
@@ -1232,13 +1331,13 @@ def _candidate_rank_key(record: _CandidateEvaluationRecord) -> tuple[float, floa
 def _objective_value(
     evaluation: PolicyEvaluationVector | None,
     name: str,
-) -> float:
+) -> float | None:
     if evaluation is None:
-        return 0.0
+        return None
     channel = evaluation.primary.get(name)
     if channel is None:
         channel = evaluation.secondary.get(name)
-    return 0.0 if channel is None else float(channel.higher_is_better)
+    return None if channel is None else float(channel.higher_is_better)
 
 
 def _coerce_policy_candidate(payload: Any) -> PolicyCandidateSchema | None:

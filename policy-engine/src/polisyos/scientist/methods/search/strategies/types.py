@@ -10,7 +10,14 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
-from polisyos.scientist.methods.search.objective import ObjectiveValue
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    ObjectiveValue,
+    _validate_objective_score_state,
+    score_assessment_matches_source,
+)
 
 NormalizedVector = tuple[float, ...]
 
@@ -103,7 +110,7 @@ class Evaluation:
     params: dict[str, Any]
     params_normalized: NormalizedVector
     objectives: list[ObjectiveValue]
-    scalar_score: float
+    scalar_score: float | None
     stage_a_passed: bool
     stage_b_result: dict[str, Any] | None = None
     status: EvaluationStatus = EvaluationStatus.SUCCESS
@@ -111,11 +118,40 @@ class Evaluation:
     wall_time_seconds: float = 0.0
     provenance_ref: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
+    score_admission: ObjectiveScoreAdmission | None = None
+
+    def __post_init__(self) -> None:
+        if self.score_admission is not None:
+            self.score_status = self.score_admission.status
+            if self.score_status is not ObjectiveScoreStatus.AVAILABLE:
+                self.scalar_score = None
+            elif self.score_admission.reported_assessment != self.score_assessment:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                self.scalar_score = None
+            elif self.score_assessment is not None:
+                self.scalar_score = self.score_assessment.value
+        elif self.score_assessment is None:
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        else:
+            self.score_status = self.score_assessment.status
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.scalar_score = self.score_assessment.value
+        _validate_objective_score_state(self.scalar_score, self.score_status)
 
     @property
     def is_valid(self) -> bool:
-        """True when evaluation is usable for surrogate training."""
-        return self.status == EvaluationStatus.SUCCESS and self.stage_a_passed
+        """True when execution succeeded and its scalar score has a recomputable basis."""
+        return (
+            self.status is EvaluationStatus.SUCCESS
+            and self.stage_a_passed
+            and self.score_status is ObjectiveScoreStatus.AVAILABLE
+            and score_assessment_matches_source(self.score_assessment, self.stage_b_result)
+            and self.scalar_score is not None
+            and math.isfinite(self.scalar_score)
+        )
 
 
 @dataclass(slots=True)

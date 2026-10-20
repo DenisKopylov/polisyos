@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -11,7 +12,15 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.autotune.models import BenchmarkSplit
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
+    GDPGrowthObjective,
+    ObjectiveScoreStatus,
+    ObjectiveValue,
+    OptimizationDirection,
+    configured_objective_rule_spec,
+)
+from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer
 from polisyos.scientist.methods.search.strategies.transfer import (
     RunFingerprint,
     TransferLearningManager,
@@ -32,22 +41,40 @@ def _make_eval(
     direction: OptimizationDirection = OptimizationDirection.MINIMIZE,
     provenance_ref: str | None = None,
 ) -> Evaluation:
+    value = score if raw_score is None else raw_score
+    source = (
+        {"gdp_change": value, "metric_units": {"gdp_change": "points"}}
+        if direction is OptimizationDirection.MAXIMIZE
+        else {"budget_deficit": abs(value), "metric_units": {"budget_deficit": "points"}}
+    )
+    configured = (
+        GDPGrowthObjective(expected_unit="points")
+        if direction is OptimizationDirection.MAXIMIZE
+        else BudgetDeficitObjective(expected_unit="points")
+    ).evaluate(source)
+    objective = ObjectiveValue(
+        name="score",
+        raw_value=float(configured.raw_value),
+        direction=direction,
+        weight=configured.weight,
+        is_satisfied=configured.is_satisfied,
+        threshold=configured.threshold,
+        score_status=configured.score_status,
+        score_assessment=configured.score_assessment,
+    )
     return Evaluation(
         candidate_id=candidate_id,
         params={"x": 0.5},
         params_normalized=(0.5,),
-        objectives=[
-            ObjectiveValue(
-                name="score",
-                raw_value=score if raw_score is None else raw_score,
-                direction=direction,
-            )
-        ],
-        scalar_score=score,
+        objectives=[objective],
+        scalar_score=float(configured.raw_value),
         stage_a_passed=True,
+        stage_b_result=source,
         status=EvaluationStatus.SUCCESS,
         provenance_ref=provenance_ref,
         metadata={"source_run_id": run_id},
+        score_status=configured.score_status,
+        score_assessment=configured.score_assessment,
     )
 
 
@@ -71,6 +98,10 @@ def _complete_fingerprint(run_id: str, *, embedding: list[float]) -> RunFingerpr
         origin="simulator-v1",
         tenant_id="tenant-a",
         objective_directions={"score": OptimizationDirection.MINIMIZE.value},
+        objective_rule_specs={
+            "score": configured_objective_rule_spec(BudgetDeficitObjective(expected_unit="points"))
+            or ""
+        },
         embedding=embedding,
     )
 
@@ -82,6 +113,12 @@ def _stored_eval(
     *,
     provenance_ref: str | None = None,
 ) -> dict[str, object]:
+    source = {
+        "budget_deficit": score,
+        "metric_units": {"budget_deficit": "points"},
+    }
+    objective = BudgetDeficitObjective(expected_unit="points").evaluate(source)
+    assert objective.score_assessment is not None
     return {
         "candidate_id": candidate_id,
         "params": {"x": 0.5},
@@ -94,8 +131,13 @@ def _stored_eval(
                 "name": "score",
                 "raw_value": score,
                 "direction": OptimizationDirection.MINIMIZE.value,
+                "score_status": ObjectiveScoreStatus.AVAILABLE.value,
+                "score_assessment": objective.score_assessment.to_payload(),
             }
         ],
+        "score_status": ObjectiveScoreStatus.AVAILABLE.value,
+        "score_assessment": objective.score_assessment.to_payload(),
+        "stage_b_result": source,
         "provenance_ref": provenance_ref or _artifact_id("p"),
         "metadata": {"source_run_id": run_id},
     }
@@ -115,8 +157,10 @@ def _history_document(
         "origin",
         "tenant_id",
         "objective_directions",
+        "objective_rule_specs",
     )
     return {
+        "history_schema_version": "5",
         **{field: getattr(fingerprint, field) for field in identity_fields},
         "evaluations": rows,
     }
@@ -220,10 +264,34 @@ class TestWarmStartBridge:
                 provenance_ref=second_provenance_ref,
             ),
         ]
+        assert (
+            WarmStartBridge.evaluations_to_benchmarks(
+                evals,
+                loop_id="loop1",
+                primary_metric="score",
+            )
+            == []
+        )
+        assert (
+            WarmStartBridge.evaluations_to_benchmarks(
+                evals,
+                loop_id="loop1",
+                primary_metric="score",
+                objective_direction=OptimizationDirection.MINIMIZE,
+                objective_rule_spec=configured_objective_rule_spec(
+                    GDPGrowthObjective(expected_unit="points")
+                ),
+            )
+            == []
+        )
         benchmarks = WarmStartBridge.evaluations_to_benchmarks(
             evals,
             loop_id="loop1",
             primary_metric="score",
+            objective_direction=OptimizationDirection.MINIMIZE,
+            objective_rule_spec=configured_objective_rule_spec(
+                BudgetDeficitObjective(expected_unit="points")
+            ),
         )
         assert len(benchmarks) == 2
         candidate_refs = {str(benchmark.candidate_ref.artifact_id) for benchmark in benchmarks}
@@ -257,6 +325,10 @@ class TestWarmStartBridge:
             [evaluation],
             loop_id="loop1",
             primary_metric="score",
+            objective_direction=OptimizationDirection.MAXIMIZE,
+            objective_rule_spec=configured_objective_rule_spec(
+                GDPGrowthObjective(expected_unit="points")
+            ),
         )[0]
 
         assert benchmark.selection_metrics == {"score": 0.8}
@@ -332,6 +404,14 @@ class TestTransferLearningManagerWarmStart:
             ("origin", "other-simulator"),
             ("tenant_id", "other-tenant"),
             ("objective_directions", {"score": OptimizationDirection.MAXIMIZE.value}),
+            (
+                "objective_rule_specs",
+                {
+                    "score": configured_objective_rule_spec(
+                        GDPGrowthObjective(expected_unit="points")
+                    )
+                },
+            ),
         ],
     )
     def test_indexed_history_payload_header_must_match_selected_index(
@@ -690,6 +770,12 @@ class TestTransferLearningManagerWarmStart:
             origin="simulator-v1",
             tenant_id="tenant-a",
             objective_directions={"score": OptimizationDirection.MINIMIZE.value},
+            objective_rule_specs={
+                "score": configured_objective_rule_spec(
+                    BudgetDeficitObjective(expected_unit="points")
+                )
+                or ""
+            },
             embedding=[0.1],
         )
 
@@ -712,6 +798,7 @@ class TestTransferLearningManagerWarmStart:
                 "origin": target.origin,
                 "tenant_id": target.tenant_id,
                 "objective_directions": target.objective_directions,
+                "objective_rule_specs": target.objective_rule_specs,
                 "best_score": 0.1,
             }
             source_metadata[field] = value
@@ -734,3 +821,175 @@ class TestTransferLearningManagerWarmStart:
         # A method that closes over ``source_metadata`` would see only the last row.
         for field, manager in managers:
             assert manager.find_similar_runs(target) == [], field
+
+
+def test_transfer_and_mo_accept_arbitrary_label_when_selected_rule_matches(tmp_path) -> None:
+    source = {"gdp_change": 0.8, "metric_units": {"gdp_change": "points"}}
+    configured = GDPGrowthObjective(expected_unit="points").evaluate(source)
+    selected = ObjectiveValue(
+        name="score",
+        raw_value=configured.raw_value,
+        direction=configured.direction,
+        score_status=configured.score_status,
+        score_assessment=configured.score_assessment,
+    )
+    evaluation = Evaluation(
+        candidate_id="configured-custom-label",
+        params={"x": 0.25},
+        params_normalized=(0.25,),
+        objectives=[selected],
+        scalar_score=configured.raw_value,
+        stage_a_passed=True,
+        stage_b_result=source,
+        score_status=configured.score_status,
+        score_assessment=configured.score_assessment,
+    )
+    rule_spec = configured_objective_rule_spec(GDPGrowthObjective(expected_unit="points")) or ""
+    fingerprint = RunFingerprint(
+        run_id="configured-source-run",
+        space_hash="space-v1",
+        objective_names=["score"],
+        bounds={"x": [0.0, 1.0]},
+        split="selection",
+        units={"score": "points"},
+        origin="configured-candidate",
+        tenant_id="tenant-a",
+        objective_directions={"score": OptimizationDirection.MAXIMIZE.value},
+        objective_rule_specs={"score": rule_spec},
+        embedding=[0.1],
+    )
+    assert TransferLearningManager._has_complete_binding_basis(fingerprint)
+    assert not TransferLearningManager._has_complete_binding_basis(
+        fingerprint.model_copy(update={"units": {}})
+    )
+    assert not TransferLearningManager._has_complete_binding_basis(
+        fingerprint.model_copy(update={"units": {"score": "other-points"}})
+    )
+    wrong_source_unit = replace(
+        evaluation,
+        stage_b_result={
+            **source,
+            "metric_units": {"gdp_change": "other-points"},
+        },
+    )
+    assert not TransferLearningManager._evaluation_matches_fingerprint(
+        wrong_source_unit, fingerprint
+    )
+
+    index = _MemoryVectorIndex()
+    store = FileSystemCAS(tmp_path / "cas")
+    writer = TransferLearningManager(store, index)
+    assert writer.register_run(fingerprint, [evaluation]) is not None
+    target = fingerprint.model_copy(update={"run_id": "configured-target-run"})
+    transferred = TransferLearningManager(store, index).get_warm_start_evaluations(
+        [fingerprint], max_evals=1, target_fingerprint=target
+    )
+    assert len(transferred) == 1 and transferred[0].is_valid
+
+    optimizer = object.__new__(MOBayesianOptimizer)
+    optimizer._objective_names = ["score"]
+    optimizer._directions = [OptimizationDirection.MAXIMIZE]
+    optimizer._objective_rule_specs = {"score": rule_spec}
+    optimizer._negate_mask = [-1.0]
+    assert optimizer._has_complete_objective_basis(transferred[0])
+    assert optimizer._objective_vector(transferred[0]) == [-0.8]
+
+
+def test_transfer_restore_and_mo_reject_coordinate_rule_mismatch(tmp_path) -> None:
+    source = {
+        "gdp_change": 0.0,
+        "gov_balance": -100.0,
+        "budget_deficit": 100.0,
+        "metric_units": {
+            "gdp_change": "points",
+            "gov_balance": "points",
+            "budget_deficit": "points",
+        },
+    }
+    gdp = GDPGrowthObjective(expected_unit="points").evaluate(source)
+    assert gdp.score_assessment is not None
+    wrong_coordinate = ObjectiveValue(
+        name="budget_deficit",
+        raw_value=gdp.raw_value,
+        direction=gdp.direction,
+        score_status=gdp.score_status,
+        score_assessment=gdp.score_assessment,
+    )
+    evaluation = Evaluation(
+        candidate_id="mismatched-coordinate",
+        params={"x": 0.25},
+        params_normalized=(0.25,),
+        objectives=[wrong_coordinate],
+        scalar_score=gdp.raw_value,
+        stage_a_passed=True,
+        stage_b_result=source,
+        score_status=gdp.score_status,
+        score_assessment=gdp.score_assessment,
+    )
+    budget_rule = (
+        configured_objective_rule_spec(BudgetDeficitObjective(expected_unit="points")) or ""
+    )
+    target = RunFingerprint(
+        run_id="target-run",
+        space_hash="space-v1",
+        objective_names=["budget_deficit"],
+        bounds={"x": [0.0, 1.0]},
+        split="selection",
+        units={"budget_deficit": "points"},
+        origin="configured-candidate",
+        tenant_id="tenant-a",
+        objective_directions={
+            "budget_deficit": BudgetDeficitObjective(expected_unit="points").direction.value
+        },
+        objective_rule_specs={"budget_deficit": budget_rule},
+        embedding=[0.1],
+    )
+    index = _MemoryVectorIndex()
+    writer = TransferLearningManager(FileSystemCAS(tmp_path / "cas"), index)
+    assert writer.register_run(target, [evaluation]) is None
+
+    # A stored header cannot upgrade a row carrying a self-consistent but differently
+    # selected GDP rule. Rehydration keeps the row visible as diagnostic, but no score.
+    row = TransferLearningManager._serialize_evaluation(evaluation)
+    history = _history_document(target, [row])
+    ref = writer._store.put_json(
+        history,
+        PutOptions(kind="search.transfer.history", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    index.add(
+        key=target.run_id,
+        embedding=target.embedding,
+        metadata={
+            "space_hash": target.space_hash,
+            "objective_names": target.objective_names,
+            "bounds": target.bounds,
+            "split": target.split,
+            "units": target.units,
+            "origin": target.origin,
+            "tenant_id": target.tenant_id,
+            "objective_directions": target.objective_directions,
+            "objective_rule_specs": target.objective_rule_specs,
+            "artifact_id": ref.artifact_id,
+            "manifest_profile_sha256": ref.manifest_profile_sha256,
+        },
+    )
+    reader = TransferLearningManager(writer._store, index)
+    target_query = target.model_copy(update={"run_id": "query-run"})
+    similar = reader.find_similar_runs(target_query)
+    assert len(similar) == 1
+    restored = reader.get_warm_start_evaluations(
+        similar, max_evals=1, target_fingerprint=target_query
+    )[0]
+    assert restored.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert not restored.is_valid
+
+    optimizer = object.__new__(MOBayesianOptimizer)
+    optimizer._objective_names = ["budget_deficit"]
+    optimizer._directions = [BudgetDeficitObjective(expected_unit="points").direction]
+    optimizer._objective_rule_specs = {"budget_deficit": budget_rule}
+    optimizer._negate_mask = [1.0]
+    assert not optimizer._has_complete_objective_basis(restored)
+    with pytest.raises(ValueError, match="not reconciled"):
+        optimizer._objective_vector(restored)

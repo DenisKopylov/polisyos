@@ -12,16 +12,24 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    _validate_objective_score_state,
+)
+
 
 @dataclass
 class StageResult:
     """Result from a search stage evaluation."""
 
     policy_candidate: dict[str, Any]
-    objective_value: float
+    objective_value: float | None
     is_promising: bool
-
     stage_name: str
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
     duration_seconds: float = 0.0
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -30,6 +38,27 @@ class StageResult:
 
     predicted_score: float | None = None
     actual_score: float | None = None
+    score_admission: ObjectiveScoreAdmission | None = None
+
+    def __post_init__(self) -> None:
+        """Keep numeric diagnostics while requiring a source assessment for admission."""
+        if self.score_admission is not None:
+            self.score_status = self.score_admission.status
+            if self.score_status is not ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = None
+            elif self.score_admission.reported_assessment != self.score_assessment:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                self.objective_value = None
+            elif self.score_assessment is not None:
+                self.objective_value = self.score_assessment.value
+        elif self.score_assessment is None:
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        else:
+            self.score_status = self.score_assessment.status
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = self.score_assessment.value
+        _validate_objective_score_state(self.objective_value, self.score_status)
 
 
 class SearchStage(ABC):

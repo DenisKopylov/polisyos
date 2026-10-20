@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -33,6 +34,14 @@ from polisyos.scientist.methods.search.readiness import (
     load_decision_readiness_contract,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS,
+    _CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+    _CURRENT_POLICY_PROMOTION_PARAM_KEYS,
+    _is_policy_mode_state,
+    _resolve_current_policy_promotion_result,
+    project_policy_promotion_state,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -75,9 +84,11 @@ from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.output import (
     PolicyArtifactBuilder,
     PolicyArtifactBuildInput,
+    PolicyArtifactBundle,
     PolicyBrief,
     _resolve_run_local_candidate_frontier_report_ref,
     load_policy_artifact_bundle,
+    load_replayable_audit_bundle,
 )
 from polisyos.scientist.policy_design.phase3 import (
     _load_bound_candidate_source_state,
@@ -144,28 +155,35 @@ _SPEC = NodeSpec(
         "artifacts_index",
         "reports_index",
         "policy_output_bundle_ref",
+        *(f"params.{key}" for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS),
+        "params.reported_policy_promotion_history",
     ],
-    state_writes=[
-        "policy_output_bundle_ref",
-        "policy_brief_ref",
-        "champion_policy_dossier_ref",
-        f"artifacts_index.{ARTIFACT_POLICY_OUTPUT_BUNDLE_REF}",
-        f"artifacts_index.{ARTIFACT_POLICY_FRONTIER_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_CHAMPION_POLICY_DOSSIER_REF}",
-        f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
-        f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
-        f"artifacts_index.{ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_SUBGROUP_IMPACT_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_POLICY_TRANSPORTABILITY_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_GOVERNANCE_GATE_PACKET_REF}",
-        f"artifacts_index.{ARTIFACT_IMPLEMENTATION_PLAN_REF}",
-        f"artifacts_index.{ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF}",
-        f"artifacts_index.{ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF}",
-        f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
-        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
-    ],
+    state_writes=list(
+        dict.fromkeys(
+            [
+                "policy_output_bundle_ref",
+                "policy_brief_ref",
+                "champion_policy_dossier_ref",
+                f"artifacts_index.{ARTIFACT_POLICY_OUTPUT_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_POLICY_FRONTIER_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_CHAMPION_POLICY_DOSSIER_REF}",
+                f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
+                f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
+                f"artifacts_index.{ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_SUBGROUP_IMPACT_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_POLICY_TRANSPORTABILITY_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_GOVERNANCE_GATE_PACKET_REF}",
+                f"artifacts_index.{ARTIFACT_IMPLEMENTATION_PLAN_REF}",
+                f"artifacts_index.{ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF}",
+                f"artifacts_index.{ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
+                f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                *_CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+            ]
+        )
+    ),
     produces=[
         ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
         ARTIFACT_VALIDATION_REPORT_REF,
@@ -185,11 +203,26 @@ class BuildPolicyOutputBundleNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
+        state = project_policy_promotion_state(state, ctx=ctx)
+        current_promotion_result, _promotion_reason = _resolve_current_policy_promotion_result(
+            state
+        )
         if (
             state.policy_output_bundle_ref is not None
             and ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in state.artifacts_index
         ):
-            return NodeOutcome(status="ok", state=state)
+            try:
+                existing_bundle = load_policy_artifact_bundle(
+                    ctx.store, state.policy_output_bundle_ref
+                )
+            except _OPTIONAL_ARTIFACT_LOAD_ERRORS:
+                existing_bundle = None
+            if existing_bundle is not None and not (
+                existing_bundle.promotion_result is not None
+                and existing_bundle.promotion_result.promotion_decision.promoted
+                and current_promotion_result is None
+            ):
+                return NodeOutcome(status="ok", state=state)
 
         candidate, candidate_ref = _resolve_candidate(ctx, state)
         if candidate is None:
@@ -206,18 +239,20 @@ class BuildPolicyOutputBundleNode:
             state.params.get("policy_evaluation"),
             PolicyEvaluationVector,
         )
-        promotion_result = _parse_model(
-            state.params.get("policy_promotion_result"),
-            PolicyPromotionResult,
-        )
-        judge_verdict = _parse_model(state.params.get("judge_verdict"), JudgeVerdict)
-        if judge_verdict is None and promotion_result is not None:
-            judge_verdict = promotion_result.judge_verdict
-        readiness_ref = state.artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
-        readiness_contract = _resolve_readiness_contract(ctx, state, readiness_ref)
-        if readiness_contract is None and promotion_result is not None:
-            readiness_contract = promotion_result.readiness_contract
-            readiness_ref = promotion_result.readiness_ref
+        promotion_result = current_promotion_result
+        if promotion_result is None:
+            judge_verdict = None
+            readiness_ref = None
+            readiness_contract = None
+        else:
+            judge_verdict = _parse_model(state.params.get("judge_verdict"), JudgeVerdict)
+            if judge_verdict is None:
+                judge_verdict = promotion_result.judge_verdict
+            readiness_ref = state.artifacts_index.get(ARTIFACT_DECISION_READINESS_CONTRACT_REF)
+            readiness_contract = _resolve_readiness_contract(ctx, state, readiness_ref)
+            if readiness_contract is None:
+                readiness_contract = promotion_result.readiness_contract
+                readiness_ref = promotion_result.readiness_ref
 
         if evaluation_vector is None and promotion_result is None and readiness_contract is None:
             return NodeOutcome(
@@ -247,11 +282,15 @@ class BuildPolicyOutputBundleNode:
                 expected_loop_id=expected_frontier_loop_id,
             )
         )
-        policy_brief = _parse_model(state.params.get("policy_brief"), PolicyBrief)
-        translator_compliance = _parse_model(
-            state.params.get("translator_compliance"),
-            TranslatorComplianceResult,
-        )
+        if promotion_result is None:
+            policy_brief = None
+            translator_compliance = None
+        else:
+            policy_brief = _parse_model(state.params.get("policy_brief"), PolicyBrief)
+            translator_compliance = _parse_model(
+                state.params.get("translator_compliance"),
+                TranslatorComplianceResult,
+            )
         degraded_events: list[NodeEvent] = []
         if frontier_ref_reason not in {None, "frontier_source_report_absent"}:
             degraded_events.append(
@@ -375,9 +414,15 @@ class BuildPolicyOutputBundleNode:
             audit_refs=upstream_audit_refs,
             actionable_side_information_refs=actionable_side_information_refs,
             runtime_input_refs=dict(state.inputs),
-            runtime_artifacts_index=dict(state.artifacts_index),
+            runtime_artifacts_index=_snapshot_policy_runtime_artifacts_index(
+                state.artifacts_index,
+                current_promotion_result=current_promotion_result,
+            ),
             runtime_reports_index=dict(state.reports_index),
-            runtime_params_snapshot=_snapshot_runtime_params(state.params),
+            runtime_params_snapshot=_snapshot_policy_runtime_params(
+                state.params,
+                current_promotion_result=current_promotion_result,
+            ),
             execution_profile=state.execution_profile,
             metadata={
                 "workflow_id": str(state.params.get("workflow_id") or ""),
@@ -547,15 +592,164 @@ class BuildPolicyOutputBundleNode:
 
 
 def _is_policy_mode(state: ExperimentState) -> bool:
-    workflow_id = str(state.params.get("workflow_id") or "").strip().lower()
-    if workflow_id == "scientist_policy_design":
-        return True
-    raw = state.params.get("policy_mode")
-    if isinstance(raw, bool):
-        return raw
-    if isinstance(raw, str):
-        return raw.strip().lower() in {"1", "true", "yes", "on"}
-    return False
+    return _is_policy_mode_state(state)
+
+
+def _prepare_policy_candidate_state_for_direct_consumer(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    preserve_source_bound_candidate_bundle: bool = False,
+) -> ExperimentState:
+    """Remove caller promotion state, retaining only a fully source-bound candidate bundle."""
+    if not _is_policy_mode(state):
+        return state
+    preserved_state_refs: dict[str, ArtifactRef] = {}
+    preserved_artifact_refs: dict[str, ArtifactRef] = {}
+    if preserve_source_bound_candidate_bundle:
+        candidate_view = project_policy_promotion_state(state, archive_prior=False, ctx=ctx)
+        candidate, candidate_ref = _resolve_candidate(ctx, candidate_view)
+        existing_ref = _current_policy_output_bundle_ref(state)
+        if (
+            candidate is not None
+            and existing_ref is not None
+            and _candidate_only_bundle_matches_source(
+                ctx,
+                candidate_view,
+                existing_ref,
+                candidate=candidate,
+                candidate_ref=candidate_ref,
+            )
+        ):
+            bundle = load_policy_artifact_bundle(ctx.store, existing_ref)
+            preserved_state_refs = {
+                "policy_output_bundle_ref": existing_ref,
+                "policy_brief_ref": bundle.policy_brief_ref,
+                "champion_policy_dossier_ref": bundle.champion_policy_dossier_ref,
+            }
+            preserved_artifact_refs = {
+                ARTIFACT_POLICY_OUTPUT_BUNDLE_REF: existing_ref,
+                ARTIFACT_POLICY_FRONTIER_REPORT_REF: bundle.policy_frontier_report_ref,
+                ARTIFACT_CHAMPION_POLICY_DOSSIER_REF: bundle.champion_policy_dossier_ref,
+                ARTIFACT_POLICY_BRIEF_REF: bundle.policy_brief_ref,
+                ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF: (
+                    bundle.constraint_satisfaction_report_ref
+                ),
+                ARTIFACT_SUBGROUP_IMPACT_REPORT_REF: bundle.subgroup_impact_report_ref,
+                ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF: bundle.uncertainty_report_ref,
+                ARTIFACT_POLICY_TRANSPORTABILITY_REPORT_REF: bundle.transportability_report_ref,
+                ARTIFACT_GOVERNANCE_GATE_PACKET_REF: bundle.governance_gate_packet_ref,
+                ARTIFACT_IMPLEMENTATION_PLAN_REF: bundle.implementation_plan_ref,
+                ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF: (
+                    bundle.rejected_alternatives_summary_ref
+                ),
+                ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF: bundle.replayable_audit_bundle_ref,
+            }
+            if bundle.claims_ref is not None:
+                preserved_artifact_refs[ARTIFACT_CLAIMS_REF] = bundle.claims_ref
+    return project_policy_promotion_state(
+        state,
+        ctx=ctx,
+        preserved_state_refs=preserved_state_refs,
+        preserved_artifact_refs=preserved_artifact_refs,
+    )
+
+
+def _current_policy_output_bundle_ref(state: ExperimentState) -> ArtifactRef | None:
+    state_ref = state.policy_output_bundle_ref
+    indexed_ref = state.artifacts_index.get(ARTIFACT_POLICY_OUTPUT_BUNDLE_REF)
+    if state_ref is None or indexed_ref is None:
+        return None
+    if artifact_ref_identity_key(state_ref) != artifact_ref_identity_key(indexed_ref):
+        return None
+    return state_ref
+
+
+def _candidate_only_bundle_matches_source(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    bundle_ref: ArtifactRef,
+    *,
+    candidate: PolicyCandidateSchema,
+    candidate_ref: ArtifactRef | None,
+) -> bool:
+    """Recompute the persisted candidate-only bundle's complete runtime source binding."""
+    try:
+        bundle = load_policy_artifact_bundle(ctx.store, bundle_ref)
+        audit = load_replayable_audit_bundle(ctx.store, bundle.replayable_audit_bundle_ref)
+    except _OPTIONAL_ARTIFACT_LOAD_ERRORS:
+        return False
+
+    if (
+        bundle.candidate_id != candidate.candidate_id
+        or bundle.metadata.get("candidate_hash") != candidate.candidate_hash()
+        or bundle.decision_readiness_contract_ref is not None
+        or bundle.metadata.get("judge_composite_decision") is not None
+        or audit.run_id != state.run_id
+        or audit.execution_profile != state.execution_profile
+        or audit.workflow_id != (str(state.params.get("workflow_id") or "") or None)
+        or audit.readiness_ref is not None
+        or not _same_artifact_ref(candidate_ref, audit.candidate_ref)
+        or not _same_artifact_ref(
+            _maybe_artifact_ref(state.params.get("policy_evaluation_ref")),
+            audit.evaluation_ref,
+        )
+    ):
+        return False
+
+    for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS:
+        if key == "policy_promotion_projection_status":
+            status = audit.runtime_params_snapshot.get(key)
+            if status is not None and not (
+                isinstance(status, Mapping)
+                and status.get("status") == "reported_only"
+                and status.get("authority_status") == "not_established"
+            ):
+                return False
+        elif key in audit.runtime_params_snapshot:
+            return False
+    if any(key in audit.runtime_artifacts_index for key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS):
+        return False
+
+    expected_params = _candidate_runtime_params(state.params)
+    observed_params = _candidate_runtime_params(audit.runtime_params_snapshot)
+    if expected_params != observed_params:
+        return False
+    return (
+        _artifact_ref_mappings_match(state.inputs, audit.runtime_input_refs)
+        and _artifact_ref_mappings_match(
+            {
+                key: value
+                for key, value in state.artifacts_index.items()
+                if key not in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS
+            },
+            audit.runtime_artifacts_index,
+        )
+        and _artifact_ref_mappings_match(state.reports_index, audit.runtime_reports_index)
+    )
+
+
+def _candidate_runtime_params(params: Mapping[str, Any]) -> dict[str, Any]:
+    snapshot = _snapshot_runtime_params(dict(params))
+    for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS:
+        snapshot.pop(key, None)
+    snapshot.pop("reported_policy_promotion_history", None)
+    return snapshot
+
+
+def _same_artifact_ref(left: ArtifactRef | None, right: ArtifactRef | None) -> bool:
+    if left is None or right is None:
+        return left is None and right is None
+    return artifact_ref_identity_key(left) == artifact_ref_identity_key(right)
+
+
+def _artifact_ref_mappings_match(
+    left: Mapping[str, ArtifactRef],
+    right: Mapping[str, ArtifactRef],
+) -> bool:
+    return set(left) == set(right) and all(
+        _same_artifact_ref(left[key], right[key]) for key in left
+    )
 
 
 def _resolve_candidate(
@@ -681,6 +875,32 @@ def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
 
 def _snapshot_runtime_params(params: dict[str, Any]) -> dict[str, Any]:
     return {str(key): _snapshot_runtime_value(value) for key, value in params.items()}
+
+
+def _snapshot_policy_runtime_params(
+    params: dict[str, Any],
+    *,
+    current_promotion_result: PolicyPromotionResult | None,
+) -> dict[str, Any]:
+    """Keep caller promotion fields out of a current bundle without an owner receipt."""
+    snapshot = dict(params)
+    if current_promotion_result is None:
+        for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS:
+            snapshot.pop(key, None)
+    return _snapshot_runtime_params(snapshot)
+
+
+def _snapshot_policy_runtime_artifacts_index(
+    artifacts_index: dict[str, ArtifactRef],
+    *,
+    current_promotion_result: PolicyPromotionResult | None,
+) -> dict[str, ArtifactRef]:
+    """Exclude stale bundle-output refs from a candidate-only bundle snapshot."""
+    snapshot = dict(artifacts_index)
+    if current_promotion_result is None:
+        for key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS:
+            snapshot.pop(key, None)
+    return snapshot
 
 
 def _snapshot_runtime_value(value: Any) -> Any:

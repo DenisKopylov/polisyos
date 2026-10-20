@@ -7,7 +7,11 @@ from dataclasses import dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
-from polisyos.scientist.methods.search.objective import OptimizationDirection
+from polisyos.scientist.methods.search.objective import (
+    OptimizationDirection,
+    _evaluation_matches_selected_objectives,
+    objective_value_matches_rule,
+)
 from polisyos.scientist.methods.search.strategies._deps import (
     ExpectedHypervolumeImprovement,
     ModelListGP,
@@ -24,9 +28,15 @@ from polisyos.scientist.methods.search.strategies._deps import (
     require_torch,
 )
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
-from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
-from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
-from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
+from polisyos.scientist.methods.search.strategies.errors import (
+    OptionalDependencyUnavailableError,
+)
+from polisyos.scientist.methods.search.strategies.resource_arbiter import (
+    ResourceArbiter,
+)
+from polisyos.scientist.methods.search.strategies.runtime import (
+    apply_torch_runtime_settings,
+)
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
     PolicyCandidate,
@@ -59,6 +69,8 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         directions: list[OptimizationDirection],
         config: MOConfig | None = None,
         resource_arbiter: ResourceArbiter | None = None,
+        *,
+        objective_rule_specs: dict[str, str] | None = None,
     ):
         if len(objective_names) != len(directions):
             raise ValueError("objective_names and directions lengths must match")
@@ -68,8 +80,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         cfg = config or MOConfig()
         super().__init__(space=space, seed=cfg.seed)
         self._config = cfg
-        self._objective_names = objective_names
-        self._directions = directions
+        self._objective_names = list(objective_names)
+        self._directions = list(directions)
+        self._objective_rule_specs = dict(objective_rule_specs or {})
         self._negate_mask = [
             -1.0 if direction == OptimizationDirection.MINIMIZE else 1.0 for direction in directions
         ]
@@ -169,7 +182,11 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
 
     def get_pareto_front(self, evaluations: list[Evaluation]) -> list[Evaluation]:
-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+        valid = [
+            evaluation
+            for evaluation in evaluations
+            if self._has_complete_objective_basis(evaluation)
+        ]
         if len(valid) < 2:
             return valid
         points = [self._objective_vector(evaluation) for evaluation in valid]
@@ -198,7 +215,11 @@ class MOBayesianOptimizer(BaseSearchStrategy):
     def compute_hypervolume(self, evaluations: list[Evaluation]) -> float:
         if not self._botorch_ready:
             return 0.0
-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+        valid = [
+            evaluation
+            for evaluation in evaluations
+            if self._has_complete_objective_basis(evaluation)
+        ]
         if not valid:
             return 0.0
         with self._arbiter.acquire("torch"):
@@ -257,7 +278,12 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 self._ref_point = self._ref_point.to(self._device)
 
     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
-        filtered = [e for e in evaluations if len(e.params_normalized) == self._space.dim]
+        filtered = [
+            evaluation
+            for evaluation in evaluations
+            if len(evaluation.params_normalized) == self._space.dim
+            and self._has_complete_objective_basis(evaluation)
+        ]
         if len(filtered) <= self._config.max_train_size:
             return filtered
         recent_n = self._config.max_train_size // 2
@@ -284,14 +310,43 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         return X, Y
 
     def _objective_vector(self, evaluation: Evaluation) -> list[float]:
+        if not self._has_complete_objective_basis(evaluation):
+            raise ValueError("objective basis is not reconciled with selected objective rules")
         objective_values = {
             objective.name: objective.raw_value for objective in evaluation.objectives
         }
         output: list[float] = []
         for idx, objective_name in enumerate(self._objective_names):
-            raw = float(objective_values.get(objective_name, 0.0))
+            if objective_name not in objective_values:
+                raise ValueError(f"objective basis is missing {objective_name!r}")
+            objective = next(item for item in evaluation.objectives if item.name == objective_name)
+            expected_rule_spec = self._objective_rule_specs.get(objective_name)
+            if (
+                expected_rule_spec is None
+                or idx >= len(self._directions)
+                or not objective_value_matches_rule(
+                    objective,
+                    evaluation.stage_b_result,
+                    expected_name=objective_name,
+                    expected_direction=self._directions[idx],
+                    expected_rule_spec=expected_rule_spec,
+                )
+            ):
+                raise ValueError(f"objective basis is not reconciled for {objective_name!r}")
+            raw = float(objective_values[objective_name])
             output.append(raw * self._negate_mask[idx])
         return output
+
+    def _has_complete_objective_basis(self, evaluation: Evaluation) -> bool:
+        """Require every configured coordinate to be present and source-reconciled."""
+        if len(self._directions) != len(self._objective_names):
+            return False
+        return _evaluation_matches_selected_objectives(
+            evaluation,
+            objective_names=self._objective_names,
+            objective_directions=dict(zip(self._objective_names, self._directions, strict=True)),
+            objective_rule_specs=self._objective_rule_specs,
+        )
 
     def _fit_model_list(self, X, Y) -> None:
         models = [

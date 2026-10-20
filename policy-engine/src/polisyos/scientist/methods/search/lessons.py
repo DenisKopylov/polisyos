@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 import re
 from collections.abc import Iterable
@@ -19,6 +20,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.autotune.models import default_search_registry_root
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
     TransferContext,
@@ -373,18 +375,32 @@ def success_lesson_from_outcome(
     final_result = getattr(outcome, "final_result", None)
     stage_name = getattr(final_result, "stage_name", "funnel")
     fidelity_level = int(getattr(final_result, "fidelity_level", 0) or 0)
-    objective_value = float(getattr(final_result, "objective_value", 0.0) or 0.0)
+    raw_value = getattr(final_result, "objective_value", None)
+    score_status = getattr(final_result, "score_status", ObjectiveScoreStatus.NOT_ESTABLISHED)
+    assessment = getattr(final_result, "score_assessment", None)
+    assessed_value = getattr(assessment, "value", None)
+    objective_value: float | None = None
+    if (
+        score_status is ObjectiveScoreStatus.AVAILABLE
+        and getattr(assessment, "status", None) is ObjectiveScoreStatus.AVAILABLE
+        and not isinstance(raw_value, bool)
+        and isinstance(raw_value, (int, float))
+        and math.isfinite(float(raw_value))
+        and assessed_value is not None
+        and float(raw_value) == float(assessed_value)
+    ):
+        objective_value = float(raw_value)
     final_action = str(getattr(outcome, "final_action", "complete"))
     candidate_hash = str(getattr(outcome, "candidate_hash", "unknown"))
     context = resolve_transfer_context(
         transfer_context=transfer_context, fallback_run_id=source_run_id
     )
+    summary = f"Candidate reached {stage_name} with final action '{final_action}'."
+    if objective_value is not None:
+        summary = f"{summary[:-1]} and objective {objective_value:.4f}."
     return LessonCard(
         kind=LessonKind.SUCCESS,
-        summary=(
-            f"Candidate reached {stage_name} with final action '{final_action}' "
-            f"and objective {objective_value:.4f}."
-        ),
+        summary=summary,
         failure_type="success_pattern",
         stage_name=stage_name,
         fidelity_level=fidelity_level,
@@ -401,7 +417,14 @@ def success_lesson_from_outcome(
         tags=list(tags or []),
         mutation_hints=["Preserve the intervention structure and causal assumptions."],
         trace_refs=list(trace_refs or []),
-        metadata={"final_action": final_action},
+        metadata={
+            "final_action": final_action,
+            "objective_score_status": (
+                score_status.value
+                if isinstance(score_status, ObjectiveScoreStatus)
+                else ObjectiveScoreStatus.NOT_ESTABLISHED.value
+            ),
+        },
     )
 
 

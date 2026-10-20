@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import fields, is_dataclass
+from enum import Enum
 from typing import Any, TypeGuard
 
 from pydantic import BaseModel
@@ -39,22 +40,26 @@ from polisyos.scientist.methods.search.funnel.level5_refutation_governance impor
 )
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
 from polisyos.scientist.methods.search.funnel.types import FunnelOutcome
-from polisyos.scientist.methods.search.judge_stack import PolicyPromotionResult
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreStatus,
+    reconcile_objective_score_assessment,
+)
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
     _RuntimeSession,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS,
+    _CURRENT_POLICY_PROMOTION_PARAM_KEYS,
     build_vulnerabilities,
+    clear_current_policy_promotion_projection,
     load_causal_report,
     load_distributional_report_for_state,
     load_governance_report,
 )
-from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
-    ARTIFACT_STRESS_TEST_REPORT_REF,
-)
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_STRESS_TEST_REPORT_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -381,6 +386,12 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "stage_name": step.stage_name,
                 "objective_value": step.objective_value,
                 "is_promising": step.is_promising,
+                "score_status": step.score_status.value,
+                "score_admission": (
+                    None
+                    if step.score_admission is None
+                    else step.score_admission.to_surface_payload()
+                ),
                 "duration_seconds": step.duration_seconds,
                 "compute_cost_usd": step.compute_cost_usd,
                 "compute_cost_origin": step.compute_cost_origin,
@@ -403,6 +414,12 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
                 "stage_name": result.stage_name,
                 "objective_value": result.objective_value,
                 "is_promising": result.is_promising,
+                "score_status": result.score_status.value,
+                "score_admission": (
+                    None
+                    if result.score_admission is None
+                    else result.score_admission.to_surface_payload()
+                ),
                 "feedback": result.feedback,
                 "failure_cards": [card.model_dump(mode="json") for card in result.failure_cards],
                 "fidelity_level": result.fidelity_level,
@@ -810,6 +827,17 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
         state,
         write_paths=(
             "artifacts_index",
+            "policy_output_bundle_ref",
+            "policy_brief_ref",
+            "champion_policy_dossier_ref",
+            "params.policy_promotion_result",
+            "params.judge_verdict",
+            "params.decision_readiness_contract",
+            "params.promotion_decision",
+            "params.policy_promotion_projection_status",
+            "params.reported_policy_promotion_history",
+            "params.policy_brief",
+            "params.translator_compliance",
             "params.policy_candidate_ref",
             "params.policy_evaluation",
             "params.policy_evaluation_ref",
@@ -877,7 +905,13 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
         )
 
     promotion_feedback = dict(outcome.final_result.feedback or {}) if outcome.final_result else {}
-    _project_promotion_feedback(new_state, promotion_feedback)
+    _project_promotion_feedback(
+        new_state,
+        promotion_feedback,
+        outcome=outcome,
+        candidate_ref=session.candidate_ref,
+        evidence_ref=evidence_ref,
+    )
     session.evidence_bundle = evidence_bundle
     session.evidence_ref = evidence_ref
     session.final_evaluation_vector = final_evaluation_vector
@@ -890,40 +924,153 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
     return _build_runtime_outcome(session)
 
 
-def _project_promotion_feedback(new_state: Any, promotion_feedback: dict[str, Any]) -> None:
-    promotion_payload = promotion_feedback.get("promotion_result")
-    if isinstance(promotion_payload, PolicyPromotionResult):
-        payload_json = promotion_payload.model_dump(mode="json")
-        new_state.params["policy_promotion_result"] = payload_json
-        new_state.params["judge_verdict"] = payload_json["judge_verdict"]
-        new_state.params["decision_readiness_contract"] = payload_json["readiness_contract"]
-        new_state.params["promotion_decision"] = payload_json["promotion_decision"]
-        if promotion_payload.readiness_ref is not None:
-            new_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = (
-                promotion_payload.readiness_ref
-            )
-    elif isinstance(promotion_payload, Mapping):
-        new_state.params["policy_promotion_result"] = dict(promotion_payload)
-        if isinstance(promotion_payload.get("judge_verdict"), Mapping):
-            new_state.params["judge_verdict"] = dict(promotion_payload["judge_verdict"])
-        if isinstance(promotion_payload.get("readiness_contract"), Mapping):
-            new_state.params["decision_readiness_contract"] = dict(
-                promotion_payload["readiness_contract"]
-            )
-        if isinstance(promotion_payload.get("promotion_decision"), Mapping):
-            new_state.params["promotion_decision"] = dict(promotion_payload["promotion_decision"])
-    elif isinstance(promotion_feedback, dict):
-        if "judge_verdict" in promotion_feedback:
-            new_state.params["judge_verdict"] = promotion_feedback["judge_verdict"]
-        if "decision_readiness_contract" in promotion_feedback:
-            new_state.params["decision_readiness_contract"] = promotion_feedback[
-                "decision_readiness_contract"
-            ]
-        if "promotion_reason" in promotion_feedback:
-            new_state.params["promotion_decision"] = {
-                "promoted": False,
-                "reason": promotion_feedback["promotion_reason"],
+def _project_promotion_feedback(
+    new_state: Any,
+    promotion_feedback: dict[str, Any],
+    *,
+    outcome: FunnelOutcome,
+    candidate_ref: ArtifactRef,
+    evidence_ref: ArtifactRef,
+) -> None:
+    """Keep current promotion projection report-only until an owner receipt exists."""
+    admission = _runtime_outcome_score_admission(outcome)
+    reason = _promotion_projection_reason(outcome, admission)
+    previous_params = {
+        key: _report_json_value(new_state.params[key])
+        for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS
+        if key in new_state.params
+    }
+    previous_refs: dict[str, Any] = {}
+    state_refs = {
+        key: _report_json_value(value)
+        for key, value in (
+            ("policy_output_bundle_ref", new_state.policy_output_bundle_ref),
+            ("policy_brief_ref", new_state.policy_brief_ref),
+            ("champion_policy_dossier_ref", new_state.champion_policy_dossier_ref),
+        )
+        if value is not None
+    }
+    artifact_refs = {
+        key: _report_json_value(new_state.artifacts_index[key])
+        for key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS
+        if key in new_state.artifacts_index
+    }
+    if state_refs:
+        previous_refs["state"] = state_refs
+    if artifact_refs:
+        previous_refs["artifacts_index"] = artifact_refs
+    incoming_feedback = {
+        key: _report_json_value(promotion_feedback[key])
+        for key in (
+            "promotion_result",
+            "judge_verdict",
+            "decision_readiness_contract",
+            "promotion_decision",
+            "promotion_reason",
+        )
+        if key in promotion_feedback
+    }
+    history = new_state.params.get("reported_policy_promotion_history")
+    if isinstance(history, list):
+        history_items = list(history)
+    elif "reported_policy_promotion_history" in new_state.params:
+        history_items = [
+            {
+                "record_type": "unparsed_prior_history",
+                "value": _report_json_value(history),
             }
+        ]
+    else:
+        history_items = []
+    if previous_params or previous_refs:
+        history_items.append(
+            {
+                "record_type": "prior_current_projection",
+                "run_id": new_state.run_id,
+                "params": previous_params,
+                "refs": previous_refs,
+            }
+        )
+
+    status = {
+        "schema_version": "1.0",
+        "status": "reported_only",
+        "authority_status": "not_established",
+        "reason": reason,
+        "run_id": new_state.run_id,
+        "candidate_ref": candidate_ref.model_dump(mode="json"),
+        "promotion_evidence_bundle_ref": evidence_ref.model_dump(mode="json"),
+        "score_admission": admission.to_surface_payload(),
+        "funnel_final_action": outcome.final_action,
+        "funnel_completed": outcome.completed,
+        "reported_stage_terminal_action": (
+            None if outcome.final_result is None else outcome.final_result.terminal_action
+        ),
+    }
+    history_items.append(
+        {
+            "record_type": "current_run_reported_feedback",
+            "run_id": new_state.run_id,
+            "candidate_ref": candidate_ref.model_dump(mode="json"),
+            "promotion_evidence_bundle_ref": evidence_ref.model_dump(mode="json"),
+            "promotion_projection_status": status,
+            "incoming_feedback": incoming_feedback,
+        }
+    )
+
+    clear_current_policy_promotion_projection(new_state)
+    new_state.params["policy_promotion_projection_status"] = status
+    new_state.params["reported_policy_promotion_history"] = history_items
+
+
+def _runtime_outcome_score_admission(outcome: FunnelOutcome) -> ObjectiveScoreAdmission:
+    result = outcome.final_result
+    if result is None:
+        return reconcile_objective_score_assessment(None, None)
+    return reconcile_objective_score_assessment(
+        result.score_assessment,
+        result.simulation_results,
+        prior_admission=result.score_admission,
+        reported_status=result.score_status,
+        reported_value=result.objective_value,
+    )
+
+
+def _promotion_projection_reason(outcome: FunnelOutcome, admission: ObjectiveScoreAdmission) -> str:
+    """Name the recomputed blocker without turning score into promotion authority."""
+    if admission.status is ObjectiveScoreStatus.INVALID:
+        return "selected_score_invalid"
+    if admission.status is ObjectiveScoreStatus.UNAVAILABLE:
+        return "selected_score_unavailable"
+    if admission.status is ObjectiveScoreStatus.NOT_ESTABLISHED:
+        return "selected_score_not_established"
+    if outcome.final_action != "complete" or not outcome.completed:
+        return "funnel_outcome_not_complete"
+    return "protected_owner_receipt_not_established"
+
+
+def _report_json_value(value: Any) -> Any:
+    """Retain reported evidence as finite JSON without interpreting it as authority."""
+    if value is None or type(value) in {str, bool, int}:
+        return value
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else {"non_finite_float": repr(value)}
+    if isinstance(value, BaseModel):
+        return _report_json_value(value.model_dump(mode="json"))
+    if is_dataclass(value):
+        return _report_json_value(
+            {field.name: getattr(value, field.name) for field in fields(value)}
+        )
+    if isinstance(value, Mapping):
+        return {str(key): _report_json_value(member) for key, member in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_report_json_value(member) for member in value]
+    return {
+        "unprojected_type": f"{type(value).__module__}.{type(value).__qualname__}",
+        "repr": repr(value),
+    }
 
 
 def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:

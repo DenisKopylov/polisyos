@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactStore,
@@ -48,6 +48,36 @@ class GovernanceReportLinks(BaseModel):
     withdrawal_record_ref: ArtifactRef | None = None
 
 
+class GovernanceReportInvocationBinding(BaseModel):
+    """Engine-owned source identity for one governance report emission.
+
+    This binding is only a lookup handle. Consumers must resolve it through the
+    run owner chain, the successful invocation completion, and the current source
+    projection before using the verdict as current.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(min_length=1)
+    attempt_id: str = Field(
+        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    )
+    attempt_basis_ref: ArtifactRef
+    workflow_spec_ref: ArtifactRef
+    input_state_ref: ArtifactRef
+    node_alias: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
+    component_id: str = Field(min_length=1)
+    source_basis_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _require_selected_profiles(self) -> GovernanceReportInvocationBinding:
+        """Require every producer-chain edge to preserve its selected profile."""
+        refs = (self.attempt_basis_ref, self.workflow_spec_ref, self.input_state_ref)
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("governance_report_invocation_profile_not_established")
+        return self
+
+
 class GovernanceReport(BaseModel):
     """Serializable governance verdict and supporting diagnostics.
 
@@ -59,22 +89,31 @@ class GovernanceReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "2.0"] = "1.0"
     verdict: Literal["approve", "needs_revision", "reject", "human_gate"]
+    invocation_binding: GovernanceReportInvocationBinding | None = None
     issues: list[dict[str, Any]] = Field(default_factory=list)
     links: GovernanceReportLinks = Field(default_factory=GovernanceReportLinks)
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _bind_schema_to_invocation(self) -> GovernanceReport:
+        """Keep historical v1 reports readable and require binding for v2."""
+        if (self.schema_version == "1.0") != (self.invocation_binding is None):
+            raise ValueError("governance_report_invocation_schema_mismatch")
+        return self
 
 
 GOVERNANCE_REPORT_OWNER_PROFILE = CoreArtifactOwnerProfile(
     kind="scientist.governance_report",
     media_type="application/json",
-    schema_variants=(SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),),
+    schema_variants=(
+        SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        SchemaInfo(name="polisyos.scientist.GovernanceReport", version="2.0"),
+    ),
     payload_schema_version_by_manifest=(
-        (
-            ("polisyos.scientist.GovernanceReport", "1.0"),
-            "1.0",
-        ),
+        (("polisyos.scientist.GovernanceReport", "1.0"), "1.0"),
+        (("polisyos.scientist.GovernanceReport", "2.0"), "2.0"),
     ),
 )
 
@@ -102,5 +141,6 @@ __all__ = [
     "GOVERNANCE_REPORT_OWNER_PROFILE",
     "GovernanceReport",
     "GovernanceReportLinks",
+    "GovernanceReportInvocationBinding",
     "load_governance_report_artifact",
 ]

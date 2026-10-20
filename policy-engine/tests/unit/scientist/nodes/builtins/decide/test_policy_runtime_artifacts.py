@@ -156,7 +156,7 @@ def test_policy_evaluation_vector_owner_returns_selected_cas_view(cas_store) -> 
     assert manifest.kind == "scientist.policy_evaluation_vector"
     assert manifest.artifact_schema == SchemaInfo(
         name="polisyos.scientist.policy_design.PolicyEvaluationVector",
-        version="1.0",
+        version="1.1",
     )
     assert manifest.inputs == [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
 

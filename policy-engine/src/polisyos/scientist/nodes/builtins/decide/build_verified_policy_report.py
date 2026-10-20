@@ -11,6 +11,11 @@ from polisyos.core.contracts.scientist import (
     PolicyRequestFrameRef,
     SourceVerificationReportRef,
 )
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+    _CURRENT_POLICY_PROMOTION_PARAM_KEYS,
+    project_policy_promotion_state,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_POLICY_OPTION_SET_REF,
@@ -40,6 +45,10 @@ from polisyos.scientist.validation.policy_verified import (
     load_source_verification_report,
     persist_verified_policy_report,
 )
+from polisyos.scientist.validation.policy_verified.currentness import (
+    VERIFIED_POLICY_REPORT_SOURCE_READ_PATHS,
+    resolve_current_verified_policy_report,
+)
 from polisyos.scientist.validation.policy_verified.service import build_verified_policy_report
 
 _METADATA = ComponentMetadata(
@@ -54,19 +63,18 @@ _METADATA = ComponentMetadata(
 
 _SPEC = NodeSpec(
     metadata=_METADATA,
-    state_reads=[
-        "policy_request_ref",
-        "policy_option_set_ref",
-        "source_verification_report_ref",
-        "params.needs_expert_review",
-        "artifacts_index",
-    ],
-    state_writes=[
-        "verified_policy_report_ref",
-        f"artifacts_index.{ARTIFACT_VERIFIED_POLICY_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
-    ],
+    state_reads=list(VERIFIED_POLICY_REPORT_SOURCE_READ_PATHS),
+    state_writes=list(
+        dict.fromkeys(
+            [
+                "verified_policy_report_ref",
+                f"artifacts_index.{ARTIFACT_VERIFIED_POLICY_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                *_CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+            ]
+        )
+    ),
     produces=[
         ARTIFACT_VERIFIED_POLICY_REPORT_REF,
         ARTIFACT_VALIDATION_REPORT_REF,
@@ -84,11 +92,17 @@ class BuildVerifiedPolicyReportNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        if (
-            state.verified_policy_report_ref is not None
-            and ARTIFACT_VERIFIED_POLICY_REPORT_REF in state.artifacts_index
-        ):
-            return NodeOutcome(status="ok", state=state)
+        state = project_policy_promotion_state(state, ctx=ctx)
+        existing_ref = state.verified_policy_report_ref or state.artifacts_index.get(
+            ARTIFACT_VERIFIED_POLICY_REPORT_REF
+        )
+        if existing_ref is not None:
+            admission = resolve_current_verified_policy_report(ctx, state, existing_ref)
+            if admission.is_current:
+                return NodeOutcome(status="ok", state=state)
+            state = branch_state(state, write_paths=_SPEC.state_writes).state
+            state.verified_policy_report_ref = None
+            state.artifacts_index.pop(ARTIFACT_VERIFIED_POLICY_REPORT_REF, None)
         request_ref = state.policy_request_ref or state.artifacts_index.get(
             ARTIFACT_POLICY_REQUEST_FRAME_REF
         )

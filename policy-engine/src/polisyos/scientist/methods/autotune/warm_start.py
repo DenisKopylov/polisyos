@@ -6,6 +6,11 @@ import logging
 import math
 from typing import TYPE_CHECKING
 
+from polisyos.scientist.methods.search.objective import (
+    OptimizationDirection,
+    _evaluation_matches_selected_objectives,
+)
+
 from .models import BenchmarkEvaluation, BenchmarkSplit
 
 logger = logging.getLogger(__name__)
@@ -76,12 +81,29 @@ class WarmStartBridge:
         loop_id: str,
         suite_id: str = "warm_start",
         primary_metric: str = "score",
+        objective_direction: OptimizationDirection | None = None,
+        objective_rule_spec: str | None = None,
     ) -> list[BenchmarkEvaluation]:
-        """Convert search-strategy Evaluations to BenchmarkEvaluations."""
+        """Convert only evaluations recomputed under the supplied selected rule."""
         from polisyos.core.artifacts.manifest import ArtifactRef
 
         results: list[BenchmarkEvaluation] = []
+        if objective_direction is None or not objective_rule_spec:
+            return results
         for ev in evaluations:
+            if not _evaluation_matches_selected_objectives(
+                ev,
+                objective_names=[primary_metric],
+                objective_directions={primary_metric: objective_direction},
+                objective_rule_specs={primary_metric: objective_rule_spec},
+                require_scalar_score=True,
+            ):
+                logger.warning(
+                    "WarmStartBridge: skipping candidate %s with unreconciled %s basis",
+                    getattr(ev, "candidate_id", "unknown"),
+                    primary_metric,
+                )
+                continue
             try:
                 ref = ArtifactRef(
                     artifact_id=ev.candidate_id,
@@ -96,14 +118,12 @@ class WarmStartBridge:
                 )
                 continue
 
-            metrics: dict[str, float] = {}
-            directions: dict[str, str] = {}
-            for objective in ev.objectives:
-                if not math.isfinite(objective.raw_value):
-                    continue
-                metrics[objective.name] = objective.raw_value
-                directions[objective.name] = objective.direction.value
-            if primary_metric not in metrics:
+            selected = next(
+                objective for objective in ev.objectives if objective.name == primary_metric
+            )
+            metrics = {primary_metric: selected.raw_value}
+            directions = {primary_metric: selected.direction.value}
+            if not math.isfinite(selected.raw_value):
                 logger.warning(
                     "WarmStartBridge: skipping candidate %s without measured %s",
                     ev.candidate_id,

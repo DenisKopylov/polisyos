@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+import math
 import random
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -39,6 +40,17 @@ class PortfolioEvaluationResult:
     combination: PortfolioCombination
     objective_value: float
     metrics: Mapping[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if isinstance(self.objective_value, bool):
+            raise ValueError("portfolio objective_value must be a finite number")
+        try:
+            value = float(self.objective_value)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("portfolio objective_value must be a finite number") from exc
+        if not math.isfinite(value):
+            raise ValueError("portfolio objective_value must be a finite number")
+        object.__setattr__(self, "objective_value", value)
 
 
 @dataclass(frozen=True)

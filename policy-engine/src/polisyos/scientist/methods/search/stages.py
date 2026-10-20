@@ -14,8 +14,10 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
     _apply_default_search_objective_limitations,
     _assess_default_search_objective,
+    selected_score_admission_status,
 )
 from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
@@ -37,7 +39,9 @@ class CheapStage(SearchStage):
         enable_parameter_checks: bool = True,
         enable_structure_checks: bool = True,
     ):
-        from polisyos.scientist.methods.autotune.cheap_stage import resolve_cheap_stage_threshold
+        from polisyos.scientist.methods.autotune.cheap_stage import (
+            resolve_cheap_stage_threshold,
+        )
 
         self._threshold = resolve_cheap_stage_threshold(threshold)
         self._param_checks = enable_parameter_checks
@@ -152,8 +156,14 @@ class ExpensiveStage(SearchStage):
         Only executed for candidates that pass Stage A.
     """
 
-    def __init__(self, workflow_engine: WorkflowEngine):
+    def __init__(
+        self,
+        workflow_engine: WorkflowEngine,
+        *,
+        expected_objective_unit: str | None = None,
+    ):
         self._engine = workflow_engine
+        self._expected_objective_unit = expected_objective_unit
 
     @property
     def stage_name(self) -> str:
@@ -179,8 +189,9 @@ class ExpensiveStage(SearchStage):
             logger.error(f"ExpensiveStage workflow failed: {exc}")
             return StageResult(
                 policy_candidate=candidate,
-                objective_value=float("inf"),
+                objective_value=None,
                 is_promising=False,
+                score_status=ObjectiveScoreStatus.UNAVAILABLE,
                 stage_name=self.stage_name,
                 duration_seconds=(datetime.now(UTC) - start).total_seconds(),
                 feedback={"verdict": "REJECT", "issues": [{"message": str(exc)}]},
@@ -193,16 +204,28 @@ class ExpensiveStage(SearchStage):
         feedback = dict(feedback) if isinstance(feedback, dict) else {}
         verdict = feedback.get("verdict", "UNKNOWN")
 
-        objective_assessment = _assess_default_search_objective(sim_results)
-        objective = objective_assessment.objective_value
+        objective_assessment = _assess_default_search_objective(
+            sim_results, expected_unit=self._expected_objective_unit
+        )
+        score_status = selected_score_admission_status(
+            objective_assessment.score_assessment, sim_results
+        )
+        objective = (
+            objective_assessment.objective_value
+            if score_status is ObjectiveScoreStatus.AVAILABLE
+            else None
+        )
         _apply_default_search_objective_limitations(feedback, objective_assessment)
-
-        is_promising = verdict == "APPROVE"
+        is_promising = verdict == "APPROVE" and score_status is ObjectiveScoreStatus.AVAILABLE
+        if verdict == "APPROVE" and score_status is not ObjectiveScoreStatus.AVAILABLE:
+            feedback["selected_objective_admission"] = score_status.value
 
         return StageResult(
             policy_candidate=candidate,
             objective_value=objective,
             is_promising=is_promising,
+            score_status=score_status,
+            score_assessment=objective_assessment.score_assessment,
             stage_name=self.stage_name,
             duration_seconds=duration,
             simulation_results=sim_results,
@@ -210,9 +233,12 @@ class ExpensiveStage(SearchStage):
             actual_score=objective,
         )
 
-    def _compute_default_objective(self, results: dict[str, Any]) -> float:
+    def _compute_default_objective(self, results: dict[str, Any]) -> float | None:
         """Compute the existing scalar objective using supplied fiscal aliases."""
-        return _assess_default_search_objective(results).objective_value
+        assessment = _assess_default_search_objective(
+            results, expected_unit=self._expected_objective_unit
+        )
+        return assessment.objective_value
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -599,7 +625,9 @@ class CorrelationTracker:
         suite_version: str = "1.0",
         holdout_fraction: float = 0.2,
     ):
-        from polisyos.scientist.methods.autotune.cheap_stage import write_correlation_dataset
+        from polisyos.scientist.methods.autotune.cheap_stage import (
+            write_correlation_dataset,
+        )
 
         return write_correlation_dataset(
             self.to_jsonl_rows(),

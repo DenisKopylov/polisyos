@@ -139,12 +139,42 @@ class RunOwnerSnapshot(BaseModel):
         return value
 
 
+class RunInvocationImplementationIdentity(BaseModel):
+    """Engine-observed identity of a selected in-process node implementation.
+
+    This binds a run-owned start record to the concrete builtin class, executable
+    methods, node specification, binding parameters, and bound instance state. It
+    does not attest transitive imports, plugins, deployment artifacts, or a build.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    scope: Literal["in_process_selected_implementation"] = "in_process_selected_implementation"
+    component_id: str = Field(min_length=1)
+    owner_module: str = Field(min_length=1)
+    owner_qualname: str = Field(min_length=1)
+    runtime_class_token: str = Field(min_length=1)
+    runtime_process_id: int = Field(ge=1)
+    runtime_process_nonce: str = Field(pattern=r"^[0-9a-f]{32}$")
+    runtime_execute_token: str = Field(min_length=1)
+    runtime_bind_token: str | None = None
+    runtime_spec_accessor_token: str = Field(min_length=1)
+    module_source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    execute_code_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    bind_code_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    spec_accessor_code_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    node_spec_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    bound_state_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    dispatch_params_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
 class RunInvocationStarted(BaseModel):
     """Persist the exact engine input basis immediately before one node attempt."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     record_type: Literal["started"] = "started"
     run_id: str = Field(min_length=1)
     attempt_id: str = Field(
@@ -156,6 +186,7 @@ class RunInvocationStarted(BaseModel):
     component_id: str = Field(min_length=1)
     input_state_ref: ArtifactRef
     previous_record_ref: ArtifactRef | None
+    implementation_identity: RunInvocationImplementationIdentity | None = None
     started_at: datetime = Field(default_factory=utc_now)
 
     @model_validator(mode="after")
@@ -172,6 +203,13 @@ class RunInvocationStarted(BaseModel):
             raise ValueError("run_invocation_start_selected_profile_missing")
         if self.started_at.tzinfo is None or self.started_at.utcoffset() is None:
             raise ValueError("run_invocation_start_time_not_aware")
+        if self.schema_version == "1.0" and self.implementation_identity is not None:
+            raise ValueError("run_invocation_v10_identity_not_supported")
+        if (
+            self.implementation_identity is not None
+            and self.implementation_identity.component_id != self.component_id
+        ):
+            raise ValueError("run_invocation_implementation_component_mismatch")
         return self
 
 

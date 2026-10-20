@@ -1,0 +1,17 @@
+# B108 R13: owner trace and live descriptor reconciliation
+
+Status: author candidate for independent review. `closure_ids` remains empty; G retains code acceptance, integration publication, and formal finding adjudication.
+
+R13 extends the R12 source-currentness candidate after independent source review found two same-class identity gaps. A stored successful output ref in the mutable run manifest was insufficient: a valid CAS receipt could be reinserted without the persisted owner-output event. The live component identity check also compared the cached spec descriptor without confirming that the selected node still exposed that descriptor.
+
+The candidate reuses the Core run trace and owner-snapshot replay. `RunContext.read_runtime_owner_output_refs()` reads the persisted trace, replays its run scope and owner snapshot chain, then requires the ordered `RUN_INPUT_ADDED` and `RUN_OUTPUT_ADDED` refs to equal the current manifest. The terminal workflow finalization receipt must occur in those replayed output events before the source-currentness resolver can use it. The check does not introduce a new receipt format or accept a manifest-only ref. A control removes only the corresponding output event while preserving the manifest entry and CAS bytes; the consumer refuses currentness. Finalization and research-DAG outputs receive separate controls.
+
+The component identity predicate now re-reads the selected node type's live `spec` descriptor and requires object identity with the descriptor captured by the Core owner before the attempt. A property replacement that preserves `state_reads` but changes the `NodeSpec` is refused. The immutable captured owner is not recaptured from a mutated live type. R12's exact callable/code checks remain intact.
+
+The actual async workflow path also exposed an invocation-context loss in the unbounded synchronous-node worker. It built the worker context from the parent context instead of the attempt context, dropping the engine-owned invocation binding. The minimal fix passes `attempt_ctx`, keeping the protected producer identity and successful output linkage identical to the sync path.
+
+The focused source witness exercised real sync and async `WorkflowExecutor` routes, the current and stale `DecisionPacketBuilder` consumer, a no-CAS-put refusal for stale reports, a current packet payload, owner-event removal with the manifest and CAS left intact, live descriptor replacement, consumed-source mutation, and malformed-present VerifiedPolicyReport input. The full composed runtime wave and G review remain pending. See the retained A94-supervised `green3` result and full stdout in this candidate's `runs/green3/`.
+
+The owner-event replay is local consistency evidence, not a cryptographic signature or custody of arbitrary trace-file writers. It does not attest transitive imports, dynamic validator code, plugin/deployment identity, or external law, issuer, permission, causal calibration, or publication. Those facts remain outside this source-currentness witness and require their existing owners.
+
+Pattern pass: P05/P04 source-currentness and authority/status, P12 producer handshake, P29 semantic witness, P30 exact source provenance, P31 same-class repair, P32 form-versus-substance, P37 recomputed source predicate, P38 divergent descriptor/manifest cases, P40 batch the class rather than a per-ref patch. This candidate proposes B108 outcomes only; it makes no formal closures.

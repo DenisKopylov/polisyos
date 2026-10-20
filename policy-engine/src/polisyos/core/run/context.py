@@ -39,6 +39,7 @@ from ..trace.record import TraceRecord, TraceRefs
 from ..trace.sink import BatchTraceSink, JsonlTraceSink, TraceSink
 from .manifest import (
     RunInvocationCompleted,
+    RunInvocationImplementationIdentity,
     RunInvocationStarted,
     RunManifest,
     RunOwnerSnapshot,
@@ -66,7 +67,6 @@ _RUN_OWNER_SNAPSHOT_LEGACY_SCHEMA_VERSION = "1.0.1"
 _RUN_OWNER_SNAPSHOT_CANON = CanonSpec(exclude_none=False)
 _RUN_INVOCATION_RECORD_KIND = "core.run_invocation_attempt"
 _RUN_INVOCATION_RECORD_SCHEMA = "polisyos.core.RunInvocationAttempt"
-_RUN_INVOCATION_RECORD_SCHEMA_VERSION = "1.0"
 _RUN_INVOCATION_RECORD_CANON = CanonSpec(exclude_none=False)
 _RUN_OWNER_SCOPE_CANON = CanonSpec(
     name="polisyos.core.run.owner-scope",
@@ -478,7 +478,7 @@ def _run_invocation_record_write_options(
         media_type="application/json",
         schema=SchemaInfo(
             name=_RUN_INVOCATION_RECORD_SCHEMA,
-            version=_RUN_INVOCATION_RECORD_SCHEMA_VERSION,
+            version=record.schema_version,
         ),
         producer=run_manifest.producer,
         env=run_manifest.env,
@@ -1080,8 +1080,9 @@ def _trace_terminal_run_finalized_ref(
     trace_path: Path,
     *,
     owner: _RunOwnerIdentity,
+    expected_workflow_finalization_ref: ArtifactRef | None = None,
 ) -> ArtifactRef | None:
-    """Read one strict terminal fact, preserving the exact manifest selector."""
+    """Read one terminal fact and, when supplied, its exact workflow transition input."""
     try:
         lines = trace_path.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeError) as exc:
@@ -1131,6 +1132,10 @@ def _trace_terminal_run_finalized_ref(
     terminal = finalized[0]
     if terminal.run_terminality is not RunTerminality.TERMINAL:
         raise _FinalizeRecoveryError("run_finalize_trace_terminality_not_established")
+    if expected_workflow_finalization_ref is not None and terminal.refs.inputs != [
+        expected_workflow_finalization_ref
+    ]:
+        raise _FinalizeRecoveryError("run_finalize_workflow_finalization_not_established")
     manifest_outputs = [
         output for output in terminal.refs.outputs if output.kind == "core.run_manifest"
     ]
@@ -1378,13 +1383,13 @@ def new_run_id() -> str:
     return "R_" + secrets.token_hex(8)
 
 
-def _read_runtime_invocation_attempts(
+def _read_run_owner_records(
     store: ArtifactStore,
     trace_path: Path,
     *,
     run_id: str,
-) -> list[_RunInvocationAttempt]:
-    """Read attempt bases from a fresh CAS/trace view, without producer memory."""
+) -> tuple[list[TraceRecord], RunOwnerSnapshot | RunOwnerSnapshotV101, int]:
+    """Read and validate the persisted Core owner trace and snapshot chain."""
     trace_bytes = _read_run_trace_bytes(
         trace_path,
         failure_code="run_invocation_trace_unreadable",
@@ -1416,11 +1421,22 @@ def _read_runtime_invocation_attempts(
             or record.cell_id != started.cell_id
         ):
             raise _FinalizeRecoveryError("run_invocation_trace_scope_mismatch")
-    snapshot, _, _ = _run_owner_snapshot_chain(
+    snapshot, _, last_snapshot_index = _run_owner_snapshot_chain(
         store,
         records=records,
         started=started,
     )
+    return records, snapshot, last_snapshot_index
+
+
+def _read_runtime_invocation_attempts(
+    store: ArtifactStore,
+    trace_path: Path,
+    *,
+    run_id: str,
+) -> list[_RunInvocationAttempt]:
+    """Read attempt bases from a fresh CAS/trace view, without producer memory."""
+    _, snapshot, _ = _read_run_owner_records(store, trace_path, run_id=run_id)
     tail_ref = getattr(snapshot, "runtime_invocation_tail_ref", None)
     return _run_invocation_attempt_chain(
         store,
@@ -1877,6 +1893,7 @@ class RunContext:
         node_alias: str,
         component_id: str,
         input_state_ref: ArtifactRef,
+        implementation_identity: RunInvocationImplementationIdentity | None = None,
     ) -> ArtifactRef:
         """Record the exact state and workflow invocation before node execution."""
         return self._append_runtime_invocation_record(
@@ -1889,6 +1906,7 @@ class RunContext:
                 component_id=component_id,
                 input_state_ref=input_state_ref,
                 previous_record_ref=self._runtime_invocation_tail_ref,
+                implementation_identity=implementation_identity,
             )
         )
 
@@ -1992,7 +2010,7 @@ class RunContext:
         metrics: dict[str, float | int] | None = None,
         warnings: list[WarningRecord] | None = None,
     ) -> None:
-        """Emit one trace event with optional typed warning details.
+        """Emit a non-Core trace event with optional typed warning details.
 
         Args:
             phase: Trace phase that owns the event.
@@ -2002,7 +2020,7 @@ class RunContext:
             metrics: Numeric measurements associated with the event.
             warnings: Typed warnings to persist in the existing trace warning field.
         """
-        if event in {"RUN_STARTED", "RUN_FINALIZED", "RUN_CONTEXT_SNAPSHOT"}:
+        if phase == "core" or (isinstance(event, str) and event.startswith("RUN_")):
             raise _FinalizeRecoveryError("run_context_owner_event_reserved")
         with self._parent_state_transition_lease(run_scoped=False):
             self._emit_record(
@@ -2013,6 +2031,83 @@ class RunContext:
                 metrics=metrics,
                 warnings=warnings,
             )
+
+    def read_runtime_owner_output_refs(self) -> tuple[ArtifactRef, ...]:
+        """Fresh-read owner output events and reconcile them to this run manifest.
+
+        The method replays the persisted start record, owner snapshot chain, and
+        input/output event sequence. It refuses a missing trace or any difference
+        from the current in-memory input/output lists, so callers cannot establish
+        an owner output by changing only ``run_manifest.outputs``.
+        """
+        records = self._read_runtime_owner_trace()
+        _recorded_inputs, recorded_outputs = self._owner_refs_from_records(records)
+        return recorded_outputs
+
+    def read_runtime_workflow_finalization_ref(self) -> ArtifactRef:
+        """Return the exact workflow transition carried by the protected terminal event.
+
+        Legacy terminal records without this engine-supplied input remain valid run
+        history, but do not establish a workflow-finalization currentness claim.
+        """
+        records = self._read_runtime_owner_trace()
+        _recorded_inputs, recorded_outputs = self._owner_refs_from_records(records)
+        terminal_records = [
+            record
+            for record in records
+            if record.phase == "core" and record.event == "RUN_FINALIZED"
+        ]
+        if (
+            len(terminal_records) != 1
+            or records[-1] is not terminal_records[0]
+            or terminal_records[0].run_terminality is not RunTerminality.TERMINAL
+        ):
+            raise _FinalizeRecoveryError("run_workflow_finalization_terminal_not_established")
+        terminal = terminal_records[0]
+        if (
+            len(terminal.refs.inputs) != 1
+            or len(terminal.refs.outputs) != 1
+            or terminal.refs.outputs[0].kind != "core.run_manifest"
+            or terminal.refs.outputs[0].media_type != "application/json"
+        ):
+            raise _FinalizeRecoveryError("run_workflow_finalization_terminal_ref_invalid")
+        finalization_ref = terminal.refs.inputs[0]
+        if finalization_ref not in recorded_outputs:
+            raise _FinalizeRecoveryError("run_workflow_finalization_output_unlinked")
+        return finalization_ref
+
+    def _read_runtime_owner_trace(self) -> list[TraceRecord]:
+        if self._trace_path is None:
+            raise _FinalizeRecoveryError("run_owner_output_trace_not_established")
+        records, _snapshot, _last_snapshot_index = _read_run_owner_records(
+            self.store,
+            self._trace_path,
+            run_id=self.run_manifest.run_id,
+        )
+        recorded_inputs, recorded_outputs = self._owner_refs_from_records(records)
+        if recorded_inputs != tuple(self.run_manifest.inputs) or recorded_outputs != tuple(
+            self.run_manifest.outputs
+        ):
+            raise _FinalizeRecoveryError("run_owner_refs_trace_manifest_mismatch")
+        return records
+
+    @staticmethod
+    def _owner_refs_from_records(
+        records: list[TraceRecord],
+    ) -> tuple[tuple[ArtifactRef, ...], tuple[ArtifactRef, ...]]:
+        recorded_inputs = tuple(
+            ref
+            for record in records[1:]
+            if record.phase == "core" and record.event == "RUN_INPUT_ADDED"
+            for ref in record.refs.inputs
+        )
+        recorded_outputs = tuple(
+            ref
+            for record in records[1:]
+            if record.phase == "core" and record.event == "RUN_OUTPUT_ADDED"
+            for ref in record.refs.outputs
+        )
+        return recorded_inputs, recorded_outputs
 
     def read_runtime_invocation_attempts(self) -> list[_RunInvocationAttempt]:
         """Fresh-read the guarded owner chain and its exact node-attempt bases.
@@ -2368,7 +2463,9 @@ class RunContext:
         status: str = "ok",
         *,
         errors: list[dict[str, object]] | None = None,
+        workflow_finalization_ref: ArtifactRef | None = None,
     ) -> ArtifactRef:
+        """Finalize this run, optionally binding its selected workflow transition."""
         self._require_active_lease_owner()
         with self._worker_merge_lock:
             run_dir = self._trace_path.parent if self._trace_path is not None else None
@@ -2378,11 +2475,21 @@ class RunContext:
                 if self._worker_receipt_recovery_required:
                     raise _FinalizeRecoveryError("worker_receipt_incomplete")
                 if run_dir is None:
-                    return self._finalize_locked(run_dir, status=status, errors=errors)
+                    return self._finalize_locked(
+                        run_dir,
+                        status=status,
+                        errors=errors,
+                        workflow_finalization_ref=workflow_finalization_ref,
+                    )
                 with _run_finalize_lease(run_dir):
                     if self._suspended:
                         raise _FinalizeRecoveryError("run_context_suspended")
-                    return self._finalize_locked(run_dir, status=status, errors=errors)
+                    return self._finalize_locked(
+                        run_dir,
+                        status=status,
+                        errors=errors,
+                        workflow_finalization_ref=workflow_finalization_ref,
+                    )
             finally:
                 self._closed = True
                 if self._active_lease is not None:
@@ -2395,8 +2502,15 @@ class RunContext:
         *,
         status: str,
         errors: list[dict[str, object]] | None,
+        workflow_finalization_ref: ArtifactRef | None = None,
     ) -> ArtifactRef:
         """Perform finalization while holding the run's exclusive lease."""
+        if workflow_finalization_ref is not None and (
+            type(workflow_finalization_ref) is not ArtifactRef
+            or workflow_finalization_ref.manifest_profile_sha256 is None
+            or workflow_finalization_ref not in self.run_manifest.outputs
+        ):
+            raise _FinalizeRecoveryError("run_finalize_workflow_transition_not_owner_linked")
         if run_dir is not None:
             journal_path = _finalize_journal_path(run_dir)
             pending_manifest = _load_finalize_journal(run_dir) if journal_path.exists() else None
@@ -2408,6 +2522,20 @@ class RunContext:
                 raise _FinalizeRecoveryError("run_finalize_pending_request_conflict")
             recovered_ref = _recover_pending_run_finalize_locked(self.store, run_dir)
             if recovered_ref is not None:
+                if workflow_finalization_ref is not None:
+                    recovered_finalized_ref = _trace_terminal_run_finalized_ref(
+                        self._trace_path,
+                        owner=_RunOwnerIdentity(
+                            run_id=self.run_manifest.run_id,
+                            tenant_id=self.run_manifest.tenant_id,
+                            cell_id=self.run_manifest.cell_id,
+                        ),
+                        expected_workflow_finalization_ref=workflow_finalization_ref,
+                    )
+                    if recovered_finalized_ref != recovered_ref:
+                        raise _FinalizeRecoveryError(
+                            "run_finalize_workflow_transition_recovery_not_established"
+                        )
                 return recovered_ref
 
             if self._trace_path is not None and self._trace_path.exists():
@@ -2422,6 +2550,7 @@ class RunContext:
                 existing_ref = _trace_terminal_run_finalized_ref(
                     self._trace_path,
                     owner=trace_owner,
+                    expected_workflow_finalization_ref=workflow_finalization_ref,
                 )
                 if existing_ref is not None:
                     _validate_terminal_run_manifest_ref(
@@ -2473,6 +2602,7 @@ class RunContext:
             "core",
             "RUN_FINALIZED",
             run_terminality=RunTerminality.TERMINAL,
+            inputs=[workflow_finalization_ref] if workflow_finalization_ref is not None else None,
             outputs=[run_ref],
             metrics={"status_ok": 1 if status == "ok" else 0},
         )

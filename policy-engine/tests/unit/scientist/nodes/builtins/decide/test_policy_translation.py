@@ -180,6 +180,10 @@ def test_policy_translation_uses_branch_state_for_declared_outputs(
 
     with (
         patch(
+            "polisyos.scientist.nodes.builtins.decide.run_policy_translation._resolve_current_policy_promotion_result",
+            return_value=(promotion_result, None),
+        ),
+        patch(
             "polisyos.scientist.nodes.builtins.decide.run_policy_translation.branch_state",
             _spy_branch,
         ),
@@ -267,6 +271,10 @@ def test_translator_compliance_uses_branch_state_for_declared_outputs(
 
     with (
         patch(
+            "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._resolve_current_policy_promotion_result",
+            return_value=(promotion_result, None),
+        ),
+        patch(
             "polisyos.scientist.nodes.builtins.decide.run_translator_compliance.branch_state",
             _spy_branch,
         ),
@@ -284,7 +292,7 @@ def test_translator_compliance_uses_branch_state_for_declared_outputs(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._parse_model",
-            side_effect=[brief, promotion_result],
+            return_value=brief,
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._resolve_candidate",
@@ -309,3 +317,71 @@ def test_translator_compliance_uses_branch_state_for_declared_outputs(
     assert observed["write_paths"] == ("params.translator_compliance",)
     assert state.params["nested"] == {"baseline": True}
     assert outcome.state.params["translator_compliance"] == {"passed": True}
+
+
+def test_stale_positive_promotion_and_cached_brief_remain_report_only(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    from polisyos.scientist.methods.autotune.models import PromotionDecision
+    from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+        _resolve_current_policy_promotion_result,
+    )
+
+    typed_result = PolicyPromotionResult(
+        judge_verdict=JudgeVerdict.model_validate(_passing_judge_verdict()),
+        readiness_contract=_readiness_contract(),
+        promotion_decision=PromotionDecision(
+            loop_id="stale-positive",
+            promoted=True,
+            reason="caller supplied",
+        ),
+    )
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_promotion_result": typed_result.model_dump(mode="json"),
+            "policy_promotion_projection_status": {
+                "status": "available",
+                "authority_status": "verified",
+                "owner_receipt_ref": {"artifact_id": "caller-controlled"},
+            },
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": {"passed": True},
+        }
+    )
+    state.policy_brief_ref = artifact_ref_factory(kind="scientist.policy_brief")
+
+    current, reason = _resolve_current_policy_promotion_result(state)
+    assert current is None
+    assert reason == "protected_owner_receipt_not_established"
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.decide.run_policy_translation._is_policy_mode",
+            return_value=True,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.decide.run_policy_translation._resolve_readiness_contract",
+            side_effect=AssertionError("stale promotion must be rejected before readiness use"),
+        ),
+    ):
+        translated = RunPolicyTranslationNode().execute(execution_context, state)
+    assert translated.status == "skip"
+    assert state.params["policy_brief"]["title"] == _policy_brief().title
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._is_policy_mode",
+            return_value=True,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._brief_required",
+            side_effect=AssertionError("stale promotion must be rejected before compliance"),
+        ),
+    ):
+        compliance = RunTranslatorComplianceNode().execute(execution_context, state)
+    assert compliance.status == "skip"
+    assert state.params["translator_compliance"] == {"passed": True}

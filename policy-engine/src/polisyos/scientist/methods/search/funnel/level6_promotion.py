@@ -13,7 +13,14 @@ from polisyos.scientist.methods.search.actionable_side_information import (
     persist_actionable_side_information,
     resolve_actionable_store,
 )
-from polisyos.scientist.methods.search.funnel.types import FunnelStage, FunnelStageResult
+from polisyos.scientist.methods.search.funnel.types import (
+    FunnelStage,
+    FunnelStageResult,
+)
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    selected_score_admission_status,
+)
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 
 logger = get_logger(__name__)
@@ -61,7 +68,17 @@ class Level6PromotionStage(FunnelStage):
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
         prior_result = _prior_result(context)
-        objective_value = float(prior_result.objective_value) if prior_result is not None else 0.0
+        objective_value = prior_result.objective_value if prior_result is not None else None
+        score_status = (
+            selected_score_admission_status(
+                prior_result.score_assessment,
+                prior_result.simulation_results,
+            )
+            if prior_result is not None
+            else ObjectiveScoreStatus.UNAVAILABLE
+        )
+        if score_status is not ObjectiveScoreStatus.AVAILABLE:
+            objective_value = None
         promotion_payload = context.get("promotion_result")
         failure_cards: list[TypedFailureCard] = []
         terminal_action = "complete"
@@ -70,7 +87,11 @@ class Level6PromotionStage(FunnelStage):
         if promotion_payload is not None:
             feedback["promotion_result_read_only"] = True
         degradation_mode = str(context.get("funnel_degradation_mode", "normal"))
-        preflight_blocked = degradation_mode in {"no_promotion", "reduced_judge", "auto_cap"}
+        preflight_blocked = degradation_mode in {
+            "no_promotion",
+            "reduced_judge",
+            "auto_cap",
+        }
 
         if (
             promotion_payload is None
@@ -197,6 +218,10 @@ class Level6PromotionStage(FunnelStage):
                 )
             )
 
+        if terminal_action == "complete" and score_status is not ObjectiveScoreStatus.AVAILABLE:
+            terminal_action = "reject" if score_status is ObjectiveScoreStatus.INVALID else "defer"
+            feedback["selected_objective_admission"] = score_status.value
+
         duration = (datetime.now(UTC) - start).total_seconds()
         cost_usd = max(self._estimated_cost_usd, duration * self._cost_per_second_usd)
         side_information = ActionableSideInformation(
@@ -229,7 +254,10 @@ class Level6PromotionStage(FunnelStage):
             },
             metadata={
                 "terminal_action": terminal_action,
-                "compute_cost_evidence": {"amount_usd": cost_usd, "origin": "estimated"},
+                "compute_cost_evidence": {
+                    "amount_usd": cost_usd,
+                    "origin": "estimated",
+                },
             },
         )
         store = resolve_actionable_store(context=context, store=self._store)
@@ -253,14 +281,20 @@ class Level6PromotionStage(FunnelStage):
         return FunnelStageResult(
             policy_candidate=candidate,
             objective_value=objective_value,
-            is_promising=terminal_action != "reject",
+            is_promising=terminal_action in {"complete", "advance"},
+            score_status=score_status,
+            score_assessment=(prior_result.score_assessment if prior_result is not None else None),
             stage_name=self.stage_name,
             duration_seconds=duration,
             timestamp=datetime.now(UTC),
             simulation_results=getattr(prior_result, "simulation_results", {}),
             feedback=feedback,
             predicted_score=getattr(prior_result, "predicted_score", None),
-            actual_score=getattr(prior_result, "actual_score", objective_value),
+            actual_score=(
+                getattr(prior_result, "actual_score", objective_value)
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                else None
+            ),
             uncertainty_envelope=(
                 prior_result.uncertainty_envelope
                 if prior_result is not None

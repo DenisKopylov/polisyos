@@ -24,6 +24,10 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
+from polisyos.scientist.methods.search.objective import (
+    _configured_search_metric_binding,
+    _configured_search_metric_profile_fingerprint,
+)
 
 from .models import (
     BayesianSourceProfile,
@@ -153,8 +157,13 @@ def _verify_search_source_profile_receipt(
         if not isinstance(profile_payload, Mapping):
             return None
         profile = BayesianSourceProfile.model_validate(profile_payload)
+        expected_objective_fingerprint = _configured_search_metric_profile_fingerprint(
+            receipt.get("metric"), receipt.get("direction"), receipt.get("unit")
+        )
         if (
-            _search_source_fingerprint(dict(profile_payload)) != receipt.get("profile_sha256")
+            expected_objective_fingerprint is None
+            or profile.objective_fingerprint != expected_objective_fingerprint
+            or _search_source_fingerprint(dict(profile_payload)) != receipt.get("profile_sha256")
             or evaluation.search_source_profile != profile
             or (expected_profile is not None and dict(expected_profile) != dict(profile_payload))
             or (require_warm_start_eligible and not profile.warm_start_eligible)
@@ -438,7 +447,7 @@ def _verify_search_source_profile_receipt(
             return None
         metric_units = metric_source.get("metric_units")
         source_unit = metric_units.get(metric) if isinstance(metric_units, Mapping) else None
-        if receipt.get("unit") is not None and source_unit != receipt.get("unit"):
+        if source_unit != receipt.get("unit"):
             return None
         if evaluation.metrics_for_split(split) != {metric: metric_value}:
             return None
@@ -452,14 +461,10 @@ def _verify_search_source_profile_receipt(
         scalar = -metric_value if direction is MetricDirection.MAXIMIZE else metric_value
         if scalar != float(receipt.get("scalar_score", float("nan"))):
             return None
-        expected_objective = _search_source_fingerprint(
-            {
-                "primary_metric": metric,
-                "direction": direction.value,
-                "scalarization": "finite_scalar_score_minimize",
-            }
+        expected_objective = _configured_search_metric_profile_fingerprint(
+            metric, direction.value, receipt.get("unit")
         )
-        if profile.objective_fingerprint != expected_objective:
+        if expected_objective is None or profile.objective_fingerprint != expected_objective:
             return None
         if proposal_uncertainty is not None:
             try:
@@ -556,6 +561,14 @@ def _method_request_matches_search_run_profile(
     if not isinstance(basis, Mapping):
         return False
     try:
+        expected_objective_fingerprint = _configured_search_metric_profile_fingerprint(
+            run_profile.primary_metric, run_profile.direction, run_profile.unit
+        )
+        if (
+            expected_objective_fingerprint is None
+            or run_profile.objective_fingerprint != expected_objective_fingerprint
+        ):
+            return False
         job_spec = JobSpec.model_validate(basis.get("job_spec"))
         candidate_ref = ArtifactRef.model_validate(receipt.get("candidate_ref"))
         suite_ref = ArtifactRef.model_validate(receipt.get("suite_ref"))
@@ -719,8 +732,10 @@ def _recompute_search_gp_fit_basis(
             return False
 
         from polisyos.scientist.methods.search.objective import (
+            ObjectiveScoreStatus,
             ObjectiveValue,
-            OptimizationDirection,
+            _assess_search_metric,
+            _configured_search_metric_binding,
         )
         from polisyos.scientist.methods.search.strategies.bayesian import (
             BayesianConfig,
@@ -752,15 +767,25 @@ def _recompute_search_gp_fit_basis(
             return False
         fit_config = fit_basis.fit_config.model_dump()
         fit_config["acquisition"] = AcquisitionType(fit_config["acquisition"])
+        objective_binding = _configured_search_metric_binding(
+            run_profile.primary_metric, run_profile.direction, run_profile.unit
+        )
+        if objective_binding is None:
+            return False
+        objective_name, objective_direction, _ = objective_binding
         optimizer = BayesianOptimizer(
             native_space,
             config=BayesianConfig(**fit_config),
+            objective_name=objective_name,
+            objective_source_direction=run_profile.direction,
+            objective_source_unit=run_profile.unit,
         )
         if not optimizer.native_gp_ready or str(optimizer._device) != fit_basis.fit_backend:
             return False
         optimizer.set_search_run_profile(
             context_fingerprint=run_profile.context_fingerprint,
             objective_fingerprint=run_profile.objective_fingerprint,
+            objective_unit=run_profile.unit,
         )
 
         def load_source_evaluation(source_ref: ArtifactRef) -> Evaluation | None:
@@ -793,11 +818,37 @@ def _recompute_search_gp_fit_basis(
             proposal = source_receipt.get("proposal")
             params = proposal.get("params") if isinstance(proposal, Mapping) else None
             scalar = source_receipt.get("scalar_score")
+            raw_metric = source_evaluation.primary_value(
+                split=BenchmarkSplit(run_profile.split), metric=run_profile.primary_metric
+            )
+            source_result = (
+                {
+                    "metrics": {run_profile.primary_metric: raw_metric},
+                    "metric_units": {run_profile.primary_metric: run_profile.unit},
+                }
+                if raw_metric is not None and run_profile.unit is not None
+                else None
+            )
+            assessment = (
+                _assess_search_metric(
+                    source_result,
+                    run_profile.primary_metric,
+                    run_profile.direction,
+                    run_profile.unit,
+                )
+                if source_result is not None
+                else None
+            )
             if (
                 not isinstance(params, Mapping)
                 or isinstance(scalar, bool)
                 or not isinstance(scalar, (int, float))
                 or not isfinite(float(scalar))
+                or source_result is None
+                or assessment is None
+                or assessment.status is not ObjectiveScoreStatus.AVAILABLE
+                or assessment.value is None
+                or assessment.value != float(scalar)
                 or not _search_source_manifest_schema_matches(
                     source_evaluation_manifest,
                     name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
@@ -810,15 +861,20 @@ def _recompute_search_gp_fit_basis(
                 params_normalized=tuple(native_space.normalize(dict(params))),
                 objectives=[
                     ObjectiveValue(
-                        name=run_profile.primary_metric,
-                        raw_value=float(scalar),
-                        direction=OptimizationDirection.MINIMIZE,
+                        name=objective_name,
+                        raw_value=float(assessment.value),
+                        direction=objective_direction,
+                        score_status=assessment.status,
+                        score_assessment=assessment,
                     )
                 ],
-                scalar_score=float(scalar),
+                scalar_score=float(assessment.value),
                 stage_a_passed=True,
+                stage_b_result=source_result,
                 status=EvaluationStatus.SUCCESS,
                 provenance_ref=str(source_receipt["method_result_ref"]["artifact_id"]),
+                score_status=assessment.status,
+                score_assessment=assessment,
                 metadata={"search_source_evaluation_ref": source_ref.model_dump(mode="json")},
             )
 

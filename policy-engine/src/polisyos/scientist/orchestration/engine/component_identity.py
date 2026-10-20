@@ -1,0 +1,281 @@
+"""Capture and recompute engine-observed identities for protected builtin producers.
+
+The proof is intentionally limited to the selected in-process implementation. It
+does not attest transitive imports, dynamic plugins, the deployment image, or a
+release signature. Those remain separate custody evidence.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import inspect
+import marshal
+import os
+import types
+from dataclasses import dataclass
+from pathlib import Path
+from types import CodeType
+from typing import Any
+from uuid import uuid4
+
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.run.manifest import RunInvocationImplementationIdentity
+
+_CANON = CanonSpec(forbid_floats=False, sort_keys=True, exclude_none=False)
+_PROCESS_ID = os.getpid()
+_PROCESS_NONCE = uuid4().hex
+
+
+@dataclass(frozen=True)
+class _BuiltinOwner:
+    component_id: str
+    node_type: type[Any]
+    execute_function: types.FunctionType
+    execute_code: CodeType
+    bind_function: types.FunctionType | None
+    bind_code: CodeType | None
+    spec_descriptor: property
+    spec_accessor_code: CodeType
+    spec_sha256: str
+    module_source_sha256: str
+
+
+# Import-time references are held independently of the mutable registry. The
+# executor imports this module before workflow execution and plugin discovery.
+def _load_builtin_node_types() -> tuple[type[Any], type[Any]]:
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+        BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.nodes.builtins.governance.run_governance import (
+        RunGovernanceNode,
+    )
+
+    return BuildVerifiedPolicyReportNode, RunGovernanceNode
+
+
+_BuildVerifiedPolicyReportNode, _RunGovernanceNode = _load_builtin_node_types()
+
+
+def _function_from_descriptor(value: object) -> types.FunctionType | None:
+    if isinstance(value, (staticmethod, classmethod)):
+        value = value.__func__
+    if isinstance(value, property):
+        value = value.fget
+    return value if isinstance(value, types.FunctionType) else None
+
+
+def _digest_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _digest_value(value: object) -> str:
+    return _digest_bytes(to_canonical_bytes(value, _CANON))
+
+
+def _normalize_code_constant(value: object) -> object:
+    if isinstance(value, CodeType):
+        return _normalize_code_object(value)
+    if isinstance(value, tuple):
+        return tuple(_normalize_code_constant(item) for item in value)
+    if isinstance(value, frozenset):
+        return frozenset(_normalize_code_constant(item) for item in value)
+    return value
+
+
+def _normalize_code_object(code: CodeType) -> CodeType:
+    """Remove interpreter-adaptive code state before hashing executable logic."""
+    return code.replace(
+        co_code=code.co_code,
+        co_consts=tuple(_normalize_code_constant(item) for item in code.co_consts),
+    )
+
+
+def _code_sha256(function: types.FunctionType) -> str:
+    return _digest_bytes(marshal.dumps(_normalize_code_object(function.__code__)))
+
+
+def _callable_code_token(function: types.FunctionType) -> str:
+    """Bind both callable and immutable code-object identity in this process."""
+    return f"{id(function):x}:{id(function.__code__):x}"
+
+
+def _module_source_digest(node_type: type[Any]) -> str:
+    source = inspect.getsourcefile(node_type)
+    if source is None:
+        raise ValueError("engine_component_source_not_established")
+    return _digest_bytes(Path(source).read_bytes())
+
+
+def _owner(node_type: type[Any]) -> _BuiltinOwner:
+    instance = node_type()
+    spec_descriptor = inspect.getattr_static(node_type, "spec", None)
+    execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
+    bind_function = _function_from_descriptor(inspect.getattr_static(node_type, "bind", None))
+    if not isinstance(spec_descriptor, property) or execute_function is None:
+        raise TypeError("engine_component_owner_contract_incomplete")
+    spec_function = _function_from_descriptor(spec_descriptor)
+    if spec_function is None:
+        raise TypeError("engine_component_spec_accessor_missing")
+    spec = instance.spec
+    spec_sha256 = _digest_value(spec.model_dump(mode="json"))
+    return _BuiltinOwner(
+        component_id=str(spec.metadata.component_id),
+        node_type=node_type,
+        execute_function=execute_function,
+        execute_code=execute_function.__code__,
+        bind_function=bind_function,
+        bind_code=(bind_function.__code__ if bind_function is not None else None),
+        spec_descriptor=spec_descriptor,
+        spec_accessor_code=spec_function.__code__,
+        spec_sha256=spec_sha256,
+        module_source_sha256=_module_source_digest(node_type),
+    )
+
+
+_OWNERS = {
+    owner.component_id: owner
+    for owner in (_owner(_BuildVerifiedPolicyReportNode), _owner(_RunGovernanceNode))
+}
+
+
+def _bound_owner_instance(owner: _BuiltinOwner, params: dict[str, Any]) -> Any:
+    node = owner.node_type()
+    if params:
+        binder = getattr(node, "bind", None)
+        if callable(binder):
+            bound = binder(params)
+            if bound is not None:
+                node = bound
+    return node
+
+
+def _node_attributes_sha256(node: object) -> str:
+    attributes = getattr(node, "__dict__", None)
+    if not isinstance(attributes, dict):
+        raise ValueError("engine_component_bound_state_not_established")
+    return _digest_value(attributes)
+
+
+def _identity_for(
+    owner: _BuiltinOwner,
+    node: object,
+    params: dict[str, Any],
+) -> RunInvocationImplementationIdentity:
+    node_type = owner.node_type
+    execute_function = _function_from_descriptor(inspect.getattr_static(node_type, "execute", None))
+    bind_function = _function_from_descriptor(inspect.getattr_static(node_type, "bind", None))
+    spec_descriptor = inspect.getattr_static(node_type, "spec", None)
+    if spec_descriptor is not owner.spec_descriptor:
+        raise ValueError("engine_component_spec_descriptor_changed")
+    spec_function = _function_from_descriptor(spec_descriptor)
+    if execute_function is None or spec_function is None:
+        raise ValueError("engine_component_callable_identity_not_established")
+    if (
+        execute_function is not owner.execute_function
+        or execute_function.__code__ is not owner.execute_code
+        or bind_function is not owner.bind_function
+        or (bind_function.__code__ if bind_function is not None else None) is not owner.bind_code
+        or spec_function.__code__ is not owner.spec_accessor_code
+    ):
+        raise ValueError("engine_component_callable_changed")
+    spec = spec_function(node)
+    spec_sha256 = _digest_value(spec.model_dump(mode="json"))
+    if spec_sha256 != owner.spec_sha256:
+        raise ValueError("engine_component_spec_changed")
+    module_source_sha256 = _module_source_digest(node_type)
+    if module_source_sha256 != owner.module_source_sha256:
+        raise ValueError("engine_component_source_changed")
+    return RunInvocationImplementationIdentity(
+        component_id=owner.component_id,
+        owner_module=node_type.__module__,
+        owner_qualname=node_type.__qualname__,
+        runtime_class_token=f"{id(node_type):x}",
+        runtime_process_id=_PROCESS_ID,
+        runtime_process_nonce=_PROCESS_NONCE,
+        runtime_execute_token=_callable_code_token(execute_function),
+        runtime_bind_token=(
+            _callable_code_token(bind_function) if bind_function is not None else None
+        ),
+        runtime_spec_accessor_token=_callable_code_token(spec_function),
+        module_source_sha256=owner.module_source_sha256,
+        execute_code_sha256=_code_sha256(execute_function),
+        bind_code_sha256=(_code_sha256(bind_function) if bind_function is not None else None),
+        spec_accessor_code_sha256=_code_sha256(spec_function),
+        node_spec_sha256=spec_sha256,
+        bound_state_sha256=_node_attributes_sha256(node),
+        dispatch_params_sha256=_digest_value(params),
+    )
+
+
+def capture_engine_component_identity(
+    node: object, component_id: str, params: dict[str, Any]
+) -> RunInvocationImplementationIdentity | None:
+    """Capture an exact trusted builtin implementation before an engine attempt.
+
+    Unknown components and changed implementations return no identity. The attempt
+    may still execute as candidate work, but consumers cannot treat it as a current
+    protected producer.
+    """
+    owner = _OWNERS.get(component_id)
+    if owner is None:
+        return None
+    node_type = owner.node_type
+    if type(node) is not node_type:
+        return None
+    if inspect.getattr_static(node_type, "execute", None) is not owner.execute_function:
+        return None
+    if inspect.getattr_static(node_type, "bind", None) is not owner.bind_function:
+        return None
+    if inspect.getattr_static(node_type, "spec", None) is not owner.spec_descriptor:
+        return None
+    if (
+        owner.execute_function.__code__ is not owner.execute_code
+        or (owner.bind_function.__code__ if owner.bind_function is not None else None)
+        is not owner.bind_code
+        or owner.spec_accessor_code is not owner.spec_descriptor.fget.__code__
+    ):
+        return None
+    try:
+        spec_function = _function_from_descriptor(owner.spec_descriptor)
+        if spec_function is None:
+            return None
+        expected = _bound_owner_instance(owner, params)
+        if type(expected) is not node_type or vars(expected) != vars(node):
+            return None
+        if spec_function(node) is not spec_function(expected):
+            return None
+        return _identity_for(owner, node, params)
+    except Exception:
+        return None
+
+
+def matches_engine_component_identity(
+    identity: RunInvocationImplementationIdentity | None,
+    component_id: str,
+    params: dict[str, Any],
+) -> bool:
+    """Recompute the admitted identity against the import-time builtin owner.
+
+    The volatile object/function tokens deliberately make this an in-process
+    selected-implementation claim. A fresh process without those live objects keeps
+    the authority result not established; it does not infer deployment provenance.
+    """
+    owner = _OWNERS.get(component_id)
+    if (
+        owner is None
+        or identity is None
+        or identity.runtime_process_id != _PROCESS_ID
+        or identity.runtime_process_nonce != _PROCESS_NONCE
+    ):
+        return False
+    try:
+        expected = _bound_owner_instance(owner, params)
+        return identity == _identity_for(owner, expected, params)
+    except Exception:
+        return False
+
+
+__all__ = [
+    "capture_engine_component_identity",
+    "matches_engine_component_identity",
+]

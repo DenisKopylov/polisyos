@@ -38,6 +38,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStage,
     FunnelStageResult,
 )
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
@@ -95,10 +96,22 @@ class Level5RefutationGovernanceStage(FunnelStage):
     ) -> FunnelStageResult:
         start = datetime.now(UTC)
         prior_result = _prior_result(context)
-        objective_value = float(prior_result.objective_value) if prior_result is not None else 0.0
+        objective_value = prior_result.objective_value if prior_result is not None else None
+        score_status = (
+            prior_result.score_status
+            if prior_result is not None
+            else ObjectiveScoreStatus.UNAVAILABLE
+        )
         failure_cards: list[TypedFailureCard] = []
         terminal_action: (
-            Literal["advance", "defer", "reject", "retry_cheaper", "complete", "defer_to_human"]
+            Literal[
+                "advance",
+                "defer",
+                "reject",
+                "retry_cheaper",
+                "complete",
+                "defer_to_human",
+            ]
             | None
         ) = None
 
@@ -511,13 +524,19 @@ class Level5RefutationGovernanceStage(FunnelStage):
             policy_candidate=candidate,
             objective_value=objective_value,
             is_promising=not any(card.is_blocker for card in failure_cards),
+            score_status=score_status,
+            score_assessment=(prior_result.score_assessment if prior_result is not None else None),
             stage_name=self.stage_name,
             duration_seconds=duration,
             timestamp=datetime.now(UTC),
             simulation_results=getattr(prior_result, "simulation_results", {}),
             feedback=feedback,
             predicted_score=getattr(prior_result, "predicted_score", None),
-            actual_score=getattr(prior_result, "actual_score", objective_value),
+            actual_score=(
+                getattr(prior_result, "actual_score", objective_value)
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                else None
+            ),
             uncertainty_envelope=envelope,
             failure_cards=failure_cards,
             compute_cost_usd=cost_usd,

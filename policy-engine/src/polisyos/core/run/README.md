@@ -26,3 +26,29 @@ existing serialized receipt. It is not an OS process sandbox: Python
 introspection, filesystem permissions, and a worker's access to the CAS remain
 separate concerns. No capability is established for other run operations,
 external worker transports, or callers that bypass the Core receipt writer.
+
+`RunContext.read_runtime_owner_output_refs()` replays the persisted Core run-start
+record and owner-snapshot chain, then requires the full ordered input/output event
+refs to match the current manifest. It is useful when a downstream consumer must
+prove a selected output was added through the owner writer; it does not attest an
+external producer, policy authority, or deployment identity.
+## Workflow node lifecycle view
+
+Sync and async workflow executors pass ordinary node callbacks a restricted,
+`RunContext`-compatible view. It preserves the typed context identity and
+read-only run metadata, artifact-store access, ordinary non-Core trace events,
+and the existing allowlisted provenance update method. It does not expose the
+raw trace sink, input/output registration methods, suspension, or finalization.
+Generic `emit` refuses every Core-phase event and every `RUN_*` event; the
+engine continues to use the typed Core writers and the existing verified worker
+receipt path. Cached-input preparation and cache-hit validation receive the same
+restricted view as node execution.
+
+The workflow finalizer may pass its profile-bound
+`scientist.workflow_state_finalization` ref to `RunContext.finalize`. Core writes
+that exact ref as the terminal `RUN_FINALIZED` input after its typed output event
+and manifest registration. Currentness readers replay this ordered owner trace and
+resolve the referenced CAS object. Existing terminal history without this input
+remains readable, but cannot establish workflow-finalization currentness. This
+is an in-process node API boundary, not an operating-system or Python sandbox.
+

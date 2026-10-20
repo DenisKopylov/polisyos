@@ -18,8 +18,18 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    _validate_objective_score_state,
+)
+
 if TYPE_CHECKING:
-    from polisyos.scientist.methods.search.funnel.types import FunnelOutcome, FunnelTicket
+    from polisyos.scientist.methods.search.funnel.types import (
+        FunnelOutcome,
+        FunnelTicket,
+    )
     from polisyos.scientist.methods.search.objective import ObjectiveValue
 
     # Runtime aliases resolve through __getattr__; avoid importing concrete adapters.
@@ -42,14 +52,38 @@ class EvaluationBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
-    objective_value: float
+    objective_value: float | None
     is_promising: bool
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
+    score_admission: ObjectiveScoreAdmission | None = None
     stage_a_passed: bool = True
     stage_b_result: dict[str, Any] | None = None
     duration_seconds: float = 0.0
     objective_details: list[Any] = Field(default_factory=list)
     policy_evaluation: Any | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_score_state(self) -> EvaluationBundle:
+        if self.score_admission is not None:
+            self.score_status = self.score_admission.status
+            if self.score_status is not ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = None
+            elif self.score_admission.reported_assessment != self.score_assessment:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                self.objective_value = None
+            elif self.score_assessment is not None:
+                self.objective_value = self.score_assessment.value
+        elif self.score_assessment is None:
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        else:
+            self.score_status = self.score_assessment.status
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = self.score_assessment.value
+        _validate_objective_score_state(self.objective_value, self.score_status)
+        return self
 
 
 class ParetoBasisScope(BaseModel):
@@ -273,7 +307,7 @@ class SearchIteration:
 
     iteration: int
     candidate: dict[str, Any]
-    objective_value: float
+    objective_value: float | None
     objective_details: list[ObjectiveValue]
     is_promising: bool
     stage_a_passed: bool
@@ -283,11 +317,35 @@ class SearchIteration:
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     policy_evaluation_status: str = "missing"
     policy_evaluation_error: str | None = None
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
+    score_admission: ObjectiveScoreAdmission | None = None
+
+    def __post_init__(self) -> None:
+        if self.score_admission is not None:
+            self.score_status = self.score_admission.status
+            if self.score_status is not ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = None
+            elif self.score_admission.reported_assessment != self.score_assessment:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                self.objective_value = None
+            elif self.score_assessment is not None:
+                self.objective_value = self.score_assessment.value
+        elif self.score_assessment is None:
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        else:
+            self.score_status = self.score_assessment.status
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = self.score_assessment.value
+        _validate_objective_score_state(self.objective_value, self.score_status)
 
 
 CandidatePayload = dict[str, Any]
 SearchContext = dict[str, Any]
-StageAEvaluator = Callable[[CandidatePayload, SearchContext], tuple[float, bool]]
+StageAEvaluator = Callable[
+    [CandidatePayload, SearchContext], tuple[float | None, bool] | EvaluationBundle
+]
 StageBEvaluator = Callable[[CandidatePayload, SearchContext], dict[str, Any]]
 
 
@@ -449,7 +507,8 @@ class _NativeSearchControllerPort(Protocol):
         self,
         *,
         candidate: dict[str, Any],
-        objective_value: float,
+        objective_value: float | None,
+        score_status: ObjectiveScoreStatus,
         objective_details: list[Any],
         is_promising: bool,
         stage_a_passed: bool,

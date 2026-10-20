@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import math
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
@@ -13,7 +12,10 @@ from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.methods import AmbiguityCertificate
 from polisyos.ir import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics import CausalEffectReport, DistributionalReport
-from polisyos.scientist.methods.search.objective import BudgetDeficitObjective
+from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
+    ObjectiveScoreStatus,
+)
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyType,
@@ -30,7 +32,12 @@ if TYPE_CHECKING:
     from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
     from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
-_FISCAL_METRIC_ALIASES = ("gov_balance", "government_balance", "budget_deficit", "deficit")
+_FISCAL_METRIC_ALIASES = (
+    "gov_balance",
+    "government_balance",
+    "budget_deficit",
+    "deficit",
+)
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
     AttributeError,
@@ -370,28 +377,21 @@ def _policy_budget_total(candidate: PolicyCandidateSchema) -> float:
 
 
 def _selection_score_impl(evaluation_vector: PolicyEvaluationVector) -> float:
-    """Return the primary policy-value score, preserving the support fallback order."""
+    """Return a primary score only after the emitted source binding is reconciled."""
+    _, status = evaluation_vector.legacy_scalar_proxy_for_search()
+    if status is not ObjectiveScoreStatus.AVAILABLE:
+        raise ValueError("policy runtime selection score is not source-bound")
     if "policy_value" in evaluation_vector.primary:
         return float(evaluation_vector.primary["policy_value"].value)
     if evaluation_vector.primary:
         return float(next(iter(evaluation_vector.primary.values())).value)
-    return 0.0
+    raise ValueError("policy runtime selection score has no primary objective")
 
 
 def _budget_deficit_measurement(metrics: Mapping[str, Any]) -> dict[str, Any]:
-    """Retain finite fiscal aliases with the existing objective's availability result."""
+    """Retain every supplied fiscal alias so malformed input stays distinguishable."""
     objective = BudgetDeficitObjective().evaluate(dict(metrics))
-    source_values: dict[str, float] = {}
-    for alias in _FISCAL_METRIC_ALIASES:
-        raw_value = metrics.get(alias)
-        if raw_value is None or isinstance(raw_value, bool):
-            continue
-        try:
-            value = float(raw_value)
-        except (OverflowError, TypeError, ValueError):
-            continue
-        if math.isfinite(value):
-            source_values[alias] = value
+    source_values = {alias: metrics[alias] for alias in _FISCAL_METRIC_ALIASES if alias in metrics}
     usable = bool(objective.is_satisfied)
     return {
         "usable": usable,
@@ -438,10 +438,11 @@ def _attach_policy_runtime_source_metadata(
     fiscal_measurement: Mapping[str, Any],
 ) -> PolicyEvaluationVector:
     """Preserve source-computed runtime records through objective extraction."""
-    return evaluation.model_copy(
+    assessed = evaluation.with_runtime_score_assessment(runtime_execution)
+    return assessed.model_copy(
         update={
             "metadata": {
-                **evaluation.metadata,
+                **assessed.metadata,
                 "policy_runtime_invocation": dict(runtime_execution),
                 "policy_runtime_fiscal_measurement": dict(fiscal_measurement),
             }
@@ -517,6 +518,10 @@ def _build_policy_simulation_results_impl(
         "objective_channels": {
             name: channel.value for name, channel in evaluation.all_channels().items()
         },
+        # The current policy runtime does not carry source-owned unit metadata.
+        # Empty is explicit: downstream score admission must remain unscored.
+        "metric_units": {},
+        "feasible": evaluation.feasible,
         "blocking_reasons": list(evaluation.blocking_reasons),
         "fidelity": fidelity,
         "evaluation_backend_kind": provenance.backend_kind if provenance is not None else "unknown",

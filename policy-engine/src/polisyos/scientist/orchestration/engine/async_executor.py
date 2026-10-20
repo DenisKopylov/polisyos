@@ -40,6 +40,9 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     _run_checkpoint_blocking,
     compute_workflow_fingerprint,
 )
+from polisyos.scientist.orchestration.engine.component_identity import (
+    capture_engine_component_identity,
+)
 from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
@@ -72,6 +75,13 @@ from polisyos.scientist.orchestration.engine.executor import (
     _validate_dependencies,
     _validate_required_binds,
     bind_node_params,
+)
+from polisyos.scientist.orchestration.engine.finalization import (
+    FINAL_WORKFLOW_REPORT_STATE_PATH,
+    FINALIZATION_KIND,
+    FINALIZATION_SCHEMA_NAME,
+    FINALIZATION_SCHEMA_VERSION,
+    WorkflowStateFinalization,
 )
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
@@ -817,6 +827,8 @@ class AsyncWorkflowExecutor:
                 state=overall_status,
             )
 
+        prior_state_ref = await self._persist_state(state, return_selected_profile=True)
+        self._ctx.run.add_output(prior_state_ref)
         report = WorkflowReport(
             workflow_id=workflow.workflow_id,
             run_id=state.run_id,
@@ -827,13 +839,35 @@ class AsyncWorkflowExecutor:
         report_ref = await self._persist_report(report)
         final_state = branch_state(
             state,
-            write_paths=("reports_index.workflow_report",),
+            write_paths=(FINAL_WORKFLOW_REPORT_STATE_PATH,),
         ).state
         final_state.reports_index["workflow_report"] = report_ref
-        final_state_ref = await self._persist_state(final_state)
+        final_state_ref = await self._persist_state(final_state, return_selected_profile=True)
 
         self._ctx.run.add_output(final_state_ref)
         self._ctx.run.add_output(report_ref)
+        finalization = WorkflowStateFinalization.create(
+            run_id=state.run_id,
+            workflow_id=workflow.workflow_id,
+            workflow_spec_ref=workflow_ref,
+            prior_state_ref=prior_state_ref,
+            final_state_ref=final_state_ref,
+            output_refs={FINAL_WORKFLOW_REPORT_STATE_PATH: report_ref},
+        )
+        finalization_ref = await self._put_workflow_artifact(
+            finalization.model_dump(mode="json"),
+            ArtifactWriteOptions(
+                kind=FINALIZATION_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=FINALIZATION_SCHEMA_NAME,
+                    version=FINALIZATION_SCHEMA_VERSION,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        self._ctx.run.add_output(finalization_ref)
 
         # Finalize and persist provenance DAG
         if self._provenance_dag is not None:
@@ -865,6 +899,7 @@ class AsyncWorkflowExecutor:
         run_ref = self._ctx.run.finalize(
             status=overall_status,
             errors=errors_payload or None,
+            workflow_finalization_ref=finalization_ref,
         )
         # Finalize owns mutable run journal/manifest publication. Already
         # entered synchronous I/O is not preemptible and may have completed;
@@ -1971,14 +2006,24 @@ class AsyncWorkflowExecutor:
                 self._workflow_spec_payload = workflow_payload
                 self._ctx.run.add_input(workflow_spec_ref)
 
+            selected_params_snapshot = dict(inv.params or {})
+
             async def record_attempt_started(
                 attempt_number: int,
                 attempt_state: ExperimentState,
+                *,
+                selected_node: object = node,
+                selected_params: dict[str, Any] = selected_params_snapshot,
             ) -> str:
                 attempt_id = str(uuid4())
                 input_state_ref = await self._persist_state(
                     attempt_state,
                     return_selected_profile=True,
+                )
+                implementation_identity = capture_engine_component_identity(
+                    selected_node,
+                    node_id,
+                    selected_params,
                 )
                 basis_ref = self._ctx.run._record_runtime_invocation_started(
                     attempt_id=attempt_id,
@@ -1987,6 +2032,7 @@ class AsyncWorkflowExecutor:
                     node_alias=alias,
                     component_id=node_id,
                     input_state_ref=input_state_ref,
+                    implementation_identity=implementation_identity,
                 )
                 attempt_basis_refs[attempt_id] = (basis_ref, attempt_number)
                 return attempt_id
@@ -2634,4 +2680,5 @@ class AsyncWorkflowExecutor:
                     version="1.0",
                 ),
             ),
+            return_selected_profile=True,
         )

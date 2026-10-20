@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "1f089aee5323aaa424390d9f99577a43dac1e7e6fd6c04dc4dde3247ee7b729f",
+      "sha256": "7b935522c8a1f29e2b94bd7e897c7379717588176e600a9a82d5ed944b4ac785",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1687,6 +1687,50 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-full-id-source-cut-3c13-20261020.json",
       "sha256": "a3ee1b516f9a837b624bfe3cfcfab3b4f3b2877be6afafc9e70c196513f1fb46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-policy-promotion-projection-r9.md",
+      "sha256": "21d9eeef46e131dd67998674cb3eba38e34e47837cfe887ad8ec06d98b9fe82c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-state-and-workflow-finalization-r12.md",
+      "sha256": "99075a71e2c80ca97ab17595ede0c8ca362ac31b9856c2cc6edcbab420172801"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-state-and-workflow-finalization-r14.md",
+      "sha256": "68808cfa49f008de64b8a733777237b22eb02c309c76a47d2e3e43512576f4ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-state-intake-emission-r10.md",
+      "sha256": "32430bfa4e1f1df376264094a2a627f7aad2fe0fee2350bd3185d581978a0ddb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-governance-report-currentness-r11.md",
+      "sha256": "be0ea31343a92edaa56fc062be119db23eb26bd22240107ac7dc8ab1282a3426"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-no-score-selected-axis-r5.md",
+      "sha256": "096ad9c7f477b58291472115eeeac1acf49e52386b2e46dd0e6a0fb0c6595f3c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-owner-trace-live-descriptor-r13.md",
+      "sha256": "9a85559c6e7c1f1c03bb2499706a78d5bf7a0c9431caa1f0e0db1db9fa7a1edc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-score-source-unit-and-vector-basis-r6.md",
+      "sha256": "86d980bbdf8b8d43bebf6de9fbef318c3848784599891017a30c690ab712ee21"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-score-terminal-state-reconciliation-r8.md",
+      "sha256": "12b528e7c2968452200a357de359ce8c5913faf1483e9204be7fa146644eafa3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-selected-score-projection-and-completion-r7.md",
+      "sha256": "748d9da689072ffb6d1724fc34eb96fbe746d50e0be833fa6b7d1adae1a43197"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-vector-score-source-schema-v1.md",
+      "sha256": "5afc821df5ffabf34d9daa535833a8361f47e1062ed5e67807263b3a3b5c2301"
     }
   ],
   "canonical_denominator_recomputed": {

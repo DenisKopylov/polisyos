@@ -198,3 +198,41 @@ def test_search_controller_portfolio_search_accepts_injected_metrics(
             "best_objective": 2.0,
         }
     ]
+
+
+def test_portfolio_search_does_not_infer_missing_or_malformed_score_as_zero() -> None:
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([_NoopObjective()]),
+        ),
+        candidate_generator=_NoopGenerator(),
+        stage_a_evaluator=lambda candidate, context: (0.0, True),
+        stage_b_evaluator=lambda candidate, context: {
+            "simulation_results": {"v": 0.0},
+            "feedback": {"verdict": "APPROVE"},
+        },
+    )
+
+    zero_results = controller.run_portfolio_search(
+        portfolio=_portfolio(),
+        evaluator=lambda combination, context: {"objective_value": 0.0},
+        mode=PortfolioSearchMode.ENUMERATE.value,
+    )
+    assert zero_results
+    assert all(result.objective_value == 0.0 for result in zero_results)
+
+    with pytest.raises(ValueError, match="omitted objective_value"):
+        controller.run_portfolio_search(
+            portfolio=_portfolio(),
+            evaluator=lambda combination, context: {"metrics_only": 1.0},
+            mode=PortfolioSearchMode.ENUMERATE.value,
+        )
+
+    for malformed in (True, None, "not-a-number", float("inf")):
+        with pytest.raises(ValueError, match="finite number"):
+            controller.run_portfolio_search(
+                portfolio=_portfolio(),
+                evaluator=lambda combination, context, value=malformed: {"objective_value": value},
+                mode=PortfolioSearchMode.ENUMERATE.value,
+            )

@@ -15,6 +15,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import contextvars
+import copy
 import ctypes
 import dataclasses
 import hashlib
@@ -45,6 +46,7 @@ from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
 )
+from polisyos.core.run.context import RunContext as _RunContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CircuitBreakerOpenError,
@@ -950,6 +952,127 @@ class _AttemptRunFacade(_AttemptFacade):
         return super().__getattr__(name)
 
 
+_ENGINE_NODE_RUN_VIEW_TOKEN = object()
+
+
+class _EngineNodeRunView(_RunContext):
+    """RunContext-compatible read/trace view without Core lifecycle writers."""
+
+    __slots__ = ("__target",)
+    _READ_FIELDS = frozenset({"access_scope", "cell_id", "store", "tenant_id", "trace_path"})
+    _READ_METHODS = frozenset(
+        {
+            "read_runtime_invocation_attempts",
+            "read_runtime_owner_output_refs",
+            "read_runtime_workflow_finalization_ref",
+        }
+    )
+    _LOCAL_METHODS = frozenset(
+        {
+            "__class__",
+            "__delattr__",
+            "__getattribute__",
+            "__init__",
+            "__repr__",
+            "__setattr__",
+            "emit",
+            "read_runtime_invocation_attempts",
+            "read_runtime_owner_output_refs",
+            "read_runtime_workflow_finalization_ref",
+            "update_manifest",
+        }
+    )
+
+    def __init__(self, target: Any, *, _token: object) -> None:
+        if _token is not _ENGINE_NODE_RUN_VIEW_TOKEN:
+            raise TypeError("engine node run views are created by the executor")
+        object.__setattr__(self, "_EngineNodeRunView__target", target)
+
+    def __getattribute__(self, name: str) -> Any:
+        if name == "run_manifest":
+            target = object.__getattribute__(self, "_EngineNodeRunView__target")
+            manifest = _unwrap_manifest_value(getattr(target, name))
+            return copy.deepcopy(manifest)
+        if name in _EngineNodeRunView._LOCAL_METHODS:
+            return object.__getattribute__(self, name)
+        if name in _EngineNodeRunView._READ_FIELDS | _EngineNodeRunView._READ_METHODS:
+            target = object.__getattribute__(self, "_EngineNodeRunView__target")
+            return getattr(target, name)
+        raise AttributeError(name)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        del name, value
+        raise AttributeError("engine node RunContext fields are read only")
+
+    def __delattr__(self, name: str) -> None:
+        del name
+        raise AttributeError("engine node RunContext fields are read only")
+
+    def __repr__(self) -> str:
+        return f"EngineNodeRunView(run_id={self.run_manifest.run_id!r})"
+
+    def emit(self, *args: Any, **kwargs: Any) -> None:
+        """Forward only the non-Core trace operation accepted by RunContext."""
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        target.emit(*args, **kwargs)
+
+    def update_manifest(self, **changes: object) -> None:
+        """Forward the existing allowlisted provenance update operation."""
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        target.update_manifest(**changes)
+
+    def read_runtime_invocation_attempts(self) -> Any:
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        return target.read_runtime_invocation_attempts()
+
+    def read_runtime_owner_output_refs(self) -> Any:
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        return target.read_runtime_owner_output_refs()
+
+    def read_runtime_workflow_finalization_ref(self) -> Any:
+        target = object.__getattribute__(self, "_EngineNodeRunView__target")
+        return target.read_runtime_workflow_finalization_ref()
+
+
+class _EngineNodeContextView:
+    """Preserve a timeout facade while replacing its RunContext with the node view."""
+
+    __slots__ = ("__run", "__target")
+
+    def __init__(self, target: Any, run: _EngineNodeRunView) -> None:
+        object.__setattr__(self, "_EngineNodeContextView__target", target)
+        object.__setattr__(self, "_EngineNodeContextView__run", run)
+
+    def __getattr__(self, name: str) -> Any:
+        if name == "run":
+            return object.__getattribute__(self, "_EngineNodeContextView__run")
+        return getattr(object.__getattribute__(self, "_EngineNodeContextView__target"), name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        del name, value
+        raise AttributeError("engine node context fields are read only")
+
+    def __delattr__(self, name: str) -> None:
+        del name
+        raise AttributeError("engine node context fields are read only")
+
+
+def _node_facing_context(ctx: Any) -> Any:
+    """Project every engine callback onto the supported node-facing run API."""
+    if not hasattr(ctx, "run"):
+        return ctx
+    from polisyos.core.run.worker_lifecycle import WorkerRunView
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    run = ctx.run
+    if isinstance(run, (WorkerRunView, _EngineNodeRunView)):
+        return ctx
+    run_view = _EngineNodeRunView(run, _token=_ENGINE_NODE_RUN_VIEW_TOKEN)
+    if isinstance(ctx, ExecutionContext):
+        return dataclasses.replace(ctx, run=run_view)
+    return _EngineNodeContextView(ctx, run_view)
+
+
 class _AttemptContext:
     """Private worker context preserving the public context attribute surface."""
 
@@ -1261,7 +1384,7 @@ def _require_node_outcome(value: object) -> NodeOutcome:
 def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> NodeOutcome:
     before = _spend_snapshot(state)
     try:
-        return _require_node_outcome(node.execute(ctx, state))
+        return _require_node_outcome(node.execute(_node_facing_context(ctx), state))
     except _RETRY_RUNTIME_ERRORS as exc:
         raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
 
@@ -1527,7 +1650,7 @@ def execute_with_retry_sync(
         )
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            outcome_value = node.execute(attempt_ctx, state)
+            outcome_value = node.execute(_node_facing_context(attempt_ctx), state)
             if not isinstance(outcome_value, NodeOutcome):
                 raise TypeError("node execution must return a NodeOutcome")
             outcome = outcome_value
@@ -1581,7 +1704,7 @@ def execute_with_retry_sync(
                     dispatch_params=dispatch_params,
                 )
             else:
-                outcome_value = node.execute(attempt_ctx, attempt_state)
+                outcome_value = node.execute(_node_facing_context(attempt_ctx), attempt_state)
                 if not isinstance(outcome_value, NodeOutcome):
                     raise TypeError("node execution must return a NodeOutcome")
                 outcome = outcome_value
@@ -3033,7 +3156,9 @@ async def _execute_with_timeout_async(
         _remaining_deadline(deadline)
         before = _spend_snapshot(worker_state)
         try:
-            return _require_node_outcome(await node.execute_async(worker_ctx, worker_state))
+            return _require_node_outcome(
+                await node.execute_async(_node_facing_context(worker_ctx), worker_state)
+            )
         except _RETRY_RUNTIME_ERRORS as exc:
             raise _CompletedAttemptError(
                 exc, _spend_changes(before, _spend_snapshot(worker_state))
@@ -3154,7 +3279,7 @@ def _node_execute_worker(
         else:
             worker_ctx = ctx
 
-        outcome = node.execute(worker_ctx, state)
+        outcome = node.execute(_node_facing_context(worker_ctx), state)
         _mark_completion()
         if isinstance(outcome, NodeOutcome):
             from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -3257,7 +3382,9 @@ async def execute_with_retry_async(
         remaining = _remaining_deadline(deadline)
         if _has_async:
             if remaining is None:
-                return _require_node_outcome(await node.execute_async(attempt_ctx, attempt_state))
+                return _require_node_outcome(
+                    await node.execute_async(_node_facing_context(attempt_ctx), attempt_state)
+                )
             return await _execute_with_timeout_async(
                 node,
                 attempt_ctx,
@@ -3286,7 +3413,7 @@ async def execute_with_retry_async(
                 deadline_monotonic=deadline,
             )
         authority = _AttemptAuthority()
-        worker_ctx = _build_attempt_context(ctx, authority)
+        worker_ctx = _build_attempt_context(attempt_ctx, authority)
         worker_state = attempt_state.model_copy(deep=True)
         try:
             return await run_blocking_async(

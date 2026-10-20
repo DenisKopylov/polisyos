@@ -14,6 +14,7 @@ from uuid import uuid4
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.scientist.methods.search.contracts import EvaluationBundle
 from polisyos.scientist.methods.search.funnel.types import (
     DegradationMode,
     FunnelCostOrigin,
@@ -24,8 +25,6 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
     FunnelTicket,
     FunnelTraceStep,
-    FunnelWorkPacketStatus,
-    RoutingAction,
     TypedFailureCard,
     UncertaintyEnvelope,
 )
@@ -33,6 +32,12 @@ from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
     lesson_from_failure_card,
     success_lesson_from_outcome,
+)
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreStatus,
+    _unestablished_score_assessment,
+    reconcile_objective_score_assessment,
 )
 from polisyos.scientist.methods.search.sentinels import (
     extract_sentinel_metadata,
@@ -48,7 +53,6 @@ from polisyos.scientist.methods.search.uncertainty import (
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
-    SchedulingDecision,
     SimpleVOIScheduler,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetState
@@ -220,6 +224,117 @@ def _stable_context_identity(context: Mapping[str, Any]) -> dict[str, Any]:
     return identity
 
 
+def _funnel_score_admission(result: FunnelStageResult) -> ObjectiveScoreAdmission:
+    """Recompute one selected score admission from the result's retained basis."""
+    assessment = result.score_assessment
+    if assessment is None and result.score_admission is not None:
+        assessment = result.score_admission.reported_assessment
+    return reconcile_objective_score_assessment(
+        assessment,
+        result.simulation_results,
+        prior_admission=result.score_admission,
+        reported_status=result.score_status,
+        reported_value=result.objective_value,
+    )
+
+
+def _selected_funnel_score_status(result: FunnelStageResult) -> ObjectiveScoreStatus:
+    """Return the status from the shared typed score admission result."""
+    return _funnel_score_admission(result).status
+
+
+def _reconcile_funnel_score(result: FunnelStageResult) -> FunnelStageResult:
+    """Retain both the score basis and its source-recomputed admission state."""
+    admission = _funnel_score_admission(result)
+    assessment = admission.reported_assessment or result.score_assessment
+    if admission.status is ObjectiveScoreStatus.AVAILABLE:
+        return replace(
+            result,
+            objective_value=(
+                None
+                if admission.recomputed_assessment is None
+                else admission.recomputed_assessment.value
+            ),
+            score_status=ObjectiveScoreStatus.AVAILABLE,
+            score_assessment=assessment,
+            score_admission=admission,
+        )
+
+    if admission.status is ObjectiveScoreStatus.NOT_ESTABLISHED and assessment is None:
+        if result.objective_value is None:
+            # Keep structural candidate work, but carry a typed unestablished result.
+            return replace(
+                result,
+                score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                score_assessment=None,
+                score_admission=admission,
+            )
+
+    feedback = dict(result.feedback)
+    if result.objective_value is not None:
+        feedback.setdefault("unbound_objective_diagnostic", result.objective_value)
+    return replace(
+        result,
+        objective_value=None,
+        is_promising=False,
+        score_status=admission.status,
+        score_assessment=assessment,
+        score_admission=admission,
+        feedback=feedback,
+    )
+
+
+def _candidate_score_limited(result: FunnelStageResult) -> bool:
+    """Allow only a recomputed typed limitation to continue as candidate work."""
+    admission = _funnel_score_admission(result)
+    assessment = admission.reported_assessment
+    if assessment is None or result.objective_value is not None:
+        return False
+    if result.score_admission is not None and result.score_admission.status is not admission.status:
+        return False
+    if admission.status is ObjectiveScoreStatus.UNAVAILABLE:
+        return (
+            admission.predicate_status == "recomputed"
+            and admission.recomputed_assessment == assessment
+        )
+    return (
+        admission.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        and bool(assessment.limitation)
+        and (
+            (
+                admission.predicate_status == "recomputed"
+                and admission.recomputed_assessment == assessment
+            )
+            or (assessment.rule_spec is None and admission.predicate_status == "not_established")
+        )
+    )
+
+
+def _finalize_terminal_completion(ticket: FunnelTicket) -> None:
+    """Require one source-recomputed AVAILABLE score before any terminal complete."""
+    if ticket.final_action != "complete" or not ticket.is_terminal:
+        return
+    result = ticket.last_result
+    if result is None:
+        ticket.final_action = "defer"
+        return
+    reconciled = _reconcile_funnel_score(result)
+    result_level = max(ticket.stage_results)
+    ticket.stage_results[result_level] = reconciled
+    for step in reversed(ticket.trace):
+        if step.fidelity_level == result_level and step.stage_name == result.stage_name:
+            step.objective_value = reconciled.objective_value
+            step.is_promising = reconciled.is_promising
+            step.score_status = reconciled.score_status
+            step.score_assessment = reconciled.score_assessment
+            step.score_admission = reconciled.score_admission
+            break
+    admission = _funnel_score_admission(reconciled)
+    if admission.status is ObjectiveScoreStatus.AVAILABLE:
+        return
+    ticket.final_action = "reject" if admission.status is ObjectiveScoreStatus.INVALID else "defer"
+
+
 def _aggregate_funnel_cost(
     trace: Iterable[FunnelTraceStep],
 ) -> tuple[float | None, FunnelCostOrigin]:
@@ -344,10 +459,18 @@ class FunnelOrchestrator:
             try:
                 ticket.context["welfare_candidate_observation_ref"] = (
                     persist_source_bound_risk_observation(
-                        store, candidate_ref=candidate_ref, welfare_bundle_ref=welfare_ref
+                        store,
+                        candidate_ref=candidate_ref,
+                        welfare_bundle_ref=welfare_ref,
                     )
                 )
-            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            except (
+                AttributeError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
                 logger.info("Candidate welfare observation withheld: %s", type(exc).__name__)
         self._tickets[ticket.ticket_id] = ticket
         self._latest_ticket_by_candidate[candidate_hash] = ticket.ticket_id
@@ -394,9 +517,11 @@ class FunnelOrchestrator:
                     break
 
             stage = self._stages_by_level[next_level]
-            result = stage.evaluate(
-                resolved_ticket.candidate,
-                self._build_stage_context(resolved_ticket),
+            result = _reconcile_funnel_score(
+                stage.evaluate(
+                    resolved_ticket.candidate,
+                    self._build_stage_context(resolved_ticket),
+                )
             )
             self._admit_executed_work_packet(resolved_ticket, result, next_level)
             resolved_ticket.stage_results[next_level] = result
@@ -414,6 +539,9 @@ class FunnelOrchestrator:
                 duration_seconds=result.duration_seconds,
                 compute_cost_usd=result.compute_cost_usd,
                 compute_cost_origin=result.compute_cost_origin,
+                score_status=result.score_status,
+                score_assessment=result.score_assessment,
+                score_admission=result.score_admission,
                 executed_work_packet_ref=result.executed_work_packet_ref,
                 executed_work_packet_status=result.executed_work_packet_status,
                 routing_decision=routing_decision,
@@ -423,12 +551,7 @@ class FunnelOrchestrator:
             resolved_ticket.trace.append(trace_step)
             self._maybe_record_voi_observation(resolved_ticket, result, next_level)
 
-            if result.terminal_action is not None:
-                resolved_ticket.final_action = result.terminal_action
-                if result.terminal_action != "advance":
-                    resolved_ticket.is_terminal = True
-                    break
-
+            score_limited = _candidate_score_limited(result)
             if result.has_blockers:
                 logger.debug(
                     "Funnel stopped at %s: %d blocker(s)",
@@ -438,22 +561,46 @@ class FunnelOrchestrator:
                 resolved_ticket.final_action = "reject"
                 resolved_ticket.is_terminal = True
                 break
+
+            if result.terminal_action is not None:
+                if result.terminal_action in {"advance", "defer"} and score_limited:
+                    if self._level_after(next_level) is None:
+                        resolved_ticket.final_action = "defer"
+                        resolved_ticket.is_terminal = True
+                        break
+                    resolved_ticket.final_action = "advance"
+                else:
+                    resolved_ticket.final_action = result.terminal_action
+                    if result.terminal_action != "advance":
+                        resolved_ticket.is_terminal = True
+                        break
             if not result.is_promising:
-                if burn_in_calibration and next_level in (1, 2, 3):
+                if score_limited and result.terminal_action in {None, "advance", "defer"}:
+                    if self._level_after(next_level) is None:
+                        resolved_ticket.final_action = "defer"
+                        resolved_ticket.is_terminal = True
+                        break
+                    resolved_ticket.final_action = "advance"
+                    logger.debug(
+                        "Funnel continues candidate-only after unscored %s evaluation",
+                        result.stage_name,
+                    )
+                elif burn_in_calibration and next_level in (1, 2, 3):
                     logger.debug(
                         "Burn-in bypass at %s: continuing despite non-promising result.",
                         result.stage_name,
                     )
                     self._maybe_record_correlation(resolved_ticket)
                     continue
-                logger.debug(
-                    "Funnel stopped at %s: not promising (obj=%.4f)",
-                    result.stage_name,
-                    result.objective_value,
-                )
-                resolved_ticket.final_action = "reject"
-                resolved_ticket.is_terminal = True
-                break
+                elif not score_limited or result.terminal_action not in {None, "advance", "defer"}:
+                    logger.debug(
+                        "Funnel stopped at %s: not promising (obj=%s)",
+                        result.stage_name,
+                        result.objective_value,
+                    )
+                    resolved_ticket.final_action = "reject"
+                    resolved_ticket.is_terminal = True
+                    break
             if routing_decision == "reject":
                 if burn_in_calibration and next_level in (1, 2, 3):
                     logger.debug(
@@ -473,6 +620,9 @@ class FunnelOrchestrator:
                     feedback=result.feedback,
                     predicted_score=result.predicted_score,
                     actual_score=result.actual_score,
+                    score_status=result.score_status,
+                    score_assessment=result.score_assessment,
+                    score_admission=result.score_admission,
                     uncertainty_envelope=result.uncertainty_envelope,
                     cheap_signal=result.cheap_signal,
                     failure_cards=result.failure_cards,
@@ -512,6 +662,7 @@ class FunnelOrchestrator:
 
             self._maybe_record_correlation(resolved_ticket)
 
+        _finalize_terminal_completion(resolved_ticket)
         if (
             policy != "stage_a"
             and resolved_ticket.stage_results
@@ -540,6 +691,7 @@ class FunnelOrchestrator:
         """Return the aggregated current outcome for a ticket."""
 
         resolved_ticket = self._resolve_ticket(ticket)
+        _finalize_terminal_completion(resolved_ticket)
         ordered_results = [
             resolved_ticket.stage_results[level] for level in sorted(resolved_ticket.stage_results)
         ]
@@ -579,7 +731,13 @@ class FunnelOrchestrator:
                 observation = load_search_uncertainty_observation(
                     store, ref, basis_ref, result.uncertainty_envelope, subject_ref
                 )
-            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            except (
+                AttributeError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
                 intake_failures.append(f"{result.stage_name}:{exc}")
                 continue
             admitted_envelopes.append(observation.envelope)
@@ -614,9 +772,16 @@ class FunnelOrchestrator:
         ):
             try:
                 load_source_bound_risk_observation(store, welfare_observation_ref, subject_ref)
-            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            except (
+                AttributeError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
                 logger.info(
-                    "Candidate welfare observation readback withheld: %s", type(exc).__name__
+                    "Candidate welfare observation readback withheld: %s",
+                    type(exc).__name__,
                 )
             else:
                 audit_refs.append(welfare_observation_ref)
@@ -664,20 +829,66 @@ class FunnelOrchestrator:
 
     def as_stage_a_callable(
         self,
-    ) -> Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]]:
+    ) -> Callable[[dict[str, Any], dict[str, Any]], EvaluationBundle]:
         """Return a SearchController-compatible Stage A callable."""
 
         def _stage_a(
             candidate: dict[str, Any],
             context: dict[str, Any],
-        ) -> tuple[float, bool]:
+        ) -> EvaluationBundle:
             ticket = self.submit(candidate, context)
             outcome = self.advance(ticket, policy="stage_a")
             result = self._result_for_level(ticket, self._stage_a_execution_target())
             if result is None:
                 result = outcome.final_result or self._empty_result(candidate)
-            passed = result.is_promising and outcome.final_action in {"advance", "complete"}
-            return result.objective_value, passed
+            score_admission = _funnel_score_admission(result)
+            selected_admission = score_admission.status
+            score_assessment = score_admission.reported_assessment
+            objective_value = (
+                score_admission.recomputed_assessment.value
+                if selected_admission is ObjectiveScoreStatus.AVAILABLE
+                and score_admission.recomputed_assessment is not None
+                else None
+            )
+            promising = (
+                result.is_promising
+                and selected_admission is ObjectiveScoreStatus.AVAILABLE
+                and objective_value is not None
+            )
+            score_limited_continuation = (
+                outcome.final_action == "advance"
+                and outcome.evaluation_status == "partial"
+                and _candidate_score_limited(result)
+            )
+            structural_continuation = (
+                outcome.final_action == "advance"
+                and outcome.evaluation_status == "partial"
+                and result.score_assessment is None
+                and result.objective_value is None
+                and result.is_promising
+            )
+            candidate_continuation = score_limited_continuation or structural_continuation
+            stage_a_passed = promising or candidate_continuation
+            return EvaluationBundle(
+                objective_value=objective_value,
+                is_promising=promising,
+                score_status=selected_admission,
+                score_assessment=score_assessment,
+                score_admission=score_admission,
+                stage_a_passed=stage_a_passed,
+                metadata={
+                    "funnel_action": outcome.final_action,
+                    "funnel_evaluation_status": outcome.evaluation_status,
+                    "candidate_continuation": candidate_continuation,
+                    "candidate_continuation_kind": (
+                        "score_limited"
+                        if score_limited_continuation
+                        else "structural"
+                        if structural_continuation
+                        else None
+                    ),
+                },
+            )
 
         return _stage_a
 
@@ -1229,8 +1440,9 @@ class FunnelOrchestrator:
     def _empty_result(candidate: dict[str, Any]) -> FunnelStageResult:
         return FunnelStageResult(
             policy_candidate=candidate,
-            objective_value=float("inf"),
+            objective_value=None,
             is_promising=False,
+            score_status=ObjectiveScoreStatus.UNAVAILABLE,
             stage_name="funnel_empty",
             feedback={
                 "verdict": "NOT_EVALUATED",
@@ -1259,31 +1471,65 @@ class FunnelOrchestrator:
     ) -> FunnelStageResult:
         """Project stage evidence into the aggregate compatibility decision."""
 
+        score_admission: ObjectiveScoreAdmission | None = None
+        selected_admission: ObjectiveScoreStatus | None = None
         if outcome.evaluation_status == "not_evaluated":
             compatibility_verdict = "NOT_EVALUATED"
             compatibility_promising = False
         elif outcome.evaluation_status != "evaluated":
             compatibility_verdict = "DEFER"
             compatibility_promising = False
-        elif outcome.final_action == "reject" or not stage_result.is_promising:
+        elif outcome.final_action == "reject":
             compatibility_verdict = "REJECT"
             compatibility_promising = False
         elif outcome.final_action in {"complete", "advance"}:
-            compatibility_verdict = "APPROVE"
-            compatibility_promising = True
+            score_admission = _funnel_score_admission(stage_result)
+            selected_admission = score_admission.status
+            if (
+                stage_result.is_promising
+                and selected_admission is ObjectiveScoreStatus.AVAILABLE
+                and stage_result.objective_value is not None
+            ):
+                compatibility_verdict = "APPROVE"
+                compatibility_promising = True
+            else:
+                compatibility_verdict = "DEFER"
+                compatibility_promising = False
         else:
             compatibility_verdict = "DEFER"
             compatibility_promising = False
 
         feedback = dict(stage_result.feedback)
+        if selected_admission is not None and compatibility_verdict == "DEFER":
+            feedback["selected_objective_admission"] = selected_admission.value
         feedback["stage_verdict"] = feedback.get("verdict")
         feedback["verdict"] = compatibility_verdict
         feedback["funnel_action"] = outcome.final_action
         feedback["funnel_evaluation_status"] = outcome.evaluation_status
+        compatibility_score_status = stage_result.score_status
+        compatibility_score_assessment = stage_result.score_assessment
+        compatibility_score_admission = stage_result.score_admission
+        compatibility_objective_value = stage_result.objective_value
+        if selected_admission is not None and score_admission is not None:
+            compatibility_score_status = selected_admission
+            compatibility_score_assessment = score_admission.reported_assessment
+            compatibility_score_admission = score_admission
+            if selected_admission is ObjectiveScoreStatus.AVAILABLE:
+                compatibility_objective_value = (
+                    None
+                    if score_admission.recomputed_assessment is None
+                    else score_admission.recomputed_assessment.value
+                )
+            else:
+                compatibility_objective_value = None
+
         return FunnelStageResult(
             policy_candidate=stage_result.policy_candidate,
-            objective_value=stage_result.objective_value,
+            objective_value=compatibility_objective_value,
             is_promising=compatibility_promising,
+            score_status=compatibility_score_status,
+            score_assessment=compatibility_score_assessment,
+            score_admission=compatibility_score_admission,
             stage_name=stage_result.stage_name,
             duration_seconds=stage_result.duration_seconds,
             timestamp=stage_result.timestamp,
@@ -1326,7 +1572,14 @@ class FunnelOrchestrator:
             truth_levels = [level for level in stage_results if level >= 4]
             if truth_levels:
                 truth_result = stage_results[max(truth_levels)]
-        if gate_result is None or truth_result is None:
+        if (
+            gate_result is None
+            or truth_result is None
+            or gate_result.score_status is not ObjectiveScoreStatus.AVAILABLE
+            or truth_result.score_status is not ObjectiveScoreStatus.AVAILABLE
+            or gate_result.objective_value is None
+            or truth_result.objective_value is None
+        ):
             return
         self._correlation_tracker.record(
             gate_result,
@@ -1347,7 +1600,13 @@ class FunnelOrchestrator:
         result: FunnelStageResult,
         stage_level: int,
     ) -> None:
-        if not hasattr(self._voi_scheduler, "observe_stage_result"):
+        if (
+            result.score_status is not ObjectiveScoreStatus.AVAILABLE
+            or result.objective_value is None
+            or result.score_assessment is None
+            or _funnel_score_admission(result).status is not ObjectiveScoreStatus.AVAILABLE
+            or not hasattr(self._voi_scheduler, "observe_stage_result")
+        ):
             return
         transfer_context = resolve_transfer_context(
             candidate=ticket.candidate,
@@ -1377,6 +1636,8 @@ class FunnelOrchestrator:
             frontier_position=self._frontier.position_for(ticket.candidate_hash),
             cheap_signal=result.cheap_signal,
             actual_objective_value=result.objective_value,
+            score_assessment=result.score_assessment,
+            objective_source=result.simulation_results,
             actual_promising=result.is_promising,
             duration_seconds=result.duration_seconds,
             compute_cost_usd=result.compute_cost_usd,

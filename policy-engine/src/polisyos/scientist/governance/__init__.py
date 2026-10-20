@@ -39,6 +39,7 @@ __all__ = [
     "GovernanceAccountabilityInput",
     "GovernanceReport",
     "GovernanceReportLinks",
+    "GovernanceReportInvocationBinding",
     "GovernanceThresholdEntry",
     "HoldoutScoresManifest",
     "LossBreakdownManifest",
@@ -244,6 +245,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "preflight_checks": ("polisyos.scientist.governance.preflight", "preflight_checks"),
     "GovernanceReport": ("polisyos.scientist.governance.report", "GovernanceReport"),
     "GovernanceReportLinks": ("polisyos.scientist.governance.report", "GovernanceReportLinks"),
+    "GovernanceReportInvocationBinding": (
+        "polisyos.scientist.governance.report",
+        "GovernanceReportInvocationBinding",
+    ),
     "StressScenarioComparison": (
         "polisyos.scientist.governance.stress_scenarios",
         "StressScenarioComparison",

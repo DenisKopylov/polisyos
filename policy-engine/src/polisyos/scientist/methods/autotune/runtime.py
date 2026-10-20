@@ -39,6 +39,7 @@ from polisyos.scientist.methods.search.objective import (
     BaseObjective,
     CompositeObjective,
     OptimizationDirection,
+    _configured_search_metric_profile_fingerprint,
 )
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
@@ -783,7 +784,7 @@ class MethodJobBenchmarkEvaluator:
         source_unit = (
             source_units.get(policy.primary_metric) if isinstance(source_units, Mapping) else None
         )
-        metric_unit_matches = policy.unit is None or source_unit == policy.unit
+        metric_unit_matches = source_unit == policy.unit
         metric_value: float | None = None
         if not isinstance(raw_metric, bool) and raw_metric is not None:
             try:
@@ -1413,7 +1414,7 @@ def _search_work_packet_admission_failure(
             if (
                 not isfinite(actual_value)
                 or actual_value != reported_value
-                or (policy.unit is not None and source_unit != policy.unit)
+                or source_unit != policy.unit
                 or evaluation.metadata.get("metric_unit") != source_unit
             ):
                 return "search_work_packet_metric_binding_mismatch"
@@ -1605,7 +1606,7 @@ def _build_search_method_run_profile(
     if split is None:
         return None
     search_space_fingerprint = search_space._native.sobol_space_fingerprint()
-    objective_fingerprint = objective_fn()
+    objective_fingerprint = objective_fn(unit=spec.promotion_policy.unit)
     method_seed = context.get("method_job_seed", evaluator._seed)
     if (
         isinstance(method_seed, bool)
@@ -2021,12 +2022,10 @@ class SearchLoopRunner:
             and method_split is not None
         ):
             request_basis = evaluation.metadata.get("method_request_basis")
-            objective_fingerprint = _search_source_fingerprint(
-                {
-                    "primary_metric": spec.promotion_policy.primary_metric,
-                    "direction": spec.promotion_policy.direction.value,
-                    "scalarization": "finite_scalar_score_minimize",
-                }
+            objective_fingerprint = _configured_search_metric_profile_fingerprint(
+                spec.promotion_policy.primary_metric,
+                spec.promotion_policy.direction.value,
+                spec.promotion_policy.unit,
             )
             method_evaluator = method_job_evaluator
             metric_value = evaluation.primary_value(

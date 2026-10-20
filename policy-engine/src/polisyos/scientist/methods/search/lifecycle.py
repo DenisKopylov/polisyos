@@ -14,7 +14,7 @@ from uuid import uuid4
 
 from polisyos.scientist.methods.search.contracts import (
     CandidatePayload,
-    SearchContext,
+    EvaluationBundle,
     SearchIteration,
     SearchResult,
     SearchStatus,
@@ -44,18 +44,22 @@ from polisyos.scientist.methods.search.lifecycle_support import (
 from polisyos.scientist.methods.search.lifecycle_support import (
     logger as controller_logger,
 )
-from polisyos.scientist.methods.search.objective import ObjectiveValue
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    ObjectiveValue,
+    reconcile_objective_score_assessment,
+    score_assessment_matches_source,
+    selected_score_admission_status,
+)
 from polisyos.scientist.methods.search.run_state import SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.frontier import FrontierPoint
-    from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
-    from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerProducerRunBinding
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
-    from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationVector
+    from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 
 
 class _SearchLifecycleOwner:
@@ -246,7 +250,8 @@ class _SearchLifecycleOwner:
         self,
         *,
         candidate: CandidatePayload,
-        objective_value: float,
+        objective_value: float | None,
+        score_status: ObjectiveScoreStatus,
         objective_details: list[Any],
         is_promising: bool,
         stage_a_passed: bool,
@@ -267,18 +272,42 @@ class _SearchLifecycleOwner:
             stage_b_result,
         )
         policy_evaluation = policy_resolution.value
-        effective_objective = float(objective_value)
-        effective_details: list[ObjectiveValue] = [
-            detail for detail in objective_details if isinstance(detail, ObjectiveValue)
-        ]
+        effective_objective = None
+        effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        effective_assessment: ObjectiveScoreAssessment | None = None
+        effective_details: list[ObjectiveValue] = []
         if policy_resolution.status == "invalid":
             self._run_state.policy_evaluation_errors += 1
-            effective_objective = float("inf")
-            effective_details = []
-        elif policy_evaluation is not None:
-            effective_objective = policy_evaluation.legacy_scalar_proxy
-            effective_details = policy_evaluation.as_legacy_objectives()
+        source_results = stage_b_result.get("simulation_results")
+        if isinstance(source_results, dict):
+            recomputed = self._config.objective.evaluate(source_results)
+            effective_assessment = recomputed.score_assessment
+            effective_score_status = recomputed.score_status
+            effective_details = self._config.objective.evaluate_detailed(source_results)
+            if (
+                effective_score_status is ObjectiveScoreStatus.AVAILABLE
+                and selected_score_admission_status(effective_assessment, source_results)
+                is ObjectiveScoreStatus.AVAILABLE
+            ):
+                effective_objective = (
+                    effective_assessment.value if effective_assessment is not None else None
+                )
+            elif effective_score_status is ObjectiveScoreStatus.AVAILABLE:
+                effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        else:
+            effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        if effective_score_status not in {
+            ObjectiveScoreStatus.AVAILABLE,
+            ObjectiveScoreStatus.NOT_ESTABLISHED,
+        }:
+            effective_objective = None
 
+        effective_admission = reconcile_objective_score_assessment(
+            effective_assessment,
+            source_results,
+            reported_status=effective_score_status,
+            reported_value=effective_objective,
+        )
         is_sentinel = extract_sentinel_metadata(candidate) is not None
         feedback = stage_b_result.get("feedback")
         verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
@@ -288,8 +317,18 @@ class _SearchLifecycleOwner:
             and policy_resolution.status != "invalid"
             and (policy_evaluation is None or policy_evaluation.feasible)
             and verdict == "APPROVE"
+            and effective_score_status is ObjectiveScoreStatus.AVAILABLE
+            and effective_assessment is not None
+            and selected_score_admission_status(effective_assessment, source_results)
+            is ObjectiveScoreStatus.AVAILABLE
         )
-        if stage_a_passed and not is_sentinel and policy_resolution.status != "invalid":
+        if (
+            stage_a_passed
+            and not is_sentinel
+            and policy_resolution.status != "invalid"
+            and effective_score_status is ObjectiveScoreStatus.AVAILABLE
+            and effective_objective is not None
+        ):
             if effective_objective < self._best_objective:
                 self._best_objective = effective_objective
                 self._best_candidate = deepcopy(candidate)
@@ -313,6 +352,9 @@ class _SearchLifecycleOwner:
             policy_evaluation=deepcopy(policy_evaluation),
             policy_evaluation_status=policy_resolution.status,
             policy_evaluation_error=policy_resolution.reason,
+            score_status=effective_admission.status,
+            score_assessment=effective_assessment,
+            score_admission=effective_admission,
         )
         transition = _EvaluationTransition(
             disposition=(
@@ -353,10 +395,37 @@ class _SearchLifecycleOwner:
         )
         self._config.stopping.reset()
         self._refresh_budget_snapshot(initial_context)
-        self._run_state.training_evaluations = len(self._config.initial_evaluations)
+        self._run_state.training_evaluations = 0
 
         for eval_dict in self._config.initial_evaluations:
-            obj_value = eval_dict.get("objective_value", float("inf"))
+            stage_b_result = deepcopy(eval_dict.get("stage_b_result"))
+            source_results = (
+                stage_b_result.get("simulation_results")
+                if isinstance(stage_b_result, dict)
+                else None
+            )
+            assessment: ObjectiveScoreAssessment | None = None
+            score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+            obj_value = eval_dict.get("objective_value")
+            if isinstance(source_results, dict):
+                recomputed = self._config.objective.evaluate(source_results)
+                assessment = recomputed.score_assessment
+                score_status = recomputed.score_status
+                if (
+                    score_status is ObjectiveScoreStatus.AVAILABLE
+                    and score_assessment_matches_source(assessment, source_results)
+                ):
+                    obj_value = assessment.value if assessment is not None else None
+                else:
+                    if score_status is ObjectiveScoreStatus.AVAILABLE:
+                        score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                    obj_value = eval_dict.get("objective_value")
+            admission = reconcile_objective_score_assessment(
+                assessment,
+                source_results,
+                reported_status=score_status,
+                reported_value=obj_value,
+            )
             record = SearchIteration(
                 iteration=-1,
                 candidate=deepcopy(eval_dict.get("candidate", {})),
@@ -364,12 +433,25 @@ class _SearchLifecycleOwner:
                 objective_details=[],
                 is_promising=eval_dict.get("is_promising", False),
                 stage_a_passed=True,
-                stage_b_result=deepcopy(eval_dict.get("stage_b_result")),
+                stage_b_result=stage_b_result,
                 duration_seconds=0.0,
+                score_status=admission.status,
+                score_assessment=assessment,
+                score_admission=admission,
             )
             self._history.append(record)
-            if obj_value < self._best_objective:
-                self._best_objective = obj_value
+            if (
+                score_status is ObjectiveScoreStatus.AVAILABLE
+                and assessment is not None
+                and score_assessment_matches_source(assessment, source_results)
+            ):
+                self._run_state.training_evaluations += 1
+            if (
+                score_status is ObjectiveScoreStatus.AVAILABLE
+                and obj_value is not None
+                and obj_value < self._best_objective
+            ):
+                self._best_objective = float(obj_value)
                 self._best_candidate = deepcopy(record.candidate)
 
         controller_logger.info(f"Starting search {search_id}")
@@ -668,18 +750,27 @@ class _SearchLifecycleOwner:
         is_sentinel = extract_sentinel_metadata(candidate) is not None
 
         stage_a_passed = True
-        stage_a_score = 0.0
+        stage_a_score: float | None = None
 
         if self._config.enable_stage_a:
             self._stage_a_count += 1
-            stage_a_score, stage_a_passed = self._stage_a(candidate, context)
+            stage_a_result = self._stage_a(candidate, context)
+            if isinstance(stage_a_result, EvaluationBundle):
+                stage_a_score = stage_a_result.objective_value
+                stage_a_passed = stage_a_result.stage_a_passed
+            else:
+                stage_a_score, stage_a_passed = stage_a_result
             if not stage_a_passed:
                 controller_logger.debug(
-                    f"Iteration {iteration}: Stage A rejected (score={stage_a_score:.4f})"
+                    "Iteration %s: Stage A did not continue candidate (score=%s)",
+                    iteration,
+                    stage_a_score,
                 )
 
         stage_b_result: dict[str, Any] | None = None
-        objective_value = float("inf")
+        objective_value: float | None = None
+        score_status = ObjectiveScoreStatus.UNAVAILABLE
+        score_assessment: ObjectiveScoreAssessment | None = None
         objective_details: list[ObjectiveValue] = []
         policy_evaluation = None
         policy_resolution = _PolicyEvaluationResolution(value=None, status="missing")
@@ -702,17 +793,39 @@ class _SearchLifecycleOwner:
             policy_evaluation = policy_resolution.value
             if policy_resolution.status == "invalid":
                 self._run_state.policy_evaluation_errors += 1
+                score_status = ObjectiveScoreStatus.INVALID
             elif policy_evaluation is not None:
-                objective_value = policy_evaluation.legacy_scalar_proxy
-                objective_details = policy_evaluation.as_legacy_objectives()
+                selected = self._config.objective.evaluate(sim_results)
+                score_status = selected.score_status
+                score_assessment = selected.score_assessment
+                objective_details = self._config.objective.evaluate_detailed(sim_results)
+                if score_status is ObjectiveScoreStatus.AVAILABLE:
+                    if score_assessment_matches_source(score_assessment, sim_results):
+                        objective_value = (
+                            score_assessment.value if score_assessment is not None else None
+                        )
+                    else:
+                        score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
             else:
                 obj_eval = self._config.objective.evaluate(sim_results)
-                objective_value = obj_eval.raw_value
                 objective_details = self._config.objective.evaluate_detailed(sim_results)
+                score_status = obj_eval.score_status
+                score_assessment = obj_eval.score_assessment
+                if score_status is ObjectiveScoreStatus.AVAILABLE:
+                    if score_assessment_matches_source(score_assessment, sim_results):
+                        objective_value = (
+                            score_assessment.value if score_assessment is not None else None
+                        )
+                    else:
+                        score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                elif score_status is not ObjectiveScoreStatus.NOT_ESTABLISHED:
+                    objective_value = None
 
             if (
                 policy_resolution.status != "invalid"
                 and not is_sentinel
+                and score_status is ObjectiveScoreStatus.AVAILABLE
+                and objective_value is not None
                 and objective_value < self._best_objective
             ):
                 self._best_objective = objective_value
@@ -721,7 +834,12 @@ class _SearchLifecycleOwner:
                     f"Iteration {iteration}: New best objective = {objective_value:.6f}"
                 )
 
-            if not is_sentinel and policy_resolution.status != "invalid":
+            if (
+                not is_sentinel
+                and policy_resolution.status != "invalid"
+                and score_status is ObjectiveScoreStatus.AVAILABLE
+                and objective_value is not None
+            ):
                 self._update_policy_or_legacy_frontier(
                     candidate=candidate,
                     objective_details=objective_details,
@@ -729,6 +847,13 @@ class _SearchLifecycleOwner:
                     stage_b_result=stage_b_result,
                 )
 
+        score_admission = reconcile_objective_score_assessment(
+            score_assessment,
+            sim_results,
+            reported_status=score_status,
+            reported_value=objective_value,
+        )
+        score_status = score_admission.status
         iter_duration = (datetime.now(UTC) - iter_start).total_seconds()
         record = SearchIteration(
             iteration=iteration,
@@ -738,13 +863,19 @@ class _SearchLifecycleOwner:
             is_promising=stage_a_passed
             and policy_resolution.status != "invalid"
             and (policy_evaluation is None or policy_evaluation.feasible)
-            and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE",
+            and (stage_b_result or {}).get("feedback", {}).get("verdict") == "APPROVE"
+            and score_status is ObjectiveScoreStatus.AVAILABLE
+            and selected_score_admission_status(score_assessment, sim_results)
+            is ObjectiveScoreStatus.AVAILABLE,
             stage_a_passed=stage_a_passed,
             stage_b_result=deepcopy(stage_b_result),
             duration_seconds=iter_duration,
             policy_evaluation=deepcopy(policy_evaluation),
             policy_evaluation_status=policy_resolution.status,
             policy_evaluation_error=policy_resolution.reason,
+            score_status=score_status,
+            score_assessment=score_assessment,
+            score_admission=score_admission,
         )
         if not is_sentinel and self._diversity_tracker is not None:
             self._diversity_tracker.record_iteration(candidate)
@@ -1042,7 +1173,16 @@ class _SearchLifecycleOwner:
         stage_b_result: dict[str, Any] | None,
     ) -> None:
         registry = self._config.pareto_registry
-        if policy_evaluation is not None and registry is not None:
+        source_results = (
+            stage_b_result.get("simulation_results") if isinstance(stage_b_result, dict) else None
+        )
+        vector_is_reconciled = (
+            policy_evaluation is not None
+            and policy_evaluation.score_assessment_matches_channels(
+                source_results if isinstance(source_results, dict) else None
+            )
+        )
+        if policy_evaluation is not None and vector_is_reconciled and registry is not None:
             try:
                 from polisyos.scientist.methods.search.transfer_context import (
                     resolve_transfer_context,
@@ -1130,13 +1270,28 @@ class _SearchLifecycleOwner:
         return dominates(a, b)
 
     def _to_history_dict(self, iteration: SearchIteration) -> dict[str, Any]:
-        """Convert iteration to dict for stopping criteria."""
-        return {
+        """Expose objective values to stopping rules only after source reconciliation."""
+        record = {
             "iteration": iteration.iteration,
-            "objective_value": iteration.objective_value,
+            "score_status": iteration.score_status.value,
+            "score_admission": (
+                None
+                if iteration.score_admission is None
+                else iteration.score_admission.to_surface_payload()
+            ),
             "is_promising": iteration.is_promising,
             "stage_a_passed": iteration.stage_a_passed,
         }
+        if (
+            iteration.score_status is ObjectiveScoreStatus.AVAILABLE
+            and iteration.score_assessment is not None
+            and score_assessment_matches_source(
+                iteration.score_assessment,
+                iteration.stage_b_result,
+            )
+        ):
+            record["objective_value"] = iteration.score_assessment.value
+        return record
 
     def run_portfolio_search(
         self,
@@ -1188,10 +1343,11 @@ class _SearchLifecycleOwner:
             if isinstance(raw, PortfolioEvaluationResult):
                 result = raw
             elif isinstance(raw, dict):
-                value = float(raw.get("objective_value", 0.0))
+                if "objective_value" not in raw:
+                    raise ValueError("portfolio evaluator omitted objective_value")
                 result = PortfolioEvaluationResult(
                     combination=combination,
-                    objective_value=value,
+                    objective_value=raw["objective_value"],
                     metrics=raw,
                 )
             else:

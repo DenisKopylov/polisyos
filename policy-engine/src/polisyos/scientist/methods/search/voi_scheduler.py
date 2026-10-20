@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -17,6 +17,12 @@ from polisyos.foundry.methods.selection_history import (
     MethodExecutionRecord,
     RuntimePredictor,
     SelectionHistoryStore,
+)
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    _project_score_assessment_source,
+    score_assessment_matches_source,
 )
 from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
@@ -148,29 +154,67 @@ class VOIObservation(BaseModel):
     stage_level: int = Field(default=0, ge=0)
     frontier_position: str = Field(default="unknown", min_length=1)
     features: dict[str, float] = Field(default_factory=dict)
-    actual_objective_value: float = 0.0
+    actual_objective_value: float | None = None
+    objective_source: dict[str, Any] | None = None
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
     actual_promising: bool = True
     duration_seconds: float = Field(default=0.0, ge=0.0)
     compute_cost_usd: float | None = Field(default=None, ge=0.0, allow_inf_nan=False)
     compute_cost_origin: VOICostOrigin = "unknown"
     timeout_occurred: bool = False
-    disagreement: float = Field(default=0.0, ge=0.0)
+    disagreement: float | None = Field(default=None, ge=0.0, allow_inf_nan=False)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @field_serializer("score_assessment")
+    def _serialize_score_assessment(
+        self, assessment: ObjectiveScoreAssessment | None
+    ) -> dict[str, Any] | None:
+        """Retain the versioned assessment wire format in VOI snapshots."""
+        return None if assessment is None else assessment.to_payload()
 
     @model_validator(mode="before")
     @classmethod
-    def _preserve_untyped_legacy_cost_as_unknown(cls, value: Any) -> Any:
-        """Keep pre-origin snapshot amounts visible but exclude them from cost training."""
+    def _preserve_unbound_legacy_evidence_as_unestablished(cls, value: Any) -> Any:
+        """Retain scores only when their persisted source basis can be recomputed."""
         if not isinstance(value, Mapping):
             return value
         payload = dict(value)
+        metadata = payload.get("metadata")
+        metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
         if "compute_cost_origin" not in payload and payload.get("compute_cost_usd") is not None:
-            metadata = payload.get("metadata")
-            metadata = dict(metadata) if isinstance(metadata, Mapping) else {}
             metadata.setdefault("legacy_untyped_compute_cost_usd", payload["compute_cost_usd"])
-            payload["metadata"] = metadata
             payload["compute_cost_usd"] = None
             payload["compute_cost_origin"] = "unknown"
+
+        raw_assessment = payload.get("score_assessment")
+        if isinstance(raw_assessment, ObjectiveScoreAssessment):
+            assessment = raw_assessment
+        elif isinstance(raw_assessment, Mapping):
+            assessment = ObjectiveScoreAssessment.from_payload(dict(raw_assessment))
+        else:
+            assessment = None
+        raw_source = payload.get("objective_source")
+        source = dict(raw_source) if isinstance(raw_source, Mapping) else None
+        source_matches = (
+            assessment is not None
+            and source is not None
+            and score_assessment_matches_source(assessment, source)
+        )
+        if not source_matches:
+            legacy_value = payload.get("actual_objective_value")
+            if legacy_value is not None:
+                metadata.setdefault("legacy_unbound_actual_objective_value", legacy_value)
+            payload["metadata"] = metadata
+            payload["actual_objective_value"] = None
+            payload["score_status"] = ObjectiveScoreStatus.NOT_ESTABLISHED.value
+            payload["score_assessment"] = None
+            payload["objective_source"] = None
+            payload["disagreement"] = None
+        else:
+            payload["metadata"] = metadata
+            payload["score_assessment"] = assessment
+            payload["objective_source"] = source
         return payload
 
     @model_validator(mode="after")
@@ -180,6 +224,28 @@ class VOIObservation(BaseModel):
                 raise ValueError("unknown VOI cost cannot carry an amount")
         elif self.compute_cost_usd is None:
             raise ValueError("reported or estimated VOI cost requires an amount")
+        if self.score_assessment is None:
+            if (
+                self.score_status is ObjectiveScoreStatus.AVAILABLE
+                or self.actual_objective_value is not None
+            ):
+                raise ValueError("VOI score without a typed assessment is diagnostic only")
+            if self.score_status is not ObjectiveScoreStatus.NOT_ESTABLISHED:
+                raise ValueError("VOI score status requires its typed assessment")
+            if self.disagreement is not None:
+                raise ValueError("VOI disagreement requires an admitted objective score")
+        elif (
+            self.score_status is not self.score_assessment.status
+            or self.actual_objective_value != self.score_assessment.value
+            or self.objective_source is None
+            or not score_assessment_matches_source(self.score_assessment, self.objective_source)
+        ):
+            raise ValueError("VOI score differs from its persisted source assessment")
+        elif (
+            self.score_status is not ObjectiveScoreStatus.AVAILABLE
+            and self.disagreement is not None
+        ):
+            raise ValueError("VOI disagreement requires an available objective score")
         return self
 
 
@@ -203,7 +269,7 @@ class VOIModelSnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.1", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="1.3", pattern=r"^\d+\.\d+$")
     training_config: VOITrainingConfig = Field(default_factory=VOITrainingConfig)
     stage_costs: dict[int, float] = Field(default_factory=dict)
     observations: list[VOIObservation] = Field(default_factory=list)
@@ -544,7 +610,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         stage_level: int,
         frontier_position: str = "unknown",
         cheap_signal: Any | None = None,
-        actual_objective_value: float,
+        actual_objective_value: float | None,
+        score_assessment: ObjectiveScoreAssessment | None = None,
+        objective_source: Mapping[str, Any] | None = None,
         actual_promising: bool,
         duration_seconds: float,
         compute_cost_usd: float | None,
@@ -564,6 +632,30 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
             raise ValueError("VOI compute cost must be finite and non-negative")
         if (compute_cost_origin == "unknown") != (compute_cost_usd is None):
             raise ValueError("VOI cost amount and origin do not agree")
+        if (
+            score_assessment is None
+            or score_assessment.value != actual_objective_value
+            or not score_assessment_matches_source(score_assessment, objective_source)
+        ):
+            score_assessment = None
+            score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+            actual_objective_value = None
+        else:
+            score_status = score_assessment.status
+            if score_status is not ObjectiveScoreStatus.AVAILABLE:
+                actual_objective_value = None
+        objective_source_basis = None
+        if score_assessment is not None and isinstance(objective_source, Mapping):
+            objective_source_basis = _project_score_assessment_source(
+                score_assessment, objective_source
+            )
+            if objective_source_basis is None or not score_assessment_matches_source(
+                score_assessment, objective_source_basis
+            ):
+                score_assessment = None
+                score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                actual_objective_value = None
+                objective_source_basis = None
         observation = VOIObservation(
             candidate_id=candidate_id,
             task_family=str(task_family or "policy"),
@@ -572,19 +664,28 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
             stage_level=stage_level,
             frontier_position=frontier_position,
             features=features,
-            actual_objective_value=float(actual_objective_value),
+            actual_objective_value=(
+                None if actual_objective_value is None else float(actual_objective_value)
+            ),
+            objective_source=objective_source_basis,
+            score_status=score_status,
+            score_assessment=score_assessment,
             actual_promising=bool(actual_promising),
             duration_seconds=max(float(duration_seconds), 0.0),
             compute_cost_usd=(None if compute_cost_usd is None else float(compute_cost_usd)),
             compute_cost_origin=compute_cost_origin,
             timeout_occurred=bool(timeout_occurred),
-            disagreement=max(
-                0.0,
-                float(
-                    disagreement
-                    if disagreement is not None
-                    else abs(features["expected_value_proxy"] - float(actual_objective_value))
-                ),
+            disagreement=(
+                None
+                if actual_objective_value is None
+                else max(
+                    0.0,
+                    float(
+                        disagreement
+                        if disagreement is not None
+                        else abs(features["expected_value_proxy"] - float(actual_objective_value))
+                    ),
+                )
             ),
             metadata=dict(metadata or {}),
         )
@@ -882,6 +983,8 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         )
 
     def _record_runtime_history(self, observation: VOIObservation) -> None:
+        if observation.actual_objective_value is None:
+            return
         complexity = (
             1.0
             + observation.features.get("stage_level", 0.0)
@@ -1069,15 +1172,25 @@ def _predict_continuous(
     minimum: int,
     fallback: float,
 ) -> float:
+    usable_rows = [
+        (item, weight, target_getter(item))
+        for item, weight in rows
+        if target_getter(item) is not None and math.isfinite(float(target_getter(item)))
+    ]
+    if len(usable_rows) < minimum:
+        return float(fallback)
     if len(rows) < minimum:
         return float(fallback)
     keys = sorted(features)
     X = np.array(
-        [[1.0, *[float(item.features.get(key, 0.0)) for key in keys]] for item, _weight in rows],
+        [
+            [1.0, *[float(item.features.get(key, 0.0)) for key in keys]]
+            for item, _weight, _target in usable_rows
+        ],
         dtype=float,
     )
-    y = np.array([float(target_getter(item)) for item, _weight in rows], dtype=float)
-    w = np.sqrt(np.array([weight for _item, weight in rows], dtype=float))
+    y = np.array([float(target) for _item, _weight, target in usable_rows], dtype=float)
+    w = np.sqrt(np.array([weight for _item, weight, _target in usable_rows], dtype=float))
     Xw = X * w[:, None]
     yw = y * w
     ridge = alpha * np.eye(X.shape[1], dtype=float)

@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Literal, Protocol
 
 _MISSING = object()
 _INVALID = object()
+_SOURCE_RESULT_CONTAINERS = ("simulation_results", "metrics")
 _BALANCE_ALIASES = ("gov_balance", "government_balance")
 _DEFICIT_ALIASES = ("budget_deficit", "deficit")
 
@@ -38,6 +42,341 @@ def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> o
     return values[0]
 
 
+class ObjectiveScoreStatus(str, Enum):
+    """Availability of a score on its declared objective basis."""
+
+    AVAILABLE = "available"
+    UNAVAILABLE = "unavailable"
+    INVALID = "invalid"
+    NOT_ESTABLISHED = "not_established"
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectiveScoreAssessment:
+    """Carry one recomputable objective score and its selected input basis.
+
+    The assessment is a record, not authority: consumers that cross a persistence
+    boundary must recompute it from the retained source result before admitting the
+    value to comparison, training, or selection.
+    """
+
+    objective_ref: str | None
+    rule_spec: str | None
+    required_input_groups: tuple[tuple[str, ...], ...]
+    source_field_names: tuple[str, ...]
+    source_values: tuple[tuple[str, float], ...]
+    source_sha256: str | None
+    value: float | None
+    status: ObjectiveScoreStatus
+    limitation: str | None = None
+    source_unit_bindings: tuple[tuple[str, str], ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.status is ObjectiveScoreStatus.AVAILABLE:
+            if (
+                self.value is None
+                or not math.isfinite(self.value)
+                or not self.objective_ref
+                or not self.rule_spec
+                or not self.source_sha256
+                or any(
+                    not set(group).intersection(self.source_field_names)
+                    for group in self.required_input_groups
+                )
+            ):
+                raise ValueError("available score assessment lacks its complete source basis")
+            try:
+                rule_payload = json.loads(self.rule_spec)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                raise ValueError("available score assessment has no canonical selected rule")
+            if not isinstance(rule_payload, dict):
+                raise ValueError("available score assessment has no canonical selected rule")
+            rule_kind = rule_payload.get("kind")
+            if rule_kind in {
+                "gdp_growth",
+                "budget_deficit",
+                "inequality",
+                "employment",
+                "search_metric",
+                "default_policy_scalar",
+                "composite",
+                "policy_vector_channel",
+                "policy_vector_legacy_scalar",
+            } and (
+                not self.source_unit_bindings
+                or any(
+                    not name
+                    or not unit
+                    or unit != unit.strip()
+                    or f"metric_units.{name}" not in self.source_field_names
+                    for name, unit in self.source_unit_bindings
+                )
+            ):
+                raise ValueError("available measured objective lacks exact source unit bindings")
+        elif self.value is not None:
+            raise ValueError("non-available score assessment cannot carry a numeric value")
+
+    def to_payload(self) -> dict[str, Any]:
+        """Return the strict JSON-compatible representation used by history artifacts."""
+        return {
+            "schema_version": "2.0",
+            "objective_ref": self.objective_ref,
+            "rule_spec": self.rule_spec,
+            "required_input_groups": [list(group) for group in self.required_input_groups],
+            "source_field_names": list(self.source_field_names),
+            "source_values": {name: value for name, value in self.source_values},
+            "source_unit_bindings": {name: unit for name, unit in self.source_unit_bindings},
+            "source_sha256": self.source_sha256,
+            "value": self.value,
+            "status": self.status.value,
+            "limitation": self.limitation,
+        }
+
+    @classmethod
+    def from_payload(cls, payload: Any) -> ObjectiveScoreAssessment:
+        """Parse one versioned assessment; old or malformed payloads stay unbound."""
+        if not isinstance(payload, dict) or payload.get("schema_version") != "2.0":
+            return _unestablished_score_assessment(
+                "objective_assessment_legacy_or_schema_unavailable"
+            )
+        try:
+            groups = tuple(
+                tuple(str(name) for name in group) for group in payload["required_input_groups"]
+            )
+            raw_values = payload["source_values"]
+            if not isinstance(raw_values, dict):
+                raise TypeError("source_values must be an object")
+            source_values = tuple(
+                sorted((str(name), float(value)) for name, value in raw_values.items())
+            )
+            if any(not math.isfinite(value) for _, value in source_values):
+                raise ValueError("source values must be finite")
+            raw_unit_bindings = payload["source_unit_bindings"]
+            if not isinstance(raw_unit_bindings, dict):
+                raise TypeError("source unit bindings must be an object")
+            if any(
+                not isinstance(name, str)
+                or not isinstance(unit, str)
+                or not unit.strip()
+                or unit != unit.strip()
+                for name, unit in raw_unit_bindings.items()
+            ):
+                raise ValueError("source unit bindings must use canonical non-empty strings")
+            source_unit_bindings = tuple(sorted(raw_unit_bindings.items()))
+            return cls(
+                objective_ref=payload.get("objective_ref"),
+                rule_spec=payload.get("rule_spec"),
+                required_input_groups=groups,
+                source_field_names=tuple(str(name) for name in payload["source_field_names"]),
+                source_values=source_values,
+                source_unit_bindings=source_unit_bindings,
+                source_sha256=payload.get("source_sha256"),
+                value=None if payload.get("value") is None else float(payload["value"]),
+                status=ObjectiveScoreStatus(payload["status"]),
+                limitation=payload.get("limitation"),
+            )
+        except (KeyError, TypeError, ValueError, OverflowError):
+            return _unestablished_score_assessment("objective_assessment_payload_invalid")
+
+
+@dataclass(frozen=True, slots=True)
+class ObjectiveScoreAdmission:
+    """Carry one consumer-recomputed score status and the basis it checked.
+
+    This record is a result of replay, not authority by itself. Consumers at an
+    action boundary must recompute it from ``reported_assessment`` and the live
+    source. The reported and replayed assessments remain separate so a changed
+    source cannot turn a previous invalidation into an absent score.
+    """
+
+    status: ObjectiveScoreStatus
+    predicate_status: Literal["recomputed", "not_established"]
+    reported_assessment: ObjectiveScoreAssessment | None
+    recomputed_assessment: ObjectiveScoreAssessment | None
+    reason: str
+
+    def __post_init__(self) -> None:
+        if self.predicate_status not in {"recomputed", "not_established"}:
+            raise ValueError("score admission predicate status is unsupported")
+        if not self.reason:
+            raise ValueError("score admission requires a reason")
+        if self.status is ObjectiveScoreStatus.AVAILABLE:
+            if (
+                self.predicate_status != "recomputed"
+                or self.reported_assessment is None
+                or self.recomputed_assessment is None
+                or self.reported_assessment.status is not ObjectiveScoreStatus.AVAILABLE
+                or self.recomputed_assessment != self.reported_assessment
+            ):
+                raise ValueError("available admission requires a matching recomputed assessment")
+        elif self.status is ObjectiveScoreStatus.UNAVAILABLE:
+            if (
+                self.predicate_status != "recomputed"
+                or self.reported_assessment is None
+                or self.recomputed_assessment != self.reported_assessment
+                or self.reported_assessment.status is not ObjectiveScoreStatus.UNAVAILABLE
+            ):
+                raise ValueError("unavailable admission requires a matching recomputed assessment")
+        elif self.status is ObjectiveScoreStatus.NOT_ESTABLISHED:
+            if self.predicate_status == "recomputed" and (
+                self.reported_assessment is None
+                or self.recomputed_assessment != self.reported_assessment
+                or self.reported_assessment.status is not ObjectiveScoreStatus.NOT_ESTABLISHED
+            ):
+                raise ValueError("recomputed unestablished admission requires matching evidence")
+        elif self.status is ObjectiveScoreStatus.INVALID and (
+            self.predicate_status == "recomputed" and self.recomputed_assessment is None
+        ):
+            raise ValueError("recomputed invalid admission requires replay evidence")
+
+    def to_payload(self) -> dict[str, Any]:
+        """Return the versioned typed record used by persisted projections."""
+        return {
+            "schema_version": "1.0",
+            "status": self.status.value,
+            "predicate_status": self.predicate_status,
+            "reported_assessment": (
+                None if self.reported_assessment is None else self.reported_assessment.to_payload()
+            ),
+            "recomputed_assessment": (
+                None
+                if self.recomputed_assessment is None
+                else self.recomputed_assessment.to_payload()
+            ),
+            "reason": self.reason,
+        }
+
+    def to_surface_payload(self) -> dict[str, Any]:
+        """Project status and hashes without copying selected source values."""
+        reported = self.reported_assessment
+        recomputed = self.recomputed_assessment
+        return {
+            "schema_version": "1.0",
+            "status": self.status.value,
+            "predicate_status": self.predicate_status,
+            "reason": self.reason,
+            "reported_assessment_status": (None if reported is None else reported.status.value),
+            "reported_source_sha256": None if reported is None else reported.source_sha256,
+            "recomputed_assessment_status": (
+                None if recomputed is None else recomputed.status.value
+            ),
+            "recomputed_source_sha256": None if recomputed is None else recomputed.source_sha256,
+        }
+
+    @classmethod
+    def from_payload(cls, payload: Any) -> ObjectiveScoreAdmission:
+        """Parse a complete admission record without treating malformed data as absence."""
+        required = {
+            "schema_version",
+            "status",
+            "predicate_status",
+            "reported_assessment",
+            "recomputed_assessment",
+            "reason",
+        }
+        if not isinstance(payload, dict) or set(payload) != required:
+            raise ValueError("score admission payload is malformed")
+        if payload["schema_version"] != "1.0":
+            raise ValueError("score admission schema is unsupported")
+
+        def parse_assessment(raw: Any) -> ObjectiveScoreAssessment | None:
+            if raw is None:
+                return None
+            if not isinstance(raw, dict) or raw.get("schema_version") != "2.0":
+                raise ValueError("score admission assessment is malformed")
+            assessment = ObjectiveScoreAssessment.from_payload(raw)
+            if assessment.to_payload() != raw:
+                raise ValueError("score admission assessment failed exact readback")
+            return assessment
+
+        return cls(
+            status=ObjectiveScoreStatus(payload["status"]),
+            predicate_status=payload["predicate_status"],
+            reported_assessment=parse_assessment(payload["reported_assessment"]),
+            recomputed_assessment=parse_assessment(payload["recomputed_assessment"]),
+            reason=payload["reason"],
+        )
+
+
+def _unestablished_score_assessment(reason: str) -> ObjectiveScoreAssessment:
+    return ObjectiveScoreAssessment(
+        objective_ref=None,
+        rule_spec=None,
+        required_input_groups=(),
+        source_field_names=(),
+        source_values=(),
+        source_sha256=None,
+        value=None,
+        status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+        limitation=reason,
+    )
+
+
+def canonical_objective_rule_spec(rule: dict[str, Any]) -> str:
+    """Serialize a configured objective rule to its stable identity string."""
+    return json.dumps(rule, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def _make_score_assessment(
+    *,
+    rule: dict[str, Any],
+    required_input_groups: tuple[tuple[str, ...], ...],
+    source_fields: tuple[str, ...],
+    source_values: tuple[tuple[str, float], ...],
+    status: ObjectiveScoreStatus,
+    value: float | None,
+    limitation: str | None = None,
+    source_unit_bindings: tuple[tuple[str, str], ...] = (),
+) -> ObjectiveScoreAssessment:
+    """Create a deterministic typed assessment for an owned score producer."""
+    rule_spec = canonical_objective_rule_spec(rule)
+    objective_ref = hashlib.sha256(rule_spec.encode("utf-8")).hexdigest()
+    digest_payload = json.dumps(
+        {
+            "rule_spec": rule_spec,
+            "source_fields": source_fields,
+            "source_values": source_values,
+            "source_unit_bindings": source_unit_bindings,
+            "value": value,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    source_sha256 = (
+        hashlib.sha256(digest_payload.encode("utf-8")).hexdigest()
+        if status is ObjectiveScoreStatus.AVAILABLE
+        else None
+    )
+    return ObjectiveScoreAssessment(
+        objective_ref=objective_ref,
+        rule_spec=rule_spec,
+        required_input_groups=required_input_groups,
+        source_field_names=source_fields,
+        source_values=source_values,
+        source_sha256=source_sha256,
+        value=value,
+        status=status,
+        limitation=limitation,
+        source_unit_bindings=source_unit_bindings,
+    )
+
+
+def _validate_objective_score_state(
+    objective_value: float | None, score_status: ObjectiveScoreStatus
+) -> None:
+    if score_status is ObjectiveScoreStatus.AVAILABLE and objective_value is None:
+        raise ValueError("available objective score requires a value")
+    if score_status in {
+        ObjectiveScoreStatus.UNAVAILABLE,
+        ObjectiveScoreStatus.INVALID,
+    } and (objective_value is not None):
+        raise ValueError("unavailable objective score cannot carry a value")
+    if score_status is ObjectiveScoreStatus.NOT_ESTABLISHED and objective_value is not None:
+        if isinstance(objective_value, bool) or not math.isfinite(float(objective_value)):
+            raise ValueError("unbound diagnostic objective value must remain finite")
+
+
 class OptimizationDirection(str, Enum):
     """Direction for objective optimization."""
 
@@ -64,6 +403,20 @@ class ObjectiveValue:
     weight: float = 1.0
     is_satisfied: bool = True
     threshold: float | None = None
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
+
+    def __post_init__(self) -> None:
+        if self.score_assessment is None:
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                object.__setattr__(self, "score_status", ObjectiveScoreStatus.NOT_ESTABLISHED)
+            return
+        if self.score_status is not self.score_assessment.status:
+            raise ValueError("objective value status must match its assessment")
+        if self.score_status is ObjectiveScoreStatus.AVAILABLE and (
+            self.score_assessment.value != self.raw_value
+        ):
+            raise ValueError("objective value differs from its score assessment")
 
     @property
     def normalized_value(self) -> float:
@@ -72,6 +425,8 @@ class ObjectiveValue:
 
         This enables uniform comparison: lower is always better.
         """
+        if self.score_status is not ObjectiveScoreStatus.AVAILABLE:
+            return math.nan
         if self.direction == OptimizationDirection.MAXIMIZE:
             return -self.raw_value
         return self.raw_value
@@ -112,9 +467,23 @@ class BaseObjective(ABC):
         self,
         weight: float = 1.0,
         threshold: float | None = None,
+        *,
+        expected_unit: str | None = None,
     ):
+        if expected_unit is not None and (
+            not isinstance(expected_unit, str)
+            or not expected_unit.strip()
+            or expected_unit != expected_unit.strip()
+        ):
+            raise ValueError("expected_unit must be a non-empty canonical unit string")
         self._weight = weight
         self._threshold = threshold
+        self._expected_unit = expected_unit
+
+    @property
+    def expected_unit(self) -> str | None:
+        """Return the explicitly selected measurement unit, if configured."""
+        return self._expected_unit
 
     @property
     @abstractmethod
@@ -130,9 +499,10 @@ class BaseObjective(ABC):
         ...
 
     def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
-        raw = self._extract_value(results)
-
-        is_satisfied = math.isfinite(raw)
+        assessment = _assess_configured_objective(self, results)
+        raw = assessment.value if assessment.value is not None else math.nan
+        score_status = assessment.status
+        is_satisfied = score_status is ObjectiveScoreStatus.AVAILABLE
         if self._threshold is not None and is_satisfied:
             if self.direction == OptimizationDirection.MINIMIZE:
                 is_satisfied = raw <= self._threshold
@@ -146,6 +516,8 @@ class BaseObjective(ABC):
             weight=self._weight,
             is_satisfied=is_satisfied,
             threshold=self._threshold,
+            score_status=score_status,
+            score_assessment=assessment,
         )
 
 
@@ -166,7 +538,8 @@ class GDPGrowthObjective(BaseObjective):
         return OptimizationDirection.MAXIMIZE
 
     def _extract_value(self, results: dict[str, Any]) -> float:
-        return float(results.get("gdp_change", 0.0))
+        value, status = _read_finite_numeric_metric(results, "gdp_change")
+        return value if status is ObjectiveScoreStatus.AVAILABLE and value is not None else math.nan
 
 
 class BudgetDeficitObjective(BaseObjective):
@@ -181,21 +554,40 @@ class BudgetDeficitObjective(BaseObjective):
         return OptimizationDirection.MINIMIZE
 
     def _extract_value(self, results: dict[str, Any]) -> float:
-        balance = _read_metric_aliases(results, _BALANCE_ALIASES)
-        if balance is _INVALID:
-            return math.nan
-        if balance is not _MISSING:
-            return max(-float(balance), 0.0)
+        assessment = _assess_configured_objective(self, results)
+        return (
+            assessment.value
+            if assessment.status is ObjectiveScoreStatus.AVAILABLE and assessment.value is not None
+            else math.nan
+        )
 
-        deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
-        if deficit is _INVALID or deficit is _MISSING:
-            return math.nan
-        return abs(float(deficit))
+    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
+        """Preserve whether a fiscal value was absent or malformed."""
+        assessment = _assess_configured_objective(self, results)
+        raw = assessment.value if assessment.value is not None else math.nan
+        status = assessment.status
+
+        is_satisfied = status is ObjectiveScoreStatus.AVAILABLE
+        if self._threshold is not None and is_satisfied:
+            is_satisfied = raw <= self._threshold
+        return ObjectiveValue(
+            name=self.name,
+            raw_value=raw,
+            direction=self.direction,
+            weight=self._weight,
+            is_satisfied=is_satisfied,
+            threshold=self._threshold,
+            score_status=status,
+            score_assessment=assessment,
+        )
 
 
-_DefaultSearchObjectiveLimitation = Literal["budget_deficit_unavailable_required_float_legacy_zero"]
+_DefaultSearchObjectiveLimitation = Literal[
+    "search_objective_fiscal_measurement_unavailable",
+    "search_objective_fiscal_measurement_invalid",
+]
 _DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION: _DefaultSearchObjectiveLimitation = (
-    "budget_deficit_unavailable_required_float_legacy_zero"
+    "search_objective_fiscal_measurement_unavailable"
 )
 
 
@@ -203,25 +595,101 @@ _DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION: _DefaultSearchObjectiveLimitation
 class _DefaultSearchObjectiveAssessment:
     """One source-derived scalar assessment and its typed limitations."""
 
-    objective_value: float
+    objective_value: float | None
+    score_status: ObjectiveScoreStatus
+    score_assessment: ObjectiveScoreAssessment
     limitations: tuple[_DefaultSearchObjectiveLimitation, ...] = ()
+
+    def __post_init__(self) -> None:
+        _validate_objective_score_state(self.objective_value, self.score_status)
+
+
+def _read_finite_numeric_metric(
+    results: dict[str, Any], name: str
+) -> tuple[float | None, ObjectiveScoreStatus]:
+    """Read a declared numeric field, distinguishing absence from null/invalid input."""
+    raw = results.get(name, _MISSING)
+    if raw is _MISSING:
+        return None, ObjectiveScoreStatus.UNAVAILABLE
+    if isinstance(raw, bool):
+        return None, ObjectiveScoreStatus.INVALID
+    try:
+        value = float(raw)
+    except (OverflowError, TypeError, ValueError):
+        return None, ObjectiveScoreStatus.INVALID
+    if not math.isfinite(value):
+        return None, ObjectiveScoreStatus.INVALID
+    return value, ObjectiveScoreStatus.AVAILABLE
+
+
+def _assess_search_fiscal_measurement(
+    results: dict[str, Any], *, expected_unit: str | None = None
+) -> tuple[float | None, ObjectiveScoreStatus]:
+    """Admit the existing fiscal value only when actual aliases support it."""
+    # Explicit null on the primary aliases remains an absence signal under the
+    # B108 fallback contract; malformed non-null values remain invalid.
+    objective = BudgetDeficitObjective(expected_unit=expected_unit).evaluate(results)
+    has_usable_marker = "budget_deficit_objective_usable" in results
+    has_value_marker = "budget_deficit_objective_value" in results
+    if not has_usable_marker and not has_value_marker:
+        return (
+            (objective.raw_value, ObjectiveScoreStatus.AVAILABLE)
+            if objective.score_status is ObjectiveScoreStatus.AVAILABLE
+            else (None, objective.score_status)
+        )
+    if not has_usable_marker or not has_value_marker:
+        return None, ObjectiveScoreStatus.INVALID
+
+    usable = results["budget_deficit_objective_usable"]
+    if type(usable) is not bool:
+        return None, ObjectiveScoreStatus.INVALID
+    if usable is False:
+        if results["budget_deficit_objective_value"] is not None:
+            return None, ObjectiveScoreStatus.INVALID
+        if objective.score_status is not ObjectiveScoreStatus.UNAVAILABLE:
+            return None, ObjectiveScoreStatus.INVALID
+        return None, ObjectiveScoreStatus.UNAVAILABLE
+
+    normalized_value, value_status = _read_finite_numeric_metric(
+        results, "budget_deficit_objective_value"
+    )
+    if normalized_value is None or value_status is not ObjectiveScoreStatus.AVAILABLE:
+        return None, ObjectiveScoreStatus.INVALID
+    if objective.score_status is ObjectiveScoreStatus.INVALID:
+        return None, ObjectiveScoreStatus.INVALID
+    if objective.score_status is not ObjectiveScoreStatus.AVAILABLE:
+        return None, ObjectiveScoreStatus.INVALID
+    if objective.raw_value != normalized_value:
+        return None, ObjectiveScoreStatus.INVALID
+    return normalized_value, ObjectiveScoreStatus.AVAILABLE
 
 
 def _assess_default_search_objective(
-    results: dict[str, Any],
+    results: dict[str, Any], *, expected_unit: str | None = None
 ) -> _DefaultSearchObjectiveAssessment:
-    """Evaluate the legacy scalar and availability limitation from one fiscal result."""
-    gdp = results.get("gdp_change", 0.0)
-    fiscal = BudgetDeficitObjective().evaluate(results)
-    if fiscal.is_satisfied:
-        deficit = fiscal.raw_value
-        limitations: tuple[_DefaultSearchObjectiveLimitation, ...] = ()
-    else:
-        deficit = 0.0
-        limitations = (_DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION,)
+    """Use the existing scalar only when values and its selected unit basis are present."""
+    fiscal_fields = _BALANCE_ALIASES + _DEFICIT_ALIASES
+    expected_units = dict.fromkeys(("gdp_change", *fiscal_fields), expected_unit)
+    score_assessment = _evaluate_configured_objective_source(
+        {"kind": "default_policy_scalar", "expected_units": expected_units}, results
+    )
+    status = score_assessment.status
+    if status is ObjectiveScoreStatus.AVAILABLE:
+        return _DefaultSearchObjectiveAssessment(
+            objective_value=score_assessment.value,
+            score_status=status,
+            score_assessment=score_assessment,
+        )
+    limitation = (
+        "search_objective_fiscal_measurement_unavailable"
+        if status is ObjectiveScoreStatus.UNAVAILABLE
+        else "search_objective_fiscal_measurement_invalid"
+    )
     return _DefaultSearchObjectiveAssessment(
-        objective_value=-(gdp - 0.5 * deficit),
-        limitations=limitations,
+        objective_value=None,
+        score_status=status,
+        score_assessment=score_assessment,
+        limitations=(limitation,),
     )
 
 
@@ -229,14 +697,22 @@ def _apply_default_search_objective_limitations(
     feedback: dict[str, Any],
     assessment: _DefaultSearchObjectiveAssessment,
 ) -> None:
-    """Replace only this objective's limitation with the source-derived value."""
+    """Publish the typed score state and replace only this objective's limitation."""
+    old_limitations = {
+        "budget_deficit_unavailable_required_float_legacy_zero",
+        "search_objective_score_unavailable_required_metrics",
+        "search_objective_score_invalid_present_metric",
+        "search_objective_fiscal_measurement_unavailable",
+        "search_objective_fiscal_measurement_invalid",
+    }
     previous = feedback.get("objective_limitations")
     retained = (
-        [item for item in previous if item != _DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION]
+        [item for item in previous if item not in old_limitations]
         if isinstance(previous, (list, tuple))
         else []
     )
     limitations = [*retained, *assessment.limitations]
+    feedback["objective_score_status"] = assessment.score_status.value
     if limitations:
         feedback["objective_limitations"] = limitations
     else:
@@ -255,7 +731,8 @@ class InequalityObjective(BaseObjective):
         return OptimizationDirection.MINIMIZE
 
     def _extract_value(self, results: dict[str, Any]) -> float:
-        return float(results.get("gini_coefficient", 0.5))
+        value, status = _read_finite_numeric_metric(results, "gini_coefficient")
+        return value if status is ObjectiveScoreStatus.AVAILABLE and value is not None else math.nan
 
 
 class EmploymentObjective(BaseObjective):
@@ -270,7 +747,8 @@ class EmploymentObjective(BaseObjective):
         return OptimizationDirection.MAXIMIZE
 
     def _extract_value(self, results: dict[str, Any]) -> float:
-        return float(results.get("employment_rate", 0.0))
+        value, status = _read_finite_numeric_metric(results, "employment_rate")
+        return value if status is ObjectiveScoreStatus.AVAILABLE and value is not None else math.nan
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -302,31 +780,1108 @@ class CompositeObjective:
 
     def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
         """Evaluate all objectives and return weighted sum."""
-        if not self.objectives:
-            return ObjectiveValue(
-                name=self.name,
-                raw_value=0.0,
-                direction=self.direction,
-            )
-
-        total = 0.0
-        all_satisfied = True
-
-        for obj in self.objectives:
-            val = obj.evaluate(results)
-            total += val.weighted_value
-            all_satisfied = all_satisfied and val.is_satisfied
-
+        assessment = _assess_configured_objective(self, results)
+        total = assessment.value if assessment.value is not None else math.nan
+        all_satisfied = assessment.status is ObjectiveScoreStatus.AVAILABLE
         return ObjectiveValue(
             name=self.name,
             raw_value=total,
             direction=self.direction,
             is_satisfied=all_satisfied,
+            score_status=assessment.status,
+            score_assessment=assessment,
         )
 
     def evaluate_detailed(self, results: dict[str, Any]) -> list[ObjectiveValue]:
         """Return individual objective evaluations for analysis."""
         return [obj.evaluate(results) for obj in self.objectives]
+
+
+def _objective_rule_spec(objective: SearchObjective) -> dict[str, Any] | None:
+    """Describe built-in objective rules without relying on a consumer marker."""
+    if isinstance(objective, CompositeObjective):
+        children = [_objective_rule_spec(item) for item in objective.objectives]
+        if not children or any(item is None for item in children):
+            return None
+        return {"kind": "composite", "children": children}
+    if isinstance(objective, BaseObjective):
+        if isinstance(objective, GDPGrowthObjective):
+            kind = "gdp_growth"
+        elif isinstance(objective, BudgetDeficitObjective):
+            kind = "budget_deficit"
+        elif isinstance(objective, InequalityObjective):
+            kind = "inequality"
+        elif isinstance(objective, EmploymentObjective):
+            kind = "employment"
+        else:
+            return None
+        return {
+            "kind": kind,
+            "weight": float(objective._weight),
+            "threshold": objective._threshold,
+            "expected_unit": objective.expected_unit,
+        }
+    return None
+
+
+def configured_objective_rule_spec(objective: SearchObjective) -> str | None:
+    """Return the source-recomputable identity of an actually configured objective."""
+    spec = _objective_rule_spec(objective)
+    return None if spec is None else canonical_objective_rule_spec(spec)
+
+
+def _policy_vector_channel_field_name(spec: dict[str, Any]) -> str | None:
+    """Return the typed source key for one selected policy-vector channel."""
+    group = spec.get("group")
+    name = spec.get("name")
+    if (
+        group not in {"primary", "secondary", "penalties"}
+        or not isinstance(name, str)
+        or not name.strip()
+    ):
+        return None
+    return f"channel:{group}:{name}"
+
+
+def _rule_input_groups(spec: dict[str, Any]) -> tuple[tuple[str, ...], ...]:
+    kind = spec.get("kind")
+    if kind == "policy_vector_channel":
+        field_name = _policy_vector_channel_field_name(spec)
+        return ((field_name,),) if field_name is not None else ()
+    if kind == "gdp_growth":
+        return (("gdp_change",),)
+    if kind == "budget_deficit":
+        return ((_BALANCE_ALIASES + _DEFICIT_ALIASES),)
+    if kind == "inequality":
+        return (("gini_coefficient",),)
+    if kind == "employment":
+        return (("employment_rate",),)
+    if kind == "search_metric":
+        metric_name = spec.get("metric_name")
+        return ((metric_name,),) if isinstance(metric_name, str) and metric_name else ()
+    if kind == "default_policy_scalar":
+        return (("gdp_change",), (_BALANCE_ALIASES + _DEFICIT_ALIASES))
+    if kind == "composite":
+        return tuple(
+            group for child in spec.get("children", []) for group in _rule_input_groups(child)
+        )
+    return ()
+
+
+def _rule_source_field_names(spec: dict[str, Any]) -> tuple[str, ...]:
+    names = {name for group in _rule_input_groups(spec) for name in group}
+    if spec.get("kind") == "default_policy_scalar":
+        names.update(("budget_deficit_objective_usable", "budget_deficit_objective_value"))
+    if spec.get("kind") == "composite":
+        for child in spec.get("children", []):
+            names.update(_rule_source_field_names(child))
+    return tuple(sorted(names))
+
+
+def _rule_metric_unit_requirements(spec: dict[str, Any]) -> dict[str, str | None] | None:
+    """Derive each operand unit from the selected rule, never from a label."""
+    kind = spec.get("kind")
+    if kind == "composite":
+        requirements: dict[str, str | None] = {}
+        children = spec.get("children")
+        if not isinstance(children, list) or not children:
+            return None
+        for child in children:
+            if not isinstance(child, dict):
+                return None
+            child_requirements = _rule_metric_unit_requirements(child)
+            if child_requirements is None:
+                return None
+            for field_name, unit in child_requirements.items():
+                if field_name in requirements and requirements[field_name] != unit:
+                    return None
+                requirements[field_name] = unit
+        return requirements
+    if kind == "policy_vector_channel":
+        field_name = _policy_vector_channel_field_name(spec)
+        if field_name is None:
+            return None
+        expected = spec.get("expected_unit")
+        if expected is None:
+            return {field_name: None}
+        if not isinstance(expected, str) or not expected.strip() or expected != expected.strip():
+            return None
+        return {field_name: expected}
+    if kind == "default_policy_scalar":
+        field_names = {"gdp_change", *_BALANCE_ALIASES, *_DEFICIT_ALIASES}
+        raw_units = spec.get("expected_units")
+        if raw_units is None:
+            return dict.fromkeys(field_names, None)
+        if not isinstance(raw_units, dict) or set(raw_units) != field_names:
+            return None
+        requirements: dict[str, str | None] = {}
+        for name, unit in raw_units.items():
+            if unit is None:
+                requirements[name] = None
+            elif isinstance(unit, str) and unit.strip() and unit == unit.strip():
+                requirements[name] = unit
+            else:
+                return None
+        return requirements
+
+    field_names = {name for group in _rule_input_groups(spec) for name in group}
+    if not field_names:
+        return None
+    expected = spec.get("expected_unit")
+    if expected is None:
+        return dict.fromkeys(field_names, None)
+    if not isinstance(expected, str) or not expected.strip() or expected != expected.strip():
+        return None
+    return dict.fromkeys(field_names, expected)
+
+
+def configured_objective_unit_bindings(rule_spec: str) -> dict[str, str] | None:
+    """Return complete, single-unit operand bindings from one configured rule.
+
+    A scalar formula cannot safely combine distinct measurement units without an
+    explicit conversion rule. This source owner declares no such conversion.
+    """
+    try:
+        spec = json.loads(rule_spec)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return None
+    if not isinstance(spec, dict):
+        return None
+    requirements = _rule_metric_unit_requirements(spec)
+    if not requirements or any(
+        not isinstance(unit, str) or not unit.strip() or unit != unit.strip()
+        for unit in requirements.values()
+    ):
+        return None
+    units = set(requirements.values())
+    if len(units) != 1:
+        return None
+    return dict(sorted((name, unit) for name, unit in requirements.items() if unit is not None))
+
+
+def configured_objective_unit(rule_spec: str) -> str | None:
+    """Return the single exact unit identity admitted by a configured scalar rule."""
+    bindings = configured_objective_unit_bindings(rule_spec)
+    if bindings is None or not bindings:
+        return None
+    units = set(bindings.values())
+    return next(iter(units)) if len(units) == 1 else None
+
+
+def _selected_measurement_fields(spec: dict[str, Any], results: dict[str, Any]) -> tuple[str, ...]:
+    """Return actual non-null measurements consumed by this configured rule."""
+    kind = spec.get("kind")
+    if kind == "composite":
+        children = spec.get("children")
+        if not isinstance(children, list):
+            return ()
+        return tuple(
+            sorted(
+                {
+                    name
+                    for child in children
+                    if isinstance(child, dict)
+                    for name in _selected_measurement_fields(child, results)
+                }
+            )
+        )
+    if kind == "policy_vector_channel":
+        field_name = _policy_vector_channel_field_name(spec)
+        candidates = (field_name,) if field_name is not None else ()
+    elif kind == "gdp_growth":
+        candidates = ("gdp_change",)
+    elif kind == "inequality":
+        candidates = ("gini_coefficient",)
+    elif kind == "employment":
+        candidates = ("employment_rate",)
+    elif kind == "search_metric":
+        metric_name = spec.get("metric_name")
+        candidates = (metric_name,) if isinstance(metric_name, str) else ()
+    elif kind in {"budget_deficit", "default_policy_scalar"}:
+        candidates = _BALANCE_ALIASES + _DEFICIT_ALIASES
+        if kind == "default_policy_scalar":
+            candidates = ("gdp_change", *candidates)
+    else:
+        candidates = ()
+    return tuple(
+        name
+        for name in candidates
+        if name in results and results[name] is not _MISSING and results[name] is not None
+    )
+
+
+def _objective_source_results(source: Any, spec: dict[str, Any]) -> dict[str, Any] | None:
+    """Resolve only selected rule operands from actual result containers.
+
+    Search result envelopes can expose the same operand at the root and beneath
+    ``simulation_results`` or ``metrics``.  Reconcile those values before scoring;
+    selecting the first convenient container would let a contradictory sibling
+    source hide from the selected objective's basis.
+    """
+    if hasattr(source, "model_dump"):
+        try:
+            source = source.model_dump(mode="python")
+        except (TypeError, ValueError):
+            return None
+    if not isinstance(source, dict):
+        return None
+    containers = [source]
+    for key in _SOURCE_RESULT_CONTAINERS:
+        nested = source.get(key)
+        if isinstance(nested, dict):
+            containers.append(nested)
+    names = _rule_source_field_names(spec)
+    resolved: dict[str, Any] = {}
+    nullable_fiscal_aliases = set(_BALANCE_ALIASES + _DEFICIT_ALIASES)
+    for name in names:
+        observed: list[Any] = [container[name] for container in containers if name in container]
+        if name in nullable_fiscal_aliases:
+            # The fiscal objective contract treats an explicit null as an absent
+            # alias, allowing a valid alternative measurement to supply the value.
+            # Non-null malformed values remain present and fail closed below.
+            observed = [value for value in observed if value is not None]
+        if not observed:
+            continue
+        if name == "budget_deficit_objective_usable":
+            normalized = observed
+            if any(type(value) is not bool for value in normalized):
+                resolved[name] = _INVALID
+                continue
+        elif name == "budget_deficit_objective_value" and all(value is None for value in observed):
+            # The existing typed unavailable marker uses usable=False plus a null
+            # value; _assess_search_fiscal_measurement validates that pair.
+            normalized = observed
+        else:
+            numeric: list[float] = []
+            invalid = False
+            for raw in observed:
+                value, status = _read_finite_numeric_metric({name: raw}, name)
+                if status is not ObjectiveScoreStatus.AVAILABLE or value is None:
+                    invalid = True
+                    break
+                numeric.append(value)
+            if invalid:
+                resolved[name] = _INVALID
+                continue
+            normalized = numeric
+        first = normalized[0]
+        if any(value != first or type(value) is not type(first) for value in normalized[1:]):
+            resolved[name] = _INVALID
+        else:
+            resolved[name] = first
+    unit_fields = set(_rule_metric_unit_requirements(spec))
+    observed_units: dict[str, list[Any]] = {name: [] for name in unit_fields}
+    units_invalid = False
+    for container in containers:
+        if "metric_units" not in container:
+            continue
+        raw_units = container["metric_units"]
+        if not isinstance(raw_units, dict):
+            units_invalid = True
+            continue
+        for name in unit_fields:
+            if name in raw_units:
+                observed_units[name].append(raw_units[name])
+    normalized_units: dict[str, Any] = {}
+    if units_invalid:
+        normalized_units = dict.fromkeys(unit_fields, _INVALID)
+    else:
+        for name, values in observed_units.items():
+            if not values:
+                normalized_units[name] = _MISSING
+            elif any(
+                value != values[0] or type(value) is not type(values[0]) for value in values[1:]
+            ):
+                normalized_units[name] = _INVALID
+            else:
+                normalized_units[name] = values[0]
+    resolved["metric_units"] = normalized_units
+    return resolved
+
+
+def _configured_search_metric_rule_spec(
+    metric_name: str, source_direction: str, expected_unit: str | None = None
+) -> str | None:
+    """Describe the configured scalar metric and its existing minimization mapping.
+
+    This is a mechanical search-coordinate rule: maximize metrics are negated and
+    minimize metrics are retained, matching the candidate generator's existing
+    scalarization. The exact selected unit is identity only; no conversion or scientific
+    authority is inferred.
+    """
+    if not isinstance(metric_name, str) or not metric_name.strip():
+        return None
+    if source_direction not in {"minimize", "maximize"}:
+        return None
+    if expected_unit is not None and (
+        not isinstance(expected_unit, str)
+        or not expected_unit.strip()
+        or expected_unit != expected_unit.strip()
+    ):
+        return None
+    return canonical_objective_rule_spec(
+        {
+            "kind": "search_metric",
+            "metric_name": metric_name,
+            "source_direction": source_direction,
+            "normalized_direction": "minimize",
+            "expected_unit": expected_unit,
+        }
+    )
+
+
+def _configured_search_metric_binding(
+    metric_name: str, source_direction: str, expected_unit: str | None = None
+) -> tuple[str, OptimizationDirection, str] | None:
+    """Return the actual selected search coordinate, normalized direction, and rule.
+
+    The direction comes from the same canonical rule used by source recomputation,
+    so producer, optimizer, and verifier cannot independently negate the score.
+    """
+    rule_spec = _configured_search_metric_rule_spec(metric_name, source_direction, expected_unit)
+    if rule_spec is None:
+        return None
+    try:
+        rule = json.loads(rule_spec)
+        direction = OptimizationDirection(rule["normalized_direction"])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        return None
+    return metric_name, direction, rule_spec
+
+
+def _configured_search_metric_profile_fingerprint(
+    metric_name: str, source_direction: str, unit: str | None
+) -> str | None:
+    """Bind a configured scalar's metric, rule, direction, and declared unit.
+
+    This is a compatibility fingerprint for candidate-grade optimizer state.
+    It does not establish that the producer measured the configured unit.
+    """
+    binding = _configured_search_metric_binding(metric_name, source_direction, unit)
+    if binding is None or (unit is not None and not isinstance(unit, str)):
+        return None
+    _, normalized_direction, rule_spec = binding
+    payload = {
+        "kind": "configured_search_metric_profile",
+        "version": "1",
+        "metric_name": metric_name,
+        "source_direction": source_direction,
+        "normalized_direction": normalized_direction.value,
+        "rule_spec": rule_spec,
+        "unit": unit,
+        "scalarization": "finite_scalar_score_minimize",
+    }
+    return hashlib.sha256(canonical_objective_rule_spec(payload).encode("utf-8")).hexdigest()
+
+
+def _assess_search_metric(
+    source: Any, metric_name: str, source_direction: str, expected_unit: str | None = None
+) -> ObjectiveScoreAssessment:
+    """Recompute a Bayesian search scalar from its configured result source."""
+    rule_spec = _configured_search_metric_rule_spec(metric_name, source_direction, expected_unit)
+    if rule_spec is None:
+        return _unestablished_score_assessment("search_metric_rule_not_declared")
+    return _evaluate_configured_objective_source(json.loads(rule_spec), source)
+
+
+def _source_fields_and_values(
+    results: dict[str, Any], groups: tuple[tuple[str, ...], ...]
+) -> tuple[tuple[str, ...], tuple[tuple[str, float], ...]]:
+    names = tuple(sorted({name for group in groups for name in group if name in results}))
+    values: list[tuple[str, float]] = []
+    for name in names:
+        raw = results[name]
+        if isinstance(raw, bool) or raw is None:
+            continue
+        try:
+            value = float(raw)
+        except (OverflowError, TypeError, ValueError):
+            continue
+        if math.isfinite(value):
+            values.append((name, value))
+    return names, tuple(values)
+
+
+def _assessment_for_rule_spec(
+    spec: dict[str, Any], results: dict[str, Any]
+) -> ObjectiveScoreAssessment:
+    """Recompute one built-in objective from its declared source operands."""
+    kind = spec.get("kind")
+    groups = _rule_input_groups(spec)
+    derived_values: dict[str, Any] = {}
+    status: ObjectiveScoreStatus
+    score: float | None = None
+    limitation: str | None = None
+
+    if kind in {"gdp_growth", "inequality", "employment"}:
+        input_name = {
+            "gdp_growth": "gdp_change",
+            "inequality": "gini_coefficient",
+            "employment": "employment_rate",
+        }[kind]
+        score, status = _read_finite_numeric_metric(results, input_name)
+        derived_values[input_name] = score
+    elif kind == "search_metric":
+        metric_name = spec.get("metric_name")
+        source_direction = spec.get("source_direction")
+        raw_value, status = (
+            _read_finite_numeric_metric(results, metric_name)
+            if isinstance(metric_name, str) and metric_name
+            else (None, ObjectiveScoreStatus.NOT_ESTABLISHED)
+        )
+        if source_direction not in {"minimize", "maximize"}:
+            status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        elif status is ObjectiveScoreStatus.AVAILABLE and raw_value is not None:
+            score = -raw_value if source_direction == "maximize" else raw_value
+        if isinstance(metric_name, str) and metric_name:
+            derived_values[metric_name] = raw_value
+    elif kind == "budget_deficit":
+        balance = _read_metric_aliases(results, _BALANCE_ALIASES)
+        deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
+        balance_score = None
+        deficit_score = None
+        if balance is _INVALID or deficit is _INVALID:
+            status = ObjectiveScoreStatus.INVALID
+        elif balance is _MISSING and deficit is _MISSING:
+            status = ObjectiveScoreStatus.UNAVAILABLE
+        else:
+            balance_score = max(-float(balance), 0.0) if balance is not _MISSING else None
+            deficit_score = abs(float(deficit)) if deficit is not _MISSING else None
+            if (
+                balance_score is not None
+                and deficit_score is not None
+                and balance_score != deficit_score
+            ):
+                status = ObjectiveScoreStatus.INVALID
+                limitation = "objective_basis_conflicting_fiscal_measurements"
+            else:
+                status = ObjectiveScoreStatus.AVAILABLE
+                score = balance_score if balance_score is not None else deficit_score
+        derived_values["balance_score"] = balance_score if balance is not _INVALID else None
+        derived_values["deficit_score"] = deficit_score if deficit is not _INVALID else None
+        derived_values["score"] = score
+    elif kind == "default_policy_scalar":
+        gdp, gdp_status = _read_finite_numeric_metric(results, "gdp_change")
+        expected_units = spec.get("expected_units")
+        fiscal_unit = (
+            expected_units.get("budget_deficit") if isinstance(expected_units, dict) else None
+        )
+        fiscal_value, fiscal_status = _assess_search_fiscal_measurement(
+            results, expected_unit=fiscal_unit
+        )
+        if (
+            gdp_status is ObjectiveScoreStatus.INVALID
+            or fiscal_status is ObjectiveScoreStatus.INVALID
+        ):
+            status = ObjectiveScoreStatus.INVALID
+        elif gdp_status is not ObjectiveScoreStatus.AVAILABLE or (
+            fiscal_status is not ObjectiveScoreStatus.AVAILABLE
+        ):
+            status = ObjectiveScoreStatus.UNAVAILABLE
+        else:
+            assert gdp is not None
+            assert fiscal_value is not None
+            status = ObjectiveScoreStatus.AVAILABLE
+            score = -(gdp - 0.5 * fiscal_value)
+        derived_values["gdp_change"] = gdp
+        derived_values["fiscal_status"] = fiscal_status.value
+        derived_values["fiscal_value"] = fiscal_value
+    elif kind == "composite":
+        child_specs = spec.get("children", [])
+        children = [_assessment_for_rule_spec(child, results) for child in child_specs]
+        if not children:
+            status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        elif any(item.status is ObjectiveScoreStatus.INVALID for item in children):
+            status = ObjectiveScoreStatus.INVALID
+        elif any(item.status is ObjectiveScoreStatus.NOT_ESTABLISHED for item in children):
+            status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        elif any(item.status is ObjectiveScoreStatus.UNAVAILABLE for item in children):
+            status = ObjectiveScoreStatus.UNAVAILABLE
+        else:
+            status = ObjectiveScoreStatus.AVAILABLE
+            score = 0.0
+            for child_spec, child_assessment in zip(child_specs, children, strict=True):
+                child_value = child_assessment.value
+                assert child_value is not None
+                direction_sign = -1.0 if child_spec["kind"] in {"gdp_growth", "employment"} else 1.0
+                score += direction_sign * child_value * float(child_spec.get("weight", 1.0))
+        derived_values["children"] = [item.source_sha256 for item in children]
+    else:
+        status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        limitation = "objective_rule_not_recomputable"
+
+    source_unit_bindings: tuple[tuple[str, str], ...] = ()
+    if status is ObjectiveScoreStatus.AVAILABLE:
+        requirements = _rule_metric_unit_requirements(spec)
+        if requirements is None:
+            status = ObjectiveScoreStatus.INVALID
+            limitation = "objective_rule_unit_binding_malformed"
+        elif any(unit is None for unit in requirements.values()):
+            status = ObjectiveScoreStatus.UNAVAILABLE
+            limitation = "objective_rule_unit_not_established"
+        elif len(set(requirements.values())) != 1:
+            status = ObjectiveScoreStatus.INVALID
+            limitation = "objective_rule_combines_incompatible_units"
+        else:
+            selected_fields = _selected_measurement_fields(spec, results)
+            raw_units = results.get("metric_units")
+            if not selected_fields or not isinstance(raw_units, dict):
+                status = ObjectiveScoreStatus.UNAVAILABLE
+                limitation = "objective_source_unit_not_established"
+            else:
+                bound_units: list[tuple[str, str]] = []
+                for field_name in selected_fields:
+                    expected_unit = requirements.get(field_name, _MISSING)
+                    observed_unit = raw_units.get(field_name, _MISSING)
+                    if expected_unit is _MISSING:
+                        status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                        limitation = "objective_rule_unit_operand_not_declared"
+                        break
+                    if observed_unit is _INVALID:
+                        status = ObjectiveScoreStatus.INVALID
+                        limitation = "objective_source_unit_malformed_or_conflicting"
+                        break
+                    if observed_unit is _MISSING:
+                        status = ObjectiveScoreStatus.UNAVAILABLE
+                        limitation = "objective_source_unit_not_established"
+                        break
+                    if (
+                        not isinstance(observed_unit, str)
+                        or not observed_unit.strip()
+                        or observed_unit != observed_unit.strip()
+                    ):
+                        status = ObjectiveScoreStatus.INVALID
+                        limitation = "objective_source_unit_malformed"
+                        break
+                    if observed_unit != expected_unit:
+                        status = ObjectiveScoreStatus.INVALID
+                        limitation = "objective_source_unit_incompatible"
+                        break
+                    bound_units.append((field_name, observed_unit))
+                if status is ObjectiveScoreStatus.AVAILABLE:
+                    source_unit_bindings = tuple(sorted(bound_units))
+
+    if status is not ObjectiveScoreStatus.AVAILABLE and limitation is None:
+        limitation = (
+            "objective_basis_invalid"
+            if status is ObjectiveScoreStatus.INVALID
+            else "objective_basis_incomplete"
+        )
+    rule_spec = canonical_objective_rule_spec(spec)
+    objective_ref = hashlib.sha256(rule_spec.encode("utf-8")).hexdigest()
+    source_fields, source_values = _source_fields_and_values(results, groups)
+    if source_unit_bindings:
+        source_fields = tuple(
+            sorted(
+                set(source_fields) | {f"metric_units.{name}" for name, _ in source_unit_bindings}
+            )
+        )
+    source_payload = json.dumps(
+        {
+            "rule_spec": rule_spec,
+            "source_fields": source_fields,
+            "source_values": source_values,
+            "derived_values": derived_values,
+            "source_unit_bindings": source_unit_bindings,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    source_sha256 = (
+        hashlib.sha256(source_payload.encode("utf-8")).hexdigest()
+        if status is ObjectiveScoreStatus.AVAILABLE
+        else None
+    )
+    return ObjectiveScoreAssessment(
+        objective_ref=objective_ref,
+        rule_spec=rule_spec,
+        required_input_groups=groups,
+        source_field_names=source_fields,
+        source_values=source_values,
+        source_unit_bindings=source_unit_bindings,
+        source_sha256=source_sha256,
+        value=score,
+        status=status,
+        limitation=limitation,
+    )
+
+
+def _evaluate_configured_objective_source(
+    spec: dict[str, Any], source: Any
+) -> ObjectiveScoreAssessment:
+    """Evaluate one configured rule from the same normalized source at production and replay.
+
+    Both objective producers and admission-time source reconciliation enter here.
+    Keeping source resolution and rule execution together prevents a persisted
+    assessment from being reinterpreted with different alias/null semantics.
+    """
+    if not isinstance(spec, dict):
+        return _unestablished_score_assessment("objective_rule_not_declared")
+    resolved_results = _objective_source_results(source, spec)
+    if resolved_results is None:
+        return _unestablished_score_assessment("objective_source_not_resolved")
+    try:
+        return _assessment_for_rule_spec(spec, resolved_results)
+    except (TypeError, ValueError, KeyError, OverflowError, json.JSONDecodeError):
+        return _unestablished_score_assessment("objective_source_or_rule_invalid")
+
+
+def _assess_configured_objective(
+    objective: SearchObjective, results: dict[str, Any]
+) -> ObjectiveScoreAssessment:
+    spec = _objective_rule_spec(objective)
+    if spec is None:
+        return _unestablished_score_assessment("objective_rule_not_declared")
+    return _evaluate_configured_objective_source(spec, results)
+
+
+def _recompute_score_assessment(
+    assessment: ObjectiveScoreAssessment | None,
+    source: Any,
+) -> ObjectiveScoreAssessment | None:
+    """Recompute every carried score state from its selected rule and source."""
+    if assessment is None or not assessment.rule_spec:
+        return None
+    try:
+        spec = json.loads(assessment.rule_spec)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return None
+    if not isinstance(spec, dict):
+        return None
+    if spec.get("kind") == "policy_vector_channel":
+        payload = source
+        if hasattr(payload, "model_dump"):
+            payload = payload.model_dump(mode="python")
+        if not isinstance(payload, dict):
+            return None
+        vector_payload = payload.get("policy_evaluation", payload)
+        if hasattr(vector_payload, "model_dump"):
+            vector_payload = vector_payload.model_dump(mode="python")
+        if not isinstance(vector_payload, dict):
+            return None
+        try:
+            from polisyos.scientist.policy_design.objectives import (
+                _normalize_policy_evaluation_vector,
+                _policy_vector_channel_assessment,
+            )
+
+            normalized_vector = _normalize_policy_evaluation_vector(
+                vector_payload, allow_mapping=True
+            )
+        except (ImportError, TypeError, ValueError):
+            return None
+        group = spec.get("group")
+        name = spec.get("name")
+        if group not in {"primary", "secondary", "penalties"} or not isinstance(name, str):
+            return None
+        channel = getattr(normalized_vector, group).get(name)
+        if channel is None:
+            return None
+        simulation_results = payload.get("simulation_results")
+        if not isinstance(simulation_results, dict) and isinstance(vector_payload, dict):
+            simulation_results = vector_payload.get("simulation_results")
+        if not isinstance(simulation_results, dict):
+            return None
+        return _policy_vector_channel_assessment(channel, group, simulation_results)
+    try:
+        return _evaluate_configured_objective_source(spec, source)
+    except (TypeError, ValueError, KeyError, OverflowError, json.JSONDecodeError):
+        return None
+
+
+def score_assessment_matches_source(
+    assessment: ObjectiveScoreAssessment | None, source: Any
+) -> bool:
+    """Recompute a carried assessment from its actual source result payload."""
+    if assessment is None:
+        return False
+    return _recompute_score_assessment(assessment, source) == assessment
+
+
+def reconcile_objective_score_assessment(
+    assessment: ObjectiveScoreAssessment | None,
+    source: Any,
+    *,
+    prior_admission: ObjectiveScoreAdmission | None = None,
+    reported_status: ObjectiveScoreStatus | None = None,
+    reported_value: float | None = None,
+) -> ObjectiveScoreAdmission:
+    """Produce one typed source-recomputed score state for all consumers.
+
+    A missing assessment is not allowed to erase a prior INVALID result. An
+    unbound assessment remains NOT_ESTABLISHED; a declared rule whose current
+    source cannot replay is INVALID. A numeric value is admitted only when the
+    current replay exactly matches both the carried assessment and value.
+    """
+    if assessment is None:
+        if reported_status is ObjectiveScoreStatus.INVALID or (
+            prior_admission is not None and prior_admission.status is ObjectiveScoreStatus.INVALID
+        ):
+            return ObjectiveScoreAdmission(
+                status=ObjectiveScoreStatus.INVALID,
+                predicate_status=(
+                    "not_established"
+                    if prior_admission is None
+                    else prior_admission.predicate_status
+                ),
+                reported_assessment=None,
+                recomputed_assessment=(
+                    None if prior_admission is None else prior_admission.recomputed_assessment
+                ),
+                reason=(
+                    prior_admission.reason
+                    if prior_admission is not None
+                    else "invalid_score_status_without_assessment"
+                ),
+            )
+        return ObjectiveScoreAdmission(
+            status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+            predicate_status="not_established",
+            reported_assessment=None,
+            recomputed_assessment=None,
+            reason="score_assessment_missing",
+        )
+
+    if not assessment.rule_spec:
+        if assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED:
+            return ObjectiveScoreAdmission(
+                status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                predicate_status="not_established",
+                reported_assessment=assessment,
+                recomputed_assessment=None,
+                reason=assessment.limitation or "selected_rule_not_established",
+            )
+        return ObjectiveScoreAdmission(
+            status=ObjectiveScoreStatus.INVALID,
+            predicate_status="not_established",
+            reported_assessment=assessment,
+            recomputed_assessment=None,
+            reason="declared_score_has_no_replayable_rule",
+        )
+
+    recomputed = _recompute_score_assessment(assessment, source)
+    if recomputed is None:
+        return ObjectiveScoreAdmission(
+            status=ObjectiveScoreStatus.INVALID,
+            predicate_status="not_established",
+            reported_assessment=assessment,
+            recomputed_assessment=None,
+            reason="selected_score_source_replay_failed",
+        )
+    if recomputed != assessment:
+        return ObjectiveScoreAdmission(
+            status=ObjectiveScoreStatus.INVALID,
+            predicate_status="recomputed",
+            reported_assessment=assessment,
+            recomputed_assessment=recomputed,
+            reason="selected_score_source_mismatch",
+        )
+    if reported_status is ObjectiveScoreStatus.INVALID:
+        return ObjectiveScoreAdmission(
+            status=ObjectiveScoreStatus.INVALID,
+            predicate_status="recomputed",
+            reported_assessment=assessment,
+            recomputed_assessment=recomputed,
+            reason="reported_score_status_invalid",
+        )
+    if (
+        assessment.status is ObjectiveScoreStatus.AVAILABLE
+        and reported_value is not None
+        and reported_value != assessment.value
+    ):
+        return ObjectiveScoreAdmission(
+            status=ObjectiveScoreStatus.INVALID,
+            predicate_status="recomputed",
+            reported_assessment=assessment,
+            recomputed_assessment=recomputed,
+            reason="reported_score_value_mismatch",
+        )
+    return ObjectiveScoreAdmission(
+        status=assessment.status,
+        predicate_status="recomputed",
+        reported_assessment=assessment,
+        recomputed_assessment=recomputed,
+        reason="selected_score_source_recomputed",
+    )
+
+
+def _source_field_path(
+    source: Mapping[str, Any], field_name: str
+) -> tuple[tuple[str, ...], Any] | None:
+    """Resolve an exact source key first, then a declared dotted mapping path."""
+    if field_name in source:
+        return (field_name,), source[field_name]
+    path = tuple(field_name.split("."))
+    if len(path) < 2:
+        return None
+    value: Any = source
+    for component in path:
+        if not isinstance(value, Mapping) or component not in value:
+            return None
+        value = value[component]
+    return path, value
+
+
+def _insert_source_path(target: dict[str, Any], path: tuple[str, ...], value: Any) -> bool:
+    """Insert one projected path without masking a conflicting path shape."""
+    node = target
+    for component in path[:-1]:
+        existing = node.get(component)
+        if existing is None:
+            existing = {}
+            node[component] = existing
+        if not isinstance(existing, dict):
+            return False
+        node = existing
+    leaf = path[-1]
+    if leaf in node:
+        try:
+            return bool(node[leaf] == value)
+        except (TypeError, ValueError):
+            return node[leaf] is value
+    node[leaf] = value
+    return True
+
+
+def _project_score_assessment_source(
+    assessment: ObjectiveScoreAssessment,
+    source: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Retain only selected source paths, preserving their mapping structure.
+
+    The assessment's source-field set and selected rule's unit operands are the
+    projection contract. Known result envelopes are preserved at their original
+    location so admission replay sees the same root, ``simulation_results``, and
+    ``metrics`` operands. Dotted paths such as ``metric_units.gdp_change`` remain
+    nested paths rather than disappearing as nonexistent top-level keys.
+    """
+    if not isinstance(source, Mapping):
+        return None
+    projected: dict[str, Any] = {}
+    source_containers: list[tuple[str | None, Mapping[str, Any]]] = [(None, source)]
+    for container_name in _SOURCE_RESULT_CONTAINERS:
+        nested = source.get(container_name)
+        if isinstance(nested, Mapping):
+            source_containers.append((container_name, nested))
+
+    for field_name in sorted(set(assessment.source_field_names)):
+        if not isinstance(field_name, str) or not field_name:
+            return None
+        for container_name, container in source_containers:
+            resolved = _source_field_path(container, field_name)
+            if resolved is None:
+                continue
+            path, value = resolved
+            destination = projected
+            if container_name is not None:
+                nested_destination = destination.setdefault(container_name, {})
+                if not isinstance(nested_destination, dict):
+                    return None
+                destination = nested_destination
+            if not _insert_source_path(destination, path, value):
+                return None
+
+    try:
+        rule = json.loads(assessment.rule_spec or "{}")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return None
+    if not isinstance(rule, dict):
+        return None
+    unit_fields = _rule_metric_unit_requirements(rule)
+    if unit_fields is not None:
+        for container_name, container in source_containers:
+            if "metric_units" not in container:
+                continue
+            raw_units = container["metric_units"]
+            destination = projected
+            if container_name is not None:
+                nested_destination = destination.setdefault(container_name, {})
+                if not isinstance(nested_destination, dict):
+                    return None
+                destination = nested_destination
+            if not isinstance(raw_units, Mapping):
+                if not _insert_source_path(destination, ("metric_units",), raw_units):
+                    return None
+                continue
+            for field_name in unit_fields:
+                if field_name in raw_units and not _insert_source_path(
+                    destination,
+                    ("metric_units", field_name),
+                    raw_units[field_name],
+                ):
+                    return None
+
+    if rule.get("kind") == "policy_vector_channel":
+        vector_source = source.get("policy_evaluation", source)
+        if hasattr(vector_source, "model_dump"):
+            vector_source = vector_source.model_dump(mode="python")
+        group, name = rule.get("group"), rule.get("name")
+        if (
+            not isinstance(vector_source, Mapping)
+            or group
+            not in {
+                "primary",
+                "secondary",
+                "penalties",
+            }
+            or not isinstance(name, str)
+        ):
+            return None
+        channels = vector_source.get(group)
+        channel = channels.get(name) if isinstance(channels, Mapping) else None
+        if hasattr(channel, "model_dump"):
+            channel = channel.model_dump(mode="python")
+        if not isinstance(channel, Mapping):
+            return None
+        projected["policy_evaluation"] = {group: {name: dict(channel)}}
+        simulation_source = source.get("simulation_results", vector_source)
+        if not isinstance(simulation_source, Mapping):
+            return None
+        objective_channels = simulation_source.get("objective_channels")
+        if not isinstance(objective_channels, Mapping) or name not in objective_channels:
+            return None
+        simulation_projection = projected.setdefault("simulation_results", {})
+        if not isinstance(simulation_projection, dict):
+            return None
+        projected_channels = simulation_projection.setdefault("objective_channels", {})
+        if not isinstance(projected_channels, dict):
+            return None
+        projected_channels[name] = objective_channels[name]
+
+    return projected
+
+
+def selected_score_admission_status(
+    assessment: ObjectiveScoreAssessment | None,
+    source: Any,
+) -> ObjectiveScoreStatus:
+    """Return only a source-recomputed available score as admissible."""
+    if assessment is None:
+        return ObjectiveScoreStatus.NOT_ESTABLISHED
+    if assessment.status is not ObjectiveScoreStatus.AVAILABLE:
+        return assessment.status
+    if score_assessment_matches_source(assessment, source):
+        return ObjectiveScoreStatus.AVAILABLE
+    return ObjectiveScoreStatus.INVALID
+
+
+def objective_value_matches_rule(
+    objective: ObjectiveValue | None,
+    source: Any,
+    *,
+    expected_name: str,
+    expected_direction: OptimizationDirection,
+    expected_rule_spec: str,
+) -> bool:
+    """Reconcile a scored coordinate with the selected configured rule and source."""
+    if (
+        objective is None
+        or objective.name != expected_name
+        or objective.direction is not expected_direction
+        or objective.score_status is not ObjectiveScoreStatus.AVAILABLE
+        or objective.score_assessment is None
+        or objective.score_assessment.rule_spec != expected_rule_spec
+        or objective.raw_value != objective.score_assessment.value
+        or not score_assessment_matches_source(objective.score_assessment, source)
+    ):
+        return False
+    try:
+        rule = json.loads(expected_rule_spec)
+        rule_direction = rule.get("direction", rule.get("normalized_direction"))
+        if rule_direction is not None and rule_direction != expected_direction.value:
+            return False
+        expected_weight = rule.get("weight")
+        expected_threshold = rule.get("threshold", _MISSING)
+        if expected_weight is not None and objective.weight != float(expected_weight):
+            return False
+        if expected_threshold is not _MISSING and objective.threshold != expected_threshold:
+            return False
+    except (TypeError, ValueError, json.JSONDecodeError, OverflowError):
+        return False
+    return True
+
+
+def _evaluation_execution_succeeded(evaluation: Any) -> bool:
+    """Check execution and feasibility independently of a selected score basis."""
+    status = getattr(evaluation, "status", None)
+    status_value = getattr(status, "value", status)
+    return status_value == "success" and getattr(evaluation, "stage_a_passed", False) is True
+
+
+def _evaluation_matches_selected_objectives(
+    evaluation: Any,
+    *,
+    objective_names: list[str],
+    objective_directions: dict[str, OptimizationDirection],
+    objective_rule_specs: dict[str, str],
+    source_result: Any = _MISSING,
+    require_scalar_score: bool = False,
+) -> bool:
+    """Check each score coordinate against the consumer's configured rule map.
+
+    Names and carried assessments are labels only.  This shared admission check
+    requires a unique coordinate for every selected objective and recomputes that
+    coordinate from the evaluation's retained result source under the consumer's
+    expected direction and rule specification.
+    """
+    selected = set(objective_names)
+    if (
+        not objective_names
+        or len(selected) != len(objective_names)
+        or set(objective_directions) != selected
+        or set(objective_rule_specs) != selected
+    ):
+        return False
+    objectives = (
+        evaluation if isinstance(evaluation, list) else getattr(evaluation, "objectives", None)
+    )
+    if not isinstance(objectives, list):
+        return False
+    if not isinstance(evaluation, list) and not _evaluation_execution_succeeded(evaluation):
+        return False
+    by_name: dict[str, list[ObjectiveValue]] = {}
+    for objective in objectives:
+        if not isinstance(objective, ObjectiveValue):
+            return False
+        by_name.setdefault(objective.name, []).append(objective)
+    source = (
+        getattr(evaluation, "stage_b_result", None) if source_result is _MISSING else source_result
+    )
+    try:
+        if set(by_name) != selected or not all(
+            len(by_name.get(name, [])) == 1
+            and objective_value_matches_rule(
+                by_name[name][0],
+                source,
+                expected_name=name,
+                expected_direction=objective_directions[name],
+                expected_rule_spec=objective_rule_specs[name],
+            )
+            for name in objective_names
+        ):
+            return False
+        if not require_scalar_score:
+            return True
+        if len(objective_names) != 1:
+            return False
+        name = objective_names[0]
+        selected = by_name[name][0]
+        assessment = getattr(evaluation, "score_assessment", None)
+        scalar_score = getattr(evaluation, "scalar_score", None)
+        return (
+            getattr(evaluation, "score_status", None) is ObjectiveScoreStatus.AVAILABLE
+            and assessment is not None
+            and assessment == selected.score_assessment
+            and assessment.rule_spec == objective_rule_specs[name]
+            and assessment.value == selected.raw_value
+            and scalar_score == selected.raw_value
+            and isinstance(scalar_score, (int, float))
+            and not isinstance(scalar_score, bool)
+            and math.isfinite(float(scalar_score))
+        )
+    except (KeyError, TypeError, ValueError):
+        return False
 
 
 # ─────────────────────────────────────────────────────────────────────────────

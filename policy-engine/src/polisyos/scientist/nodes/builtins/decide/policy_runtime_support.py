@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import hashlib
 import math
 from collections.abc import Buffer, Mapping
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, fields, is_dataclass, replace
+from enum import Enum
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -19,7 +19,7 @@ from typing import (
     cast,
 )
 
-from pydantic import ValidationError
+from pydantic import BaseModel
 
 from polisyos.core import components as core_components
 from polisyos.core.artifacts import (
@@ -30,26 +30,18 @@ from polisyos.core.artifacts import (
     matches_runtime_protocol_definition,
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.contracts.foundry import Metrics
-from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef
 from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
 from polisyos.foundry.validation import normalize_phase2_artifact_family
-from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.causal import CausalEffectReport, load_data_readiness_report
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
-    TransportStatus,
-    load_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.distributional import (
     DistributionalReport,
-    load_distributional_report,
 )
-from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.ir.registry import DataReadinessReportRef
 from polisyos.pdc import (
     EvalSafetyAdmissionChallenge,
@@ -68,20 +60,14 @@ from polisyos.scientist.methods.autotune.models import (
     PromotionPolicy,
 )
 from polisyos.scientist.methods.autotune.registry import ChampionRegistry
-from polisyos.scientist.methods.discovery.output import (
-    load_discovery_artifact_bundle,
-    load_merged_latent_discovery_bundle,
-)
 from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
-    load_prior_knowledge_bundle,
 )
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket, FunnelOutcome
 from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
-    to_search_uncertainty_envelope,
 )
 from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
@@ -96,27 +82,35 @@ from polisyos.scientist.nodes.builtins.decide import (
     policy_runtime_metrics as _runtime_metrics,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
-    ARTIFACT_CAUSAL_REPORT_REF,
-    ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
-    ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
-    ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
-    ARTIFACT_METRICS_REF,
-    INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF,
+    ARTIFACT_CHAMPION_POLICY_DOSSIER_REF,
+    ARTIFACT_CLAIMS_REF,
+    ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF,
+    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+    ARTIFACT_GOVERNANCE_GATE_PACKET_REF,
+    ARTIFACT_IMPLEMENTATION_PLAN_REF,
+    ARTIFACT_JUDGE_VERDICT_REF,
+    ARTIFACT_POLICY_BRIEF_REF,
+    ARTIFACT_POLICY_FRONTIER_REPORT_REF,
+    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    ARTIFACT_POLICY_TRANSPORTABILITY_REPORT_REF,
+    ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF,
+    ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF,
+    ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF,
+    ARTIFACT_SUBGROUP_IMPACT_REPORT_REF,
+    ARTIFACT_VALIDATION_REPORT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
-    _normalize_policy_evaluation_vector,
 )
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
-    persist_policy_candidate_schema,
 )
 from polisyos.scientist.replay.verification import (
     ReplayRegistry,
@@ -127,6 +121,249 @@ from polisyos.scientist.replay.verification import (
 _POLICY_RUNTIME_VALIDATION_ERRORS = _runtime_metrics._POLICY_RUNTIME_VALIDATION_ERRORS
 _POLICY_RUNTIME_LOAD_ERRORS = _runtime_metrics._POLICY_RUNTIME_LOAD_ERRORS
 _EVAL_SAFETY_BLOCKER_PREFIX = "polisyos.eval_safety"
+
+_CURRENT_POLICY_PROMOTION_PARAM_KEYS = (
+    "policy_promotion_result",
+    "judge_verdict",
+    "decision_readiness_contract",
+    "promotion_decision",
+    "policy_promotion_projection_status",
+    "policy_brief",
+    "translator_compliance",
+)
+
+_CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS = (
+    ARTIFACT_CHAMPION_POLICY_DOSSIER_REF,
+    ARTIFACT_CLAIMS_REF,
+    ARTIFACT_CONSTRAINT_SATISFACTION_REPORT_REF,
+    ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+    ARTIFACT_GOVERNANCE_GATE_PACKET_REF,
+    ARTIFACT_IMPLEMENTATION_PLAN_REF,
+    ARTIFACT_JUDGE_VERDICT_REF,
+    ARTIFACT_POLICY_BRIEF_REF,
+    ARTIFACT_POLICY_FRONTIER_REPORT_REF,
+    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    ARTIFACT_POLICY_TRANSPORTABILITY_REPORT_REF,
+    ARTIFACT_POLICY_UNCERTAINTY_REPORT_REF,
+    ARTIFACT_REJECTED_ALTERNATIVES_SUMMARY_REF,
+    ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF,
+    ARTIFACT_SUBGROUP_IMPACT_REPORT_REF,
+    ARTIFACT_VALIDATION_REPORT_REF,
+)
+
+
+_CURRENT_POLICY_STATE_REF_FIELDS = (
+    "policy_output_bundle_ref",
+    "policy_brief_ref",
+    "champion_policy_dossier_ref",
+)
+_CURRENT_POLICY_PROJECTION_WRITE_PATHS = (
+    *(f"params.{key}" for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS),
+    "params.reported_policy_promotion_history",
+    *_CURRENT_POLICY_STATE_REF_FIELDS,
+    *(f"artifacts_index.{key}" for key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS),
+    "reports_index.governance_report_ref",
+    "params.reported_governance_report_history",
+)
+
+
+def clear_current_policy_promotion_projection(state: ExperimentState) -> None:
+    """Clear the current policy promotion surface without deleting its CAS artifacts."""
+    for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS:
+        state.params.pop(key, None)
+    for key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS:
+        state.artifacts_index.pop(key, None)
+    state.policy_output_bundle_ref = None
+    state.policy_brief_ref = None
+    state.champion_policy_dossier_ref = None
+
+
+def project_policy_promotion_state(
+    state: ExperimentState,
+    *,
+    preserved_state_refs: Mapping[str, ArtifactRef] | None = None,
+    preserved_artifact_refs: Mapping[str, ArtifactRef] | None = None,
+    archive_prior: bool = True,
+    ctx: ExecutionContext | None = None,
+) -> ExperimentState:
+    """Project policy-mode promotion inputs as report-only before a direct consumer.
+
+    Persisted candidate-only bundles may be supplied through the preserved-ref maps only
+    after the caller has recomputed their complete candidate, run, and input binding.
+    """
+    if not _is_policy_mode_state(state):
+        return state
+    projected = branch_state(state, write_paths=_CURRENT_POLICY_PROJECTION_WRITE_PATHS).state
+    previous_status = state.params.get("policy_promotion_projection_status")
+    from polisyos.scientist.governance.report_currentness import (
+        resolve_current_governance_report,
+    )
+
+    governance_report_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
+    governance_report_admission = (
+        resolve_current_governance_report(ctx, state, governance_report_ref)
+        if ctx is not None and governance_report_ref is not None
+        else None
+    )
+    governance_report_is_current = bool(
+        governance_report_admission is not None and governance_report_admission.is_current
+    )
+    safe_status = _reported_only_policy_projection_status(previous_status)
+    prior_params = {
+        key: _policy_projection_json_value(state.params[key])
+        for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS
+        if key in state.params and key != "policy_promotion_projection_status"
+    }
+    prior_refs: dict[str, Any] = {}
+    preserved_state_refs = preserved_state_refs or {}
+    preserved_artifact_refs = preserved_artifact_refs or {}
+    state_refs = {
+        key: _policy_projection_json_value(getattr(state, key))
+        for key in _CURRENT_POLICY_STATE_REF_FIELDS
+        if getattr(state, key) is not None and key not in preserved_state_refs
+    }
+    artifact_refs = {
+        key: _policy_projection_json_value(value)
+        for key, value in state.artifacts_index.items()
+        if key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS and key not in preserved_artifact_refs
+    }
+    if state_refs:
+        prior_refs["state"] = state_refs
+    if artifact_refs:
+        prior_refs["artifacts_index"] = artifact_refs
+    if not safe_status and previous_status is not None:
+        prior_params["policy_promotion_projection_status"] = _policy_projection_json_value(
+            previous_status
+        )
+
+    raw_history = state.params.get("reported_policy_promotion_history")
+    if isinstance(raw_history, list):
+        history_items = list(raw_history)
+    elif "reported_policy_promotion_history" in state.params:
+        history_items = [
+            {
+                "record_type": "unparsed_prior_history",
+                "value": _policy_projection_json_value(raw_history),
+            }
+        ]
+    else:
+        history_items = []
+    raw_governance_history = state.params.get("reported_governance_report_history")
+    if isinstance(raw_governance_history, list):
+        governance_history_items = list(raw_governance_history)
+    elif "reported_governance_report_history" in state.params:
+        governance_history_items = [
+            {
+                "record_type": "unparsed_prior_governance_report_history",
+                "value": _policy_projection_json_value(raw_governance_history),
+            }
+        ]
+    else:
+        governance_history_items = []
+    prior_governance_report = None
+    if governance_report_ref is not None and not governance_report_is_current:
+        prior_governance_report = {
+            "record_type": "reported_governance_report",
+            "run_id": state.run_id,
+            "status": (
+                governance_report_admission.status
+                if governance_report_admission is not None
+                else "not_established"
+            ),
+            "reason_code": (
+                governance_report_admission.reason_code
+                if governance_report_admission is not None
+                else "governance_report_currentness_context_missing"
+            ),
+            "artifact_ref": _policy_projection_json_value(governance_report_ref),
+        }
+    if archive_prior and (prior_params or prior_refs):
+        history_items.append(
+            {
+                "record_type": "prior_current_projection",
+                "run_id": state.run_id,
+                "params": prior_params,
+                "refs": prior_refs,
+            }
+        )
+
+    clear_current_policy_promotion_projection(projected)
+    if governance_report_ref is not None and not governance_report_is_current:
+        projected.reports_index.pop(REPORT_GOVERNANCE_REPORT_REF, None)
+        if prior_governance_report is not None:
+            governance_history_items.append(prior_governance_report)
+    if (
+        archive_prior and (prior_params or prior_refs)
+    ) or "reported_policy_promotion_history" in state.params:
+        projected.params["reported_policy_promotion_history"] = history_items
+    if (
+        archive_prior and prior_governance_report is not None
+    ) or "reported_governance_report_history" in state.params:
+        projected.params["reported_governance_report_history"] = governance_history_items
+    for key, ref in preserved_state_refs.items():
+        if key in _CURRENT_POLICY_STATE_REF_FIELDS:
+            setattr(projected, key, ref)
+    for key, ref in preserved_artifact_refs.items():
+        if key in _CURRENT_POLICY_OUTPUT_ARTIFACT_KEYS:
+            projected.artifacts_index[key] = ref
+    if safe_status and not prior_params and not prior_refs:
+        projected.params["policy_promotion_projection_status"] = _policy_projection_json_value(
+            previous_status
+        )
+    else:
+        projected.params["policy_promotion_projection_status"] = {
+            "schema_version": "1.0",
+            "status": "reported_only",
+            "authority_status": "not_established",
+            "reason": "protected_owner_receipt_not_established",
+            "run_id": state.run_id,
+            "source": "direct_policy_current_state_projection",
+        }
+    return projected
+
+
+def _is_policy_mode_state(state: ExperimentState) -> bool:
+    workflow_id = str(state.params.get("workflow_id") or "").strip().lower()
+    if workflow_id == "scientist_policy_design":
+        return True
+    raw = state.params.get("policy_mode")
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+    return False
+
+
+def _reported_only_policy_projection_status(value: object) -> bool:
+    return (
+        isinstance(value, Mapping)
+        and value.get("status") == "reported_only"
+        and value.get("authority_status") == "not_established"
+    )
+
+
+def _policy_projection_json_value(value: Any) -> Any:
+    """Retain prior projection input as finite JSON without promoting its meaning."""
+    if value is None or type(value) in {str, bool, int}:
+        return value
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else {"non_finite_float": repr(value)}
+    if isinstance(value, BaseModel):
+        return _policy_projection_json_value(value.model_dump(mode="json"))
+    if is_dataclass(value):
+        return _policy_projection_json_value(
+            {field.name: getattr(value, field.name) for field in fields(value)}
+        )
+    if isinstance(value, Mapping):
+        return {str(key): _policy_projection_json_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_policy_projection_json_value(item) for item in value]
+    return {
+        "unprojected_type": f"{type(value).__module__}.{type(value).__qualname__}",
+        "repr": repr(value),
+    }
 
 
 if TYPE_CHECKING:
@@ -436,17 +673,19 @@ class ProductionPolicyEvaluationBackend:
             source_components=tuple(dict.fromkeys(source_components_list)),
             notes=notes,
         )
+        simulation_results = _runtime_metrics._build_policy_simulation_results_impl(
+            evaluation_vector,
+            fidelity=fidelity,
+            uncertainty=uncertainty,
+            base_metrics=metrics,
+            provenance=provenance,
+            ambiguity_certificate=ambiguity_certificate,
+            runtime_execution=runtime_execution,
+        )
+        evaluation_vector = evaluation_vector.with_score_source_results(simulation_results)
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
-            simulation_results=_runtime_metrics._build_policy_simulation_results_impl(
-                evaluation_vector,
-                fidelity=fidelity,
-                uncertainty=uncertainty,
-                base_metrics=metrics,
-                provenance=provenance,
-                ambiguity_certificate=ambiguity_certificate,
-                runtime_execution=runtime_execution,
-            ),
+            simulation_results=simulation_results,
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,
             provenance=provenance,
@@ -526,17 +765,19 @@ class SyntheticPolicyEvaluationBackend:
             source_components=source_components,
             notes=("Synthetic backend is test-only and not promotion-safe.",),
         )
+        simulation_results = _runtime_metrics._build_policy_simulation_results_impl(
+            evaluation_vector,
+            fidelity=fidelity,
+            uncertainty=uncertainty,
+            base_metrics=metrics,
+            provenance=provenance,
+            ambiguity_certificate=ambiguity_certificate,
+            runtime_execution=runtime_execution,
+        )
+        evaluation_vector = evaluation_vector.with_score_source_results(simulation_results)
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
-            simulation_results=_runtime_metrics._build_policy_simulation_results_impl(
-                evaluation_vector,
-                fidelity=fidelity,
-                uncertainty=uncertainty,
-                base_metrics=metrics,
-                provenance=provenance,
-                ambiguity_certificate=ambiguity_certificate,
-                runtime_execution=runtime_execution,
-            ),
+            simulation_results=simulation_results,
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,
             provenance=provenance,
@@ -699,7 +940,7 @@ def build_vulnerabilities(
 
 
 def selection_score(evaluation_vector: PolicyEvaluationVector) -> float:
-    """Return the primary policy-value score, preserving the fallback order."""
+    """Return a primary score only after source-bound availability is established."""
     return _runtime_metrics._selection_score_impl(evaluation_vector)
 
 
@@ -987,12 +1228,14 @@ def run_promotion_with_evidence(
     selection_evaluation = load_benchmark_evaluation(policy_runtime_context, selection_ref)
     hidden_holdout = load_benchmark_evaluation(policy_runtime_context, hidden_holdout_ref)
     platform_meta = load_platform_meta_evaluation_report(policy_runtime_store, platform_meta_ref)
-    governance_report = (
-        load_governance_report_from_ref(
-            policy_runtime_context, evidence_bundle.governance_report_ref
-        )
-        if evidence_bundle.governance_report_ref is not None
-        else load_governance_report(policy_runtime_context, state)
+    from polisyos.scientist.governance.report_currentness import (
+        load_current_governance_report,
+    )
+
+    governance_report = load_current_governance_report(
+        policy_runtime_context,
+        state,
+        evidence_bundle.governance_report_ref,
     )
     if governance_report is None:
         raise ValueError("PromotionEvidenceBundle governance_report_ref could not be resolved.")
@@ -1228,6 +1471,29 @@ def _transport_penalty(cross_graph_profile: CrossGraphEvidenceProfile | None) ->
 
 def _policy_budget_total(candidate: PolicyCandidateSchema) -> float:
     return _runtime_metrics._policy_budget_total(candidate)
+
+
+def _resolve_current_policy_promotion_result(
+    state: ExperimentState,
+) -> tuple[PolicyPromotionResult | None, str]:
+    """Fail closed until the protected policy-promotion owner bridge is present.
+
+    A PolicyPromotionResult and its nested verdict are report artifacts. The
+    current runtime has no issuer-owned receipt that binds a promoted decision to
+    the selected candidate, current score admission, and the permitted action.
+    Therefore neither typed results nor caller mappings in params can be
+    projected as current authority.
+    """
+    if state.params.get("policy_promotion_result") is None:
+        status = state.params.get("policy_promotion_projection_status")
+        if (
+            _reported_only_policy_projection_status(status)
+            and isinstance(status.get("reason"), str)
+            and status["reason"].strip()
+        ):
+            return None, status["reason"]
+        return None, "policy_promotion_result_absent"
+    return None, "protected_owner_receipt_not_established"
 
 
 __all__ = [

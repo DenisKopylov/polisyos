@@ -1,0 +1,4 @@
+title = "Bind engine-produced policy reports to their current source"
+
+[changes]
+policy_engine = "Decision consumers admit GovernanceReport and VerifiedPolicyReport artifacts as current only when the run owner links the exact successful builtin producer output and its complete source projection still matches. A persisted terminal-state transition separates engine finalizer outputs from later source changes, and its output refs must also replay from the Core owner trace; historical or stale reports remain readable as non-current evidence."

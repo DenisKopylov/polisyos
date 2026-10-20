@@ -28,10 +28,14 @@ from polisyos.scientist.methods.search.funnel.types import (
     statistical_uncertainty_from_ci_width,
 )
 from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
     _apply_default_search_objective_limitations,
     _assess_default_search_objective,
+    selected_score_admission_status,
 )
-from polisyos.scientist.methods.search.uncertainty import search_uncertainty_observation_ref
+from polisyos.scientist.methods.search.uncertainty import (
+    search_uncertainty_observation_ref,
+)
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 logger = get_logger(__name__)
@@ -65,6 +69,7 @@ class Level3MediumFidelity(FunnelStage):
         scenario_set: str = "coarse",
         top_k_subgroups: int = 3,
         cost_per_second_usd: float = 0.001,
+        expected_objective_unit: str | None = None,
     ):
         """
         Args:
@@ -75,6 +80,8 @@ class Level3MediumFidelity(FunnelStage):
             scenario_set: Scenario grid density — ``"coarse"`` or ``"medium"``.
             top_k_subgroups: Number of subgroups to evaluate (not full HTE).
             cost_per_second_usd: Rough cost estimate per second of wall time.
+            expected_objective_unit: Explicit selected unit for the scalar objective.
+                When absent, this stage may route candidate work but cannot approve a score.
         """
         self._engine = workflow_engine
         self._subsample_fraction = subsample_fraction
@@ -83,6 +90,7 @@ class Level3MediumFidelity(FunnelStage):
         self._scenario_set = scenario_set
         self._top_k_subgroups = top_k_subgroups
         self._cost_per_second = cost_per_second_usd
+        self._expected_objective_unit = expected_objective_unit
 
     # ------------------------------------------------------------------
     # FunnelStage interface
@@ -131,8 +139,9 @@ class Level3MediumFidelity(FunnelStage):
             )
             return FunnelStageResult(
                 policy_candidate=candidate,
-                objective_value=float("inf"),
+                objective_value=None,
                 is_promising=False,
+                score_status=ObjectiveScoreStatus.UNAVAILABLE,
                 stage_name=self.stage_name,
                 duration_seconds=duration,
                 uncertainty_envelope=UncertaintyEnvelope.unknown(
@@ -154,10 +163,23 @@ class Level3MediumFidelity(FunnelStage):
         verdict = feedback.get("verdict", "UNKNOWN")
 
         # Compute objective (same formula as ExpensiveStage).
-        objective_assessment = _assess_default_search_objective(sim_results)
-        objective = objective_assessment.objective_value
+        objective_assessment = _assess_default_search_objective(
+            sim_results, expected_unit=self._expected_objective_unit
+        )
+        score_status = selected_score_admission_status(
+            objective_assessment.score_assessment, sim_results
+        )
+        objective = (
+            objective_assessment.objective_value
+            if score_status is ObjectiveScoreStatus.AVAILABLE
+            else None
+        )
         _apply_default_search_objective_limitations(feedback, objective_assessment)
-        is_promising = verdict == "APPROVE"
+        is_promising = verdict == "APPROVE" and score_status is ObjectiveScoreStatus.AVAILABLE
+        terminal_action = None
+        if verdict == "APPROVE" and score_status is not ObjectiveScoreStatus.AVAILABLE:
+            terminal_action = "reject" if score_status is ObjectiveScoreStatus.INVALID else "defer"
+            feedback["selected_objective_admission"] = score_status.value
 
         # Build uncertainty envelope from reduced bootstrap.
         envelope = self._build_uncertainty_envelope(sim_results)
@@ -178,6 +200,8 @@ class Level3MediumFidelity(FunnelStage):
             policy_candidate=candidate,
             objective_value=objective,
             is_promising=is_promising,
+            score_status=score_status,
+            score_assessment=objective_assessment.score_assessment,
             stage_name=self.stage_name,
             duration_seconds=duration,
             simulation_results=sim_results,
@@ -190,6 +214,7 @@ class Level3MediumFidelity(FunnelStage):
             executed_work_packet_status=work_packet_status,
             fidelity_level=self.fidelity_level,
             actual_score=objective,
+            terminal_action=terminal_action,
             uncertainty_observation_ref=search_uncertainty_observation_ref(sim_results),
         )
 

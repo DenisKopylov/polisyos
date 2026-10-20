@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelExecutedWorkPacket,
     FunnelStageResult,
 )
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _build_policy_simulation_results_impl,
     _policy_runtime_execution_metadata,
@@ -180,7 +181,9 @@ def _context(
     }
 
 
-def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Path) -> None:
+def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
+    tmp_path: Path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     candidate = _policy_candidate()
     candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
@@ -340,7 +343,9 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
         ]
 
 
-def test_default_l3_requested_count_comes_from_effective_config_only(tmp_path: Path) -> None:
+def test_default_l3_requested_count_comes_from_effective_config_only(
+    tmp_path: Path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     candidate = _policy_candidate()
     candidate_ref = persist_policy_candidate_schema(store, candidate)
@@ -778,7 +783,7 @@ class _ObjectiveRecordingVOI:
         self.actual_objective_value = kwargs["actual_objective_value"]
 
 
-def test_unavailable_fiscal_signal_is_labeled_but_reaches_scalar_voi_consumer() -> None:
+def test_unavailable_fiscal_signal_is_labeled_and_withheld_from_scalar_voi_consumer() -> None:
     scheduler = _ObjectiveRecordingVOI()
     stage = Level3MediumFidelity(workflow_engine=_UnavailableFiscalWorkflowEngine())
     orchestrator = FunnelOrchestrator([stage], voi_scheduler=scheduler)
@@ -789,9 +794,11 @@ def test_unavailable_fiscal_signal_is_labeled_but_reaches_scalar_voi_consumer() 
     )
 
     result = outcome.stage_results[3]
-    limitation = "budget_deficit_unavailable_required_float_legacy_zero"
+    limitation = "search_objective_fiscal_measurement_unavailable"
     assert result.simulation_results["budget_deficit_objective_usable"] is False
     assert result.feedback["objective_limitations"] == [limitation]
-    assert result.objective_value == -0.1
-    assert outcome.trace[0].objective_value == -0.1
-    assert scheduler.actual_objective_value == -0.1
+    assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert result.objective_value is None
+    assert outcome.trace[0].score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert outcome.trace[0].objective_value is None
+    assert not hasattr(scheduler, "actual_objective_value")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import logging
 import os
 from decimal import Decimal
@@ -746,20 +747,45 @@ def test_build_policy_output_bundle_writes_refs(
     candidate = _candidate()
     welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
     state = minimal_state.model_copy(deep=True)
+    from polisyos.scientist.methods.autotune.models import PromotionDecision
+    from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_POLICY_FRONTIER_REPORT_REF
+    from polisyos.scientist.policy_design.output import (
+        load_governance_gate_packet,
+        load_policy_brief,
+    )
+
+    stale_result = PolicyPromotionResult(
+        judge_verdict=JudgeVerdict.model_validate(_passing_judge_verdict()),
+        readiness_contract=_readiness_contract(),
+        promotion_decision=PromotionDecision(
+            loop_id="stale-bundle",
+            promoted=True,
+            reason="caller supplied",
+        ),
+    )
+    stale_brief = _policy_brief().model_copy(update={"title": "stale caller promotion brief"})
     state.params.update(
         {
             "workflow_id": "scientist_policy_design",
             "policy_mode": True,
+            "policy_promotion_result": stale_result.model_dump(mode="json"),
+            "policy_promotion_projection_status": {
+                "status": "available",
+                "authority_status": "verified",
+                "owner_receipt_ref": {"artifact_id": "caller-controlled"},
+            },
             "policy_candidate_schema": candidate.model_dump(mode="json"),
             "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
             "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
-            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "policy_brief": stale_brief.model_dump(mode="json"),
             "translator_compliance": _translator_compliance().model_dump(mode="json"),
             "judge_verdict": _passing_judge_verdict(),
         }
     )
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
     state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+    state.artifacts_index[ARTIFACT_POLICY_FRONTIER_REPORT_REF] = welfare_ref
 
     ownerless = BuildPolicyOutputBundleNode().execute(execution_context, state)
     assert ownerless.status == "fail"
@@ -807,6 +833,28 @@ def test_build_policy_output_bundle_writes_refs(
         outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF],
     )
     assert bundle.policy_brief_ref is not None
+    assert bundle.promotion_result is None
+    assert bundle.metadata["judge_composite_decision"] is None
+    assert all(
+        key not in bundle.runtime_params_snapshot
+        for key in (
+            "policy_promotion_result",
+            "judge_verdict",
+            "decision_readiness_contract",
+            "promotion_decision",
+            "policy_promotion_projection_status",
+            "policy_brief",
+            "translator_compliance",
+        )
+    )
+    assert ARTIFACT_POLICY_FRONTIER_REPORT_REF not in bundle.runtime_artifacts_index
+    brief = load_policy_brief(cas_store, bundle.policy_brief_ref)
+    assert brief.title != stale_brief.title
+    governance = load_governance_gate_packet(cas_store, bundle.governance_gate_packet_ref)
+    assert governance.judge_composite_decision == "not_assessed"
+    assert governance.readiness_level == "research_artifact"
+    assert governance.translator_compliance_passed is None
+    assert state.params["policy_promotion_result"] == stale_result.model_dump(mode="json")
     assert bundle.claims_ref == outcome.state.artifacts_index[ARTIFACT_CLAIMS_REF]
     assert bundle.welfare_bundle_ref == welfare_ref
     assert bundle.ambiguity_certificate_ref == ambiguity_ref
@@ -1389,6 +1437,33 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
         "artifacts_index.decision_readiness_contract_ref",
         "artifacts_index.validation_report_ref",
         "artifacts_index.judge_verdict_ref",
+        "params.policy_promotion_result",
+        "params.judge_verdict",
+        "params.decision_readiness_contract",
+        "params.promotion_decision",
+        "params.policy_promotion_projection_status",
+        "params.policy_brief",
+        "params.translator_compliance",
+        "params.reported_policy_promotion_history",
+        "policy_output_bundle_ref",
+        "policy_brief_ref",
+        "champion_policy_dossier_ref",
+        "artifacts_index.champion_policy_dossier_ref",
+        "artifacts_index.claims_ref",
+        "artifacts_index.constraint_satisfaction_report_ref",
+        "artifacts_index.decision_readiness_contract_ref",
+        "artifacts_index.governance_gate_packet_ref",
+        "artifacts_index.implementation_plan_ref",
+        "artifacts_index.judge_verdict_ref",
+        "artifacts_index.policy_brief_ref",
+        "artifacts_index.policy_frontier_report_ref",
+        "artifacts_index.policy_output_bundle_ref",
+        "artifacts_index.policy_transportability_report_ref",
+        "artifacts_index.policy_uncertainty_report_ref",
+        "artifacts_index.rejected_alternatives_summary_ref",
+        "artifacts_index.replayable_audit_bundle_ref",
+        "artifacts_index.subgroup_impact_report_ref",
+        "artifacts_index.validation_report_ref",
     )
     assert state.params["nested"] == {"baseline": True}
     assert state.policy_output_bundle_ref is None
@@ -2122,6 +2197,10 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
 
     with (
         patch(
+            "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._resolve_current_policy_promotion_result",
+            return_value=(promotion, None),
+        ),
+        patch(
             "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._resolve_readiness_contract",
             return_value=readiness,
         ),
@@ -2131,7 +2210,7 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._parse_model",
-            side_effect=[brief, promotion, brief, promotion],
+            side_effect=[brief, brief],
         ),
         patch(
             "polisyos.scientist.nodes.builtins.decide.run_translator_compliance._policy_build_input",
@@ -2410,3 +2489,276 @@ def test_interrupted_async_attempt_retains_input_but_not_successful_binding(
             _resolve_candidate(success_required_ctx, source_state)
 
     asyncio.run(exercise())
+
+
+def test_promoted_policy_bundle_requires_protected_owner_receipt(cas_store: FileSystemCAS) -> None:
+    from polisyos.scientist.policy_design.output import PolicyArtifactBuilder
+
+    source = SimpleNamespace(
+        promotion_result=SimpleNamespace(promotion_decision=SimpleNamespace(promoted=True)),
+        readiness_contract=None,
+        phase3_gate=None,
+    )
+    with pytest.raises(
+        ValueError,
+        match="policy_promotion_owner_receipt_not_established",
+    ):
+        PolicyArtifactBuilder()._validate_contract_bound_source(cas_store, source)
+
+
+def test_direct_policy_cache_and_packet_intake_reproject_stale_current_state(
+    execution_context: ExecutionContext,
+    minimal_state: ExperimentState,
+    cas_store: FileSystemCAS,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Cached candidate output and its packet consumer never retain stale current refs."""
+    from polisyos.scientist.methods.autotune.models import PromotionDecision
+    from polisyos.scientist.methods.search.judge_stack import (
+        JudgeVerdict,
+        PolicyPromotionResult,
+        persist_judge_verdict,
+    )
+    from polisyos.scientist.methods.search.readiness import (
+        persist_decision_readiness_contract,
+    )
+
+    _bundle_module = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle"
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_DECISION_READINESS_CONTRACT_REF,
+        ARTIFACT_JUDGE_VERDICT_REF,
+    )
+    from polisyos.scientist.validation.phase5_preflight import (
+        run_phase5_artifact_preflight as real_phase5_preflight,
+    )
+
+    candidate = _candidate()
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
+    source_state = minimal_state.model_copy(deep=True)
+    source_state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+        }
+    )
+    source_state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    source_state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+    source_state.inputs[INPUT_TRINITY_BUNDLE_REF] = cas_store.put_json(
+        _bundle(),
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version="1.0"),
+        ),
+    )
+    source_state.inputs[INPUT_DATA_SNAPSHOT_REF] = cas_store.put_json(
+        {"data_ref": None},
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+    )
+    first = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), source_state
+    )
+    assert first.status == "ok", first.error
+    cached_ref = first.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    cached_bundle = load_policy_artifact_bundle(cas_store, cached_ref)
+    assert cached_bundle.decision_readiness_contract_ref is None
+
+    stale_state = first.state.model_copy(deep=True)
+    stale_result = PolicyPromotionResult(
+        judge_verdict=JudgeVerdict.model_validate(_passing_judge_verdict()),
+        readiness_contract=_readiness_contract(),
+        promotion_decision=PromotionDecision(
+            loop_id="stale-current-state",
+            promoted=True,
+            reason="caller supplied",
+        ),
+    )
+    stale_readiness_ref = persist_decision_readiness_contract(cas_store, _readiness_contract())
+    stale_judge_ref = persist_judge_verdict(
+        cas_store, JudgeVerdict.model_validate(_passing_judge_verdict())
+    )
+    stale_state.params.update(
+        {
+            "policy_promotion_result": stale_result.model_dump(mode="json"),
+            "policy_promotion_projection_status": {
+                "status": "available",
+                "authority_status": "verified",
+                "owner_receipt_ref": {"artifact_id": "caller-controlled"},
+            },
+            "judge_verdict": _passing_judge_verdict(),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "promotion_decision": {"promoted": True, "reason": "caller supplied"},
+        }
+    )
+    stale_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = stale_readiness_ref
+    stale_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = stale_judge_ref
+    stale_state_bytes = cas_store.get_bytes(stale_readiness_ref.artifact_id)
+    phase5_inputs: list[tuple[object, object, object]] = []
+
+    def _capture_phase5(ctx, state, request):
+        phase5_inputs.append(
+            (
+                dict(state.params),
+                dict(state.artifacts_index),
+                request,
+            )
+        )
+        return real_phase5_preflight(ctx, state, request)
+
+    monkeypatch.setattr(_bundle_module, "run_phase5_artifact_preflight", _capture_phase5)
+    rebuilt = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), stale_state
+    )
+    assert rebuilt.status == "ok", rebuilt.error
+    assert len(phase5_inputs) == 1
+    phase5_params, phase5_artifacts, _ = phase5_inputs[0]
+    assert not {
+        "policy_promotion_result",
+        "judge_verdict",
+        "decision_readiness_contract",
+        "promotion_decision",
+    }.intersection(phase5_params)
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in phase5_artifacts
+    assert ARTIFACT_JUDGE_VERDICT_REF not in phase5_artifacts
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in rebuilt.state.artifacts_index
+    assert rebuilt.state.params["policy_promotion_projection_status"]["status"] == ("reported_only")
+    assert any(
+        item.get("params", {}).get("policy_promotion_result")
+        == stale_result.model_dump(mode="json")
+        for item in rebuilt.state.params["reported_policy_promotion_history"]
+        if isinstance(item, dict)
+    )
+    rebuilt_bundle_ref = rebuilt.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    rebuilt_bundle = load_policy_artifact_bundle(cas_store, rebuilt_bundle_ref)
+    rebuilt_audit = load_replayable_audit_bundle(
+        cas_store, rebuilt_bundle.replayable_audit_bundle_ref
+    )
+    assert rebuilt_bundle.decision_readiness_contract_ref is None
+    assert rebuilt_bundle.metadata["judge_composite_decision"] is None
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in (
+        rebuilt_audit.runtime_artifacts_index or {}
+    )
+    assert cas_store.get_bytes(stale_readiness_ref.artifact_id) == stale_state_bytes
+
+    packet_state = rebuilt.state.model_copy(deep=True)
+    packet_state.params.update(
+        {
+            "policy_promotion_result": stale_result.model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+        }
+    )
+    packet_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = stale_readiness_ref
+    packet_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = stale_judge_ref
+    packet_module = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.decide.decision_packet.builder"
+    )
+    real_packet_request = packet_module._build_decision_packet_request
+    packet_intakes: list[ExperimentState] = []
+
+    def _capture_packet_request(ctx, state):
+        packet_intakes.append(state)
+        return real_packet_request(ctx, state)
+
+    monkeypatch.setattr(packet_module, "_build_decision_packet_request", _capture_packet_request)
+    packet = BuildDecisionPacketNode().execute(
+        _claim_capable_context(execution_context), packet_state
+    )
+    assert packet.status == "ok", packet.error
+    assert len(packet_intakes) == 1
+    packet_intake = packet_intakes[0]
+    assert not {
+        "policy_promotion_result",
+        "judge_verdict",
+        "decision_readiness_contract",
+    }.intersection(packet_intake.params)
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in packet_intake.artifacts_index
+    assert packet_intake.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == rebuilt_bundle_ref
+    assert packet_intake.artifacts_index.get(ARTIFACT_JUDGE_VERDICT_REF) != stale_judge_ref
+    packet_payload = from_canonical_bytes(cas_store.get_bytes(packet.artifacts[0].artifact_id))
+    packet_bundle = packet_payload.get("policy_output_bundle")
+    assert isinstance(packet_bundle, dict)
+    assert packet_bundle["decision_readiness_contract_ref"] is None
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in packet.state.artifacts_index
+
+    from polisyos.scientist.nodes.builtins.decide.build_verified_policy_report import (
+        BuildVerifiedPolicyReportNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.run_policy_translation import (
+        RunPolicyTranslationNode,
+    )
+    from polisyos.scientist.nodes.builtins.decide.run_translator_compliance import (
+        RunTranslatorComplianceNode,
+    )
+
+    for sibling in (RunPolicyTranslationNode(), RunTranslatorComplianceNode()):
+        sibling_outcome = sibling.execute(_claim_capable_context(execution_context), packet_state)
+        assert sibling_outcome.status == "skip"
+        assert sibling_outcome.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF] == (
+            rebuilt_bundle_ref
+        )
+        assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in (
+            sibling_outcome.state.artifacts_index
+        )
+        assert "policy_promotion_result" not in sibling_outcome.state.params
+
+    verified_outcome = BuildVerifiedPolicyReportNode().execute(
+        _claim_capable_context(execution_context), packet_state
+    )
+    assert verified_outcome.status == "skip"
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in verified_outcome.state.artifacts_index
+    assert "judge_verdict" not in verified_outcome.state.params
+
+    governance_module = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.governance.run_governance"
+    )
+    governance_intakes: list[ExperimentState] = []
+
+    def _capture_governance_checks(ctx, state, profile, *, pii_scan_results):
+        governance_intakes.append(state)
+        return governance_module._GovernanceCheckResult(
+            issues=[],
+            trace={"captured": True},
+            pass_state={},
+        )
+
+    monkeypatch.setattr(governance_module, "_extract_pii_scan_results", lambda _ctx, _state: None)
+    monkeypatch.setattr(governance_module, "_run_governance_checks", _capture_governance_checks)
+    governed = governance_module.RunGovernanceNode().execute(
+        _claim_capable_context(execution_context), packet_state
+    )
+    assert governed.status == "ok", governed.error
+    assert len(governance_intakes) == 1
+    governance_intake = governance_intakes[0]
+    assert not {
+        "policy_promotion_result",
+        "judge_verdict",
+        "decision_readiness_contract",
+        "promotion_decision",
+    }.intersection(governance_intake.params)
+    assert ARTIFACT_DECISION_READINESS_CONTRACT_REF not in governance_intake.artifacts_index
+    assert ARTIFACT_JUDGE_VERDICT_REF not in governance_intake.artifacts_index
+
+    mutated_candidate = candidate.model_copy(
+        update={"metadata": {**candidate.metadata, "source_mutation": "same-id-new-basis"}}
+    )
+    assert mutated_candidate.candidate_id == candidate.candidate_id
+    assert mutated_candidate.candidate_hash() != candidate.candidate_hash()
+    stale_candidate_state = packet_state.model_copy(deep=True)
+    stale_candidate_state.params["policy_candidate_schema"] = mutated_candidate.model_dump(
+        mode="json"
+    )
+    changed_packet = BuildDecisionPacketNode().execute(
+        _claim_capable_context(execution_context), stale_candidate_state
+    )
+    assert changed_packet.status == "ok", changed_packet.error
+    assert len(packet_intakes) == 2
+    assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF not in packet_intakes[1].artifacts_index
+    changed_payload = from_canonical_bytes(
+        cas_store.get_bytes(changed_packet.artifacts[0].artifact_id)
+    )
+    assert "policy_output_bundle" not in changed_payload

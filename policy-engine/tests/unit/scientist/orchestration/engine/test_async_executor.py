@@ -283,10 +283,15 @@ class TestAsyncWorkflowExecutor:
         assert statuses["a"] == "ok"
         assert statuses["b"] == "fail"
         assert statuses["c"] == "skip"
-        ctx.run.finalize.assert_called_once_with(
-            status="fail",
-            errors=[{"node": "b", "code": "node.exception", "message": "b failed"}],
-        )
+        ctx.run.finalize.assert_called_once()
+        finalize_kwargs = ctx.run.finalize.call_args.kwargs
+        assert finalize_kwargs["status"] == "fail"
+        assert finalize_kwargs["errors"] == [
+            {"node": "b", "code": "node.exception", "message": "b failed"}
+        ]
+        finalization_ref = finalize_kwargs["workflow_finalization_ref"]
+        assert finalization_ref.kind == "scientist.workflow_state_finalization"
+        assert finalization_ref.media_type == "application/json"
 
     @pytest.mark.asyncio
     async def test_max_parallelism_one_degrades_to_sequential(self):
@@ -408,6 +413,7 @@ class TestAsyncWorkflowExecutor:
             "scientist.experiment_state",
         ]
         assert "scientist.workflow_report" in seen_kinds
+        assert "scientist.workflow_state_finalization" in seen_kinds
 
     @pytest.mark.asyncio
     async def test_async_executor_records_attempt_basis_for_fresh_owner_read(

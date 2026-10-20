@@ -13,8 +13,14 @@ from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
     _parse_model,
+    _prepare_policy_candidate_state_for_direct_consumer,
     _resolve_candidate,
     _resolve_readiness_contract,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+    _CURRENT_POLICY_PROMOTION_PARAM_KEYS,
+    _resolve_current_policy_promotion_result,
 )
 from polisyos.scientist.nodes.builtins.decide.run_policy_promotion import (
     _load_cross_graph_profile,
@@ -73,16 +79,23 @@ _SPEC = NodeSpec(
         "params.policy_promotion_result",
         "params.judge_verdict",
         "params.policy_brief",
+        *(f"params.{key}" for key in _CURRENT_POLICY_PROMOTION_PARAM_KEYS),
+        "params.reported_policy_promotion_history",
         f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",
         f"artifacts_index.{ARTIFACT_STRESS_TEST_REPORT_REF}",
     ],
-    state_writes=[
-        "params.policy_brief",
-        "policy_brief_ref",
-        f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
-        f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
-        f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
-    ],
+    state_writes=list(
+        dict.fromkeys(
+            [
+                "params.policy_brief",
+                "policy_brief_ref",
+                f"artifacts_index.{ARTIFACT_POLICY_BRIEF_REF}",
+                f"artifacts_index.{ARTIFACT_VALIDATION_REPORT_REF}",
+                f"artifacts_index.{ARTIFACT_JUDGE_VERDICT_REF}",
+                *_CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+            ]
+        )
+    ),
     produces=[
         ARTIFACT_POLICY_BRIEF_REF,
         ARTIFACT_VALIDATION_REPORT_REF,
@@ -102,6 +115,22 @@ class RunPolicyTranslationNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
+        state = _prepare_policy_candidate_state_for_direct_consumer(
+            ctx, state, preserve_source_bound_candidate_bundle=True
+        )
+        promotion_result, promotion_reason = _resolve_current_policy_promotion_result(state)
+        if promotion_result is None:
+            return NodeOutcome(
+                status="skip",
+                state=state,
+                events=[
+                    NodeEvent(
+                        level="info",
+                        message="Policy translation remains candidate-only without a protected owner receipt.",
+                        attrs={"reason": promotion_reason},
+                    )
+                ],
+            )
         existing = state.params.get("policy_brief")
         if isinstance(existing, dict) and state.policy_brief_ref is not None:
             return NodeOutcome(status="ok", state=state)
@@ -119,11 +148,7 @@ class RunPolicyTranslationNode:
                 ],
             )
 
-        promotion_result = _parse_model(
-            state.params.get("policy_promotion_result"),
-            PolicyPromotionResult,
-        )
-        if promotion_result is None or not promotion_result.promotion_decision.promoted:
+        if not promotion_result.promotion_decision.promoted:
             return NodeOutcome(
                 status="skip",
                 state=state,

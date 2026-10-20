@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import math
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -28,8 +29,12 @@ from polisyos.scientist.methods.search.lessons import (
     LessonTrustLevel,
 )
 from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
     ObjectiveValue,
     OptimizationDirection,
+    _evaluation_matches_selected_objectives,
+    _unestablished_score_assessment,
+    objective_value_matches_rule,
 )
 from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
 from polisyos.scientist.methods.search.stopping import MaxIterations
@@ -58,6 +63,8 @@ from polisyos.scientist.policy_design.objectives import (
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
     _normalize_policy_evaluation_vector,
+    _policy_vector_channel_assessment,
+    _policy_vector_channel_rule_spec,
 )
 from polisyos.scientist.policy_design.schema import (
     MonitoringSignalSpec,
@@ -124,6 +131,7 @@ class OptimizerObjectiveSpec:
 
     objective_names: list[str]
     directions: list[OptimizationDirection]
+    objective_rule_specs: dict[str, str]
     frontier_projection_names: list[str]
     constraint_extractors: dict[str, Callable[[PolicyEvaluationVector], float]]
 
@@ -466,13 +474,27 @@ class HierarchicalSearchCoordinator:
         candidate: PolicyCandidateSchema,
     ) -> OptimizerObjectiveSpec:
         template = ObjectiveStack().evaluate(PolicyEvaluationBundle(candidate=candidate))
-        channels = [
-            *template.primary.values(),
-            *template.secondary.values(),
-            *template.penalties.values(),
+        grouped_channels = [
+            *(("primary", channel) for channel in template.primary.values()),
+            *(("secondary", channel) for channel in template.secondary.values()),
+            *(("penalties", channel) for channel in template.penalties.values()),
         ]
-        objective_names = list(dict.fromkeys(channel.name for channel in channels))
-        directions = [_to_search_direction(template.channel(name)) for name in objective_names]
+        channels_by_name: dict[str, tuple[str, Any]] = {}
+        for group, channel in grouped_channels:
+            existing = channels_by_name.get(channel.name)
+            if existing is not None and _policy_vector_channel_rule_spec(
+                existing[1], existing[0]
+            ) != _policy_vector_channel_rule_spec(channel, group):
+                raise ValueError(
+                    f"selected policy objective {channel.name!r} has ambiguous channel rules"
+                )
+            channels_by_name.setdefault(channel.name, (group, channel))
+        objective_names = list(channels_by_name)
+        directions = [_to_search_direction(channels_by_name[name][1]) for name in objective_names]
+        objective_rule_specs = {
+            name: _policy_vector_channel_rule_spec(channel, group)
+            for name, (group, channel) in channels_by_name.items()
+        }
         frontier_projection_names = list(
             dict.fromkeys(template.frontier_objectives("global_feasible").keys())
         )
@@ -489,6 +511,7 @@ class HierarchicalSearchCoordinator:
         return OptimizerObjectiveSpec(
             objective_names=objective_names,
             directions=directions,
+            objective_rule_specs=objective_rule_specs,
             frontier_projection_names=frontier_projection_names,
             constraint_extractors=constraint_extractors,
         )
@@ -511,6 +534,7 @@ class HierarchicalSearchCoordinator:
             spec.search_space,
             objective_names=objective_spec.objective_names,
             directions=objective_spec.directions,
+            objective_rule_specs=objective_spec.objective_rule_specs,
         )
         adapter = StrategyAdapter(
             strategy,
@@ -562,6 +586,7 @@ class HierarchicalSearchCoordinator:
         ) = _reevaluate_candidate_only_transfer_seeds(
             candidate_only_seed_evaluations or [],
             spec=spec,
+            objective_spec=objective_spec,
             codec=codec,
             context=context,
             stage_a_evaluator=effective_stage_a,
@@ -1033,28 +1058,54 @@ def _run_blueprint_parameter_search(
     telemetry: dict[str, Any] = {"runtime": "blueprint_parameter_search"}
 
     for warm_start in initial_evaluations:
-        policy_evaluation = _coerce_policy_evaluation(warm_start.get("stage_b_result"))
-        objective_details = (
-            policy_evaluation.as_legacy_objectives() if policy_evaluation is not None else []
+        source_payload = warm_start.get("stage_b_result")
+        source_results = (
+            source_payload.get("simulation_results") if isinstance(source_payload, dict) else None
         )
+        policy_evaluation = _coerce_policy_evaluation(source_payload)
+        objective_value: float | None = None
+        score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        score_assessment = None
+        objective_details: list[ObjectiveValue] = []
+        rank_key = None
+        if policy_evaluation is not None:
+            objective_value, score_status = policy_evaluation.legacy_scalar_proxy_for_search(
+                source_results if isinstance(source_results, dict) else None
+            )
+            score_assessment = policy_evaluation.score_assessment
+            rank_key = _policy_rank_key(
+                policy_evaluation,
+                source_results if isinstance(source_results, dict) else None,
+            )
+            objective_details = policy_evaluation.as_legacy_objectives(
+                source_results if isinstance(source_results, dict) else None
+            )
         record = SearchIteration(
             iteration=-1,
             candidate=dict(warm_start.get("candidate", {})),
-            objective_value=float(warm_start.get("objective_value", float("inf"))),
+            objective_value=(
+                objective_value
+                if score_status is ObjectiveScoreStatus.AVAILABLE
+                else warm_start.get("objective_value")
+            ),
             objective_details=objective_details,
             is_promising=bool(warm_start.get("is_promising", False)),
             stage_a_passed=True,
-            stage_b_result=warm_start.get("stage_b_result"),
+            stage_b_result=source_payload,
             duration_seconds=0.0,
             policy_evaluation=policy_evaluation,
+            score_status=score_status,
+            score_assessment=score_assessment,
         )
         history.append(record)
-        if policy_evaluation is not None:
-            rank_key = _policy_rank_key(policy_evaluation)
+        if rank_key is not None:
             if best_rank_key is None or rank_key > best_rank_key:
                 best_rank_key = rank_key
                 best_candidate = dict(record.candidate)
-                best_objective = _diagnostic_policy_score(policy_evaluation)
+                best_objective = _diagnostic_policy_score(
+                    policy_evaluation,
+                    source_results if isinstance(source_results, dict) else None,
+                )
 
     stopping_reason: str | None = None
     iteration = 0
@@ -1073,7 +1124,9 @@ def _run_blueprint_parameter_search(
         _, stage_a_passed = stage_a_evaluator(candidate, context)
         stage_b_result: dict[str, Any] | None = None
         policy_evaluation: PolicyEvaluationVector | None = None
-        objective_value = float("inf")
+        objective_value: float | None = None
+        score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        score_assessment = None
         objective_details: list[Any] = []
         is_promising = False
         if stage_a_passed:
@@ -1081,15 +1134,29 @@ def _run_blueprint_parameter_search(
             stage_b_result = stage_b_evaluator(candidate, context)
             policy_evaluation = _coerce_policy_evaluation(stage_b_result)
             if policy_evaluation is not None:
-                objective_value = _diagnostic_policy_score(policy_evaluation)
-                objective_details = policy_evaluation.as_legacy_objectives()
-                rank_key = _policy_rank_key(policy_evaluation)
-                if best_rank_key is None or rank_key > best_rank_key:
+                objective_details = policy_evaluation.as_legacy_objectives(
+                    stage_b_result.get("simulation_results")
+                    if isinstance(stage_b_result.get("simulation_results"), dict)
+                    else None
+                )
+                source_results = stage_b_result.get("simulation_results")
+                score_assessment = policy_evaluation.score_assessment
+                objective_value, score_status = policy_evaluation.legacy_scalar_proxy_for_search(
+                    source_results if isinstance(source_results, dict) else None
+                )
+                rank_key = _policy_rank_key(
+                    policy_evaluation,
+                    source_results if isinstance(source_results, dict) else None,
+                )
+                if rank_key is not None and (best_rank_key is None or rank_key > best_rank_key):
                     best_rank_key = rank_key
                     best_candidate = dict(candidate)
-                    best_objective = objective_value
-            else:
-                objective_value = float((stage_b_result or {}).get("objective_value", float("inf")))
+                    diagnostic_score = _diagnostic_policy_score(
+                        policy_evaluation,
+                        source_results if isinstance(source_results, dict) else None,
+                    )
+                    if diagnostic_score is not None:
+                        best_objective = diagnostic_score
             is_promising = (
                 bool(stage_b_result)
                 and str((stage_b_result or {}).get("feedback", {}).get("verdict", "")).upper()
@@ -1107,6 +1174,8 @@ def _run_blueprint_parameter_search(
                 stage_b_result=stage_b_result,
                 duration_seconds=(datetime.now(UTC) - iter_start).total_seconds(),
                 policy_evaluation=policy_evaluation,
+                score_status=score_status,
+                score_assessment=score_assessment,
             )
         )
         iteration += 1
@@ -1146,31 +1215,81 @@ def _optimizer_objectives_for_iteration(
 ) -> list[ObjectiveValue]:
     if iteration.policy_evaluation is None:
         return list(iteration.objective_details)
-    return _optimizer_objectives_from_policy_evaluation(iteration.policy_evaluation, spec)
+    return _optimizer_objectives_from_policy_evaluation(
+        iteration.policy_evaluation, spec, iteration.stage_b_result
+    )
 
 
 def _optimizer_objectives_from_policy_evaluation(
     evaluation: PolicyEvaluationVector,
     spec: OptimizerObjectiveSpec,
+    source: Any = None,
 ) -> list[ObjectiveValue]:
     infeasibility_penalty = _constraint_penalty(evaluation, spec)
     values: list[ObjectiveValue] = []
-    for name, direction in zip(spec.objective_names, spec.directions, strict=False):
-        channel = evaluation.channel(name)
-        raw_value = float(channel.value) if channel is not None else 0.0
+    groups = ("primary", "secondary", "penalties")
+    for name, direction in zip(spec.objective_names, spec.directions, strict=True):
+        expected_rule_spec = spec.objective_rule_specs.get(name)
+        if expected_rule_spec is None:
+            continue
+        try:
+            rule = json.loads(expected_rule_spec)
+            group = rule["group"]
+        except (KeyError, TypeError, ValueError):
+            continue
+        if group not in groups or rule.get("name") != name:
+            continue
+        channels = getattr(evaluation, group)
+        channel = channels.get(name)
+        if channel is None:
+            continue
+        raw_value = float(channel.value)
+        assessment = _policy_vector_channel_assessment(channel, group, source)
+        source_is_selected = (
+            assessment.rule_spec == expected_rule_spec
+            and objective_value_matches_rule(
+                ObjectiveValue(
+                    name=name,
+                    raw_value=raw_value,
+                    direction=direction,
+                    weight=float(channel.weight),
+                    is_satisfied=bool(channel.satisfied is not False),
+                    threshold=channel.threshold,
+                    score_status=ObjectiveScoreStatus.AVAILABLE,
+                    score_assessment=assessment,
+                ),
+                source,
+                expected_name=name,
+                expected_direction=direction,
+                expected_rule_spec=expected_rule_spec,
+            )
+        )
         if infeasibility_penalty > 0.0:
             if direction is OptimizationDirection.MAXIMIZE:
                 raw_value -= infeasibility_penalty
             else:
                 raw_value += infeasibility_penalty
+            source_is_selected = False
         values.append(
             ObjectiveValue(
                 name=name,
                 raw_value=raw_value,
                 direction=direction,
-                weight=float(channel.weight) if channel is not None else 1.0,
-                is_satisfied=True if channel is None else bool(channel.satisfied is not False),
-                threshold=channel.threshold if channel is not None else None,
+                weight=float(channel.weight),
+                is_satisfied=bool(channel.satisfied is not False),
+                threshold=channel.threshold,
+                score_status=(
+                    ObjectiveScoreStatus.AVAILABLE
+                    if source_is_selected
+                    else ObjectiveScoreStatus.NOT_ESTABLISHED
+                ),
+                score_assessment=(
+                    assessment
+                    if source_is_selected
+                    else _unestablished_score_assessment(
+                        "selected_policy_objective_rule_not_reconciled"
+                    )
+                ),
             )
         )
     return values
@@ -1202,40 +1321,60 @@ def _to_search_direction(channel: Any) -> OptimizationDirection:
     return OptimizationDirection.MAXIMIZE
 
 
-def _policy_rank_key(evaluation: PolicyEvaluationVector) -> tuple[Any, ...]:
-    objectives = evaluation.frontier_objectives("global_feasible")
+def _policy_rank_key(
+    evaluation: PolicyEvaluationVector,
+    source_results: dict[str, Any] | None = None,
+) -> tuple[Any, ...] | None:
+    objectives = evaluation.frontier_objectives("global_feasible", source_results)
+    if not {"policy_value", "employment"}.issubset(objectives):
+        return None
     return (
         1 if evaluation.feasible else 0,
-        float(objectives.get("policy_value", 0.0)),
-        float(objectives.get("employment", 0.0)),
-        float(objectives.get("welfare", 0.0)),
+        float(objectives["policy_value"]),
+        float(objectives["employment"]),
         -float(len(evaluation.blocking_reasons)),
     )
 
 
-def _diagnostic_policy_score(evaluation: PolicyEvaluationVector) -> float:
-    objectives = evaluation.frontier_objectives("global_feasible")
-    if not objectives:
-        return float("inf")
-    score = -sum(float(value) for value in objectives.values())
-    if not evaluation.feasible:
-        score += 1_000_000.0 + (1000.0 * float(len(evaluation.blocking_reasons)))
-    return float(score)
+def _diagnostic_policy_score(
+    evaluation: PolicyEvaluationVector,
+    source_results: dict[str, Any] | None = None,
+) -> float | None:
+    score, status = evaluation.legacy_scalar_proxy_for_search(source_results)
+    return score if status is ObjectiveScoreStatus.AVAILABLE else None
 
 
 def _history_record(iteration: SearchIteration) -> dict[str, Any]:
-    return {
+    """Expose only source-reconciled objective scores to stopping criteria."""
+    record = {
         "iteration": iteration.iteration,
-        "objective_value": iteration.objective_value,
+        "score_status": iteration.score_status.value,
         "is_promising": iteration.is_promising,
         "stage_a_passed": iteration.stage_a_passed,
     }
+    policy_evaluation = iteration.policy_evaluation
+    stage_b_result = iteration.stage_b_result
+    source_results = (
+        stage_b_result.get("simulation_results") if isinstance(stage_b_result, dict) else None
+    )
+    if (
+        iteration.score_status is ObjectiveScoreStatus.AVAILABLE
+        and policy_evaluation is not None
+        and iteration.score_assessment is not None
+        and iteration.score_assessment == policy_evaluation.score_assessment
+        and policy_evaluation.score_assessment_matches_channels(
+            source_results if isinstance(source_results, dict) else None
+        )
+    ):
+        record["objective_value"] = iteration.score_assessment.value
+    return record
 
 
 def _reevaluate_candidate_only_transfer_seeds(
     evaluations: list[Evaluation],
     *,
     spec: ParameterSearchSpec,
+    objective_spec: OptimizerObjectiveSpec,
     codec: PolicyParameterCodec,
     context: dict[str, Any],
     stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]],
@@ -1268,10 +1407,21 @@ def _reevaluate_candidate_only_transfer_seeds(
         reasons[reason] = int(reasons.get(reason, 0)) + 1
 
     expected_space = spec.search_space.sobol_space_fingerprint()
+    selected_directions = {
+        name: direction
+        for name, direction in zip(
+            objective_spec.objective_names, objective_spec.directions, strict=True
+        )
+    }
     for evaluation in evaluations:
         report["considered_count"] += 1
-        if not evaluation.is_valid:
-            reject("source_evaluation_not_successful")
+        if not _evaluation_matches_selected_objectives(
+            evaluation,
+            objective_names=objective_spec.objective_names,
+            objective_directions=selected_directions,
+            objective_rule_specs=objective_spec.objective_rule_specs,
+        ):
+            reject("source_selected_objective_basis_not_reconciled")
             continue
         source_metadata = evaluation.metadata
         history_payload = source_metadata.get("candidate_only_transfer_source_history_ref")
@@ -1307,6 +1457,16 @@ def _reevaluate_candidate_only_transfer_seeds(
             source_metadata.get("source_run_id") or ""
         ):
             reject("source_index_binding_history_mismatch")
+            continue
+        expected_directions = {
+            name: direction.value for name, direction in selected_directions.items()
+        }
+        if (
+            source_binding.objective_names != objective_spec.objective_names
+            or source_binding.objective_directions != expected_directions
+            or source_binding.objective_rule_specs != objective_spec.objective_rule_specs
+        ):
+            reject("source_selected_objective_binding_mismatch")
             continue
         if (
             profile.search_space_fingerprint != expected_space
@@ -1395,7 +1555,12 @@ def _reevaluate_candidate_only_transfer_seeds(
             {
                 "candidate": candidate_runtime_payload,
                 "stage_b_result": current_stage_b_result,
-                "objective_value": _diagnostic_policy_score(policy_evaluation),
+                "objective_value": _diagnostic_policy_score(
+                    policy_evaluation,
+                    stage_b_result.get("simulation_results")
+                    if isinstance(stage_b_result.get("simulation_results"), dict)
+                    else None,
+                ),
                 "is_promising": policy_evaluation.feasible,
             }
         )

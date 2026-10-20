@@ -8,7 +8,10 @@ from typing import Any
 from polisyos.scientist.methods.search.controller import SearchIteration
 from polisyos.scientist.methods.search.objective import ObjectiveValue
 from polisyos.scientist.methods.search.strategies.base import SearchStrategy
-from polisyos.scientist.methods.search.strategies.codec import ParameterCodec, ScalarParameterCodec
+from polisyos.scientist.methods.search.strategies.codec import (
+    ParameterCodec,
+    ScalarParameterCodec,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
@@ -89,12 +92,15 @@ class StrategyAdapter:
             params=params,
             params_normalized=normalized,
             objectives=self._objective_extractor(iteration),
-            scalar_score=float(iteration.objective_value),
+            scalar_score=iteration.objective_value,
             stage_a_passed=iteration.stage_a_passed,
             stage_b_result=iteration.stage_b_result,
             status=status,
             timestamp=iteration.timestamp,
             wall_time_seconds=iteration.duration_seconds,
+            score_status=iteration.score_status,
+            score_assessment=iteration.score_assessment,
+            score_admission=iteration.score_admission,
         )
 
     def _candidate_to_payload(self, candidate, context: dict[str, Any]) -> dict[str, Any]:

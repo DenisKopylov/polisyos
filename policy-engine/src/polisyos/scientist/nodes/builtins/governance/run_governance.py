@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -54,7 +54,15 @@ from polisyos.scientist.governance.pass_registry import (
     runtime_profile as build_runtime_profile,
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
+from polisyos.scientist.governance.report_currentness import (
+    GOVERNANCE_REPORT_SOURCE_READ_PATHS,
+    capture_governance_report_invocation_binding,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _CURRENT_POLICY_PROJECTION_WRITE_PATHS,
+    project_policy_promotion_state,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CLAIMS_REF,
@@ -85,6 +93,9 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
+from polisyos.scientist.validation.policy_verified.currentness import (
+    resolve_current_verified_policy_report,
+)
 
 from .governance_gate_requests import (
     _GOVERNANCE_HELPER_ERRORS as _GOVERNANCE_HELPER_ERRORS,
@@ -159,33 +170,20 @@ _METADATA = ComponentMetadata(
 
 _SPEC = NodeSpec(
     metadata=_METADATA,
-    state_reads=[
-        "params",
-        "inputs",
-        "artifacts_index.simulation_result_ref",
-        "artifacts_index.distributional_report_ref",
-        "artifacts_index.causal_report_ref",
-        "artifacts_index.claims_ref",
-        "artifacts_index.human_review_packet_ref",
-        "artifacts_index.human_review_decision_ref",
-        "artifacts_index.causal_graph_ref",
-        "artifacts_index.metrics_ref",
-        "artifacts_index.normative_arbitration_result_ref",
-        "params.query_treatment",
-        "params.human_review_request",
-        "params.human_review_request_ref",
-        "reports_index.legal_report_ref",
-        "reports_index.change_proposal_ref",
-        "artifacts_index.source_verification_report_ref",
-        "artifacts_index.verified_policy_report_ref",
-    ],
+    state_reads=list(GOVERNANCE_REPORT_SOURCE_READ_PATHS),
     state_writes=[
-        "params",
         "params.validation_trace",
+        "params.gate_request",
+        "params.gate_request_ref",
+        "params.gate_decision",
+        "params.gate_decision_typed",
+        "params.gate_escalated",
+        "params.gate_iteration",
         "params.human_review_request",
         "params.human_review_request_ref",
         f"artifacts_index.{ARTIFACT_CLAIMS_REF}",
         f"reports_index.{REPORT_GOVERNANCE_REPORT_REF}",
+        *_CURRENT_POLICY_PROJECTION_WRITE_PATHS,
     ],
     produces=[REPORT_GOVERNANCE_REPORT_REF],
 )
@@ -255,6 +253,7 @@ class RunGovernanceNode:
         return replace(self, default_verdict=str(verdict))
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        state = project_policy_promotion_state(state, ctx=ctx)
         events: list[NodeEvent] = []
         issues: list[dict[str, Any]] = []
         try:
@@ -272,6 +271,21 @@ class RunGovernanceNode:
             )
         protocol = HumanGateProtocol(ctx.run)
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
+        try:
+            invocation_binding = capture_governance_report_invocation_binding(ctx, new_state)
+        except Exception as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message="Governance report invocation source could not be established.",
+                    details={"reason": str(exc)},
+                ),
+                events=[
+                    NodeEvent(level="error", message="Governance report source admission failed")
+                ],
+            )
         try:
             verdict = _handle_initial_gate_request(
                 ctx=ctx,
@@ -327,9 +341,11 @@ class RunGovernanceNode:
         )
 
         report = GovernanceReport(
+            schema_version="2.0" if invocation_binding is not None else "1.0",
             verdict=verdict,
+            invocation_binding=invocation_binding,
             issues=issues,
-            links=_build_governance_links(new_state),
+            links=_build_governance_links(ctx, new_state),
         )
         if is_claim_spine_enabled(new_state.params):
             claim_ledger = project_governance_report_claims(
@@ -366,6 +382,24 @@ class RunGovernanceNode:
                 schema=SchemaInfo(
                     name="polisyos.scientist.GovernanceReport",
                     version=report.schema_version,
+                ),
+                inputs=(
+                    [
+                        input_ref_from_artifact_ref(
+                            invocation_binding.attempt_basis_ref,
+                            role="governance_invocation_basis",
+                        ),
+                        input_ref_from_artifact_ref(
+                            invocation_binding.workflow_spec_ref,
+                            role="governance_workflow_spec",
+                        ),
+                        input_ref_from_artifact_ref(
+                            invocation_binding.input_state_ref,
+                            role="governance_input_state",
+                        ),
+                    ]
+                    if invocation_binding is not None
+                    else []
                 ),
             ),
             return_selected_profile=True,
@@ -796,7 +830,7 @@ def _resolve_validation_profile(
     return ValidationProfile.mvp()
 
 
-def _build_governance_links(state: ExperimentState) -> GovernanceReportLinks:
+def _build_governance_links(ctx: ExecutionContext, state: ExperimentState) -> GovernanceReportLinks:
     legal_ref = _coerce_report_ref(
         state.reports_index.get(REPORT_LEGAL_REPORT_REF),
         ref_cls=LegalReportRef,
@@ -809,10 +843,17 @@ def _build_governance_links(state: ExperimentState) -> GovernanceReportLinks:
         state.artifacts_index.get(ARTIFACT_SOURCE_VERIFICATION_REPORT_REF),
         ref_cls=SourceVerificationReportRef,
     )
-    verified_policy_ref = _coerce_report_ref(
-        state.artifacts_index.get(ARTIFACT_VERIFIED_POLICY_REPORT_REF),
-        ref_cls=VerifiedPolicyReportRef,
+    verified_policy_candidate = state.verified_policy_report_ref or state.artifacts_index.get(
+        ARTIFACT_VERIFIED_POLICY_REPORT_REF
     )
+    verified_policy_ref = None
+    if verified_policy_candidate is not None:
+        admission = resolve_current_verified_policy_report(ctx, state, verified_policy_candidate)
+        if admission.is_current:
+            verified_policy_ref = _coerce_report_ref(
+                verified_policy_candidate,
+                ref_cls=VerifiedPolicyReportRef,
+            )
     claims_ref = state.artifacts_index.get(ARTIFACT_CLAIMS_REF)
     human_review_packet_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_PACKET_REF)
     human_review_decision_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_DECISION_REF)

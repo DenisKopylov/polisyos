@@ -14,7 +14,10 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
+from polisyos.scientist.methods.autotune.models import (
+    BenchmarkEvaluation,
+    BenchmarkSplit,
+)
 from polisyos.scientist.methods.doe.designs import (
     AdversarialPlan,
     AdversarialStrategy,
@@ -22,10 +25,15 @@ from polisyos.scientist.methods.doe.designs import (
 )
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
+from polisyos.scientist.methods.search.contracts import EvaluationBundle
+from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
-from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
+from polisyos.scientist.methods.search.funnel.level6_promotion import (
+    Level6PromotionStage,
+)
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
@@ -38,8 +46,11 @@ from polisyos.scientist.methods.search.lessons import LessonRegistry
 from polisyos.scientist.methods.search.objective import (
     BaseObjective,
     CompositeObjective,
+    GDPGrowthObjective,
+    ObjectiveScoreStatus,
     OptimizationDirection,
 )
+from polisyos.scientist.methods.search.stages import StageResult
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -227,7 +238,7 @@ class TestFunnelOrchestrator:
             _make_stage(3, "L3"),  # final — should be executed
         ]
         orch = FunnelOrchestrator(stages)
-        result = orch.evaluate({}, {})
+        orch.evaluate({}, {})
 
         # L2 should be skipped, L3 should be executed.
         stages[2].evaluate.assert_not_called()
@@ -262,7 +273,8 @@ class TestFunnelOrchestrator:
         orch = FunnelOrchestrator([])
         result = orch.evaluate({}, {})
         assert result.is_promising is False
-        assert result.objective_value == float("inf")
+        assert result.objective_value is None
+        assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
         assert result.feedback["verdict"] == "NOT_EVALUATED"
 
     def test_context_enriched_with_level_results(self):
@@ -281,14 +293,192 @@ class TestFunnelOrchestrator:
     # Adapter tests
     # ------------------------------------------------------------------
 
-    def test_as_stage_a_callable(self):
+    def test_as_stage_a_callable_returns_typed_unestablished_result(self):
         stages = [_make_stage(0, "L0", objective_value=0.42)]
         orch = FunnelOrchestrator(stages)
         fn = orch.as_stage_a_callable()
 
-        score, passed = fn({}, {})
-        assert score == 0.42
-        assert passed is True
+        result = fn({}, {})
+        assert isinstance(result, EvaluationBundle)
+        assert result.objective_value is None
+        assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert result.is_promising is False
+        assert result.stage_a_passed is False
+
+    @pytest.mark.parametrize(
+        (
+            "metric_units",
+            "drop_assessment",
+            "expected_stage_a_status",
+            "expected_status",
+            "expected_action",
+            "expected_promising",
+        ),
+        [
+            pytest.param(
+                {},
+                False,
+                ObjectiveScoreStatus.UNAVAILABLE,
+                ObjectiveScoreStatus.UNAVAILABLE,
+                "defer",
+                False,
+                id="missing-unit-stays-candidate-only",
+            ),
+            pytest.param(
+                {"gdp_change": "fixture-unit", "budget_deficit": "fixture-unit"},
+                False,
+                ObjectiveScoreStatus.AVAILABLE,
+                ObjectiveScoreStatus.AVAILABLE,
+                "complete",
+                True,
+                id="known-zero-remains-available",
+            ),
+            pytest.param(
+                {"gdp_change": "fixture-unit", "budget_deficit": "fixture-unit"},
+                True,
+                ObjectiveScoreStatus.AVAILABLE,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+                "defer",
+                False,
+                id="removed-assessment-keeps-markers-but-cannot-approve",
+            ),
+        ],
+    )
+    def test_l3_candidate_continuation_cannot_launder_score_into_promotion(
+        self,
+        metric_units,
+        drop_assessment,
+        expected_stage_a_status,
+        expected_status,
+        expected_action,
+        expected_promising,
+    ):
+        engine = MagicMock()
+        engine.run.return_value = {
+            "simulation_results": {
+                "gdp_change": 0.0,
+                "budget_deficit": 0.0,
+                "metric_units": metric_units,
+            },
+            "feedback": {"verdict": "APPROVE"},
+        }
+        level3 = Level3MediumFidelity(engine, expected_objective_unit="fixture-unit")
+
+        class Level4ScoreReplay:
+            def evaluate(self, candidate, context):
+                prior = context["_funnel_L3_result"]
+                feedback = dict(prior.feedback)
+                feedback["verdict"] = "APPROVE"
+                return StageResult(
+                    policy_candidate=candidate,
+                    objective_value=prior.objective_value,
+                    # Deliberately self-assert the result; the outer funnel must
+                    # reconcile it against the retained selected-score source.
+                    is_promising=True,
+                    stage_name="fixture_L4_score_replay",
+                    score_status=(
+                        ObjectiveScoreStatus.AVAILABLE if drop_assessment else prior.score_status
+                    ),
+                    score_assessment=None if drop_assessment else prior.score_assessment,
+                    simulation_results=prior.simulation_results,
+                    feedback=feedback,
+                )
+
+        orchestrator = FunnelOrchestrator(
+            [
+                level3,
+                Level4FullFidelity(expensive_stage=Level4ScoreReplay()),
+                Level6PromotionStage(),
+            ],
+            stage_a_max_level=3,
+        )
+        context = {"promotion_result": {"decision": "complete", "promoted": True}}
+        candidate = {"semantic": {"interventions": [], "objectives": []}}
+
+        stage_a = orchestrator.as_stage_a_callable()(candidate, context)
+        assert stage_a.score_status is expected_stage_a_status
+        assert stage_a.objective_value == (
+            0.0 if expected_stage_a_status is ObjectiveScoreStatus.AVAILABLE else None
+        )
+        assert stage_a.is_promising is (expected_stage_a_status is ObjectiveScoreStatus.AVAILABLE)
+        assert stage_a.stage_a_passed is True
+
+        stage_b = orchestrator.as_stage_b_callable()(candidate, context)
+        outcome = stage_b["_funnel_outcome"]
+        assert outcome.final_action == expected_action
+        assert stage_b["feedback"]["verdict"] == ("APPROVE" if expected_promising else "DEFER")
+        assert stage_b["objective_value"] == (0.0 if expected_promising else None)
+        assert stage_b["is_promising"] is expected_promising
+        assert outcome.stage_results[4].score_status is expected_status
+        assert outcome.stage_results[4].is_promising is expected_promising
+        assert outcome.stage_results[6].score_status is expected_status
+
+    def test_stage_complete_action_cannot_bypass_unavailable_selected_score(self):
+        source = {"gdp_change": 0.0, "metric_units": {}}
+        assessment = (
+            GDPGrowthObjective(expected_unit="fixture-unit").evaluate(source).score_assessment
+        )
+        assert assessment is not None
+        stage = _make_stage(6, "score-required-terminal", is_promising=True)
+        stage.evaluate.return_value = FunnelStageResult(
+            policy_candidate={},
+            objective_value=None,
+            is_promising=True,
+            stage_name="self-asserted-complete",
+            score_status=ObjectiveScoreStatus.UNAVAILABLE,
+            score_assessment=assessment,
+            simulation_results=source,
+            feedback={"verdict": "APPROVE"},
+            terminal_action="complete",
+        )
+        orchestrator = FunnelOrchestrator([stage])
+
+        outcome = orchestrator.advance(orchestrator.submit({}, {}))
+        assert outcome.final_result is not None
+        compatibility = orchestrator._compatibility_result(outcome, outcome.final_result)
+
+        assert outcome.final_action == "defer"
+        assert outcome.evaluation_status == "partial"
+        assert outcome.final_result.is_promising is False
+        assert compatibility.feedback["verdict"] == "DEFER"
+        assert compatibility.objective_value is None
+
+    def test_stage_complete_without_assessment_is_deferred(self):
+        stage = _make_stage(6, "missing-score-terminal")
+        stage.evaluate.return_value = FunnelStageResult(
+            policy_candidate={},
+            objective_value=None,
+            is_promising=False,
+            stage_name="unbound-complete",
+            score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+            score_assessment=None,
+            simulation_results={},
+            feedback={"verdict": "APPROVE"},
+            terminal_action="complete",
+        )
+        orchestrator = FunnelOrchestrator([stage])
+
+        outcome = orchestrator.advance(orchestrator.submit({}, {}))
+        assert outcome.final_result is not None
+        compatibility = orchestrator._compatibility_result(outcome, outcome.final_result)
+
+        assert outcome.final_action == "defer"
+        assert outcome.evaluation_status == "partial"
+        assert outcome.final_result.score_assessment is None
+        assert outcome.final_result.objective_value is None
+        assert compatibility.feedback["verdict"] == "DEFER"
+        assert compatibility.is_promising is False
+
+    def test_level6_complete_payload_without_admitted_score_is_deferred(self):
+        result = Level6PromotionStage().evaluate(
+            {"candidate_id": "candidate-without-score"},
+            {"promotion_result": {"decision": "complete", "promoted": True}},
+        )
+
+        assert result.terminal_action == "defer"
+        assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert result.objective_value is None
+        assert result.is_promising is False
 
     def test_as_stage_b_callable(self):
         stages = [_make_stage(0, "L0")]
@@ -310,9 +500,11 @@ class TestFunnelOrchestrator:
         stage_a = orch.as_stage_a_callable()
         stage_b = orch.as_stage_b_callable()
 
-        score, passed = stage_a({"candidate": 1}, {})
-        assert passed is True
-        assert score == 0.0
+        stage_a_result = stage_a({"candidate": 1}, {})
+        assert stage_a_result.stage_a_passed is True
+        assert stage_a_result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert stage_a_result.is_promising is False
+        assert stage_a_result.objective_value is None
         assert stages[0].evaluate.call_count == 1
         assert stages[1].evaluate.call_count == 1
         assert stages[2].evaluate.call_count == 1
@@ -575,7 +767,8 @@ class TestFunnelOrchestrator:
         ]
         orch = FunnelOrchestrator(stages)
         ticket = orch.submit(
-            {"semantic": {"interventions": [], "objectives": []}}, {"burn_in_cohort": "calibration"}
+            {"semantic": {"interventions": [], "objectives": []}},
+            {"burn_in_cohort": "calibration"},
         )
         result = orch.advance(ticket, policy="burn_in")
 
@@ -591,7 +784,8 @@ class TestFunnelOrchestrator:
 
         outcome = orch.advance(
             orch.submit(
-                {"semantic": {"interventions": [], "objectives": []}}, {"source_run_id": "run-1"}
+                {"semantic": {"interventions": [], "objectives": []}},
+                {"source_run_id": "run-1"},
             ),
             policy="full",
         )
@@ -651,7 +845,10 @@ class TestFunnelOrchestrator:
     def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path, prepared):
         store = FileSystemCAS(tmp_path / ".polisyos")
         candidate_ref = _persist_l5_l6_candidate(store)
-        candidate = {"candidate_id": "cand-1", "semantic": {"interventions": [], "objectives": []}}
+        candidate = {
+            "candidate_id": "cand-1",
+            "semantic": {"interventions": [], "objectives": []},
+        }
         plan = AdversarialPlan(
             parameter_specs=[
                 ParameterSpec(name=f"p{index}", lower_bound=-1.0, upper_bound=1.0)
@@ -748,7 +945,12 @@ class TestFunnelOrchestrator:
             "stress_test_report_ref": stress_report_ref,
             "governance_report": GovernanceReport(verdict="approve"),
             **(
-                {"promotion_result": {"decision": "complete", "reason": "already_prepared"}}
+                {
+                    "promotion_result": {
+                        "decision": "complete",
+                        "reason": "already_prepared",
+                    }
+                }
                 if prepared
                 else {}
             ),
@@ -846,7 +1048,10 @@ class TestFunnelOrchestrator:
 
         outcome = orch.advance(
             orch.submit(
-                {"candidate_id": "cand-3", "semantic": {"interventions": [], "objectives": []}},
+                {
+                    "candidate_id": "cand-3",
+                    "semantic": {"interventions": [], "objectives": []},
+                },
                 {
                     "store": store,
                     "selection_evaluation": selection,

@@ -1,0 +1,136 @@
+id = "2026-10-20-e02-selected-objective-score-binding"
+title = "Bind search scores to selected objective rules and source measurements"
+type = "changed"
+component = "scientist.search"
+owner = "team-polisyos"
+summary = "Score availability is recomputed under one configured-source evaluator and requires exact selected/source unit identity for every measured operand. Transfer fingerprints bind each selected objective name to the unit derived from its canonical rule; unknown or mismatched units remain unscored. Policy-vector scalar binding covers all channels, their unit identities, runtime feasibility, and ordered blockers; selected MO/frontier axes require only their own configured and emitted unit bindings. VOI snapshots retain the complete selected source paths, including nested metric-unit maps, and revalidate them on read. Funnel terminal completion requires one source-recomputed AVAILABLE score through both explicit and implicit finalization; a source-mismatched assessment remains INVALID when projections are cleared, absent/unavailable basis defers, and a valid zero remains available. Current runtime policy-vector output has no unit source and remains unscored. Direct policy-mode bundle intake reprojects stale promotion, judge, and readiness state before cache or Phase 5; DecisionPacket and translation/compliance preserve candidate bundles only when the persisted audit snapshot matches the current full source context; governance and verified-report nodes receive projected state with prior output refs cleared."
+evidence = [
+  "src/polisyos/scientist/methods/search/objective.py",
+  "src/polisyos/scientist/methods/search/strategies/transfer.py",
+  "src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+  "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+  "src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+  "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "src/polisyos/scientist/methods/autotune/warm_start.py",
+  "tests/unit/scientist/search/test_objective_availability.py",
+  "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+  "tests/unit/scientist/methods/autotune/test_warm_start.py",
+  "src/polisyos/scientist/methods/search/voi_scheduler.py",
+  "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+  "src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+  "src/polisyos/scientist/methods/search/funnel/level4_full.py",
+  "src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+  "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+  "src/polisyos/scientist/methods/search/contracts.py",
+  "tests/unit/scientist/search/test_objective_availability.py",
+  "tests/unit/scientist/search/funnel/test_orchestrator.py",
+  "tests/unit/scientist/search/test_search_loop.py",
+  "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+  "src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+  "src/polisyos/scientist/nodes/builtins/decide/build_verified_policy_report.py",
+  "tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+]
+compatibility = "Transfer history writers emit schema 5 with objective rule specs and each selected objective's exact configured unit in the identity header and index. Schema 3/4 history and schema-1 score assessments remain diagnostic-only under the unit-aware reader; their self-carried units cannot be upgraded. Schema-5 multi-objective rows may preserve valid selected axes with scalar_score=null; consumers recompute the complete selected basis. WarmStartBridge.evaluations_to_benchmarks requires the selected direction and rule; calls without them emit no benchmark rows. BayesianCandidateGenerator and the source-profile fit verifier derive the normalized scalar binding from the same primary_metric, direction, and unit in SearchMethodRunProfile. BayesianOptimizer derives the canonical rule internally; direct callers without a configured binding remain candidate-only. Policy-vector channels carry optional selected expected_unit plus source metric_units; old vectors lacking them remain inspectable but unscored. Policy-vector scalar source records also bind all channel units, exact feasible, and ordered blocking_reasons operands. Checkpoints with training/model state must carry a matching selected_objective_binding; legacy continuation state is rejected."
+change_class = "python-public-api"
+surface_classification = "public_stable: WarmStartBridge.evaluations_to_benchmarks selected-rule admission; FunnelOrchestrator.as_stage_a_callable now returns a typed EvaluationBundle for tri-state score/candidate continuation"
+migration = "Construct transfer fingerprints from the active objective configuration and provide the corresponding objective_directions and canonical objective_rule_specs. Pass objective_direction and objective_rule_spec to evaluations_to_benchmarks. Preserve old histories for diagnosis; do not backfill their rule identity from their own score assessments. Policy callers constructing BayesianOptimizer directly must pass the selected objective name and source direction; the strategy derives the canonical normalized direction and rule. Carry the exact SearchMethodRunProfile unit into profile fingerprints and require MethodJob metric_units to match; a unit change requires a fresh source profile and GP fit. Policy-vector producers must provide expected_unit from the actual selected objective configuration and metric_units from the source producer; neither may be inferred from channel names or values. Current ObjectiveStack/metrics consumers cannot provide that source map, so their numeric channel values remain unscored. Only standalone candidate-only numeric use may omit a configured binding. Direct callers that unpack FunnelOrchestrator.as_stage_a_callable() should migrate to the typed EvaluationBundle fields; SearchController continues to accept legacy tuple evaluators."
+api = "A selected objective is admitted only when the exact configured coordinate set recomputes from retained source under the consumer's names, directions, rules, and exact source unit bindings. Transfer RunFingerprint.units must equal the map derived from its selected rule specs; empty or mismatched maps fail closed. Scalar routes also require the scalar carrier to equal the selected coordinate; MO routes do not require an unrelated scalar aggregate. Search metric direction uses the canonical rule's normalized direction and existing maximize-to-negative/minimize-to-identity scalarization. BayesianOptimizer derives its rule from selected metric, source direction, and unit. The run-profile objective fingerprint is independently recomputed at profile receipt admission and MethodJob request matching. Unconfigured direct BO use is candidate-only. Each policy-vector selected axis recomputes its channel value, selected expected unit, and source metric_units entry; frontier consumers admit only their configured axes. Policy-vector scalar source binding additionally covers every scalar formula channel and unit, feasible, and ordered blocking_reasons. The funnel recomputes selected score assessment before trusting promising/terminal signals; only typed source-consistent limitations continue as candidate work. Its Stage A bridge carries score status and assessment in EvaluationBundle, so a missing/removed basis cannot become an approval or promotion."
+limitations = "Candidate only. Source agreement establishes score availability/comparability, not measurement authority, causal validity, calibration, legal authority, production currentness, or publication authority. Unknown selected/source units remain unscored; no unit is inferred or converted. Current ObjectiveStack policy-vector channels have no source-owned unit input; their runtime producer emits an empty unit map, so same-run MO/frontier, scalar ranking, and transfer remain unscored. Typed expected/source units are enforced when supplied, but the upstream producer-to-artifact-to-channel unit bridge is not implemented and requires a named source owner and migration choice from G. Schema 3/4 history remains diagnostic until regenerated with selected units and schema-2 assessments. Funnel candidate continuation under an unestablished score is not approval, rank admission, training admission, or promotion. Runtime/persistence replay and public-surface inventory review remain pending; this fragment is not G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "funnel-stage-a-typed-candidate-continuation"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: FunnelOrchestrator.as_stage_a_callable return value"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Direct callers that unpack the legacy tuple must read objective_value, score_status, score_assessment, is_promising, and stage_a_passed from EvaluationBundle. SearchController continues to accept legacy tuple callables for compatibility."
+release_note = "Stage A can distinguish a source-bound unavailable score that continues only as candidate work from a score that is promising and admissible. Candidate-only continuation never creates numeric score admission or promotion authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+
+[[compatibility_change]]
+id = "voi-selected-score-source-projection"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: VOIObservation.objective_source and VOIModelSnapshot"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "VOI source snapshots retain only selected objective source fields. Nested selected paths such as metric_units.<field> and selected result-envelope paths are preserved so the assessment can be recomputed. Consumers needing unrelated simulation payloads must retain/read their source artifact separately."
+release_note = "VOI score snapshots preserve and replay nested selected source paths; source removal or mutation demotes the score to not_established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+
+[[compatibility_change]]
+id = "selected-search-objective-score-basis"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: WarmStartBridge.evaluations_to_benchmarks"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Legacy calls without an expected rule fail closed immediately; provide the active selected direction and canonical rule spec to emit transfer benchmarks. Persisted vector rows must retain every selected axis and the schema-4 rule identity; a scalar aggregate is required only for scalar consumers."
+release_note = "Scalar projections require a recomputed selected score and matching scalar carrier. Multi-objective training and frontier admission require every and only configured objective axis, without an unrelated scalar aggregate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+
+[[compatibility_change]]
+id = "bayesian-optimizer-selected-scalar-rule"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: BayesianOptimizer constructor"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Existing constructors without configured selection remain valid generic candidate-only use. Configured policy search supplies the selected metric name and source direction; the strategy derives its rule."
+release_note = "Configured Bayesian scalar runs bind metric, direction, and exact declared unit into the objective compatibility profile. MethodJob measurements with a missing or mismatched unit do not produce an admitted score; unit identity is not a conversion rule."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "policy-vector-selected-channel-unit"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.policy_design.ObjectiveChannelValue and PolicyEvaluationVector score admission"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Legacy vectors remain readable for diagnostic display. Numeric MO/frontier use requires an exact selected expected_unit and a matching source metric_units entry. Existing ObjectiveStack and runtime metrics paths do not currently provide those units and remain unscored until their source owner is connected."
+release_note = "Policy-vector score channels require exact configured and source unit identity. Selected MO/frontier axes do not require an unrelated scalar aggregate, but unitless legacy channels cannot train, rank, or enter a numeric frontier."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+
+[[compatibility_change]]
+id = "selected-measurement-unit-source-binding"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: RunFingerprint transfer identity and ObjectiveScoreAssessment history payload"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Transfer schema 5 requires exact objective-name-to-unit identity derived from selected rule specs. Old schema 3/4 rows and schema-1 score assessments remain diagnostic-only; regenerate them under a configured unit before numeric reuse."
+release_note = "Measured scores and transfer rows require exact selected/source unit identity. The system does not infer or convert units."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+
+
+[[compatibility_change]]
+id = "policy-promotion-current-owner-receipt"
+change_class = "python-runtime-contract"
+impact = "breaking"
+surface = "internal policy-design runtime params, translation/compliance consumers, and output-bundle builder"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Legacy and caller-supplied promotion payloads remain in reported_policy_promotion_history and are diagnostic-only. Current promotion remains withheld until a protected owner receipt producer and verifier bind the selected candidate and score admission."
+release_note = "PolicyPromotionResult, judge/readiness payloads, and status markers no longer project a current promoted policy by themselves. The runtime preserves reported feedback, clears stale current promotion/output pointers, and keeps translation/compliance candidate-only until a protected owner receipt is available."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-policy-promotion-projection-r9.md"]
+runbook_docs = []

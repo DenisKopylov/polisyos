@@ -17,7 +17,6 @@ from polisyos.core.contracts.execution_plan import (
 )
 from polisyos.scientist.governance.report import (
     GovernanceReport,
-    load_governance_report_artifact,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EVALUATOR_REPORT_REF,
@@ -103,21 +102,32 @@ class RunEvaluatorNode:
         events: list[NodeEvent] = []
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
-            try:
-                governance = load_governance_report_artifact(ctx.store, governance_ref)
+            from polisyos.scientist.governance.report_currentness import (
+                resolve_current_governance_report,
+            )
+
+            admission = resolve_current_governance_report(ctx, state, governance_ref)
+            if admission.is_current and admission.report is not None:
+                governance = admission.report
                 governance_verdict = str(governance.verdict or "NEEDS_REVISION").upper()
                 governance_issues = list(governance.issues)
-            except _GOVERNANCE_REPORT_LOAD_ERRORS as exc:
+            else:
                 governance_verdict = "NEEDS_REVISION"
+                governance_issues = [
+                    {
+                        "code": admission.reason_code,
+                        "message": "Governance report source currentness is not established.",
+                    }
+                ]
                 events.append(
                     NodeEvent(
                         level="warn",
-                        code="EVALUATOR_GOVERNANCE_REPORT_INVALID",
+                        code="EVALUATOR_GOVERNANCE_REPORT_NOT_CURRENT",
                         message=(
-                            "Governance report could not be loaded; evaluator defaulted to "
-                            "NEEDS_REVISION."
+                            "Governance report is retained as candidate evidence; evaluator "
+                            "requires a current producer-bound report."
                         ),
-                        attrs={"reason": str(exc)},
+                        attrs={"status": admission.status, "reason": admission.reason_code},
                     )
                 )
         issue_count = len(governance_issues)

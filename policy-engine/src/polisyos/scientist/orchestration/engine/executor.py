@@ -36,6 +36,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RESEARCH_DAG_REF,
 )
 from polisyos.scientist.orchestration.engine.checkpoint import compute_workflow_fingerprint
+from polisyos.scientist.orchestration.engine.component_identity import (
+    capture_engine_component_identity,
+)
 from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
@@ -49,6 +52,14 @@ from polisyos.scientist.orchestration.engine.errors import (
     NodeTimeoutError,
     RetryExhaustedError,
     WorkflowSpecError,
+)
+from polisyos.scientist.orchestration.engine.finalization import (
+    FINAL_RESEARCH_DAG_STATE_PATH,
+    FINAL_WORKFLOW_REPORT_STATE_PATH,
+    FINALIZATION_KIND,
+    FINALIZATION_SCHEMA_NAME,
+    FINALIZATION_SCHEMA_VERSION,
+    WorkflowStateFinalization,
 )
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
@@ -64,6 +75,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
+    _node_facing_context,
     _preserve_retry_spend,
     execute_with_retry_sync,
 )
@@ -709,7 +721,7 @@ def _validate_cached_node_hit(
 ) -> bool:
     """Apply the node owner's existing cache-hit acceptance rule."""
     try:
-        return node.validate_cache_hit(ctx, state, cached_outcome)
+        return node.validate_cache_hit(_node_facing_context(ctx), state, cached_outcome)
     except _EXECUTOR_DEGRADED_ERRORS:
         return False
 
@@ -1209,7 +1221,9 @@ class WorkflowExecutor:
                         else:
                             try:
                                 if replay_source_ref is None:
-                                    prepared_read = node.prepare_cache_input(self._ctx, state)
+                                    prepared_read = node.prepare_cache_input(
+                                        _node_facing_context(self._ctx), state
+                                    )
                                 else:
                                     if not isinstance(self._ctx.store, FileSystemCAS):
                                         raise RetainedSKGSnapshotError(
@@ -1526,6 +1540,8 @@ class WorkflowExecutor:
                     )
                     attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
 
+                    selected_params_snapshot = dict(inv.params or {})
+
                     def record_attempt_started(
                         attempt_number: int,
                         attempt_state: ExperimentState,
@@ -1534,11 +1550,18 @@ class WorkflowExecutor:
                         selected_component_id: str = node_id,
                         selected_workflow_ref: ArtifactRef = workflow_ref,
                         attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
+                        selected_node: object = node,
+                        selected_params: dict[str, Any] = selected_params_snapshot,
                     ) -> str:
                         attempt_id = str(uuid4())
                         input_state_ref = self._persist_state(
                             attempt_state,
                             return_selected_profile=True,
+                        )
+                        implementation_identity = capture_engine_component_identity(
+                            selected_node,
+                            selected_component_id,
+                            selected_params,
                         )
                         basis_ref = self._ctx.run._record_runtime_invocation_started(
                             attempt_id=attempt_id,
@@ -1547,6 +1570,7 @@ class WorkflowExecutor:
                             node_alias=selected_alias,
                             component_id=selected_component_id,
                             input_state_ref=input_state_ref,
+                            implementation_identity=implementation_identity,
                         )
                         attempt_bases[attempt_id] = (basis_ref, attempt_number)
                         return attempt_id
@@ -2022,6 +2046,8 @@ class WorkflowExecutor:
                 duration_ms=int((time.perf_counter() - workflow_started) * 1000),
                 node_count=len(records),
             )
+        prior_state_ref = self._persist_state(state, return_selected_profile=True)
+        self._ctx.run.add_output(prior_state_ref)
         report = WorkflowReport(
             workflow_id=workflow.workflow_id,
             run_id=state.run_id,
@@ -2054,9 +2080,9 @@ class WorkflowExecutor:
                 )
                 research_dag_ref = None
 
-        final_write_paths = ["reports_index.workflow_report"]
+        final_write_paths = [FINAL_WORKFLOW_REPORT_STATE_PATH]
         if research_dag_ref is not None:
-            final_write_paths.append(f"artifacts_index.{ARTIFACT_RESEARCH_DAG_REF}")
+            final_write_paths.append(FINAL_RESEARCH_DAG_STATE_PATH)
         final_state = branch_state(
             state,
             write_paths=tuple(final_write_paths),
@@ -2064,10 +2090,39 @@ class WorkflowExecutor:
         final_state.reports_index["workflow_report"] = report_ref
         if research_dag_ref is not None:
             final_state.artifacts_index[ARTIFACT_RESEARCH_DAG_REF] = research_dag_ref
-        final_state_ref = self._persist_state(final_state)
+        final_state_ref = self._persist_state(final_state, return_selected_profile=True)
 
         self._ctx.run.add_output(final_state_ref)
         self._ctx.run.add_output(report_ref)
+        finalization = WorkflowStateFinalization.create(
+            run_id=state.run_id,
+            workflow_id=workflow.workflow_id,
+            workflow_spec_ref=workflow_ref,
+            prior_state_ref=prior_state_ref,
+            final_state_ref=final_state_ref,
+            output_refs={
+                FINAL_WORKFLOW_REPORT_STATE_PATH: report_ref,
+                **(
+                    {FINAL_RESEARCH_DAG_STATE_PATH: research_dag_ref}
+                    if research_dag_ref is not None
+                    else {}
+                ),
+            },
+        )
+        finalization_ref = self._ctx.store.put_json(
+            finalization.model_dump(mode="json"),
+            PutOptions(
+                kind=FINALIZATION_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=FINALIZATION_SCHEMA_NAME,
+                    version=FINALIZATION_SCHEMA_VERSION,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        self._ctx.run.add_output(finalization_ref)
 
         # Finalize and persist provenance DAG
         if self._provenance_dag is not None:
@@ -2103,6 +2158,7 @@ class WorkflowExecutor:
         run_ref = self._ctx.run.finalize(
             status=overall_status,
             errors=errors_payload or None,
+            workflow_finalization_ref=finalization_ref,
         )
 
         return WorkflowExecutionResult(state=final_state, report=report, run_ref=run_ref)
@@ -2158,4 +2214,5 @@ class WorkflowExecutor:
                     version="1.0",
                 ),
             ),
+            return_selected_profile=True,
         )

@@ -59,6 +59,10 @@ from polisyos.scientist.methods.autotune.runtime import (
     read_method_job_execution_work_packet,
 )
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+from polisyos.scientist.methods.search.objective import (
+    OptimizationDirection,
+    _configured_search_metric_rule_spec,
+)
 from polisyos.scientist.methods.search.strategies.transfer import (
     RunFingerprint,
     TransferLearningManager,
@@ -1263,7 +1267,8 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
         units={},
         origin="b157-native-methodjob-test",
         tenant_id=None,
-        objective_directions={"ate": "maximize"},
+        objective_directions={"ate": OptimizationDirection.MINIMIZE.value},
+        objective_rule_specs={"ate": _configured_search_metric_rule_spec("ate", "maximize") or ""},
         embedding=[1.0],
         num_evaluations=len(source_evaluations),
     )

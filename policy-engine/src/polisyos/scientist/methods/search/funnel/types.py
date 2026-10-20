@@ -8,15 +8,21 @@ from dataclasses import dataclass, field
 from math import isfinite
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir import TypedFailureCard as TypedFailureCard
-from polisyos.ir import UncertaintyType
+from polisyos.ir import UncertaintyType as UncertaintyType
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
     artifact_functions_field,
+)
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
+    ObjectiveScoreStatus,
+    _validate_objective_score_state,
 )
 from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.methods.search.uncertainty import (
@@ -159,7 +165,10 @@ def parse_funnel_work_packet_feedback(
     raw_ref = feedback.get("policy_runtime_work_packet_ref")
     raw_status = feedback.get("policy_runtime_work_packet_status")
     if raw_ref is None:
-        return None, "unavailable" if raw_status in {None, "unavailable"} else "rejected"
+        return None, "unavailable" if raw_status in {
+            None,
+            "unavailable",
+        } else "rejected"
     try:
         ref = raw_ref if isinstance(raw_ref, ArtifactRef) else ArtifactRef.model_validate(raw_ref)
     except (TypeError, ValueError):
@@ -353,7 +362,8 @@ class FunnelStageResult(StageResult):
     ) = None
 
     def __post_init__(self) -> None:
-        """Keep cost evidence aligned with its declared origin."""
+        """Keep score, cost, and work-packet states aligned."""
+        super().__post_init__()
         _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
         _validate_funnel_work_packet(
             self.executed_work_packet_ref,
@@ -381,11 +391,14 @@ class FunnelTraceStep:
 
     fidelity_level: int
     stage_name: str
-    objective_value: float
+    objective_value: float | None
     is_promising: bool
     duration_seconds: float
     compute_cost_usd: float | None
     compute_cost_origin: FunnelCostOrigin
+    score_status: ObjectiveScoreStatus = ObjectiveScoreStatus.NOT_ESTABLISHED
+    score_assessment: ObjectiveScoreAssessment | None = None
+    score_admission: ObjectiveScoreAdmission | None = None
     executed_work_packet_ref: ArtifactRef | None = None
     executed_work_packet_status: FunnelWorkPacketStatus = "unavailable"
     routing_decision: str | None = None
@@ -395,6 +408,23 @@ class FunnelTraceStep:
     blocker_count: int = 0
 
     def __post_init__(self) -> None:
+        if self.score_admission is not None:
+            self.score_status = self.score_admission.status
+            if self.score_status is not ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = None
+            elif self.score_admission.reported_assessment != self.score_assessment:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+                self.objective_value = None
+            elif self.score_assessment is not None:
+                self.objective_value = self.score_assessment.value
+        elif self.score_assessment is None:
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+        else:
+            self.score_status = self.score_assessment.status
+            if self.score_status is ObjectiveScoreStatus.AVAILABLE:
+                self.objective_value = self.score_assessment.value
+        _validate_objective_score_state(self.objective_value, self.score_status)
         _validate_funnel_cost(self.compute_cost_usd, self.compute_cost_origin)
         _validate_funnel_work_packet(
             self.executed_work_packet_ref,

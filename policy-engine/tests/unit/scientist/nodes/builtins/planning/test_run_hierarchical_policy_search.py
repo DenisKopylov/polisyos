@@ -15,7 +15,11 @@ from polisyos.ir.governance.policy_spec import (
     PolicySpec,
     TemporalInterventionSequence,
 )
-from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
+from polisyos.ir.governance.problem_frame import (
+    ObjectiveSpec,
+    ProblemDomain,
+    ProblemFrame,
+)
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.kernel.values import MoneyValue
@@ -38,12 +42,9 @@ from polisyos.scientist.methods.search.contracts import (
     ParetoViewProjection,
 )
 from polisyos.scientist.methods.search.objective import (
-    ObjectiveValue,
+    ObjectiveScoreStatus,
+    _assess_default_search_objective,
 )
-from polisyos.scientist.methods.search.objective import (
-    OptimizationDirection as SearchOptimizationDirection,
-)
-from polisyos.scientist.methods.search.strategies.codec import _get_path
 from polisyos.scientist.methods.search.strategies.transfer import (
     RunFingerprint,
     TransferLearningManager,
@@ -57,17 +58,21 @@ from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search i
     ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     HierarchicalPolicySearchAdapter,
     RunHierarchicalPolicySearchNode,
-    _candidate_payload_without_hash,
     _evaluate_candidate_payload,
+    _iter_candidate_records,
     _persist_frontier_report,
     _resolve_search_candidate,
+    _select_champion_candidate,
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
-from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
+from polisyos.scientist.policy_design.objectives import (
+    ObjectiveStack,
+    PolicyEvaluationBundle,
+)
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierReport,
     load_policy_frontier_report,
@@ -76,8 +81,7 @@ from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.search import (
     HierarchicalSearchConfig,
     HierarchicalSearchCoordinator,
-    PolicyParameterCodec,
-    _diagnostic_policy_score,
+    StructureCandidate,
 )
 from polisyos.scientist.policy_design.search import (
     PolicySearchLevel as ScientistPolicySearchLevel,
@@ -284,6 +288,16 @@ def test_hierarchical_policy_search_adapter_supports_candidate_without_tunable_p
     assert all(
         search_result.telemetry["parameterless_candidate"] is True
         for search_result in result.state.parameter_search_results.values()
+    )
+    assert all(
+        search_result.best_candidate is None
+        for search_result in result.state.parameter_search_results.values()
+    )
+    assert all(
+        iteration.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        and iteration.objective_value is None
+        for search_result in result.state.parameter_search_results.values()
+        for iteration in search_result.history
     )
 
 
@@ -623,9 +637,8 @@ def test_hierarchical_stage_b_absent_or_mismatched_eval_safety_refuses_without_e
     assert evaluation_work.call_count == 0
 
 
-def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
+def test_registered_policy_vector_transfer_refuses_unbound_source_units(
     execution_context,
-    minimal_state,
 ) -> None:
     candidate = PolicyCandidateSchema.from_trinity_bundle(
         _bundle(), candidate_id="candidate_transfer_target"
@@ -638,11 +651,9 @@ def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
         )
     )
     spec = coordinator.build_parameter_search_spec(candidate)
-    assert len(spec.parameter_paths) == 1
     parameter_name = next(iter(spec.parameter_paths))
     bound = spec.search_space.bounds[0]
-    source_value = (bound.lower + bound.upper) / 2.0
-    source_params = {parameter_name: source_value}
+    source_params = {parameter_name: (bound.lower + bound.upper) / 2.0}
     profile = BayesianSourceProfile(
         profile_kind="injected_optimizer",
         optimizer_fqn="tests.controlled_v5_source",
@@ -651,19 +662,41 @@ def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
         search_space_fingerprint=spec.search_space.sobol_space_fingerprint(),
         warm_start_eligible=False,
     )
+    objective_spec = coordinator.build_optimizer_objective_spec(candidate)
+    objective_template = ObjectiveStack().evaluate(PolicyEvaluationBundle(candidate=candidate))
+    runtime_binding = {
+        "evaluation_attempt_id": "candidate-transfer-source-attempt",
+        "requested_draw_count": 0,
+        "requested_draw_source": "candidate-transfer-fixture",
+        "effective_estimation_config_sha256": "b" * 64,
+    }
+    simulation_results = {
+        "objective_channels": {
+            channel.name: channel.value for channel in objective_template.all_channels().values()
+        },
+        "metric_units": {},
+        "feasible": objective_template.feasible,
+        "blocking_reasons": list(objective_template.blocking_reasons),
+        "bootstrap": runtime_binding,
+    }
+    objective_vector = objective_template.with_runtime_score_assessment(
+        runtime_binding
+    ).with_score_source_results(simulation_results)
+    objective_values = objective_vector.as_legacy_objectives(simulation_results)
     source_evaluation = Evaluation(
         candidate_id="source_candidate",
         params=source_params,
         params_normalized=spec.search_space.normalize(source_params),
-        objectives=[
-            ObjectiveValue(
-                name="source_score",
-                raw_value=123456.0,
-                direction=SearchOptimizationDirection.MAXIMIZE,
-            )
-        ],
-        scalar_score=-987654.0,
+        objectives=objective_values,
+        scalar_score=None,
         stage_a_passed=True,
+        stage_b_result={
+            "status": "ok",
+            "simulation_results": simulation_results,
+            "policy_evaluation": objective_vector.model_dump(mode="json"),
+        },
+        score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+        score_assessment=None,
         metadata={"warm_start_compatibility": profile.model_dump(mode="json")},
     )
     tenant_id = "controlled-tenant"
@@ -671,152 +704,34 @@ def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
     source_fingerprint = RunFingerprint(
         run_id="v5_source_run",
         space_hash=profile.search_space_fingerprint,
-        objective_names=["source_score"],
+        objective_names=objective_spec.objective_names,
         bounds={parameter_name: {"lower": bound.lower, "upper": bound.upper}},
         split="selection",
-        units={parameter_name: "dimensionless"},
+        units={},
         origin="controlled-v5-candidate-source",
         tenant_id=tenant_id,
-        objective_directions={"source_score": "maximize"},
+        objective_directions={
+            name: direction.value
+            for name, direction in zip(
+                objective_spec.objective_names, objective_spec.directions, strict=True
+            )
+        },
+        objective_rule_specs=objective_spec.objective_rule_specs,
         embedding=[1.0, 0.0],
         num_evaluations=1,
     )
+    # ObjectiveStack and the runtime metrics envelope have no source-owned unit
+    # binding for these axes. A value/name/RunFingerprint self-claim cannot stand
+    # in for that missing measurement basis, so reject before persisting history.
+    assert source_fingerprint.objective_names
     vector_index = VectorMemoryStore(dim=2)
     transfer_manager = TransferLearningManager(execution_context.store, vector_index)
-    source_history_ref = transfer_manager.register_run(
-        source_fingerprint,
-        [source_evaluation],
-    )
-    assert source_history_ref is not None
-    index_ref = vector_index.save_to_artifact(execution_context.store)
-    loop_id = f"{minimal_state.run_id}:policy_search"
-    query_fingerprint = source_fingerprint.model_copy(update={"run_id": loop_id})
-    minimal_state.params["policy_candidate_schema"] = candidate
-    minimal_state.params["hierarchical_policy_search_config"] = {
-        "max_structure_candidates": 1,
-        "max_parameter_iterations": 1,
-        "enable_hybrid_seeds": False,
-    }
-    minimal_state.params["policy_search_candidate_transfer"] = {
-        "index_ref": index_ref.model_dump(mode="json"),
-        "query_fingerprint": query_fingerprint.model_dump(mode="json"),
-        "max_source_runs": 1,
-        "max_candidates": 5,
-    }
-
-    real_run_search = HierarchicalPolicySearchAdapter.run_search
-    captured_results = []
-    captured_run_contexts = []
-
-    def _capture_search(adapter, *args, **kwargs):
-        result = real_run_search(adapter, *args, **kwargs)
-        captured_results.append(result)
-        return result
-
-    def _controlled_policy_stage_b(
-        _ctx,
-        _state,
-        *,
-        candidate_payload,
-        context,
-    ):
-        captured_run_contexts.append(
-            (context.get("run_id"), context.get("workflow_run_id"), context.get("loop_id"))
-        )
-        transfer_record = context.get("candidate_only_transfer")
-        if transfer_record is not None:
-            assert transfer_record["generic_source_objectives_used"] is False
-            assert transfer_record["generic_source_scalar_used_as_policy_objective"] is False
-        current_candidate = PolicyCandidateSchema.model_validate(
-            _candidate_payload_without_hash(candidate_payload)
-        )
-        evaluation = ObjectiveStack().evaluate(PolicyEvaluationBundle(candidate=current_candidate))
-        evaluation = evaluation.model_copy(
-            update={
-                "candidate_id": current_candidate.candidate_id,
-                "metadata": {
-                    **dict(evaluation.metadata),
-                    "candidate_hash": current_candidate.candidate_hash(),
-                },
-            }
-        )
-        return {
-            "status": "ok",
-            "feasible": evaluation.feasible,
-            "objective_value": 654321.0,
-            "policy_evaluation": evaluation.model_dump(mode="json"),
-        }
-
-    with (
-        patch.object(HierarchicalPolicySearchAdapter, "run_search", new=_capture_search),
-        patch(
-            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
-            "_evaluate_candidate_payload",
-            side_effect=_controlled_policy_stage_b,
-        ),
-    ):
-        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, minimal_state)
-
-    assert outcome.status == "ok"
-    assert len(captured_results) == 1
-    assert captured_run_contexts
-    assert all(
-        run_context == (loop_id, minimal_state.run_id, loop_id)
-        for run_context in captured_run_contexts
-    )
-    parameter_results = captured_results[0].state.parameter_search_results
-    assert len(parameter_results) == 1
-    history = next(iter(parameter_results.values())).history
-    transferred = next(item for item in history if item.iteration < 0)
-    transferred_amount = _get_path(
-        transferred.candidate,
-        spec.parameter_paths[parameter_name],
-    )
-    assert isinstance(transferred_amount, MoneyValue)
-    assert transferred_amount.amount == Decimal(str(source_value))
-    assert transferred_amount.currency == "UAH"
-    parameter_codec = PolicyParameterCodec(
-        parameter_paths=spec.parameter_paths,
-        template_values=spec.template_values,
-    )
-    assert set(parameter_codec.encode(transferred.candidate)) == set(spec.parameter_paths)
-    assert parameter_codec.encode(transferred.candidate) == source_params
-    assert transferred.policy_evaluation is not None
-    assert transferred.objective_value == _diagnostic_policy_score(transferred.policy_evaluation)
-    assert transferred.objective_value not in {source_evaluation.scalar_score, 654321.0}
-    provenance = transferred.policy_evaluation.metadata["candidate_only_transfer"]
-    reconstructed_candidate = PolicyCandidateSchema.model_validate(
-        _candidate_payload_without_hash(transferred.candidate)
-    )
-    assert transferred.candidate["candidate_hash"] == provenance["candidate_hash"]
-    assert reconstructed_candidate.candidate_hash() == provenance["candidate_hash"]
-    assert provenance["source_history_ref"]["artifact_id"] == str(source_history_ref.artifact_id)
-    assert provenance["source_profile_kind"] == "injected_optimizer"
-    assert provenance["source_warm_start_eligible"] is False
-    assert provenance["generic_source_objectives_used"] is False
-    assert provenance["generic_source_scalar_used_as_policy_objective"] is False
-
-    def _marker_only_stage_b(_ctx, _state, *, candidate_payload, context):
-        transfer_record = context.get("candidate_only_transfer")
-        if transfer_record is not None:
-            assert transfer_record["source_profile_kind"] == "injected_optimizer"
-        assert candidate_payload["candidate_hash"]
-        return {"status": "ok", "objective_value": 654321.0}
-
-    with patch(
-        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
-        "_evaluate_candidate_payload",
-        side_effect=_marker_only_stage_b,
-    ):
-        removed_property = RunHierarchicalPolicySearchNode().execute(
-            execution_context,
-            minimal_state,
-        )
-
-    assert removed_property.status == "fail"
-    assert "no source candidate passed" in (
-        removed_property.error.message if removed_property.error else ""
-    )
+    with patch.object(
+        execution_context.store, "put_json", wraps=execution_context.store.put_json
+    ) as persist_history:
+        with pytest.raises(ValueError, match="explicitly supplied complete run fingerprint"):
+            transfer_manager.register_run(source_fingerprint, [source_evaluation])
+    persist_history.assert_not_called()
 
 
 def _candidate_transfer_intent_payload(*, index_kind: str) -> dict[str, object]:
@@ -936,7 +851,73 @@ def test_hierarchical_producer_scope_fields_reconcile_from_emitted_context() -> 
     assert resolved.task_family == emitted_scope["task_family"]
     assert resolved.domain == emitted_scope["domain"]
 
-    for field_name, conflicting_value in (("task_family", "discovery"), ("domain", "labor")):
+    for field_name, conflicting_value in (
+        ("task_family", "discovery"),
+        ("domain", "labor"),
+    ):
         conflicting = {**runtime_context, field_name: conflicting_value}
         with pytest.raises(TransferScopeRefusedError):
             resolve_transfer_context(context=conflicting)
+
+
+def test_hierarchical_candidate_ranking_omits_no_score_records_and_empty_fallback() -> None:
+    available = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="available_candidate"
+    )
+    unavailable = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="unavailable_candidate"
+    )
+    source = {"gdp_change": 0.0, "budget_deficit": 0.0}
+    assessment = _assess_default_search_objective(source).score_assessment
+    available_iteration = SimpleNamespace(
+        score_status=ObjectiveScoreStatus.AVAILABLE,
+        score_assessment=assessment,
+        objective_value=0.0,
+        candidate=available.model_dump(mode="json"),
+        stage_b_result={"simulation_results": source},
+        policy_evaluation=None,
+        is_promising=True,
+    )
+    unavailable_iteration = SimpleNamespace(
+        score_status=ObjectiveScoreStatus.UNAVAILABLE,
+        score_assessment=None,
+        objective_value=None,
+        candidate=unavailable.model_dump(mode="json"),
+        stage_b_result={"simulation_results": {"budget_deficit": 100.0}},
+        policy_evaluation=None,
+        is_promising=True,
+    )
+    accepted_unscored_structure = StructureCandidate(
+        structure_id="unscored-structure",
+        candidate=unavailable,
+        candidate_hash=unavailable.candidate_hash(),
+        policy_family="labor",
+        source="fixture",
+        accepted=True,
+    )
+    search_result = SimpleNamespace(
+        state=SimpleNamespace(
+            parameter_search_results={
+                "available": SimpleNamespace(history=[available_iteration]),
+                "unavailable": SimpleNamespace(history=[unavailable_iteration]),
+            },
+            structure_candidates=[accepted_unscored_structure],
+        )
+    )
+
+    records = _iter_candidate_records(search_result)
+
+    assert [record.candidate.candidate_id for record in records] == ["available_candidate"]
+    assert records[0].objective_value == 0.0
+    assert _select_champion_candidate(search_result).candidate_id == "available_candidate"
+
+    all_unavailable = SimpleNamespace(
+        state=SimpleNamespace(
+            parameter_search_results={
+                "unavailable": SimpleNamespace(history=[unavailable_iteration]),
+            },
+            structure_candidates=[accepted_unscored_structure],
+        )
+    )
+    assert _iter_candidate_records(all_unavailable) == []
+    assert _select_champion_candidate(all_unavailable) is None

@@ -75,6 +75,10 @@ from polisyos.scientist.methods.autotune.runtime import (
     _verify_search_source_profile_receipt,
 )
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+from polisyos.scientist.methods.search.objective import (
+    OptimizationDirection,
+    _configured_search_metric_rule_spec,
+)
 from polisyos.scientist.methods.search.strategies.transfer import (
     RunFingerprint,
     TransferLearningManager,
@@ -112,6 +116,22 @@ class _V5ScoreMethod:
     @staticmethod
     def pure_step(state: Any, params: dict[str, Any]) -> dict[str, float]:
         return {"score": float(state["value"]) + float(params.get("offset", 0.0))}
+
+
+class _V5DeclaredUnitScoreMethod(_V5ScoreMethod):
+    """Controlled method whose reported unit can be checked against run config."""
+
+    signature: ClassVar[MethodSignature] = replace(
+        _V5ScoreMethod.signature,
+        name="v5_declared_unit_score",
+    )
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "score": float(state["value"]) + float(params.get("offset", 0.0)),
+            "metric_units": {"score": "USD per resident"},
+        }
 
 
 class _V5MechanicalAdmissionScoreMethod(_V5ScoreMethod):
@@ -194,10 +214,11 @@ def _reset_method_registry():
     MethodRegistry.reset_instance()
 
 
-def _policy(*, metric: str = "score") -> PromotionPolicy:
+def _policy(*, metric: str = "score", unit: str | None = None) -> PromotionPolicy:
     return PromotionPolicy(
         loop_id="v5_search",
         primary_metric=metric,
+        unit=unit,
         direction=MetricDirection.MAXIMIZE,
         compare_split=BenchmarkSplit.SELECTION,
         min_sample_count=1,
@@ -1397,7 +1418,10 @@ def test_search_runner_preserves_bayesian_payload_and_fresh_reads_job_chain(tmp_
         units={},
         origin="v5-methodjob-test",
         tenant_id=None,
-        objective_directions={"score": "minimize"},
+        objective_directions={"score": OptimizationDirection.MINIMIZE.value},
+        objective_rule_specs={
+            "score": _configured_search_metric_rule_spec("score", "maximize") or ""
+        },
         embedding=[1.0],
         num_evaluations=1,
     )
@@ -1873,7 +1897,13 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
         units={},
         origin="v5-native-methodjob-test",
         tenant_id=None,
-        objective_directions={policy.primary_metric: policy.direction.value},
+        objective_directions={policy.primary_metric: OptimizationDirection.MINIMIZE.value},
+        objective_rule_specs={
+            policy.primary_metric: _configured_search_metric_rule_spec(
+                policy.primary_metric, generator._direction.value
+            )
+            or ""
+        },
         embedding=[1.0],
         num_evaluations=len(source_evaluations),
     )
@@ -2102,6 +2132,58 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
     assert changed_context_generator._warm_start_rejections == [
         {"reason": "source profile receipt or CAS chain invalid"}
     ]
+
+
+def test_reported_method_unit_must_match_selected_run_unit(tmp_path) -> None:
+    MethodRegistry.get_instance().register(_V5DeclaredUnitScoreMethod, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="v5_unit_suite", kind="method_job"),
+    )
+    generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        n_initial=2,
+        seed=20261020,
+        primary_metric="score",
+        direction=MetricDirection.MAXIMIZE,
+    )
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=generator,
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5DeclaredUnitScoreMethod.signature.fqn,
+            candidate_input_bindings={"value": "value"},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(metric="score", unit="EUR per resident"),
+    )
+
+    result = SearchLoopRunner(store=store).run(
+        spec,
+        suite_ref=suite_ref,
+        initial_candidate={"loop_id": "v5_search", "value": 0.4},
+        max_iterations=1,
+    )
+
+    stage_b = result.history[0].stage_b_result
+    assert stage_b is not None
+    evaluation = load_model_artifact(
+        FileSystemCAS(tmp_path / "cas"),
+        _selected_evaluation_ref(stage_b),
+        BenchmarkEvaluation,
+    )
+    assert evaluation.status == "metric_unavailable"
+    assert evaluation.selection_metrics == {}
+    assert evaluation.promotable is False
+    assert evaluation.metadata["metric_unit"] == "USD per resident"
+    request_basis = evaluation.metadata["method_request_basis"]
+    run_profile = request_basis["search_method_run_profile"]
+    assert run_profile["unit"] == "EUR per resident"
+    assert run_profile["objective_fingerprint"] == generator._objective_profile_fingerprint(
+        unit="EUR per resident"
+    )
 
 
 def test_missing_primary_metric_is_not_promoted_as_zero(tmp_path) -> None:

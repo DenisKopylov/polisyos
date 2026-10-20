@@ -17,6 +17,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
+from polisyos.scientist.methods.search.contracts import EvaluationBundle
 from polisyos.scientist.methods.search.controller import (
     SearchBudgetProducerUnsupportedError,
     SearchConfig,
@@ -30,6 +31,7 @@ from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     GDPGrowthObjective,
     ObjectivePresets,
+    ObjectiveScoreStatus,
     ObjectiveValue,
     OptimizationDirection,
 )
@@ -1879,7 +1881,8 @@ class TestOptimizationFlow:
         result = controller.run({"user_request": "malformed typed"})
 
         assert result.best_candidate is None
-        assert result.history[0].objective_value == float("inf")
+        assert result.history[0].objective_value is None
+        assert result.history[0].score_status is ObjectiveScoreStatus.INVALID
         assert result.history[0].policy_evaluation is None
         assert result.history[0].policy_evaluation_status == "invalid"
         assert result.history[0].policy_evaluation_error == "policy_evaluation_parse_failed"
@@ -2284,6 +2287,53 @@ class TestTwoStageFiltering:
         assert stage_b_count[0] == 3
         assert result.stage_b_evaluations == 3
 
+    def test_typed_stage_a_limitation_continues_to_stage_b_without_approval(
+        self, mock_candidate_generator
+    ):
+        selected = GDPGrowthObjective(expected_unit="fixture-unit")
+        missing = selected.evaluate({"gdp_change": 0.0, "metric_units": {}})
+        stage_b_calls: list[dict[str, Any]] = []
+
+        def stage_a_evaluator(candidate, context):
+            del candidate, context
+            return EvaluationBundle(
+                objective_value=None,
+                is_promising=False,
+                score_status=ObjectiveScoreStatus.UNAVAILABLE,
+                score_assessment=missing.score_assessment,
+                stage_a_passed=True,
+                metadata={"candidate_continuation": True},
+            )
+
+        def stage_b_evaluator(candidate, context):
+            del candidate, context
+            stage_b_calls.append({"called": True})
+            return {
+                "simulation_results": {"gdp_change": 0.0, "metric_units": {}},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=selected,
+                enable_stage_a=True,
+            ),
+            candidate_generator=mock_candidate_generator,
+            stage_a_evaluator=stage_a_evaluator,
+            stage_b_evaluator=stage_b_evaluator,
+        )
+
+        result = controller.run({"user_request": "score-limited candidate"})
+
+        assert len(stage_b_calls) == 1
+        assert result.stage_b_evaluations == 1
+        record = result.history[0]
+        assert record.stage_a_passed is True
+        assert record.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert record.objective_value is None
+        assert record.is_promising is False
+
     def test_cheap_stage_rejects_invalid_params(self):
         """CheapStage should reject policies with invalid parameters."""
         stage = CheapStage(threshold=0.5)
@@ -2443,19 +2493,19 @@ class TestObjectives:
 
 
 @pytest.mark.parametrize(
-    ("simulation_results", "expected_score", "limited"),
+    ("simulation_results", "expected_score", "expected_status"),
     [
-        pytest.param({"gdp_change": 0.05}, -0.05, True, id="marker-absent"),
+        pytest.param({"gdp_change": 0.05}, None, "unavailable", id="marker-absent"),
         pytest.param(
             {"gdp_change": 0.05, "budget_deficit_objective_usable": True},
-            -0.05,
-            True,
-            id="stale-available-marker",
+            None,
+            "invalid",
+            id="incomplete-available-marker",
         ),
         pytest.param(
             {"gdp_change": 0.05, "budget_deficit": 0.02},
             -0.04,
-            False,
+            "available",
             id="valid-alias-marker-absent",
         ),
         pytest.param(
@@ -2463,26 +2513,38 @@ class TestObjectives:
                 "gdp_change": 0.05,
                 "budget_deficit": 0.02,
                 "budget_deficit_objective_usable": False,
+                "budget_deficit_objective_value": None,
+            },
+            None,
+            "invalid",
+            id="conflicting-unavailable-marker",
+        ),
+        pytest.param(
+            {
+                "gdp_change": 0.05,
+                "budget_deficit": 0.02,
+                "budget_deficit_objective_usable": True,
+                "budget_deficit_objective_value": 0.02,
             },
             -0.04,
-            False,
-            id="stale-unavailable-marker",
+            "available",
+            id="producer-paired-marker",
         ),
     ],
 )
 def test_expensive_stage_derives_fiscal_limitation_from_embedded_results(
-    simulation_results: dict[str, Any], expected_score: float, limited: bool
+    simulation_results: dict[str, Any],
+    expected_score: float | None,
+    expected_status: str,
 ) -> None:
-    """The cold-start embedded producer cannot suppress source-derived limitation."""
+    """The embedded producer must preserve fiscal availability and its source marker."""
     from polisyos.scientist.methods.search.cold_start import (
         _EmbeddedResultsWorkflowEngine,
     )
 
     feedback: dict[str, Any] = {"verdict": "APPROVE"}
-    if not limited:
-        feedback["objective_limitations"] = [
-            "budget_deficit_unavailable_required_float_legacy_zero"
-        ]
+    if expected_status == "available":
+        feedback["objective_limitations"] = ["search_objective_fiscal_measurement_unavailable"]
     candidate = {
         "expected_stage4": {
             "simulation_results": simulation_results,
@@ -2491,11 +2553,17 @@ def test_expensive_stage_derives_fiscal_limitation_from_embedded_results(
     }
     result = ExpensiveStage(_EmbeddedResultsWorkflowEngine()).evaluate(candidate, {})
 
-    assert result.objective_value == pytest.approx(expected_score)
-    assert (
-        "budget_deficit_unavailable_required_float_legacy_zero"
-        in result.feedback.get("objective_limitations", [])
-    ) is limited
+    assert result.score_status.value == expected_status
+    if expected_score is None:
+        assert result.objective_value is None
+    else:
+        assert result.objective_value == pytest.approx(expected_score)
+    if expected_status == "available":
+        assert "objective_limitations" not in result.feedback
+    else:
+        assert result.feedback["objective_limitations"] == [
+            f"search_objective_fiscal_measurement_{expected_status}"
+        ]
 
 
 # ─────────────────────────────────────────────────────────────────────────────

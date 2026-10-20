@@ -22,7 +22,13 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.agent import vector_memory as vector_memory_module
 from polisyos.scientist.agent.vector_memory import VectorMemoryStore
-from polisyos.scientist.methods.search.objective import OptimizationDirection
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
+    ObjectiveValue,
+    OptimizationDirection,
+    _assess_search_metric,
+    _configured_search_metric_rule_spec,
+)
 from polisyos.scientist.methods.search.strategies.transfer import (
     RunFingerprint,
     TransferLearningManager,
@@ -39,21 +45,35 @@ def _artifact_ref(seed: str) -> ArtifactRef:
 
 
 def _stored_eval(candidate_id: str, score: float, run_id: str) -> dict[str, Any]:
+    source = {"metrics": {"score": score}}
+    assessment = _assess_search_metric(source, "score", OptimizationDirection.MINIMIZE.value)
+    objective = ObjectiveValue(
+        name="score",
+        raw_value=score,
+        direction=OptimizationDirection.MINIMIZE,
+        score_status=ObjectiveScoreStatus.AVAILABLE,
+        score_assessment=assessment,
+    )
     return {
+        "history_schema_version": "4",
         "candidate_id": candidate_id,
         "params": {"x": 0.5, "nested": {"labels": ["original"]}},
         "params_normalized": [0.5],
         "scalar_score": score,
         "stage_a_passed": True,
-        "stage_b_result": {"metrics": {"coverage": [1, 2]}},
+        "stage_b_result": source,
         "status": "success",
         "objectives": [
             {
-                "name": "score",
-                "raw_value": score,
-                "direction": OptimizationDirection.MINIMIZE.value,
+                "name": objective.name,
+                "raw_value": objective.raw_value,
+                "direction": objective.direction.value,
+                "score_status": objective.score_status.value,
+                "score_assessment": assessment.to_payload(),
             }
         ],
+        "score_status": assessment.status.value,
+        "score_assessment": assessment.to_payload(),
         "provenance_ref": str(_artifact_ref("e").artifact_id),
         "metadata": {
             "source_run_id": run_id,
@@ -77,6 +97,8 @@ def _history_document(
         "origin": fingerprint.origin,
         "tenant_id": fingerprint.tenant_id,
         "objective_directions": fingerprint.objective_directions,
+        "objective_rule_specs": fingerprint.objective_rule_specs,
+        "history_schema_version": "4",
         "evaluations": [_stored_eval(candidate_id, score, run_id) for candidate_id, score in rows],
     }
 
@@ -92,6 +114,9 @@ def _fingerprint(run_id: str, *, embedding: list[float] | None = None) -> RunFin
         origin="simulator-v1",
         tenant_id="tenant-a",
         objective_directions={"score": OptimizationDirection.MINIMIZE.value},
+        objective_rule_specs={
+            "score": _configured_search_metric_rule_spec("score", "minimize") or ""
+        },
         embedding=embedding or [0.1, 0.2],
     )
 

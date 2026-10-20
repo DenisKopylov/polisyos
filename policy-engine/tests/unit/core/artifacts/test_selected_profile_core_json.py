@@ -1281,6 +1281,7 @@ def test_data_snapshot_schema_030_requires_owner_lineage(tmp_path) -> None:
     from polisyos.core.contracts.fabric import (
         DataSnapshot,
         DataSnapshotOwnerBound,
+        DataViewRequestRef,
         FabricBridgeDataSnapshotLineage,
     )
 
@@ -1305,6 +1306,7 @@ def test_data_snapshot_schema_030_requires_owner_lineage(tmp_path) -> None:
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
+    request_ref = DataViewRequestRef.model_validate(request_ref.model_dump(mode="python"))
     schema = SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0")
     complete_ref = store.put_json(
         DataSnapshotOwnerBound(

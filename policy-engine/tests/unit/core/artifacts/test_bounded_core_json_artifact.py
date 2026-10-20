@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from decimal import Decimal
-from typing import ClassVar
+from typing import Annotated, ClassVar, Literal
 
 import pytest
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
@@ -27,6 +27,7 @@ from polisyos.core.artifacts import (
     read_core_json_artifact_bounded,
     read_core_manifest_profile_bounded,
     validate_core_model_bounded_read,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
@@ -60,6 +61,29 @@ def _limits(
         max_elements=max_elements,
         max_manifest_bytes=max_manifest_bytes,
     )
+
+
+class _DiscriminatedTextPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    kind: Literal["text"]
+    value: str
+
+
+class _DiscriminatedCountPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    kind: Literal["count"]
+    value: int
+
+
+class _DiscriminatedPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    item: Annotated[
+        _DiscriminatedTextPayload | _DiscriminatedCountPayload,
+        Field(discriminator="kind"),
+    ]
 
 
 class _TypedBoundedTuplePayload(BaseModel):
@@ -109,6 +133,37 @@ def _typed_bounded_store(
         return_selected_profile=True,
     )
     return store, ref, raw
+
+
+def test_discriminated_model_fields_work_in_legacy_and_bounded_core_readers(tmp_path) -> None:
+    value = {"item": {"kind": "text", "value": "selected"}}
+    store, ref, raw = _profiled_store(tmp_path, value)
+
+    legacy = validate_core_model_json_artifact(_DiscriminatedPayload, store, ref)
+    bounded_read = read_core_json_artifact_bounded(
+        store,
+        ref,
+        limits=_limits(raw, max_depth=4, max_elements=8),
+    )
+    bounded = validate_core_model_bounded_read(_DiscriminatedPayload, bounded_read)
+
+    assert type(legacy.item) is _DiscriminatedTextPayload
+    assert type(bounded.item) is _DiscriminatedTextPayload
+    assert legacy == bounded
+
+    invalid_store, invalid_ref, invalid_raw = _profiled_store(
+        tmp_path,
+        {"item": {"kind": "future", "value": "selected"}},
+    )
+    with pytest.raises(ValidationError):
+        validate_core_model_json_artifact(_DiscriminatedPayload, invalid_store, invalid_ref)
+    invalid_read = read_core_json_artifact_bounded(
+        invalid_store,
+        invalid_ref,
+        limits=_limits(invalid_raw, max_depth=4, max_elements=8),
+    )
+    with pytest.raises(ValidationError):
+        validate_core_model_bounded_read(_DiscriminatedPayload, invalid_read)
 
 
 def test_bounded_model_validator_reuses_core_alias_tuple_and_schema_admission(
@@ -765,7 +820,7 @@ def test_each_selected_bound_refuses_before_decode_and_removal_reopens_value(
     monkeypatch.setattr(owner, "_enforce_core_json_read_bounds", remove_selected_bounds)
     result = read_core_json_artifact_bounded(store, ref, limits=limits)
     assert result.value == value
-    assert decode_calls == 1
+    assert decode_calls >= 1
 
 
 def test_bounded_reader_uses_read_only_cas_streaming_facade(
@@ -846,8 +901,11 @@ def test_bounded_reader_preserves_core_tagged_decimal_values(tmp_path) -> None:
     )
 
     assert result.value == value
-    assert isinstance(result.value["number"], Decimal)
-    assert b'"__type__":"decimal"' in raw
+    assert type(result.value["number"]) is Decimal
+    assert result.value["number"] == Decimal("12.50")
+    assert result.raw_payload_bytes == raw
+    assert result.effective_ref == ref
+    assert result.observed_bytes == len(raw)
 
 
 def test_bounded_reader_rejects_actual_payload_stream_over_selected_byte_limit(

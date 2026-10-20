@@ -7,7 +7,8 @@ import json
 import re
 import types
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from decimal import Decimal
 from enum import Enum
 from typing import Annotated, Any, Literal, TypeVar, Union, get_args, get_origin
@@ -103,11 +104,13 @@ class CoreJsonReadBoundsRefusalError(CanonicalProfileRefusalError):
 class CoreJsonManifestBoundedRead:
     """Immutable-byte carrier for one exact bounded manifest/profile selection."""
 
-    _selected_ref: ArtifactRef | InputRef = field(repr=False)
+    _selected_ref: ArtifactRef | InputRef = dataclass_field(repr=False)
     raw_manifest_bytes: bytes
     max_manifest_bytes: int
     observed_manifest_bytes: int
-    _seal: _CoreJsonManifestBoundedReadSeal | None = field(default=None, repr=False, compare=False)
+    _seal: _CoreJsonManifestBoundedReadSeal | None = dataclass_field(
+        default=None, repr=False, compare=False
+    )
 
     @property
     def effective_ref(self) -> ArtifactRef:
@@ -169,7 +172,9 @@ class CoreJsonArtifactBoundedRead:
     observed_bytes: int
     observed_depth: int
     observed_elements: int
-    _seal: _CoreJsonArtifactBoundedReadSeal | None = field(default=None, repr=False, compare=False)
+    _seal: _CoreJsonArtifactBoundedReadSeal | None = dataclass_field(
+        default=None, repr=False, compare=False
+    )
 
     @property
     def profile_read(self) -> CanonicalProfileRead:
@@ -1461,7 +1466,7 @@ def _core_model_payload(model: type[_ModelT], value: Any) -> Any:
             model_field.annotation,
             value[source_key],
             model.model_config,
-            discriminator=field.discriminator,
+            discriminator=model_field.discriminator,
         )
         if source_key != name:
             normalized.pop(source_key, None)

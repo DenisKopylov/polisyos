@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
@@ -184,6 +185,93 @@ def test_dfk_01_mechanisms_tombstone_is_not_importable() -> None:
     """The confirmed empty mechanisms tombstone remains an absence contract."""
     with pytest.raises(ModuleNotFoundError):
         importlib.import_module("polisyos.foundry.domain.mechanisms")
+
+
+def test_dfk_01_simulator_registry_matches_independent_fixture_and_runs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The canonical simulator runner consumes the independent mechanism registry."""
+    import jax
+    import jax.numpy as jnp
+    import numpy as np
+
+    from polisyos.foundry.plugins.composite import (
+        CompositeExecutor,
+        CompositeState,
+        CompositeStateConfig,
+    )
+    from polisyos.foundry.plugins.core import DomainConfig, MechanismProtocol, PluginRegistry
+    from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
+
+    # Isolate the singleton registry while keeping the real plugin and executor.
+    monkeypatch.setattr(PluginRegistry, "_instance", None)
+    registry = PluginRegistry()
+    plugin = EconomicsPlugin()
+    registry.register(plugin)
+
+    expected_ids = frozenset({"consumption", "labor_market", "savings", "taxation", "transfers"})
+    expected_mechanism_fqns = frozenset(
+        {
+            "polisyos.foundry.plugins.economics.mechanisms.ConsumptionMechanism",
+            "polisyos.foundry.plugins.economics.mechanisms.LaborMarketMechanism",
+            "polisyos.foundry.plugins.economics.mechanisms.SavingsMechanism",
+            "polisyos.foundry.plugins.economics.mechanisms.TaxationMechanism",
+            "polisyos.foundry.plugins.economics.mechanisms.TransferMechanism",
+        }
+    )
+    resolved_by_runner: list[tuple[tuple[str, ...], tuple[str, ...]]] = []
+    get_mechanisms = plugin.get_mechanisms
+
+    def record_runner_resolution() -> Sequence[MechanismProtocol[EconomicState]]:
+        mechanisms = get_mechanisms()
+        resolved_by_runner.append(
+            (
+                tuple(mechanism.name for mechanism in mechanisms),
+                tuple(
+                    f"{type(mechanism).__module__}.{type(mechanism).__qualname__}"
+                    for mechanism in mechanisms
+                ),
+            )
+        )
+        return mechanisms
+
+    # Observe the real plugin result at the executor boundary and return it unchanged.
+    monkeypatch.setattr(plugin, "get_mechanisms", record_runner_resolution)
+    config = CompositeStateConfig(
+        domains={
+            "economics": DomainConfig(
+                n_agents=10,
+                max_agents=10,
+                time_horizon=2,
+                enabled_mechanisms=("taxation",),
+            ),
+        },
+        global_seed=31,
+    )
+    state = CompositeState.create(config, registry)
+    economics = state.get_domain("economics")
+    controlled_agents = economics.agents.replace(
+        active=jnp.ones(10, dtype=jnp.bool_),
+        income=jnp.full(10, 100.0, dtype=jnp.float32),
+        wealth=jnp.full(10, 1000.0, dtype=jnp.float32),
+    )
+    controlled_economics = economics.replace(
+        agents=controlled_agents,
+        policy=economics.policy.replace(tax_rate=jnp.asarray(0.25, dtype=jnp.float32)),
+    )
+    state = state.update_domain("economics", controlled_economics)
+    result = CompositeExecutor(["economics"], registry).step(state, jax.random.PRNGKey(7))
+
+    assert len(resolved_by_runner) == 1
+    actual_ids, actual_mechanism_fqns = resolved_by_runner[0]
+    assert len(actual_ids) == len(set(actual_ids))
+    assert set(actual_ids) == expected_ids
+    assert set(actual_mechanism_fqns) == expected_mechanism_fqns
+    assert type(result) is CompositeState
+    assert int(result.time_step) == 1
+    actual_wealth = np.asarray(result.get_domain("economics").agents.wealth)
+    expected_wealth = np.full(10, 990.0, dtype=np.float32)
+    np.testing.assert_array_equal(actual_wealth, expected_wealth)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -1235,6 +1323,60 @@ def test_dfk_01_cli_json_escapes_surrogate_filename_without_changing_value(
     output = capsys.readouterr().out
     assert output.isascii()
     assert json.loads(output)["selection"]["selected_paths"] == [path]
+
+
+@pytest.mark.skipif(
+    sys.platform != "linux",
+    reason="requires a native Linux filename containing a non-UTF-8 byte",
+)
+def test_dfk_01_census_reads_native_invalid_byte_git_filename(tmp_path: Path) -> None:
+    """Real Git and CLI paths preserve a filesystem name containing byte 0xff."""
+    _init_census_repository(tmp_path, {"README.md": "tracked fixture\n"})
+
+    raw_name = b"native_\xff.json"
+    raw_path = os.fsencode(tmp_path) + b"/" + raw_name
+    descriptor = os.open(
+        raw_path,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+        0o600,
+    )
+    payload = b'{"module":"polisyos.foundry.domain.mechanisms"}\n'
+    try:
+        assert os.write(descriptor, payload) == len(payload)
+    finally:
+        os.close(descriptor)
+
+    decoded_name = os.fsdecode(raw_name)
+    assert os.fsencode(decoded_name) == raw_name
+    git_untracked = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z"],
+        cwd=tmp_path,
+        capture_output=True,
+        check=True,
+    ).stdout
+    assert git_untracked == raw_name + b"\0"
+    git_status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+        cwd=tmp_path,
+        capture_output=True,
+        check=True,
+    ).stdout
+    assert git_status == b"?? " + raw_name + b"\0"
+
+    completed, receipt = _run_census(tmp_path, output_format="json")
+
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stdout.isascii()
+    assert receipt["selection"]["untracked_paths"] == [decoded_name]
+    assert receipt["selection"]["selected_paths"] == ["README.md", decoded_name]
+    assert receipt["scanned_denominator"]["read_paths"] == ["README.md", decoded_name]
+    assert receipt["scanned_denominator"]["successful_byte_reads"] == 2
+    assert receipt["read_receipt"]["complete_verdict"] is True
+    assert receipt["unreadable_paths"] == []
+    assert any(
+        hit["path"] == decoded_name and hit["target"] == "polisyos.foundry.domain.mechanisms"
+        for hit in receipt["matches"]
+    )
 
 
 def test_dfk_01_census_decodes_valid_junit_and_manifested_source_snapshot(

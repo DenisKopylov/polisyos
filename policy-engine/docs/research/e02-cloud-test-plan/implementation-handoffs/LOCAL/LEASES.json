@@ -30476,5 +30476,145 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "i2-la006-r2-positive-linux-byte-witness-20261020-r1": {
+    "slice_base": "c70186b41bf06d5f8f2ff17a5a6065f13291d2de",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_dfk_01.py": {
+        "operation": "write",
+        "preimage_sha256": "5214f47cb57b3c1a8e6ab20966897baeb10af6b31ce53a5b22af1ee500093f12",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/postimages/policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "postimage_sha256": "7dbe0afc7a53521c7919376c80820b2677e1f9aad70d1c42e2ddd4228b0b5031"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/source-application.json",
+      "sha256": "3695dcd84e416c4de189efd8f7e696aee3bc40ca06cfa622b6ade4c2e01f553e"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/manifest.json",
+        "sha256": "fcaf854ca707583a34eb2be3ac22af331c6cecb3dcbe911c405ab2102ba4d494"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/test_dfk_01.patch",
+        "sha256": "a6a8e57c1ca535089857a8161b75767f61561d66cbae5788ce5eca820f05c207"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/postimages/policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "sha256": "7dbe0afc7a53521c7919376c80820b2677e1f9aad70d1c42e2ddd4228b0b5031"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/current-source-frame.json",
+        "sha256": "9aa178897cec6c077361b11c919299580b9964c1068146a6423c6ae922942521"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/linux-test-ast-comparison.json",
+        "sha256": "e8ec5237f77fd14315a98f8450d5cf62b07bfa881be1b25c968338c206c6472d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/mutant-effect-failure.txt",
+        "sha256": "61a3e03b304ec6759bd4db146c842315858df090a88d3ba90ef4e69f7e1ae4d5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/mutant-run-r3/mutant.stdout.txt",
+        "sha256": "43320ff4b79ea3894d108145d2d01a1409e5600f9c3e30bef26daff9cc27a2e7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/mutant-run-r3/mutant.junit.xml",
+        "sha256": "5452c18953c42d7512f771397d98407e8674cdddfba9d47e51858da8dc62cb7a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/positive-run-r3/positive.stdout.txt",
+        "sha256": "83233045b29d7e361ffc4826f9d8bccce43519f1b85f8d1deec84241634c1b2a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/positive-run-r3/positive.junit.xml",
+        "sha256": "b47a0f6251d73d98a397f84e26d912292642494d416ee4eede88f74e295d38b3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-positive-linux-invalid-byte-author-20261020-r2/positive-run-r3/positive.supervisor.json",
+        "sha256": "388b81863200a7d890ae839773d9ea5c0efea55a7e95514621eabb22c1851150"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/manifest-v1.json",
+        "sha256": "750380eb767fa4e9e9a60f9ea8b0f9e6d5459107102312dc41a775b2915162b9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/review-v1.md",
+        "sha256": "491072d1a5445d7935988e6531a4805277b73e604fb6c38cbc3bc04fd883c84f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-i2-la006-r2-adoption-20261020-r1/plan.json",
+        "sha256": "a3bd83cdefa98c14283ebdcb7d33fa05a734ff3a5021e2efb1eeb31cec0a9893"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same registry-observation class as R1. R1 ID/FQN checks plus a time marker remained green with the mechanism loop removed; R2 adds an actual controlled domain-state effect oracle. Its marker-preserving mutant is rejected by the expected wealth mismatch (1000 actual versus 990 expected). This is bounded to the named DFK-01 test property.",
+    "bounded_proof": "Independent source-only review is GO_bounded_R2_test_candidate. Exact candidate pins match; focused candidate positive passed; removing the mechanism loop while retaining registry/time markers fails the domain-state assertion; candidate Ruff checks and patch checks are recorded by the R2 manifest. Native Linux remains UNRUN.",
+    "limitations": [
+      "Exactly one mechanism source/test row is proposed. The R7 applier creates mandatory LEASES.json and delivery-index companions; those two record paths are outside the mechanism-row count.",
+      "The original two captured owned tests remain byte-identical and disjoint from the selected test path.",
+      "Native Linux invalid-byte behavior is UNRUN; a Darwin skip is not a Linux receipt. The Darwin full-module run is also pending.",
+      "This bounded DFK-01 verification proposal makes no claim of LA-006 full-property closure, source freeze, inherited status, or formal closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Root applies the one-row plan using the pinned R7/R4 path and reads back the commit. After the existing thinFF worker final source frame is read back, root rebinds the plan base/tree and all source pins, then launches the native Linux byte selector and the complete Darwin module. If the target or any dependent simulator source changes, refresh independent review first.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

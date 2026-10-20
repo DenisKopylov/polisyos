@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib
 import importlib.util
 import os
@@ -57,6 +58,8 @@ def _candidate_ledger() -> object:
             sys.modules.pop(name, None)
         else:
             sys.modules[name] = previous
+    if Path(module.__file__).resolve() != source.resolve():
+        raise AssertionError("candidate confidence ledger import used an unexpected source file")
     return module
 
 
@@ -739,3 +742,674 @@ print(
     assert payload["bare_provider"] is None
     failure = payload["authority_failure"]
     assert failure is None or failure[0] == "canonical_loaded_runtime_mismatch"
+
+
+def _write_finite_child_getter(
+    repo_root: Path,
+    *,
+    collection_name: str,
+    collection_source: str,
+    import_target: str = 'f"{__name__}.{name}"',
+    prelude: str = "",
+    function_prelude: str = "",
+) -> None:
+    package = repo_root / "src/polisyos/facade"
+    package.mkdir(parents=True)
+    (repo_root / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text(
+        "from importlib import import_module\n"
+        f"{prelude}"
+        f"{collection_name} = {collection_source}\n"
+        "def __getattr__(name):\n"
+        f"{function_prelude}"
+        f"    if name not in {collection_name}:\n"
+        "        raise AttributeError(name)\n"
+        f"    module = import_module({import_target})\n"
+        "    globals()[name] = module\n"
+        "    return module\n",
+        encoding="utf-8",
+    )
+    (package / "child.py").write_text("VALUE = 'finite-child'\n", encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("import_target", "expected_module"),
+    [
+        pytest.param(
+            '"polisyos.facade.child"',
+            "polisyos.facade.child",
+            id="direct-absolute-literal",
+        ),
+        pytest.param(
+            '".child", __name__',
+            "polisyos.facade.child",
+            id="direct-relative-literal-explicit-package",
+        ),
+    ],
+)
+def test_direct_literal_import_module_routes_are_bound_as_modules(
+    tmp_path: Path,
+    import_target: str,
+    expected_module: str,
+) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "direct-literal-import-route"
+    _write_finite_child_getter(
+        repo_root,
+        collection_name="__all__",
+        collection_source='["child"]',
+        import_target=import_target,
+    )
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+
+    provider = ledger._literal_module_getattr_provider(
+        repo_root,
+        "polisyos.facade",
+        "child",
+        directory_entries={},
+        source_index=source_index,
+    )
+    route = ledger._source_module_import_route(
+        repo_root,
+        "polisyos.facade",
+        "child",
+        directory_entries={},
+        source_index=source_index,
+    )
+
+    assert provider == expected_module
+    # child.py deliberately exports VALUE only; this must be a module route,
+    # not a symbol route that assumes child.child exists.
+    assert route == ("module", expected_module, None)
+
+
+@pytest.mark.parametrize(
+    ("import_target", "prelude", "function_prelude", "case_id"),
+    [
+        pytest.param(
+            '".child"',
+            "",
+            "",
+            "relative-package-argument-missing",
+        ),
+        pytest.param(
+            '".child", "polisyos.other"',
+            "",
+            "",
+            "relative-foreign-package-argument",
+        ),
+        pytest.param(
+            '".child", "polisyos.facade"',
+            "",
+            "",
+            "relative-literal-package-argument-is-not-name-binding",
+        ),
+        pytest.param(
+            '".child", __name__',
+            "",
+            '    __name__ = "polisyos.other"\n',
+            "relative-function-local-name-shadow",
+        ),
+        pytest.param(
+            '".child", __name__',
+            '__name__ = "polisyos.other"\n',
+            "",
+            "relative-module-name-shadow",
+        ),
+    ],
+)
+def test_direct_relative_import_module_requires_canonical_package_binding(
+    tmp_path: Path,
+    import_target: str,
+    prelude: str,
+    function_prelude: str,
+    case_id: str,
+) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / case_id
+    _write_finite_child_getter(
+        repo_root,
+        collection_name="__all__",
+        collection_source='["child"]',
+        import_target=import_target,
+        prelude=prelude,
+        function_prelude=function_prelude,
+    )
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+@pytest.mark.parametrize(
+    ("collection_name", "collection_source"),
+    [
+        pytest.param("__all__", '["child"]', id="literal-list"),
+        pytest.param("_SUBPACKAGES", '("child",)', id="literal-tuple"),
+        pytest.param("_SUBPACKAGES", 'frozenset({"child"})', id="literal-frozenset"),
+    ],
+)
+def test_finite_membership_getter_routes_exact_package_child(
+    tmp_path: Path,
+    collection_name: str,
+    collection_source: str,
+) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / f"finite-child-{collection_name}"
+    _write_finite_child_getter(
+        repo_root,
+        collection_name=collection_name,
+        collection_source=collection_source,
+    )
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+
+    provider = ledger._literal_module_getattr_provider(
+        repo_root,
+        "polisyos.facade",
+        "child",
+        directory_entries={},
+        source_index=source_index,
+    )
+    route = ledger._source_module_import_route(
+        repo_root,
+        "polisyos.facade",
+        "child",
+        directory_entries={},
+        source_index=source_index,
+    )
+
+    assert provider == "polisyos.facade.child"
+    assert route == ("module", "polisyos.facade.child", None)
+
+
+def test_canonical_common_and_core_finite_child_routes_are_source_owned() -> None:
+    ledger = _candidate_ledger()
+    repo_root = _workspace_product_root()
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    cases = (
+        ("polisyos.common", "serialization", "polisyos.common.serialization"),
+        ("polisyos.core", "components", "polisyos.core.components"),
+    )
+
+    for package, export_name, child_module in cases:
+        provider = ledger._literal_module_getattr_provider(
+            repo_root,
+            package,
+            export_name,
+            directory_entries={},
+            source_index=source_index,
+        )
+        route = ledger._source_module_import_route(
+            repo_root,
+            package,
+            export_name,
+            directory_entries={},
+            source_index=source_index,
+        )
+        assert provider == child_module
+        assert route == ("module", child_module, None)
+
+
+def test_read_only_sorted_dir_use_keeps_finite_all_collection(tmp_path: Path) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "read-only-all-consumer"
+    _write_finite_child_getter(
+        repo_root,
+        collection_name="__all__",
+        collection_source='["child"]',
+        prelude=("def __dir__():\n    return sorted(list(globals().keys()) + __all__)\n"),
+    )
+
+    assert (
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+        == "polisyos.facade.child"
+    )
+
+
+@pytest.mark.parametrize(
+    ("collection_name", "collection_source", "import_target", "prelude"),
+    [
+        pytest.param(
+            "__all__",
+            "build_exports()",
+            'f"{__name__}.{name}"',
+            "def build_exports():\n    return ['child']\n",
+            id="dynamic-table",
+        ),
+        pytest.param(
+            "__all__",
+            '["child"]',
+            'f"polisyos.other.{name}"',
+            "",
+            id="wrong-package-prefix",
+        ),
+        pytest.param(
+            "__all__",
+            '["child"]',
+            'f"{__name__}.{name}"',
+            '__name__ = "polisyos.other"\n',
+            id="rebound-package-name",
+        ),
+    ],
+)
+def test_finite_child_getter_rejects_dynamic_or_mismatched_route(
+    tmp_path: Path,
+    collection_name: str,
+    collection_source: str,
+    import_target: str,
+    prelude: str,
+) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "nonliteral-child-route"
+    _write_finite_child_getter(
+        repo_root,
+        collection_name=collection_name,
+        collection_source=collection_source,
+        import_target=import_target,
+        prelude=prelude,
+    )
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        pytest.param('__all__.append("other")\n', id="mutable-list"),
+        pytest.param('__all__ = ["other"]\n', id="rebound-list"),
+        pytest.param("alias = __all__\n", id="aliased-list"),
+        pytest.param("unknown_consumer(__all__)\n", id="unknown-call-escape"),
+        pytest.param(
+            'def mutate_exports():\n    global __all__\n    __all__.append("other")\n',
+            id="nested-global-mutation",
+        ),
+    ],
+)
+def test_finite_child_getter_rejects_mutated_or_rebound_list(tmp_path: Path, mutation: str) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "unstable-child-members"
+    package = repo_root / "src/polisyos/facade"
+    package.mkdir(parents=True)
+    (repo_root / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text(
+        "from importlib import import_module\n"
+        '__all__ = ["child"]\n'
+        f"{mutation}"
+        "def __getattr__(name):\n"
+        "    if name not in __all__:\n"
+        "        raise AttributeError(name)\n"
+        '    return import_module(f"{__name__}.{name}")\n',
+        encoding="utf-8",
+    )
+    (package / "child.py").write_text("VALUE = 1\n", encoding="utf-8")
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+def test_finite_child_route_rejects_shadowed_read_builtin(tmp_path: Path) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "shadowed-read-builtin"
+    _write_finite_child_getter(
+        repo_root,
+        collection_name="__all__",
+        collection_source='["child"]',
+        prelude=(
+            "sorted = lambda values: values\n"
+            "def __dir__():\n"
+            "    return sorted(list(globals().keys()) + __all__)\n"
+        ),
+    )
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+def test_finite_child_route_does_not_admit_false_guard_branch(tmp_path: Path) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "false-finite-child-guard"
+    package = repo_root / "src/polisyos/facade"
+    package.mkdir(parents=True)
+    (repo_root / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text(
+        "from importlib import import_module\n"
+        '__all__ = ["child"]\n'
+        "def __getattr__(name):\n"
+        "    if False:\n"
+        "        if name in __all__:\n"
+        '            return import_module(f"{__name__}.{name}")\n'
+        "    raise AttributeError(name)\n",
+        encoding="utf-8",
+    )
+    (package / "child.py").write_text("VALUE = 1\n", encoding="utf-8")
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+def test_finite_child_route_does_not_use_shadowed_collection_name(tmp_path: Path) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "shadowed-finite-child-members"
+    package = repo_root / "src/polisyos/facade"
+    package.mkdir(parents=True)
+    (repo_root / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+    (package / "__init__.py").write_text(
+        "from importlib import import_module\n"
+        '__all__ = ["child"]\n'
+        "def __getattr__(name):\n"
+        '    __all__ = ["other"]\n'
+        "    if name not in __all__:\n"
+        "        raise AttributeError(name)\n"
+        '    return import_module(f"{__name__}.{name}")\n',
+        encoding="utf-8",
+    )
+    (package / "child.py").write_text("VALUE = 1\n", encoding="utf-8")
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._literal_module_getattr_provider(
+            repo_root,
+            "polisyos.facade",
+            "child",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+def test_selected_source_runtime_imports_finite_common_and_core_children(
+    tmp_path: Path,
+) -> None:
+    overlay_root = _materialize_runtime_source_overlay(tmp_path)
+    script = """
+import json
+import hashlib
+from pathlib import Path
+import polisyos.common as common
+import polisyos.core as core
+import polisyos.runtime.quality.confidence_ledger as ledger
+assert common.serialization.__name__ == "polisyos.common.serialization"
+assert core.components.__name__ == "polisyos.core.components"
+failure = ledger._IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE
+print(json.dumps({"common": common.serialization.__name__,
+                  "core": core.components.__name__,
+                  "ledger_file": str(Path(ledger.__file__).resolve()),
+                  "ledger_sha256": hashlib.sha256(Path(ledger.__file__).read_bytes()).hexdigest(),
+                  "common_file": str(Path(common.__file__).resolve()),
+                  "core_file": str(Path(core.__file__).resolve()),
+                  "failure": None if failure is None else str(failure)}))
+"""
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(overlay_root / "src")
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=overlay_root,
+        env=environment,
+        capture_output=True,
+        check=False,
+        text=True,
+        timeout=45,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = __import__("json").loads(result.stdout)
+    assert payload["common"] == "polisyos.common.serialization"
+    assert payload["core"] == "polisyos.core.components"
+    assert payload["ledger_file"] == str(
+        (overlay_root / "src/polisyos/runtime/quality/confidence_ledger.py").resolve()
+    )
+    candidate_source = (
+        _candidate_product_root() / "src/polisyos/runtime/quality/confidence_ledger.py"
+    )
+    assert payload["ledger_sha256"] == hashlib.sha256(candidate_source.read_bytes()).hexdigest()
+    assert payload["common_file"] == str(
+        (overlay_root / "src/polisyos/common/__init__.py").resolve()
+    )
+    assert payload["core_file"] == str((overlay_root / "src/polisyos/core/__init__.py").resolve())
+    assert "missing repository re-export binding: polisyos.common.serialization" not in str(
+        payload["failure"]
+    )
+    assert "missing repository re-export binding: polisyos.core.components" not in str(
+        payload["failure"]
+    )
+    print(
+        "runtime_import_origins="
+        + __import__("json").dumps(
+            {
+                key: payload[key]
+                for key in ("ledger_file", "ledger_sha256", "common_file", "core_file")
+            },
+            sort_keys=True,
+        )
+    )
+
+
+def test_relative_module_map_is_package_bound_across_route_and_cached_projection(
+    tmp_path: Path,
+) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "relative-module-map-facade"
+    _write_imported_map_facade(
+        repo_root,
+        map_source='SURFACE_MODULES = {"catalog": ".catalog"}\n',
+        getter_source=(
+            "    if name not in _SURFACES:\n"
+            "        raise AttributeError(name)\n"
+            "    module = import_module(_SURFACES[name], __name__)\n"
+            "    globals()[name] = module\n"
+            "    return module\n"
+        ),
+        entry_source=("import polisyos.facade as facade\nfrom polisyos.facade import catalog\n"),
+    )
+    closure = ledger._resolve_authority_import_closure(repo_root, "polisyos.entry")
+    route = ledger._source_module_import_route(
+        repo_root,
+        "polisyos.facade",
+        "catalog",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+
+    import polisyos
+
+    package_root = repo_root / "src/polisyos"
+    previous_path = list(polisyos.__path__)
+    names = (
+        "polisyos.entry",
+        "polisyos.facade",
+        "polisyos.facade.routes",
+        "polisyos.facade.catalog",
+    )
+    previous_modules = {name: sys.modules.pop(name, None) for name in names}
+    polisyos.__path__ = [str(package_root), *previous_path]
+    try:
+        entry = importlib.import_module("polisyos.entry")
+        assert entry.catalog.__name__ == "polisyos.facade.catalog"
+        projection, supplemental = ledger._source_facade_runtime_projection(
+            repo_root, closure, runtime_binding_references=[]
+        )
+        assert projection
+        assert not supplemental
+    finally:
+        for name in names:
+            sys.modules.pop(name, None)
+        sys.modules.update(
+            {name: module for name, module in previous_modules.items() if module is not None}
+        )
+        polisyos.__path__ = previous_path
+
+    assert route == ("module", "polisyos.facade.catalog", None)
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        pytest.param(
+            'def __getattr__(name, eager=globals().update({"__name__": "changed"})):\n'
+            "    return name\n",
+            id="eager-default-namespace-mutation",
+        ),
+        pytest.param(
+            '@globals().update({"__name__": "changed"})\ndef __getattr__(name):\n    return name\n',
+            id="eager-decorator-namespace-mutation",
+        ),
+        pytest.param(
+            'globals().update({"__name__": "changed"})\ndef __getattr__(name):\n    return name\n',
+            id="module-initializer-namespace-mutation",
+        ),
+    ],
+)
+def test_package_effect_scan_keeps_eager_namespace_mutations_fail_closed(
+    source: str,
+) -> None:
+    ledger = _candidate_ledger()
+    tree = ledger.ast.parse(source)
+
+    assert ledger._source_package_initializer_effect_is_unknown(tree)
+
+
+def test_package_effect_scan_ignores_lazy_hook_body_but_retains_map_mutation_guard(
+    tmp_path: Path,
+) -> None:
+    ledger = _candidate_ledger()
+    lazy_source = ledger.ast.parse(
+        "from importlib import import_module\n"
+        '_SURFACES = {"catalog": ".catalog"}\n'
+        "def __getattr__(name):\n"
+        "    if name not in _SURFACES:\n"
+        "        raise AttributeError(name)\n"
+        "    return import_module(_SURFACES[name], __name__)\n"
+    )
+    assert not ledger._source_package_initializer_effect_is_unknown(lazy_source)
+
+    repo_root = tmp_path / "deferred-map-mutation"
+    _write_imported_map_facade(
+        repo_root,
+        map_source='SURFACE_MODULES = {"catalog": ".catalog"}\n',
+        getter_source=(
+            "    if name not in _SURFACES:\n"
+            "        raise AttributeError(name)\n"
+            '    _SURFACES[name] = ".changed"\n'
+            "    return import_module(_SURFACES[name], __name__)\n"
+        ),
+        entry_source="from polisyos.facade import catalog\n",
+    )
+    package_tree = ledger.ast.parse((repo_root / "src/polisyos/facade/__init__.py").read_bytes())
+    assert not ledger._source_package_initializer_effect_is_unknown(package_tree)
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_module_import_route(
+            repo_root,
+            "polisyos.facade",
+            "catalog",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected_unknown"),
+    [
+        pytest.param(
+            'def __getattr__(name: globals().update({"__name__": "changed"})):\n    return name\n',
+            sys.version_info[:2] != (3, 14),
+            id="eager-annotation-follows-runtime-policy",
+        ),
+        pytest.param(
+            "from __future__ import annotations\n"
+            'def __getattr__(name: globals().update({"__name__": "changed"})):\n'
+            "    return name\n",
+            False,
+            id="future-annotation-is-deferred",
+        ),
+    ],
+)
+def test_package_effect_scan_respects_annotation_evaluation_phase(
+    source: str,
+    expected_unknown: bool,
+) -> None:
+    ledger = _candidate_ledger()
+    tree = ledger.ast.parse(source)
+
+    assert ledger._source_package_initializer_effect_is_unknown(tree) is expected_unknown
+
+
+def test_relative_map_symbol_target_uses_explicit_package_argument(tmp_path: Path) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "relative-map-symbol-facade"
+    _write_imported_map_facade(
+        repo_root,
+        map_source='SURFACE_MODULES = {"catalog": (".catalog", "VALUE")}\n',
+        getter_source=(
+            "    if name not in _SURFACES:\n"
+            "        raise AttributeError(name)\n"
+            "    module = import_module(_SURFACES[name][0], __name__)\n"
+            "    return getattr(module, _SURFACES[name][1])\n"
+        ),
+    )
+    route = ledger._source_module_import_route(
+        repo_root,
+        "polisyos.facade",
+        "catalog",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+
+    assert route == ("symbol", "polisyos.facade.catalog", "VALUE")
+
+
+def test_relative_map_target_without_package_argument_fails_closed(tmp_path: Path) -> None:
+    ledger = _candidate_ledger()
+    repo_root = tmp_path / "relative-map-without-package-facade"
+    _write_imported_map_facade(
+        repo_root,
+        map_source='SURFACE_MODULES = {"catalog": ".catalog"}\n',
+        getter_source=(
+            "    if name not in _SURFACES:\n"
+            "        raise AttributeError(name)\n"
+            "    return import_module(_SURFACES[name])\n"
+        ),
+    )
+
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_module_import_route(
+            repo_root,
+            "polisyos.facade",
+            "catalog",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )

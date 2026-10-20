@@ -1,0 +1,17 @@
+id = "2026-10-20-e02-lifecycle-complete-root-members"
+title = "Account for complete lifecycle output-root membership"
+type = "changed"
+component = "tooling"
+owner = "team-devx"
+summary = "Lifecycle output accounting and producer snapshots use the same complete selected-root inventory: committed HEAD members plus a fresh no-follow materialized walk. Marker parsing and exclusions cannot silently remove a member from that inventory."
+evidence = ["tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py", "tests/repo_quality/tools/test_layer3_gy_generated_public_lifecycle_audit.py"]
+compatibility = "Missing committed paths, extensionless or unsupported files, aliases, and nonregular leaves remain visible to accounting. The existing explicit non-GY owner classification remains distinct from the unfiltered raw membership. Strict source eligibility and genuine same-process producer-read receipts remain required."
+change_class = "internal"
+surface_classification = "internal: generated lifecycle audit and same-process producer-read validation"
+migration = "Account for every selected-root member or repair its exact owner binding. Re-run the genuine producer and checker in the same qualified process; a persisted self-description or source_of_truth declaration alone does not supply a read receipt."
+api = "The existing checker retains its public entry point. output_root_files is after explicit non-GY classification and must not be reported as an unfiltered raw total."
+limitations = "The source repair does not itself establish the complete lifecycle replay, authentic WMR witness, live production currentness, or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

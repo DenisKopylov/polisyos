@@ -1,0 +1,17 @@
+id = "2026-10-20-e02-finite-source-facade-composition"
+title = "Reconcile finite lazy-facade source routes"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Source closure validation resolves finite source-owned module and symbol routes consistently across the provider index, lazy import, and cached-module consumers, including explicitly package-bound relative targets."
+evidence = ["src/polisyos/runtime/quality/confidence_ledger.py", "tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py"]
+compatibility = "Existing public exports and lazy import behavior stay unchanged. The source validator separates eager package-initializer effects from deferred route-map mutation checks; dynamic, mutated, missing, ambiguous, or shadowed route bindings still fail closed."
+change_class = "internal"
+surface_classification = "internal: confidence-ledger owner source closure and lazy-facade reconciliation"
+migration = "Re-run the canonical owner producer and validation against the selected source and input freeze before consuming a new owner projection. Previously generated scope hashes are not current merely because a source route can now be resolved."
+api = "No new Python export, HTTP operation, DTO, or generated-client contract is introduced."
+limitations = "This is a source repair proposal. The adopted whole-module replay, complete owner regeneration, installed consumers, DS17 reprojection, and G acceptance remain separate checks. Source route evidence does not establish external law, custody, calibration, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

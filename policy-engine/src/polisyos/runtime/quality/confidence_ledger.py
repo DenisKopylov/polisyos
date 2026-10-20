@@ -6032,6 +6032,31 @@ def _derived_authority_import_closure(repo_root: Path) -> tuple[tuple[str, str],
     return resolved
 
 
+def _package_bound_module_provider_target(
+    target: str,
+    *,
+    module_name: str,
+    module_source: Path,
+    export_name: str,
+) -> str:
+    """Resolve one source-owned relative module target against its package."""
+
+    if not target.startswith("."):
+        return target
+    if Path(module_source).name != "__init__.py":
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"relative repository module target is not package-bound: {module_name}.{export_name}",
+        )
+    try:
+        return importlib.util.resolve_name(target, module_name)
+    except (ImportError, TypeError, ValueError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"ambiguous relative repository module target: {module_name}.{export_name}",
+        ) from exc
+
+
 def _literal_module_getattr_provider(
     repo_root: Path,
     module_name: str,
@@ -6121,15 +6146,34 @@ def _literal_module_getattr_provider(
 
     mapped_symbol: str | None = None
     module_providers = provider_index.module_providers_by_export or {}
+
+    resolved_module_providers = frozenset(
+        _package_bound_module_provider_target(
+            target,
+            module_name=module_name,
+            module_source=relative,
+            export_name=export_name,
+        )
+        for target in module_providers.get(export_name, frozenset())
+    )
+    resolved_mapped_module_targets = {
+        _package_bound_module_provider_target(
+            target,
+            module_name=module_name,
+            module_source=relative,
+            export_name=export_name,
+        )
+        for target in mapped_module_targets
+    }
     provider: str | None = None
-    if mapped_module_targets:
-        if len(mapped_module_targets) != 1:
+    if resolved_mapped_module_targets:
+        if len(resolved_mapped_module_targets) != 1:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"ambiguous module facade map target: {module_name}.{export_name}",
             )
-        provider = next(iter(mapped_module_targets))
-        indexed = module_providers.get(export_name, frozenset())
+        provider = next(iter(resolved_mapped_module_targets))
+        indexed = resolved_module_providers
         if len(indexed) != 1 or provider not in indexed:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -6173,7 +6217,7 @@ def _literal_module_getattr_provider(
                 "canonical_loaded_runtime_mismatch",
                 f"non-literal repository re-export: {module_name}.{export_name}",
             )
-        direct_module_providers = module_providers.get(export_name, frozenset())
+        direct_module_providers = resolved_module_providers
         if len(direct_module_providers) > 1:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -6210,7 +6254,7 @@ def _literal_module_getattr_provider(
             ) from exc
     if (
         provider is not None
-        and provider not in module_providers.get(export_name, frozenset())
+        and provider not in resolved_module_providers
         and _repository_module_root(provider) in {"polisyos", "tools"}
     ):
         provider_symbols = provider_index.provider_symbols_by_export or {}
@@ -6343,6 +6387,137 @@ def _literal_getattr_dispatch_names(test: ast.expr, parameter_name: str) -> froz
     ):
         return frozenset(item.value for item in right.elts)
     return frozenset()
+
+
+def _literal_package_child_import_template(node: ast.AST, parameter_name: str) -> bool:
+    """Recognize only ``f"{__name__}.{parameter_name}"`` source routes."""
+
+    if not isinstance(node, ast.JoinedStr) or len(node.values) != 3:
+        return False
+    package_name, separator, export_name = node.values
+    return bool(
+        isinstance(package_name, ast.FormattedValue)
+        and isinstance(package_name.value, ast.Name)
+        and package_name.value.id == "__name__"
+        and package_name.conversion == -1
+        and package_name.format_spec is None
+        and isinstance(separator, ast.Constant)
+        and separator.value == "."
+        and isinstance(export_name, ast.FormattedValue)
+        and isinstance(export_name.value, ast.Name)
+        and export_name.value.id == parameter_name
+        and export_name.conversion == -1
+        and export_name.format_spec is None
+    )
+
+
+def _literal_getattr_dispatch_collection_names(
+    test: ast.expr, parameter_name: str
+) -> frozenset[str]:
+    """Return source names used by a direct finite membership guard."""
+
+    if not isinstance(test, ast.Compare) or len(test.ops) != 1 or len(test.comparators) != 1:
+        return frozenset()
+    left, right, operator = test.left, test.comparators[0], test.ops[0]
+    if (
+        isinstance(operator, (ast.In, ast.NotIn))
+        and isinstance(left, ast.Name)
+        and left.id == parameter_name
+        and isinstance(right, ast.Name)
+    ):
+        return frozenset({right.id})
+    return frozenset()
+
+
+def _literal_collection_is_source_stable(tree: ast.Module, name: str) -> bool:
+    """Reject source-level mutation or aliasing of a literal dispatch collection."""
+
+    mutating_methods = {
+        "add",
+        "append",
+        "clear",
+        "discard",
+        "extend",
+        "insert",
+        "pop",
+        "remove",
+        "reverse",
+        "sort",
+        "update",
+    }
+    copied_read_builtins = {"frozenset", "list", "set", "sorted", "tuple"}
+    module_bound_names = _source_scope_bound_names(tree.body)
+
+    def target_root_names(target: ast.AST) -> tuple[str, ...]:
+        if isinstance(target, ast.Name):
+            return (target.id,)
+        if isinstance(target, (ast.Attribute, ast.Subscript)):
+            return target_root_names(target.value)
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return tuple(root for item in target.elts for root in target_root_names(item))
+        return ()
+
+    module_binding_targets = {
+        id(target)
+        for statement in _source_scope_nodes(tree.body)
+        if isinstance(statement, (ast.Assign, ast.AnnAssign))
+        for target in (
+            statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+        )
+        if isinstance(target, ast.Name) and target.id == name
+    }
+
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == name
+            and node.func.attr in mutating_methods
+        ):
+            return False
+        if isinstance(node, ast.AugAssign) and name in target_root_names(node.target):
+            return False
+        if isinstance(node, ast.Delete) and any(
+            name in target_root_names(target) for target in node.targets
+        ):
+            return False
+        if (
+            isinstance(node, ast.Call)
+            and any(isinstance(value, ast.Name) and value.id == name for value in ast.walk(node))
+            and (
+                not isinstance(node.func, ast.Name)
+                or node.func.id not in copied_read_builtins
+                or node.func.id in module_bound_names
+                or node.keywords
+                or len(node.args) != 1
+            )
+        ):
+            # A known unshadowed builtin can read/consume this literal without
+            # receiving an alias to its mutable storage. Arbitrary calls remain
+            # an escape and therefore keep the collection unknown.
+            return False
+        if isinstance(node, ast.Assign):
+            if any(
+                isinstance(value, ast.Name) and value.id == name for value in ast.walk(node.value)
+            ):
+                return False
+            if any(
+                name in target_root_names(target)
+                and not (isinstance(target, ast.Name) and id(target) in module_binding_targets)
+                for target in node.targets
+            ):
+                return False
+        if isinstance(node, ast.AnnAssign):
+            if node.value is not None and any(
+                isinstance(value, ast.Name) and value.id == name for value in ast.walk(node.value)
+            ):
+                return False
+            if name in target_root_names(node.target) and not (
+                isinstance(node.target, ast.Name) and id(node.target) in module_binding_targets
+            ):
+                return False
+    return True
 
 
 def _literal_import_helper_bindings(
@@ -6705,8 +6880,15 @@ def _static_facade_mapping_values(
     mapping_names: frozenset[str],
     *,
     external_mappings: Mapping[str, dict[str, object]] | None = None,
+    scan_deferred_mapping_effects: bool = True,
 ) -> tuple[dict[str, dict[str, object]], frozenset[str]]:
-    """Recompute bounded module-scope literal maps with expression-effect transfer."""
+    """Recompute bounded module-scope literal maps with expression-effect transfer.
+
+    ``scan_deferred_mapping_effects`` keeps the full function-body escape scan for
+    provider maps. Namespace-effect callers can disable that residual scan because
+    ``execute`` already transfers module execution and definition-time expressions,
+    while lazy function bodies do not execute during package initialization.
+    """
 
     values: dict[str, object] = {}
     invalid: set[str] = set()
@@ -7235,42 +7417,43 @@ def _static_facade_mapping_values(
 
     execute(tree.body)
 
-    # A function can mutate a module table after its initializer ran. Only
-    # stores executed by the bounded module-scope interpreter count as proof.
-    for node in ast.walk(tree):
-        if (
-            isinstance(node, ast.Name)
-            and node.id in mapping_names
-            and isinstance(node.ctx, (ast.Store, ast.Del))
-        ):
-            if id(node) not in supported_mapping_stores:
-                invalid.add(node.id)
-        elif (
-            isinstance(node, ast.Subscript)
-            and isinstance(node.ctx, (ast.Store, ast.Del))
-            and isinstance(node.value, ast.Name)
-            and node.value.id in mapping_names
-            and id(node) not in supported_mapping_stores
-        ):
-            invalid.add(node.value.id)
-        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
-            value = node.value
-            if isinstance(value, ast.Name) and value.id in mapping_names:
-                invalid.add(value.id)
-        elif isinstance(node, ast.Call):
-            for argument in (*node.args, *(keyword.value for keyword in node.keywords)):
-                if isinstance(argument, ast.Name) and argument.id in mapping_names:
-                    invalid.add(argument.id)
+    if scan_deferred_mapping_effects:
+        # A function can mutate a provider table after its initializer ran. Only
+        # stores executed by the bounded module-scope interpreter count as proof.
+        for node in ast.walk(tree):
             if (
-                isinstance(node.func, ast.Attribute)
-                and isinstance(node.func.value, ast.Name)
-                and node.func.value.id in mapping_names
-                and (
-                    node.func.attr not in {"items", "keys", "get", "update"}
-                    or (node.func.attr == "update" and id(node) not in supported_mapping_stores)
-                )
+                isinstance(node, ast.Name)
+                and node.id in mapping_names
+                and isinstance(node.ctx, (ast.Store, ast.Del))
             ):
-                invalid.add(node.func.value.id)
+                if id(node) not in supported_mapping_stores:
+                    invalid.add(node.id)
+            elif (
+                isinstance(node, ast.Subscript)
+                and isinstance(node.ctx, (ast.Store, ast.Del))
+                and isinstance(node.value, ast.Name)
+                and node.value.id in mapping_names
+                and id(node) not in supported_mapping_stores
+            ):
+                invalid.add(node.value.id)
+            elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+                value = node.value
+                if isinstance(value, ast.Name) and value.id in mapping_names:
+                    invalid.add(value.id)
+            elif isinstance(node, ast.Call):
+                for argument in (*node.args, *(keyword.value for keyword in node.keywords)):
+                    if isinstance(argument, ast.Name) and argument.id in mapping_names:
+                        invalid.add(argument.id)
+                if (
+                    isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id in mapping_names
+                    and (
+                        node.func.attr not in {"items", "keys", "get", "update"}
+                        or (node.func.attr == "update" and id(node) not in supported_mapping_stores)
+                    )
+                ):
+                    invalid.add(node.func.value.id)
 
     result = {name: values[name] for name in mapping_names if type(values.get(name)) is dict}
     return result, frozenset(invalid)
@@ -7490,6 +7673,7 @@ def _literal_module_getattr_mapping_providers(
     module_constants: dict[str, frozenset[str]] = {}
     module_scope = tuple(_source_scope_nodes(tree.body))
     candidate_constants: dict[str, frozenset[str]] = {}
+    mutable_candidate_constants: set[str] = set()
     for statement in tree.body:
         if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
             target, expression = statement.targets[0], statement.value
@@ -7504,7 +7688,7 @@ def _literal_module_getattr_mapping_providers(
             literal = ast.literal_eval(expression)
         except (ValueError, TypeError, SyntaxError, MemoryError):
             literal = _UNKNOWN_SOURCE_LITERAL
-        if isinstance(literal, (tuple, frozenset)) and all(type(item) is str for item in literal):
+        if type(literal) in {tuple, list, frozenset} and all(type(item) is str for item in literal):
             values = frozenset(literal)
         elif (
             isinstance(expression, ast.Call)
@@ -7518,12 +7702,16 @@ def _literal_module_getattr_mapping_providers(
                 frozen_input = ast.literal_eval(expression.args[0])
             except (ValueError, TypeError, SyntaxError, MemoryError):
                 frozen_input = _UNKNOWN_SOURCE_LITERAL
-            if isinstance(frozen_input, (tuple, frozenset)) and all(
+            if isinstance(frozen_input, (tuple, list, set, frozenset)) and all(
                 type(item) is str for item in frozen_input
             ):
                 values = frozenset(frozen_input)
         if isinstance(values, frozenset):
             candidate_constants[target.id] = values
+            if type(literal) is list:
+                mutable_candidate_constants.add(target.id)
+            else:
+                mutable_candidate_constants.discard(target.id)
     for name, values in candidate_constants.items():
         stores = tuple(
             node
@@ -7532,7 +7720,10 @@ def _literal_module_getattr_mapping_providers(
             and node.id == name
             and isinstance(node.ctx, (ast.Store, ast.Del))
         )
-        if len(stores) == 1:
+        if len(stores) == 1 and (
+            name not in mutable_candidate_constants
+            or _literal_collection_is_source_stable(tree, name)
+        ):
             module_constants[name] = values
 
     map_collection_tag = object()
@@ -7540,6 +7731,7 @@ def _literal_module_getattr_mapping_providers(
     map_component_tag = object()
     module_tag = object()
     attribute_tag = object()
+    relative_child_tag = object()
     providers: dict[str, set[str]] = {}
     members: dict[str, set[str]] = {}
     module_providers: dict[str, set[str]] = {}
@@ -7548,6 +7740,40 @@ def _literal_module_getattr_mapping_providers(
 
     def is_tagged(value: object, tag: object, length: int) -> bool:
         return isinstance(value, tuple) and len(value) == length and value[0] is tag
+
+    def module_import_result(
+        node: ast.Call,
+        selected_map: str | None,
+        selected_export: object,
+        module_name: object,
+        symbol_name: str,
+        export_name: str,
+    ) -> object:
+        """Bind one exact absolute or explicitly package-relative import target."""
+
+        if (
+            type(module_name) is not str
+            or not module_name
+            or selected_export != export_name
+            or (selected_map is not None and type(selected_map) is not str)
+        ):
+            return _UNKNOWN_SOURCE_LITERAL
+        if module_name.startswith("."):
+            if not (
+                len(node.args) == 2
+                and isinstance(node.args[1], ast.Name)
+                and node.args[1].id == "__name__"
+                and "__name__" not in module_bound_names
+                and "__package__" not in module_bound_names
+                and "__name__" not in function_bound_names
+                and "__package__" not in function_bound_names
+                and namespace_effect_guard not in invalid_maps
+            ):
+                return _UNKNOWN_SOURCE_LITERAL
+        elif len(node.args) != 1:
+            return _UNKNOWN_SOURCE_LITERAL
+        handled_imports.add(id(node))
+        return (module_tag, selected_map, selected_export, module_name, symbol_name)
 
     def mapped_import_target(
         node: ast.AST,
@@ -7571,29 +7797,42 @@ def _literal_module_getattr_mapping_providers(
             if type(index) is not int or index != 0 or type(parent) not in {tuple, list}:
                 return _UNKNOWN_SOURCE_LITERAL
             raw_target = parent
-        elif type(selected) is str and len(node.args) == 1 and not selected.startswith("."):
+        elif type(selected) is str and not selected.startswith("."):
             # The direct-literal form is the same bounded transfer as map rows;
             # it is not a legacy fallback and still requires a source-bound loader.
             if namespace_effect_unknown:
                 return _UNKNOWN_SOURCE_LITERAL
-            handled_imports.add(id(node))
-            return (module_tag, None, export_name, selected, export_name)
+            return module_import_result(
+                node,
+                None,
+                export_name,
+                selected,
+                export_name,
+                export_name,
+            )
         elif (
-            type(selected) is str
-            and selected.startswith(".")
-            and len(node.args) == 2
-            and isinstance(node.args[1], ast.Name)
-            and node.args[1].id == "__name__"
+            is_tagged(selected, relative_child_tag, 2)
+            and selected[1] == export_name
+            and len(node.args) == 1
+            and not namespace_effect_unknown
             and "__name__" not in module_bound_names
-            and "__package__" not in module_bound_names
             and "__name__" not in function_bound_names
-            and "__package__" not in function_bound_names
-            and namespace_effect_guard not in invalid_maps
         ):
-            # The relative package value is admitted only while the shared
-            # module-effect analysis preserves Python's implicit package binding.
+            # A source-checked package-child template remains relative until the
+            # owner resolver binds it to this package initializer.
             handled_imports.add(id(node))
-            return (module_tag, None, export_name, selected, export_name)
+            return (module_tag, None, export_name, f".{export_name}", export_name)
+        elif type(selected) is str and selected.startswith("."):
+            # The package binding is shared by direct literals and imported map
+            # values, so both routes require the same stable explicit package.
+            return module_import_result(
+                node,
+                None,
+                export_name,
+                selected,
+                export_name,
+                export_name,
+            )
         else:
             return _UNKNOWN_SOURCE_LITERAL
         if type(raw_target) is str:
@@ -7606,12 +7845,16 @@ def _literal_module_getattr_mapping_providers(
             module_name, symbol_name = raw_target
         else:
             return _UNKNOWN_SOURCE_LITERAL
-        if len(node.args) != 1 or not module_name or module_name.startswith("."):
+        if type(selected_map) is not str:
             return _UNKNOWN_SOURCE_LITERAL
-        if type(selected_map) is not str or selected_export != export_name:
-            return _UNKNOWN_SOURCE_LITERAL
-        handled_imports.add(id(node))
-        return (module_tag, selected_map, selected_export, module_name, symbol_name)
+        return module_import_result(
+            node,
+            selected_map,
+            selected_export,
+            module_name,
+            symbol_name,
+            export_name,
+        )
 
     def evaluate_expression(
         node: ast.AST,
@@ -7623,8 +7866,17 @@ def _literal_module_getattr_mapping_providers(
                 return environment[node.id]
             if node.id in values_by_map:
                 return (map_collection_tag, node.id, values_by_map[node.id])
-            if node.id in module_constants:
+            if node.id in module_constants and node.id not in function_bound_names:
                 return module_constants[node.id]
+            return _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.JoinedStr):
+            if (
+                _literal_package_child_import_template(node, parameter_name)
+                and "__name__" not in module_bound_names
+                and "__name__" not in function_bound_names
+                and not namespace_effect_unknown
+            ):
+                return (relative_child_tag, export_name)
             return _UNKNOWN_SOURCE_LITERAL
         if isinstance(node, ast.Constant):
             return node.value
@@ -7768,6 +8020,8 @@ def _literal_module_getattr_mapping_providers(
             return expression_has_unmodeled_effect(
                 node.value, environment, export_name
             ) or expression_has_unmodeled_effect(node.slice, environment, export_name)
+        if isinstance(node, ast.JoinedStr):
+            return evaluate_expression(node, environment, export_name) is _UNKNOWN_SOURCE_LITERAL
         if isinstance(node, ast.IfExp):
             if expression_has_unmodeled_effect(node.test, environment, export_name):
                 return True
@@ -7973,6 +8227,10 @@ def _literal_module_getattr_mapping_providers(
             candidate_exports.update(
                 _literal_getattr_dispatch_names(statement.test, parameter_name)
             )
+            for collection_name in _literal_getattr_dispatch_collection_names(
+                statement.test, parameter_name
+            ):
+                candidate_exports.update(module_constants.get(collection_name, frozenset()))
     if not tables and not candidate_exports:
         return {}, {}, {}, invalid, set()
     if invalid:
@@ -8295,7 +8553,31 @@ def _source_facade_runtime_projection(
                                     "canonical_loaded_runtime_mismatch",
                                     f"invalid module facade target: {module_name}.{export}",
                                 )
-                            target_module, target_symbol = raw_target, None
+                            target_module = _package_bound_module_provider_target(
+                                raw_target,
+                                module_name=module_name,
+                                module_source=Path(relative_path),
+                                export_name=export,
+                            )
+                            target_symbol = None
+                            indexed_module_targets = frozenset(
+                                _package_bound_module_provider_target(
+                                    indexed_target,
+                                    module_name=module_name,
+                                    module_source=Path(relative_path),
+                                    export_name=export,
+                                )
+                                for indexed_target in module_exports[export]
+                            )
+                            if (
+                                len(indexed_module_targets) != 1
+                                or target_module not in indexed_module_targets
+                            ):
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    f"source facade module owner differs from getter: "
+                                    f"{module_name}.{export}",
+                                )
                         providers = provider_index.providers_by_export.get(
                             export,
                             frozenset(),
@@ -8413,12 +8695,28 @@ def _source_facade_runtime_projection(
                     if export not in namespace:
                         continue
                     if module_targets:
-                        if len(module_targets) != 1 or type(raw_target) is not str:
+                        relative_path = closure_by_name[module_name]
+                        resolved_module_targets = frozenset(
+                            _package_bound_module_provider_target(
+                                target,
+                                module_name=module_name,
+                                module_source=Path(relative_path),
+                                export_name=export,
+                            )
+                            for target in module_targets
+                        )
+                        if len(resolved_module_targets) != 1 or type(raw_target) is not str:
                             raise ConfidenceLedgerError(
                                 "canonical_loaded_runtime_mismatch",
                                 f"ambiguous cached module facade binding: {module_name}.{export}",
                             )
-                        target_module = next(iter(module_targets))
+                        target_module = next(iter(resolved_module_targets))
+                        resolved_raw_target = _package_bound_module_provider_target(
+                            raw_target,
+                            module_name=module_name,
+                            module_source=Path(relative_path),
+                            export_name=export,
+                        )
                         target_path = _repository_module_source(
                             repo_root,
                             target_module,
@@ -8427,7 +8725,7 @@ def _source_facade_runtime_projection(
                         loaded_target = sys.modules.get(target_module)
                         if (
                             target_path is None
-                            or raw_target != target_module
+                            or resolved_raw_target != target_module
                             or loaded_target is None
                             or namespace.get(export) is not loaded_target
                         ):
@@ -9779,7 +10077,11 @@ def _source_package_initializer_effect_is_unknown(tree: ast.Module) -> bool:
         body=[statement for statement in tree.body if not inert_class(statement)],
         type_ignores=tree.type_ignores,
     )
-    values, invalid = _static_facade_mapping_values(effect_tree, watched_names)
+    values, invalid = _static_facade_mapping_values(
+        effect_tree,
+        watched_names,
+        scan_deferred_mapping_effects=False,
+    )
     # The helper models tracked literal dicts as valid map inputs. These reserved
     # names are sentinels, not maps: any explicit binding of one is itself unknown.
     return bool(invalid & watched_names) or bool(values.keys() & watched_names)
@@ -9912,7 +10214,15 @@ def _source_module_import_route(
             source_index=source_index,
         )
         module_providers = provider_index.module_providers_by_export or {}
-        module_targets = module_providers.get(export_name, frozenset())
+        module_targets = frozenset(
+            _package_bound_module_provider_target(
+                target,
+                module_name=module_name,
+                module_source=relative,
+                export_name=export_name,
+            )
+            for target in module_providers.get(export_name, frozenset())
+        )
         if module_targets:
             if len(module_targets) != 1 or next(iter(module_targets)) != provider:
                 raise ConfidenceLedgerError(

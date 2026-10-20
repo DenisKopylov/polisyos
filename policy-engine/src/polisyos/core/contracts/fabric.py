@@ -319,11 +319,13 @@ def data_snapshot_owner_input_requirements(
     Runtime consumers must reconcile these refs with the owning source artifact
     or its persisted owner binding before using them for a protected claim.
     """
-    lineage = snapshot.source_lineage
+    validated_snapshot = DataSnapshot.model_validate(snapshot.model_dump(mode="python"))
+    lineage = validated_snapshot.source_lineage
     if lineage is None:
         raise ValueError("data_snapshot_owner_lineage_missing")
 
     field_roles: dict[str, str]
+    optional_fields: frozenset[str] = frozenset()
     extra_refs: tuple[tuple[ArtifactRef, str], ...]
     if isinstance(lineage, MeasurementRootDataSnapshotLineage):
         field_roles = {"data_ref": "fetched_payload"}
@@ -340,6 +342,7 @@ def data_snapshot_owner_input_requirements(
             "quality_report_ref": "quality_report_ref",
             "warnings_ref": "warnings_ref",
         }
+        optional_fields = frozenset({"evidence_ref", "warnings_ref"})
         extra_refs = ((lineage.data_view_request_ref, "data_view_request_ref"),)
     elif isinstance(lineage, AcquiredObservationDataSnapshotLineage):
         field_roles = {"data_ref": "payload.acquired_observation_candidate"}
@@ -351,17 +354,18 @@ def data_snapshot_owner_input_requirements(
     else:  # pragma: no cover - Pydantic's discriminated union owns this boundary.
         raise ValueError("data_snapshot_owner_lineage_unsupported")
 
-    expected_fields = set(field_roles)
     actual_refs = {
-        name: getattr(snapshot, name)
+        name: getattr(validated_snapshot, name)
         for name in data_snapshot_reference_fields()
-        if getattr(snapshot, name) is not None
+        if getattr(validated_snapshot, name) is not None
     }
-    if set(actual_refs) != expected_fields:
+    actual_fields = set(actual_refs)
+    required_fields = set(field_roles) - optional_fields
+    if not required_fields <= actual_fields or actual_fields - set(field_roles):
         raise ValueError("data_snapshot_owner_fields_do_not_match_lineage")
     requirements = [(ref, field_roles[field_name]) for field_name, ref in actual_refs.items()]
     requirements.extend(extra_refs)
-    identities = [(ref.artifact_id, role) for ref, role in requirements]
+    identities = [(str(ref.artifact_id), role) for ref, role in requirements]
     if len(identities) != len(set(identities)):
         raise ValueError("data_snapshot_owner_inputs_not_unique")
     return tuple(requirements)

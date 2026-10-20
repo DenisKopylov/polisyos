@@ -39882,5 +39882,85 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-datasnapshot-optional-contract-r5a-20261020-r1": {
+    "slice_base": "85ed7e4b27bd761292d68c8625f0b094451d1d9a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/contracts/fabric.py": {
+        "operation": "update",
+        "preimage_sha256": "ff4467e1105c280704c5efd96f7d075ef7ca14a8fb1116349004bc6460fff305",
+        "postimage_sha256": "29f295e4105dde36fcb778becd7b0191046e206e24e20867fde95c35f1d72ac3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-reviewed-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/contracts/fabric.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/core/contracts/test_fabric_snapshot_owner_optional_inputs.py": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "70774720822f71a0dc1f3ad8c76304d017af0140a3e1fb4a81c51c862cfe4430",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-reviewed-candidate-20261020-r2/postimages/policy-engine/tests/unit/core/contracts/test_fabric_snapshot_owner_optional_inputs.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "5450a834eb20c1d8499a023389b24955deaa10aecbda5d66029d200e8f9d00ab",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-reviewed-candidate-20261020-r2/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-optional-contract-r5a-20261020-r1/source-application.json",
+      "sha256": "44e063ec2bf362dd1e63f55ddf7a19cac44041a52578b024b50e87d374972c2b"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-optional-contract-r5a-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-reviewed-candidate-20261020-r2/manifest.json",
+        "sha256": "2d42dfc50ebc266317e0270386b0d5860dbd9c5a1d3fe9ccea1f76c18ddc74d9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-reviewed-candidate-20261020-r2/patch.diff",
+        "sha256": "f063be22b2d250dc1413ea07991c2c3faa081dea40686391d8ae1e3d5080ba5a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-reviewed-candidate-20261020-r2/native-checks.json",
+        "sha256": "1999a264f578d3192b6367668682f9585415183996e190d001c91bac07b23d8d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/datasnapshot-optional-contract-r5a-independent-review-20261020-r1/review.json",
+        "sha256": "27b9f05f9525838f10bd02fe2e0484084f7462de2e708dc57681f4c9c4e78724"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-pre-fix-20261020-r1/actual/result.json",
+        "sha256": "10aa0fca0e3864bb8b602cd5353a827208c4a6a0497cfdcf01961819bef87ba3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW optional-field normalization class plus NEW typed ArtifactID set-key representation class revealed by actual all-present positive; generic identity normalization retains id+role uniqueness semantics.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Typed shape only; selected producer profile/custody external claims not established",
+      "Model schema identifiers are ClassVar, not serialized Literal fields; base revalidation accepts both DTO shapes without downgrading lineage requirement because helper requires lineage",
+      "14contractcalls and actualproducerprofile-removalbaseline requirefreshpostcommitexecution",
+      "Gfalse noformalclosure"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run14typedcontractcases plus SAMErealDefaultFabricPort profile-removalbaseline; establishpositiveNoneproducer beforeR5selected-profile repair.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

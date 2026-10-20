@@ -46,3 +46,6 @@ allowed-confusables = [
 
 [lint.flake8-type-checking]
 runtime-evaluated-base-classes = ["pydantic.BaseModel", "tools.quality.validation.acquisition_contract_support._StrictModel"]
+
+[lint.isort]
+known-first-party = ["polisyos"]

@@ -44898,5 +44898,94 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ruff-first-party-r3-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "dd4704ea03a3c5e56a6cb192a945c3e28a253802",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/tooling/ruff/base.toml": {
+        "bytes": 1149,
+        "current_head_sha256": "e436072433f59cc3f7490fef05a082242f6d19c1ca82a514e3c5ce68f5da9ba8",
+        "operation": "update",
+        "postimage_mode": "100644",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-known-first-party-method-metrics-20261021-r3/postimages/policy-engine/architecture/tooling/ruff/base.toml",
+        "postimage_sha256": "55ca3815494cfe90c2a0a30ae57701093a1a1975bc5f5690cf8de69b3ff3dc8c",
+        "preimage_mode": "100644",
+        "preimage_sha256": "e436072433f59cc3f7490fef05a082242f6d19c1ca82a514e3c5ce68f5da9ba8",
+        "mode": "100644"
+      },
+      "policy-engine/ruff.generated.toml": {
+        "bytes": 24954,
+        "current_head_sha256": "bbd8f9cbf79174cabc2f26fe9934d5bfdc0e857d1a7eb9b9bcd499706b39656e",
+        "operation": "update",
+        "postimage_mode": "100644",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-known-first-party-method-metrics-20261021-r3/postimages/policy-engine/ruff.generated.toml",
+        "postimage_sha256": "aba5a903bc9b43394ce29d2d3f68fa3b8596dfd47b74d953dca4bf04db34cfb7",
+        "preimage_mode": "100644",
+        "preimage_sha256": "bbd8f9cbf79174cabc2f26fe9934d5bfdc0e857d1a7eb9b9bcd499706b39656e",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ruff-first-party-r3-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "8361de62c66504a3c06f532205cfaf0471e7edf2b313251b4609e0d325c103d3"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ruff-first-party-r3-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-known-first-party-method-metrics-20261021-r3/r7-plan.json",
+        "sha256": "dd06e84e89989cbe5d35e5e8942019da93fc2e892c904ae324d5f0e9473e64b9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-known-first-party-method-metrics-20261021-r3/manifest.json",
+        "sha256": "999fcdb2b9281aa8c7d8885f653115e92466c2c72d7b94df63e9b8d053a96616"
+      },
+      {
+        "changed_paths": [
+          "policy-engine/architecture/tooling/ruff/base.toml",
+          "policy-engine/ruff.generated.toml"
+        ],
+        "git_apply_check": "PASS",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-known-first-party-method-metrics-20261021-r3/source.patch",
+        "sha256": "723dc38e15ff82766f9100882d10d89d91a8e0e3bcef69354083c3a3e94956ab"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ruff-known-first-party-r3-review-20261021-r1/review.json",
+        "sha256": "ce325f4251326c35facfd52799b2a284474e3e2fec5d44c06cb6384ed87440d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ruff-known-first-party-r3-review-20261021-r1/current-head-native-rereplay.json",
+        "sha256": "326053c9e70edb0a73aa08e42bda060d3c46e1d3fffefcfe6a2d1ac3fe16ccf4"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same package-namespace import classification class as the R2 missing/present-leaf witness; this patch widens the rule to the full PolisyOS namespace instead of adding a leaf-specific workaround.",
+      "closure_scope": "The config resolves namespace category drift; it does not automatically sort pending AD01/AD02 candidate import blocks or resolve their unrelated I001 diagnostics.",
+      "falsifier": "Sameexact pending descendantimport underabsent/presentRAWleaf musthaveidenticalfirstpartysection withknownnamespace; corruptgeneratednamespacerenderedfield mustfailactualownercheck."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "The two existing full-set I001 diagnostics remain; this slice does not sort them.",
+      "AD01/AD02 candidate source imports still require owner-authorized sort updates against the stable namespace classification.",
+      "Full canonical `uv run polisyos-tools workspace tool-configs --check` and the owner target test are deferred until root adopts the patch; the RAW overlay excludes only the canonical-root dead-override selector report."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual canonical owner tool-configs --check, existing complete owner test module and bounded corrupt-field drift; bothproduct/workspace Ruffconsumer denominators mustmatchactualcurrent5950orcomputedset andretainfullfindings(no blanketgreen). Source/import owners sortnewmodulesbeforecomposedfreeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

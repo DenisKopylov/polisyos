@@ -27386,5 +27386,122 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "three-focused-runtime-author-receipts-source-bound-20261020": {
+    "slice_base": "78da41ae5732443cd7b5d3ff5f8c14d2a2846bb9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/frontend-seven-10a9e80-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/three-durable-runtime-receipts-20261020-r4/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/frontend-seven-10a9e80-20261020.json",
+        "postimage_sha256": "006c1e069e2899e84c37c1028d3b35b70cad91b51b00d9977367f33b4d06c1bf"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/c05-eight-10a9e80-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/three-durable-runtime-receipts-20261020-r4/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/c05-eight-10a9e80-20261020.json",
+        "postimage_sha256": "d283ed6ec8622fdd0a2da356a2dee3e2ee47a8b7010f57247857d19a0c3abc60"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/n13-seven-76304aa-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/three-durable-runtime-receipts-20261020-r4/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/n13-seven-76304aa-20261020.json",
+        "postimage_sha256": "adec2e7661fc0564939763b1b96b0348d64a731e89556c2596f97b02dff88225"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json": {
+        "operation": "write",
+        "preimage_sha256": "cfcf31cef68cff5fea0111a2a01ac0cb04c4c3372e9734ab7aba85bcb4a0af5a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-runtime-receipts-adoption-20261020/index-postimage.json",
+        "postimage_sha256": "c25a515ed805aac3c125012bc2601ed43b7ba650ce0f3b24f5c2577f387fce36"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-runtime-receipts-adoption-20261020/source-application.json",
+      "sha256": "2a3542c5651c07587f1daff586fbf6329540a4689fb1569d7bc22c334989401f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-runtime-receipts-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/three-durable-runtime-receipts-20261020-r4/manifest.json",
+        "sha256": "5b33e1f1225453f7bd09e6923b24a692e1c6e06f767166822a7ee3e04fa8ffd7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/three-durable-runtime-receipts-20261020-r4/receipts.patch",
+        "sha256": "f5c7c526f8cf1f413fe568cdd372f008873c45ce160c1b58798be47b31085a41"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/three-durable-runtime-receipts-independent-review-20261020/review.json",
+        "sha256": "1279864518509089b472b104af69a34d056ecd642f8a2a6b4c481831a57229bc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-leaf-six-r4-adoption-final-r3-20261020/committed-validation/result.json",
+        "sha256": "b999707a198b99560bea1a372796cfe553b503f650c33e66652eef9518df3184"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Case/module and runtime-origin identity: test cases are distinct from setup/call/teardown phase events; unchanged source snapshots and exact historical source frames do not imply current composed or G acceptance.",
+    "bounded_proof": "Independent receipt QA12798645 verifies83 retained-output refs/119 nested refs and all unique JUnit, collection and call sets. Receipt-only source change; no code/native-green claim.",
+    "limitations": [
+      "These focused runs are historical exact-source evidence, not verification of all later source changes, all291 occurrences, whole capability, or full native gates.",
+      "N13loaded8of9 pinned production modules; the cloud-one-lane revalidation module is source/R10 only, and installed-wheel consumer isUNRUN.",
+      "The separate completed LA02179-case run was76P3F, not a pass, and remains retained at its own source-bound RAW result d556fa3b.",
+      "Index now has388 refs; full source reconciliation remains fixed42e to3ddec/39 rows/38 source leaves; no historical source record or G closure is altered.",
+      "Five unique committed paths are expected:3newreceipts+index+automaticLEASES. Generic adopter prints rows+2 but its request and Git readback use actual unique paths.",
+      "Allwrite batch/zeroTrash; generic empty fixture-relocation receipt wording is inapplicable recorded cosmetic debt.",
+      "Two known-owned incomplete tests remain unchanged."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Read all three receipt blobs/index/LEASES from committed branch and verify388 refs; run pinned bounded ref/Git helper with current388 count and original39 source rows/38 leaves; final source/input/backend freeze and full closeout remain pending.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

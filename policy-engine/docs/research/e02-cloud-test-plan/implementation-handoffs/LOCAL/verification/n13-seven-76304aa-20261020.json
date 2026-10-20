@@ -1,0 +1,442 @@
+{
+  "schema": "policyos.e02.local_author_runtime_receipt.v1",
+  "receipt_id": "n13-seven-76304aa-20261020",
+  "receipt_kind": "scoped_actual_runtime_verification_proposal",
+  "status": "scoped_pass_for_independent_review",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "76304aa2dd0703b59be82c6cc7b807829ca5dcb8",
+    "tree": "fb3e1f8b97eed109f1cdb04793d1e241eddd52ec",
+    "parents": [
+      "b80d6066219905fba793e0d3f8f21cca10e5b555"
+    ],
+    "tracked_status_at_freeze": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tracked_worktree_bytes_sha256_map_digest": "0d304a8fff24d8ebceb510bb5727b34c808d35fbdb6070aff50a663a106356df",
+    "tracked_entry_count": 25840,
+    "tracked_snapshot_before_sha256": "67ee4d54e81c660c9ee4e12a564486e2640b8a09614f84ee0bb5bd6f863ae40a",
+    "tracked_snapshot_after_sha256": "67ee4d54e81c660c9ee4e12a564486e2640b8a09614f84ee0bb5bd6f863ae40a",
+    "tracked_snapshot_unchanged": true,
+    "prepared_source_r10": {
+      "bytes": 5066,
+      "dirty_tracked_rows": [
+        {
+          "bytes": 488453,
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+          "snapshot_sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+        },
+        {
+          "bytes": 37653,
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57",
+          "snapshot_sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+        }
+      ],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/prepared-source-pins.json",
+      "sha256": "167885bea5c169af32ed41e7521d33943e811e0f6edac997dac53d25a7210f2d",
+      "tracked_entry_count_observed": 25840,
+      "tracked_worktree_bytes_sha256_map_digest": "0d304a8fff24d8ebceb510bb5727b34c808d35fbdb6070aff50a663a106356df"
+    },
+    "source_pins": [
+      {
+        "bytes": 10730,
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "fafb621e27f7929409a906e68cc91079e968fb7fe76e4cbb0d44bd672da1c177"
+      },
+      {
+        "bytes": 3941,
+        "path": "policy-engine/src/polisyos/data_requirement/__init__.py",
+        "sha256": "57f3b92cebe9b6539e582cb0501862b589a8e6009f6be6413825cd810cce64c2"
+      },
+      {
+        "bytes": 21528,
+        "path": "policy-engine/src/polisyos/data_requirement/_impl/models.py",
+        "sha256": "af3dcf8122d93badd0974feb439bf25d3295bb507721cdb2ef4fbd26e614596a"
+      },
+      {
+        "bytes": 90410,
+        "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509"
+      },
+      {
+        "bytes": 52775,
+        "path": "policy-engine/src/polisyos/runtime/quality/production_data_contract_index.py",
+        "sha256": "4bbcccfeb1209581dc33f3d7ceb9858132a4333586c4ded1abbc6ea341156c74"
+      },
+      {
+        "bytes": 16660,
+        "path": "policy-engine/src/polisyos/runtime/quality/scenario_evidence_contract.py",
+        "sha256": "e40ed6132226364db9b08c2e83602532fc68ce605d01a8c912d6c8c808749b66"
+      },
+      {
+        "bytes": 18019,
+        "path": "policy-engine/tools/quality/validation/check_production_data_scenario_contracts.py",
+        "sha256": "741f10533ce2476a1fd6601168a89db5278b5b8723c8244bfc8f8c65b6611087"
+      },
+      {
+        "bytes": 21735,
+        "path": "policy-engine/tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py",
+        "sha256": "483a285e7bdd70005aac683e37696e064a38cd874e5e588414079aba4eb0250b"
+      },
+      {
+        "bytes": 30687,
+        "path": "policy-engine/tools/quality/validation/run_policy_design_case_rollout_decision.py",
+        "sha256": "54222e1f6677dce1ded46ded54bb5b93ba1925f529343f5d81133246b8bcc2b3"
+      }
+    ]
+  },
+  "runtime_evidence": {
+    "property_scope": "Bounded canonical-source whole-module replay for the seven V4 data-requirement compiler, immutable publication, schema, and checker consumer modules.",
+    "profile": {
+      "backend": "pytest 9.0.2, Python 3.14.3, existing policy-engine/.venv, ordinary policy-engine/pytest.ini",
+      "autoload": "default plugin autoload enabled; PYTEST_ADDOPTS, PYTEST_DISABLE_PLUGIN_AUTOLOAD, PYTEST_PLUGINS empty; inherited autoload not disabled",
+      "workers": 1,
+      "xdist_numprocesses": null,
+      "numeric_threads": 1,
+      "wall_cap_seconds": 180,
+      "rss_cap_bytes": 2684354560,
+      "disk_floor_bytes": 1073741824,
+      "network": "sandbox loopback-only, external access restricted; no install/download/model load"
+    },
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "command": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/sandbox.sb",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_i4_case_report_capture_r1",
+      "-p",
+      "e02_wave_capture_r8",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/pytest-cache",
+      "-o",
+      "log_file=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/pytest-log.txt",
+      "-o",
+      "tmp_path_retention_policy=all",
+      "-o",
+      "tmp_path_retention_count=1",
+      "--benchmark-storage=file:///Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/benchmark-storage",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest.xml",
+      "tests/repo_quality/tools/test_check_production_data_scenario_contracts.py",
+      "tests/repo_quality/tools/test_w12g_rollout_decision.py",
+      "tests/unit/core/artifacts/test_write_bytes_once.py",
+      "tests/unit/data_requirement/test_compiler.py",
+      "tests/unit/runtime/quality/test_production_data_contract_index.py",
+      "tests/unit/runtime/quality/test_scenario_evidence_contract.py",
+      "tests/unit/tools/test_quality_scenarios.py"
+    ],
+    "selected_whole_modules": [
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_check_production_data_scenario_contracts.py",
+        "sha256": "25540ec67d103613808f9aaa1ba5b7c33d080fef6939beb7fb7836aa5ac96fac",
+        "bytes": 1834
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_w12g_rollout_decision.py",
+        "sha256": "6926800bd60ca9b4dc61001f54c3a6dc94cf8ccbdc09943d7c2e427f60d19fb2",
+        "bytes": 11735
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_write_bytes_once.py",
+        "sha256": "7d2dc27d7e7715e1fd2f2e384f7b051239d8632d3e14c72067a7c8e91781f1ac",
+        "bytes": 852
+      },
+      {
+        "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+        "sha256": "61d3ca8af4245ba9853e20d59b4d867415491112e1bde77edd259cb6a25ea0a0",
+        "bytes": 69324
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_production_data_contract_index.py",
+        "sha256": "b1cf186aee17183c8ffeb9ddf0a6139a8d76d152f728f8b58ac866e85738b246",
+        "bytes": 27452
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_scenario_evidence_contract.py",
+        "sha256": "ccc6ad816ff1bd01a4095897c73630aaf3ee53c21ac147f74f52c37dcfb1e7ec",
+        "bytes": 8236
+      },
+      {
+        "path": "policy-engine/tests/unit/tools/test_quality_scenarios.py",
+        "sha256": "ccc847dad060ff2f8b0ebda3a90c5c23f973ac2ac868567d342f7c699939e0f1",
+        "bytes": 5697
+      }
+    ],
+    "selected_case_counts": {
+      "tests/repo_quality/tools/test_check_production_data_scenario_contracts.py": 1,
+      "tests/repo_quality/tools/test_w12g_rollout_decision.py": 8,
+      "tests/unit/core/artifacts/test_write_bytes_once.py": 2,
+      "tests/unit/data_requirement/test_compiler.py": 108,
+      "tests/unit/runtime/quality/test_production_data_contract_index.py": 11,
+      "tests/unit/runtime/quality/test_scenario_evidence_contract.py": 6,
+      "tests/unit/tools/test_quality_scenarios.py": 4
+    },
+    "result": {
+      "status": "n13_v4_seven_whole_modules_passed_for_independent_review",
+      "exit_code": 0,
+      "collected_items": 140,
+      "executed_unique_items": 140,
+      "wall_seconds": 14.091475209221244,
+      "peak_process_tree_rss_bytes": 1001013248,
+      "process_group_gone": true,
+      "test_cases_total": 140,
+      "test_cases_passed": 140,
+      "test_cases_failed": 0,
+      "test_cases_errored": 0,
+      "test_cases_skipped": 0,
+      "case_report_phase_events_passed": 420
+    },
+    "R8": {
+      "status": "captured_scoped",
+      "plugin": {
+        "module": "e02_wave_capture_r8",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/e02_wave_capture_r8.py",
+        "reused_module": "e02_wave_capture",
+        "reused_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/e02_wave_capture.py",
+        "reused_sha256": "817e8e294d60002afc459c8494618479521e6de9d4d3d94c74f7a97e104eea6b",
+        "sha256": "6dd8a0f6009ff90b5d1d951975e2322ce97411865258cf9bd9988ed09d032658"
+      },
+      "namespace_roots": [
+        "polisyos",
+        "tools"
+      ],
+      "captured_product_namespace_modules": 1389,
+      "matched_origins": 1389,
+      "origin_mismatches": [],
+      "unknown_captured_modules": [],
+      "requested_runtime_module_origins": {},
+      "unloaded_module_inventory": "not produced; no claim that unimported or third-party modules were absent",
+      "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+      "inventory_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/runtime-module-origins.json",
+        "sha256": "7b91d884bac8d9e8f6536f75eb58ab482bcb400e3110a363749e45a408dfd784",
+        "bytes": 1449796
+      }
+    },
+    "R10": {
+      "status": "unchanged",
+      "tracked_entry_count": 25840,
+      "before_digest": "67ee4d54e81c660c9ee4e12a564486e2640b8a09614f84ee0bb5bd6f863ae40a",
+      "after_digest": "67ee4d54e81c660c9ee4e12a564486e2640b8a09614f84ee0bb5bd6f863ae40a",
+      "status_after": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    },
+    "plugin_inventory": {
+      "autoload_enabled_and_preserved": true,
+      "details_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/runtime-module-origins.json",
+        "sha256": "7b91d884bac8d9e8f6536f75eb58ab482bcb400e3110a363749e45a408dfd784",
+        "bytes": 1449796
+      },
+      "pytest_ini_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    "case_result_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest.xml",
+      "sha256": "312eb073a3b9762b36d20f643e55a1c1a3c9815815f32bf489f83eae72d96db1",
+      "testsuite_counts": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "140",
+          "time": "9.488",
+          "timestamp": "2026-10-20T03:04:18.815997+03:00",
+          "hostname": "MacBook-Air-Denis.local"
+        }
+      ]
+    }
+  },
+  "retained_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/controller-events.jsonl",
+      "sha256": "3f1922f6289bbb94620f4f08c988a7f1246de397e9b68e711f87f201c448041c",
+      "bytes": 2420,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/launch-context.json",
+      "sha256": "6d592ee801c6980f2043741e62fe2456ba1f303d28760df23c8782421342bf2c",
+      "bytes": 9654,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/phase-output.jsonl",
+      "sha256": "3c0707ea2d59e1429215242e07417a12eeb214082cd02761be398b55f79d9a84",
+      "bytes": 2354,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/process-tree.jsonl",
+      "sha256": "f95a667986f6f7818b0069c30e9e9789aa7bad354c2782598d62799054963aca",
+      "bytes": 52938,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest-case-reports.jsonl",
+      "sha256": "6fc6c6d114f94c5f2a445e8871409e805ac635338556b4dc6b23d8970fc84816",
+      "bytes": 132208,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest-collection-basis.json",
+      "sha256": "0af69d8c5bc21e920bad031b191c2345fec95726f8f7cd4e6f60e82cdc0e94b7",
+      "bytes": 25182,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest.stdout.txt",
+      "sha256": "d86dcaf5b3889a5464f45d61a64e53f94bee86cf84faa5dd0b72b37600040ef5",
+      "bytes": 733,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest.xml",
+      "sha256": "312eb073a3b9762b36d20f643e55a1c1a3c9815815f32bf489f83eae72d96db1",
+      "bytes": 24698,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/result.json",
+      "sha256": "9cbb69082a58fec8c6d825305f0f28dd08693d4a4357285556a5b616c2c7e4d5",
+      "bytes": 54362,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/runtime-module-origins.json",
+      "sha256": "7b91d884bac8d9e8f6536f75eb58ab482bcb400e3110a363749e45a408dfd784",
+      "bytes": 1449796,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/sandbox-probe-receipt.json",
+      "sha256": "234d71dbb8e9633d5fe2393b53f3b92ecd328491d330de91ad6ee56b7d900ed8",
+      "bytes": 852,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/sandbox-probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/sandbox-probe.stdout.txt",
+      "sha256": "16fe5c8052d3cb3c7425aa21ab9d0109c81dc6d65e9a70e9cbfbc83f36bef8bc",
+      "bytes": 834,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/source-after.json",
+      "sha256": "72b648eca7098e3682676c9a1b1c75de4c2fe385e4825b34c06f16fd48098255",
+      "bytes": 19488040,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/source-before.json",
+      "sha256": "72b648eca7098e3682676c9a1b1c75de4c2fe385e4825b34c06f16fd48098255",
+      "bytes": 19488040,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/request.json",
+      "sha256": "3d4a41474aeb6fd2a7a7135c87826fc99344dc3ab248885e8204b0e4c7c3243a",
+      "bytes": 18839,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/run.py",
+      "sha256": "54af1690778545651a500c10368d228dbd661689ca13b761a7110143026d5693",
+      "bytes": 18741,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/sandbox.sb",
+      "sha256": "54c5fed8491653b0e949cfd5ade6040c0835e49c5662e788c0befa385c61f38c",
+      "bytes": 1490,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/prepared-source-pins.json",
+      "sha256": "167885bea5c169af32ed41e7521d33943e811e0f6edac997dac53d25a7210f2d",
+      "bytes": 5066,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/supervise.py",
+      "sha256": "a94a662308270ba3aca96c1d9c75e53a05e37a923a6188d0f464f8ac1e90909e",
+      "bytes": 83139,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/controller.py",
+      "sha256": "1191c847a8029c480621d955fc64d8deccb003ac8464ff19a41ecaaf7cd36b84",
+      "bytes": 36057,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/e02_wave_capture.py",
+      "sha256": "817e8e294d60002afc459c8494618479521e6de9d4d3d94c74f7a97e104eea6b",
+      "bytes": 5341,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/e02_i4_case_report_capture_r1.py",
+      "sha256": "eb88d6c9e3dd6b88a7a7cda5534c42dde8e488a1a11654b98e852f71643a72b4",
+      "bytes": 5307,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/r10_snapshot.py",
+      "sha256": "8b8f6716d28dc3a4065bdd08b3c3cad1ca1b4d44d5ba76062d5a27e2dcbce05e",
+      "bytes": 27676,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/e02_wave_capture_r8.py",
+      "sha256": "6dd8a0f6009ff90b5d1d951975e2322ce97411865258cf9bd9988ed09d032658",
+      "bytes": 14410,
+      "availability": "retained_local_RAW"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/sandbox_probe.py",
+      "sha256": "03f99264beda26249436f4fcb13a439e2b3e9817a7b8faa2e8b4054aa7e4c20a",
+      "bytes": 1261,
+      "availability": "retained_local_RAW"
+    }
+  ],
+  "negative_and_removal_controls": {
+    "whole_module_scope": true,
+    "adversarial_cases": "The complete compiler module includes malformed/conflicting supplied profile cases, missing/empty-versus-unknown basis cases, no family inference from text, and the retained removal-of-heuristic-marker test; full case reports and JUnit are retained.",
+    "separate_property_removal_mutant_run": "not_run; no separate code-mutant replay is claimed."
+  },
+  "proposal": {
+    "formal_G_closure": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "authority": "author runtime evidence only; independent review and G adjudication remain required",
+    "proposal": "Accept as bounded N13 V4 whole-module runtime evidence for the seven exact modules at source 76304aa. Does not prove N7 ArtifactStore persistence/readback or external production basis authority."
+  },
+  "limitations": [
+    "formal N13, C05, or E02 closure",
+    "formal G acceptance of basis semantics",
+    "N7 ArtifactStore persistence/readback and receipt/history integration",
+    "external source authority, production currentness, or production-data completeness",
+    "behavior not exercised by the exact seven collected modules",
+    "R8 captures polisyos/tools module origins in this pytest process only; no third-party imports, interpreter pre-sitecustomize imports, or E5 child-process import claims.",
+    "No separately executed mechanism-removal mutant; author replay is not independent acceptance."
+  ],
+  "next_check": "Independent reviewer verifies these bindings and scopes, then root/G assess the still-open N7 typed report CAS persistence/readback and full claim/ID mapping; no finding is formally closed by this receipt."
+}

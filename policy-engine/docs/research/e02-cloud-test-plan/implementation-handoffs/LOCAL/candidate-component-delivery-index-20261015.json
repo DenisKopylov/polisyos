@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "4a7c690a06799ce1c1d9a740a45b7391f1370803645ff8e3974027fd7b19f415",
+      "sha256": "cf5ebb86c79d8d9ba4a2338ff400dd3b4042cb313859ffe3bb2eb9166eba20ad",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1591,6 +1591,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-leaf-receipts-3ddec-20261020/runtime-observations.json",
       "sha256": "b7c48874e224083a0c3d21e3cd87e851fde24181cb6187ec09b5cb00c31ec59a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/frontend-seven-10a9e80-20261020.json",
+      "sha256": "006c1e069e2899e84c37c1028d3b35b70cad91b51b00d9977367f33b4d06c1bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/c05-eight-10a9e80-20261020.json",
+      "sha256": "d283ed6ec8622fdd0a2da356a2dee3e2ee47a8b7010f57247857d19a0c3abc60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/n13-seven-76304aa-20261020.json",
+      "sha256": "adec2e7661fc0564939763b1b96b0348d64a731e89556c2596f97b02dff88225"
     }
   ],
   "canonical_denominator_recomputed": {

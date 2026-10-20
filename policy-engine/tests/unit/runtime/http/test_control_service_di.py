@@ -2004,7 +2004,7 @@ async def _run_controlled_simulate_only_job_fixture(
     proposal_source_persistence_failure: bool = False,
     local_sibling_mechanism_witness: bool = False,
     root_input_factory: Callable[[Any], None] | None = None,
-    registered_ncm_outcome: bool = False,
+    registered_ncm_outcome: bool = True,
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -3077,6 +3077,23 @@ async def _run_controlled_simulate_only_job_fixture(
     finally:
         if not service_transferred:
             service.close()
+
+
+@pytest.mark.asyncio
+async def test_explicit_per_cell_ncm_fixture_request_remains_refused(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """An explicit unsupported per-cell NCM outcome remains a typed refusal."""
+    with pytest.raises(
+        ValueError,
+        match=r"controlled_wmr_ncm_outcome_scope_not_supported:cells\.distress_score",
+    ):
+        await _run_controlled_simulate_only_job_fixture(
+            monkeypatch,
+            tmp_path,
+            registered_ncm_outcome=False,
+        )
 
 
 def test_control_job_core_identity_is_unique_per_lease_attempt() -> None:
@@ -4739,7 +4756,6 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         monkeypatch,
         tmp_path,
         root_input_factory=attach_selected_inputs,
-        registered_ncm_outcome=True,
     )
     request.addfinalizer(fixture.service.close)
     core_run_id = str(fixture.job.progress["core_run_id"])

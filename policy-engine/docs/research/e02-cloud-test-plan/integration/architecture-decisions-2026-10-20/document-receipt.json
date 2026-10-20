@@ -1,0 +1,91 @@
+{
+  "kind": "architecture_document_readback",
+  "date": "2026-10-20",
+  "source_snapshot": "11ff2421e04223fc961dd5a520768fd75bafe1e2",
+  "author_candidate_source": "fe046fefbb06fc3dcaf259766f048a6defed58ea",
+  "g_head": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "g_branch": "codex/e02-integration",
+  "architecture_disposition": "selected_for_implementation",
+  "G_acceptance": false,
+  "source_acceptance": false,
+  "closure_ids": [],
+  "runtime_checks_executed": false,
+  "tests_builds_imports_installers_model_checks_executed": false,
+  "commit_or_push_executed": false,
+  "document_validation": "all current Markdown bytes read back; local Markdown links resolve; hashes below; no product validation performed",
+  "review_disposition": "review-disposition.md",
+  "files": [
+    {
+      "path": "01-method-output-metric-unit.md",
+      "bytes": 24011,
+      "sha256": "480e1b4052ed58486b7092d52a7f0c8885497b8008f708205cfb7258b0947947"
+    },
+    {
+      "path": "02-shared-compute-admission.md",
+      "bytes": 19318,
+      "sha256": "17623220c5dbde2ae6de69a447dd64319e711e25f27c1e13cee06335101d5551"
+    },
+    {
+      "path": "03-observational-http-input.md",
+      "bytes": 23358,
+      "sha256": "af03053228ca0f755b9e03e77c137f1c8504874d9e76b1dc96c5f71e695c4687"
+    },
+    {
+      "path": "04-implementation-and-verification.md",
+      "bytes": 22176,
+      "sha256": "3e011756d4fee22a8f59ba57ed89fe15c74b7ed3755b42db4c3725bd0f635de1"
+    },
+    {
+      "path": "05-research-and-red-team.md",
+      "bytes": 18387,
+      "sha256": "575ff8f7cc5678811f926e4e86efd28bea46df297415a740b9ca03ffa9274b21"
+    },
+    {
+      "path": "06-final-decisions-and-solo-review.md",
+      "bytes": 24170,
+      "sha256": "4eb1e7e966194f424d0cc1ab57e91fd664a1534367bf776d07895741b5d8939b"
+    },
+    {
+      "path": "README.md",
+      "bytes": 9158,
+      "sha256": "46b3ee5db819e5cfe062ec092d40dc68d1f29cbf546fde711802408c869fae2a"
+    },
+    {
+      "path": "review-disposition.md",
+      "bytes": 5493,
+      "sha256": "bc3ab0940813155270f74b0c5326599468804683ad5e5f48624a3154682c218c"
+    }
+  ],
+  "research_roles": [
+    "arch20_metric_repo",
+    "arch20_metric_sota",
+    "arch20_metric_red",
+    "arch20_budget_repo",
+    "arch20_budget_sota",
+    "arch20_budget_red",
+    "arch20_http_repo",
+    "arch20_http_sota",
+    "arch20_http_red",
+    "arch20_custody_cross",
+    "arch20_migration_cross",
+    "arch20_original_criteria",
+    "arch20_oracles",
+    "arch20_quantity_semantics",
+    "arch20_paging_research",
+    "arch20_minimalism"
+  ],
+  "research_role_count": 16,
+  "delegation_levels": 1,
+  "revision": "final-solo-review-20261020",
+  "entrypoint": "06-final-decisions-and-solo-review.md",
+  "current_revision_review": {
+    "reviewer": "G root",
+    "mode": "solo static source and document analysis",
+    "subagents_used_this_round": 0,
+    "independent_review_of_this_delta": false,
+    "prior_helper_reviews_apply_to": "previous document revision only"
+  },
+  "markdown_file_count": 8,
+  "markdown_total_bytes": 146071,
+  "receipt_scope": "architecture research and document readback before the separately requested docs-only publication"
+}

@@ -1,0 +1,591 @@
+{
+  "schema": "policyos.e02.g_architecture_adoption_current_source.v1",
+  "identity": "g-b7adafe-current-source-adoption-20261020-r3",
+  "canonical_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-adoption-and-current-source.json",
+  "purpose": "G-selected implementation contracts reconciled with the exact published G source and current author source. Not code acceptance or finding adjudication.",
+  "authority": {
+    "architecture_choices": "selected_for_implementation",
+    "source_acceptance": false,
+    "code_integration_publication": false,
+    "closure_ids": [],
+    "global_source_freeze": false,
+    "formal_adjudication": "G_reserved"
+  },
+  "frames": {
+    "research_snapshot": [
+      "11ff2421e04223fc961dd5a520768fd75bafe1e2",
+      "323186d04a4775244c407f81f9151533bff89312",
+      "fe046fefbb06fc3dcaf259766f048a6defed58ea"
+    ],
+    "published_G": {
+      "branch": "codex/e02-integration",
+      "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+      "tree": "3cf103b6e1b9a395bcb7f3f5803346f90ddc1370",
+      "parent": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "origin_ref_matches": true,
+      "later_G_delta": "None observed: the read-only G checkout HEAD and origin/codex/e02-integration are both exactly b7adafe89423bc6906a5fb86c38e579a381ad2ee.",
+      "checkout_readback": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "branch": "codex/e02-integration",
+        "HEAD": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+        "tree": "3cf103b6e1b9a395bcb7f3f5803346f90ddc1370",
+        "tracked_status": "clean"
+      }
+    },
+    "author_doc_merge": {
+      "commit": "a17cdb010beb490f9242a691f28529c1f401b9c3",
+      "tree": "981d8f4bc00f89dae43202dafb8a7428e80a6848",
+      "parents": [
+        "ffa546794ebb285de2381f0eb482bd9df05b4c27",
+        "b7adafe89423bc6906a5fb86c38e579a381ad2ee"
+      ]
+    },
+    "current_author_source": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "eb3c99041570e52fdeb95ac9c2c6e8c81c389cf5",
+      "tree": "30ff72e86992e319b2451087d0f319f4a3a5126a",
+      "parent": "697bc5df606785483d828ae5b51c07b07f4be78a",
+      "tracked_clean": true,
+      "freeze": false,
+      "runtime": "Partial current-source VOI evidence exists on this exact EB3 source: one nine-module whole replay completed 179 tests (147 PASS / 32 FAIL / 0 SKIP, exit 1). This is not G acceptance. The selected AD01–03 end-to-end vertical chains listed below remain UNRUN."
+    }
+  },
+  "G_merge_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-architecture-b7adafe-merge-admission-20261020-r1/implementation-readback.json",
+    "sha256": "ea51f93599b54a39ed32631982f6aa152682a0773030bc08b4205360aa6c0d64",
+    "exact_G_docs": "9/9 blob matches at b7 and a17/current",
+    "G_doc_root": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/"
+  },
+  "G_doc_blobs": [
+    [
+      "01-method-output-metric-unit.md",
+      "c97d67a92b543cbb570dc4d1f6c3cb1fcb0673b0"
+    ],
+    [
+      "02-shared-compute-admission.md",
+      "fd77f4a40759a7ffd2d3c8e730fa5ce174a3595d"
+    ],
+    [
+      "03-observational-http-input.md",
+      "537074023acc69ec42b6052eab896b02727a17fe"
+    ],
+    [
+      "04-implementation-and-verification.md",
+      "d83159bf9d41f3d8f8b96031f341f8357be48bdd"
+    ],
+    [
+      "05-research-and-red-team.md",
+      "48b47ae9cde70adeef6102e57aa0640f30647c6c"
+    ],
+    [
+      "06-final-decisions-and-solo-review.md",
+      "9d9e09fc84cee10c27ece0c3953f2a6af0975d59"
+    ],
+    [
+      "README.md",
+      "5911d4fb9b380948003e681c123dd965f4cc0b1d"
+    ],
+    [
+      "document-receipt.json",
+      "8816aea7a0251ed97269dccf7cd8f0dbde2079c5"
+    ],
+    [
+      "review-disposition.md",
+      "939e263fe4c31460c39b84abca6a4d89494ee09a"
+    ]
+  ],
+  "selected_contracts": {
+    "AD-E02-01": "Extend existing compiler/IR, Foundry graph capture, CAS and Scientist vector owners: compiled graph/node/slot→metric binding; actual output occurrence/bundle; atomic winning-attempt selection; typed executable metric/unit law; persisted owner-verified projection and bounded fresh reader. Exact identity only for same quantity kind/role. Does not prove causal identification, calibration, adequacy, fiscal law or publication authority.",
+    "AD-E02-02": "Reuse one process-wide SharedExecutor physical worker-slot owner; serial folds; finite FIFO refs-only queue/backpressure; hold prepare/decode/dispatch/serialize/persist/cleanup under one admitted callable and return refs. Not CPU/RSS or deployment-wide cap; no nested fold fanout.",
+    "AD-E02-03": "Single strict optional-by-absence `WorkflowRunRequest.observational_input`; B versioned envelope durable, A explicit legacy HTE normalization only. Pin source-view/method/version/defaults/runtime before acceptance; content-admit under slot; bind input/result and fresh GET. New target `foundry.causal.hte_observational_data.v1`. Present null/partial/conflicting selection or wrong kind/media/profile/target is refusal; no sniff/fallback. Does not establish authenticity, custody, currentness, permission or science."
+  },
+  "historical_evidence": {
+    "R5_codec": [
+      "manifest-r5.json@bd656281d059b94ed0e36dab574296e7c6e82b80243da6e7074649c4a5f9b356",
+      "independent-review/manifest.json@fbcc1ba0c7f9c0d10adbd8ddeff08d2dddc784c4ecbea6d394c2a12907ac6fbb",
+      "actual/result.json@738a052744626f8557503909c3d1412d97543a96ed3da71d5e3d17c401efad0c"
+    ],
+    "R5_boundary": "10/10 on RAW prototype module alias; canonical owner/consumer absent, so no AD01 chain, acceptance or closure.",
+    "old_G_pending_followup": "root-method-output-codec-prototype-g-followup-20261020-r1/followup.json@093a37f09de1289f51237866d07fb5c0cd55e7fcaa22322372f3f6abc574a512 remains immutable historical ca4/ffa wording; b7 later selected the architecture, not source acceptance.",
+    "worker_receipt": "Historical ca4: 187 collected, 110P/77S/0F; 149 call rows only and 38 setup-skipped ids lack call rows. Result @d3f6a00d43d59ce5882c18876bf704a23ff84d53ed5022c7c752475bd913c168; not whole PASS.",
+    "VOI_receipt": "Historical ca4: 169 collected, 129P/40F/0S, exit 1. Result @70d364b0424747ab2bd0b21ec424dd2c246194a9ad061095f5d6b801ac3c9a66; not current 697 replay."
+  },
+  "vector_schema_census_static_only": {
+    "denominator": {
+      "src_python_files": 2799,
+      "test_python_files": 3142
+    },
+    "literal_method_metric_observations_hits": 0,
+    "writers": [
+      {
+        "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "lines": "197-203",
+        "schema_version": "1.1"
+      },
+      {
+        "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+        "lines": "316-321",
+        "schema_version": "1.0"
+      }
+    ],
+    "result": "Proposed 1.2 is unoccupied in scanned current Python source/tests; static-only. Canonical public/generated schema inventory and stored/external artifacts remain to be checked before reservation."
+  },
+  "writer_map_and_waves": {
+    "lease_truth": "The exact EB3 tracked lease snapshot is policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json@0ee7d24ec86e71d6d82afda174fc5e19d5f35a56. The earlier observed test-only lease remains unchanged. Root-declared active coordination below is recorded separately from tracked leases: do not claim the two new RAW-only authoring assignments are present in LEASES.json at EB3, applied to product source, or installed.",
+    "direct_writers": [
+      [
+        "ad01_metric_capture_author",
+        "IR/compiler binding and law; Foundry graph capture/bundle; policy_runtime_artifacts.py + generic PolicyEvaluationVector observation; objective consumer tests. Root retains shared run-record transaction and schema/generated inventory."
+      ],
+      [
+        "ad02_compute_bridge_author",
+        "common/async_tools SharedExecutor; scientist/compute/runner prepare/dispatch/persist lifecycle; finite refs queue/cancel/backpressure and worker tests. No HTTP DTO or shared run-record edits."
+      ],
+      [
+        "ad03_runtime_intent_owner_author",
+        "core/contracts/control.py observational_input; Runtime requested/resolved intent, launch lifecycle and refusal/GET projection tests. Single writer of shared intent/attempt fields; AD01 uses an agreed interface."
+      ],
+      [
+        "ad03_hte_input_owner_author",
+        "Foundry data-plane HTE target/acceptance; selected-view decode, HTE validation, envelope normalization/producer and tests. Root retains canonical schema registry/generated output."
+      ],
+      [
+        "root",
+        "Shared run-record transaction and exact LEASES, schema/public/client/browser generation, cross-owner surface/tests, freeze/replay, full-ID proposal and publication readback."
+      ]
+    ],
+    "waves": [
+      [
+        "0",
+        "Reconcile source; selected-profile/Core decoder, EnvironmentManifest profile, retry view, schema/run-record owner."
+      ],
+      [
+        "1a",
+        "AD03 request/intent + HTE producer/reader; B primary, A explicit."
+      ],
+      [
+        "1b",
+        "AD02 common slot, finite refs queue and prepare-to-persist path; serial folds."
+      ],
+      [
+        "1c",
+        "AD01 compiled binding, actual output/bundle, typed metric/unit law."
+      ],
+      [
+        "2",
+        "Compose exact intent/lease/result, guarded winning attempt, persisted typed projection."
+      ],
+      [
+        "3",
+        "Scientist consumer, RunIndex/L3/L4/fresh GET and generated/public/browser surfaces."
+      ],
+      [
+        "4",
+        "Reviews before freeze; complete original-property roster, HTTP positive, removals/falsifiers, full outputs."
+      ],
+      [
+        "5",
+        "Explicit source/input/backend freeze; one composed costly replay; separate closeout proposals and G adjudication."
+      ]
+    ],
+    "serialization": "1a/1b/1c may build on disjoint paths. One writer for shared DTO/run-record/schema/generator/lock/DB; compose W2 after interface agreement; W4/5 only after reviewed freeze.",
+    "observed_lease": {
+      "id": "root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1",
+      "slice_base": "697bc5df606785483d828ae5b51c07b07f4be78a",
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "preimage_sha256": "0211413163fb02fb83500d366e9ad3d1a5d9c241e08508804efa54a48bad1957",
+      "postimage_sha256": "9bd8ce83a3171af119f1988ef788460113bf21c59ca90a0bd3366cf72a531174",
+      "application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1/source-application.json",
+        "sha256": "0fd0a71cb6e27d5424a5eb8722c6a90a34ab8e982dfccd7d45dee66f23c77910"
+      },
+      "independent_review_sha256": "e72d093d1b9149ef6e8f6fea1dfb248149141d9be9cc882b1a22a6dad00ce3b6",
+      "runtime": "UNRUN"
+    },
+    "tracked_source_lease_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "source_frame": "eb3c99041570e52fdeb95ac9c2c6e8c81c389cf5 / tree 30ff72e86992e319b2451087d0f319f4a3a5126a",
+      "git_blob": "0ee7d24ec86e71d6d82afda174fc5e19d5f35a56",
+      "recorded_test_lease": "root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1",
+      "interpretation": "Observed tracked evidence only. Other completed/historical rows remain in the full cited ledger; this pointer is not a claim that every row is a current active writer."
+    },
+    "root_declared_active_coordination": {
+      "provenance": "Root directly declared these assignments for the current execution plan in response to the R3 correction task. No separate tracked current-plan document/hash was supplied in this source frame.",
+      "purpose": "Make current writer ownership reviewable while keeping planned/RAW work distinct from source implementation and installed-package evidence.",
+      "source_implemented": false,
+      "installed": false,
+      "tracked_LEASES_contains_new_Core_or_consumer_rows": false,
+      "assignments": [
+        {
+          "role": "AD01 metric capture author",
+          "agent": "/root/ad01_metric_capture_author",
+          "scope": "IR/compiler binding and law; Foundry graph capture/bundle; policy_runtime_artifacts.py and generic PolicyEvaluationVector observation; objective consumer tests.",
+          "status": "root-declared active source author lane; no AD01 whole vertical-chain acceptance claimed"
+        },
+        {
+          "role": "AD02 compute bridge author",
+          "agent": "/root/ad02_compute_bridge_author",
+          "scope": "common/async_tools SharedExecutor; Scientist compute runner prepare/dispatch/persist; finite refs queue, cancel/backpressure, worker tests.",
+          "status": "root-declared active source author lane; no AD02 physical admission acceptance claimed"
+        },
+        {
+          "role": "AD03 runtime intent owner",
+          "agent": "/root/ad03_runtime_intent_owner_author",
+          "scope": "core/contracts/control.py observational_input; Runtime requested/resolved intent, launch lifecycle, refusal and GET projection tests.",
+          "status": "root-declared active source author lane; no AD03 HTTP vertical-chain acceptance claimed"
+        },
+        {
+          "role": "AD03 HTE input owner",
+          "agent": "/root/ad03_hte_input_owner_author",
+          "scope": "Foundry data-plane HTE target/acceptance, selected-view decode, HTE validation, envelope normalization/producer and tests.",
+          "status": "root-declared active source author lane; no AD03 HTTP vertical-chain acceptance claimed"
+        },
+        {
+          "role": "Core bounded-reader/acquisition-registry root-cause author",
+          "agent": "/root/acquisition_registry_root_cause_author",
+          "scope": "RAW candidate patch covers core/artifacts/canonical_profile.py, core/artifacts/store.py, core/artifacts/__init__.py, mirrored bounded-reader test, package README, and release fragment.",
+          "candidate": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261020-r2/bounded-core-json-reader.patch@06e2f0d4e9768af291b218d52fa261da523b0cdbbf2ede34e0b6ea4705bcf65e",
+          "status": "RAW-only authoring; source_implemented=false; installed=false; not a new tracked lease in the EB3 ledger"
+        },
+        {
+          "role": "Scientist projection-consumer/composed-VOI integration owner",
+          "agent": "/root (cross-owner integration writer in the declared plan)",
+          "scope": "Cross-owner composed VOI consumer and projection integration, coordinated with the existing Scientist producer/vector owners; preserve all prior per-path writer boundaries.",
+          "related_existing_tracked_lease": "root-voi-f1-f2-whole-composition-adoption-20261020-r1 is an earlier source lease already recorded in the EB3 LEASES blob; it is not evidence that this new coordination assignment has been applied or installed.",
+          "status": "root-declared RAW/planning coordination; source_implemented=false for this new assigned work; installed=false"
+        },
+        {
+          "role": "Shared composition, lease ledger, generated/public/browser surfaces, freeze and closeout owner",
+          "agent": "/root",
+          "scope": "Shared run-record transaction, new exact tracked path leases before source writes, schema/client/browser companions, composed verification and source readback.",
+          "status": "root-declared coordination; no global source freeze or acceptance claimed"
+        }
+      ],
+      "independent_reviewer": "/root/composed_voi_f1f2_independent is an independent review lane, not a product-source writer."
+    }
+  },
+  "G_read_only_audit_routes": [
+    [
+      "Auditor A — AD01/AD02 source composition",
+      "Check exact 11ff→697 pins, path conflicts, compatibility with retry and VOI source preservation, and the selected binding/compute owners. Return concrete property, divergent case, falsifier and migration effect. Do not promote historical 52/3/1, worker 110/77, VOI 129/40, or R5 10/10 to current acceptance."
+    ],
+    [
+      "Auditor B — AD03 authority/input boundary",
+      "Check strict absence/null/conflict rules; selected-view/profile and method/default pinning; A/B lineage and privacy; explicit external unknowns. Return source counterexample, minimum repair, retirement/version impact and ordinary HTTP/fresh-GET falsifier."
+    ]
+  ],
+  "open_external_facts": [
+    "No fiscal sign/alias/FX/deflator law; causal identification/calibration/empirical adequacy; issuer permission; custody/currentness; qualifying production workload; or publication authority is established.",
+    "paged K_ref remains unselected pending streaming, composed parity/removal/source replacement and measured retained floor."
+  ],
+  "runtime_not_promoted": [
+    "UNRUN on exact EB3: AD01 real graph→CAS→admission→persisted v1.2 projection→consumer and removal controls.",
+    "UNRUN on exact EB3: AD02 complete B56 declared competing roster at cap 1/2, serial folds, queue/cancel/timeout/retry/no-drop and physical worker observer.",
+    "UNRUN on exact EB3: AD03 ordinary authenticated POST→real HTE worker→CAS→guarded selection→fresh GET for B and separate A migration plus refusal/removal controls.",
+    "One limited VOI/source-score cohort replay on EB3 failed 32 of 179 tests; it does not establish an AD01 compiled binding, AD02 physical admission, AD03 HTTP path, metric/law correctness, source acceptance, production currentness, G code acceptance, or finding closure. Global source freeze remains false."
+  ],
+  "source_delta_11ff_to_current": {
+    "diff": "32 paths, 3,520 insertions / 153 deletions = 9 G decision docs + 23 other paths; no config/lock/schema/generated-client paths changed.",
+    "other_paths": [
+      [
+        "M",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "0ee7d24ec86e71d6d82afda174fc5e19d5f35a56"
+      ],
+      [
+        "M",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "3241dbbb1af39db0c7d1a378949f126937d434e6"
+      ],
+      [
+        "A",
+        "policy-engine/release-fragments/unreleased/2026-10-20-e02-voi-work-packet-qualified-observations.toml",
+        "e275cbdd2025764e7b555b8d6697b32f114f50f0"
+      ],
+      [
+        "A",
+        "policy-engine/release-fragments/unreleased/2026-10-20-e02-worker-receipt-staged-run-writes.toml",
+        "ae5f0d0a47c4f7d381d4a3ca67779be3bf792c66"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/core/run/README.md",
+        "dec15c616ebcfc57e7bf73f6858f80f60df8e278"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "bc083ced092352cc167b684871f5c394fd84da1a"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "7d9a1eeb359e2c04b7895aff7fe7749b53424eb5"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "69c48e23467360c254b873256fc5ed6124321307"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "dccfa8607c846744e03345ba4c3a2a19f91a5fb5"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+        "fc93344eac6f33af73caeed64355ef875eb4db3c"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py",
+        "97fd145def917880551032fd70889f4082bb5d99"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+        "90e4200eec3387c7551cddee7d87dd71476f7e11"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "dbb4c8452770ac0009003059e083be3a88605de8"
+      ],
+      [
+        "M",
+        "policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+        "b05ca1269a353b75ad4e6174c25fc896255a1fee"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "d4453d0e61f14acb02db75c5abd1127aeb5a3ac7"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+        "f6b6b31a25f7ad8d74e5530b5130432172c88c6b"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+        "c8748861b49922a72e759134661e734513b163f6"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "e387f03f9fc9268b80f8cd8588d2c38391757d06"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "a90964f75c59c2846c7e484d6366762f2b1fb00d"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "a9a611bde88c1d526ddc5e064f65d03f5d40a3be"
+      ],
+      [
+        "A",
+        "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "0bea347e80de27b409b95f4fb1a82c482571cd30"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "ba8088e98b08555c806a2d0e2086dae970f83696"
+      ],
+      [
+        "M",
+        "policy-engine/tests/unit/scientist/search/test_objective_availability.py",
+        "7dfeae8b161541e6c9ffecaf8fe909f2b2a9237b"
+      ]
+    ],
+    "compatibility": "22c3 stages only typed add_input/add_output for _EngineNodeRunView wrapping an _AttemptRunFacade over WorkerRunView; retry receipt repair, not AD02 admission. ca4/697 VOI work binds persisted selected-profile packets and rechecks a fiscal score-source projection; it preserves source-specific fiscal semantics, not generic AD01 law. ffa546 changes test_emb_03.py only (C12 temporary-callable mutation isolation), no product code in that commit. SourceMetricObservation remains v1.0 government_balance/USD stock only with budget_deficit objective not_established.",
+    "path_root": "policy-engine/",
+    "delta_697_to_eb3c": {
+      "commit": "eb3c99041570e52fdeb95ac9c2c6e8c81c389cf5",
+      "tree": "30ff72e86992e319b2451087d0f319f4a3a5126a",
+      "parent": "697bc5df606785483d828ae5b51c07b07f4be78a",
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/scientist/search/test_adversarial.py"
+      ],
+      "substance": "Test-only: selects the self-claimed report fixture, then independently changes each producer-selected outcome-basis field (kind, media type, schema name, schema version) while retaining the same bytes/profile lineage and verifies refusal. No product code/API/config changed.",
+      "lease": "root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1; one path test_adversarial.py from base 697; runtime UNRUN.",
+      "static_review_pin": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-report-basis-fixed-profile-matrix-independent-review-20261020-r2/review.json@e72d093d1b9149ef6e8f6fea1dfb248149141d9be9cc882b1a22a6dad00ce3b6",
+      "runtime": "UNRUN on eb3c; no behavior/pass promotion."
+    }
+  },
+  "decision_source_git_blob_readback_11ff_to_current": {
+    "method": "For each cited deciding path, compared git rev-parse 11ff:path to git rev-parse eb3c:path; repository blob IDs, not inferred working-tree claims.",
+    "unchanged": [
+      [
+        "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "d51e59eb4521228706d11286d0cba20d6b9d0607"
+      ],
+      [
+        "src/polisyos/core/contracts/foundry.py",
+        "c098279062a1ee558b97876fcc7d6d9a3a57f975"
+      ],
+      [
+        "src/polisyos/foundry/execute/api.py",
+        "a49411e637b0b0d72dd8cb9d7da49ebe45cdcc9d"
+      ],
+      [
+        "src/polisyos/ir/kernel/metrics.py",
+        "7d16561f4020d8b3b6aa483d88ffb3074a454c23"
+      ],
+      [
+        "src/polisyos/foundry/methods/base.py",
+        "c134c13fd13d18ecf33ce3bb51b29d82e627b37c"
+      ],
+      [
+        "src/polisyos/ir/analytics/uncertainty.py",
+        "a42d1f8a2313629d1143641b962786335be43b4c"
+      ],
+      [
+        "src/polisyos/scientist/methods/search/objective.py",
+        "b230a293824ddd70c97ede9016871cfa8f3182e2"
+      ],
+      [
+        "src/polisyos/scientist/compute/runner.py",
+        "03a3478db5e745060aa719e168a3b85e112590c0"
+      ],
+      [
+        "src/polisyos/common/async_tools/__init__.py",
+        "1d3a5cb8e7ff6c5a26a7ebfebed75778a93525ab"
+      ],
+      [
+        "src/polisyos/core/contracts/control.py",
+        "8c71d2e725c20ba3d39e8c00e24e58c517d9cd6b"
+      ],
+      [
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "1ca7015233e634e085f378e7de3da813f7ef14b8"
+      ],
+      [
+        "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+        "b4a9cdcd82f30c081f5b276a417f9f401c4ecd2c"
+      ],
+      [
+        "src/polisyos/ir/observation/bundles.py",
+        "cf46b3d8bf01adbb0c837597e7f7ccb9336fcb85"
+      ],
+      [
+        "src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "2d35616ebe69a23b820cca258c77cf296d155bef"
+      ]
+    ],
+    "changed_base_to_current": [
+      [
+        "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "d54f2136492e31021b71e3b2a17fe4cd93f47f43",
+        "dccfa8607c846744e03345ba4c3a2a19f91a5fb5"
+      ],
+      [
+        "src/polisyos/scientist/orchestration/engine/retry.py",
+        "152025058fb7c22fe068078c539df4b7ffb1efb7",
+        "dbb4c8452770ac0009003059e083be3a88605de8"
+      ],
+      [
+        "src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "e3081221e29e5f07e2915ad5ac2ee3022a42e1cb",
+        "69c48e23467360c254b873256fc5ed6124321307"
+      ],
+      [
+        "src/polisyos/scientist/policy_design/objectives.py",
+        "d745f82669cbe25c543d93e2e6571949d2d77cef",
+        "b05ca1269a353b75ad4e6174c25fc896255a1fee"
+      ]
+    ],
+    "path_root": "policy-engine/"
+  },
+  "architecture_followup_readbacks": {
+    "scope": "Exact S1/S2/S3/T1/T2 and composition/question screen only; this is not a complete E02 architecture inventory.",
+    "semantic_custody": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/architecture-followup-semantic-custody-20261020-r1/none-found-assessment.md",
+      "sha256": "4554be2a185aeffc9d067a71bcef3d11b10938e79eb0e42cff4bb975b20621f1",
+      "denominator": "38 canonical unique finding IDs / 39 canonical criterion occurrences; 40 routed IDs / 41 route occurrences. LA-023 two separate original occurrence bindings retained; route overlap is not counted as new findings.",
+      "disposition": "No additional G architecture question in this screened scope. This does not claim every E02 architecture issue is settled, nor source acceptance or closure.",
+      "stale_premises": [
+        "LA-055 packet premise that R4/R3 versus R2 precedence awaits G is stale against current source: R4/R3 persisted-false veto, R2 owner-signoff exception with calibration checks, and R1/R0 blocked. The assessment did not execute tests; this is not G formal acceptance or external registry currentness, and LA-055 remains open for its exact unresolved evidence.",
+        "B148 README wording about an unresolved G-level decision for a strict producer-bound context on every first claim conflates source/institutional transfer permission, receiver-local receipt, and protected claim eligibility. A receiver-local owner record is not source permission. Check the actual protected consumer; no broader first-claim rule is proposed."
+      ],
+      "tests": "UNRUN; read-only source/document assessment only."
+    },
+    "composition_question_screen": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/architecture-followup-composition-20261020-r1/question-screen.md",
+      "sha256": "15821f76f1e5e1786e8637dda3cb22b932147926d68b0c4d200dc28afa0b2ba5",
+      "disposition": "No additional G question in screened LA-021/CAN-01, C05/C06/LA-032, C12/LA-040, and Q2 scope; owner implementation/evidence gaps route under existing contracts.",
+      "labels": "LA-032 bridge_missing; LA-040 producer_missing; Q2 verification_missing; expanded profileless-history scope remains verification_missing.",
+      "tests": "UNRUN; read-only source/document screen only."
+    },
+    "G_authority": "No new authority waiver, architecture decision, code acceptance, or finding closure follows from these readbacks; closure_ids remains empty and formal adjudication remains reserved to G."
+  },
+  "predecessor_raw_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-b7adafe-current-source-adoption-20261020-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-adoption-and-current-source.json",
+    "sha256": "3ae9f70a31eaad7c1504326b928c7aed16ac8ca9a981e47e98fa6343460852a6",
+    "note": "Immutable R2 architecture/source reconciliation. R3 adds the exact EB3 partial VOI replay and narrows the UNRUN scope; no canonical source or historical packet is changed."
+  },
+  "current_source_partial_replay": {
+    "scope": "One bounded source-score/VOI/work-packet cohort only; this is evidence of a real partial replay and its failures, not a capability or architecture acceptance.",
+    "source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "eb3c99041570e52fdeb95ac9c2c6e8c81c389cf5",
+      "tree": "30ff72e86992e319b2451087d0f319f4a3a5126a",
+      "source_before": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/source-before.json@b3c1d84b7a59197e093eb8f6533d23eabc8e32420734e4e454e209e1491e5a35",
+      "source_after": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/source-after.json@b3c1d84b7a59197e093eb8f6533d23eabc8e32420734e4e454e209e1491e5a35",
+      "source_snapshot_equality": "Before and after snapshots are byte-identical; receipt reports source_unchanged=true."
+    },
+    "selection": {
+      "request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/request.json@2049c3ad5444e2562a0b83f0030531f83c9af89d98c2726a7913f692f81e1eb8",
+      "whole_selection": "Nine files: tests/unit/scientist/policy_design/test_search.py; tests/unit/scientist/search/test_objective_availability.py; tests/unit/scientist/methods/search/test_objective.py; tests/unit/scientist/search/funnel/test_types.py; tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py; tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py; tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py; tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py; tests/unit/scientist/search/test_adversarial.py.",
+      "collection": "179 collected/calls; calls match actual collection=true."
+    },
+    "outcome": {
+      "result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/result.json@173227d1d0915784d8e1ee04ae0d244798d34a7e38cb34ad464200e1bfc1ae45",
+      "failure_partition": "31 VOI fixture cases fail during PolicySpec construction because their policy_id does not match the declared lowercase identifier pattern; one joined L4 and L3→L4 invocation case expected available but observed rejected.",
+      "timing_and_resource": "19.452038 seconds; peak sampled process-tree RSS 1,017,200,640 bytes; process group reaped; 12,091,568,128 bytes minimum sampled disk free."
+    },
+    "full_command_and_deciding_outputs": [
+      [
+        "full invocation argv, cwd, sandbox pin",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/invocation.json@ded7c9bf211544bc9e0038b20f4d430137a86a1ed689fb49b3124dd6fafc07c0"
+      ],
+      [
+        "full result/command/status/resource output",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/result.json@173227d1d0915784d8e1ee04ae0d244798d34a7e38cb34ad464200e1bfc1ae45"
+      ],
+      [
+        "full pytest stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/pytest.stdout.txt@80463f3df017dc9d57f0998f7b476daec8928e2ceec55ceba742532039d18d61"
+      ],
+      [
+        "pytest stderr",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/pytest.stderr.txt@f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc"
+      ],
+      [
+        "JUnit deciding test outcomes",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/pytest.xml@f8af9bc57968f8c62dfc4ad44ca23463eb25257f9631c285d8a0594f6fe2aa32"
+      ],
+      [
+        "collected test basis",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-eb3c9904-20261020-r2/actual/collection.json@de47f21c46f1a784cee54bef7b6f97052365bc6025aec094f772c006dd2e552c"
+      ]
+    ],
+    "limitations": "This partial replay does not assert new metric qualification or admission. It does not exercise the selected AD01/AD02/AD03 complete chains; no authority, calibration, law, production currentness, G acceptance or formal closure is derived from its output.",
+    "authority": {
+      "G_acceptance": false,
+      "closure_ids": []
+    }
+  },
+  "superseded_independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-four-receipt-postimage-truth-review-20261020-r1/review.json",
+    "sha256": "d839b02cb713ea18043d66c9021b581f9b72bf6b4aa05b49c8d41731db573750",
+    "disposition": "Its R1 blocker is addressed only for the exact runtime-status claim. Request a fresh delta review on this R3 postimage; do not infer source acceptance."
+  }
+}

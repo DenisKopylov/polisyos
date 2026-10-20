@@ -43355,5 +43355,95 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-four-reviewed-historical-receipt-adoption-20261020-r2": {
+    "slice_base": "813f157539aa70ef5bdda4179ee7c583ae9f7b34",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-worker-receipt-and-voi-composition-implementation-20261020.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-voi-source-runtime-handoff-clarified-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-worker-receipt-and-voi-composition-implementation-20261020.json",
+        "postimage_sha256": "7cf08412a13abf0fc6cffdfed6f1d750230f5a117053dd4a2e05764e27762726",
+        "role": "mandatory_receipt_or_decision_record"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-worker-receipt-and-voi-composition-runtime-20261020.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-voi-source-runtime-handoff-clarified-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-worker-receipt-and-voi-composition-runtime-20261020.json",
+        "postimage_sha256": "ec16c864882d0031d628d7f3e2c20e2e4f151b85d5aa17b4facfacaf69329555",
+        "role": "mandatory_receipt_or_decision_record"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-method-output-codec-prototype-followup.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-voi-source-runtime-handoff-clarified-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-method-output-codec-prototype-followup.json",
+        "postimage_sha256": "093a37f09de1289f51237866d07fb5c0cd55e7fcaa22322372f3f6abc574a512",
+        "role": "mandatory_receipt_or_decision_record"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-adoption-and-current-source.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-b7adafe-current-source-adoption-20261020-r3/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-adoption-and-current-source.json",
+        "postimage_sha256": "1bf3d11f8fb6508f0ae7684f0ec9de517cd8fab1cfed25b61ea0afa838f1fce4",
+        "role": "mandatory_receipt_or_decision_record"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-four-reviewed-historical-receipt-adoption-20261020-r2/source-application.json",
+      "sha256": "3cf51e16507c6beaeba67e3308b5ddad67a0fddccfa139c6336bcc2551717c78"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-four-reviewed-historical-receipt-adoption-20261020-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-four-reviewed-receipt-clean-adopter-20261020-r1/plan.json",
+        "sha256": "c1c0145c74176de700408a58a1fd333aefb6a6523ff021af634747a7fcf7fa85"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-voi-source-runtime-independent-review-20261020-r1/review.json",
+        "sha256": "a3489b930cf545bb6d35076f8be74abcf78147325d1017537094ae338d910b63"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-four-receipt-postimage-truth-review-20261020-r1/review.json",
+        "sha256": "d839b02cb713ea18043d66c9021b581f9b72bf6b4aa05b49c8d41731db573750"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-adoption-r3-delta-independent-review-20261020-r1/review.json",
+        "sha256": "fa51e50c869586db167b6d685dcc4878825220e816e25042b699130c0062819f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "receipt-only historical evidence delivery",
+      "scope": "Four exact reviewed JSON postimages plus mandatory lease/index companions. No new capability or runtime verdict."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "All four receipts remain bounded to their explicitly pinned historical source frames; current root HEAD is a delivery frame, not a retroactive runtime qualification.",
+      "Latest actual nine-file runtime on 813 is 154 PASS /32 FAIL /0 SKIP /0 ERROR over186 calls, result retained separately; no fresh-green claim here.",
+      "N7 actual old/new full-object parity passed on scoped 969 freeze, not a memory saving or production-currentness claim.",
+      "AD01\u201303 implementation and full producer-consumer chains remain in progress and UNRUN. G acceptance and formal adjudication remain reserved."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Continue independently reviewed AD01\u201303 source composition, exact source/input/profile freeze, native and installed consumers; deliver later runtime evidence in separate receipt commits.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

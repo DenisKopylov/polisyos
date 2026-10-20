@@ -1,0 +1,531 @@
+{
+  "G_acceptance": false,
+  "adjudication": {
+    "next_checks": [
+      "Investigate the worker report contract for setup-skipped cases and obtain a supported Linux-worker replay for guarded native controls.",
+      "Repair or adjudicate VOI whole-module failures, then rerun the complete nine-file selection against a fresh scoped freeze.",
+      "Keep Prepared B13, native TMLE52, ordinary HTTP/production workload, and native SOTA row-by-row checks open."
+    ],
+    "overall": "These results are source-bound to ca4e509e but are partial/failed qualification only; they do not close a finding or prove E02 capability closure.",
+    "voi": "Test command returned 1 with 40 JUnit failures. No claim of a passing VOI composition is made.",
+    "worker": "Test command returned 0 and JUnit has zero failures, but the supervisor qualification predicate is false: 38 setup-skipped nodes have no call-phase row, so 149 call rows do not cover the 187 collected ids. The 77 skips are explicitly reported below; Linux-only controls remain unrun on this host."
+  },
+  "candidate_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+    "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+  },
+  "closure_ids": [],
+  "execution_profile": {
+    "aggregate_policy": "At most two concurrent product groups, each sampled at 2 GiB, one numerical thread; no C12 or native child overlap.",
+    "backend": "existing local policy-engine/.venv/bin/python + pytest under macOS sandbox-exec",
+    "full_test_selection": "Whole requested files; actual pytest config reports empty keyword/marker filter and empty deselect set.",
+    "limits_each": {
+      "disk_floor_bytes": 4294967296,
+      "numeric_threads": 1,
+      "rss_cap_bytes": 2147483648,
+      "sample_seconds": 0.5,
+      "wall_seconds": 900
+    },
+    "plugins": [
+      "e02_i4_case_report_capture_r1",
+      "e02_wave_capture_r10_candidate"
+    ],
+    "profile_claim": "No external policy/scientific profile. VOI test fixtures exercise selected-profile binding and bounded score-only semantics.",
+    "python_path": "policy-engine/.venv/bin/python",
+    "request_input_count_each": 80
+  },
+  "executions": [
+    {
+      "actual": {
+        "command_argv_is_retained_in": "result.json",
+        "decision": {
+          "aborted_reason": null,
+          "calls_match_actual_collection": false,
+          "case_report_call_outcomes": {
+            "passed": 110,
+            "skipped": 39
+          },
+          "case_report_call_rows": 149,
+          "collected": 187,
+          "complete": true,
+          "completed_calls": 149,
+          "disk_free_before_bytes": 12385767424,
+          "finished_at": "2026-10-20T18:27:05.878297+00:00",
+          "junit": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 110,
+            "skipped": 77,
+            "tests": 187
+          },
+          "loaded_runtime_origin_count": 1226,
+          "max_sampled_process_tree_rss_bytes": 796524544,
+          "minimum_sampled_disk_free_bytes": 12369498112,
+          "origin_mismatch_count": 0,
+          "origin_mismatches": [],
+          "process_group_gone": true,
+          "requested_origin_state_counts": {
+            "loaded": 6,
+            "unknown": 0,
+            "unloaded": 0
+          },
+          "requested_unloaded_modules": [],
+          "return_code": 0,
+          "skipped_case_groups": [
+            {
+              "count": 23,
+              "reason": "Darwin timed execution admits canonical spawn nodes, not thread fallback",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry.TestExecuteWithRetrySync::test_claim_capable_execute_preserves_type_and_manifest_authority",
+                "tests.unit.scientist.orchestration.engine.test_retry.TestExecuteWithRetrySync::test_claim_capable_execute_preserves_real_run_sinks_on_time",
+                "tests.unit.scientist.orchestration.engine.test_retry.TestExecuteWithRetrySync::test_timeout_path_uses_shared_executor",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_canonical_retry_boundary_uses_actual_attempt_files[permanent-sync-thread]"
+              ]
+            },
+            {
+              "count": 2,
+              "reason": "arbitrary-node timeout is verified on the native Linux fork route",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry.TestExecuteWithRetrySync::test_timeout_raises",
+                "tests.unit.scientist.orchestration.engine.test_retry.TestExecuteWithRetryAsync::test_timeout_raises"
+              ]
+            },
+            {
+              "count": 1,
+              "reason": "native Linux fork worker required",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry.TestExecuteWithRetryAsync::test_timeout_does_not_leave_child_process"
+              ]
+            },
+            {
+              "count": 16,
+              "reason": "native Linux fork worker unavailable",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry::test_fork_transport_drains_small_and_large_outcomes[small-sync]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_fork_transport_drains_small_and_large_outcomes[small-async]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_fork_transport_drains_small_and_large_outcomes[one-mib-sync]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_fork_transport_drains_small_and_large_outcomes[one-mib-async]"
+              ]
+            },
+            {
+              "count": 6,
+              "reason": "Linux child subreaper contract",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry::test_owned_supervisor_reaps_real_new_session_grandchild[returned-sync]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_owned_supervisor_reaps_real_new_session_grandchild[returned-async]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_owned_supervisor_reaps_real_new_session_grandchild[expired-sync]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_owned_supervisor_reaps_real_new_session_grandchild[expired-async]"
+              ]
+            },
+            {
+              "count": 1,
+              "reason": "process-start failure transport is verified on the native Linux fork route",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry::test_real_process_start_failure_preserves_original_error_and_no_body_effect"
+              ]
+            },
+            {
+              "count": 6,
+              "reason": "actual Linux RLIMIT descriptor oracle",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry::test_worker_setup_fault_closes_real_pipe_descriptors[cold-sync]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_worker_setup_fault_closes_real_pipe_descriptors[cold-async]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_worker_setup_fault_closes_real_pipe_descriptors[synchronize-sync]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_worker_setup_fault_closes_real_pipe_descriptors[synchronize-async]"
+              ]
+            },
+            {
+              "count": 16,
+              "reason": "native Linux fork timeout worker required",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry::test_canonical_retry_boundary_uses_actual_attempt_files[permanent-sync-fork]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_canonical_retry_boundary_uses_actual_attempt_files[permanent-async-fork]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-sync-fork]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_canonical_retry_boundary_uses_actual_attempt_files[provider_timeout-async-fork]"
+              ]
+            },
+            {
+              "count": 6,
+              "reason": "control-exception transport is verified on the native Linux fork route",
+              "sample_nodeids": [
+                "tests.unit.scientist.orchestration.engine.test_retry::test_real_process_preserves_control_exception_without_retry[sync-SystemExit]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_real_process_preserves_control_exception_without_retry[sync-KeyboardInterrupt]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_real_process_preserves_control_exception_without_retry[sync-SystemExitUnsupported]",
+                "tests.unit.scientist.orchestration.engine.test_retry::test_real_process_preserves_control_exception_without_retry[async-SystemExit]"
+              ]
+            }
+          ],
+          "source_after_frame": {
+            "branch": "codex/e02-unified-local-20261009",
+            "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+            "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+          },
+          "source_before_frame": {
+            "branch": "codex/e02-unified-local-20261009",
+            "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+            "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+          },
+          "source_snapshot_file_count": 26000,
+          "source_snapshot_sha256": "716d9e3ee46b81a7a10dbb43b06ea98f65c46b2d3446713f70890c87cbfd125e",
+          "source_unchanged": true,
+          "started_at": "2026-10-20T18:26:50.833232+00:00",
+          "status": "passed",
+          "termination_signal": null,
+          "tracked_snapshot_byte_equal": true,
+          "wall_seconds": 15.045022916048765
+        },
+        "full_deciding_outputs": [
+          {
+            "bytes": 180489,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/cases.jsonl",
+            "role": "complete_per_case_reports_and_tracebacks",
+            "sha256": "ec54c03f0d5a29f7effba4c1aa767d040d4b60c505cec3bc53f69e3592ffed82"
+          },
+          {
+            "bytes": 29204,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/collection.json",
+            "role": "complete_actual_collected_nodeids_and_selection",
+            "sha256": "fc07017e0769a85869869a385fafa85cbb6070e5950eefd2ea46e2b2a0fe287c"
+          },
+          {
+            "bytes": 2027,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/controller-events.jsonl",
+            "role": "controller_event_log",
+            "sha256": "9c12079da0c4969cb9c7d7fa6abe0c0823732896dd98e101fc027c0f9bebefd8"
+          },
+          {
+            "bytes": 5262,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/invocation.json",
+            "role": "request_invocation_and_effective_environment",
+            "sha256": "deb6630900976008913bf10f4a861ef9416928e9e848b7fe8f65956fc94a8cfb"
+          },
+          {
+            "bytes": 1380400,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/origins.json",
+            "role": "runtime_module_and_plugin_origin_capture",
+            "sha256": "69f514d908835e6fcd5a2124e5b2a638d15faf977f69cc3b02bf9c1ea3dccc6a"
+          },
+          {
+            "bytes": 1962,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/phase-output.jsonl",
+            "role": "full_phase_output_events",
+            "sha256": "9e4e8a193e43514409b2f1e2c2975438dc18eea707abd86efb99697d8124f429"
+          },
+          {
+            "bytes": 46612,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/process-tree.jsonl",
+            "role": "sampled_process_tree_and_resources",
+            "sha256": "d28f161eb857cd0e922e721b89041aa66f110b4f348542bd11ba888d14cb6cfc"
+          },
+          {
+            "bytes": 471,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/pytest.stderr.txt",
+            "role": "complete_pytest_stderr",
+            "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc"
+          },
+          {
+            "bytes": 31017,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/pytest.stdout.txt",
+            "role": "complete_pytest_stdout",
+            "sha256": "a3b06aa074fa4b13a650bf907595e8c23e972aeb56f32a335669d81c06c20442"
+          },
+          {
+            "bytes": 55464,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/pytest.xml",
+            "role": "junit_counts_and_failures",
+            "sha256": "bd2943ba90d7186566e5c58c7ce4b4f29855c35ad1c80f258fa583c7a106614f"
+          },
+          {
+            "bytes": 8161,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/result.json",
+            "role": "complete_supervisor_decision",
+            "sha256": "d3f6a00d43d59ce5882c18876bf704a23ff84d53ed5022c7c752475bd913c168"
+          },
+          {
+            "bytes": 1448,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/sandbox.sb",
+            "role": "actual_sandbox_policy",
+            "sha256": "dd4b38b97e9fab63aa0dca5ff556bd074b44de59c77887db246a9947ed67cd2f"
+          },
+          {
+            "bytes": 19607106,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/source-after.json",
+            "role": "full_tracked_source_snapshot_after",
+            "sha256": "716d9e3ee46b81a7a10dbb43b06ea98f65c46b2d3446713f70890c87cbfd125e"
+          },
+          {
+            "bytes": 19607106,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual/source-before.json",
+            "role": "full_tracked_source_snapshot_before",
+            "sha256": "716d9e3ee46b81a7a10dbb43b06ea98f65c46b2d3446713f70890c87cbfd125e"
+          }
+        ],
+        "output_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/actual"
+      },
+      "directory": "root-worker-receipt-two-whole-ca4e509e-20261020-r1",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-receipt-two-whole-ca4e509e-20261020-r1/request.json",
+        "schema": "policyos.e02.root_existing_pytest_request.v1",
+        "sha256": "7732d7164caa2d9abb72bd5f3c6a6c3f5941e4a3d94fd90e9fb8e241d77d84c2"
+      },
+      "request_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+        "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+      },
+      "request_inputs": {
+        "count": 80,
+        "current_hashes_match": true
+      },
+      "request_scope": {
+        "G_acceptance": false,
+        "aggregate_policy": "At most2 concurrent product groups, each sampled2GiB, numerical1. No C12 or native child overlap.",
+        "authority": "Whole worker pool/retry behavioral tests on reviewed staged receipt composition; parent receipt admission and ordinary-view lifecycle refusal remain required.",
+        "closure_ids": [],
+        "execution_preconditions": {
+          "global_source_freeze": false,
+          "scoped_frame_freeze": true,
+          "source_rebind_complete": true
+        },
+        "origin_modules": [
+          "polisyos.scientist.orchestration.engine.retry",
+          "polisyos.scientist.orchestration.engine.runner.worker_pool",
+          "polisyos.scientist.orchestration.engine.runner.local_pool",
+          "polisyos.scientist.orchestration.engine.runner._activity_worker",
+          "polisyos.core.run.worker_lifecycle",
+          "polisyos.core.run.context"
+        ],
+        "resource_limits": {
+          "disk_floor_bytes": 4294967296,
+          "numeric_threads": 1,
+          "rss_cap_bytes": 2147483648,
+          "sample_seconds": 0.5,
+          "wall_seconds": 900
+        },
+        "selectors": [
+          "tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+          "tests/unit/scientist/orchestration/engine/test_retry.py"
+        ]
+      }
+    },
+    {
+      "actual": {
+        "command_argv_is_retained_in": "result.json",
+        "decision": {
+          "aborted_reason": null,
+          "calls_match_actual_collection": true,
+          "case_report_call_outcomes": {
+            "failed": 40,
+            "passed": 129
+          },
+          "case_report_call_rows": 169,
+          "collected": 169,
+          "complete": true,
+          "completed_calls": 169,
+          "disk_free_before_bytes": 12385906688,
+          "finished_at": "2026-10-20T18:27:07.496893+00:00",
+          "junit": {
+            "errors": 0,
+            "failures": 40,
+            "passed": 129,
+            "skipped": 0,
+            "tests": 169
+          },
+          "loaded_runtime_origin_count": 1243,
+          "max_sampled_process_tree_rss_bytes": 1071333376,
+          "minimum_sampled_disk_free_bytes": 12369465344,
+          "origin_mismatch_count": 0,
+          "origin_mismatches": [],
+          "process_group_gone": true,
+          "requested_origin_state_counts": {
+            "loaded": 12,
+            "unknown": 0,
+            "unloaded": 4
+          },
+          "requested_unloaded_modules": [
+            "polisyos.runtime.quality.credal_reference",
+            "polisyos.runtime.quality.data_forge_binding",
+            "polisyos.runtime.quality.data_snapshot_lineage",
+            "polisyos.scientist.nodes.builtins.decide.run_policy_promotion"
+          ],
+          "return_code": 1,
+          "skipped_case_groups": [],
+          "source_after_frame": {
+            "branch": "codex/e02-unified-local-20261009",
+            "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+            "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+          },
+          "source_before_frame": {
+            "branch": "codex/e02-unified-local-20261009",
+            "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+            "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+          },
+          "source_snapshot_file_count": 26000,
+          "source_snapshot_sha256": "716d9e3ee46b81a7a10dbb43b06ea98f65c46b2d3446713f70890c87cbfd125e",
+          "source_unchanged": true,
+          "started_at": "2026-10-20T18:26:50.830871+00:00",
+          "status": "command_failed",
+          "termination_signal": null,
+          "tracked_snapshot_byte_equal": true,
+          "wall_seconds": 16.665987707907334
+        },
+        "full_deciding_outputs": [
+          {
+            "bytes": 360323,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/cases.jsonl",
+            "role": "complete_per_case_reports_and_tracebacks",
+            "sha256": "9413024b6f8f395f9153e105d75160babab29f20ceb80ef8f6a8f01232d7213f"
+          },
+          {
+            "bytes": 29591,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/collection.json",
+            "role": "complete_actual_collected_nodeids_and_selection",
+            "sha256": "c97b78583aa04fcbe2d02f2c83ea553e436740d7ce8e8dfde55fd89979cd7f0d"
+          },
+          {
+            "bytes": 2462,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/controller-events.jsonl",
+            "role": "controller_event_log",
+            "sha256": "21d94e45bc03aa06594c86dee463e8992a6093d3b0a110953a35c4c688381c77"
+          },
+          {
+            "bytes": 6279,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/invocation.json",
+            "role": "request_invocation_and_effective_environment",
+            "sha256": "432d3e419d13db4e50c318aaa6ce4e8500f98df9c9aed783fb50c410feb7b696"
+          },
+          {
+            "bytes": 1400022,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/origins.json",
+            "role": "runtime_module_and_plugin_origin_capture",
+            "sha256": "0cc01b050bb33a9775f3da483a97922e97095c40d03abfee631f60edd152078d"
+          },
+          {
+            "bytes": 2396,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/phase-output.jsonl",
+            "role": "full_phase_output_events",
+            "sha256": "97921fc4e6e6d5bd8075010e23f663afa7bd54526c37db3f89ea4ac1e019a169"
+          },
+          {
+            "bytes": 64314,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/process-tree.jsonl",
+            "role": "sampled_process_tree_and_resources",
+            "sha256": "2543aff968376d36d5fd91462c21031e14e6cf1c611fc2cdce0cbc1339d75bef"
+          },
+          {
+            "bytes": 471,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/pytest.stderr.txt",
+            "role": "complete_pytest_stderr",
+            "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc"
+          },
+          {
+            "bytes": 229955,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/pytest.stdout.txt",
+            "role": "complete_pytest_stdout",
+            "sha256": "870ed61ca895ab29eb364f4f137e89d955950243e9f3efeb7d8b402751faa173"
+          },
+          {
+            "bytes": 236219,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/pytest.xml",
+            "role": "junit_counts_and_failures",
+            "sha256": "95f1024a5d20954d3899f2e308d27d522fdfebcefc1807aac84da6660db113e2"
+          },
+          {
+            "bytes": 9860,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/result.json",
+            "role": "complete_supervisor_decision",
+            "sha256": "70d364b0424747ab2bd0b21ec424dd2c246194a9ad061095f5d6b801ac3c9a66"
+          },
+          {
+            "bytes": 1440,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/sandbox.sb",
+            "role": "actual_sandbox_policy",
+            "sha256": "c691d5aca3ab0a87194b1e83eeb75c44bcce7f36271986c4f566adb0ac241ea3"
+          },
+          {
+            "bytes": 19607106,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/source-after.json",
+            "role": "full_tracked_source_snapshot_after",
+            "sha256": "716d9e3ee46b81a7a10dbb43b06ea98f65c46b2d3446713f70890c87cbfd125e"
+          },
+          {
+            "bytes": 19607106,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual/source-before.json",
+            "role": "full_tracked_source_snapshot_before",
+            "sha256": "716d9e3ee46b81a7a10dbb43b06ea98f65c46b2d3446713f70890c87cbfd125e"
+          }
+        ],
+        "output_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/actual"
+      },
+      "directory": "root-voi-score-nine-whole-ca4e509e-20261020-r1",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-score-nine-whole-ca4e509e-20261020-r1/request.json",
+        "schema": "policyos.e02.root_existing_pytest_request.v1",
+        "sha256": "7ae56f2aa5b9eb1e0d23a9faaef57a27016248f65b32d01ee64e88da3069259f"
+      },
+      "request_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "ca4e509e69db26fc1f163d34c993bd7d682e0e92",
+        "tree": "aeea7fbb2b54c0782955caf174299d52ab5e77b3"
+      },
+      "request_inputs": {
+        "count": 80,
+        "current_hashes_match": true
+      },
+      "request_scope": {
+        "G_acceptance": false,
+        "aggregate_policy": "At most2 concurrent product groups, each sampled2GiB, numerical1. No C12 or native child overlap.",
+        "authority": "Whole source-score/CAS packet/VOI fresh restore and compatibility modules after reviewed13pathcomposition; no empirical/calibration/external authority claim.",
+        "closure_ids": [],
+        "execution_preconditions": {
+          "global_source_freeze": false,
+          "scoped_frame_freeze": true,
+          "source_rebind_complete": true
+        },
+        "origin_modules": [
+          "polisyos.scientist.methods.search.funnel.orchestrator",
+          "polisyos.scientist.methods.search.objective",
+          "polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_benchmarks",
+          "polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine",
+          "polisyos.scientist.nodes.builtins.decide.policy_runtime_artifacts",
+          "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+          "polisyos.runtime.quality.credal_reference",
+          "polisyos.runtime.quality.data_forge_binding",
+          "polisyos.runtime.quality.data_snapshot_lineage",
+          "polisyos.core.contracts.fabric",
+          "polisyos.scientist.methods.search.contracts",
+          "polisyos.scientist.policy_design.search",
+          "polisyos.scientist.methods.search.funnel.types",
+          "polisyos.scientist.policy_design.objectives",
+          "polisyos.scientist.methods.search.voi_scheduler",
+          "polisyos.scientist.nodes.builtins.decide.run_policy_promotion"
+        ],
+        "resource_limits": {
+          "disk_floor_bytes": 4294967296,
+          "numeric_threads": 1,
+          "rss_cap_bytes": 2147483648,
+          "sample_seconds": 0.5,
+          "wall_seconds": 900
+        },
+        "selectors": [
+          "tests/unit/scientist/policy_design/test_search.py",
+          "tests/unit/scientist/search/test_objective_availability.py",
+          "tests/unit/scientist/methods/search/test_objective.py",
+          "tests/unit/scientist/search/funnel/test_types.py",
+          "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+          "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+          "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+          "tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+          "tests/unit/scientist/search/test_adversarial.py"
+        ]
+      }
+    }
+  ],
+  "historical_evidence_is_separate": true,
+  "identity": "root-worker-voi-source-runtime-handoff-20261020-r1",
+  "schema": "policyos.e02.local_runtime_handoff.v1",
+  "source_packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-worker-receipt-and-voi-composition-implementation-20261020.json",
+  "source_packet_sha256": "7cf08412a13abf0fc6cffdfed6f1d750230f5a117053dd4a2e05764e27762726",
+  "status": "COMPLETED_PARTIAL_QUALIFICATION"
+}

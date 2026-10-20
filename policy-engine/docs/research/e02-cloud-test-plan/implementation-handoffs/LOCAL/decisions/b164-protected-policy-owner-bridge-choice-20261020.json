@@ -1,0 +1,194 @@
+{
+  "schema": "polisyos.e02.b164_l6_g_tracked_decision_delivery.v1",
+  "delivery_id": "b164-protected-policy-owner-bridge-choice-delivery-20261020-r2",
+  "status": "tracked_decision_proposal_not_adjudicated",
+  "record": {
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-protected-policy-owner-bridge-choice-20261020.md",
+    "markdown_sha256": "3bbe5c92d4e986d72b633ab3f9b1a3346cd192cf9560922e87e120f1e92106ae",
+    "tracked_wrapper_json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-protected-policy-owner-bridge-choice-20261020.json",
+    "raw_source_packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b164-l6-g-choice-separation-r2-20261020/decision-packet-r2.md",
+    "raw_source_packet_sha256": "3bbe5c92d4e986d72b633ab3f9b1a3346cd192cf9560922e87e120f1e92106ae",
+    "raw_source_packet_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b164-l6-g-choice-separation-r2-20261020/manifest-r2.json",
+    "raw_source_packet_manifest_sha256": "f02e5150415603c609a5d38aa474d2e3cac4f94ec497480c18b59cfdbe2d89c9",
+    "independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r2/review-r2.json",
+    "independent_review_sha256": "85467a31e94c8b64bd984557f03eca2f6c4d2ec034e54381419637b9212bb5a8",
+    "independent_review_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r2/manifest.json",
+    "independent_review_manifest_sha256": "ad7c764e689589ff005aef55c7e93f7fd2b09b00d3f3225dc5691184f024af60",
+    "manifest_identity_note": "The packet manifest is the original immutable packet manifest. This JSON is a separate tracked delivery wrapper, not a G decision or a replacement for the reviewed packet."
+  },
+  "frames": {
+    "historical_decision_and_audit_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "3a16ebfb87f11ae8bd95d55e36ce9e8f67ef351c",
+      "tree": "88f3b0698f892e9c82fc8ada52f24f903426449d",
+      "parents": [
+        "cbd061390e4867befa5ef85af83ccde6639fa57a"
+      ],
+      "source_freeze": false,
+      "g_acceptance": false,
+      "formal_closure_ids": [],
+      "meaning": "Historical R2 decision/source-audit frame pinned by the packet; it is not the current delivery candidate or a source freeze."
+    },
+    "independent_packet_review_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "3a16ebfb87f11ae8bd95d55e36ce9e8f67ef351c",
+      "tree": "88f3b0698f892e9c82fc8ada52f24f903426449d",
+      "parent": "cbd061390e4867befa5ef85af83ccde6639fa57a",
+      "meaning": "Read-only packet delta QA only."
+    },
+    "tracked_delivery_candidate_base": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "be09be99df14d93dd4d22a140696ea06e26c5c8d",
+      "tree": "3c3d5104aa910accc37e38253e7735714a03a95e",
+      "parents": [
+        "515f74337353af7a2ec68ad4845c02c9767d0ad2"
+      ],
+      "working_tree_clean": false,
+      "tracked_modified_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+      ],
+      "source_freeze": false,
+      "g_acceptance": false,
+      "meaning": "Exact base for the unapplied metadata proposal. The two known-owned dirty tests are preserved; none is a delivery target."
+    }
+  },
+  "authority_and_status": {
+    "decision_authority": "G alone adjudicates this architecture choice; G does not supply external owner/issuer facts.",
+    "independent_packet_review_verdict": "GO",
+    "review_scope": "R2 packet integrity, alternative separation, source citations, and decision quality; not code acceptance or runtime execution.",
+    "review_is_not": "G adjudication, source acceptance, runtime proof, source freeze, production permission, or finding closure.",
+    "g_adjudication": false,
+    "g_acceptance": false,
+    "source_freeze": false,
+    "canonical_finding_ids": [
+      "B164"
+    ],
+    "proposal_ids": [
+      "B164"
+    ],
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "b164_status": "held",
+    "protected_l6_effect": "bridge_missing",
+    "candidate_evaluation": "may_continue_under_declared_unknowns",
+    "production_permission": "not_established",
+    "issuer_identity": "not_established",
+    "currentness_and_revocation": "not_established"
+  },
+  "proposed_g_decisions": [
+    {
+      "proposal_id": "B164",
+      "option_a": "Keep protected L6 promotion blocked with bridge_missing until an authentic owner contract is supplied; candidate evaluation and source-custody work may continue with unknowns carried forward.",
+      "option_b": "Authorize only a bounded, costed reuse/minimal-extension integration design at the external owner’s actual serialized writer; this neither appoints an owner nor creates a permit or production positive.",
+      "no_response": "The present held/bridge_missing state remains; candidate work continues.",
+      "choice_boundary": "Architectural follow-on only. G cannot infer issuer, permission, law, currentness, revocation, production custody, or writer facts."
+    }
+  ],
+  "external_inputs_g_cannot_invent": [
+    "owner and issuer identity/appointment",
+    "purpose-bound permit reference/schema and signature verification basis",
+    "independently owned verifier plus currentness/revocation source and semantics",
+    "candidate/run/ticket/action/purpose/policy-version subject binding",
+    "actual effectful target, prepared payload, and effect oracle",
+    "owner transaction/serialization protocol that makes the final authority check atomic with the write"
+  ],
+  "historical_source_audit": {
+    "packet_source_frame_head": "3a16ebfb87f11ae8bd95d55e36ce9e8f67ef351c",
+    "packet_source_frame_tree": "88f3b0698f892e9c82fc8ada52f24f903426449d",
+    "r1_source_pin_denominator": 19,
+    "r1_source_pin_filesystem_matches": 19,
+    "r2_manifest_referenced_paths": 15,
+    "r2_manifest_refs_found_in_head": 6,
+    "r2_missing_or_hash_mismatched_refs": 0,
+    "interpretation": "Exact historical packet facts, not a current source census."
+  },
+  "delivery_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "preimage_sha256": "b5731e323915848e34e69ffc76b3b1fb6800e952bfc70a83257664c5436eb432",
+    "preimage_referenced_rows": 390,
+    "postimage_expected_referenced_rows": 392,
+    "append_only_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-protected-policy-owner-bridge-choice-20261020.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-protected-policy-owner-bridge-choice-20261020.json"
+    ],
+    "full_preimage_denominator_check": {
+      "rows_examined": 390,
+      "unique_paths": 390,
+      "duplicates": 0,
+      "missing": 0,
+      "hash_mismatches": 0
+    },
+    "postimage_hash_stage": "planned_pre_lease_helper_intermediate; root must bind the actual final index and LEASES bytes after applying its helper and read them back from the branch."
+  },
+  "source_reconciliation_dependency": {
+    "current_effect_claim": "not_established",
+    "pending_change": "Root-directed B108/R9 source work remains pending and may change L6 input/consumer state.",
+    "required_rebind": "After the actual R9 base is composed, rebind L6 source/current-consumer evidence and replay the exact owner/currentness/write checks before any implementation-effect claim. This metadata delivery does not depend on or imply that replay."
+  },
+  "relevant_patterns": [
+    "P05",
+    "P31",
+    "P32",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "capability_labels_remaining_open": [
+    "producer_missing: promotion-purpose permission from authentic owner",
+    "artifact_missing: persisted typed permit bound to exact candidate/run/action/purpose",
+    "verification_missing: independent promotion-purpose currentness/revocation check",
+    "bridge_missing: L6 handoff to the named protected writer",
+    "consumer_missing: actual protected effect owner and durable consumer readback",
+    "surface_missing: owner-backed effect/status evidence at a user/audit surface",
+    "semantic_test_missing: genuine valid-effect and revoked-before-commit zero-effect controls at the owner writer"
+  ],
+  "reviewed_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+      "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+      "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+      "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+      "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+      "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+      "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b164-l6-g-choice-separation-r2-20261020/decision-packet-r2.md",
+      "sha256": "3bbe5c92d4e986d72b633ab3f9b1a3346cd192cf9560922e87e120f1e92106ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b164-l6-g-choice-separation-r2-20261020/manifest-r2.json",
+      "sha256": "f02e5150415603c609a5d38aa474d2e3cac4f94ec497480c18b59cfdbe2d89c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r2/review-r2.json",
+      "sha256": "85467a31e94c8b64bd984557f03eca2f6c4d2ec034e54381419637b9212bb5a8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r2/manifest.json",
+      "sha256": "ad7c764e689589ff005aef55c7e93f7fd2b09b00d3f3225dc5691184f024af60"
+    }
+  ],
+  "required_next_verification": {
+    "after_tracked_delivery": "Root applies only at the agreed serialized boundary; read exact Markdown, JSON, index, and helper-managed LEASES bytes back from the branch, count the final 392 rows, and bind actual commit/tree/parents and final index/lease SHAs. Never predict a future commit SHA.",
+    "after_r9_source_composition": "Repeat source-currentness binding and consumer-chain checks against the actual R9-composed source before claiming current implementation effects.",
+    "when_authentic_owner_inputs_arrive": "At the actual writer, prove valid independently verified current permit → only authorized durable effect, and absent/fake/wrong-subject/stale/expired/revoked-before-commit → zero effects while legacy markers remain."
+  }
+}

@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "d78b578b8fbe6a3ddc867c1f6c6d2051fe2cb5f18fa75d29076f3eee552e55df",
+      "sha256": "6ec0214e4178dd147767cf33656766fae55cff273643cf0b7da4a0487b6ca996",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1606,7 +1606,16 @@
     },
     {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.md","sha256":"9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304"},
     {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.json","sha256":"7a9e9a077767090a0661059ab7b758a39443246eb656018b1094b2040591dd26"}
-  ],
+  ,
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-protected-policy-owner-bridge-choice-20261020.md",
+      "sha256": "3bbe5c92d4e986d72b633ab3f9b1a3346cd192cf9560922e87e120f1e92106ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-protected-policy-owner-bridge-choice-20261020.json",
+      "sha256": "e118e3de29fe29fbeaf34ba9cbb53908e180cb0af6bbd1776372a52f3325c42c"
+    }
+],
   "canonical_denominator_recomputed": {
     "occurrences": 291,
     "unique_finding_ids": 282,

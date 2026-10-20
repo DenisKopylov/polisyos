@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import threading
 from concurrent.futures import FIRST_COMPLETED, BrokenExecutor, Future, ThreadPoolExecutor, wait
-from contextvars import copy_context
+from contextvars import Context, copy_context
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Protocol
 
@@ -23,12 +23,16 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
     from pathlib import Path
 
+    from .batch_control import BatchAuthorizationLossSignal
     from .ids import ArtifactID
 
 
-type _BatchAbortReason = Literal["cancelled", "inventory_failed", "executor_failed"]
+type _BatchAbortReason = Literal[
+    "cancelled", "authorization_lost", "inventory_failed", "executor_failed"
+]
 _BATCH_ABORT_MESSAGES: dict[_BatchAbortReason, str] = {
     "cancelled": "Batch cancelled; no new artifacts were submitted",
+    "authorization_lost": "Batch authorization lost; no new artifacts were submitted",
     "inventory_failed": "Batch inventory source failed; results are incomplete",
     "executor_failed": "Batch aborted (executor_failed); results are incomplete",
 }
@@ -68,6 +72,15 @@ def _source_length_hint(source: Iterable[ArtifactID]) -> int | None:
         return None
 
 
+def _run_in_context[T](
+    context: Context,
+    process: Callable[[ArtifactID], T],
+    artifact_id: ArtifactID,
+) -> T:
+    """Run one callback in the context captured by the batch producer."""
+    return context.run(process, artifact_id)
+
+
 @dataclass(frozen=True)
 class _BoundedRun:
     """Return actual finished rows and inventory/executor completion state."""
@@ -91,6 +104,7 @@ def _run_bounded(
     max_workers: int,
     pending_window: int | None,
     cancel_event: threading.Event | None,
+    authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
 ) -> _BoundedRun:
     """Run item callbacks with bounded inventory consumption and cancellation.
 
@@ -114,6 +128,9 @@ def _run_bounded(
             if cancel_event is not None and cancel_event.is_set():
                 abort_reason = "cancelled"
                 return
+            if authorization_loss_signal is not None and authorization_loss_signal.is_set():
+                abort_reason = "authorization_lost"
+                return
             try:
                 artifact_id = next(iterator)
             except StopIteration:
@@ -126,11 +143,28 @@ def _run_bounded(
             if cancel_event is not None and cancel_event.is_set():
                 abort_reason = "cancelled"
                 return
+            if authorization_loss_signal is not None and authorization_loss_signal.is_set():
+                abort_reason = "authorization_lost"
+                return
             task_context = copy_context()
+
+            def submit(
+                context: Context = task_context,
+                selected_id: ArtifactID = artifact_id,
+            ) -> Future[object]:
+                return executor.submit(_run_in_context, context, process, selected_id)
+
             try:
-                future = executor.submit(task_context.run, process, artifact_id)
+                future = (
+                    authorization_loss_signal.admit_if_open(submit)
+                    if authorization_loss_signal is not None
+                    else submit()
+                )
             except (BrokenExecutor, RuntimeError):
                 abort_reason = "executor_failed"
+                return
+            if future is None:
+                abort_reason = "authorization_lost"
                 return
             pending[future] = (next_index, artifact_id)
             next_index += 1
@@ -151,6 +185,12 @@ def _run_bounded(
                     abort_reason = "executor_failed"
                 if abort_reason is None and cancel_event is not None and cancel_event.is_set():
                     abort_reason = "cancelled"
+                if (
+                    abort_reason is None
+                    and authorization_loss_signal is not None
+                    and authorization_loss_signal.is_set()
+                ):
+                    abort_reason = "authorization_lost"
             fill_window(executor)
 
     return _BoundedRun(
@@ -349,6 +389,8 @@ def sign_all_artifacts(
         cancel_event=cancel_event,
     )
     details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
+    if run.abort_reason == "authorization_lost":
+        raise RuntimeError("authorization-loss abort is not supported for batch signing")
     if run.abort_reason is not None:
         details.append(
             ArtifactSigningResult(
@@ -388,6 +430,7 @@ def verify_all_signatures(
     verify_one: Callable[[ArtifactID, Ed25519Verifier, bool | None], SignatureVerificationResult],
     pending_window: int | None = None,
     cancel_event: threading.Event | None = None,
+    authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
 ) -> BulkVerificationReport:
     """Verify many detached signatures concurrently and summarize statuses."""
 
@@ -407,6 +450,7 @@ def verify_all_signatures(
         max_workers=max_workers,
         pending_window=pending_window,
         cancel_event=cancel_event,
+        authorization_loss_signal=authorization_loss_signal,
     )
     details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
     if run.abort_reason is not None:

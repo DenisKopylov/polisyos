@@ -244,11 +244,16 @@ def _cmd_verify(args: Any) -> int:
             if args.json:
                 print(report.model_dump_json(indent=2))
             else:
-                print(
+                lines = [
                     f"valid={report.valid} unsigned={report.unsigned} invalid={report.invalid} "
                     f"untrusted={report.untrusted} revoked={report.revoked} "
                     f"errors={report.errors} total={report.total}"
-                )
+                ]
+                if report.state is not None:
+                    lines.append(f"state={report.state}")
+                if report.abort_reason is not None:
+                    lines.append(f"abort_reason={report.abort_reason}")
+                print("\n".join(lines))
         if report.invalid or report.untrusted or report.revoked or report.errors:
             return 1
         if args.fail_unsigned and report.unsigned:

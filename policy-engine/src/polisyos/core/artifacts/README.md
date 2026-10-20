@@ -132,6 +132,14 @@ local Python API and adds no HTTP endpoint.
 - integrity errors: `polisyos.core.artifacts.ArtifactIntegrityError` (the canonical
   facade export for read-time CAS integrity failures)
 - signing: `SigningConfig`, `sign_artifact`, `verify_signature`, `sign_all_artifacts`, `verify_all_signatures`
+- bulk verification: `BatchAuthorizationLossSignal` is a caller-owned, one-way stop
+  request; only a configured request-scope authorizer may request it after detecting
+  loss of scope. The verifier stops new executor admissions, drains already-admitted
+  callbacks, and returns their rows with `state="aborted"` and
+  `abort_reason="authorization_lost"`. This signal does not preempt active work,
+  infer authorization from per-artifact errors, or itself establish a permission
+  decision. The current CAS/CLI chain has no production authorizer bridge into this
+  signal.
 - exact chronology evidence: direct module API
   `polisyos.core.artifacts.signed_evidence.FileSystemSignedArtifactEvidenceRepository`; it is not
   added to the eager artifacts facade because that would create a contracts/artifacts import cycle
@@ -185,11 +193,18 @@ is not a completeness or publication predicate. Historical report payloads witho
 lifecycle fields deserialize those fields as `None`; they are not inferred complete. A partial
 report cannot authorize a publication that requires confirmations for every selected reference.
 
-These APIs do not distinguish a local `PermissionError` from a shared authorization loss; no
-typed shared-authorization signal is currently supplied to the batch producer. They also do not
-provide `require_complete_valid(required_refs)` or an all-confirmations publisher. A consumer that
-needs that policy must supply and reconcile its own exact required set and freshly verify each
-selected reference. This report is a diagnostic result, not a transferable verification attestation.
+Bulk verification also accepts an optional `BatchAuthorizationLossSignal`. The caller owns the
+decision to request it after its configured request-scope authorizer establishes authorization loss;
+the batch stops new admissions, drains admitted callbacks, and retains their rows with an explicit
+`authorization_lost` abort reason. The signal is caller input, not permission evidence. No configured
+request-scope authorizer currently reaches the CAS batch-verification callsite, so this is a bounded
+mechanism with a controlled consumer witness rather than a production authorization bridge. Batch
+signing remains cancellation-only and its report excludes this verification-only reason.
+
+These APIs do not provide `require_complete_valid(required_refs)` or an all-confirmations publisher.
+A consumer that needs that policy must supply and reconcile its own exact required set and freshly
+verify each selected reference. This report is a diagnostic result, not a transferable verification
+attestation.
 
 Cancellation stops future admission but does not preempt callbacks already running. A single
 iterator operation may block; this is not hard preemption of arbitrary producer code.

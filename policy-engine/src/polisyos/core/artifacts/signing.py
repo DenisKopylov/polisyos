@@ -156,6 +156,7 @@ class BulkVerificationReport(BaseModel):
             "cancelled",
             "inventory_failed",
             "executor_failed",
+            "authorization_lost",
         ]
         | None
     ) = Field(

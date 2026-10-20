@@ -1,0 +1,29 @@
+id = "2026-10-20-e02-batch-verification-authorization-loss"
+title = "Preserve batch verification results after caller scope loss"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Bulk signature verification accepts a one-way caller scope-loss signal, stops new admissions, drains admitted work and retains explicit abort reporting in JSON and text."
+evidence = ["src/polisyos/core/artifacts/README.md", "tests/unit/remediation/test_b154_batch_completion.py", "tests/unit/core/phase0/test_cli_signing.py"]
+compatibility = "The optional keyword defaults to no signal. Existing item-level ownership and authorization failures remain local rows. Signing reports cannot claim verification-only authorization_lost."
+change_class = "python-public-api; python-runtime-behavior"
+surface_classification = "public_stable: polisyos.core.artifacts"
+migration = "No migration is required for existing callers. An authentic request-scope owner must explicitly connect its own loss signal before any live authorization-loss integration can be claimed."
+api = "Adds BatchAuthorizationLossSignal at the existing Core artifacts facade and an optional authorization_loss_signal argument on bulk signature verification."
+limitations = "The signal is caller asserted and supplies negative scope-loss information only. The CLI has no configured production authorizer bridge; no positive permission, issuer identity, currentness or formal B154 closure is established. Public export inventory regeneration and owner review remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-batch-signature-verification-scope-loss"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts.BatchAuthorizationLossSignal and FileSystemCAS.verify_all_signatures"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add an optional caller-owned authorization-loss signal and retain state/abort reason at the real CLI consumer."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

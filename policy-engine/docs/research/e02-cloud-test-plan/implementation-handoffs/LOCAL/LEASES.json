@@ -28229,5 +28229,174 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b154-typed-batch-authorization-loss-drain-and-real-cli-report-r2-20261020": {
+    "slice_base": "12f950b62db95d81128f17df41917c1eae475974",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/batch_control.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/artifacts/batch_control.py",
+        "postimage_sha256": "a4d1d453e6cfb5267f03bf8a9426ab24185addd09115f0d1f73d1d0b4c27a8bc"
+      },
+      "policy-engine/src/polisyos/core/artifacts/_signature_ops.py": {
+        "operation": "write",
+        "preimage_sha256": "bdac6260738a7118956f6956e44b6cc994a65645428da6da1aef69229c901acf",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "postimage_sha256": "0f37f8534184ee6e7b783b24b1e1d525536a604480f02da21e585719350243bb"
+      },
+      "policy-engine/src/polisyos/core/artifacts/signing.py": {
+        "operation": "write",
+        "preimage_sha256": "c29095bb579694ed2b045fa5cf5e7233a18bbe068885461fe110bbdce07b99d0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/artifacts/signing.py",
+        "postimage_sha256": "6ed0e4e7b7098e95777d331a4598268cf58fb2c91e5844fba3d0f09ebb814134"
+      },
+      "policy-engine/src/polisyos/core/artifacts/store.py": {
+        "operation": "write",
+        "preimage_sha256": "3f5a8f2fac81c5fd20c483deed7c68209a4fcec3f39e7a04f6bde973ddef0d39",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/artifacts/store.py",
+        "postimage_sha256": "d8f81f9ce281309c242b23b5ef7aefd2d270a6423ea0c5c0dd752b0961b27be8"
+      },
+      "policy-engine/src/polisyos/core/artifacts/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "fafb621e27f7929409a906e68cc91079e968fb7fe76e4cbb0d44bd672da1c177",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "postimage_sha256": "e51acde35fd2bef91b90db2e8ca2bd7ec2c5f60646960121b9d341719e2a09a6"
+      },
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "operation": "write",
+        "preimage_sha256": "638586b05d34cfb465cfb7f64e5b8f1d1384c3c0283198c7d11a137f949b29d1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/artifacts/README.md",
+        "postimage_sha256": "480c3588761445983229281ab69824842bcaf0886686288ef04094024dfcfd64"
+      },
+      "policy-engine/src/polisyos/core/components/_cli_crypto.py": {
+        "operation": "write",
+        "preimage_sha256": "d6ff6e128fe8bd212ff91c661b5e709a0cb663d5eb8077c60f27e9dd9a9ac9ec",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/src/polisyos/core/components/_cli_crypto.py",
+        "postimage_sha256": "d170f483b3a80f21deb60b65535adf2b772951f5ab8c5a400c33c0a2d0d93ba4"
+      },
+      "policy-engine/tests/unit/remediation/test_b154_batch_completion.py": {
+        "operation": "write",
+        "preimage_sha256": "036e08e0b3267ab83d8e2c276d4aa0cdb49e6ffb24f7134e7f8bb137142c33b8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/tests/unit/remediation/test_b154_batch_completion.py",
+        "postimage_sha256": "615db5888fdb3353945cee5eb0de60ff5cc10e0564f6a3859afb75d5e7bee42e"
+      },
+      "policy-engine/tests/unit/core/phase0/test_cli_signing.py": {
+        "operation": "write",
+        "preimage_sha256": "3861c4d4b6893a12543c7c72a4b7eb3c590df149c507827f4932c1bb94ed5cbe",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/postimages/policy-engine/tests/unit/core/phase0/test_cli_signing.py",
+        "postimage_sha256": "52aa891be0e32a4e7df0888c985c3a5260b19c20d7ddd45d0aaa473872900889"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-batch-verification-authorization-loss.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-typed-batch-abort-r2-adoption-20261020/batch-verification-authorization-loss.toml",
+        "postimage_sha256": "672255490cf4dd18f7a52394a69bab719011a7652bc0acadc087df44390b5518"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-typed-batch-abort-r2-adoption-20261020/source-application.json",
+      "sha256": "027f613967d43ad53dcb6e8d01e96e27317a4438f922f6316613b2fff7f4297b"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b154-typed-batch-abort-r2-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/candidate-manifest.json",
+        "sha256": "276aa34f8b7057035a58f86aaa7258dac45d710b8e6628fdf7370c9a7dfeee26"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-candidate-20261020-r2/candidate.patch",
+        "sha256": "7baa5244bb343eb458fc1f4dca8c32655e98af9db4e73b7be54ef169784be21b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-independent-review-r2-20261020/review.json",
+        "sha256": "e5ea0371ec148b3816051f2f9fdb2cb260fab9d717b1cb8b574362c22079ec6c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b154-batch-auth-abort-independent-review-r2-20261020/reviewer-check-output.json",
+        "sha256": "a7f4631d771fcfc52905637006f0b0cad796ba4b82d00e03a4ab6f9a92495b0f"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "sha256": "00a4677bf4844e5641c88aee0cf0e4d20b7f57325a2ac41fbd837ac4b416c92a"
+      },
+      {
+        "path": "policy-engine/release-fragments/README.md",
+        "sha256": "3149a0e1e24193bd0af0cdcaf5cc16c9851d647c981ab6608041baca576dc2b9"
+      },
+      {
+        "path": "policy-engine/release-fragments/template.toml",
+        "sha256": "799fe6c6a79a579a0a9cee2f250f12add832e59cd7a4123cdbff0acd10756e6d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-candidate-import-classification-decision-20261020-r1.md",
+        "sha256": "1ded61c078e0bba8ba47a2fa93130d69dfa1fe01fecfa7e173cccf5bfc74b4a0"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same batch report/completion and surface-truthfulness class, repaired in shared submit/drain mechanism and report/CLI consumers; no per-item authorization exceptions are promoted to global facts.",
+    "bounded_proof": "Independent R2GO_LIMITED e5ea0371 confirms full9sourcepostimages and both R1 surface repairs. Author-controlled37P and semantic removal evidence are cited; canonical whole-module replay is UNRUN. Root adds the required honest unreleased public-API fragment, with inventory_reviewed=false.",
+    "limitations": [
+      "No production request-authorizer supplies this signal; it is consumer_asserted negative input, not a permission or currentness proof.",
+      "No publisher or live authorization bridge is invented; B154 remains limited/open pending complete original criterion and authentic integration.",
+      "Public API fragment uses actual contract owner team-polisyos and public_stable Core artifacts classification; actual inventory regeneration/review remains pending and false.",
+      "Runtime get_type_hints on signal method is limited by TYPE_CHECKING Callable; no introspection guarantee or full typecheck established.",
+      "Native physical lint on full applied composition is deciding, not preliminary incomplete-tree stdin check.",
+      "Two known-owned N7/B108 dirty test files preserved; no G acceptance, formal closure, source freeze or global native-green claim.",
+      "No deletion or Trash operation; generic helper relocation wording is inapplicable."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After exact source/profile freeze run complete B154, CAS03 and CLI signing modules with normal pytest configuration, runtime imports, full output/JUnit and marker-preserving stop/drain/text controls. Complete public inventory owner regeneration/review and typed facade checks before publication.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

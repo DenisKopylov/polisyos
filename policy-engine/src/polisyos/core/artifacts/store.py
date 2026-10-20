@@ -174,6 +174,7 @@ if TYPE_CHECKING:
     from ..observability import MetricsRegistry, PolicyOSTracer
     from ._transfer_ops import CASMemberStream
     from .backends.config import ArtifactStoreConfig
+    from .batch_control import BatchAuthorizationLossSignal
 
 
 PutOptions = ArtifactWriteOptions
@@ -2339,6 +2340,7 @@ class FileSystemCAS:
         strict_identity: bool | None = None,
         pending_window: int | None = None,
         cancel_event: threading.Event | None = None,
+        authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
         ids = (
@@ -2358,6 +2360,7 @@ class FileSystemCAS:
             ),
             pending_window=pending_window,
             cancel_event=cancel_event,
+            authorization_loss_signal=authorization_loss_signal,
         )
 
     def _transaction_stage_relative(self, operation_id: str, name: str) -> str:

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
+import polisyos.core.components._cli_crypto as cli_crypto
+from polisyos.core.artifacts import BatchAuthorizationLossSignal
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from tools.ops_runners.runtime_cli import main
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_keygen_creates_files_with_permissions(tmp_path: Path) -> None:
@@ -171,3 +176,119 @@ def test_verify_all_json_output(capsys, tmp_path: Path) -> None:
     assert payload["admitted"] == payload["finished"] == 2
     assert payload["inventory_exhausted"] is True
     assert payload["abort_reason"] is None
+
+
+def test_verify_all_cli_surfaces_caller_requested_batch_authorization_loss(
+    monkeypatch,
+    capsys,
+    tmp_path: Path,
+) -> None:
+    cas_root = tmp_path / "cas"
+    original = FileSystemCAS(cas_root)
+    original.put_bytes(
+        b"authorization-loss-cli",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    trust_dir = tmp_path / "trust"
+    revoked_dir = tmp_path / "revoked"
+    trust_dir.mkdir()
+    revoked_dir.mkdir()
+    signal = BatchAuthorizationLossSignal()
+
+    class CallerSignaledCAS(FileSystemCAS):
+        def verify_signature(self, artifact_id, verifier, *, strict_identity=None):
+            result = super().verify_signature(
+                artifact_id, verifier, strict_identity=strict_identity
+            )
+            signal.request()
+            return result
+
+        def verify_all_signatures(self, verifier, **kwargs):
+            kwargs["max_workers"] = 1
+            kwargs["pending_window"] = 1
+            kwargs["authorization_loss_signal"] = signal
+            return super().verify_all_signatures(verifier, **kwargs)
+
+    monkeypatch.setattr(
+        cli_crypto,
+        "build_cli_filesystem_cas",
+        lambda root: CallerSignaledCAS(root),
+    )
+    code = main(
+        [
+            "verify",
+            "--all",
+            "--cas-root",
+            str(cas_root),
+            "--trust-dir",
+            str(trust_dir),
+            "--revoked-dir",
+            str(revoked_dir),
+            "--json",
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+
+    assert code == 1
+    assert payload["state"] == "aborted"
+    assert payload["abort_reason"] == "authorization_lost"
+    assert payload["admitted"] == payload["finished"] == 1
+    assert payload["inventory_exhausted"] is False
+    assert payload["errors"] == 1
+    assert payload["unsigned"] == 1
+
+
+def test_verify_all_cli_text_surfaces_caller_requested_batch_authorization_loss(
+    monkeypatch,
+    capsys,
+    tmp_path: Path,
+) -> None:
+    cas_root = tmp_path / "cas"
+    original = FileSystemCAS(cas_root)
+    original.put_bytes(
+        b"authorization-loss-cli-text",
+        PutOptions(kind="test.bytes", media_type="application/octet-stream"),
+    )
+    trust_dir = tmp_path / "trust"
+    revoked_dir = tmp_path / "revoked"
+    trust_dir.mkdir()
+    revoked_dir.mkdir()
+    signal = BatchAuthorizationLossSignal()
+
+    class CallerSignaledCAS(FileSystemCAS):
+        def verify_signature(self, artifact_id, verifier, *, strict_identity=None):
+            result = super().verify_signature(
+                artifact_id, verifier, strict_identity=strict_identity
+            )
+            signal.request()
+            return result
+
+        def verify_all_signatures(self, verifier, **kwargs):
+            kwargs["max_workers"] = 1
+            kwargs["pending_window"] = 1
+            kwargs["authorization_loss_signal"] = signal
+            return super().verify_all_signatures(verifier, **kwargs)
+
+    monkeypatch.setattr(
+        cli_crypto,
+        "build_cli_filesystem_cas",
+        lambda root: CallerSignaledCAS(root),
+    )
+    code = main(
+        [
+            "verify",
+            "--all",
+            "--cas-root",
+            str(cas_root),
+            "--trust-dir",
+            str(trust_dir),
+            "--revoked-dir",
+            str(revoked_dir),
+        ]
+    )
+    output = capsys.readouterr().out
+
+    assert code == 1  # noqa: S101
+    assert "state=aborted" in output  # noqa: S101
+    assert "abort_reason=authorization_lost" in output  # noqa: S101
+    assert "errors=1" in output  # noqa: S101

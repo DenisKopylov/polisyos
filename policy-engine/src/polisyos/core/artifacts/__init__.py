@@ -33,6 +33,7 @@ from .backends.config import (
     build_artifact_store,
     with_ambient_ownership_enforcement_if_supported,
 )
+from .batch_control import BatchAuthorizationLossSignal
 from .cas_integrity_report import CASIntegrityReport, build_cas_integrity_report
 from .graph import (
     DependencyEdge,
@@ -280,6 +281,7 @@ __all__ = [
     "AsyncFileSystemArtifactStore",
     "AsyncRawManifestBytesReader",
     "AtomicFileDurabilityError",
+    "BatchAuthorizationLossSignal",
     "BulkSigningReport",
     "BulkVerificationReport",
     "CASIntegrityReport",

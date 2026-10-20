@@ -217,6 +217,7 @@ class PromotionEvidenceBundle(BaseModel):
                 expected_loop_id=expected_loop_id,
                 expected_split=BenchmarkSplit.ROTATING_CHALLENGE,
                 stress_report_ref=self.stress_test_report_ref,
+                expected_selection_evaluation_ref=self.selection_evaluation_ref,
             )
         present_benchmark_roles = {
             role
@@ -408,6 +409,7 @@ def _validate_benchmark_source_basis(
     expected_loop_id: str | None,
     expected_split: BenchmarkSplit,
     stress_report_ref: ArtifactRef | None = None,
+    expected_selection_evaluation_ref: ArtifactRef | None = None,
 ) -> None:
     if source_basis is None:
         raise ValueError(f"PromotionEvidenceBundle {role} source basis is required.")
@@ -462,6 +464,8 @@ def _validate_benchmark_source_basis(
             refs=refs,
             stress_report_ref=stress_report_ref,
             candidate_ref=candidate_ref,
+            run_id=run_id,
+            expected_selection_evaluation_ref=expected_selection_evaluation_ref,
         )
         return
     raise ValueError(f"PromotionEvidenceBundle {role} has an unsupported source basis.")
@@ -473,30 +477,66 @@ def _validate_phase_d4_benchmark_source(
     refs: tuple[ArtifactRef, ...],
     stress_report_ref: ArtifactRef,
     candidate_ref: ArtifactRef,
+    run_id: str,
+    expected_selection_evaluation_ref: ArtifactRef | None,
 ) -> None:
     from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.scientist.methods.backtesting.phase_d4_source import (
+        build_phase_d4_suite_roster,
+        load_selected_benchmark_evaluation,
+    )
     from polisyos.scientist.methods.doe.stress_report import (
         StressOutcomeBasis,
         resolve_stress_report_artifact,
     )
 
+    if expected_selection_evaluation_ref is None:
+        raise ValueError("PromotionEvidenceBundle D4 selected evaluation is missing.")
+    try:
+        selected_evaluation = load_selected_benchmark_evaluation(
+            store,
+            expected_selection_evaluation_ref,
+        )
+        selected_roster = build_phase_d4_suite_roster(
+            store,
+            rotating_evaluation_refs=refs,
+            expected_candidate_ref=candidate_ref,
+            expected_selection_evaluation_ref=expected_selection_evaluation_ref,
+            expected_run_id=run_id,
+            expected_loop_id=selected_evaluation.loop_id,
+        )
+    except Exception as exc:
+        raise ValueError("PromotionEvidenceBundle selected D4 roster is invalid.") from exc
+
     report, resolution = resolve_stress_report_artifact(
         store,
         stress_report_ref,
         expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=expected_selection_evaluation_ref,
+        expected_phase_d4_roster=selected_roster,
+        require_phase_d4_roster=True,
     )
-    if resolution.status != "available" or resolution.predicate_status != "recomputed":
-        raise ValueError("PromotionEvidenceBundle rotating challenge source was not recomputed.")
+    if (
+        resolution.status != "available"
+        or resolution.predicate_status != "recomputed"
+        or resolution.case_truth_status != "recomputed"
+    ):
+        raise ValueError(
+            "PromotionEvidenceBundle rotating challenge cases were not source-replayed."
+        )
 
     d4_refs: list[ArtifactRef] = []
     for component in report.score_components:
-        if not component.component_id.startswith("phase_d4:"):
-            continue
         basis = StressOutcomeBasis.model_validate(
             load_core_json_artifact(store, component.outcome_basis_ref)
         )
+        if component.component_id != basis.source_id:
+            raise ValueError("PromotionEvidenceBundle stress component identity mismatch.")
         if basis.source_kind != "phase_d4_suite":
-            raise ValueError("PromotionEvidenceBundle D4 component has another source kind.")
+            continue
+        if basis.schema_version != "2.0":
+            raise ValueError("PromotionEvidenceBundle D4 component lacks case replay source.")
         if (
             basis.candidate_ref != candidate_ref
             or basis.benchmark_evaluation_ref is None
@@ -507,7 +547,9 @@ def _validate_phase_d4_benchmark_source(
         d4_refs.append(basis.benchmark_evaluation_ref)
 
     source_keys = [ref.model_dump_json() for ref in d4_refs]
-    expected_keys = [ref.model_dump_json() for ref in refs]
+    expected_keys = [
+        item.benchmark_evaluation_ref.model_dump_json() for item in selected_roster.suites
+    ]
     if (
         not d4_refs
         or len(source_keys) != len(set(source_keys))

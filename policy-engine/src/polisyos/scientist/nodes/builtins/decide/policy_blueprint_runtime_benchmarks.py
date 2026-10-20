@@ -28,6 +28,14 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     STRATEGIC_GAMING_SUITE_ID,
     run_phase_d4_challenge_suites,
 )
+from polisyos.scientist.methods.backtesting.phase_d4_source import (
+    PHASE_D4_REPLAY_SOURCE_INPUT_ROLE,
+    PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+    PHASE_D4_SELECTION_INPUT_ROLE,
+    build_phase_d4_replay_source,
+    build_phase_d4_suite_roster,
+    persist_phase_d4_replay_source,
+)
 from polisyos.scientist.methods.doe.stress_report import (
     _STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
     _STRESS_OUTCOME_BASIS_SCHEMA_NAME,
@@ -172,26 +180,88 @@ def _run_and_register_phase_d4_challenge_suites(
     benchmark_registry: BenchmarkRegistry,
     candidate_ref: ArtifactRef,
     selection_evaluation: BenchmarkEvaluation,
+    selection_evaluation_ref: ArtifactRef | None = None,
     benchmark_scope: dict[str, str | None],
     artifacts_index: dict[str, ArtifactRef],
 ) -> tuple[list[ArtifactRef], list[ArtifactRef], tuple[str, ...]]:
+    retained_warnings: list[str] = []
+    replay_source = None
+    if selection_evaluation_ref is not None:
+        try:
+            replay_source = build_phase_d4_replay_source(
+                run_id=state.run_id,
+                loop_id=selection_evaluation.loop_id,
+                candidate_ref=candidate_ref,
+                selection_evaluation_ref=selection_evaluation_ref,
+                selection_evaluation=selection_evaluation,
+                params=state.params,
+                artifacts_index=artifacts_index,
+                store=ctx.store,
+            )
+        except (TypeError, ValueError):
+            retained_warnings.append("phase_d4_case_replay_source_unavailable")
+    source_params = state.params if replay_source is None else replay_source.params
+    source_artifacts_index = (
+        artifacts_index if replay_source is None else replay_source.artifacts_index
+    )
     suite_results, warnings = run_phase_d4_challenge_suites(
         store=ctx.store,
         run_id=state.run_id,
         loop_id=selection_evaluation.loop_id,
         candidate_ref=candidate_ref,
-        params=state.params,
-        artifacts_index=artifacts_index,
+        params=source_params,
+        artifacts_index=source_artifacts_index,
         selection_metadata=selection_evaluation.metadata,
     )
     benchmark_refs: list[ArtifactRef] = []
     stress_refs: list[ArtifactRef] = []
-    retained_warnings = list(warnings)
+    retained_warnings.extend(warnings)
+    replay_source_ref: ArtifactRef | None = None
+    if suite_results and replay_source is not None:
+        try:
+            replay_source_ref = persist_phase_d4_replay_source(ctx.store, replay_source)
+        except (TypeError, ValueError):
+            retained_warnings.append("phase_d4_case_replay_source_unavailable")
+    elif suite_results:
+        if "phase_d4_case_replay_source_unavailable" not in retained_warnings:
+            retained_warnings.append("phase_d4_case_replay_source_unavailable")
 
     for suite_result in suite_results:
+        evaluation_inputs = []
+        basis_inputs: list[InputRef] = []
+        report_schema_version = "1.1"
+        basis = suite_result.stress_outcome_basis
+        basis_schema_version = _STRESS_OUTCOME_BASIS_SCHEMA_VERSION
+        if replay_source_ref is not None:
+            assert selection_evaluation_ref is not None
+            evaluation_inputs = [
+                input_ref_from_artifact_ref(
+                    replay_source_ref, role=PHASE_D4_REPLAY_SOURCE_INPUT_ROLE
+                ),
+                input_ref_from_artifact_ref(
+                    selection_evaluation_ref, role=PHASE_D4_SELECTION_INPUT_ROLE
+                ),
+            ]
+            basis = basis.model_copy(
+                update={
+                    "schema_version": "2.0",
+                    "phase_d4_replay_source_ref": replay_source_ref,
+                }
+            )
+            basis_schema_version = "2.0"
+            report_schema_version = "1.2"
+            basis_inputs = [
+                input_ref_from_artifact_ref(
+                    replay_source_ref, role=PHASE_D4_REPLAY_SOURCE_INPUT_ROLE
+                ),
+                input_ref_from_artifact_ref(
+                    selection_evaluation_ref, role=PHASE_D4_SELECTION_INPUT_ROLE
+                ),
+            ]
         benchmark_ref = persist_benchmark_evaluation(
             ctx.store,
             suite_result.benchmark_evaluation,
+            inputs=evaluation_inputs,
             return_selected_profile=True,
         )
         benchmark_refs.append(benchmark_ref)
@@ -212,9 +282,7 @@ def _run_and_register_phase_d4_challenge_suites(
                 **dict(suite_result.benchmark_evaluation.metadata),
             },
         )
-        basis = suite_result.stress_outcome_basis.model_copy(
-            update={"benchmark_evaluation_ref": benchmark_ref}
-        )
+        basis = basis.model_copy(update={"benchmark_evaluation_ref": benchmark_ref})
         basis_ref = ctx.store.put_json(
             basis,
             PutOptions(
@@ -222,7 +290,7 @@ def _run_and_register_phase_d4_challenge_suites(
                 media_type="application/json",
                 schema=SchemaInfo(
                     name=_STRESS_OUTCOME_BASIS_SCHEMA_NAME,
-                    version=_STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+                    version=basis_schema_version,
                 ),
                 inputs=[
                     InputRef(
@@ -235,6 +303,7 @@ def _run_and_register_phase_d4_challenge_suites(
                         role="candidate",
                         manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
                     ),
+                    *basis_inputs,
                 ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -245,8 +314,24 @@ def _run_and_register_phase_d4_challenge_suites(
             score_profile="finite_binary_scenario_v1",
             outcome_basis_ref=basis_ref,
         )
+        try:
+            selected_roster = build_phase_d4_suite_roster(
+                ctx.store,
+                rotating_evaluation_refs=[benchmark_ref],
+                expected_candidate_ref=candidate_ref,
+                expected_selection_evaluation_ref=selection_evaluation_ref,
+                expected_run_id=state.run_id,
+                expected_loop_id=selection_evaluation.loop_id,
+            )
+        except ValueError:
+            selected_roster = None
         resolution = resolve_stress_score_components(
-            ctx.store, [component], expected_candidate_ref=candidate_ref
+            ctx.store,
+            [component],
+            expected_candidate_ref=candidate_ref,
+            expected_run_id=state.run_id,
+            expected_selection_evaluation_ref=selection_evaluation_ref,
+            expected_phase_d4_roster=selected_roster,
         )
         source_stress_report = suite_result.stress_test_report
         if source_stress_report is None:
@@ -259,6 +344,9 @@ def _run_and_register_phase_d4_challenge_suites(
                 "score_status": resolution.status,
                 "score_reason": resolution.reason_code,
                 "score_predicate_status": resolution.predicate_status,
+                "case_truth_status": resolution.case_truth_status,
+                "case_truth_reason": resolution.case_truth_reason,
+                "schema_version": report_schema_version,
                 "robustness_score": resolution.robustness_score,
                 "total_scenarios_evaluated": resolution.total_scenarios_evaluated,
                 "critical_count": resolution.critical_count,
@@ -266,12 +354,15 @@ def _run_and_register_phase_d4_challenge_suites(
                 "medium_count": resolution.medium_count,
             }
         )
+        stress_report._case_truth_required = resolution.case_truth_required
         stress_ref = ctx.store.put_json(
             stress_report,
             PutOptions(
                 kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version="1.1"),
+                schema=SchemaInfo(
+                    name=_STRESS_TEST_REPORT_SCHEMA_NAME, version=report_schema_version
+                ),
                 inputs=[
                     InputRef(
                         artifact_id=candidate_ref.artifact_id,
@@ -287,6 +378,10 @@ def _run_and_register_phase_d4_challenge_suites(
                         artifact_id=basis_ref.artifact_id,
                         role="stress_outcome_basis",
                         manifest_profile_sha256=basis_ref.manifest_profile_sha256,
+                    ),
+                    input_ref_from_artifact_ref(
+                        benchmark_ref,
+                        role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
                     ),
                 ],
             ),
@@ -528,6 +623,7 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
             benchmark_registry=benchmark_registry,
             candidate_ref=candidate_ref,
             selection_evaluation=selection_evaluation,
+            selection_evaluation_ref=selection_ref,
             benchmark_scope=benchmark_scope,
             artifacts_index=session.runtime_artifacts_index,
         )
@@ -563,6 +659,21 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
     else:
         hidden_holdout_ref = None
         rotating_refs = []
+    try:
+        phase_d4_roster = build_phase_d4_suite_roster(
+            ctx.store,
+            rotating_evaluation_refs=rotating_refs,
+            expected_candidate_ref=candidate_ref,
+            expected_selection_evaluation_ref=selection_ref,
+            expected_run_id=state.run_id,
+            expected_loop_id=selection_evaluation.loop_id,
+        )
+        session.phase_d4_suite_ids = [item.suite_id for item in phase_d4_roster.suites]
+    except ValueError:
+        phase_d4_roster = None
+        session.phase_d4_warnings = tuple(
+            [*session.phase_d4_warnings, "phase_d4_selected_roster_unavailable"]
+        )
     hidden_holdout = owner._load_benchmark_if_present(ctx, hidden_holdout_ref)
     rotating_holdouts = [
         item
@@ -611,6 +722,8 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
         supplemental_report_refs=supplemental_stress_report_refs,
         phase_d4_suite_ids=session.phase_d4_suite_ids,
         expected_candidate_ref=session.candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=phase_d4_roster,
     )
     if stress_report_ref is not None:
         benchmark_registry.record(
@@ -800,6 +913,9 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
             state.params.get("uncertainty_basis_ref")
         ),
         "selection_evaluation": session.selection_evaluation,
+        "selection_evaluation_ref": session.selection_ref,
+        "run_id": state.run_id,
+        "phase_d4_selected_evaluation_refs": list(session.rotating_refs),
         "hidden_holdout_evaluation": session.hidden_holdout,
         "benchmark_registry": session.benchmark_registry,
         "platform_meta_evaluation_report": (

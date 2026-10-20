@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 from dataclasses import replace
+from datetime import timedelta
 from types import SimpleNamespace
 
 import pytest
@@ -11,6 +13,7 @@ from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts import load_core_json_artifact
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -19,12 +22,15 @@ from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.strategic import (
     EquilibriumSelectionSummary,
     EquilibriumSetSummary,
+    FiniteStrategicPayoffTable,
     PostAdaptationPolicyValueSummary,
     StrategicClosureSummary,
     StrategicDecompositionStatus,
     StrategicEquilibriumConcept,
     StrategicFallbackMode,
     StrategicResponseBundle,
+    StrategicSCM,
+    encode_action_profile,
     persist_equilibrium_selection_summary,
     persist_equilibrium_set_summary,
     persist_post_adaptation_policy_value_summary,
@@ -33,8 +39,9 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.kernel.base import ComputeBudget
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel, StrategicPayoffTableRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioRunner,
@@ -45,16 +52,26 @@ from polisyos.scientist.methods.autotune.models import (
     BenchmarkSplit,
     persist_benchmark_evaluation,
 )
+from polisyos.scientist.methods.backtesting.phase_d4_source import (
+    PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+    build_phase_d4_suite_roster,
+    load_selected_phase_d4_replay_source,
+    persist_phase_d4_replay_source,
+)
 from polisyos.scientist.methods.doe.stress_report import (
     StressOutcomeBasis,
     StressTestReport,
     resolve_stress_report_artifact,
+    resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
 from polisyos.scientist.methods.search.promotion_evidence import (
+    PromotionEvidenceBundle,
+    _PhaseD4ChallengeSourceBasis,
+    _PolicyRuntimeSelectionSourceBasis,
     load_promotion_evidence_bundle,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_benchmarks import (
@@ -276,8 +293,17 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         benchmark_registry=registry,
     )
     prepare_runtime_benchmark_evidence(session)
-    rotating_refs = session.phase_d4_rotating_refs
+    rotating_refs = session.rotating_refs
+    phase_d4_refs = session.phase_d4_rotating_refs
     stress_refs = session.phase_d4_stress_refs
+    selected_roster = build_phase_d4_suite_roster(
+        ctx.store,
+        rotating_evaluation_refs=rotating_refs,
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_run_id=state.run_id,
+        expected_loop_id=selection_evaluation.loop_id,
+    )
     warnings = session.phase_d4_warnings
     merged_ref = session.stress_report_ref
     assert merged_ref is not None
@@ -289,7 +315,17 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
 
     assert warnings == ("phase_d4_strategic_suite_audit_only",)
     assert len(rotating_refs) == 2
+    assert len(phase_d4_refs) == 2
     assert len(stress_refs) == 2
+    reversed_selected_roster = build_phase_d4_suite_roster(
+        ctx.store,
+        rotating_evaluation_refs=list(reversed(rotating_refs)),
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_run_id=state.run_id,
+        expected_loop_id=selection_evaluation.loop_id,
+    )
+    assert reversed_selected_roster.suite_evaluation_refs == selected_roster.suite_evaluation_refs
 
     rotating_evaluations = [
         BenchmarkEvaluation.model_validate(
@@ -331,6 +367,8 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     ]
     assert all(report.score_status == "available" for report in stress_reports)
     assert all(report.score_predicate_status == "recomputed" for report in stress_reports)
+    assert all(report.schema_version == "1.2" for report in stress_reports)
+    assert all(report.case_truth_status == "recomputed" for report in stress_reports)
     bases = [
         StressOutcomeBasis.model_validate(
             load_core_json_artifact(ctx.store, report.score_components[0].outcome_basis_ref)
@@ -338,11 +376,201 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         for report in stress_reports
     ]
     assert all(basis.complete and len(basis.outcomes) == basis.expected_count for basis in bases)
+    assert all(basis.schema_version == "2.0" for basis in bases)
+    assert all(basis.phase_d4_replay_source_ref is not None for basis in bases)
+    for report, basis in zip(stress_reports, bases, strict=True):
+        assert basis.benchmark_evaluation_ref is not None
+        source_ref = basis.phase_d4_replay_source_ref
+        assert source_ref is not None
+        basis_ref = report.score_components[0].outcome_basis_ref
+        basis_manifest = ctx.store.get_manifest(basis_ref)
+        evaluation_manifest = ctx.store.get_manifest(basis.benchmark_evaluation_ref)
+        assert any(
+            item.role == "phase_d4_replay_source"
+            and item.manifest_profile_sha256 == source_ref.manifest_profile_sha256
+            for item in basis_manifest.inputs
+        )
+        assert any(
+            item.role == "phase_d4_replay_source"
+            and item.manifest_profile_sha256 == source_ref.manifest_profile_sha256
+            for item in evaluation_manifest.inputs
+        )
 
     source_report = stress_reports[0]
     source_basis = bases[0]
     source_evaluation_ref = source_basis.benchmark_evaluation_ref
     assert source_evaluation_ref is not None
+    source_basis_ref = source_report.score_components[0].outcome_basis_ref
+    source_basis_manifest = ctx.store.get_manifest(source_basis_ref)
+    assert source_basis_manifest.artifact_schema is not None
+    selected_replay_source_ref = source_basis.phase_d4_replay_source_ref
+    assert selected_replay_source_ref is not None
+    selected_replay_source, _ = load_selected_phase_d4_replay_source(
+        ctx.store, selected_replay_source_ref
+    )
+    sibling_replay_source_ref = persist_phase_d4_replay_source(
+        ctx.store,
+        selected_replay_source.model_copy(
+            update={"captured_at": selected_replay_source.captured_at + timedelta(microseconds=1)}
+        ),
+    )
+    sibling_source_basis = source_basis.model_copy(
+        update={"phase_d4_replay_source_ref": sibling_replay_source_ref}
+    )
+    sibling_basis_inputs = [
+        item for item in source_basis_manifest.inputs if item.role != "phase_d4_replay_source"
+    ]
+    sibling_basis_inputs.append(
+        InputRef(
+            artifact_id=sibling_replay_source_ref.artifact_id,
+            role="phase_d4_replay_source",
+            manifest_profile_sha256=sibling_replay_source_ref.manifest_profile_sha256,
+        )
+    )
+    sibling_basis_ref = ctx.store.put_json(
+        sibling_source_basis,
+        PutOptions(
+            kind=source_basis_manifest.kind,
+            media_type=source_basis_manifest.media_type,
+            schema=source_basis_manifest.artifact_schema,
+            producer=source_basis_manifest.producer,
+            inputs=sibling_basis_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    sibling_source_resolution = resolve_stress_score_components(
+        ctx.store,
+        [
+            source_report.score_components[0].model_copy(
+                update={"outcome_basis_ref": sibling_basis_ref}
+            )
+        ],
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert sibling_source_resolution.status == "invalid"
+    assert sibling_source_resolution.reason_code == "phase_d4_selected_replay_source_mismatch"
+
+    renamed_source_id = "old-display-id-without-suite-prefix"
+    renamed_basis_ref = ctx.store.put_json(
+        source_basis.model_copy(update={"source_id": renamed_source_id}),
+        PutOptions(
+            kind=source_basis_manifest.kind,
+            media_type=source_basis_manifest.media_type,
+            schema=source_basis_manifest.artifact_schema,
+            producer=source_basis_manifest.producer,
+            inputs=source_basis_manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert renamed_basis_ref.manifest_profile_sha256 is not None
+    renamed_component = source_report.score_components[0].model_copy(
+        update={"component_id": renamed_source_id, "outcome_basis_ref": renamed_basis_ref}
+    )
+    base_source_manifest = ctx.store.get_manifest(stress_refs[0])
+    assert base_source_manifest.artifact_schema is not None
+    renamed_base_report = source_report.model_copy(
+        update={"report_id": "renamed-old-d4-source", "score_components": [renamed_component]}
+    )
+    renamed_base_report_ref = ctx.store.put_json(
+        renamed_base_report,
+        PutOptions(
+            kind=base_source_manifest.kind,
+            media_type=base_source_manifest.media_type,
+            schema=base_source_manifest.artifact_schema,
+            producer=base_source_manifest.producer,
+            inputs=[
+                InputRef(
+                    artifact_id=candidate_ref.artifact_id,
+                    role="candidate",
+                    manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=source_basis.benchmark_evaluation_ref.artifact_id,
+                    role="benchmark_evaluation",
+                    manifest_profile_sha256=(
+                        source_basis.benchmark_evaluation_ref.manifest_profile_sha256
+                    ),
+                ),
+                InputRef(
+                    artifact_id=renamed_basis_ref.artifact_id,
+                    role="stress_outcome_basis",
+                    manifest_profile_sha256=renamed_basis_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=source_basis.benchmark_evaluation_ref.artifact_id,
+                    role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+                    manifest_profile_sha256=(
+                        source_basis.benchmark_evaluation_ref.manifest_profile_sha256
+                    ),
+                ),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert renamed_base_report_ref.manifest_profile_sha256 is not None
+    assert renamed_base_report.score_components[0].component_id == renamed_source_id
+    assert source_basis.suite_id is not None
+    same_suite_replacement_ref = _ensure_stress_test_report(
+        ctx,
+        ExperimentState(
+            run_id=state.run_id,
+            artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: renamed_base_report_ref},
+        ),
+        evaluation_vector=selection_vector,
+        supplemental_reports=stress_reports,
+        supplemental_report_refs=stress_refs,
+        phase_d4_suite_ids=[item.suite_id for item in selected_roster.suites],
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+    )
+    assert same_suite_replacement_ref is not None
+    same_suite_replacement = StressTestReport.model_validate(
+        load_core_json_artifact(ctx.store, same_suite_replacement_ref)
+    )
+    assert [item.component_id for item in same_suite_replacement.score_components] == [
+        item.component_id for report in stress_reports for item in report.score_components
+    ]
+    assert renamed_source_id not in {
+        item.component_id for item in same_suite_replacement.score_components
+    }
+    _, same_suite_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        same_suite_replacement_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+        require_phase_d4_roster=True,
+    )
+    expected_selected_total = sum(len(item.outcomes) for item in bases)
+    assert same_suite_resolution.status == "available"
+    assert same_suite_resolution.case_truth_status == "recomputed"
+    assert same_suite_resolution.total_scenarios_evaluated == expected_selected_total
+    assert same_suite_replacement.total_scenarios_evaluated == expected_selected_total
+    same_suite_l5 = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+        {"candidate_id": "cand-1"},
+        {
+            "store": ctx.store,
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": same_suite_replacement_ref,
+            "selection_evaluation_ref": selection_ref,
+            "selection_evaluation": selection_evaluation,
+            "run_id": state.run_id,
+            "phase_d4_selected_evaluation_refs": selected_roster.rotating_evaluation_refs,
+        },
+    )
+    assert same_suite_l5.feedback["stress_score_status"] == "available"
+    assert same_suite_l5.feedback["stress_score_value"] == pytest.approx(
+        same_suite_resolution.robustness_score
+    )
+
     source_evaluation = BenchmarkEvaluation.model_validate(
         load_core_json_artifact(ctx.store, source_evaluation_ref)
     )
@@ -412,13 +640,32 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
                     role="stress_outcome_basis",
                     manifest_profile_sha256=wrong_basis_ref.manifest_profile_sha256,
                 ),
+                InputRef(
+                    artifact_id=source_evaluation_ref.artifact_id,
+                    role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+                    manifest_profile_sha256=source_evaluation_ref.manifest_profile_sha256,
+                ),
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
+    single_selected_roster = build_phase_d4_suite_roster(
+        ctx.store,
+        rotating_evaluation_refs=[source_evaluation_ref],
+        expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_run_id=state.run_id,
+        expected_loop_id=selection_evaluation.loop_id,
+    )
     _, wrong_evaluation_resolution = resolve_stress_report_artifact(
-        ctx.store, wrong_report_ref, expected_candidate_ref=candidate_ref
+        ctx.store,
+        wrong_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=single_selected_roster,
+        require_phase_d4_roster=True,
     )
     assert wrong_evaluation_resolution.status == "invalid"
     assert wrong_evaluation_resolution.robustness_score is None
@@ -437,11 +684,13 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
             "candidate",
             "benchmark_evaluation",
             "stress_outcome_basis",
+            PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
         ]
         assert [item.manifest_profile_sha256 for item in source_manifest.inputs] == [
             candidate_ref.manifest_profile_sha256,
             basis.benchmark_evaluation_ref.manifest_profile_sha256,
             report.score_components[0].outcome_basis_ref.manifest_profile_sha256,
+            basis.benchmark_evaluation_ref.manifest_profile_sha256,
         ]
 
     tampered_report = stress_reports[0].model_copy(
@@ -531,6 +780,14 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
             for report in stress_reports
             for component in report.score_components
         ],
+        *[
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for ref in selected_roster.suite_evaluation_refs
+        ],
     ]
     assert merged_inputs == expected_merged_inputs
 
@@ -575,13 +832,21 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         supplemental_report_refs=[stress_refs[0]],
         phase_d4_suite_ids=[duplicate_suite_id],
         expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     assert single_source_ref is not None
     single_source_report = StressTestReport.model_validate(
         load_core_json_artifact(ctx.store, single_source_ref)
     )
     _, single_source_resolution = resolve_stress_report_artifact(
-        ctx.store, single_source_ref, expected_candidate_ref=candidate_ref
+        ctx.store,
+        single_source_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+        require_phase_d4_roster=True,
     )
     assert single_source_report.score_profile == "finite_binary_scenario_v1"
     assert single_source_report.score_status == "available"
@@ -627,6 +892,14 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
             )
             for component in expected_single_components
         ],
+        *[
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for ref in selected_roster.suite_evaluation_refs
+        ],
     ]
     assert ctx.store.get_manifest(single_source_ref).inputs == expected_single_inputs
 
@@ -641,6 +914,8 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         supplemental_report_refs=[stress_refs[0], stress_refs[0]],
         phase_d4_suite_ids=[duplicate_suite_id] * 2,
         expected_candidate_ref=candidate_ref,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
     )
     assert duplicate_ref is not None
     duplicate_manifest = ctx.store.get_manifest(duplicate_ref)
@@ -692,6 +967,14 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
             )
             for component in expected_duplicate_components
         ],
+        *[
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for ref in selected_roster.suite_evaluation_refs
+        ],
     ]
     assert duplicate_manifest.inputs == expected_duplicate_inputs
     duplicate_report = StressTestReport.model_validate(
@@ -730,7 +1013,13 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         ]
 
     fresh_duplicate_report, duplicate_resolution = resolve_stress_report_artifact(
-        ctx.store, duplicate_ref, expected_candidate_ref=candidate_ref
+        ctx.store,
+        duplicate_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=state.run_id,
+        expected_selection_evaluation_ref=selection_ref,
+        expected_phase_d4_roster=selected_roster,
+        require_phase_d4_roster=True,
     )
     assert fresh_duplicate_report == duplicate_report
     assert duplicate_resolution.status == "invalid"
@@ -743,6 +1032,10 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
             "store": ctx.store,
             "policy_candidate_ref": candidate_ref,
             "stress_test_report_ref": duplicate_ref,
+            "selection_evaluation_ref": selection_ref,
+            "selection_evaluation": selection_evaluation,
+            "run_id": state.run_id,
+            "phase_d4_selected_evaluation_refs": selected_roster.rotating_evaluation_refs,
         },
     )
     assert duplicate_l5.feedback["stress_score_status"] == "invalid"
@@ -971,3 +1264,550 @@ def test_phase_d4_runtime_helper_skips_cleanly_without_evidence(tmp_path) -> Non
     assert rotating_refs == []
     assert stress_refs == []
     assert warnings == ("phase_d4_skipped_no_strategic_or_abstraction_evidence",)
+
+
+def _phase_d4_raw_source_params(candidate_ref: ArtifactRef) -> dict[str, object]:
+    agents = ("leader", "follower")
+    action_spaces = {"leader": ("L1", "L2"), "follower": ("F1", "F2")}
+    leader_payoffs = {
+        encode_action_profile({"leader": "L1", "follower": "F1"}, agent_order=agents): 3.0,
+        encode_action_profile({"leader": "L1", "follower": "F2"}, agent_order=agents): 1.0,
+        encode_action_profile({"leader": "L2", "follower": "F1"}, agent_order=agents): 2.0,
+        encode_action_profile({"leader": "L2", "follower": "F2"}, agent_order=agents): 0.0,
+    }
+    follower_payoffs = {
+        encode_action_profile({"leader": "L1", "follower": "F1"}, agent_order=agents): 2.0,
+        encode_action_profile({"leader": "L1", "follower": "F2"}, agent_order=agents): 0.0,
+        encode_action_profile({"leader": "L2", "follower": "F1"}, agent_order=agents): 1.0,
+        encode_action_profile({"leader": "L2", "follower": "F2"}, agent_order=agents): 3.0,
+    }
+    tables = {
+        "leader": FiniteStrategicPayoffTable(
+            agent="leader",
+            strategic_agents=agents,
+            action_spaces=action_spaces,
+            payoffs=leader_payoffs,
+        ),
+        "follower": FiniteStrategicPayoffTable(
+            agent="follower",
+            strategic_agents=agents,
+            action_spaces=action_spaces,
+            payoffs=follower_payoffs,
+        ),
+    }
+
+    def ref(seed: str, *, kind: str) -> ArtifactRefModel:
+        return ArtifactRefModel(
+            artifact_id=ArtifactID.model_validate(
+                f"sha256:{hashlib.sha256(seed.encode()).hexdigest()}"
+            ),
+            kind=kind,
+            media_type="application/json",
+        )
+
+    contract = StrategicSCM(
+        base_graph_ref=ref("d4-graph", kind="ir.causal_graph_model").model_dump(mode="json"),
+        strategic_agents=agents,
+        utility_refs={
+            "leader": StrategicPayoffTableRef.model_validate(
+                ref("d4-leader", kind="ir.strategic_payoff_table").model_dump(mode="json")
+            ),
+            "follower": StrategicPayoffTableRef.model_validate(
+                ref("d4-follower", kind="ir.strategic_payoff_table").model_dump(mode="json")
+            ),
+        },
+        policy_rule_ref=ArtifactRefModel.model_validate(candidate_ref.model_dump(mode="json")),
+        equilibrium_concept=StrategicEquilibriumConcept.STACKELBERG,
+        compute_budget=ComputeBudget(max_sim_runs=16.0),
+    )
+    return {
+        "strategic_scm": contract.model_dump(mode="json"),
+        "strategic_payoff_tables": {
+            agent: table.model_dump(mode="json") for agent, table in tables.items()
+        },
+        "baseline_policy_value": 0.5,
+    }
+
+
+def test_phase_d4_case_replay_rejects_same_rate_case_swap(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_d4_case_truth")
+    candidate_ref = _persist_policy_candidate(ctx.store, "candidate-d4-case-truth")
+    run_id = "R_d4_case_truth"
+    loop_id = "loop-case-truth"
+    summary = {
+        "fallback_mode": "exact_equilibrium",
+        "blocked_reason": "static_fallback",
+        "equilibrium_selection_dependence": "tie_breaking",
+        "multiplicity_note": "Observed multiple equilibria.",
+    }
+    selection_evaluation = BenchmarkEvaluation(
+        loop_id=loop_id,
+        suite_id="policy_selection",
+        candidate_ref=candidate_ref,
+        selection_metrics={"score": 0.9},
+        holdout_metrics={"score": 0.9},
+        sample_counts={BenchmarkSplit.SELECTION.value: 10},
+        promotable=True,
+        runtime_split_type=BenchmarkSplit.SELECTION,
+        metadata={"strategic_response": summary},
+    )
+    selection_ref = persist_benchmark_evaluation(
+        ctx.store, selection_evaluation, return_selected_profile=True
+    )
+    params = _phase_d4_raw_source_params(candidate_ref)
+    state = ExperimentState(run_id=run_id, params=params)
+    registry = BenchmarkRegistry(tmp_path / "search_registry" / "benchmarks")
+    benchmark_refs, stress_refs, warnings = _run_and_register_phase_d4_challenge_suites(
+        ctx,
+        state,
+        benchmark_registry=registry,
+        candidate_ref=candidate_ref,
+        selection_evaluation=selection_evaluation,
+        selection_evaluation_ref=selection_ref,
+        benchmark_scope={
+            "artifact_family": "phase_d4_case_truth",
+            "claim_mode": "estimation",
+            "query_type": "policy",
+            "estimator_name": "runtime",
+            "readiness_target": "deployment_ready",
+        },
+        artifacts_index={},
+    )
+    print(  # noqa: T201
+        "phase_d4_owner_output "
+        f"warnings={warnings!r} benchmark_refs={len(benchmark_refs)} "
+        f"stress_refs={len(stress_refs)}"
+    )
+    if len(stress_refs) != 1:
+        raise AssertionError("phase_d4_expected_one_strategic_stress_report")
+    assert len(stress_refs) == 1
+    stress_report_ref = stress_refs[0]
+    report = StressTestReport.model_validate(load_core_json_artifact(ctx.store, stress_report_ref))
+    component = report.score_components[0]
+    basis_ref = component.outcome_basis_ref
+    basis = StressOutcomeBasis.model_validate(load_core_json_artifact(ctx.store, basis_ref))
+    evaluation_ref = basis.benchmark_evaluation_ref
+    source_ref = basis.phase_d4_replay_source_ref
+    if evaluation_ref is None or source_ref is None:
+        raise AssertionError("phase_d4_selected_source_edges_missing")
+    evaluation = BenchmarkEvaluation.model_validate(
+        load_core_json_artifact(ctx.store, evaluation_ref)
+    )
+    legacy_basis = basis.model_copy(
+        update={"schema_version": "1.1", "phase_d4_replay_source_ref": None}
+    )
+    legacy_report = report.model_copy(update={"schema_version": "1.1", "case_truth_reason": None})
+    legacy_basis_wire_shape = "phase_d4_replay_source_ref" not in legacy_basis.model_dump(
+        mode="json"
+    )
+    legacy_report_wire_shape = "case_truth_status" not in legacy_report.model_dump(mode="json")
+    positive_report, positive_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        stress_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    _unanchored_report, missing_context_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        stress_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+    )
+
+    report_manifest = ctx.store.get_manifest(stress_report_ref)
+
+    def persist_control_report(control_component, *, schema_version: str) -> ArtifactRef:
+        report_body = report.model_copy(
+            update={
+                "schema_version": schema_version,
+                "score_components": [control_component],
+                "case_truth_status": "not_established",
+                "case_truth_reason": None,
+            }
+        )
+        control_basis = StressOutcomeBasis.model_validate(
+            load_core_json_artifact(ctx.store, control_component.outcome_basis_ref)
+        )
+        evaluation_ref = control_basis.benchmark_evaluation_ref
+        report_inputs = [
+            item for item in report_manifest.inputs if item.role != "stress_outcome_basis"
+        ]
+        report_inputs.append(
+            InputRef(
+                artifact_id=control_component.outcome_basis_ref.artifact_id,
+                role="stress_outcome_basis",
+                manifest_profile_sha256=(
+                    control_component.outcome_basis_ref.manifest_profile_sha256
+                ),
+            )
+        )
+        if evaluation_ref is None:
+            raise AssertionError("phase_d4_control_evaluation_ref_missing")
+        return ctx.store.put_json(
+            report_body,
+            PutOptions(
+                kind="scientist.stress_test_report",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.StressTestReport",
+                    version=schema_version,
+                ),
+                inputs=report_inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+
+    def evaluate_report_in_level5(report_ref: ArtifactRef):
+        return Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+            {"candidate_id": "candidate-d4-case-truth"},
+            {
+                "store": ctx.store,
+                "policy_candidate_ref": candidate_ref,
+                "stress_test_report_ref": report_ref,
+                "selection_evaluation_ref": selection_ref,
+            },
+        )
+
+    # A source-kind-driven resolver must keep a legacy D4 basis limited even if both display
+    # identifiers are renamed so they no longer carry the old phase_d4 prefix.
+    renamed_legacy_id = "unrelated-display-id"
+    renamed_legacy_basis = legacy_basis.model_copy(update={"source_id": renamed_legacy_id})
+    legacy_basis_inputs = [
+        InputRef(
+            artifact_id=candidate_ref.artifact_id,
+            role="candidate",
+            manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=evaluation_ref.artifact_id,
+            role="benchmark_evaluation",
+            manifest_profile_sha256=evaluation_ref.manifest_profile_sha256,
+        ),
+    ]
+    renamed_legacy_basis_ref = ctx.store.put_json(
+        renamed_legacy_basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.1"),
+            inputs=legacy_basis_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    renamed_legacy_component = component.model_copy(
+        update={
+            "component_id": renamed_legacy_id,
+            "outcome_basis_ref": renamed_legacy_basis_ref,
+        }
+    )
+    renamed_legacy_report_ref = persist_control_report(
+        renamed_legacy_component, schema_version="1.1"
+    )
+    renamed_legacy_report, renamed_legacy_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        renamed_legacy_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    renamed_legacy_level5 = evaluate_report_in_level5(renamed_legacy_report_ref)
+
+    wrong_id_component = component.model_copy(
+        update={"component_id": "renamed-component-with-unmodified-basis-id"}
+    )
+    wrong_id_report_ref = persist_control_report(wrong_id_component, schema_version="1.2")
+    _wrong_id_report, wrong_id_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        wrong_id_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    wrong_id_level5 = evaluate_report_in_level5(wrong_id_report_ref)
+
+    wrong_kind_id = "phase_d4:mislabelled-kind"
+    wrong_kind_basis = legacy_basis.model_copy(
+        update={"source_kind": "adversarial_plan", "source_id": wrong_kind_id}
+    )
+    wrong_kind_basis_ref = ctx.store.put_json(
+        wrong_kind_basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.1"),
+            inputs=legacy_basis_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    wrong_kind_component = component.model_copy(
+        update={"component_id": wrong_kind_id, "outcome_basis_ref": wrong_kind_basis_ref}
+    )
+    wrong_kind_report_ref = persist_control_report(wrong_kind_component, schema_version="1.1")
+    _wrong_kind_report, wrong_kind_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        wrong_kind_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    wrong_kind_level5 = evaluate_report_in_level5(wrong_kind_report_ref)
+
+    # The source basis cannot nominate its own selected context. Produce a second real suite
+    # with a different selected evaluation while the protected consumer keeps the original ref.
+    alternate_selection = selection_evaluation.model_copy(
+        update={"selection_metrics": {"score": 0.1}}
+    )
+    alternate_selection_ref = persist_benchmark_evaluation(
+        ctx.store,
+        alternate_selection,
+        return_selected_profile=True,
+    )
+    alternate_state = ExperimentState(run_id=run_id, params=params)
+    alternate_registry = BenchmarkRegistry(tmp_path / "search_registry" / "alternate-benchmarks")
+    alternate_benchmark_refs, alternate_stress_refs, alternate_warnings = (
+        _run_and_register_phase_d4_challenge_suites(
+            ctx,
+            alternate_state,
+            benchmark_registry=alternate_registry,
+            candidate_ref=candidate_ref,
+            selection_evaluation=alternate_selection,
+            selection_evaluation_ref=alternate_selection_ref,
+            benchmark_scope={
+                "artifact_family": "phase_d4_case_truth_alternate",
+                "claim_mode": "estimation",
+                "query_type": "policy",
+                "estimator_name": "runtime",
+                "readiness_target": "deployment_ready",
+            },
+            artifacts_index={},
+        )
+    )
+    assert alternate_warnings == ()
+    assert len(alternate_benchmark_refs) == 1
+    assert len(alternate_stress_refs) == 1
+    alternate_report_ref = alternate_stress_refs[0]
+    alternate_report = StressTestReport.model_validate(
+        load_core_json_artifact(ctx.store, alternate_report_ref)
+    )
+    alternate_basis = StressOutcomeBasis.model_validate(
+        load_core_json_artifact(ctx.store, alternate_report.score_components[0].outcome_basis_ref)
+    )
+    alternate_source_ref = alternate_basis.phase_d4_replay_source_ref
+    assert alternate_source_ref is not None
+    alternate_source, _alternate_source_manifest = load_selected_phase_d4_replay_source(
+        ctx.store, alternate_source_ref
+    )
+    assert alternate_source.selection_evaluation_ref == alternate_selection_ref
+    assert alternate_basis.outcomes == basis.outcomes
+    assert alternate_basis.expected_scenario_ids == basis.expected_scenario_ids
+    assert sum(item.status == "failed" for item in alternate_basis.outcomes) == sum(
+        item.status == "failed" for item in basis.outcomes
+    )
+    _alternate_report, alternate_context_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        alternate_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    alternate_context_level5 = Level5RefutationGovernanceStage(
+        require_hidden_holdout=False
+    ).evaluate(
+        {"candidate_id": "candidate-d4-case-truth"},
+        {
+            "store": ctx.store,
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": alternate_report_ref,
+            "selection_evaluation_ref": selection_ref,
+        },
+    )
+
+    failed_index = next(
+        index for index, item in enumerate(basis.outcomes) if item.status == "failed"
+    )
+    passed_index = next(
+        index for index, item in enumerate(basis.outcomes) if item.status == "passed"
+    )
+    original_failed = basis.outcomes[failed_index]
+    original_passed = basis.outcomes[passed_index]
+    swapped = list(basis.outcomes)
+    swapped[failed_index] = original_failed.model_copy(
+        update={"status": "passed", "vulnerabilities": []}
+    )
+    swapped[passed_index] = original_passed.model_copy(
+        update={"status": "failed", "vulnerabilities": original_failed.vulnerabilities}
+    )
+    tampered_basis = basis.model_copy(update={"outcomes": swapped})
+    original_rate = evaluation.selection_metrics["challenge_pass_rate"]
+    tampered_basis_manifest = ctx.store.get_manifest(basis_ref)
+    tampered_basis_ref = ctx.store.put_json(
+        tampered_basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="2.0"),
+            inputs=list(tampered_basis_manifest.inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    tampered_component = component.model_copy(update={"outcome_basis_ref": tampered_basis_ref})
+    tampered_report = positive_report.model_copy(
+        update={
+            "score_components": [tampered_component],
+            "vulnerabilities": [
+                vulnerability for item in swapped for vulnerability in item.vulnerabilities
+            ],
+        }
+    )
+    tampered_report_ref = ctx.store.put_json(
+        tampered_report,
+        PutOptions(
+            kind="scientist.stress_test_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.2"),
+            inputs=[
+                InputRef(
+                    artifact_id=candidate_ref.artifact_id,
+                    role="candidate",
+                    manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=basis.benchmark_evaluation_ref.artifact_id,
+                    role="benchmark_evaluation",
+                    manifest_profile_sha256=basis.benchmark_evaluation_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=tampered_basis_ref.artifact_id,
+                    role="stress_outcome_basis",
+                    manifest_profile_sha256=tampered_basis_ref.manifest_profile_sha256,
+                ),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    _tampered_report, negative_resolution = resolve_stress_report_artifact(
+        ctx.store,
+        tampered_report_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_run_id=run_id,
+        expected_selection_evaluation_ref=selection_ref,
+    )
+    level5 = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+        {"candidate_id": "candidate-d4-case-truth"},
+        {
+            "store": ctx.store,
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": tampered_report_ref,
+            "selection_evaluation_ref": selection_ref,
+        },
+    )
+
+    def promotion_source_error(report_ref: ArtifactRef) -> str | None:
+        bundle = PromotionEvidenceBundle(
+            run_id=run_id,
+            produced_by_run_id=run_id,
+            candidate_ref=candidate_ref,
+            selection_evaluation_ref=selection_ref,
+            rotating_challenge_evaluation_refs=[basis.benchmark_evaluation_ref],
+            stress_test_report_ref=report_ref,
+        )
+        source_basis = _PhaseD4ChallengeSourceBasis(stress_report_ref=report_ref)
+        try:
+            bundle.assert_runtime_compatible(
+                run_id=run_id,
+                store=ctx.store,
+                expected_loop_id=loop_id,
+                source_basis_by_role={
+                    "selection_evaluation_ref": _PolicyRuntimeSelectionSourceBasis(
+                        expected_evaluation=selection_evaluation
+                    ),
+                    "rotating_challenge_evaluation_refs": source_basis,
+                },
+            )
+        except ValueError as exc:
+            return str(exc)
+        return None
+
+    positive_promotion_error = promotion_source_error(stress_report_ref)
+    negative_promotion_error = promotion_source_error(tampered_report_ref)
+    alternate_context_promotion_error = promotion_source_error(alternate_report_ref)
+    print(  # noqa: T201
+        "phase_d4_case_replay_probe "
+        f"warnings={warnings!r} benchmark_refs={len(benchmark_refs)} "
+        f"positive={positive_resolution.status}/{positive_resolution.case_truth_status} "
+        f"renamed_legacy={renamed_legacy_resolution.status}/"
+        f"{renamed_legacy_resolution.reason_code}/required="
+        f"{renamed_legacy_resolution.case_truth_required} "
+        f"wrong_id={wrong_id_resolution.status}/{wrong_id_resolution.reason_code} "
+        f"wrong_kind={wrong_kind_resolution.status}/{wrong_kind_resolution.reason_code} "
+        f"wrong_id_l5={wrong_id_level5.feedback.get('stress_score_status')} "
+        f"wrong_kind_l5={wrong_kind_level5.feedback.get('stress_score_status')} "
+        f"missing_context={missing_context_resolution.status}/"
+        f"{missing_context_resolution.reason_code} "
+        f"alternate_context={alternate_context_resolution.status}/"
+        f"{alternate_context_resolution.reason_code} "
+        f"alternate_l5={alternate_context_level5.feedback.get('stress_score_status')} "
+        f"negative={negative_resolution.status}/{negative_resolution.reason_code} "
+        f"level5={level5.feedback.get('stress_score_status')}/"
+        f"{level5.feedback.get('stress_score_value')} "
+        f"promotion_positive={positive_promotion_error!r} "
+        f"promotion_alternate_context={alternate_context_promotion_error!r} "
+        f"promotion_negative={negative_promotion_error!r} "
+        f"rate={original_rate} swapped_failures="
+        f"{sum(item.status == 'failed' for item in swapped)}"
+    )
+    assert warnings == ()
+    assert len(benchmark_refs) == 1
+    assert report.schema_version == "1.2"
+    assert legacy_basis_wire_shape
+    assert legacy_report_wire_shape
+    assert positive_resolution.status == "available"
+    assert positive_resolution.case_truth_required is True
+    assert positive_resolution.case_truth_status == "recomputed"
+    assert positive_report._case_truth_required is True
+    assert missing_context_resolution.status == "unbound"
+    assert missing_context_resolution.reason_code == ("phase_d4_selected_selection_context_missing")
+    assert renamed_legacy_resolution.status != "available"
+    assert renamed_legacy_resolution.robustness_score is None
+    assert renamed_legacy_resolution.case_truth_required is True
+    assert renamed_legacy_report.is_robust is False
+    assert renamed_legacy_level5.feedback["stress_score_status"] != "available"
+    assert renamed_legacy_level5.feedback["stress_score_value"] is None
+    assert wrong_id_resolution.status != "available"
+    assert wrong_id_resolution.robustness_score is None
+    assert wrong_id_level5.feedback["stress_score_status"] != "available"
+    assert wrong_id_level5.feedback["stress_score_value"] is None
+    assert wrong_kind_resolution.status != "available"
+    assert wrong_kind_resolution.robustness_score is None
+    assert wrong_kind_level5.feedback["stress_score_status"] != "available"
+    assert wrong_kind_level5.feedback["stress_score_value"] is None
+    assert alternate_context_resolution.status == "invalid"
+    assert alternate_context_resolution.reason_code == (
+        "phase_d4_selected_selection_context_mismatch"
+    )
+    assert alternate_context_level5.feedback["stress_score_status"] == "invalid"
+    assert alternate_context_level5.feedback["stress_score_value"] is None
+    assert positive_report.case_truth_status == "recomputed"
+    assert sum(item.status == "failed" for item in swapped) == sum(
+        item.status == "failed" for item in basis.outcomes
+    )
+    assert tampered_basis.expected_scenario_ids == basis.expected_scenario_ids
+    assert original_rate == evaluation.selection_metrics["challenge_pass_rate"]
+    assert negative_resolution.status == "invalid"
+    assert negative_resolution.robustness_score is None
+    assert level5.feedback["stress_score_status"] == "invalid"
+    assert level5.feedback["stress_score_case_truth_status"] == "not_established"
+    assert level5.feedback["stress_score_value"] is None
+    assert positive_promotion_error is None
+    assert negative_promotion_error == (
+        "PromotionEvidenceBundle rotating challenge cases were not source-replayed."
+    )
+    assert alternate_context_promotion_error == (
+        "PromotionEvidenceBundle rotating challenge cases were not source-replayed."
+    )

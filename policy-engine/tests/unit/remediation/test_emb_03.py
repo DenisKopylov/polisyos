@@ -1765,10 +1765,9 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
                 for index in range(7)
             ],
         )
-        con.execute("ALTER TABLE lex_facts ADD COLUMN trust_tier VARCHAR")
-        con.execute("UPDATE lex_facts SET trust_tier = 'grounded_fact'")
         con.execute("CHECKPOINT")
 
+    _prepare_candidate_trust_tier(db_path)
     owner = legal_read_api.LegalRuntimeMaterialOwner(
         cache_root=cache_root,
         manifest_path=manifest_path,
@@ -1922,6 +1921,7 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         assert positive_body["search_mode"] == "vector"
         assert positive_body["vector_refusal_code"] is None
         assert [row["fact_id"] for row in positive_body["results"]] == ["fact-1"]
+        assert positive_body["results"][0]["trust_tier"] == "search_candidate"
         assert _total_knn_calls() - positive_knn_calls_before == 1
 
         # The owner uses its captured identity only as the expected binding.

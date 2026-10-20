@@ -1,0 +1,40 @@
+id = "2026-10-20-e02-phase-d4-case-source-replay"
+title = "Recompute Phase D.4 challenge cases from selected source inputs"
+type = "changed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "The Phase D.4 producer persists its exact selected inputs. A CAS-resolved typed roster binds current suite, evaluation, and replay-source profiles across report replacement, fresh score resolution, Level5, and promotion validation; selected suite case rows are replayed before protected score admission."
+evidence = [
+  "src/polisyos/scientist/methods/backtesting/phase_d4_source.py",
+  "src/polisyos/scientist/methods/doe/stress_report.py",
+  "src/polisyos/scientist/methods/search/promotion_evidence.py",
+  "src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+  "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+  "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+  "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+]
+compatibility = "The maintained Phase D.4 producer retains its suite cases and emits a versioned selected-source artifact with schema 2.0 outcome bases. A recomputed typed roster binds selected suite/evaluation/replay-source refs and replaces prior components by those bindings, independent of display IDs. Fresh report, Level5, and promotion consumers revalidate the same selected roster and direct manifest edges. Schema 1.1 D.4 bases remain readable as aggregate-only diagnostics but cannot produce an available protected score or established case truth. Non-D.4 finite sources remain resolvable without a D.4 roster; Adversarial 1.1 intent handling is unchanged."
+change_class = "python-public-api"
+surface_classification = "Existing StressTestReport DTO gains defaulted case-truth fields; no endpoint or new package export is added. Public-surface inventory review remains unperformed."
+migration = "No historical artifact is rewritten. Existing schema 1.1 D.4 bases remain diagnostic and cannot satisfy protected case-truth admission. New runtime reports carry the exact current selected D.4 evaluation refs in their manifest. A D.4 score is available only when the current selected roster, source replay, and report projection agree; a missing or stale roster remains limited. Existing non-D.4 finite components continue through the generic resolver."
+api = "StressTestReport adds case_truth_status and case_truth_reason, and its persisted schema advances to 1.2 for D.4 output. StressOutcomeBasis schema 2.0 carries the selected replay-source reference. An internal PhaseD4SuiteRoster binds the current selected suite/evaluation/source mapping and report manifest edges. No new external authority or currentness claim is introduced."
+limitations = "The replay and roster prove consistency with CAS-selected inputs, the current orchestrator selection, and the canonical D.4 suite evaluator. They do not establish external calibration, live-world truth, independent selection authority, or whole Stage execution. Runtime and public-surface inventory checks have not run for this candidate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-phase-d4-case-source-replay"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "Existing StressTestReport DTO and persisted Phase D.4 artifact schemas"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Fresh Phase D.4 consumers replay case outcomes and revalidate the current typed suite/evaluation/source roster. Report replacement uses these typed bindings rather than display IDs, so a renamed prior component cannot be counted alongside its current replacement. Older aggregate-only D.4 artifacts remain diagnostics and cannot establish per-case truth."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

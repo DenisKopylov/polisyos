@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import math
+from collections import Counter
 from collections.abc import Mapping
 from dataclasses import fields, is_dataclass
 from enum import Enum
-from typing import Any, TypeGuard
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 from pydantic import BaseModel
 
@@ -24,10 +25,13 @@ from polisyos.scientist.methods.backtesting.adversarial import (
 from polisyos.scientist.methods.doe.stress_report import (
     _STRESS_TEST_REPORT_ARTIFACT_KIND,
     _STRESS_TEST_REPORT_SCHEMA_NAME,
+    StressOutcomeBasis,
+    StressScoreComponent,
     StressScoreResolution,
     StressTestReport,
     Vulnerability,
     _load_stress_report_source,
+    load_selected_stress_outcome_basis,
     resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
@@ -65,6 +69,10 @@ from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEven
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.scientist.methods.backtesting.phase_d4_source import PhaseD4SuiteRoster
+
 
 def _is_builtin_number(value: object) -> TypeGuard[int | float]:
     """Narrow only the exact JSON numeric primitives used by finite-score gates."""
@@ -92,6 +100,8 @@ def _ensure_stress_test_report(
     supplemental_report_refs: list[ArtifactRef] | None = None,
     phase_d4_suite_ids: list[str] | None = None,
     expected_candidate_ref: ArtifactRef,
+    expected_selection_evaluation_ref: ArtifactRef | None = None,
+    expected_phase_d4_roster: PhaseD4SuiteRoster | None = None,
 ) -> ArtifactRef | None:
     from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
@@ -105,7 +115,11 @@ def _ensure_stress_test_report(
     ):
         raise ValueError("stress_report_expected_candidate_identity_mismatch")
     existing_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
-    replacement_suite_ids = [str(item) for item in (phase_d4_suite_ids or []) if str(item).strip()]
+    replacement_suite_ids = (
+        [item.suite_id for item in expected_phase_d4_roster.suites]
+        if expected_phase_d4_roster is not None
+        else [str(item) for item in (phase_d4_suite_ids or []) if str(item).strip()]
+    )
     if existing_ref is not None and not paired_reports and not replacement_suite_ids:
         return existing_ref
 
@@ -142,6 +156,8 @@ def _ensure_stress_test_report(
         report,
         paired_reports,
         replacement_suite_ids=replacement_suite_ids,
+        store=ctx.store,
+        expected_phase_d4_roster=expected_phase_d4_roster,
     )
     report = _recompute_stress_test_report(report)
     if report.score_profile in {"continuous_severity_v1", "mixed_unscored"}:
@@ -150,15 +166,30 @@ def _ensure_stress_test_report(
             component_ids=[item.component_id for item in report.score_components],
             reason_code="mixed_or_nonbinary_score_profiles",
         )
+    elif expected_phase_d4_roster is None:
+        resolution = StressScoreResolution(
+            status="unbound",
+            component_ids=[item.component_id for item in report.score_components],
+            reason_code="phase_d4_selected_roster_not_established",
+            case_truth_required=bool(report.score_components),
+            case_truth_status="not_established",
+            case_truth_reason="phase_d4_selected_roster_not_established",
+        )
     else:
         resolution = resolve_stress_score_components(
             ctx.store,
             report.score_components,
             expected_candidate_ref=expected_candidate_ref,
+            expected_run_id=state.run_id,
+            expected_selection_evaluation_ref=expected_selection_evaluation_ref,
+            expected_phase_d4_roster=expected_phase_d4_roster,
         )
+    d4_case_truth_required = resolution.case_truth_required is True
     report = report.model_copy(
         update={
-            "schema_version": "1.1",
+            "schema_version": "1.2" if d4_case_truth_required else "1.1",
+            "case_truth_status": resolution.case_truth_status,
+            "case_truth_reason": resolution.case_truth_reason if d4_case_truth_required else None,
             "score_status": resolution.status,
             "score_reason": resolution.reason_code,
             "score_predicate_status": resolution.predicate_status,
@@ -180,6 +211,7 @@ def _ensure_stress_test_report(
             else report.medium_count,
         }
     )
+    report._case_truth_required = resolution.case_truth_required
     input_refs = [
         InputRef(
             artifact_id=expected_candidate_ref.artifact_id,
@@ -203,6 +235,18 @@ def _ensure_stress_test_report(
         input_ref_from_artifact_ref(component.outcome_basis_ref, role="stress_outcome_basis")
         for component in report.score_components
     )
+    if expected_phase_d4_roster is not None:
+        from polisyos.scientist.methods.backtesting.phase_d4_source import (
+            PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+        )
+
+        input_refs.extend(
+            input_ref_from_artifact_ref(
+                evaluation_ref,
+                role=PHASE_D4_SELECTED_EVALUATION_INPUT_ROLE,
+            )
+            for evaluation_ref in expected_phase_d4_roster.suite_evaluation_refs
+        )
     return ctx.store.put_json(
         report,
         PutOptions(
@@ -221,33 +265,136 @@ def _merge_stress_test_reports(
     supplemental_reports: list[StressTestReport],
     *,
     replacement_suite_ids: list[str] | None = None,
+    store: ArtifactStore | None = None,
+    expected_phase_d4_roster: PhaseD4SuiteRoster | None = None,
 ) -> StressTestReport:
-    replacement_suite_ids_set = {
-        str(item).strip() for item in (replacement_suite_ids or []) if str(item).strip()
-    }
-    if not supplemental_reports and not replacement_suite_ids_set:
-        return base_report
-    replacement_suite_ids_set.update(
-        str(report.metadata.get("challenge_suite_id")).strip()
-        for report in supplemental_reports
-        if str(report.metadata.get("challenge_suite_id") or "").strip()
-    )
-    vulnerabilities = [
-        item
-        for item in base_report.vulnerabilities
-        if _phase_d4_suite_id_from_vulnerability(item) not in replacement_suite_ids_set
-    ]
-    score_components = [
-        component
-        for component in base_report.score_components
-        if not any(
-            component.component_id.startswith(f"phase_d4:{suite_id}:")
-            for suite_id in replacement_suite_ids_set
+    """Merge source reports using typed selected suite refs when CAS is available.
+
+    The no-store path is a legacy diagnostics-only view used by display-level
+    tests; it never classifies score components by their string identifiers.
+    Runtime report production supplies both CAS and the current typed roster.
+    """
+    if store is not None and expected_phase_d4_roster is not None:
+        return _merge_typed_stress_test_reports(
+            base_report,
+            supplemental_reports,
+            store=store,
+            roster=expected_phase_d4_roster,
         )
-    ]
-    score_components.extend(
-        component for report in supplemental_reports for component in report.score_components
+    if store is not None:
+        components = [
+            *base_report.score_components,
+            *(item for report in supplemental_reports for item in report.score_components),
+        ]
+        vulnerabilities = [
+            *base_report.vulnerabilities,
+            *(item for report in supplemental_reports for item in report.vulnerabilities),
+        ]
+        return base_report.model_copy(
+            update={
+                "schema_version": "1.2",
+                "score_components": components,
+                "vulnerabilities": vulnerabilities,
+                "score_status": "unbound",
+                "score_reason": "phase_d4_selected_roster_not_established",
+                "score_predicate_status": "not_established",
+                "case_truth_status": "not_established",
+                "case_truth_reason": "phase_d4_selected_roster_not_established",
+                "robustness_score": None,
+            }
+        )
+    return _merge_legacy_stress_test_diagnostics(
+        base_report,
+        supplemental_reports,
+        replacement_suite_ids=replacement_suite_ids,
     )
+
+
+def _merge_typed_stress_test_reports(
+    base_report: StressTestReport,
+    supplemental_reports: list[StressTestReport],
+    *,
+    store: ArtifactStore,
+    roster: PhaseD4SuiteRoster,
+) -> StressTestReport:
+    """Replace only stale D.4 rows identified by their selected typed source refs."""
+    selected = {item.suite_id: item for item in roster.suites}
+    selected_keys = {
+        suite_id: item.benchmark_evaluation_ref.model_dump_json()
+        for suite_id, item in selected.items()
+    }
+    supplemental_by_suite: dict[str, list[StressScoreComponent]] = {}
+    supplemental_components: list[StressScoreComponent] = []
+    for report in supplemental_reports:
+        if not report.score_components:
+            continue
+        for component in report.score_components:
+            basis, _ = load_selected_stress_outcome_basis(
+                store,
+                component.outcome_basis_ref,
+            )
+            if (
+                basis.source_kind != "phase_d4_suite"
+                or basis.suite_id is None
+                or basis.benchmark_evaluation_ref is None
+                or basis.suite_id not in selected
+                or basis.benchmark_evaluation_ref.model_dump_json() != selected_keys[basis.suite_id]
+            ):
+                raise ValueError("phase_d4_supplemental_component_outside_selected_roster")
+            supplemental_by_suite.setdefault(basis.suite_id, []).append(component)
+            supplemental_components.append(component)
+
+    base_non_d4: list[StressScoreComponent] = []
+    base_current_d4: list[StressScoreComponent] = []
+    removed_base_d4_vulnerabilities: list[Vulnerability] = []
+    d4_scenario_counts: dict[str, int] = {}
+    for component in base_report.score_components:
+        basis, _ = load_selected_stress_outcome_basis(
+            store,
+            component.outcome_basis_ref,
+        )
+        if basis.source_kind != "phase_d4_suite":
+            base_non_d4.append(component)
+            continue
+        current = selected.get(basis.suite_id or "")
+        is_current = (
+            current is not None
+            and basis.suite_version == current.suite_version
+            and basis.benchmark_evaluation_ref is not None
+            and basis.benchmark_evaluation_ref.model_dump_json()
+            == selected_keys[basis.suite_id or ""]
+        )
+        if is_current and not supplemental_by_suite.get(basis.suite_id or ""):
+            base_current_d4.append(component)
+            d4_scenario_counts[basis.suite_id or ""] = d4_scenario_counts.get(
+                basis.suite_id or "", 0
+            ) + len(basis.outcomes)
+            continue
+        removed_base_d4_vulnerabilities.extend(
+            vulnerability for outcome in basis.outcomes for vulnerability in outcome.vulnerabilities
+        )
+
+    score_components = [*base_non_d4, *base_current_d4, *supplemental_components]
+    for suite_id, components in supplemental_by_suite.items():
+        count = 0
+        for component in components:
+            basis, _ = load_selected_stress_outcome_basis(store, component.outcome_basis_ref)
+            count += len(basis.outcomes)
+        d4_scenario_counts[suite_id] = count
+
+    removed = Counter(item.model_dump_json() for item in removed_base_d4_vulnerabilities)
+    retained_vulnerabilities: list[Vulnerability] = []
+    for vulnerability in base_report.vulnerabilities:
+        key = vulnerability.model_dump_json()
+        if removed[key] > 0:
+            removed[key] -= 1
+        else:
+            retained_vulnerabilities.append(vulnerability)
+    vulnerabilities = [
+        *retained_vulnerabilities,
+        *[item for report in supplemental_reports for item in report.vulnerabilities],
+    ]
+
     reports = [base_report, *supplemental_reports]
     score_source_reports: list[dict[str, Any]] = []
     for source_report in reports:
@@ -275,7 +422,7 @@ def _merge_stress_test_reports(
         or (report.total_scenarios_evaluated > 0 and not report.score_components)
         or (bool(report.vulnerabilities) and not report.score_components)
         or (report.robustness_score is not None and not report.score_components)
-        or (report.schema_version != "1.1" and report.total_scenarios_evaluated > 0)
+        or (report.schema_version not in {"1.1", "1.2"} and report.total_scenarios_evaluated > 0)
         for report in reports
     )
     score_profile = (
@@ -288,43 +435,16 @@ def _merge_stress_test_reports(
     score_status = (
         "profile_mismatch" if score_profile == "mixed_unscored" else base_report.score_status
     )
-    raw_suite_scenario_counts = base_report.metadata.get("phase_d4_suite_scenario_counts")
-    if raw_suite_scenario_counts is None:
-        suite_scenario_count_inputs: Mapping[object, object] = {}
-    elif isinstance(raw_suite_scenario_counts, Mapping):
-        suite_scenario_count_inputs = raw_suite_scenario_counts
-    else:
-        raise ValueError("phase_d4_suite_scenario_counts_invalid")
-    suite_scenario_counts: dict[str, int] = {}
-    for raw_suite_id, raw_count in suite_scenario_count_inputs.items():
-        suite_id = str(raw_suite_id)
-        if suite_id.strip():
-            suite_scenario_counts[suite_id] = _metadata_int(
-                raw_count,
-                field_name="phase_d4_suite_scenario_count",
-            )
-    for suite_id in replacement_suite_ids_set:
-        suite_scenario_counts.pop(suite_id, None)
     base_total_scenarios = _metadata_int(
         base_report.metadata.get(
-            "base_total_scenarios_evaluated",
-            max(
-                int(base_report.total_scenarios_evaluated) - sum(suite_scenario_counts.values()),
-                0,
-            ),
+            "base_total_scenarios_evaluated", base_report.total_scenarios_evaluated
         ),
         field_name="base_total_scenarios_evaluated",
     )
-    for supplemental in supplemental_reports:
-        vulnerabilities.extend(supplemental.vulnerabilities)
-        raw_suite_id = supplemental.metadata.get("challenge_suite_id")
-        if raw_suite_id is not None and str(raw_suite_id).strip():
-            suite_scenario_counts[str(raw_suite_id)] = int(supplemental.total_scenarios_evaluated)
-    total_scenarios = base_total_scenarios + sum(suite_scenario_counts.values())
     return base_report.model_copy(
         update={
-            "schema_version": "1.1",
-            "total_scenarios_evaluated": total_scenarios,
+            "schema_version": "1.2" if roster.suites else "1.1",
+            "total_scenarios_evaluated": base_total_scenarios + sum(d4_scenario_counts.values()),
             "score_components": score_components,
             "score_profile": score_profile,
             "score_status": score_status,
@@ -339,8 +459,85 @@ def _merge_stress_test_reports(
             "vulnerabilities": vulnerabilities,
             "metadata": {
                 **dict(base_report.metadata),
-                "phase_d4_suite_ids": sorted(suite_scenario_counts),
-                "phase_d4_suite_scenario_counts": suite_scenario_counts,
+                "phase_d4_suite_ids": sorted(selected),
+                "phase_d4_suite_scenario_counts": d4_scenario_counts,
+                "base_total_scenarios_evaluated": base_total_scenarios,
+                "score_source_reports": score_source_reports,
+            },
+        }
+    )
+
+
+def _merge_legacy_stress_test_diagnostics(
+    base_report: StressTestReport,
+    supplemental_reports: list[StressTestReport],
+    *,
+    replacement_suite_ids: list[str] | None,
+) -> StressTestReport:
+    """Merge unscored display summaries without granting score authority."""
+    replacement_suite_ids_set = {
+        str(item).strip() for item in (replacement_suite_ids or []) if str(item).strip()
+    }
+    if not supplemental_reports and not replacement_suite_ids_set:
+        return base_report
+    replacement_suite_ids_set.update(
+        str(report.metadata.get("challenge_suite_id")).strip()
+        for report in supplemental_reports
+        if str(report.metadata.get("challenge_suite_id") or "").strip()
+    )
+    vulnerabilities = [
+        item
+        for item in base_report.vulnerabilities
+        if _phase_d4_suite_id_from_vulnerability(item) not in replacement_suite_ids_set
+    ]
+    score_components = [
+        *base_report.score_components,
+        *(component for report in supplemental_reports for component in report.score_components),
+    ]
+    reports = [base_report, *supplemental_reports]
+    score_source_reports: list[dict[str, Any]] = []
+    for source_report in reports:
+        source_score = source_report.robustness_score
+        if not _is_builtin_number(source_score) or not math.isfinite(source_score):
+            source_score = None
+        score_source_reports.append(
+            {
+                "report_id": source_report.report_id,
+                "schema_version": source_report.schema_version,
+                "score_status": source_report.score_status,
+                "score_profile": source_report.score_profile,
+                "reported_score": source_score,
+                "reported_score_present": source_report.robustness_score is not None,
+            }
+        )
+    counts = dict(base_report.metadata.get("phase_d4_suite_scenario_counts", {}))
+    for suite_id in replacement_suite_ids_set:
+        counts.pop(suite_id, None)
+    for report in supplemental_reports:
+        suite_id = report.metadata.get("challenge_suite_id")
+        if isinstance(suite_id, str) and suite_id.strip():
+            counts[suite_id] = int(report.total_scenarios_evaluated)
+        vulnerabilities.extend(report.vulnerabilities)
+    base_total_scenarios = _metadata_int(
+        base_report.metadata.get(
+            "base_total_scenarios_evaluated",
+            max(base_report.total_scenarios_evaluated - sum(counts.values()), 0),
+        ),
+        field_name="base_total_scenarios_evaluated",
+    )
+    return base_report.model_copy(
+        update={
+            "total_scenarios_evaluated": base_total_scenarios + sum(counts.values()),
+            "score_components": score_components,
+            "vulnerabilities": vulnerabilities,
+            "robustness_score": None,
+            "score_status": "unbound",
+            "score_reason": "legacy_diagnostic_merge_not_cas_resolved",
+            "score_predicate_status": "not_established",
+            "metadata": {
+                **dict(base_report.metadata),
+                "phase_d4_suite_ids": sorted(counts),
+                "phase_d4_suite_scenario_counts": counts,
                 "base_total_scenarios_evaluated": base_total_scenarios,
                 "score_source_reports": score_source_reports,
             },
@@ -468,6 +665,10 @@ def _extract_level5_gate(outcome: FunnelOutcome) -> dict[str, Any]:
         in {"recomputed", "independently_reconciled"}
         and _is_builtin_number(score_value)
         and math.isfinite(score_value)
+        and (
+            not feedback.get("stress_score_case_truth_required", False)
+            or feedback.get("stress_score_case_truth_status") == "recomputed"
+        )
     )
     return {
         "passed": (
@@ -479,6 +680,8 @@ def _extract_level5_gate(outcome: FunnelOutcome) -> dict[str, Any]:
         "score_status": feedback.get("stress_score_status"),
         "score_profile": feedback.get("stress_score_profile"),
         "score_reason": feedback.get("stress_score_reason"),
+        "case_truth_status": feedback.get("stress_score_case_truth_status"),
+        "case_truth_required": feedback.get("stress_score_case_truth_required", False),
         "terminal_action": level5.terminal_action,
         "failure_count": len(level5.failure_cards),
         "critical_failures": [

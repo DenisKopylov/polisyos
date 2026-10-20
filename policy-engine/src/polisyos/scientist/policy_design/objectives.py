@@ -28,6 +28,8 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.scientist.agent.constraint_context import extract_budget_envelope
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.objective import (
+    _POLICY_RUNTIME_INVOCATION_ABSENT,
+    _POLICY_RUNTIME_INVOCATION_FIELDS,
     ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
     _make_score_assessment,
@@ -162,6 +164,11 @@ class PolicyEvaluationVector(BaseModel):
     ) -> tuple[float | None, ObjectiveScoreStatus]:
         """Return only a scalar whose carried source basis still matches its channels."""
         assessment = self.score_assessment
+        invocation_status = self._runtime_source_invocation_binding_status(source_results)
+        if assessment is not None and assessment.status is ObjectiveScoreStatus.INVALID:
+            return None, ObjectiveScoreStatus.INVALID
+        if invocation_status is not ObjectiveScoreStatus.AVAILABLE:
+            return None, invocation_status
         if assessment is None:
             return None, ObjectiveScoreStatus.NOT_ESTABLISHED
         if assessment.status is not ObjectiveScoreStatus.AVAILABLE:
@@ -215,12 +222,14 @@ class PolicyEvaluationVector(BaseModel):
             or self.feasible is not (not self.blocking_reasons)
         ):
             return False
-        runtime_execution = self.metadata.get("policy_runtime_invocation")
+        runtime_execution = self.metadata.get(
+            "policy_runtime_invocation", _POLICY_RUNTIME_INVOCATION_ABSENT
+        )
         runtime_execution_sha256: str | None = None
-        if runtime_execution is not None:
+        if runtime_execution is not _POLICY_RUNTIME_INVOCATION_ABSENT:
             if not isinstance(runtime_execution, Mapping) or not runtime_execution:
                 return False
-            bootstrap = embedded_source.get("bootstrap")
+            bootstrap = embedded_source.get("bootstrap", _POLICY_RUNTIME_INVOCATION_ABSENT)
             if not isinstance(bootstrap, Mapping):
                 return False
             if (
@@ -255,8 +264,17 @@ class PolicyEvaluationVector(BaseModel):
         """Classify the runtime tuple separately from the vector's scalar basis."""
         source = source_results if isinstance(source_results, Mapping) else self.score_source
         invocation_present = "policy_runtime_invocation" in self.metadata
-        assessment_has_runtime_binding = False
+        invocation = self.metadata.get(
+            "policy_runtime_invocation", _POLICY_RUNTIME_INVOCATION_ABSENT
+        )
         assessment = self.score_assessment
+        if (
+            assessment is not None
+            and assessment.status is ObjectiveScoreStatus.INVALID
+            and assessment.limitation == "policy_vector_runtime_invocation_tuple_invalid"
+        ):
+            return ObjectiveScoreStatus.INVALID
+        assessment_has_runtime_binding = False
         if assessment is not None and assessment.rule_spec:
             try:
                 rule = json.loads(assessment.rule_spec)
@@ -275,10 +293,12 @@ class PolicyEvaluationVector(BaseModel):
         )
         if not runtime_bound:
             return ObjectiveScoreStatus.AVAILABLE
-        bootstrap = source.get("bootstrap") if isinstance(source, Mapping) else None
-        return _policy_runtime_invocation_bindings_status(
-            self.metadata.get("policy_runtime_invocation"), bootstrap
+        bootstrap = (
+            source.get("bootstrap", _POLICY_RUNTIME_INVOCATION_ABSENT)
+            if isinstance(source, Mapping)
+            else _POLICY_RUNTIME_INVOCATION_ABSENT
         )
+        return _policy_runtime_invocation_bindings_status(invocation, bootstrap)
 
     def _runtime_source_invocation_reconciles(
         self,
@@ -288,7 +308,11 @@ class PolicyEvaluationVector(BaseModel):
         source = source_results if isinstance(source_results, Mapping) else self.score_source
         embedded = self.score_source
         invocation_present = "policy_runtime_invocation" in self.metadata
-        invocation = self.metadata.get("policy_runtime_invocation")
+        invocation = (
+            self.metadata["policy_runtime_invocation"]
+            if invocation_present
+            else _POLICY_RUNTIME_INVOCATION_ABSENT
+        )
         assessment = self.score_assessment
         assessment_has_runtime_binding = False
         if assessment is not None and assessment.rule_spec:
@@ -327,7 +351,7 @@ class PolicyEvaluationVector(BaseModel):
         if (
             source_projection is None
             or source_projection != embedded_projection
-            or source_projection.get("bootstrap") is None
+            or "bootstrap" not in source_projection
         ):
             return False
         bootstrap = source_projection["bootstrap"]
@@ -370,10 +394,13 @@ class PolicyEvaluationVector(BaseModel):
     ) -> PolicyEvaluationVector:
         """Bind score channels to the emitted source record used by search consumers."""
         source = _score_source_projection(source_results)
+        runtime_execution = self.metadata.get(
+            "policy_runtime_invocation", _POLICY_RUNTIME_INVOCATION_ABSENT
+        )
         if source is None:
-            raw_bootstrap = source_results.get("bootstrap")
+            raw_bootstrap = source_results.get("bootstrap", _POLICY_RUNTIME_INVOCATION_ABSENT)
             invocation_binding_status = _policy_runtime_invocation_bindings_status(
-                self.metadata.get("policy_runtime_invocation"), raw_bootstrap
+                runtime_execution, raw_bootstrap
             )
             assessment = (
                 _invalid_vector_score_assessment("policy_vector_runtime_invocation_tuple_invalid")
@@ -387,7 +414,6 @@ class PolicyEvaluationVector(BaseModel):
         expected_channels = {
             channel.name: channel.value for channel in self.all_channels().values()
         }
-        runtime_execution = self.metadata.get("policy_runtime_invocation")
         runtime_sha256: str | None = None
         binding_valid = (
             embedded_channels == expected_channels
@@ -413,7 +439,7 @@ class PolicyEvaluationVector(BaseModel):
         )
         invocation_binding_status = ObjectiveScoreStatus.AVAILABLE
         if runtime_bound:
-            bootstrap = source.get("bootstrap")
+            bootstrap = source.get("bootstrap", _POLICY_RUNTIME_INVOCATION_ABSENT)
             invocation_binding_status = _policy_runtime_invocation_bindings_status(
                 runtime_execution, bootstrap
             )
@@ -684,14 +710,6 @@ def _policy_vector_channel_assessment(
     )
 
 
-_RUNTIME_SCORE_BINDING_FIELDS = (
-    "evaluation_attempt_id",
-    "requested_draw_count",
-    "requested_draw_source",
-    "effective_estimation_config_sha256",
-)
-
-
 def _score_source_projection(source: Mapping[str, Any]) -> dict[str, Any] | None:
     """Reduce emitted simulation results to every score-formula operand."""
     raw_metric_units = source.get("metric_units")
@@ -733,16 +751,15 @@ def _score_source_projection(source: Mapping[str, Any]) -> dict[str, Any] | None
         "feasible": raw_feasible,
         "blocking_reasons": list(raw_blocking_reasons),
     }
-    raw_bootstrap = source.get("bootstrap")
-    if raw_bootstrap is not None:
+    if "bootstrap" in source:
+        raw_bootstrap = source["bootstrap"]
         if not isinstance(raw_bootstrap, Mapping):
             return None
-        bootstrap: dict[str, Any] = {}
-        for name in _RUNTIME_SCORE_BINDING_FIELDS:
-            if name not in raw_bootstrap:
-                return None
-            bootstrap[name] = raw_bootstrap[name]
-        projection["bootstrap"] = bootstrap
+        projection["bootstrap"] = {
+            name: raw_bootstrap[name]
+            for name in _POLICY_RUNTIME_INVOCATION_FIELDS
+            if name in raw_bootstrap
+        }
     return projection
 
 
@@ -1198,11 +1215,25 @@ class ObjectiveStack:
             or str(bundle.metadata.get("generated_by") or "").startswith("policy_runtime::")
         )
         if runtime_required:
-            return evaluation.with_runtime_score_assessment(
-                bundle.metadata.get("policy_runtime_invocation")
-                if isinstance(bundle.metadata.get("policy_runtime_invocation"), Mapping)
-                else {}
-            )
+            runtime_execution = bundle.metadata.get("policy_runtime_invocation", {})
+            if (
+                _policy_runtime_invocation_bindings_status(
+                    runtime_execution, _POLICY_RUNTIME_INVOCATION_ABSENT
+                )
+                is ObjectiveScoreStatus.INVALID
+            ):
+                return evaluation.model_copy(
+                    update={
+                        "score_assessment": _invalid_vector_score_assessment(
+                            "policy_vector_runtime_invocation_tuple_invalid"
+                        ),
+                        "metadata": {
+                            **evaluation.metadata,
+                            "policy_runtime_invocation": runtime_execution,
+                        },
+                    }
+                )
+            return evaluation.with_runtime_score_assessment(runtime_execution)
         return evaluation.model_copy(
             update={
                 "score_assessment": _unestablished_vector_score_assessment(

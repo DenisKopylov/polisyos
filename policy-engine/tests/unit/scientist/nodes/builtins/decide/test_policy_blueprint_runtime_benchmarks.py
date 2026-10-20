@@ -669,14 +669,19 @@ def test_phase_d4_missing_optional_stress_report_stays_visible_and_does_not_bloc
 
     assert len(benchmark_refs) == 1
     assert stress_refs == []
-    assert warnings == ("phase_d4_stress_report_absent:strategic_gaming_v1",)
+    assert warnings == (
+        "phase_d4_case_replay_source_unavailable",
+        "phase_d4_stress_report_absent:strategic_gaming_v1",
+    )
     assert len(resolved_components) == 1
     assert len(score_resolutions) == 1
     assert score_resolutions[0].status == "not_evaluated"
     assert score_resolutions[0].reason_code == "zero_expected_denominator"
     basis_ref = resolved_components[0].outcome_basis_ref
     assert basis_ref.manifest_profile_sha256 is not None
-    basis = StressOutcomeBasis.model_validate(from_canonical_bytes(ctx.store.get_bytes(basis_ref)))
+    basis_payload = from_canonical_bytes(ctx.store.get_bytes(basis_ref))
+    assert "phase_d4_replay_source_ref" not in basis_payload
+    basis = StressOutcomeBasis.model_validate(basis_payload)
     assert basis.source_id == ("phase_d4:strategic_gaming_v1:loop_phase_d4_without_stress_report")
     assert basis.candidate_ref == candidate_ref
     assert basis.benchmark_evaluation_ref == benchmark_refs[0]

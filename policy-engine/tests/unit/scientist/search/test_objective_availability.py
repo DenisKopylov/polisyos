@@ -515,6 +515,7 @@ def test_equal_runtime_binding_values_still_require_the_typed_tuple_contract(
 @pytest.mark.parametrize(
     "invocation",
     [
+        {},
         {
             "evaluation_attempt_id": None,
             "requested_draw_count": None,
@@ -543,6 +544,7 @@ def test_equal_runtime_binding_values_still_require_the_typed_tuple_contract(
         },
     ],
     ids=(
+        "empty-present-tuple",
         "explicitly-limited-identity",
         "missing-draw-count",
         "missing-draw-source",
@@ -607,6 +609,143 @@ def test_runtime_invocation_mismatch_is_invalid_after_source_rebinding(
         objective.score_status is ObjectiveScoreStatus.INVALID
         for objective in rebound.as_legacy_objectives(mismatch)
     )
+
+
+@pytest.mark.parametrize(
+    "malformed_bootstrap",
+    [None, [], "not-a-mapping"],
+    ids=("explicit-null", "list", "string"),
+)
+def test_present_malformed_bootstrap_is_invalid_for_every_runtime_reader(
+    malformed_bootstrap: object,
+) -> None:
+    vector, source = _runtime_vector(values={"policy_value": 0.25, "employment": 0.1})
+    malformed_source = {**source, "bootstrap": malformed_bootstrap}
+
+    assert (
+        vector._runtime_source_invocation_binding_status(malformed_source)
+        is ObjectiveScoreStatus.INVALID
+    )
+    assert vector.legacy_scalar_proxy_for_search(malformed_source) == (
+        None,
+        ObjectiveScoreStatus.INVALID,
+    )
+    assert not vector.runtime_score_available_for_search(malformed_source)
+    assert vector.frontier_objectives("equity_aware", malformed_source) == {}
+    assert _policy_rank_key(vector, malformed_source) is None
+    assert all(
+        item.score_status is ObjectiveScoreStatus.INVALID
+        for item in vector.as_legacy_objectives(malformed_source)
+    )
+
+    rebound = vector.with_score_source_results(malformed_source)
+    assert rebound.score_assessment is not None
+    assert rebound.score_assessment.status is ObjectiveScoreStatus.INVALID
+    assert rebound.score_source is None
+    assert rebound._runtime_source_invocation_binding_status() is ObjectiveScoreStatus.INVALID
+    assert rebound.legacy_scalar_proxy_for_search() == (None, ObjectiveScoreStatus.INVALID)
+    assert all(
+        item.score_status is ObjectiveScoreStatus.INVALID for item in rebound.as_legacy_objectives()
+    )
+
+
+def test_absent_bootstrap_is_not_established_across_runtime_readers() -> None:
+    vector, source = _runtime_vector(values={"policy_value": 0.25, "employment": 0.1})
+    source_without_bootstrap = {key: value for key, value in source.items() if key != "bootstrap"}
+
+    assert (
+        vector._runtime_source_invocation_binding_status(source_without_bootstrap)
+        is ObjectiveScoreStatus.NOT_ESTABLISHED
+    )
+    assert vector.legacy_scalar_proxy_for_search(source_without_bootstrap) == (
+        None,
+        ObjectiveScoreStatus.NOT_ESTABLISHED,
+    )
+    assert vector.frontier_objectives("equity_aware", source_without_bootstrap) == {}
+    assert _policy_rank_key(vector, source_without_bootstrap) is None
+    assert all(
+        item.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        for item in vector.as_legacy_objectives(source_without_bootstrap)
+    )
+
+    rebound = vector.with_score_source_results(source_without_bootstrap)
+    assert rebound.score_source == source_without_bootstrap
+    assert rebound.score_assessment is not None
+    assert rebound.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert rebound.legacy_scalar_proxy_for_search() == (
+        None,
+        ObjectiveScoreStatus.NOT_ESTABLISHED,
+    )
+    assert all(
+        item.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        for item in rebound.as_legacy_objectives()
+    )
+
+
+@pytest.mark.parametrize(
+    "runtime_invocation",
+    [None, [], "not-a-mapping"],
+    ids=("explicit-null", "list", "string"),
+)
+def test_present_malformed_runtime_invocation_is_invalid_for_every_reader(
+    runtime_invocation: object,
+) -> None:
+    vector, source = _runtime_vector(values={"policy_value": 0.25, "employment": 0.1})
+    malformed_vector = vector.model_copy(
+        update={
+            "metadata": {
+                **vector.metadata,
+                "policy_runtime_invocation": runtime_invocation,
+            }
+        }
+    )
+
+    assert (
+        malformed_vector._runtime_source_invocation_binding_status(source)
+        is ObjectiveScoreStatus.INVALID
+    )
+    assert malformed_vector.legacy_scalar_proxy_for_search(source) == (
+        None,
+        ObjectiveScoreStatus.INVALID,
+    )
+    assert not malformed_vector.runtime_score_available_for_search(source)
+    assert malformed_vector.frontier_objectives("equity_aware", source) == {}
+    assert _policy_rank_key(malformed_vector, source) is None
+    assert all(
+        item.score_status is ObjectiveScoreStatus.INVALID
+        for item in malformed_vector.as_legacy_objectives(source)
+    )
+
+    rebound = malformed_vector.with_score_source_results(source)
+    assert rebound.score_assessment is not None
+    assert rebound.score_assessment.status is ObjectiveScoreStatus.INVALID
+    assert rebound.legacy_scalar_proxy_for_search() == (None, ObjectiveScoreStatus.INVALID)
+    assert all(
+        item.score_status is ObjectiveScoreStatus.INVALID for item in rebound.as_legacy_objectives()
+    )
+
+
+@pytest.mark.parametrize(
+    "runtime_invocation",
+    [None, [], "not-a-mapping"],
+    ids=("explicit-null", "list", "string"),
+)
+def test_objective_stack_preserves_malformed_present_invocation_metadata(
+    runtime_invocation: object,
+) -> None:
+    vector = ObjectiveStack().evaluate(
+        PolicyEvaluationBundle(
+            metadata={
+                "generated_by": "policy_runtime::fixture",
+                "policy_runtime_invocation": runtime_invocation,
+            }
+        )
+    )
+
+    assert vector.metadata["policy_runtime_invocation"] == runtime_invocation
+    assert vector.score_assessment is not None
+    assert vector.score_assessment.status is ObjectiveScoreStatus.INVALID
+    assert vector._runtime_source_invocation_binding_status({}) is ObjectiveScoreStatus.INVALID
 
 
 def test_identified_runtime_axis_remains_available_when_scalar_unit_is_missing() -> None:

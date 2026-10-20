@@ -376,6 +376,7 @@ _POLICY_RUNTIME_INVOCATION_FIELDS = (
     "requested_draw_source",
     "effective_estimation_config_sha256",
 )
+_POLICY_RUNTIME_INVOCATION_ABSENT = object()
 
 
 class _PolicyRuntimeInvocationBinding(BaseModel):
@@ -421,25 +422,23 @@ def _policy_runtime_invocation_binding(value: Any) -> _PolicyRuntimeInvocationBi
 
 
 def _policy_runtime_invocation_bindings_status(left: Any, right: Any) -> ObjectiveScoreStatus:
-    """Separate a valid but limited tuple from malformed or fully bound identity."""
-    if left is None and right is None:
-        return ObjectiveScoreStatus.NOT_ESTABLISHED
-    if (left is not None and not isinstance(left, Mapping)) or (
-        right is not None and not isinstance(right, Mapping)
+    """Classify absent, malformed-present, limited, and fully bound invocation inputs."""
+    left_present = left is not _POLICY_RUNTIME_INVOCATION_ABSENT
+    right_present = right is not _POLICY_RUNTIME_INVOCATION_ABSENT
+    if (left_present and not isinstance(left, Mapping)) or (
+        right_present and not isinstance(right, Mapping)
     ):
         return ObjectiveScoreStatus.INVALID
-    left_binding = _policy_runtime_invocation_binding(left) if isinstance(left, Mapping) else None
-    right_binding = (
-        _policy_runtime_invocation_binding(right) if isinstance(right, Mapping) else None
-    )
-    if (isinstance(left, Mapping) and left_binding is None) or (
-        isinstance(right, Mapping) and right_binding is None
-    ):
+    left_binding = _policy_runtime_invocation_binding(left) if left_present else None
+    right_binding = _policy_runtime_invocation_binding(right) if right_present else None
+    if (left_present and left_binding is None) or (right_present and right_binding is None):
         return ObjectiveScoreStatus.INVALID
-    if left is None or right is None:
+    if not left_present or not right_present:
         return ObjectiveScoreStatus.NOT_ESTABLISHED
-    if left_binding is None or right_binding is None:
-        return ObjectiveScoreStatus.INVALID
+    assert isinstance(left, Mapping)
+    assert isinstance(right, Mapping)
+    assert left_binding is not None
+    assert right_binding is not None
     shared_fields = set(left).intersection(right).intersection(_POLICY_RUNTIME_INVOCATION_FIELDS)
     if any(left[name] != right[name] for name in shared_fields):
         return ObjectiveScoreStatus.INVALID

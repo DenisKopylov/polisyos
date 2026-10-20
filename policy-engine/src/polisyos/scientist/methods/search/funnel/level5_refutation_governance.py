@@ -138,6 +138,8 @@ class Level5RefutationGovernanceStage(FunnelStage):
         score_profile = None
         score_reason = "stress_report_missing"
         score_predicate_status = "not_established"
+        score_case_truth_status = "not_established"
+        score_case_truth_required = False
         score_value: float | None = None
         source_score_status: str | None = None
         source_score_profile: str | None = None
@@ -181,10 +183,41 @@ class Level5RefutationGovernanceStage(FunnelStage):
                     }
                 )
             else:
+                raw_selected_phase_d4_refs = context.get("phase_d4_selected_evaluation_refs")
+                phase_d4_roster = None
+                selection_ref = _coerce_artifact_ref(context.get("selection_evaluation_ref"))
+                selection = context.get("selection_evaluation")
+                run_id = context.get("run_id")
+                if (
+                    "phase_d4_selected_evaluation_refs" in context
+                    and isinstance(raw_selected_phase_d4_refs, (list, tuple))
+                    and isinstance(selection, BenchmarkEvaluation)
+                    and isinstance(run_id, str)
+                    and current_candidate_ref is not None
+                    and selection_ref is not None
+                ):
+                    try:
+                        from polisyos.scientist.methods.backtesting.phase_d4_source import (
+                            build_phase_d4_suite_roster,
+                        )
+
+                        phase_d4_roster = build_phase_d4_suite_roster(
+                            store,
+                            rotating_evaluation_refs=raw_selected_phase_d4_refs,
+                            expected_candidate_ref=current_candidate_ref,
+                            expected_selection_evaluation_ref=selection_ref,
+                            expected_run_id=run_id,
+                            expected_loop_id=selection.loop_id,
+                        )
+                    except Exception:
+                        phase_d4_roster = None
                 stress_report, resolution = resolve_stress_report_artifact(
                     store,
                     stress_report_ref,
                     expected_candidate_ref=current_candidate_ref,
+                    expected_run_id=run_id if isinstance(run_id, str) else None,
+                    expected_selection_evaluation_ref=selection_ref,
+                    expected_phase_d4_roster=phase_d4_roster,
                 )
                 source_score_status = stress_report.score_status
                 source_score_profile = stress_report.score_profile
@@ -204,16 +237,21 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 score_profile = resolution.score_profile or stress_report.score_profile
                 score_reason = resolution.reason_code
                 score_predicate_status = resolution.predicate_status
+                score_case_truth_status = resolution.case_truth_status
+                score_case_truth_required = resolution.case_truth_required is True
                 score_value = resolution.robustness_score
                 stress_report = stress_report.model_copy(
                     update={
                         "score_status": score_status,
                         "score_reason": score_reason,
                         "score_predicate_status": score_predicate_status,
+                        "case_truth_status": score_case_truth_status,
+                        "case_truth_reason": resolution.case_truth_reason,
                         "score_profile": score_profile,
                         "robustness_score": score_value,
                     }
                 )
+                stress_report._case_truth_required = resolution.case_truth_required
         else:
             if stress_report is None and self._stress_evaluator is not None:
                 stress_report = _coerce_model(
@@ -325,6 +363,22 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 )
             )
 
+        if (
+            score_status == "available"
+            and score_case_truth_required
+            and score_case_truth_status != "recomputed"
+        ):
+            score_status = "unbound"
+            score_reason = "phase_d4_case_truth_not_established"
+            score_value = None
+            if stress_report is not None:
+                stress_report = stress_report.model_copy(
+                    update={
+                        "score_status": score_status,
+                        "score_reason": score_reason,
+                        "robustness_score": None,
+                    }
+                )
         score_is_finite_binary = (
             score_status == "available"
             and score_profile == "finite_binary_scenario_v1"
@@ -332,6 +386,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
             and type(score_value) in {int, float}
             and isfinite(score_value)
             and score_predicate_status in {"recomputed", "independently_reconciled"}
+            and (not score_case_truth_required or score_case_truth_status == "recomputed")
         )
         if score_status == "available" and not score_is_finite_binary:
             score_status = "invalid"
@@ -501,6 +556,8 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 "stress_score_profile": score_profile,
                 "stress_score_reason": score_reason,
                 "stress_score_predicate_status": score_predicate_status,
+                "stress_score_case_truth_status": score_case_truth_status,
+                "stress_score_case_truth_required": score_case_truth_required,
                 "stress_score_value": score_value if score_is_finite_binary else None,
                 "stress_score_source_status": source_score_status,
                 "stress_score_source_profile": source_score_profile,

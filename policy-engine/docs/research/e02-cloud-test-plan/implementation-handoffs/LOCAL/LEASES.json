@@ -43280,5 +43280,80 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-voi-empty-channel-foundation-adoption-20261020-r1": {
+    "slice_base": "96909c25168f862760a5e567f204332711d7526f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/policy_design/objectives.py": {
+        "operation": "update",
+        "preimage_sha256": "f353a209aa1773b9ca2208bfdbc23f0f4bdc727b72d5d9fcec73ee0edcf9823a",
+        "git_base_preimage_sha256": "f353a209aa1773b9ca2208bfdbc23f0f4bdc727b72d5d9fcec73ee0edcf9823a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-joined-invocation-remaining-cause-20261020-r2/postimages/policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+        "postimage_sha256": "b3a378a5d67c2567365372b85790820bacf476f1a9dd7f7afb041db7229b9632",
+        "role": "mechanism"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "update",
+        "preimage_sha256": "654ec7873cf56884b99ce7ae1eb63fa9f017d2126fa5ff1206ecd606755eaaa3",
+        "git_base_preimage_sha256": "654ec7873cf56884b99ce7ae1eb63fa9f017d2126fa5ff1206ecd606755eaaa3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-joined-invocation-remaining-cause-20261020-r2/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "postimage_sha256": "50025180dd397c9c4576abff4d30b70a08c7fb075d74b40a4880547c222ebf13",
+        "role": "mandatory_test_companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-empty-channel-foundation-adoption-20261020-r1/source-application.json",
+      "sha256": "06b850772b8beab09f7fe95305d1cb709945175413007dbde53d5576d245f9cb"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-empty-channel-foundation-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-joined-invocation-remaining-cause-20261020-r2/plan.json",
+        "sha256": "9077d9230e3285c59009c13366d31f7515fe1793e4e32d028249d2329ad0e634"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-joined-invocation-remaining-cause-20261020-r2/manifest.json",
+        "sha256": "1b125371706b528f8d25cdc27451905baea72a91c7c2f515c2a71b1038497f14"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-joined-invocation-remaining-cause-independent-review-20261020-r2/review.md",
+        "sha256": "e4e7500a2a2b3b9ba41c1231c99f23354d65f98e54e7b3659ce7fa31c6f01bdd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-joined-invocation-remaining-cause-20261020-r1/proposal.json",
+        "sha256": "f9b61363f9d24292bf656a05716dc7fe744ea44309eaf4c836607e1f75bf1824"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "SAME source-projection completeness class, second-level finding, widened to generic present-empty versus absent/malformed distinction",
+      "class": "generic runtime source projection completeness and persisted consumer concordance",
+      "scope": "Change the common projection owner only; preserve invocation, fiscal, feasibility, persistence and consumer guards. Existing same-run direct L4 and L3-to-L4 persisted joined-invocation test remains the deciding integration path.",
+      "falsifier": "The requested post-freeze full composed replay must show the real producer emits objective_channels={}, the persisted vector and packet consumers admit the same invocation and fiscal measurement, score remains NOT_ESTABLISHED, VOI stays unobserved, and removal of empty-map acceptance rejects that same source while malformed/absent controls remain rejected."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Actual EB3 replay 147 PASS / 32 FAIL remains historical, not a runtime result on this proposed postimage.",
+      "This generic projection distinction does not add fiscal/scientific law or a numeric score fallback; generic AD01 method observations are a separate current implementation.",
+      "No formal G acceptance or finding closure is asserted."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After the N7 paired canonical replay completes, apply this foundation before recomposing AD01 consumers; run the whole nine-module source-qualified cohort plus the declared projection removal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

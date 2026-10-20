@@ -186,6 +186,88 @@ def _runtime_vector_for_fiscal_source(metrics: dict[str, Any]) -> PolicyEvaluati
     return vector.with_score_source_results(source)
 
 
+def _empty_channel_runtime_source() -> tuple[PolicyEvaluationVector, dict[str, Any]]:
+    """Build a complete runtime source whose execution has no objective channels."""
+    invocation = _policy_runtime_execution_metadata(
+        evaluation_attempt_id="attempt-empty-runtime-channels",
+        effective_estimation_config={"n_bootstrap": 0},
+    )
+    fiscal_measurement = _budget_deficit_measurement({"gov_balance": 0.0})
+    vector = PolicyEvaluationVector(
+        candidate_id="candidate_empty_runtime_channels",
+        metadata={
+            "policy_runtime_invocation": invocation,
+            "policy_runtime_fiscal_measurement": fiscal_measurement,
+        },
+    )
+    source = {
+        "objective_channels": {},
+        "metric_units": {},
+        "feasible": vector.feasible,
+        "blocking_reasons": list(vector.blocking_reasons),
+        "bootstrap": dict(invocation),
+        "budget_deficit_objective_usable": fiscal_measurement["usable"],
+        "budget_deficit_objective_value": fiscal_measurement["normalized_value"],
+        **fiscal_measurement["source_values"],
+    }
+    return vector, source
+
+
+def test_complete_empty_runtime_channels_preserve_execution_without_score() -> None:
+    vector, source = _empty_channel_runtime_source()
+
+    bound = vector.with_score_source_results(source)
+
+    assert bound.score_source is not None
+    assert bound.score_source["objective_channels"] == {}
+    assert bound.score_source["bootstrap"] == vector.metadata["policy_runtime_invocation"]
+    assert bound.metadata == vector.metadata
+    assert bound._runtime_source_invocation_binding_status(source) is ObjectiveScoreStatus.AVAILABLE
+    assert bound.score_assessment is not None
+    assert bound.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert bound.score_assessment.value is None
+    assert bound.runtime_score_available_for_search(source) is False
+    assert _policy_runtime_source_concordance(bound) == bound.score_source
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ("absent",),
+        ("null",),
+        ("list",),
+        ("non_string_key",),
+        ("blank_key",),
+        ("nonfinite",),
+    ],
+)
+def test_missing_or_malformed_runtime_channels_fail_closed(case: str) -> None:
+    vector, source = _empty_channel_runtime_source()
+    if case == "absent":
+        source.pop("objective_channels")
+    elif case == "null":
+        source["objective_channels"] = None
+    elif case == "list":
+        source["objective_channels"] = []
+    elif case == "non_string_key":
+        source["objective_channels"] = {1: 0.1}
+    elif case == "blank_key":
+        source["objective_channels"] = {" ": 0.1}
+    else:
+        source["objective_channels"] = {"policy_value": float("nan")}
+
+    bound = vector.with_score_source_results(source)
+
+    assert bound.score_source is None
+    assert bound.metadata == vector.metadata
+    assert bound._runtime_source_invocation_binding_status(source) is ObjectiveScoreStatus.AVAILABLE
+    assert bound.score_assessment is not None
+    assert bound.score_assessment.status is ObjectiveScoreStatus.NOT_ESTABLISHED
+    assert bound.score_assessment.value is None
+    assert bound.runtime_score_available_for_search(source) is False
+    assert _policy_runtime_source_concordance(bound) is None
+
+
 @pytest.mark.parametrize(
     ("metrics", "present_alias"),
     [

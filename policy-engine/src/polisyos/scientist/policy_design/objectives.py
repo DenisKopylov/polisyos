@@ -734,11 +734,13 @@ def _score_source_projection(source: Mapping[str, Any]) -> dict[str, Any] | None
     ):
         return None
     raw_channels = source.get("objective_channels")
-    if not isinstance(raw_channels, Mapping) or not raw_channels:
+    if not isinstance(raw_channels, Mapping):
         return None
+    # An explicit empty mapping is a complete zero-channel execution basis.
+    # The scalar reducer separately keeps zero selected channels unscored.
     channels: dict[str, float] = {}
     for name, raw_value in raw_channels.items():
-        if not isinstance(name, str) or isinstance(raw_value, bool):
+        if not isinstance(name, str) or not name.strip() or isinstance(raw_value, bool):
             return None
         try:
             value = float(raw_value)

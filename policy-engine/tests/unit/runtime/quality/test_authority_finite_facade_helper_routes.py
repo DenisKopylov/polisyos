@@ -62,7 +62,12 @@ def _candidate_ledger() -> object:
 
 def _copy_candidate_read_api(repo_root: Path) -> None:
     product_root = _workspace_product_root()
-    source = _candidate_product_root() / "src/polisyos/data_forge/read_api"
+    candidate_source = _candidate_product_root() / "src/polisyos/data_forge/read_api"
+    source = (
+        candidate_source
+        if (candidate_source / "__init__.py").is_file()
+        else product_root / "src/polisyos/data_forge/read_api"
+    )
     package = repo_root / "src/polisyos/data_forge"
     read_api = package / "read_api"
     read_api.mkdir(parents=True)
@@ -633,3 +638,104 @@ def test_nested_imported_symbol_cycle_fails_closed(tmp_path: Path) -> None:
     with pytest.raises(ledger.ConfidenceLedgerError):
         ledger._resolve_authority_import_closure(repo_root, "polisyos.entry")
     assert actual.returncode != 0
+
+
+def _link_or_copy(source: str, destination: str) -> str:
+    """Materialize source bytes without duplicating checkout data when possible."""
+
+    try:
+        os.link(source, destination)
+    except OSError:
+        shutil.copy2(source, destination)
+    return destination
+
+
+def _materialize_runtime_source_overlay(tmp_path: Path) -> Path:
+    """Build an isolated source root that exercises the selected ledger bytes."""
+
+    product_root = _workspace_product_root()
+    candidate_root = _candidate_product_root()
+    overlay_root = tmp_path / "runtime-source-overlay"
+    overlay_root.mkdir()
+    for name in ("pyproject.toml", "uv.lock"):
+        _link_or_copy(str(product_root / name), str(overlay_root / name))
+    shutil.copytree(
+        product_root / "src",
+        overlay_root / "src",
+        copy_function=_link_or_copy,
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    for entry in product_root.iterdir():
+        if entry.name in {"src", ".git", ".venv", "node_modules", "dist", "build"}:
+            continue
+        destination = overlay_root / entry.name
+        if destination.exists():
+            continue
+        destination.symlink_to(entry, target_is_directory=entry.is_dir())
+    overlay_ledger = overlay_root / "src/polisyos/runtime/quality/confidence_ledger.py"
+    overlay_ledger.unlink()
+    shutil.copyfile(
+        candidate_root / "src/polisyos/runtime/quality/confidence_ledger.py",
+        overlay_ledger,
+    )
+    return overlay_root
+
+
+def test_runtime_import_and_unbound_bare_facade_provider_branch(
+    tmp_path: Path,
+) -> None:
+    overlay_root = _materialize_runtime_source_overlay(tmp_path)
+    script = """
+import json
+import tempfile
+from pathlib import Path
+import polisyos.runtime.quality.generation_cycle as generation_cycle
+import polisyos.runtime.quality.confidence_ledger as ledger
+
+root = Path(ledger._loaded_policy_engine_root())
+assert generation_cycle.__name__ == "polisyos.runtime.quality.generation_cycle"
+assert Path(ledger.__file__).resolve() == (
+    root / "src/polisyos/runtime/quality/confidence_ledger.py"
+).resolve()
+with tempfile.TemporaryDirectory() as temporary:
+    facade_root = Path(temporary)
+    package = facade_root / "src/polisyos"
+    package.mkdir(parents=True)
+    (facade_root / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+    (package / "bare_facade.py").write_text("VALUE = 1\\n", encoding="utf-8")
+    source_index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    provider = ledger._literal_module_getattr_provider(
+        facade_root,
+        "polisyos.bare_facade",
+        "MISSING",
+        directory_entries={},
+        source_index=source_index,
+    )
+    assert provider is None
+print(
+    json.dumps(
+        {
+            "generation_cycle": generation_cycle.__name__,
+            "bare_provider": provider,
+            "authority_failure": ledger._IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE,
+        }
+    )
+)
+"""
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(overlay_root / "src")
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=overlay_root,
+        env=environment,
+        capture_output=True,
+        check=False,
+        text=True,
+        timeout=45,
+    )
+    assert result.returncode == 0, result.stderr
+    payload = __import__("json").loads(result.stdout)
+    assert payload["generation_cycle"] == "polisyos.runtime.quality.generation_cycle"
+    assert payload["bare_provider"] is None
+    failure = payload["authority_failure"]
+    assert failure is None or failure[0] == "canonical_loaded_runtime_mismatch"

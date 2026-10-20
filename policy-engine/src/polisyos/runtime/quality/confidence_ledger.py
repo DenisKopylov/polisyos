@@ -6121,6 +6121,7 @@ def _literal_module_getattr_provider(
 
     mapped_symbol: str | None = None
     module_providers = provider_index.module_providers_by_export or {}
+    provider: str | None = None
     if mapped_module_targets:
         if len(mapped_module_targets) != 1:
             raise ConfidenceLedgerError(

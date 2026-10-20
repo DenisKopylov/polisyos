@@ -29780,5 +29780,150 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "n11-r5-unbound-provider-init-and-real-runtime-import-20261020-r1": {
+    "slice_base": "6dad99365eda4907b7128a24b1ab5c85ccc72d44",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py": {
+        "operation": "write",
+        "preimage_sha256": "5b150fb810d452395a2fcc22ed4020886ec0cd00f47742239f7b4677913515f8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/postimages/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "postimage_sha256": "ffcdc8f45f49d07a51de6f8555292b05eed1b7db92127aae0502c925649159fe"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py": {
+        "operation": "write",
+        "preimage_sha256": "fe8dcb499bebcddf672efa9d9bd37d2c73e9ce6e6bceb4ee087f788fe30ee80a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/postimages/policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+        "postimage_sha256": "2aa885d8fcad162d1d6aed6bdb49c4cfcdc35a5e99055b8ce51b7ad82f34bc80"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/source-application.json",
+      "sha256": "44559889e4a043e42db05fdf118c6a21752452fb05543bc7ece300c6ed6e53f0"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/manifest-r1.json",
+        "sha256": "847501d1a2a0e8742c7d68e285c8bd6f3a02b13f3e1f319ba954faa8c63e094a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/adoption-plan-r1.json",
+        "sha256": "1b710e6866a536120c0e18a273f256b2a217f943ca0e8fd54b092fdc7a1f43c9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/candidate-r5.patch",
+        "sha256": "0c8867c47a498dd5249cf954d35831ab760d0cda3c12adb006df4cf36a1dbc8e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/review.json",
+        "sha256": "2340dee67adbdb4f4840078308973689997f3e3ccae85d1b5333da44bc0175ab"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-red.txt",
+        "sha256": "e62aeb82db7800f20d647bcfa5f4d14782d5e696ff7a7e2f3f474b463d9629d9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-full-suite.txt",
+        "sha256": "3a2d3b8421519d5249230686f3149e691bb2a1fb0776e3d77e08508d39f26804"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-full-suite.json",
+        "sha256": "291372860b9ecafa373d1184fe5cfe1308b7fd802db18ee155e7572ee2dd3051"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-full-closure-after.txt",
+        "sha256": "cfd0ad6360db6e11cf42d95af21387b3ff144766c658278b3146f9b0c7642f7d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-full-closure-after.json",
+        "sha256": "4e2081cdb8404b80748283062a07595ba0ef72664dd9cc645e7626025f7e908c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-ruff.json",
+        "sha256": "ece69f531870f244431820e7a683dc83c7f60099fcb7aca4ee2a5c979104b933"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-patch.json",
+        "sha256": "47405aebf60fef852db116daf1d6aa7f4d9c844f5504a4d9708525f06a714e52"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/verification/actual-r1-git-apply-check.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/postimages/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "sha256": "ffcdc8f45f49d07a51de6f8555292b05eed1b7db92127aae0502c925649159fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-init-fix-20261020-r1/postimages/policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+        "sha256": "2aa885d8fcad162d1d6aed6bdb49c4cfcdc35a5e99055b8ce51b7ad82f34bc80"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same finite-facade resolver class: generic no-provider control-flow initialization, confirmed by baseline red and real fresh runtime import. Full owner closure remains explicitly held at polisyos.core.components; no per-module claim.",
+    "bounded_proof": "Independent exact candidate suite 16 PASS; canonical Ruff check and format pass; fresh generation_cycle subprocess import succeeds; baseline remove-initialization control raises UnboundLocalError.",
+    "limitations": [
+      "Only the two reviewed R5 source/test paths are adopted.",
+      "Whole authority closure, native owner regeneration, installed consumers and composed replay remain unqualified; typed missing repository binding polisyos.core.components retained.",
+      "Original two owned dirty tests preserved byte-identically; no G acceptance/formal closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After independent review and exact adoption, rerun the fresh-process import and this 16-test module against adopted bytes. Continue the separate generic finite-facade census for the typed polisyos.core.components closure limitation; do not treat R5 as whole-owner closure.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

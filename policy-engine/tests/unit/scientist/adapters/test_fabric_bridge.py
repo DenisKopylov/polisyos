@@ -15,6 +15,7 @@ from polisyos.core.contracts.fabric import (
     DataSnapshot,
     DataSnapshotRef,
     DataViewRequestRef,
+    EvidenceBundleRef,
     data_snapshot_owner_input_requirements,
 )
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -85,6 +86,7 @@ def test_default_fabric_port_snapshot_marks_survey_repeated_cross_section(tmp_pa
     now = datetime.now(UTC)
     seen: dict[str, object] = {}
     registry = _Registry()
+    evidence_ref: EvidenceBundleRef | None = None
 
     def _fake_get_data(
         *,
@@ -120,9 +122,24 @@ def test_default_fabric_port_snapshot_marks_survey_repeated_cross_section(tmp_pa
             quality_tier=QualityTier.GOLD,
             quality_flags=frozenset(),
             bytes_transferred=256,
+            evidence_ref=evidence_ref,
         )
 
     store = FileSystemCAS(tmp_path)
+    persisted_evidence_ref = store.put_json(
+        {"evidence_id": "selected-fabric-bridge-evidence"},
+        ArtifactWriteOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="fabric.evidence_bundle", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    evidence_ref = EvidenceBundleRef.model_validate(
+        persisted_evidence_ref.model_dump(mode="python")
+    )
+    assert evidence_ref.manifest_profile_sha256 is not None
     request_payload = store.put_json(
         DataViewRequest(
             schema_version="1.0",
@@ -144,8 +161,13 @@ def test_default_fabric_port_snapshot_marks_survey_repeated_cross_section(tmp_pa
         store,
         DataViewRequestRef(artifact_id=request_payload.artifact_id),
     )
-    snapshot_payload = from_canonical_bytes(store.get_bytes(snapshot_ref.artifact_id))
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    snapshot_payload = from_canonical_bytes(store.get_bytes(snapshot_ref))
     snapshot = DataSnapshot.model_validate(snapshot_payload)
+    manifest = store.get_manifest_by_profile(
+        snapshot_ref.artifact_id,
+        snapshot_ref.manifest_profile_sha256,
+    )
 
     assert snapshot.stats["data_shape"] == "survey_repeated_cross_section"
     assert snapshot.stats["survey_year_field"] == "survey_year"
@@ -155,6 +177,9 @@ def test_default_fabric_port_snapshot_marks_survey_repeated_cross_section(tmp_pa
     assert seen["dataset_id"] == "social_trust"
     assert seen["registry"] is registry
     assert seen["constraints"] == {"page_size": 100}
+    assert snapshot.evidence_ref == evidence_ref
+    evidence_edge = next(edge for edge in manifest.inputs if edge.role == "evidence_ref")
+    assert evidence_edge.manifest_profile_sha256 == evidence_ref.manifest_profile_sha256
 
 
 def test_default_fabric_port_enforces_execution_tier_from_injected_catalog_store(tmp_path) -> None:
@@ -209,7 +234,10 @@ def test_default_fabric_port_enforces_execution_tier_from_injected_catalog_store
         )
 
 
-def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(tmp_path) -> None:
+def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     db_path = tmp_path / "source.sqlite"
     with sqlite3.connect(db_path) as connection:
         connection.execute("CREATE TABLE policy_inputs (income REAL NOT NULL, note TEXT)")
@@ -251,7 +279,11 @@ def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(tm
 
     snapshot = DataSnapshot.model_validate(from_canonical_bytes(store.get_bytes(snapshot_ref)))
     records = from_canonical_bytes(store.get_bytes(snapshot.data_ref))
-    snapshot_manifest = store.get_manifest(snapshot_ref)
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    snapshot_manifest = store.get_manifest_by_profile(
+        snapshot_ref.artifact_id,
+        snapshot_ref.manifest_profile_sha256,
+    )
     request_edge = next(
         edge for edge in snapshot_manifest.inputs if edge.role == "data_view_request_ref"
     )
@@ -260,7 +292,11 @@ def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(tm
         {"income": 12.5, "note": "first"},
         {"income": 25.0, "note": None},
     ]
-    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert snapshot.data_ref.manifest_profile_sha256 is not None
+    assert snapshot.data_schema_ref is not None
+    assert snapshot.data_schema_ref.manifest_profile_sha256 is not None
+    assert snapshot.quality_report_ref is not None
+    assert snapshot.quality_report_ref.manifest_profile_sha256 is not None
     assert request_edge.artifact_id == request_ref.artifact_id
     assert request_edge.manifest_profile_sha256 == artifact_manifest_profile_sha256(
         store.get_manifest(request_ref)
@@ -299,6 +335,74 @@ def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(tm
         validate_data_snapshot_owner_lineage,
     )
 
+    validate_data_snapshot_owner_lineage(store, snapshot_ref, snapshot)
+
+    assert snapshot.source_lineage is not None
+    selected_request_ref = snapshot.source_lineage.data_view_request_ref
+    assert selected_request_ref.manifest_profile_sha256 is not None
+    unselected_request_ref = DataViewRequestRef.model_validate(
+        selected_request_ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
+    )
+    unselected_payload_ref = store.put_json(
+        records,
+        ArtifactWriteOptions(
+            kind="fabric.tabular_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.TabularPayload", version="1.0"),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    unselected_request_ref,
+                    role="data_view_request_ref",
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    unselected_lineage = snapshot.source_lineage.model_copy(
+        update={"data_view_request_ref": unselected_request_ref}
+    )
+    unselected_snapshot = snapshot.model_copy(
+        update={"data_ref": unselected_payload_ref, "source_lineage": unselected_lineage}
+    )
+    unselected_snapshot_ref = store.put_json(
+        unselected_snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
+            inputs=[
+                input_ref_from_artifact_ref(ref, role=role)
+                for ref, role in data_snapshot_owner_input_requirements(unselected_snapshot)
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    reads: list[object] = []
+    verifications: list[object] = []
+    original_get_bytes = FileSystemCAS.get_bytes
+    original_verify = FileSystemCAS.verify
+
+    def _track_reads(instance, ref):
+        if instance is store:
+            reads.append(ref)
+        return original_get_bytes(instance, ref)
+
+    def _track_verifications(instance, ref):
+        if instance is store:
+            verifications.append(ref)
+        return original_verify(instance, ref)
+
+    monkeypatch.setattr(FileSystemCAS, "get_bytes", _track_reads)
+    monkeypatch.setattr(FileSystemCAS, "verify", _track_verifications)
+    with pytest.raises(DataSnapshotLineageError, match="owner_profile_unselected"):
+        validate_data_snapshot_owner_lineage(store, unselected_snapshot_ref, unselected_snapshot)
+    assert reads == []
+    assert verifications == []
+    monkeypatch.setattr(FileSystemCAS, "get_bytes", original_get_bytes)
+    monkeypatch.setattr(FileSystemCAS, "verify", original_verify)
+
     legacy_payload = snapshot.model_dump(mode="json")
     legacy_payload.pop("source_lineage")
     legacy_snapshot = DataSnapshot.model_validate(legacy_payload)
@@ -327,7 +431,7 @@ def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(tm
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    with pytest.raises(DataSnapshotLineageError, match="manifest_inputs_mismatch"):
+    with pytest.raises(DataSnapshotLineageError, match="source_edges_mismatch"):
         validate_data_snapshot_owner_lineage(
             store,
             legacy_missing_request_ref,

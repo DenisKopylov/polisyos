@@ -733,7 +733,29 @@ def test_persisted_fetch_carries_complete_payload_and_actual_catalog(real_fetch_
     owner = real_fetch_owner
     executed = _execute(owner)
     assert getattr(executed.metric, "fetch_receipt_ref", None) is not None
-    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_sha256,
+        input_ref_from_artifact_ref,
+        load_core_json_artifact,
+    )
+    from polisyos.fabric.retrieval.custody import FabricFetchReceipt, resolve_persisted_fetch
+
+    receipt_ref = executed.metric.fetch_receipt_ref
+    assert receipt_ref.manifest_profile_sha256 is not None
+    receipt = FabricFetchReceipt.model_validate(load_core_json_artifact(owner.store, receipt_ref))
+    assert receipt.result.data.manifest_profile_sha256 is not None
+    assert receipt.catalog_binding_ref.manifest_profile_sha256 is not None
+    receipt_manifest = owner.store.get_manifest_by_profile(
+        receipt_ref.artifact_id,
+        receipt_ref.manifest_profile_sha256,
+    )
+    assert receipt_manifest.inputs == [
+        input_ref_from_artifact_ref(receipt.result.data, role="fetched_payload"),
+        input_ref_from_artifact_ref(receipt.catalog_binding_ref, role="catalog_binding"),
+    ]
+    assert artifact_manifest_profile_sha256(receipt_manifest) == (
+        receipt_ref.manifest_profile_sha256
+    )
 
     resolved = resolve_persisted_fetch(
         store=owner.store,

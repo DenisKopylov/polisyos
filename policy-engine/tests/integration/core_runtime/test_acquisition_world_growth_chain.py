@@ -1176,6 +1176,25 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         passport = AdmissionPassport.model_validate(passport_payload)
 
         base_snapshot_ref = wmr_fixture._data_snapshot_ref(store)
+        base_snapshot_payload = DataSnapshot.model_validate(
+            from_canonical_bytes(store.get_bytes(base_snapshot_ref))
+        )
+        base_snapshot_manifest = store.get_manifest(base_snapshot_ref)
+        base_snapshot_ref = store.put_json(
+            base_snapshot_payload,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.2.0",
+                ),
+                inputs=base_snapshot_manifest.inputs,
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert base_snapshot_ref.manifest_profile_sha256 is not None
         registry = wmr_fixture._substrate_registry()
         registry_ref = persist_substrate_registry(store, registry)
         registry_bundle = build_default_registry_bundle(store)
@@ -1263,12 +1282,23 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
         assert snapshot.source_lineage is not None
         assert snapshot.source_lineage.owner == "acquired_observation_overlay"
         assert snapshot.source_lineage.base_data_snapshot_ref == base_snapshot_ref
+        assert materialized.data_snapshot_ref.manifest_profile_sha256 is not None
+        assert snapshot.data_ref.manifest_profile_sha256 is not None
+        assert snapshot.source_lineage.base_data_snapshot_ref.manifest_profile_sha256 is not None
+        assert (
+            snapshot.source_lineage.overlay_admission_receipt_ref.manifest_profile_sha256
+            is not None
+        )
+        assert snapshot.source_lineage.passport_ref.manifest_profile_sha256 is not None
         validate_data_snapshot_owner_lineage(store, materialized.data_snapshot_ref, snapshot)
 
         legacy_payload = snapshot.model_dump(mode="json")
         legacy_payload.pop("source_lineage")
         legacy_snapshot = DataSnapshot.model_validate(legacy_payload)
-        current_manifest = store.get_manifest(materialized.data_snapshot_ref)
+        current_manifest = store.get_manifest_by_profile(
+            materialized.data_snapshot_ref.artifact_id,
+            materialized.data_snapshot_ref.manifest_profile_sha256,
+        )
         legacy_snapshot_ref = store.put_json(
             legacy_snapshot,
             wmr_fixture.PutOptions(
@@ -1330,6 +1360,103 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
                 malformed_owner_snapshot,
             )
 
+        relabeled_owner_payload_ref = store.put_json(
+            payload,
+            wmr_fixture.PutOptions(
+                kind="fabric.production_data_state_payload",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.runtime.quality.DataStatePayload",
+                    version="policyos.runtime.data_state_substrate.v1",
+                ),
+                inputs=(),
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        relabeled_owner_snapshot = legacy_snapshot.model_copy(
+            update={"data_ref": relabeled_owner_payload_ref}
+        )
+        relabeled_owner_snapshot_ref = store.put_json(
+            relabeled_owner_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.2.0",
+                ),
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        relabeled_owner_payload_ref,
+                        role="payload.real_l4",
+                    )
+                ],
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(DataSnapshotLineageError, match="owner_parent_inputs_mismatch"):
+            validate_data_snapshot_owner_lineage(
+                store,
+                relabeled_owner_snapshot_ref,
+                relabeled_owner_snapshot,
+            )
+
+        profileless_marker_payload_ref = relabeled_owner_payload_ref.model_copy(
+            update={"manifest_profile_sha256": None}
+        )
+        profileless_marker_snapshot = legacy_snapshot.model_copy(
+            update={"data_ref": profileless_marker_payload_ref}
+        )
+        profileless_marker_snapshot_ref = store.put_json(
+            profileless_marker_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.2.0",
+                ),
+                inputs=[
+                    artifacts.input_ref_from_artifact_ref(
+                        profileless_marker_payload_ref,
+                        role="payload.real_l4",
+                    )
+                ],
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        marker_reads: list[object] = []
+        marker_verifications: list[object] = []
+        store_type = type(store)
+        original_get_bytes = store_type.get_bytes
+        original_verify = store_type.verify
+
+        def _track_marker_reads(instance, ref):
+            if instance is store:
+                marker_reads.append(ref)
+            return original_get_bytes(instance, ref)
+
+        def _track_marker_verifications(instance, ref):
+            if instance is store:
+                marker_verifications.append(ref)
+            return original_verify(instance, ref)
+
+        monkeypatch.setattr(store_type, "get_bytes", _track_marker_reads)
+        monkeypatch.setattr(store_type, "verify", _track_marker_verifications)
+        with pytest.raises(DataSnapshotLineageError, match="owner_profile_unselected"):
+            validate_data_snapshot_owner_lineage(
+                store,
+                profileless_marker_snapshot_ref,
+                profileless_marker_snapshot,
+            )
+        assert marker_reads == []
+        assert marker_verifications == []
+        monkeypatch.setattr(store_type, "get_bytes", original_get_bytes)
+        monkeypatch.setattr(store_type, "verify", original_verify)
+
         legacy_missing_passport_ref = store.put_json(
             legacy_snapshot,
             wmr_fixture.PutOptions(
@@ -1348,7 +1475,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
             return_selected_profile=True,
         )
-        with pytest.raises(ValueError, match="manifest_inputs_mismatch"):
+        with pytest.raises(ValueError, match="owner_parent_inputs_mismatch"):
             validate_data_snapshot_owner_lineage(
                 store,
                 legacy_missing_passport_ref,
@@ -1373,7 +1500,93 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             == content_sha256(passport_payload)
         )
 
-        payload_manifest = store.get_manifest(snapshot.data_ref)
+        payload_manifest = store.get_manifest_by_profile(
+            snapshot.data_ref.artifact_id,
+            snapshot.data_ref.manifest_profile_sha256,
+        )
+        assert all(edge.manifest_profile_sha256 is not None for edge in payload_manifest.inputs)
+        profileless_base_ref = base_snapshot_ref.model_copy(
+            update={"manifest_profile_sha256": None}
+        )
+        profileless_payload = deepcopy(payload)
+        profileless_payload["_policyos_acquisition"]["base_data_snapshot_ref"] = (
+            profileless_base_ref.model_dump(mode="json")
+        )
+        profileless_payload_inputs = [
+            input_ref_from_artifact_ref(
+                profileless_base_ref,
+                role="input.base_data_snapshot",
+            ),
+            *(edge for edge in payload_manifest.inputs if edge.role != "input.base_data_snapshot"),
+        ]
+        profileless_payload_ref = store.put_json(
+            profileless_payload,
+            wmr_fixture.PutOptions(
+                kind="fabric.production_data_state_payload",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+                    version="policyos.runtime.acquisition_data_state.v2",
+                ),
+                inputs=profileless_payload_inputs,
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        profileless_lineage = snapshot.source_lineage.model_copy(
+            update={"base_data_snapshot_ref": profileless_base_ref}
+        )
+        profileless_snapshot = snapshot.model_copy(
+            update={
+                "data_ref": profileless_payload_ref,
+                "source_lineage": profileless_lineage,
+            }
+        )
+        profileless_snapshot_ref = store.put_json(
+            profileless_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.3.0",
+                ),
+                inputs=[
+                    input_ref_from_artifact_ref(ref, role=role)
+                    for ref, role in data_snapshot_owner_input_requirements(profileless_snapshot)
+                ],
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        payload_reads: list[object] = []
+        verifications: list[object] = []
+        store_type = type(store)
+        original_get_bytes = store_type.get_bytes
+        original_verify = store_type.verify
+
+        def _track_payload_reads(instance, ref):
+            if instance is store:
+                payload_reads.append(ref)
+            return original_get_bytes(instance, ref)
+
+        def _track_verifications(instance, ref):
+            if instance is store:
+                verifications.append(ref)
+            return original_verify(instance, ref)
+
+        monkeypatch.setattr(store_type, "get_bytes", _track_payload_reads)
+        monkeypatch.setattr(store_type, "verify", _track_verifications)
+        with pytest.raises(DataSnapshotLineageError, match="owner_profile_unselected"):
+            validate_data_snapshot_owner_lineage(
+                store,
+                profileless_snapshot_ref,
+                profileless_snapshot,
+            )
+        assert payload_reads == []
+        assert verifications == []
+        monkeypatch.setattr(store_type, "get_bytes", original_get_bytes)
+        monkeypatch.setattr(store_type, "verify", original_verify)
         assert payload_manifest.artifact_schema == wmr_fixture.SchemaInfo(
             name="polisyos.runtime.quality.AcquisitionDataStatePayload",
             version="policyos.runtime.acquisition_data_state.v2",

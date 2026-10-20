@@ -61,7 +61,7 @@ def validate_data_snapshot_owner_lineage(
         raise DataSnapshotLineageError("data_snapshot_owner_cycle_detected")
     seen = _seen | {current_key}
 
-    parent = _verified_manifest(store, snapshot_ref)
+    parent = _manifest_view(store, snapshot_ref)
     schema = parent.artifact_schema
     if (
         parent.kind != DataSnapshot.ARTIFACT_KIND
@@ -77,10 +77,21 @@ def validate_data_snapshot_owner_lineage(
     elif snapshot.source_lineage is not None:
         raise DataSnapshotLineageError("data_snapshot_legacy_lineage_field_unbound")
 
-    payload_manifest = _verified_manifest(store, snapshot.data_ref)
-    family = _owner_family(store, snapshot.data_ref, payload_manifest)
+    payload_manifest = _manifest_view(store, snapshot.data_ref)
+    family = _owner_family(snapshot, parent, payload_manifest)
     lineage = snapshot.source_lineage
+    legacy_acquisition_probe = family is None and _legacy_acquisition_probe_required(
+        snapshot.data_ref, payload_manifest
+    )
     if family is None:
+        if legacy_acquisition_probe and snapshot.data_ref.manifest_profile_sha256 is None:
+            raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
+        parent = _verified_manifest(store, snapshot_ref)
+        payload_manifest = _verified_manifest(
+            store,
+            snapshot.data_ref,
+            require_selected_profile=legacy_acquisition_probe,
+        )
         if lineage is not None or schema.version != DataSnapshot.ARTIFACT_SCHEMA_VERSION:
             raise DataSnapshotLineageError("data_snapshot_owner_family_or_lineage_mismatch")
         if not data_snapshot_manifest_inputs_match(
@@ -93,7 +104,48 @@ def validate_data_snapshot_owner_lineage(
             ref = getattr(snapshot, field_name)
             if ref is not None:
                 _verified_manifest(store, ref)
-        return
+        if not legacy_acquisition_probe:
+            return
+        raw_payload = load_core_json_artifact(store, snapshot.data_ref)
+        if not isinstance(raw_payload, Mapping) or "_policyos_acquisition" not in raw_payload:
+            return
+        family = "acquired_observation_overlay"
+
+    _require_selected_owner_closure(
+        snapshot_ref=snapshot_ref,
+        snapshot=snapshot,
+        parent=parent,
+        payload_manifest=payload_manifest,
+    )
+    if schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
+        if lineage is None or _lineage_family(lineage) != family:
+            raise DataSnapshotLineageError("data_snapshot_owner_family_or_lineage_mismatch")
+        selected_expected = data_snapshot_owner_input_requirements(snapshot)
+        try:
+            _require_exact_owner_edges(store, manifest=parent, expected=selected_expected)
+        except DataSnapshotLineageError as exc:
+            raise DataSnapshotLineageError("data_snapshot_owner_parent_inputs_mismatch") from exc
+        if family == "acquired_observation_overlay":
+            _require_exact_owner_edges(
+                store,
+                manifest=payload_manifest,
+                expected=(
+                    input_ref_from_artifact_ref(
+                        lineage.base_data_snapshot_ref,
+                        role="input.base_data_snapshot",
+                    ),
+                    input_ref_from_artifact_ref(
+                        lineage.overlay_admission_receipt_ref,
+                        role="evidence.overlay_admission_receipt",
+                    ),
+                    input_ref_from_artifact_ref(
+                        lineage.passport_ref,
+                        role="evidence.acquisition_passport",
+                    ),
+                ),
+            )
+    parent = _verified_manifest(store, snapshot_ref, require_selected_profile=True)
+    payload_manifest = _verified_manifest(store, snapshot.data_ref, require_selected_profile=True)
 
     if schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
         if lineage is None or _lineage_family(lineage) != family:
@@ -203,14 +255,9 @@ def _single_ref_for_role(
     if len(matches) != 1:
         raise DataSnapshotLineageError("data_snapshot_owner_source_edges_mismatch")
     edge = matches[0]
-    manifest = (
-        store.get_manifest(edge.artifact_id)
-        if edge.manifest_profile_sha256 is None
-        else store.get_manifest_by_profile(
-            edge.artifact_id,
-            edge.manifest_profile_sha256,
-        )
-    )
+    if edge.manifest_profile_sha256 is None:
+        raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
+    manifest = store.get_manifest_by_profile(edge.artifact_id, edge.manifest_profile_sha256)
     if manifest.artifact_id != edge.artifact_id:
         raise DataSnapshotLineageError("data_snapshot_lineage_ref_unverified")
     return ArtifactRef(
@@ -221,11 +268,28 @@ def _single_ref_for_role(
     )
 
 
-def _owner_family(
-    store: ArtifactStore,
+def _legacy_acquisition_probe_required(
     ref: ArtifactRef,
-    manifest: object,
+    manifest: ArtifactManifest,
+) -> bool:
+    """Identify the one legacy payload profile whose bytes may carry acquisition ownership."""
+    if ref.kind != "fabric.production_data_state_payload":
+        return False
+    from polisyos.runtime.quality.data_state_substrate import DATA_STATE_SUBSTRATE_SCHEMA_VERSION
+
+    return manifest.artifact_schema == SchemaInfo(
+        name="polisyos.runtime.quality.DataStatePayload",
+        version=DATA_STATE_SUBSTRATE_SCHEMA_VERSION,
+    )
+
+
+def _owner_family(
+    snapshot: DataSnapshot,
+    parent: ArtifactManifest,
+    manifest: ArtifactManifest,
 ) -> str | None:
+    if snapshot.source_lineage is not None:
+        return _lineage_family(snapshot.source_lineage)
     kind = getattr(manifest, "kind", None)
     if kind == "fabric.fetch_payload":
         return "measurement_root"
@@ -236,11 +300,16 @@ def _owner_family(
     schema = getattr(manifest, "artifact_schema", None)
     if getattr(schema, "name", None) == "polisyos.runtime.quality.AcquisitionDataStatePayload":
         return "acquired_observation_overlay"
-    raw_payload = load_core_json_artifact(store, ref)
-    if isinstance(raw_payload, Mapping) and isinstance(
-        raw_payload.get("_policyos_acquisition"), Mapping
-    ):
-        return "acquired_observation_overlay"
+    owner_roles = {
+        "payload.acquired_observation_candidate",
+        "input.base_data_snapshot",
+        "evidence.overlay_admission_receipt",
+        "evidence.acquisition_passport",
+    }
+    if any(edge.role in owner_roles for edge in parent.inputs):
+        if getattr(schema, "name", None) == "polisyos.runtime.quality.DataStatePayload":
+            return "acquired_observation_overlay"
+        raise DataSnapshotLineageError("data_snapshot_owner_source_schema_invalid")
     from polisyos.runtime.quality.data_state_substrate import DATA_STATE_SUBSTRATE_SCHEMA_VERSION
 
     if schema == SchemaInfo(
@@ -261,10 +330,13 @@ def _lineage_family(lineage: DataSnapshotOwnerLineage) -> str:
     raise DataSnapshotLineageError("data_snapshot_owner_lineage_unsupported")
 
 
-def _verified_manifest(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManifest:
+def _manifest_view(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManifest:
     if not isinstance(ref, ArtifactRef):
         raise DataSnapshotLineageError("data_snapshot_lineage_ref_untyped")
-    manifest = store.get_manifest(ref)
+    if ref.manifest_profile_sha256 is None:
+        manifest = store.get_manifest(ref)
+    else:
+        manifest = store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
     profile = artifact_manifest_profile_sha256(manifest)
     if (
         manifest.artifact_id != ref.artifact_id
@@ -272,14 +344,50 @@ def _verified_manifest(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManife
         or manifest.media_type != ref.media_type
         or not profile
         or (ref.manifest_profile_sha256 is not None and profile != ref.manifest_profile_sha256)
-        or not store.verify(ref).ok
     ):
         raise DataSnapshotLineageError("data_snapshot_lineage_ref_unverified")
     return manifest
 
 
-def _edge_matches_owner_ref(
+def _verified_manifest(
     store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    require_selected_profile: bool = False,
+) -> ArtifactManifest:
+    if require_selected_profile and ref.manifest_profile_sha256 is None:
+        raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
+    manifest = _manifest_view(store, ref)
+    if not store.verify(ref).ok:
+        raise DataSnapshotLineageError("data_snapshot_lineage_ref_unverified")
+    return manifest
+
+
+def _require_selected_owner_closure(
+    *,
+    snapshot_ref: ArtifactRef,
+    snapshot: DataSnapshot,
+    parent: ArtifactManifest,
+    payload_manifest: ArtifactManifest,
+) -> None:
+    refs = [snapshot_ref, snapshot.data_ref]
+    refs.extend(
+        getattr(snapshot, field_name)
+        for field_name in data_snapshot_reference_fields()
+        if getattr(snapshot, field_name) is not None
+    )
+    if snapshot.source_lineage is not None:
+        refs.extend(ref for ref, _role in data_snapshot_owner_input_requirements(snapshot))
+    if any(ref.manifest_profile_sha256 is None for ref in refs):
+        raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
+    if any(edge.manifest_profile_sha256 is None for edge in parent.inputs):
+        raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
+    if any(edge.manifest_profile_sha256 is None for edge in payload_manifest.inputs):
+        raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
+
+
+def _edge_matches_owner_ref(
+    _store: ArtifactStore,
     *,
     edge: object,
     ref: ArtifactRef,
@@ -287,26 +395,7 @@ def _edge_matches_owner_ref(
 ) -> bool:
     if getattr(edge, "artifact_id", None) != ref.artifact_id or getattr(edge, "role", None) != role:
         return False
-    edge_profile = getattr(edge, "manifest_profile_sha256", None)
-    if edge_profile is not None:
-        if ref.manifest_profile_sha256 is not None:
-            return edge_profile == ref.manifest_profile_sha256
-        default_ref = ArtifactRef.model_validate(
-            ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
-        )
-        default_profile = artifact_manifest_profile_sha256(store.get_manifest(default_ref))
-        return default_profile == edge_profile
-    if ref.manifest_profile_sha256 is None:
-        return True
-    # Existing root-producer manifests sometimes name the correct child id/role
-    # as a default view. Keep that historical selection only when the current
-    # default manifest resolves to the exact producer-selected profile.
-    default_ref = ArtifactRef.model_validate(
-        ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
-    )
-    return artifact_manifest_profile_sha256(store.get_manifest(default_ref)) == (
-        ref.manifest_profile_sha256
-    )
+    return getattr(edge, "manifest_profile_sha256", None) == ref.manifest_profile_sha256
 
 
 def _require_exact_owner_edges(
@@ -342,7 +431,18 @@ def _verify_measurement_root_owner(
         _read_validated_measurement_snapshot_artifact,
     )
 
-    root_manifest = _verified_manifest(store, lineage.measurement_root_ref)
+    _require_selected_refs(
+        snapshot.data_ref,
+        lineage.measurement_root_ref,
+        lineage.fetch_receipt_ref,
+        lineage.catalog_binding_ref,
+    )
+    root_manifest = _manifest_view(store, lineage.measurement_root_ref)
+    root_expected_inputs = (
+        input_ref_from_artifact_ref(lineage.fetch_receipt_ref, role="fabric_fetch"),
+    )
+    if root_manifest.inputs != list(root_expected_inputs):
+        raise DataSnapshotLineageError("measurement_root_owner_source_edges_mismatch")
     root_raw = _read_validated_measurement_snapshot_artifact(
         store=store,
         artifact_ref=lineage.measurement_root_ref,
@@ -350,13 +450,9 @@ def _verify_measurement_root_owner(
         expected_media_type="application/json",
         expected_schema=SchemaInfo(name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION, version="v2"),
         expected_producer=_measurement_root_producer(),
-        expected_inputs=(
-            InputRef(
-                artifact_id=lineage.fetch_receipt_ref.artifact_id,
-                role="fabric_fetch",
-            ),
-        ),
+        expected_inputs=root_expected_inputs,
         expected_canon=CanonInfo(forbid_floats=False),
+        require_selected_profile=True,
     )
     root_payload = FabricMeasurementRootPayload.model_validate(from_canonical_bytes(root_raw))
     if (
@@ -379,13 +475,11 @@ def _verify_measurement_root_owner(
         expected_schema=SchemaInfo(name="polisyos.fabric.fetch_receipt.v1", version="1.0.0"),
         expected_producer=producer,
         expected_inputs=(
-            InputRef(artifact_id=root_payload.payload_ref.artifact_id, role="fetched_payload"),
-            InputRef(
-                artifact_id=lineage.catalog_binding_ref.artifact_id,
-                role="catalog_binding",
-            ),
+            input_ref_from_artifact_ref(root_payload.payload_ref, role="fetched_payload"),
+            input_ref_from_artifact_ref(lineage.catalog_binding_ref, role="catalog_binding"),
         ),
         expected_canon=CanonInfo.from_spec(CanonSpec(forbid_floats=False, exclude_none=False)),
+        require_selected_profile=True,
     )
     receipt = FabricFetchReceipt.model_validate(from_canonical_bytes(receipt_raw))
     if (
@@ -415,6 +509,7 @@ def _verify_measurement_root_owner(
         expected_producer=producer,
         expected_inputs=(),
         expected_canon=payload_canon,
+        require_selected_profile=True,
     )
     _read_validated_measurement_snapshot_artifact(
         store=store,
@@ -428,6 +523,7 @@ def _verify_measurement_root_owner(
         expected_producer=producer,
         expected_inputs=(),
         expected_canon=CanonInfo.from_spec(CanonSpec(forbid_floats=False, exclude_none=False)),
+        require_selected_profile=True,
     )
 
 
@@ -436,8 +532,9 @@ def _verify_fabric_bridge_owner(
     snapshot: DataSnapshot,
     lineage: FabricBridgeDataSnapshotLineage,
 ) -> None:
-    request_manifest = _verified_manifest(store, lineage.data_view_request_ref)
-    data_manifest = _verified_manifest(store, snapshot.data_ref)
+    _require_selected_refs(snapshot.data_ref, lineage.data_view_request_ref)
+    request_manifest = _manifest_view(store, lineage.data_view_request_ref)
+    data_manifest = _manifest_view(store, snapshot.data_ref)
     if (
         lineage.data_view_request_ref.kind != "ir.data_view_request"
         or lineage.data_view_request_ref.media_type != "application/json"
@@ -454,10 +551,12 @@ def _verify_fabric_bridge_owner(
         manifest=data_manifest,
         expected=((lineage.data_view_request_ref, "data_view_request_ref"),),
     )
+    _verified_manifest(store, lineage.data_view_request_ref, require_selected_profile=True)
+    _verified_manifest(store, snapshot.data_ref, require_selected_profile=True)
     load_core_json_artifact(store, lineage.data_view_request_ref)
     load_core_json_artifact(store, snapshot.data_ref)
     for ref, _role in data_snapshot_owner_input_requirements(snapshot):
-        _verified_manifest(store, ref)
+        _verified_manifest(store, ref, require_selected_profile=True)
 
 
 def _verify_acquired_observation_owner(
@@ -468,7 +567,13 @@ def _verify_acquired_observation_owner(
     seen: frozenset[tuple[str, str | None]],
 ) -> None:
     payload_ref = snapshot.data_ref
-    payload_manifest = _verified_manifest(store, payload_ref)
+    _require_selected_refs(
+        payload_ref,
+        lineage.base_data_snapshot_ref,
+        lineage.overlay_admission_receipt_ref,
+        lineage.passport_ref,
+    )
+    payload_manifest = _manifest_view(store, payload_ref)
     if (
         payload_ref.kind != "fabric.production_data_state_payload"
         or payload_ref.media_type != "application/json"
@@ -479,6 +584,25 @@ def _verify_acquired_observation_owner(
         )
     ):
         raise DataSnapshotLineageError("acquired_observation_payload_manifest_mismatch")
+    _require_exact_owner_edges(
+        store,
+        manifest=payload_manifest,
+        expected=(
+            input_ref_from_artifact_ref(
+                lineage.base_data_snapshot_ref,
+                role="input.base_data_snapshot",
+            ),
+            input_ref_from_artifact_ref(
+                lineage.overlay_admission_receipt_ref,
+                role="evidence.overlay_admission_receipt",
+            ),
+            input_ref_from_artifact_ref(
+                lineage.passport_ref,
+                role="evidence.acquisition_passport",
+            ),
+        ),
+    )
+    payload_manifest = _verified_manifest(store, payload_ref, require_selected_profile=True)
     raw_payload = load_core_json_artifact(store, payload_ref)
     if not isinstance(raw_payload, Mapping):
         raise DataSnapshotLineageError("acquired_observation_payload_invalid")
@@ -491,6 +615,7 @@ def _verify_acquired_observation_owner(
         payload_passport_ref = ArtifactRef.model_validate(owner["passport_ref"])
     except (KeyError, TypeError, ValueError) as exc:
         raise DataSnapshotLineageError("acquired_observation_owner_refs_invalid") from exc
+    _require_selected_refs(payload_base_ref, payload_receipt_ref, payload_passport_ref)
     if (
         payload_base_ref != lineage.base_data_snapshot_ref
         or payload_receipt_ref != lineage.overlay_admission_receipt_ref
@@ -527,11 +652,25 @@ def _verify_acquired_observation_owner(
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 
     try:
+        base_manifest = _manifest_view(store, lineage.base_data_snapshot_ref)
+        if any(edge.manifest_profile_sha256 is None for edge in base_manifest.inputs):
+            raise DataSnapshotLineageError("acquired_observation_base_profile_unselected")
         base_snapshot = validate_core_model_json_artifact(
             DataSnapshot,
             store,
             lineage.base_data_snapshot_ref,
         )
+        _require_selected_refs(base_snapshot.data_ref)
+        base_payload_manifest = _manifest_view(store, base_snapshot.data_ref)
+        try:
+            _require_selected_owner_closure(
+                snapshot_ref=lineage.base_data_snapshot_ref,
+                snapshot=base_snapshot,
+                parent=base_manifest,
+                payload_manifest=base_payload_manifest,
+            )
+        except DataSnapshotLineageError as exc:
+            raise DataSnapshotLineageError("acquired_observation_base_profile_unselected") from exc
         validate_data_snapshot_owner_lineage(
             store,
             lineage.base_data_snapshot_ref,
@@ -540,8 +679,16 @@ def _verify_acquired_observation_owner(
         )
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         raise DataSnapshotLineageError("acquired_observation_base_snapshot_unavailable") from exc
-    receipt_manifest = _verified_manifest(store, lineage.overlay_admission_receipt_ref)
-    passport_manifest = _verified_manifest(store, lineage.passport_ref)
+    receipt_manifest = _verified_manifest(
+        store,
+        lineage.overlay_admission_receipt_ref,
+        require_selected_profile=True,
+    )
+    passport_manifest = _verified_manifest(
+        store,
+        lineage.passport_ref,
+        require_selected_profile=True,
+    )
     if (
         lineage.base_data_snapshot_ref.kind != "fabric.data_snapshot"
         or lineage.base_data_snapshot_ref.media_type != "application/json"
@@ -601,6 +748,11 @@ def _fetch_producer() -> ProducerInfo:
     return ProducerInfo(
         component="polisyos.fabric.retrieval.executor.FetchExecutor", version="1.0.0"
     )
+
+
+def _require_selected_refs(*refs: ArtifactRef) -> None:
+    if any(not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None for ref in refs):
+        raise DataSnapshotLineageError("data_snapshot_owner_profile_unselected")
 
 
 def _data_forge_cas_uri(ref: ArtifactRef) -> str:

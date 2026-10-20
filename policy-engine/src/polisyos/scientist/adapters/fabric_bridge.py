@@ -9,6 +9,7 @@ from polisyos.common import serialization as common_serialization
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import profile_bound_ref
 from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
     SchemaInfo,
     WarningRecord,
     input_ref_from_artifact_ref,
@@ -138,6 +139,7 @@ class DefaultFabricPort:
             result=fetch_result,
             dataset_id=dataset_id,
         )
+        evidence_ref = _coerce_evidence_ref(fetch_result)
 
         data_ref = store.put_json(
             _jsonable(fetch_result.data),
@@ -148,8 +150,9 @@ class DefaultFabricPort:
                 inputs=[input_ref_from_artifact_ref(request_ref, role="data_view_request_ref")],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
-        data_ref = profile_bound_ref(store, data_ref)
+        _require_selected_profile(data_ref, "fabric_bridge_data_profile_unverified")
         schema_ref = store.put_json(
             {
                 "schema_id": fetch_result.schema_id,
@@ -160,8 +163,9 @@ class DefaultFabricPort:
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.DataSchema", version="1.0"),
             ),
+            return_selected_profile=True,
         )
-        schema_ref = profile_bound_ref(store, schema_ref)
+        _require_selected_profile(schema_ref, "fabric_bridge_schema_profile_unverified")
         quality_report_ref = store.put_json(
             quality_payload,
             ArtifactWriteOptions(
@@ -170,14 +174,14 @@ class DefaultFabricPort:
                 schema=SchemaInfo(name="polisyos.fabric.DataQualityReport", version="1.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
-        quality_report_ref = profile_bound_ref(store, quality_report_ref)
+        _require_selected_profile(
+            quality_report_ref,
+            "fabric_bridge_quality_report_profile_unverified",
+        )
 
-        raw_warnings_ref = _persist_warnings(store, fetch_result)
-        warnings_ref = (
-            profile_bound_ref(store, raw_warnings_ref) if raw_warnings_ref is not None else None
-        )
-        evidence_ref = _coerce_evidence_ref(fetch_result)
+        warnings_ref = _persist_warnings(store, fetch_result)
         pii_scan_summary = (
             fetch_result.pii_scan.model_dump(mode="json")
             if fetch_result.pii_scan is not None
@@ -233,7 +237,7 @@ class DefaultFabricPort:
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=True,
         )
-        snapshot_ref = profile_bound_ref(store, snapshot_ref)
+        _require_selected_profile(snapshot_ref, "fabric_bridge_snapshot_profile_unverified")
         return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 
@@ -391,14 +395,23 @@ def _persist_warnings(store: ArtifactStore, result: FetchResult[Any]) -> Warning
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.WarningsBundle", version="1.0"),
         ),
+        return_selected_profile=True,
     )
+    _require_selected_profile(warnings_ref, "fabric_bridge_warnings_profile_unverified")
     return WarningsRef.model_validate(warnings_ref.model_dump(mode="python"))
 
 
 def _coerce_evidence_ref(result: FetchResult[Any]) -> EvidenceBundleRef | None:
     if result.evidence_ref is None:
         return None
-    return EvidenceBundleRef.model_validate(result.evidence_ref.model_dump(mode="json"))
+    evidence_ref = EvidenceBundleRef.model_validate(result.evidence_ref.model_dump(mode="json"))
+    _require_selected_profile(evidence_ref, "fabric_bridge_evidence_profile_unverified")
+    return evidence_ref
+
+
+def _require_selected_profile(ref: ArtifactRef, error_code: str) -> None:
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError(error_code)
 
 
 def _collect_snapshot_semantics(data: object) -> tuple[dict[str, str], list[str]]:

@@ -32,14 +32,13 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
     FileSystemCAS,
-    InputRef,
     PutOptions,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataTrust, ValueOuterSet
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import DataSnapshot, data_snapshot_owner_input_requirements
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -626,7 +625,9 @@ def materialize_l4_data_state_snapshot(
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    _require_selected_profile(payload_ref, "data_state_payload_profile_unverified")
     if production_data_root is not None:
         _require_workspace_output_tree(workspace_dir, store.root)
     payload_content_hash = str(payload_ref.artifact_id)
@@ -659,10 +660,12 @@ def materialize_l4_data_state_snapshot(
             kind="fabric.data_snapshot",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
-            inputs=[InputRef(artifact_id=payload_ref.artifact_id, role="payload.real_l4")],
+            inputs=[input_ref_from_artifact_ref(payload_ref, role="payload.real_l4")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    _require_selected_profile(data_snapshot_ref, "data_state_snapshot_profile_unverified")
     if production_data_root is not None:
         _require_workspace_output_tree(workspace_dir, store.root)
     binding_path = _write_data_forge_snapshot_binding(
@@ -754,6 +757,7 @@ def materialize_acquired_observation_snapshot(
         raise DataStateSubstrateError("acquisition_passport_owner_untyped")
     if not isinstance(receipt_ref, ArtifactRef):
         raise DataStateSubstrateError("acquisition_activation_ref_untyped")
+    _require_selected_profile(receipt_ref, "acquisition_activation_profile_unselected")
     try:
         owner_projection = overlay.read_activated_semantic_epoch_observations(
             receipt_ref=receipt_ref,
@@ -771,6 +775,14 @@ def materialize_acquired_observation_snapshot(
         raise DataStateSubstrateError(
             "acquisition_projection_or_mapping_invalid", str(exc)
         ) from exc
+    _require_selected_profile(
+        selected_projection.receipt_ref,
+        "acquisition_receipt_profile_unselected",
+    )
+    _require_selected_profile(
+        selected_projection.passport_ref,
+        "acquisition_passport_profile_unselected",
+    )
     if not observation_id.strip():
         raise DataStateSubstrateError("acquisition_observation_id_empty")
     if (
@@ -795,16 +807,33 @@ def materialize_acquired_observation_snapshot(
     if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
         raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
 
+    _require_selected_profile(
+        base_data_snapshot_ref,
+        "acquisition_base_snapshot_profile_unselected",
+    )
     try:
-        base_manifest = store.get_manifest(base_data_snapshot_ref)
+        base_manifest = store.get_manifest_by_profile(
+            base_data_snapshot_ref.artifact_id,
+            base_data_snapshot_ref.manifest_profile_sha256,
+        )
         if (
             base_manifest.kind != "fabric.data_snapshot"
             or base_manifest.media_type != "application/json"
+            or any(edge.manifest_profile_sha256 is None for edge in base_manifest.inputs)
         ):
-            raise DataStateSubstrateError("acquisition_base_snapshot_manifest_invalid")
+            raise DataStateSubstrateError("acquisition_base_snapshot_profile_unselected")
         base_snapshot = DataSnapshot.model_validate(
             load_core_json_artifact(store, base_data_snapshot_ref)
         )
+        _require_selected_profile(
+            base_snapshot.data_ref,
+            "acquisition_base_snapshot_child_profile_unselected",
+        )
+        if any(
+            ref.manifest_profile_sha256 is None
+            for ref, _role in data_snapshot_owner_input_requirements(base_snapshot)
+        ):
+            raise DataStateSubstrateError("acquisition_base_snapshot_child_profile_unselected")
         from polisyos.runtime.quality.data_snapshot_lineage import (
             validate_data_snapshot_owner_lineage,
         )
@@ -827,7 +856,10 @@ def materialize_acquired_observation_snapshot(
         )
         if not base_snapshot_id:
             raise DataStateSubstrateError("acquisition_base_snapshot_version_missing")
-        base_payload_manifest = store.get_manifest(base_snapshot.data_ref)
+        base_payload_manifest = store.get_manifest_by_profile(
+            base_snapshot.data_ref.artifact_id,
+            base_snapshot.data_ref.manifest_profile_sha256,
+        )
         if base_payload_manifest.media_type != "application/json":
             raise DataStateSubstrateError("acquisition_base_payload_not_json")
         raw_payload = load_core_json_artifact(store, base_snapshot.data_ref)
@@ -926,7 +958,9 @@ def materialize_acquired_observation_snapshot(
             inputs=list(lineage_inputs),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    _require_selected_profile(payload_ref, "acquisition_payload_profile_unverified")
     payload_content_hash = str(payload_ref.artifact_id)
     snapshot_id = "gy-s1-acquisition-overlay-" + payload_content_hash.removeprefix("sha256:")[:20]
     data_snapshot = core_contracts.DataSnapshotOwnerBound(
@@ -973,6 +1007,7 @@ def materialize_acquired_observation_snapshot(
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
+    _require_selected_profile(data_snapshot_ref, "acquisition_snapshot_profile_unverified")
     binding_path = _write_data_forge_snapshot_binding(
         workspace_dir=workspace_dir,
         snapshot_id=snapshot_id,
@@ -2456,6 +2491,11 @@ def _snapshot_id(*, agent_limit: int | None, payload_hash: str) -> str:
     limit = "full" if agent_limit is None else str(agent_limit)
     suffix = payload_hash.removeprefix("sha256:")[:16]
     return f"{prefix}-{limit}-{suffix}"
+
+
+def _require_selected_profile(ref: ArtifactRef, error_code: str) -> None:
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise DataStateSubstrateError(error_code)
 
 
 def _value_authority_for_identification(

@@ -199,7 +199,7 @@ def _put_json(
     schema: str,
     inputs: list[core_artifacts.InputRef],
 ) -> core_artifacts.ArtifactRef:
-    return store.put_json(
+    ref = store.put_json(
         payload.model_dump(mode="json"),
         core_artifacts.PutOptions(
             kind=kind,
@@ -209,7 +209,11 @@ def _put_json(
             inputs=inputs,
         ),
         canon_spec=_CANON,
+        return_selected_profile=True,
     )
+    if ref.manifest_profile_sha256 is None:
+        raise FabricFetchCustodyError("fabric_fetch_profile_unverified")
+    return ref
 
 
 def _persist_fetched_result(
@@ -244,9 +248,16 @@ def _persist_fetched_result(
             # Persist the exact object snapshot represented by the already
             # encoded bytes; never serialize a second read of mutable connector data.
             payload_snapshot = canon.from_canonical_bytes(payload)
-            payload_ref = store.put_json(payload_snapshot, payload_options, canon_spec=_CANON)
+            payload_ref = store.put_json(
+                payload_snapshot,
+                payload_options,
+                canon_spec=_CANON,
+                return_selected_profile=True,
+            )
         else:
-            payload_ref = store.put_bytes(payload, payload_options)
+            payload_ref = store.put_bytes(payload, payload_options, return_selected_profile=True)
+        if payload_ref.manifest_profile_sha256 is None:
+            raise FabricFetchCustodyError("fabric_fetch_profile_unverified")
         binding_ref = _put_json(
             store,
             rebound,
@@ -269,12 +280,8 @@ def _persist_fetched_result(
             kind=_FETCH_KIND,
             schema="polisyos.fabric.fetch_receipt.v1",
             inputs=[
-                core_artifacts.InputRef(
-                    artifact_id=payload_ref.artifact_id, role="fetched_payload"
-                ),
-                core_artifacts.InputRef(
-                    artifact_id=binding_ref.artifact_id, role="catalog_binding"
-                ),
+                core_artifacts.input_ref_from_artifact_ref(payload_ref, role="fetched_payload"),
+                core_artifacts.input_ref_from_artifact_ref(binding_ref, role="catalog_binding"),
             ],
         )
         return payload_ref, receipt_ref
@@ -294,8 +301,12 @@ def _read(
     inputs: list[core_artifacts.InputRef] | None = None,
 ) -> bytes:
     checked = core_artifacts.ArtifactRef.model_validate(ref.model_dump(mode="python"))
-    manifest = store.get_manifest(checked)
-    data = store.get_bytes(checked)
+    if checked.manifest_profile_sha256 is None:
+        raise FabricFetchCustodyError("fabric_fetch_profile_unverified")
+    manifest = store.get_manifest_by_profile(
+        checked.artifact_id,
+        checked.manifest_profile_sha256,
+    )
     if (
         checked.kind != kind
         or checked.media_type != media_type
@@ -304,9 +315,13 @@ def _read(
         or manifest.artifact_schema
         != core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION)
         or manifest.producer != _PRODUCER
-        or manifest.byte_size != len(data)
+        or core_artifacts.artifact_manifest_profile_sha256(manifest)
+        != checked.manifest_profile_sha256
         or (inputs is not None and manifest.inputs != inputs)
     ):
+        raise FabricFetchCustodyError("fabric_fetch_manifest_mismatch")
+    data = store.get_bytes(checked)
+    if manifest.byte_size != len(data):
         raise FabricFetchCustodyError("fabric_fetch_manifest_mismatch")
     if media_type == _JSON:
         try:
@@ -353,6 +368,25 @@ def resolve_persisted_fetch(
                 )
             )
         )
+        if (
+            receipt.result.data.manifest_profile_sha256 is None
+            or receipt.catalog_binding_ref.manifest_profile_sha256 is None
+        ):
+            raise FabricFetchCustodyError("fabric_fetch_profile_unverified")
+        expected_inputs = [
+            core_artifacts.input_ref_from_artifact_ref(receipt.result.data, role="fetched_payload"),
+            core_artifacts.input_ref_from_artifact_ref(
+                receipt.catalog_binding_ref, role="catalog_binding"
+            ),
+        ]
+        _read(
+            store,
+            fetch_receipt_ref,
+            kind=_FETCH_KIND,
+            media_type=_JSON,
+            schema="polisyos.fabric.fetch_receipt.v1",
+            inputs=expected_inputs,
+        )
         binding = catalog_api.CatalogFetchBinding.model_validate(
             canon.from_canonical_bytes(
                 _read(
@@ -372,22 +406,6 @@ def resolve_persisted_fetch(
 
         if receipt.request != _fetch_request(receipt.used_plan, page_size=None):
             raise FabricFetchCustodyError("fabric_fetch_request_mismatch")
-        expected_inputs = [
-            core_artifacts.InputRef(
-                artifact_id=receipt.result.data.artifact_id, role="fetched_payload"
-            ),
-            core_artifacts.InputRef(
-                artifact_id=receipt.catalog_binding_ref.artifact_id, role="catalog_binding"
-            ),
-        ]
-        _read(
-            store,
-            fetch_receipt_ref,
-            kind=_FETCH_KIND,
-            media_type=_JSON,
-            schema="polisyos.fabric.fetch_receipt.v1",
-            inputs=expected_inputs,
-        )
         raw = _read(
             store,
             receipt.result.data,

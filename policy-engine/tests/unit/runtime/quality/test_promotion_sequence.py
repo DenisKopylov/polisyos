@@ -3997,8 +3997,19 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert snapshot.source_lineage.measurement_root_ref == evidence.measurement_root_ref
     assert snapshot.source_lineage.fetch_receipt_ref == evidence.fetch_receipt_ref
     assert snapshot.source_lineage.catalog_binding_ref == evidence.catalog_binding_ref
+    for ref in (
+        snapshot_ref,
+        snapshot.data_ref,
+        evidence.measurement_root_ref,
+        evidence.fetch_receipt_ref,
+        evidence.catalog_binding_ref,
+    ):
+        assert ref.manifest_profile_sha256 is not None
 
-    manifest = owner.store.get_manifest(snapshot_ref)
+    manifest = owner.store.get_manifest_by_profile(
+        snapshot_ref.artifact_id,
+        snapshot_ref.manifest_profile_sha256,
+    )
     assert snapshot_ref.manifest_profile_sha256 == core_artifacts.artifact_manifest_profile_sha256(
         manifest
     )
@@ -4021,6 +4032,61 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     )
 
     validate_data_snapshot_owner_lineage(owner.store, snapshot_ref, snapshot)
+
+    unselected_receipt_ref = evidence.fetch_receipt_ref.model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    assert snapshot.source_lineage is not None
+    unselected_lineage = snapshot.source_lineage.model_copy(
+        update={"fetch_receipt_ref": unselected_receipt_ref}
+    )
+    unselected_snapshot = snapshot.model_copy(update={"source_lineage": unselected_lineage})
+    unselected_inputs = [
+        core_artifacts.input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in data_snapshot_owner_input_requirements(unselected_snapshot)
+    ]
+    unselected_snapshot_ref = owner.store.put_json(
+        unselected_snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.3.0",
+            ),
+            inputs=unselected_inputs,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    reads: list[object] = []
+    verifications: list[object] = []
+    store_type = type(owner.store)
+    original_get_bytes = store_type.get_bytes
+    original_verify = store_type.verify
+
+    def _track_reads(instance, ref):
+        if instance is owner.store:
+            reads.append(ref)
+        return original_get_bytes(instance, ref)
+
+    def _track_verifications(instance, ref):
+        if instance is owner.store:
+            verifications.append(ref)
+        return original_verify(instance, ref)
+
+    monkeypatch.setattr(store_type, "get_bytes", _track_reads)
+    monkeypatch.setattr(store_type, "verify", _track_verifications)
+    with pytest.raises(DataSnapshotLineageError, match="owner_profile_unselected"):
+        validate_data_snapshot_owner_lineage(
+            owner.store,
+            unselected_snapshot_ref,
+            unselected_snapshot,
+        )
+    assert reads == []
+    assert verifications == []
+    monkeypatch.setattr(store_type, "get_bytes", original_get_bytes)
+    monkeypatch.setattr(store_type, "verify", original_verify)
 
     legacy_payload = snapshot.model_dump(mode="json")
     legacy_payload.pop("source_lineage")
@@ -4054,7 +4120,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
         canon_spec=canon.CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    with pytest.raises(DataSnapshotLineageError, match="manifest_inputs_mismatch"):
+    with pytest.raises(DataSnapshotLineageError, match="owner_source_edges_mismatch"):
         validate_data_snapshot_owner_lineage(owner.store, legacy_missing_root_edge, legacy_snapshot)
 
     legacy_with_lineage_ref = owner.store.put_json(
@@ -4115,6 +4181,97 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     )
     with pytest.raises(DataSnapshotLineageError, match="measurement_root_owner_payload_mismatch"):
         validate_data_snapshot_owner_lineage(owner.store, forged_catalog_ref, forged_snapshot)
+
+    store_type = type(owner.store)
+    original_put_json = store_type.put_json
+    original_get_manifest = store_type.get_manifest
+    profileless_snapshot_returns: list[object] = []
+    default_reads_after_profileless_return: list[object] = []
+
+    def _put_json_returning_profileless_snapshot(
+        instance,
+        obj,
+        options,
+        canon_spec=None,
+        *,
+        return_selected_profile=False,
+    ):
+        ref = original_put_json(
+            instance,
+            obj,
+            options,
+            canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+        if instance is owner.store and options.kind == "fabric.data_snapshot":
+            profileless_snapshot_returns.append(ref)
+            return ref.model_copy(update={"manifest_profile_sha256": None})
+        return ref
+
+    def _track_default_manifest_after_profileless_return(instance, *args, **kwargs):
+        if instance is owner.store and profileless_snapshot_returns:
+            default_reads_after_profileless_return.append(args[0] if args else None)
+        return original_get_manifest(instance, *args, **kwargs)
+
+    monkeypatch.setattr(store_type, "put_json", _put_json_returning_profileless_snapshot)
+    monkeypatch.setattr(
+        store_type,
+        "get_manifest",
+        _track_default_manifest_after_profileless_return,
+    )
+    with pytest.raises(
+        binding_owner.FabricMeasurementRootBindingError,
+        match="measurement_root_snapshot_profile_unverified",
+    ):
+        persist(
+            store=owner.store,
+            evidence=evidence,
+            execution_scope_binding=owner.measurement_execution_binding,
+        )
+    assert len(profileless_snapshot_returns) == 1
+    assert default_reads_after_profileless_return == []
+
+
+def test_generic_nonowner_v02_snapshot_preserves_binary_payload(tmp_path: Path) -> None:
+    """The generic 0.2 contract keeps accepting non-Core-JSON data refs."""
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        validate_data_snapshot_owner_lineage,
+    )
+
+    store = FileSystemCAS(tmp_path / "generic-snapshot-cas")
+    payload = b"\x00external binary payload\xff"
+    data_ref = store.put_bytes(
+        payload,
+        core_artifacts.PutOptions(
+            kind="external.binary_payload",
+            media_type="application/octet-stream",
+            schema=core_artifacts.SchemaInfo(
+                name="external.BinaryPayload",
+                version="1.0",
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    snapshot = DataSnapshot(data_ref=data_ref)
+    snapshot_ref = store.put_json(
+        snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+            inputs=[core_artifacts.input_ref_from_artifact_ref(data_ref, role="data_ref")],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    validate_data_snapshot_owner_lineage(store, snapshot_ref, snapshot)
+
+    assert store.get_bytes(data_ref) == payload
 
 
 def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_write(

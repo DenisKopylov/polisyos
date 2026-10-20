@@ -775,6 +775,8 @@ def _verify_scoped_measurement_root_profile(
 def _measurement_root_put_options(
     *, fabric_fetch_ref: artifacts.ArtifactRef | None
 ) -> artifacts.PutOptions:
+    if fabric_fetch_ref is not None and fabric_fetch_ref.manifest_profile_sha256 is None:
+        raise FabricMeasurementRootBindingError("measurement_root_selected_profile_missing")
     schema_name = (
         FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
         if fabric_fetch_ref is not None
@@ -782,7 +784,7 @@ def _measurement_root_put_options(
     )
     schema_epoch = "v2" if fabric_fetch_ref is not None else "v1"
     inputs = (
-        [artifacts.InputRef(artifact_id=fabric_fetch_ref.artifact_id, role="fabric_fetch")]
+        [artifacts.input_ref_from_artifact_ref(fabric_fetch_ref, role="fabric_fetch")]
         if fabric_fetch_ref is not None
         else []
     )
@@ -1507,7 +1509,13 @@ def resolve_fabric_measurement_root(
     if not store.verify(selected_ref).ok:
         raise FabricMeasurementRootBindingError("measurement_root_source_manifest_invalid")
     raw = store.get_bytes(selected_ref)
-    if store.get_manifest(selected_ref) != manifest:
+    if (
+        store.get_manifest_by_profile(
+            selected_ref.artifact_id,
+            selected_ref.manifest_profile_sha256,
+        )
+        != manifest
+    ):
         raise FabricMeasurementRootBindingError("measurement_root_source_manifest_invalid")
     payload = FabricMeasurementRootPayload.model_validate(
         load_core_json_artifact(
@@ -1518,7 +1526,7 @@ def resolve_fabric_measurement_root(
         )
     )
     expected_inputs = [
-        artifacts.InputRef(artifact_id=payload.fetch_receipt_ref.artifact_id, role="fabric_fetch")
+        artifacts.input_ref_from_artifact_ref(payload.fetch_receipt_ref, role="fabric_fetch")
     ]
     authority, closure = manifest.authority, manifest.same_input_closure
     if (
@@ -1860,6 +1868,7 @@ def _read_validated_measurement_snapshot_artifact(
     expected_producer: artifacts.ProducerInfo,
     expected_inputs: Sequence[artifacts.InputRef],
     expected_canon: artifacts.CanonInfo | None,
+    require_selected_profile: bool = False,
 ) -> bytes:
     """Read one custody artifact with its immutable manifest contract enforced."""
 
@@ -1869,6 +1878,11 @@ def _read_validated_measurement_snapshot_artifact(
         or artifact_ref.media_type != expected_media_type
     ):
         raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    if require_selected_profile and (
+        artifact_ref.manifest_profile_sha256 is None
+        or any(edge.manifest_profile_sha256 is None for edge in expected_inputs)
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_profile_unverified")
     manifest = None
     if expected_media_type == "application/json":
         if expected_canon is None:
@@ -1882,27 +1896,57 @@ def _read_validated_measurement_snapshot_artifact(
                 expected_schema=expected_schema,
                 expected_canon=expected_canon,
                 expected_inputs=contracts.epoch._ExactManifestInputClosure(tuple(expected_inputs)),
-                require_selected_profile=False,
+                require_selected_profile=require_selected_profile,
             )
         except CanonicalProfileRefusalError as exc:
             raise FabricMeasurementRootBindingError(
                 "measurement_root_snapshot_profile_unverified"
             ) from exc
-        if (
-            manifest.artifact_id != artifact_ref.artifact_id
-            or manifest.kind != expected_kind
-            or manifest.media_type != expected_media_type
-            or manifest.artifact_schema != expected_schema
-            or manifest.producer != expected_producer
-            or manifest.inputs != list(expected_inputs)
-        ):
-            raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    if require_selected_profile:
+        selected_profile = artifact_ref.manifest_profile_sha256
+        if selected_profile is None:
+            raise FabricMeasurementRootBindingError("measurement_root_snapshot_profile_unverified")
+        try:
+            selected_manifest = store.get_manifest_by_profile(
+                artifact_ref.artifact_id,
+                selected_profile,
+            )
+        except (OSError, TypeError, ValueError, RuntimeError) as exc:
+            raise FabricMeasurementRootBindingError(
+                "measurement_root_snapshot_profile_unverified"
+            ) from exc
+        if manifest is not None and manifest != selected_manifest:
+            raise FabricMeasurementRootBindingError("measurement_root_snapshot_profile_unverified")
+        manifest = selected_manifest
+    if manifest is not None and (
+        manifest.artifact_id != artifact_ref.artifact_id
+        or manifest.kind != expected_kind
+        or manifest.media_type != expected_media_type
+        or manifest.artifact_schema != expected_schema
+        or manifest.producer != expected_producer
+        or manifest.inputs != list(expected_inputs)
+        or (
+            require_selected_profile
+            and artifacts.artifact_manifest_profile_sha256(manifest)
+            != artifact_ref.manifest_profile_sha256
+        )
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
     try:
         verification = store.verify(artifact_ref)
         if not verification.ok:
             raise ValueError(verification.error or "artifact verification failed")
         raw = store.get_bytes(artifact_ref)
-        observed_manifest = store.get_manifest(artifact_ref)
+        if require_selected_profile:
+            selected_profile = artifact_ref.manifest_profile_sha256
+            if selected_profile is None:
+                raise ValueError("selected manifest profile is required")
+            observed_manifest = store.get_manifest_by_profile(
+                artifact_ref.artifact_id,
+                selected_profile,
+            )
+        else:
+            observed_manifest = store.get_manifest(artifact_ref)
         if manifest is not None and observed_manifest != manifest:
             raise ValueError("manifest changed after Core profile preflight")
         manifest = observed_manifest
@@ -1917,6 +1961,11 @@ def _read_validated_measurement_snapshot_artifact(
         or manifest.artifact_schema != expected_schema
         or manifest.producer != expected_producer
         or manifest.inputs != list(expected_inputs)
+        or (
+            require_selected_profile
+            and artifacts.artifact_manifest_profile_sha256(manifest)
+            != artifact_ref.manifest_profile_sha256
+        )
     ):
         raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
     if expected_media_type == "application/json":
@@ -1979,18 +2028,13 @@ def persist_measurement_root_data_snapshot(
         ),
         expected_producer=fetch_producer,
         expected_inputs=(
-            artifacts.InputRef(
-                artifact_id=payload_ref.artifact_id,
-                role="fetched_payload",
-            ),
-            artifacts.InputRef(
-                artifact_id=catalog_binding_ref.artifact_id,
-                role="catalog_binding",
-            ),
+            artifacts.input_ref_from_artifact_ref(payload_ref, role="fetched_payload"),
+            artifacts.input_ref_from_artifact_ref(catalog_binding_ref, role="catalog_binding"),
         ),
         expected_canon=artifacts.CanonInfo.from_spec(
             canon.CanonSpec(forbid_floats=False, exclude_none=False)
         ),
+        require_selected_profile=True,
     )
     try:
         receipt = FabricFetchReceipt.model_validate(canon.from_canonical_bytes(receipt_raw))
@@ -2024,6 +2068,7 @@ def persist_measurement_root_data_snapshot(
             if payload_media_type == "application/json"
             else None
         ),
+        require_selected_profile=True,
     )
     _read_validated_measurement_snapshot_artifact(
         store=store,
@@ -2036,12 +2081,10 @@ def persist_measurement_root_data_snapshot(
         ),
         expected_producer=measurement_root_producer,
         expected_inputs=(
-            artifacts.InputRef(
-                artifact_id=fetch_receipt_ref.artifact_id,
-                role="fabric_fetch",
-            ),
+            artifacts.input_ref_from_artifact_ref(fetch_receipt_ref, role="fabric_fetch"),
         ),
         expected_canon=_measurement_root_put_options(fabric_fetch_ref=fetch_receipt_ref).canon,
+        require_selected_profile=True,
     )
     _read_validated_measurement_snapshot_artifact(
         store=store,
@@ -2057,6 +2100,7 @@ def persist_measurement_root_data_snapshot(
         expected_canon=artifacts.CanonInfo.from_spec(
             canon.CanonSpec(forbid_floats=False, exclude_none=False)
         ),
+        require_selected_profile=True,
     )
 
     snapshot = DataSnapshotOwnerBound(
@@ -2093,6 +2137,8 @@ def persist_measurement_root_data_snapshot(
         canon_spec=canon.CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
+    if snapshot_ref.manifest_profile_sha256 is None:
+        raise FabricMeasurementRootBindingError("measurement_root_snapshot_profile_unverified")
     return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 

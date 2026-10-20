@@ -1,0 +1,27 @@
+id = "2026-10-20-e02-datasnapshot-owner-selected-profiles"
+title = "Preserve selected CAS profiles across DataSnapshot owner chains"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "DataSnapshot owner intake now requires exact producer-selected CAS profiles for recognized owner references and their manifest edges before reading child payloads. Bridge, measurement-root, retrieval-custody, and acquired-overlay writers keep the selected profiles returned by their CAS writes."
+evidence = [
+  "src/polisyos/runtime/quality/data_snapshot_lineage.py",
+  "src/polisyos/scientist/adapters/fabric_bridge.py",
+  "src/polisyos/fabric/retrieval/custody.py",
+  "src/polisyos/runtime/quality/data_forge_binding.py",
+  "src/polisyos/runtime/quality/data_state_substrate.py",
+  "tests/unit/scientist/adapters/test_fabric_bridge.py",
+  "tests/unit/fabric/test_retrieval_fetch_custody.py",
+  "tests/unit/runtime/quality/test_promotion_sequence.py",
+  "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+]
+compatibility = "No request, response, or persisted DTO shape changes. Recognized owner-family references with missing or mismatched selected-profile digests are refused; the generic non-owner DataSnapshot 0.2 structural path remains available without an owner-verification claim. New owner outputs carry profiles returned by the actual CAS writes. The DefaultFabricPort continues to select the current request view when beginning a new snapshot production, and does not attest the request producer's historical selector."
+change_class = "internal"
+surface_classification = "internal: CAS profile continuity at DataSnapshot owner production and intake; no public DTO or schema surface change."
+migration = "Do not rewrite existing manifests or references. Rebuild profileless recognized owner artifacts through their owning producers so the emitted references and input edges carry selected profiles. Historical profileless owner chains remain typed refusals until rebuilt."
+api = "ArtifactStore write options and DataSnapshot DTOs are unchanged. Owner readers resolve the exact profile named by each typed reference and require matching parent and child edge selectors before child payload reads."
+limitations = "A selected CAS profile proves which manifest view was selected, not external issuer authority or scientific validity. Generic non-owner 0.2 structural compatibility does not establish owner custody. The producer-bound request view selected by DefaultFabricPort is not evidence that the upstream request producer originally selected that view. Runtime tests and public-surface inventory regeneration remain unrun."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

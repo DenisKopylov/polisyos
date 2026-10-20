@@ -572,7 +572,8 @@ class TestExecuteWithRetrySync:
                     assert denied.value.code == "attempt_write_revoked"
                     assert denied.value.reason_code == "attempt_write_revoked"
                     passed_ctx.run.emit("late", "LATE_WRITE")
-                    passed_ctx.run._audit_sink.emit({"late": "audit"})
+                    with pytest.raises(AttributeError):
+                        passed_ctx.run._audit_sink.emit({"late": "audit"})
                     passed_ctx.audit.append(action="late")
                     passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
                     return _ok_outcome(passed_state)
@@ -621,7 +622,8 @@ class TestExecuteWithRetrySync:
                 passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("on_time")
                 passed_ctx.store.put_json({"on_time": True}, object())
                 passed_ctx.run.emit("on-time", "ON_TIME")
-                passed_ctx.run._audit_sink.emit({"on_time": "audit"})
+                with pytest.raises(AttributeError):
+                    passed_ctx.run._audit_sink.emit({"on_time": "audit"})
                 passed_ctx.audit.append(action="on_time")
                 passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="on_time")
                 return _ok_outcome(passed_state)
@@ -1568,7 +1570,7 @@ def test_linux_fork_worker_core_owner_refuses_inherited_lifecycle(
             worker_context.run.emit(
                 "scientist.node.fork-lifecycle",
                 "NODE_FORK_LIFECYCLE_REFUSED",
-                metrics={"worker_pid": os.getpid(), "operation": operation},
+                metrics={"worker_pid": os.getpid()},
             )
             return _ok_outcome(worker_state)
 
@@ -1584,7 +1586,7 @@ def test_linux_fork_worker_core_owner_refuses_inherited_lifecycle(
 
     assert result.status == "ok"
     assert result.state.params["fork_worker_pid"] != parent_pid
-    assert result.state.params["lifecycle_refusal"] != "lifecycle_transition_was_admitted"
+    assert result.state.params["lifecycle_refusal"] == "timeout_worker_run_lifecycle_not_owned"
     if access_path == "raw_context_alias":
         assert result.state.params["target_access"] == "refused"
     assert not run._closed and not run._suspended and run._active_lease is not None
@@ -2691,11 +2693,24 @@ def test_completed_failed_spend_settles_without_ordinary_branch(
         deadline_monotonic=_time.monotonic() + 2 if finite else None,
         alias=route,
     )
+    if route in {"sync-fork", "async-fork"}:
+        kwargs["dispatch_params"] = {}
+
+    def invoke_with(call_kwargs):
+        if route.startswith("sync-"):
+            return execute_with_retry_sync(node, context, initial, **call_kwargs)
+        return asyncio.run(execute_with_retry_async(node, context, initial, **call_kwargs))
 
     def invoke():
-        if route.startswith("sync-"):
-            return execute_with_retry_sync(node, context, initial, **kwargs)
-        return asyncio.run(execute_with_retry_async(node, context, initial, **kwargs))
+        return invoke_with(kwargs)
+
+    if route in {"sync-fork", "async-fork"}:
+        unbound_kwargs = {**kwargs, "dispatch_params": None}
+        with pytest.raises(NodeTimeoutError) as unbound:
+            invoke_with(unbound_kwargs)
+        assert unbound.value.code == "node.timeout_worker_unsupported"
+        assert unbound.value.details["reason"] == "fork_dispatch_params_not_bound"
+        assert not effects.exists()
 
     if terminal:
         with pytest.raises(RetryExhaustedError) as caught:

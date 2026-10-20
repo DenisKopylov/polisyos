@@ -25,7 +25,14 @@ and reopen local CAS bytes through the store's verified member-read interface; a
 attempt-scoped facade may delegate those reads but retains its write revocation. A live
 prepared-reader handle remains local and is not transferred to a timeout worker. This
 establishes local source replay only, not issuer authenticity, production currentness, or
-scientific output dependence.
+scientific output dependence. Dead-letter schema `2.0` stores only the selected-profile ref to the
+engine-owned `RunInvocationStarted` basis and its lineage edge; it never copies invocation params
+into the DLQ payload. Replay re-reads the exact run-owner chain, verifies the basis and selected
+`WorkflowSpec` under current CAS access, checks its alias and component identity, then binds the
+persisted `NodeInvocation.params` to the replay node. It does not use current `ExperimentState.params`
+as a substitute. Older schema `1.0` or unbound records remain listable but replay fails closed with
+`dead_letter_dispatch_basis_not_established`; new direct retry callers without an owner-issued attempt
+also persist an explicit `not_established` source status.
 
 Do not add new modules under `polisyos.scientist.replay.backend`. The retired legacy module
 is a Phase 4.4 compatibility shim for `polisyos.scientist.replay.backend` and

@@ -1,0 +1,38 @@
+id = "2026-10-20-e02-dead-letter-dispatch-source"
+title = "Bind dead-letter replay to the selected workflow invocation"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-polisyos"
+summary = "Dead-letter artifacts retain the full selected-profile ref to their engine-owned invocation basis, and replay resolves the original workflow parameters from that basis before invoking a node."
+evidence = [
+  "src/polisyos/scientist/orchestration/engine/retry.py",
+  "src/polisyos/scientist/replay/backend.py",
+  "src/polisyos/scientist/replay/README.md",
+  "src/polisyos/scientist/orchestration/engine/README.md",
+  "tests/unit/scientist/replay/test_replay_backend.py",
+  "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+  "tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py",
+]
+compatibility = "Dead-letter writes move from schema 1.0 to schema 2.0 and add a lineage edge to the selected run-attempt basis. Historical and direct-helper records remain inspectable but are not replayed because their original invocation source is not established."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.scientist.replay.DeadLetterRecord and replay_dead_letter"
+migration = "Consume the additive dispatch_basis_status and dispatch_basis_ref fields from DeadLetterRecord. Regenerate dead letters through an engine-owned workflow attempt before replay; schema 1.0 artifacts must be inspected or reissued from a new source-bound attempt and cannot be promoted by copying current state params."
+api = "A v2 DLQ stores only a selected-profile ArtifactRef to the existing RunInvocationStarted basis, never raw invocation params. Replay verifies the current run-owner chain, basis profile/content, selected WorkflowSpec and alias/component join, then binds the original NodeInvocation.params to the selected node."
+limitations = "This local CAS/run-owner binding does not establish issuer authenticity, external custody, production currentness, or scientific output dependence. The worker entrypoint without an owner-issued workflow basis remains not_established. Generated public-surface review and G acceptance are independent."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/replay/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "dead-letter-schema-2-dispatch-basis"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.replay.DeadLetterRecord and replay_dead_letter"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Source-less schema 1.0 and direct-helper records remain listable but replay refusal is immediate; reissue from a new engine-owned workflow attempt."
+release_note = "Write schema 2.0 source-bound dead letters; legacy or unbound records remain listable and fail closed at replay."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/replay/README.md"]
+runbook_docs = []

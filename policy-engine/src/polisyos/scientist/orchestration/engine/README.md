@@ -515,16 +515,12 @@ admissibility, authority, currentness, publication, or external custody. A node
 running arbitrary in-process Python can call private methods, so this mechanism
 is not a sandbox or external custody boundary.
 
-The direct retry entrypoints `replay_dead_letter(...)` and `run_node_in_worker(...)`
-also run the shared candidate resolver. Their current retry calls do not receive
-an engine-issued invocation binding. Public-path tests confirm they can select
-an inline candidate while the fresh owner-chain reader finds no attempt basis;
-those paths therefore remain `not_established` for source origin. A follow-up
-that needs
-positive origin there must have each owning caller persist the selected-profile
-workflow/state refs and pass its owner-issued per-attempt binding through the
-existing run-owner chain. Trace labels or worker dispatch identifiers alone do
-not supply that basis.
+Public dead-letter replay now requires the exact selected-profile `RunInvocationStarted` basis
+from the existing run-owner chain. It resolves the associated `WorkflowSpec`, checks the selected
+alias/component, binds its original invocation params to the replay node, and refuses schema 1.0 or
+unbound records. It never substitutes mutable state params. `run_node_in_worker(...)` remains
+`not_established` for source origin when no engine-owned workflow invocation binding is available;
+trace labels and worker dispatch identifiers alone do not supply that basis.
 ## Currentness of engine-produced reports
 
 Governance reports and verified policy reports are current decision evidence only when the exact successful builtin producer attempt emitted the selected report and its complete declared source projection still matches the consumer state. The engine captures a selected in-process implementation identity before the attempt; comparison checks the exact callable, code object, bound node state, component spec, and source bytes against that captured owner. This is a same-process implementation check, not a deployment, transitive-plugin, or release attestation. Dynamically selected governance validation-pass implementations remain outside that identity claim.

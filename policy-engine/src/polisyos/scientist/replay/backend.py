@@ -6,10 +6,15 @@ import logging
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.environment import EnvironmentDiff, RiskLevel
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -51,6 +56,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
 
 logger = logging.getLogger(__name__)
+_DEAD_LETTER_SCHEMA_NAME = "polisyos.scientist.orchestration.engine.DeadLetter"
 
 
 class DeadLetterError(RuntimeError):
@@ -95,6 +101,8 @@ class DeadLetterRecord:
     attempts: int
     policy: dict[str, Any]
     created_at: datetime
+    dispatch_basis_status: Literal["selected", "not_established"] = "not_established"
+    dispatch_basis_ref: ArtifactRef | None = None
 
 
 def _artifact_mapping(value: Any) -> Mapping[str, Any]:
@@ -231,11 +239,54 @@ def load_dead_letter(
             f"dead-letter artifact {artifact_id} has invalid created_at={created_at_raw!r}",
         ) from exc
 
+    schema = manifest.artifact_schema
+    dispatch_basis_status: Literal["selected", "not_established"] = "not_established"
+    dispatch_basis_ref: ArtifactRef | None = None
+    if schema is not None:
+        if schema.name != _DEAD_LETTER_SCHEMA_NAME or schema.version not in {"1.0", "2.0"}:
+            raise DeadLetterCorruptedError(
+                f"dead-letter artifact {artifact_id} has an unsupported schema",
+            )
+        if schema.version == "2.0":
+            raw_status = payload.get("dispatch_basis_status")
+            raw_ref = payload.get("dispatch_basis_ref")
+            if raw_status == "selected":
+                try:
+                    dispatch_basis_ref = ArtifactRef.model_validate(raw_ref)
+                except Exception as exc:
+                    raise DeadLetterCorruptedError(
+                        f"dead-letter artifact {artifact_id} has an invalid dispatch basis ref",
+                    ) from exc
+                if (
+                    dispatch_basis_ref.kind != "core.run_invocation_attempt"
+                    or dispatch_basis_ref.media_type != "application/json"
+                    or dispatch_basis_ref.manifest_profile_sha256 is None
+                ):
+                    raise DeadLetterCorruptedError(
+                        f"dead-letter artifact {artifact_id} has an incomplete dispatch basis ref",
+                    )
+                expected_input = input_ref_from_artifact_ref(
+                    dispatch_basis_ref,
+                    role="dispatch_basis",
+                )
+                if manifest.inputs != [expected_input]:
+                    raise DeadLetterCorruptedError(
+                        f"dead-letter artifact {artifact_id} dispatch basis lineage does not match",
+                    )
+                dispatch_basis_status = "selected"
+            elif raw_status == "not_established" and raw_ref is None and not manifest.inputs:
+                dispatch_basis_status = "not_established"
+            else:
+                raise DeadLetterCorruptedError(
+                    f"dead-letter artifact {artifact_id} has inconsistent dispatch basis fields",
+                )
+
     return DeadLetterRecord(
         artifact_ref=ArtifactRef(
             artifact_id=artifact_id,
             kind=manifest.kind,
             media_type=manifest.media_type,
+            manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
         ),
         run_id=str(payload.get("run_id") or ""),
         alias=str(payload.get("alias") or ""),
@@ -245,6 +296,8 @@ def load_dead_letter(
         attempts=max(1, int(payload.get("attempts", 1) or 1)),
         policy=dict(payload.get("policy") or {}),
         created_at=created_at.astimezone(UTC),
+        dispatch_basis_status=dispatch_basis_status,
+        dispatch_basis_ref=dispatch_basis_ref,
     )
 
 
@@ -282,6 +335,53 @@ def list_dead_letters(
     return matches[: max(1, int(limit))]
 
 
+def _dead_letter_dispatch_params(
+    ctx: Any, record: DeadLetterRecord, *, state: ExperimentState
+) -> dict[str, object]:
+    """Resolve the exact owner-linked workflow invocation for one dead letter."""
+    basis_ref = record.dispatch_basis_ref
+    if record.dispatch_basis_status != "selected" or basis_ref is None:
+        raise DeadLetterError("dead_letter_dispatch_basis_not_established")
+    try:
+        verification = ctx.store.verify(record.artifact_ref)
+        if not verification.ok:
+            raise DeadLetterError("dead_letter_current_access_verification_failed")
+        run_id = ctx.run.run_manifest.run_id
+        if run_id != record.run_id or state.run_id != record.run_id:
+            raise DeadLetterError("dead_letter_dispatch_run_mismatch")
+        attempts = ctx.run.read_runtime_invocation_attempts()
+    except DeadLetterError:
+        raise
+    except Exception as exc:
+        raise DeadLetterError("dead_letter_dispatch_basis_not_established") from exc
+
+    matches = [
+        attempt
+        for attempt in attempts
+        if artifact_ref_identity_key(attempt.basis_ref) == artifact_ref_identity_key(basis_ref)
+    ]
+    if len(matches) != 1:
+        raise DeadLetterError("dead_letter_dispatch_basis_not_established")
+    attempt = matches[0]
+    basis = attempt.basis
+    if (
+        basis.run_id != record.run_id
+        or basis.node_alias != record.alias
+        or basis.component_id != record.node_id
+        or attempt.outcome is None
+        or attempt.outcome.status != "unknown"
+    ):
+        raise DeadLetterError("dead_letter_dispatch_basis_mismatch")
+    try:
+        from polisyos.scientist.orchestration.engine.producer_currentness import (
+            _workflow_invocation_params,
+        )
+
+        return _workflow_invocation_params(ctx, basis)
+    except Exception as exc:
+        raise DeadLetterError("dead_letter_dispatch_basis_unavailable") from exc
+
+
 async def replay_dead_letter(
     store: ArtifactStore,
     artifact_id: ArtifactID,
@@ -293,13 +393,33 @@ async def replay_dead_letter(
     timeout_s: float | None = None,
     max_retries: int | None = None,
 ) -> Any:
-    """Replay a dead-lettered node, binding any explicitly selected SKG snapshot first."""
+    """Replay only from the selected owner-linked workflow invocation."""
     from polisyos.scientist.orchestration.engine.retry import (
         RetryPolicy,
         execute_with_retry_async,
     )
 
     record = load_dead_letter(store, artifact_id)
+    dispatch_params = _dead_letter_dispatch_params(ctx, record, state=state)
+
+    resolved_node = node
+    if resolved_node is None:
+        if registry is None:
+            raise DeadLetterError("registry or node must be provided for dead-letter replay")
+        resolved_node = registry.get(record.node_id)
+
+    node_spec = getattr(resolved_node, "spec", None)
+    node_component_id = str(getattr(getattr(node_spec, "metadata", None), "component_id", ""))
+    if node_component_id != record.node_id:
+        raise DeadLetterError("dead_letter_replay_node_binding_mismatch")
+    from polisyos.scientist.orchestration.engine.executor import bind_node_params
+
+    resolved_node = bind_node_params(resolved_node, dict(dispatch_params))
+    rebound_spec = getattr(resolved_node, "spec", None)
+    rebound_component_id = str(getattr(getattr(rebound_spec, "metadata", None), "component_id", ""))
+    if rebound_component_id != record.node_id:
+        raise DeadLetterError("dead_letter_replay_node_binding_mismatch")
+
     from polisyos.scientist.orchestration.engine.skg_snapshot import (
         SNAPSHOT_INPUT_KEY,
         bind_retained_skg_workflow_input,
@@ -314,12 +434,6 @@ async def replay_dead_letter(
             state,
             unbounded=True,
         )
-
-    resolved_node = node
-    if resolved_node is None:
-        if registry is None:
-            raise DeadLetterError("registry or node must be provided for dead-letter replay")
-        resolved_node = registry.get(record.node_id)
 
     retry_policy = RetryPolicy.model_validate(record.policy or {})
     if max_retries is not None:
@@ -339,7 +453,8 @@ async def replay_dead_letter(
         state,
         retry_policy=retry_policy,
         timeout_s=effective_timeout,
-        alias=record.alias or str(record.node_id),
+        alias=record.alias,
+        dispatch_params=dispatch_params,
     )
 
 

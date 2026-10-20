@@ -21,6 +21,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
+from uuid import uuid4
 
 import duckdb
 import pytest
@@ -33,11 +34,13 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactWriteOptions,
     FileSystemCAS,
+    SchemaInfo,
     artifact_manifest_profile_sha256,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -676,20 +679,80 @@ async def _run_bound_worker(
     )
 
 
-def _put_dead_letter(store: FileSystemCAS, *, run_id: str) -> ArtifactRef:
+def _put_dead_letter(
+    store: FileSystemCAS,
+    *,
+    run: RunContext,
+    state: ExperimentState,
+) -> ArtifactRef:
+    """Persist a source-bound DLQ fixture using the real run-owner record contract."""
+    workflow = _workflow("sync")
+    workflow_ref = store.put_json(
+        workflow.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.workflow_spec",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.WorkflowSpec",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    input_state_ref = store.put_json(
+        state.model_dump(),
+        PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.ExperimentState",
+                version=state.schema_version,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    attempt_id = str(uuid4())
+    basis_ref = run._record_runtime_invocation_started(
+        attempt_id=attempt_id,
+        attempt_number=1,
+        workflow_spec_ref=workflow_ref,
+        node_alias="resolve",
+        component_id="scientist.node_resolve_parameters@1.0.0",
+        input_state_ref=input_state_ref,
+    )
+    run._record_runtime_invocation_completed(
+        attempt_id=attempt_id,
+        attempt_number=1,
+        basis_ref=basis_ref,
+        status="unknown",
+        outcome_state_ref=None,
+        output_refs=[],
+    )
     return store.put_json(
         {
             "kind": "scientist.dead_letter",
-            "run_id": run_id,
+            "run_id": state.run_id,
             "alias": "resolve",
             "node_id": "scientist.node_resolve_parameters@1.0.0",
             "error_type": "RuntimeError",
             "error_message": "injected prior failure",
             "attempts": 1,
+            "dispatch_basis_status": "selected",
+            "dispatch_basis_ref": basis_ref.model_dump(mode="json"),
             "policy": {"max_retries": 0},
             "created_at": "2026-10-11T12:00:00Z",
         },
-        PutOptions(kind="scientist.dead_letter", media_type="application/json"),
+        PutOptions(
+            kind="scientist.dead_letter",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.DeadLetter",
+                version="2.0",
+            ),
+            inputs=[input_ref_from_artifact_ref(basis_ref, role="dispatch_basis")],
+        ),
     )
 
 
@@ -939,7 +1002,7 @@ async def test_public_dead_letter_replay_binds_selected_skg_source_before_resolv
     """Public dead-letter replay consumes and records the exact selected retained source."""
     with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
         source, store, run, ctx, state, selected_ref = _workflow_fixture(tmp_path)
-        dead_letter_ref = _put_dead_letter(store, run_id=state.run_id)
+        dead_letter_ref = _put_dead_letter(store, run=run, state=state)
         replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: selected_ref}})
 
         live = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
@@ -978,7 +1041,7 @@ async def test_public_dead_letter_replay_refuses_profileless_selected_skg_source
     """A malformed explicit source refuses before the consumer can read live bytes."""
     with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
         source, store, run, ctx, state, selected_ref = _workflow_fixture(tmp_path)
-        dead_letter_ref = _put_dead_letter(store, run_id=state.run_id)
+        dead_letter_ref = _put_dead_letter(store, run=run, state=state)
         profileless_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
         replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: profileless_ref}})
         node_calls: list[bool] = []

@@ -40,7 +40,12 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts import (
     BoundedLivenessConfig,
@@ -235,7 +240,7 @@ def _kernel_parent_pid(pid: int) -> int | None:
         with open(f"/proc/{pid}/stat", encoding="ascii") as stream:
             # The command field may itself contain spaces and parentheses.
             return int(stream.read().rsplit(")", 1)[1].split()[1])
-    except (OSError, ValueError, IndexError):
+    except OSError, ValueError, IndexError:
         return None
 
 
@@ -664,7 +669,7 @@ def _has_selected_profile_writer_api(operation: Any) -> bool:
         return False
     try:
         parameter = inspect.signature(operation).parameters.get("return_selected_profile")
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return False
     return parameter is not None and parameter.kind in (
         inspect.Parameter.POSITIONAL_OR_KEYWORD,
@@ -1391,7 +1396,7 @@ def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
             continue
         try:
             snapshot[key] = value if isinstance(value, Decimal) else Decimal(str(value))
-        except (InvalidOperation, TypeError, ValueError):
+        except InvalidOperation, TypeError, ValueError:
             continue
     return snapshot
 
@@ -1455,7 +1460,7 @@ def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
         current = budgets.get(key, Decimal(0))
         try:
             current_decimal = current if isinstance(current, Decimal) else Decimal(str(current))
-        except (InvalidOperation, TypeError, ValueError):
+        except InvalidOperation, TypeError, ValueError:
             continue
         budgets[key] = current_decimal + value
 
@@ -1542,6 +1547,60 @@ def _backoff_delay(attempt: int, policy: RetryPolicy) -> float:
     return base / 2 + random.uniform(0, base / 2)
 
 
+def _attempt_dispatch_basis_ref(ctx: ExecutionContext) -> ArtifactRef | None:
+    """Return the exact engine-owned basis bound to the current attempt, if any."""
+    binding = getattr(ctx, "_engine_invocation", None)
+    basis_ref = getattr(binding, "basis_ref", None)
+    return basis_ref if isinstance(basis_ref, ArtifactRef) else None
+
+
+def _verified_dead_letter_dispatch_basis(
+    ctx: ExecutionContext,
+    *,
+    alias: str,
+    node_id: str,
+    dispatch_params: Mapping[str, Any] | None,
+    basis_ref: ArtifactRef | None,
+) -> ArtifactRef | None:
+    """Admit only the current owner-linked attempt and its exact workflow params."""
+    if (
+        basis_ref is None
+        or basis_ref.manifest_profile_sha256 is None
+        or dispatch_params is None
+        or not isinstance(dispatch_params, Mapping)
+    ):
+        return None
+    try:
+        run_id = ctx.run.run_manifest.run_id
+        attempts = ctx.run.read_runtime_invocation_attempts()
+        matches = [
+            attempt
+            for attempt in attempts
+            if artifact_ref_identity_key(attempt.basis_ref) == artifact_ref_identity_key(basis_ref)
+        ]
+        if len(matches) != 1:
+            return None
+        attempt = matches[0]
+        basis = attempt.basis
+        if (
+            basis.run_id != run_id
+            or basis.node_alias != alias
+            or basis.component_id != node_id
+            or attempt.outcome is None
+            or attempt.outcome.status != "unknown"
+        ):
+            return None
+        from polisyos.scientist.orchestration.engine.producer_currentness import (
+            _workflow_invocation_params,
+        )
+
+        if _workflow_invocation_params(ctx, basis) != dict(dispatch_params):
+            return None
+        return attempt.basis_ref
+    except Exception:
+        return None
+
+
 def _persist_dead_letter(
     ctx: ExecutionContext,
     alias: str,
@@ -1549,9 +1608,19 @@ def _persist_dead_letter(
     last_error: Exception,
     attempts: int,
     policy: RetryPolicy,
+    *,
+    dispatch_params: Mapping[str, Any] | None = None,
+    dispatch_basis_ref: ArtifactRef | None = None,
 ) -> ArtifactRef | None:
-    """Persist a dead-letter artifact on retry exhaustion (best-effort)."""
+    """Persist a dead letter and its verified source ref, without copying raw params."""
     try:
+        selected_basis_ref = _verified_dead_letter_dispatch_basis(
+            ctx,
+            alias=alias,
+            node_id=node_id,
+            dispatch_params=dispatch_params,
+            basis_ref=dispatch_basis_ref,
+        )
         payload = {
             "kind": "scientist.dead_letter",
             "run_id": getattr(ctx.run.run_manifest, "run_id", ""),
@@ -1560,6 +1629,14 @@ def _persist_dead_letter(
             "error_type": type(last_error).__name__,
             "error_message": str(last_error),
             "attempts": attempts,
+            "dispatch_basis_status": (
+                "selected" if selected_basis_ref is not None else "not_established"
+            ),
+            "dispatch_basis_ref": (
+                selected_basis_ref.model_dump(mode="json")
+                if selected_basis_ref is not None
+                else None
+            ),
             # Canonical JSON forbids floats, so retain numeric retry knobs as
             # strings and let Pydantic coerce them back during replay.
             "policy": _serialize_dead_letter_policy(policy),
@@ -1572,7 +1649,12 @@ def _persist_dead_letter(
                 media_type="application/json",
                 schema=SchemaInfo(
                     name="polisyos.scientist.orchestration.engine.DeadLetter",
-                    version="1.0",
+                    version="2.0",
+                ),
+                inputs=(
+                    [input_ref_from_artifact_ref(selected_basis_ref, role="dispatch_basis")]
+                    if selected_basis_ref is not None
+                    else []
                 ),
             ),
         )
@@ -1737,8 +1819,10 @@ def execute_with_retry_sync(
             state=attempt_state,
         )
         attempt_recorded = False
+        attempt_dispatch_basis_ref: ArtifactRef | None = None
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+            attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
             if remaining is not None:
                 outcome = _execute_with_timeout_sync(
                     node,
@@ -1900,6 +1984,8 @@ def execute_with_retry_sync(
                 original_error,
                 attempts=attempt + 1,
                 policy=retry_policy,
+                dispatch_params=dispatch_params,
+                dispatch_basis_ref=attempt_dispatch_basis_ref,
             )
             if dlq_ref is not None:
                 _emit_dead_letter_event(
@@ -2034,7 +2120,7 @@ async def _execute_with_timeout_thread_async(
 def _can_use_forked_timeout_worker() -> bool:
     try:
         return "fork" in mp.get_all_start_methods()
-    except (RuntimeError, ValueError):
+    except RuntimeError, ValueError:
         return False
 
 
@@ -2047,7 +2133,7 @@ def _timeout_worker_start_method() -> Literal["fork", "spawn"] | None:
     """
     try:
         methods = mp.get_all_start_methods()
-    except (RuntimeError, ValueError):
+    except RuntimeError, ValueError:
         return None
     if sys.platform == "linux" and "fork" in methods:
         return "fork"
@@ -2080,7 +2166,7 @@ def _completion_before_deadline(
         return False
     try:
         completed_at = float(completion_time.value)
-    except (AttributeError, TypeError, ValueError):
+    except AttributeError, TypeError, ValueError:
         return False
     return 0.0 < completed_at <= compute_deadline
 
@@ -3525,8 +3611,10 @@ async def execute_with_retry_async(
             state=attempt_state,
         )
         attempt_recorded = False
+        attempt_dispatch_basis_ref: ArtifactRef | None = None
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+            attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
             outcome = await _invoke(attempt_state, attempt_ctx)
 
             try:
@@ -3680,6 +3768,8 @@ async def execute_with_retry_async(
                 original_error,
                 attempts=attempt + 1,
                 policy=retry_policy,
+                dispatch_params=dispatch_params,
+                dispatch_basis_ref=attempt_dispatch_basis_ref,
             )
             if dlq_ref is not None:
                 _emit_dead_letter_event(

@@ -24,6 +24,23 @@ def test_worker_receipt_fields_do_not_change_existing_trace_wire_bytes() -> None
     )
 
 
+def test_trace_metrics_accept_numbers_and_reject_text_labels() -> None:
+    TraceRecord(
+        run_id="R_trace",
+        phase="core",
+        event="NODE_FORK_LIFECYCLE_REFUSED",
+        metrics={"worker_pid": 123, "elapsed_s": 0.5},
+    )
+
+    with pytest.raises(ValidationError):
+        TraceRecord(
+            run_id="R_trace",
+            phase="core",
+            event="NODE_FORK_LIFECYCLE_REFUSED",
+            metrics={"operation": "finalize"},
+        )
+
+
 def test_worker_receipt_markers_require_identity_and_digest() -> None:
     with pytest.raises(ValidationError, match="worker receipt marker incomplete"):
         TraceRecord(

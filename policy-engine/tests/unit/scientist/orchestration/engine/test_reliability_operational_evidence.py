@@ -36,7 +36,11 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.llm.provider_verification import (
     ProviderCapabilityVerification,
 )
-from polisyos.scientist.replay.backend import list_dead_letters, replay_dead_letter
+from polisyos.scientist.replay.backend import (
+    DeadLetterError,
+    list_dead_letters,
+    replay_dead_letter,
+)
 
 
 @dataclass
@@ -288,16 +292,15 @@ async def test_dlq_replay_operational_signal(tmp_path) -> None:
             )
 
     assert len(dead_letters) == 1
-    outcome = await replay_dead_letter(
-        store,
-        dead_letters[0].artifact_ref.artifact_id,
-        ctx=ctx,
-        state=state,
-        node=_RecoveryNode(),
-    )
-
-    assert outcome.status == "ok"
-    assert outcome.state.params["replayed"] is True
+    assert dead_letters[0].dispatch_basis_status == "not_established"
+    with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_not_established"):
+        await replay_dead_letter(
+            store,
+            dead_letters[0].artifact_ref.artifact_id,
+            ctx=ctx,
+            state=state,
+            node=_RecoveryNode(),
+        )
 
 
 def test_bounded_retention_operational_signal(tmp_path) -> None:

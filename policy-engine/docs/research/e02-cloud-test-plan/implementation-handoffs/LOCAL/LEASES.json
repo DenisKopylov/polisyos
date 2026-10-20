@@ -43723,5 +43723,153 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-linux-dlq-reviewed-source-adoption-20261021-r2": {
+    "slice_base": "2ac217c554c5de20adebe535ec22bbffb637548f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-dead-letter-dispatch-source.toml": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-dead-letter-dispatch-source.toml",
+        "postimage_sha256": "70253e3730b0cf54c0dee72317a700001548baff32f8132767d461b853a01359"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "000a38a49634712b51d2f1c7890985f3257f37900f5e4c5fd7fdd9bd78d52da2",
+        "git_base_preimage_sha256": "000a38a49634712b51d2f1c7890985f3257f37900f5e4c5fd7fdd9bd78d52da2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "postimage_sha256": "2f081f18c495d8e85d31766c28d731a201253bf9807d38437eb2852eccdc535b"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "72223984ac7d6a45ca8c820740760fbc684d5ee711193f7fb704bf9a49b85855",
+        "git_base_preimage_sha256": "72223984ac7d6a45ca8c820740760fbc684d5ee711193f7fb704bf9a49b85855",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "postimage_sha256": "7dc8ee90e7845075539d041769570f92bd61609527efced8a4c62a7c7b53a8fd"
+      },
+      "policy-engine/src/polisyos/scientist/replay/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "6736be25a12710f0146b9e943290b170f91938f0d68b93be4775c070e417e7d2",
+        "git_base_preimage_sha256": "6736be25a12710f0146b9e943290b170f91938f0d68b93be4775c070e417e7d2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/src/polisyos/scientist/replay/README.md",
+        "postimage_sha256": "bbb620e197c404948501b2d33562d31c84129d73f962e619acc2378db2cb77cc"
+      },
+      "policy-engine/src/polisyos/scientist/replay/backend.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "83996299b88de70a12391139292688b13f471e67196ae36aad98ddd5d12d7920",
+        "git_base_preimage_sha256": "83996299b88de70a12391139292688b13f471e67196ae36aad98ddd5d12d7920",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/src/polisyos/scientist/replay/backend.py",
+        "postimage_sha256": "d0da515551437789bbcafc3c0d26eb1fdd4ed30522893762a7b9453768b4bb98"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "2dbc36cea23b13cd76fbb8717c8357bc07b3f88a45e80077d93a8c3d7fea708a",
+        "git_base_preimage_sha256": "2dbc36cea23b13cd76fbb8717c8357bc07b3f88a45e80077d93a8c3d7fea708a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py",
+        "postimage_sha256": "918c3449f837fbc06c3efd8075c8d04eda75be62b848d97981913796c9afad88"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "46d4e874e5e2af5a5d4cde98a9d7a0ab2f761ffbc35a9bff9478520837653da0",
+        "git_base_preimage_sha256": "46d4e874e5e2af5a5d4cde98a9d7a0ab2f761ffbc35a9bff9478520837653da0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "postimage_sha256": "d77dcab644d292ecf6b243dcc7bfa0789ec067cf4a734b24ece2c319fa0c8218"
+      },
+      "policy-engine/tests/unit/scientist/replay/test_replay_backend.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "909203f60825e375ce7e5c27b3e23047b68f34dd5ad1bd176e9f642b6eb7f8f1",
+        "git_base_preimage_sha256": "909203f60825e375ce7e5c27b3e23047b68f34dd5ad1bd176e9f642b6eb7f8f1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-dispatch-source-binding-eb4-r4-current-access-denial-20261020/scratch/policy-engine/tests/unit/scientist/replay/test_replay_backend.py",
+        "postimage_sha256": "f40a2246ca40f4bbba6290903f61e101c101c6e98f1f87276f29bcf6bb0fe9c6"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": {
+        "operation": "update",
+        "preimage_sha256": "3c0796f32e6a73a8d5560f0a5976afd0cdd085f7894cf4eea7b38049c4d35705",
+        "git_base_preimage_sha256": "3c0796f32e6a73a8d5560f0a5976afd0cdd085f7894cf4eea7b38049c4d35705",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-worker-three-contract-test-repair-20261020-r2/postimages/test_retry.py",
+        "postimage_sha256": "0a04d9942dc2ebbc5376c5276640eb5f5c487397c2b1149f1651eede419466cf"
+      },
+      "policy-engine/tests/unit/core/trace/test_record.py": {
+        "operation": "update",
+        "preimage_sha256": "ab063bf1f2c447bad9c30bc212ddddb8289eb2d9fc8c8ce49d4a833de653671b",
+        "git_base_preimage_sha256": "ab063bf1f2c447bad9c30bc212ddddb8289eb2d9fc8c8ce49d4a833de653671b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-worker-three-contract-test-repair-20261020-r2/postimages/test_record.py",
+        "postimage_sha256": "1883e50fcd6d81f4f6d5c74e3424be6439461793cc27cb799ebfa2771bae2f58"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-reviewed-source-adoption-20261021-r2/source-application.json",
+      "sha256": "f90e62ba4e6bb20797705c0e44ce0c8cf7fc47754bbc70b5e518e8eb9be80a14"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-reviewed-source-adoption-20261021-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-worker-three-contract-test-repair-20261020-r2/manifest.json",
+        "sha256": "0b86d57221ca1a993dc1a76e90e9d31310349d9383eec16338ee27435d2ed4cd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-dispatch-source-binding-eb3-r3/manifest.json",
+        "sha256": "5f4621f9a6371fba127b422481caaa22f93fd7e864a1e412c56d410e17001b40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-dispatch-source-binding-eb3-r3/proposal.json",
+        "sha256": "02b57f670c2f8e6dbb48ae37817a6db455eb52bbcfa750a93bcebc10b728cb40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-dispatch-source-binding-eb4-r4-current-access-denial-20261020/manifest.json",
+        "sha256": "885299faae960aff20b63aa8278919dcf833c212ca81f5c7d837b846bd3648f4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-dispatch-source-binding-eb4-r4-current-access-denial-20261020/proposal.json",
+        "sha256": "32ba79e21aa940eabe9981dcce8cfab371835da0cc9ad4365417cc77ed95f210"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-dispatch-source-binding-eb4-r4-current-access-denial-20261020/independent-review-r2-r3-r4.json",
+        "sha256": "cf13aee9648b07aaa3a366bd83e8253b394a56afcfa0812eaf0216a9e5d6dd45"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-r2-r3-r4-composition-preparation-20261021-r1/preparation.json",
+        "sha256": "b49bbfdb681eb64c0b7f2acfcd9a55534d10e738e7a4c0060741fa041fdf9044"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-linux-dlq-reviewed-source-adoption-20261021-r1/plan.json",
+        "sha256": "506eb10291ae408499f369bdcbad9798c2631a43ae8b947b334a0ff0d9cc21a4"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same source-bound replay class; widen producer/artifact/reader/real replay and full parameter admission, not per alias patch.",
+      "falsifier": "Real executor creates source-bound DLQ; swap current cell, alias, source profile or remove basis while retaining manifest markers, require no node effects. Restore legitimate source/access, replay original params once."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Independent source review only; actual Linux worker/retry/record/replay/SKG/reliability replay remains UNRUN on this composition.",
+      "This proves dispatch source binding only; public node override implementation identity is not proven and is a declared bounded residual.",
+      "Current cell guard control exercises local CAS admission, not external IAM, issuer/custody or G acceptance.",
+      "Explicit unchanged numerical/scientific contracts; no legacy default-empty dispatch fallback."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After Core R10 repair, run complete current Linux worker/retry modules plus TraceRecord and source replay/SKG/reliability whole modules under supported isolated guest, exact host+guest inputs and origin/readback receipts.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

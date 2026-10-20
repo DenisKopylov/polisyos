@@ -5,7 +5,14 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    FileSystemCAS,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+    load_core_json_artifact,
+)
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     ExecPlan,
@@ -121,8 +128,7 @@ def _put_dead_letter(
     alias: str = "agent",
     node_id: str = "test.node@1.0.0",
 ):
-    return _put_json(
-        store,
+    return store.put_json(
         {
             "kind": "scientist.dead_letter",
             "run_id": run_id,
@@ -134,7 +140,14 @@ def _put_dead_letter(
             "policy": {"max_retries": 0},
             "created_at": "2026-04-11T12:00:00Z",
         },
-        kind="scientist.dead_letter",
+        PutOptions(
+            kind="scientist.dead_letter",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.DeadLetter",
+                version="1.0",
+            ),
+        ),
     )
 
 
@@ -185,6 +198,8 @@ def test_load_dead_letter_returns_typed_record(tmp_path) -> None:
     assert record.alias == "agent"
     assert record.node_id == "test.node@1.0.0"
     assert record.attempts == 2
+    assert record.dispatch_basis_status == "not_established"
+    assert record.dispatch_basis_ref is None
 
 
 def test_replay_backend_helpers_accept_protocol_store_proxy(tmp_path) -> None:
@@ -201,8 +216,9 @@ def test_replay_backend_helpers_accept_protocol_store_proxy(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_replay_dead_letter_reexecutes_node(tmp_path) -> None:
+async def test_replay_dead_letter_refuses_legacy_record_without_dispatch_basis(tmp_path) -> None:
     from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.scientist.replay.backend import DeadLetterError
 
     store = FileSystemCAS(tmp_path)
     dead_ref = _put_dead_letter(store)
@@ -213,6 +229,7 @@ async def test_replay_dead_letter_reexecutes_node(tmp_path) -> None:
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_dead")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("dead-letter"))
     state = ExperimentState(run_id="R_dead", params={"replayed": False})
+    node_calls: list[bool] = []
 
     class _Node:
         def __init__(self) -> None:
@@ -224,21 +241,240 @@ async def test_replay_dead_letter_reexecutes_node(tmp_path) -> None:
 
         def execute(self, ctx, state):
             del ctx
+            node_calls.append(True)
             return NodeOutcome(
                 status="ok",
                 state=state.model_copy(update={"params": {"replayed": True}}),
             )
 
-    outcome = await replay_dead_letter(
-        store,
-        dead_ref.artifact_id,
-        ctx=ctx,
-        state=state,
-        node=_Node(),
-    )
+    with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_not_established"):
+        await replay_dead_letter(
+            store,
+            dead_ref.artifact_id,
+            ctx=ctx,
+            state=state,
+            node=_Node(),
+        )
 
-    assert outcome.status == "ok"
-    assert outcome.state.params["replayed"] is True
+    assert node_calls == []
+    assert run.read_runtime_invocation_attempts() == []
+
+
+@pytest.mark.asyncio
+async def test_retry_producer_binds_and_replays_exact_dispatch_source(tmp_path) -> None:
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+    from polisyos.scientist.orchestration.engine.retry import RetryPolicy
+    from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+    from polisyos.scientist.replay.backend import DeadLetterError
+
+    node_id = "test.source_bound@1.0.0"
+
+    def _spec() -> NodeSpec:
+        return NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse(node_id),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="Dispatch-source replay test",
+                description="Captures the invocation value selected from WorkflowSpec.",
+                tags=["test"],
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=[],
+            state_writes=["params.observed_dispatch_tag"],
+            produces=[],
+        )
+
+    class _SourceBoundNode:
+        def __init__(
+            self,
+            *,
+            bound: dict[str, object] | None = None,
+            fail_tags: set[str] | None = None,
+            calls: list[str] | None = None,
+        ):
+            self.spec = _spec()
+            self.bound = dict(bound or {})
+            self.fail_tags = fail_tags or set()
+            self.calls = calls
+
+        def bind(self, params: dict[str, object]) -> _SourceBoundNode:
+            return _SourceBoundNode(bound=params, fail_tags=self.fail_tags, calls=self.calls)
+
+        def execute(self, ctx, state):
+            del ctx
+            dispatch_tag = self.bound.get("dispatch_tag")
+            if self.calls is not None:
+                self.calls.append(str(dispatch_tag))
+            if dispatch_tag in self.fail_tags:
+                raise RuntimeError("injected dispatch failure")
+            params = {**state.params, "observed_dispatch_tag": self.bound.get("dispatch_tag")}
+            return NodeOutcome(status="ok", state=state.model_copy(update={"params": params}))
+
+    store = FileSystemCAS(tmp_path).with_ambient_ownership_enforcement()
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        registry_bundle = build_default_registry_bundle(
+            store,
+            return_selected_profile=True,
+        ).bundle_ref
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_bundle,
+            run_id="R_dispatch_source",
+        )
+        ctx = ExecutionContext(
+            store=store,
+            run=run,
+            logger=logging.getLogger("dead-letter-source"),
+        )
+        state = ExperimentState(run_id="R_dispatch_source", params={"outer": "before"})
+        producer_registry = NodeRegistry()
+        producer_registry.register(_SourceBoundNode(fail_tags={"original", "other"}))
+        retry = RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none")
+        workflow = WorkflowSpec(
+            workflow_id="dead_letter_dispatch_source",
+            error_policy="continue",
+            nodes=[
+                NodeInvocation(
+                    alias="agent",
+                    node_id=node_id,
+                    params={"dispatch_tag": "original"},
+                    retry=retry,
+                ),
+                NodeInvocation(
+                    alias="other",
+                    node_id=node_id,
+                    params={"dispatch_tag": "other"},
+                    retry=retry,
+                ),
+            ],
+        )
+
+        result = await AsyncWorkflowExecutor(ctx, producer_registry).execute(workflow, state)
+
+        assert result.report.status == "fail"
+        records = list_dead_letters(store, run_id="R_dispatch_source", alias="agent")
+        assert len(records) == 1
+        record = load_dead_letter(store, records[0].artifact_ref.artifact_id)
+        assert record.dispatch_basis_status == "selected"
+        assert record.artifact_ref.manifest_profile_sha256 is not None
+        assert record.dispatch_basis_ref is not None
+        assert record.dispatch_basis_ref.manifest_profile_sha256 is not None
+        payload = load_core_json_artifact(store, record.artifact_ref.artifact_id)
+        assert "params" not in payload
+        manifest = store.get_manifest(record.artifact_ref.artifact_id)
+        assert manifest.inputs == [
+            input_ref_from_artifact_ref(record.dispatch_basis_ref, role="dispatch_basis")
+        ]
+        attempts = run.read_runtime_invocation_attempts()
+        selected_attempt = next(
+            attempt for attempt in attempts if attempt.basis_ref == record.dispatch_basis_ref
+        )
+        assert selected_attempt.basis.node_alias == "agent"
+        assert selected_attempt.basis.component_id == node_id
+        assert selected_attempt.outcome is not None
+        assert selected_attempt.outcome.status == "unknown"
+
+    replay_registry = NodeRegistry()
+    replay_calls: list[str] = []
+    replay_registry.register(_SourceBoundNode(calls=replay_calls))
+    replay_state = state.model_copy(update={"params": {"outer": "mutated"}})
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            await replay_dead_letter(
+                store,
+                record.artifact_ref.artifact_id,
+                ctx=ctx,
+                state=replay_state,
+                registry=replay_registry,
+            )
+    assert replay_calls == []
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        outcome = await replay_dead_letter(
+            store,
+            record.artifact_ref.artifact_id,
+            ctx=ctx,
+            state=replay_state,
+            registry=replay_registry,
+        )
+        assert outcome.status == "ok"
+        assert outcome.state.params["observed_dispatch_tag"] == "original"
+        assert replay_calls == ["original"]
+        replay_call_count = len(replay_calls)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+
+        def _copy_with_basis(basis_ref: ArtifactRef | None, status: str) -> ArtifactRef:
+            payload = load_core_json_artifact(store, record.artifact_ref.artifact_id)
+            payload["dispatch_basis_status"] = status
+            payload["dispatch_basis_ref"] = (
+                basis_ref.model_dump(mode="json") if basis_ref is not None else None
+            )
+            return store.put_json(
+                payload,
+                PutOptions(
+                    kind="scientist.dead_letter",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.scientist.orchestration.engine.DeadLetter",
+                        version="2.0",
+                    ),
+                    inputs=(
+                        [input_ref_from_artifact_ref(basis_ref, role="dispatch_basis")]
+                        if basis_ref is not None
+                        else []
+                    ),
+                ),
+            )
+
+        swapped_attempt = next(
+            attempt for attempt in attempts if attempt.basis.node_alias == "other"
+        )
+        assert swapped_attempt.outcome is not None
+        assert swapped_attempt.outcome.status == "unknown"
+        swapped_ref = _copy_with_basis(swapped_attempt.basis_ref, "selected")
+        with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_mismatch"):
+            await replay_dead_letter(
+                store,
+                swapped_ref.artifact_id,
+                ctx=ctx,
+                state=replay_state,
+                registry=replay_registry,
+            )
+        assert len(replay_calls) == replay_call_count
+
+        assert selected_attempt.basis_ref.manifest_profile_sha256 is not None
+        changed_profile = selected_attempt.basis_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        changed_ref = _copy_with_basis(changed_profile, "selected")
+        with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_not_established"):
+            await replay_dead_letter(
+                store,
+                changed_ref.artifact_id,
+                ctx=ctx,
+                state=replay_state,
+                registry=replay_registry,
+            )
+        assert len(replay_calls) == replay_call_count
+
+        removed_ref = _copy_with_basis(None, "not_established")
+        with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_not_established"):
+            await replay_dead_letter(
+                store,
+                removed_ref.artifact_id,
+                ctx=ctx,
+                state=replay_state,
+                registry=replay_registry,
+            )
+        assert len(replay_calls) == replay_call_count
 
 
 def _candidate_schema_for_unbound_origin_test(
@@ -321,15 +557,25 @@ async def test_dead_letter_replay_selects_candidate_without_claiming_owner_origi
                 ),
             )
 
-    outcome = await replay_dead_letter(
-        store,
-        dead_ref.artifact_id,
-        ctx=ctx,
-        state=state,
-        node=_CandidateConsumer(),
-    )
+    from polisyos.scientist.replay.backend import DeadLetterError
 
-    assert outcome.status == "ok"
-    assert outcome.state.params["selected_candidate_id"] == "candidate_replay_unbound"
-    assert outcome.state.params["owner_basis_present"] is False
+    consumer_calls: list[bool] = []
+    consumer = _CandidateConsumer()
+    original_execute = consumer.execute
+
+    def _observe_execute(ctx: ExecutionContext, replay_state: ExperimentState) -> NodeOutcome:
+        consumer_calls.append(True)
+        return original_execute(ctx, replay_state)
+
+    consumer.execute = _observe_execute
+    with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_not_established"):
+        await replay_dead_letter(
+            store,
+            dead_ref.artifact_id,
+            ctx=ctx,
+            state=state,
+            node=consumer,
+        )
+
+    assert consumer_calls == []
     assert run.read_runtime_invocation_attempts() == []

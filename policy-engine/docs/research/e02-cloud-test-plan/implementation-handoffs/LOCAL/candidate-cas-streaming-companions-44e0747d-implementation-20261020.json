@@ -1,0 +1,202 @@
+{
+  "schema": "policyos.e02.local_candidate_implementation_handoff.v1",
+  "slice": "root-applied-candidate-cas-streaming-test-companions-20261020-r2",
+  "authorship": "local candidate author; this is not G acceptance or formal finding adjudication",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base": {
+      "sha": "624f9dee8a3cc1c13c899786d3de76bfe88d6b30",
+      "tree": "92b023259e7481e2fce27e476449b01e5314c22a"
+    },
+    "candidate": {
+      "sha": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+      "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc",
+      "parents": [
+        "624f9dee8a3cc1c13c899786d3de76bfe88d6b30"
+      ]
+    },
+    "adoption_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r2/implementation-readback.json",
+      "sha256": "7f35130fd4dfab200f5435e6df2be67e2b3ca060742bb312b8926b8f4a026e9b",
+      "bytes": 2486
+    },
+    "plan_and_postimage_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r2/plan.json",
+      "sha256": "3928183bd7ba3c57f3dbbf9e568e5d1aa123bde3fa519be2ec1896111b3de1f5",
+      "bytes": 17069
+    },
+    "commit_request_and_exact_path_postimages": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r2/commit-request.json",
+      "sha256": "89ccea121ced58713639e7b65594ffc5378b79d88d32142341e4c1f2b870a845",
+      "bytes": 3184
+    },
+    "branch_blob_readback": "all exact",
+    "index_clean_at_commit_readback": true,
+    "tracked_dirty_after_commit": [],
+    "source_freeze": false
+  },
+  "footprint": {
+    "committed_path_count": 16,
+    "mechanism_and_mandatory_companion_rows": 14,
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-acquisition-candidate-cas-route.md",
+      "policy-engine/release-fragments/unreleased/2026-10-20-gy-content-hash-iterative-streaming.toml",
+      "policy-engine/src/polisyos/pdc/_impl/gy_waist.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/tests/_helpers/acquisition_production.py",
+      "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+      "policy-engine/tests/unit/pdc/test_gy_waist_contracts.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "policy-engine/tests/unit/scientist/search/test_objective_availability.py"
+    ],
+    "mechanisms": [
+      "policy-engine/src/polisyos/pdc/_impl/gy_waist.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+    ],
+    "test_helper": [
+      "policy-engine/tests/_helpers/acquisition_production.py"
+    ],
+    "tests": [
+      "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+      "policy-engine/tests/unit/pdc/test_gy_waist_contracts.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "policy-engine/tests/unit/scientist/search/test_objective_availability.py"
+    ],
+    "release_companion": "policy-engine/release-fragments/unreleased/2026-10-20-gy-content-hash-iterative-streaming.toml",
+    "decision_companion": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-acquisition-candidate-cas-route.md",
+    "metadata_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "configuration_and_lock_changes": [],
+    "postimage_sha256_map_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r2/commit-request.json",
+      "sha256": "89ccea121ced58713639e7b65594ffc5378b79d88d32142341e4c1f2b870a845",
+      "bytes": 3184
+    }
+  },
+  "source_property_summary": [
+    "Canonical same-CAS contract-testing recursive parent and leaf can execute candidate-only route while protected production/N9 checks remain unchanged.",
+    "Complete built-in JSON content is iteratively hashed with exact legacy digest/key/exclusion behavior; no prefix or Credal payload reduction.",
+    "Retrieval copied fixture manifests and all child input refs preserve actual producer-selected profiles, while intentionally profileless input remains profileless.",
+    "Vector test parametrizations reach their real source-binding assertions; selected rule/optimizer/fixture units align without changing production gates.",
+    "Forecast test Core-to-IR refs cross canonical normalization and preserve selected profile identity; actual malformed and forged controls remain.",
+    "Funnel fixture controls retain early malformed-assessment rejection without assuming unexecuted L6; actual runtime packet with unknown metric units remains unavailable/no qualified VOI observation."
+  ],
+  "P40": {
+    "acquisition": "SAME parent/factory/leaf/CAS handshake class deeper: widen shared exact-owner boundary once; no per-case bypass.",
+    "hash": "NEW generic whole-payload copy amplification; iterative full traversal, fallback for custom/cyclic inputs and complete compatibility tests.",
+    "retrieval": "SAME producer/profile handshake deeper: widen shared clone plus complete child inventory once, no reader weakening.",
+    "vector": "NEW shared single-arg pytest parameter shape/fixture-unit mismatch, all235 assertion ASTs preserved.",
+    "forecast": "NEW shared Core-to-IR fixture boundary separate from optional member initialization; one adapter for all conversions.",
+    "R5": "SAME fixture expectation class: shared reject/continue outcome assertions match actual stage execution; absentassessment still reject and no synthetic packet-backed unit.",
+    "canonical_imports": "NEW author tooling context mismatch; correct only import ordering/grouping with canonical root module Ruff, import-node multiset and entire non-import AST unchanged."
+  },
+  "decision_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-acquisition-candidate-cas-route.md",
+    "sha256": "20698cab40412ab715679d3067aa3da7689ab0cc287b9e87a07c7d0a498c2416",
+    "component_review_pointer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-cas-candidate-independent-review-r2-d2d2-20261020/review.md",
+      "sha256": "4b801146f9e58106189ee05cbd5677dcd3c117f22c505de4d32543c7a3ce54b0",
+      "scope": "bounded component proposal review; does not review this full composed source or override the runtime FAILs below"
+    },
+    "note": "The tracked decision records the accepted candidate-band CAS owner-handshake choice. Its old UNRUN statement predates the current actual replays; current replay status is in runtime-receipts.json."
+  },
+  "selected_profiles": {
+    "whole_module_pytest_runs": {
+      "selection": "Actual source-bound pytest results record policy-engine/.venv/bin/python in each invocation; the associated request pins policy-engine/pyproject.toml and uv.lock.",
+      "pyproject_sha256": "228a229d91c4596c797593fba9bc68f8ae517f9935ac73a046b0a3de997f19ee",
+      "uv_lock_sha256": "03b9a1db187745340234656cbff0b567e0495135f2d75dd0d61562178e2defff",
+      "limitation": "The four request manifests pin project and lock files; they do not pin policy-engine/.venv/pyvenv.cfg. A current read of that file is not asserted as historical runtime evidence."
+    },
+    "C12_encoder_profile": {
+      "selection": "lexical profile venv/bin/python; argv preserved the symlink path",
+      "python_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/bin/python",
+      "python_path_sha256": "14a816f493d6b12ff5f1edec695edcb3590d683c3a904f9e6ea8c171c7a6f403",
+      "symlink_target": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14",
+      "pyvenv_cfg_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/pyvenv.cfg",
+      "pyvenv_cfg_sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046",
+      "pinned_input_count": 148,
+      "offline": true,
+      "numeric_threads": 1
+    }
+  },
+  "verification_boundary": {
+    "runtime_receipts": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r1/runtime-receipts.json",
+      "sha256": "6a639e29ee9b93abea982f850cb5033a4a3483f39a64104066f4e154b213c234",
+      "bytes": 37896,
+      "revision": "R1 immutable runtime companion; source frame remains 44e0747d7532c75fad6372ff54ea3cfa5d4e7487"
+    },
+    "source_freeze": false,
+    "composed_source_independent_review": "pending",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_finding_proposals": [],
+    "task_denominator_pointer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "note": "Exact task registry blob read from candidate commit 44e0747d7532c75fad6372ff54ea3cfa5d4e7487."
+    },
+    "finding_and_occurrence_mapping": "not performed by this slice; no aggregate test PASS is converted to a finding closure"
+  },
+  "next_checks": [
+    "After the pending independent review and repair batch, rerun whole hash and retrieval modules; the current exact source replay has two FAILs.",
+    "Repair/review the acquisition N7 report and source-census boundary, then rerun the complete acquisition plus epoch-gate selection; current whole selection has 19 FAILs.",
+    "Rerun the whole score and funnel selections after their partial fixes and facade/R4 companions are reviewed; current results have four and three FAILs respectively.",
+    "C12 profile bootstrap is evidenced only for the first of two selected cases before a supervisor resource abort; the separate producer GET/POST case completes but fails its fact-vector assertion. Fix that semantic mismatch and re-evaluate profile readiness before another broad profile wave.",
+    "Do not describe this packet as a source freeze, an accepted checkpoint, an external authority fact, or a formal closure."
+  ],
+  "limitations": [
+    "Full composed-source regression/acceptance wave remains UNRUN. The six source-bound executions in companion runtime receipts are actual focused runs; FAIL/resource-abort outcomes remain explicit.",
+    "Full served N7 RSS growth is not attributed solely to hashing; unmodified three-node replay still required.",
+    "No source-unit provenance, external legal/custody/currentness/calibration or qualifying production workload established.",
+    "Protected authority, G acceptance and formal finding adjudication remain outside author approval.",
+    "R1 preflight I001 prevented all source writes; R2 preserves that receipt and uses separately reviewed import-only postimages."
+  ],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "handoff_revision": {
+    "revision": "r2",
+    "reason": "Narrowed limitation wording to distinguish the still-unrun full composed regression/acceptance wave from the six completed source-bound focused executions.",
+    "supersedes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r1/implementation-handoff.json",
+      "sha256": "d8773bffce0ce5fd7d8f8d4d59246b745ca986026fb5134f26552d499587d4ce",
+      "bytes": 12112
+    },
+    "runtime_companion": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r1/runtime-receipts.json",
+      "sha256": "6a639e29ee9b93abea982f850cb5033a4a3483f39a64104066f4e154b213c234",
+      "bytes": 37896,
+      "copied": false
+    },
+    "historical_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "candidate": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+      "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc",
+      "note": "This packet preserves the original 44e0747d runtime frame. The branch has since advanced to 59edc7228d7fb7ae22349e5b803db1e8760f0b19; no runtime result here is attributed to that later source."
+    },
+    "binding_validation": {
+      "candidate_git_path_postimages_verified": 16,
+      "source_frame_and_adopter_refs_verified": 4,
+      "unique_source_bound_request_input_paths_verified": 177,
+      "request_input_bytes_hashed": 2272184097,
+      "reviewed_component_input_refs_verified": 20,
+      "runtime_request_and_output_refs_verified": 76,
+      "task_registry_candidate_blob_verified": true,
+      "mismatches": []
+    }
+  }
+}

@@ -42262,5 +42262,68 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-44e-source-runtime-tracked-receipts-20261020-r1": {
+    "slice_base": "ae00309fc55660e30f445adc1468c11dbcf67954",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-cas-streaming-companions-44e0747d-implementation-20261020.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "50f9c3cccee118e1826d2d1e535ce028f7e29e1e572c44a0486e69fd75300dd3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r2/implementation-handoff.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-cas-streaming-companions-44e0747d-runtime-20261020.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "6a639e29ee9b93abea982f850cb5033a4a3483f39a64104066f4e154b213c234",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r1/runtime-receipts.json",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-tracked-receipts-20261020-r1/source-application.json",
+      "sha256": "bf6947337b3a249e090bda28e1740d4c36d7c8e5a9de560979ea94272b5c26ba"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-tracked-receipts-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r2/implementation-handoff.json",
+        "sha256": "50f9c3cccee118e1826d2d1e535ce028f7e29e1e572c44a0486e69fd75300dd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-author-20261020-r1/runtime-receipts.json",
+        "sha256": "6a639e29ee9b93abea982f850cb5033a4a3483f39a64104066f4e154b213c234"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-44e-source-runtime-handoff-independent-audit-20261020-r2/review.json",
+        "sha256": "f0549715accc8ac22427f2a01ee3f2e19909aabee050ab0d62cb220552c82cf9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Evidence truthfulness: full deciding output refs remain source-bound; no pass/capability/closure promotion from markers or partial runs.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No production code changed in receipt commit.",
+      "Full composed wave UNRUN; author proposals not formal G acceptance."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Continue actual source-bound runtime on ae00309f composition and later full freeze; preserve prior failures as historical.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

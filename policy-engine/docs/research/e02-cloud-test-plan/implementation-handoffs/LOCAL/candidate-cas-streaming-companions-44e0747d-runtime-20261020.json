@@ -1,0 +1,701 @@
+{
+  "schema": "policyos.e02.local_candidate_current_runtime_receipts.v1",
+  "candidate_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+    "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc",
+    "parents": [
+      "624f9dee8a3cc1c13c899786d3de76bfe88d6b30"
+    ]
+  },
+  "source_freeze": false,
+  "receipt_scope": "Six actual source-bound executions: four complete whole-module pytest groups and two separate C12 profile runs. They do not constitute a composed clean replay or closure report.",
+  "runs": [
+    {
+      "id": "hash_retrieval",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1",
+      "description": "Complete hash plus retrieval whole-module selection.",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+        "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/request.json",
+        "sha256": "30a1f395c2aec95116e44ff3bf9ac13d130bfaf6efa42e754eaf918aa744853d",
+        "bytes": 11754
+      },
+      "request_schema": "policyos.e02.root_existing_pytest_request.v1",
+      "request_pinned_input_count": 44,
+      "executor_sha256": "f264277d3e45f6ccb372d8c167c61fac47a45830beea9b6e3653efecadb0a53e",
+      "selectors": [
+        "tests/unit/pdc/test_gy_waist_contracts.py",
+        "tests/unit/fabric/test_retrieval_fetch_custody.py"
+      ],
+      "selected_profile": "project-locked-pytest",
+      "observed": {
+        "status": "command_failed",
+        "return_code": 1,
+        "aborted_reason": null,
+        "collected": 110,
+        "completed_calls": 110,
+        "calls_match_actual_collection": true,
+        "junit": {
+          "errors": 0,
+          "failures": 2,
+          "passed": 108,
+          "skipped": 0,
+          "tests": 110
+        },
+        "source_unchanged": true,
+        "source_after_sha256": "501d6ec024d320672da4e03ff69ef8ca37e15b28f5763873ad89060c11122b12",
+        "max_sampled_process_tree_rss_bytes": 458670080,
+        "sampled_rss_cap_bytes": 2147483648,
+        "aggregate_rss_cap_bytes": null,
+        "wall_seconds": 16.807787749916315,
+        "started_at": "2026-10-20T16:24:50.553464+00:00",
+        "finished_at": "2026-10-20T16:25:07.361269+00:00",
+        "deciding_failure_examples": [
+          "gy_content_hash_streams_five_measurement_rows_and_reduces_peak: observed peak comparison assertion failed (see full JUnit)",
+          "real_connector_readback_refuses_complete_counterfeit_chain[tail_value]: expected source_changed, observed fabric_fetch_profile_unverified (see full JUnit)"
+        ]
+      },
+      "deciding_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/result.json",
+          "sha256": "6687125f9170a7859e414d8f5c9ca44401cacfa15cbb540ede4edcbfedb5beb5",
+          "bytes": 8009
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/cases.jsonl",
+          "sha256": "fb0ecb33bd174ce6a8ef9fd92835f55890b58de38088cdc02e0e73356d39494b",
+          "bytes": 110007
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/collection.json",
+          "sha256": "5fe5dec7f4c0c34cedb9311f965cdce1337b8cda6b911fce0f12f2345a02058b",
+          "bytes": 18107
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "bb2113ed6bc6f2ffee07ec8055e5a2d0d749200080a782aa8c9cc32f52fbffd4",
+          "bytes": 27463
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/pytest.xml",
+          "sha256": "5c8ae0e05235d2865dba087d4d5d3db726b0a47e19dad73738b67d346e83ea3e",
+          "bytes": 28719
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/origins.json",
+          "sha256": "63f81f24c6cc0645490045bbf6e5beff485853bc2f2fceac17049c4f7f12f529",
+          "bytes": 552575
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/invocation.json",
+          "sha256": "6c3873ef116602488c88e25bc8bf0cf5a5c9ef55c8e018d74a65179f9db3dca1",
+          "bytes": 5023
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/process-tree.jsonl",
+          "sha256": "86bb0de17717dab83b8c3e5de616097b578cc33f7056010b85e21d4d4a4b8fd6",
+          "bytes": 48695
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/controller-events.jsonl",
+          "sha256": "7c6f68b945050519a39c32533a097d305db5e6f737c2d0e41e5ae61101682c69",
+          "bytes": 1978
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/actual/phase-output.jsonl",
+          "sha256": "bbaa64dbb55c11f1f59b0e054187e8dcaf89b3e73c117e0ad212e191226bd2dc",
+          "bytes": 1913
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hash-retrieval-whole-44e0747d-20261020-r1/request.json",
+          "sha256": "30a1f395c2aec95116e44ff3bf9ac13d130bfaf6efa42e754eaf918aa744853d",
+          "bytes": 11754
+        }
+      ],
+      "not_generated_artifacts": [],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "id": "acquisition_epoch",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1",
+      "description": "Complete acquisition integration and recursive-cycle epoch-gate selection.",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+        "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/request.json",
+        "sha256": "13feea0989c56fc62e49f295afd64c85a5394cdf6c20d0eda3648f15f037838d",
+        "bytes": 11667
+      },
+      "request_schema": "policyos.e02.root_existing_pytest_request.v1",
+      "request_pinned_input_count": 43,
+      "executor_sha256": "f264277d3e45f6ccb372d8c167c61fac47a45830beea9b6e3653efecadb0a53e",
+      "selectors": [
+        "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+      ],
+      "selected_profile": "project-locked-pytest",
+      "observed": {
+        "status": "command_failed",
+        "return_code": 1,
+        "aborted_reason": null,
+        "collected": 61,
+        "completed_calls": 61,
+        "calls_match_actual_collection": true,
+        "junit": {
+          "errors": 0,
+          "failures": 19,
+          "passed": 42,
+          "skipped": 0,
+          "tests": 61
+        },
+        "source_unchanged": true,
+        "source_after_sha256": "501d6ec024d320672da4e03ff69ef8ca37e15b28f5763873ad89060c11122b12",
+        "max_sampled_process_tree_rss_bytes": 1306771456,
+        "sampled_rss_cap_bytes": 2147483648,
+        "aggregate_rss_cap_bytes": null,
+        "wall_seconds": 39.970796917099506,
+        "started_at": "2026-10-20T16:24:50.559556+00:00",
+        "finished_at": "2026-10-20T16:25:30.530423+00:00",
+        "failure_boundary": "Whole JUnit contains 19 FAILs. Fourteen acquisition integration cases share the missing canonical N7 route-report assertion; remaining failures include epoch-gate and constructor-census/source-path assertions. No production route report or closure is inferred."
+      },
+      "deciding_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/result.json",
+          "sha256": "7ff0a8765dbb1b82b8d01335f0f0926ddd1cae633ac289d7ad8c94f88b9a5bac",
+          "bytes": 8203
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/cases.jsonl",
+          "sha256": "ba272801c0d0d209fcbda211bb873c30bcb720e7b5a0abd7acc8acd551c99f2e",
+          "bytes": 398475
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/collection.json",
+          "sha256": "81c6ab6b561866507c5a9ba23dfeaff5f3c04ceaefddfa525cdee73e006d6a0c",
+          "bytes": 14132
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "3d4f68195092b90dcbb864e4455859322f667bdec0bd29c737ac3d85e90d7825",
+          "bytes": 343774
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/pytest.xml",
+          "sha256": "b41b554be68d73e739b6546b8ae35d1c017e6f1058ad4c6781acb156f4b82338",
+          "bytes": 342926
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/origins.json",
+          "sha256": "1c6898c045cde2e20c3b9cb76ee33b06363aad99027d3b5ff7ee51ea952cf93e",
+          "bytes": 1823930
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/invocation.json",
+          "sha256": "fbc693aaf22560c6b48e3d5c46d919c4e02f0f3cbae5289d32592319502eccb6",
+          "bytes": 5140
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/process-tree.jsonl",
+          "sha256": "3d5035893565aee983f4a09765336fddd2c851f36ab5a4f5e79aefa37d354b4e",
+          "bytes": 126072
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/controller-events.jsonl",
+          "sha256": "0556b25a657a7fc07abd151cee966eed7375650f51cdb1f206ab3341a1690cd8",
+          "bytes": 2048
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/actual/phase-output.jsonl",
+          "sha256": "24a614082d74cf4390d00f8a4e57c7abf9254481d6e5c476a0654b96655a97ce",
+          "bytes": 1982
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-epoch-whole-44e0747d-20261020-r1/request.json",
+          "sha256": "13feea0989c56fc62e49f295afd64c85a5394cdf6c20d0eda3648f15f037838d",
+          "bytes": 11667
+        }
+      ],
+      "not_generated_artifacts": [],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "id": "score_four",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1",
+      "description": "Complete four-module score and objective selection.",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+        "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/request.json",
+        "sha256": "d462725c948c54f4e357ca273bb04f342aafb647b641acba9b99a0f7264577b9",
+        "bytes": 12397
+      },
+      "request_schema": "policyos.e02.root_existing_pytest_request.v1",
+      "request_pinned_input_count": 44,
+      "executor_sha256": "f264277d3e45f6ccb372d8c167c61fac47a45830beea9b6e3653efecadb0a53e",
+      "selectors": [
+        "tests/unit/scientist/policy_design/test_search.py",
+        "tests/unit/scientist/search/test_objective_availability.py",
+        "tests/unit/scientist/methods/search/test_objective.py",
+        "tests/unit/scientist/search/funnel/test_types.py"
+      ],
+      "selected_profile": "project-locked-pytest",
+      "observed": {
+        "status": "command_failed",
+        "return_code": 1,
+        "aborted_reason": null,
+        "collected": 81,
+        "completed_calls": 81,
+        "calls_match_actual_collection": true,
+        "junit": {
+          "errors": 0,
+          "failures": 4,
+          "passed": 77,
+          "skipped": 0,
+          "tests": 81
+        },
+        "source_unchanged": true,
+        "source_after_sha256": "501d6ec024d320672da4e03ff69ef8ca37e15b28f5763873ad89060c11122b12",
+        "max_sampled_process_tree_rss_bytes": 990576640,
+        "sampled_rss_cap_bytes": 2147483648,
+        "aggregate_rss_cap_bytes": null,
+        "wall_seconds": 10.16535604186356,
+        "started_at": "2026-10-20T16:27:00.443458+00:00",
+        "finished_at": "2026-10-20T16:27:10.608830+00:00",
+        "failure_boundary": "Four parametrized objective-availability cases fail while expected limited/incomplete runtime identity projections are absent; see complete JUnit and cases."
+      },
+      "deciding_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/result.json",
+          "sha256": "635f352a1db9c29896d7c612d252f7e54688ec87ef42a10e1ec885231aa5539d",
+          "bytes": 8501
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/cases.jsonl",
+          "sha256": "2e41f4fcee5fe28e7dce42b2745249acd1658a7cdd0f0ef4487ace94cbb58093",
+          "bytes": 89209
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/collection.json",
+          "sha256": "e9e8a16650fa9829f86625eee9f1c4c4c06f71da2306abc5d697481e00713406",
+          "bytes": 15591
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "b8894458688e8e870440c96d5b5cff3fc7446e5fac993ebc4d4f96f9c6a6a106",
+          "bytes": 29047
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/pytest.xml",
+          "sha256": "ddc3b57eaa6105dd2e53b63be622da95bd8eb1c67bfc28859b6a7346fdcf5134",
+          "bytes": 34342
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/origins.json",
+          "sha256": "5da8746908983ede084285594db655782ea2153aa1f334681d83f26fae307abf",
+          "bytes": 1282332
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/invocation.json",
+          "sha256": "247932536385de206e8542db9cd5f690f1771b9e25958994830b03d0ff07d0ca",
+          "bytes": 5726
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/process-tree.jsonl",
+          "sha256": "3cc7cd39215fdf59053aae2e65c34ae0eaeae84622531f1444c921ca3c37b6aa",
+          "bytes": 32518
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/controller-events.jsonl",
+          "sha256": "5d751d32cbd8205a17cfaf97eb3d519b7ad859506efffecd0e2ee5de6a359731",
+          "bytes": 2079
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/actual/phase-output.jsonl",
+          "sha256": "84aaadd71dc956e0faf471814df7fcf6c3552a31749ef301b39f281224e4739a",
+          "bytes": 2015
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-score-four-whole-44e0747d-20261020-r1/request.json",
+          "sha256": "d462725c948c54f4e357ca273bb04f342aafb647b641acba9b99a0f7264577b9",
+          "bytes": 12397
+        }
+      ],
+      "not_generated_artifacts": [],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "id": "funnel_six",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1",
+      "description": "Complete six-module funnel selection.",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+        "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/request.json",
+        "sha256": "5c1b17f409042654344ba8e1a62f1c0269fcb87e29ab7e94896a7bc693dd7cd5",
+        "bytes": 13008
+      },
+      "request_schema": "policyos.e02.root_existing_pytest_request.v1",
+      "request_pinned_input_count": 48,
+      "executor_sha256": "f264277d3e45f6ccb372d8c167c61fac47a45830beea9b6e3653efecadb0a53e",
+      "selectors": [
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_level0_static.py",
+        "tests/unit/scientist/search/funnel/test_level1_heuristic.py",
+        "tests/unit/scientist/search/funnel/test_level2_causal.py",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py"
+      ],
+      "selected_profile": "project-locked-pytest",
+      "observed": {
+        "status": "command_failed",
+        "return_code": 1,
+        "aborted_reason": null,
+        "collected": 135,
+        "completed_calls": 135,
+        "calls_match_actual_collection": true,
+        "junit": {
+          "errors": 0,
+          "failures": 3,
+          "passed": 132,
+          "skipped": 0,
+          "tests": 135
+        },
+        "source_unchanged": true,
+        "source_after_sha256": "501d6ec024d320672da4e03ff69ef8ca37e15b28f5763873ad89060c11122b12",
+        "max_sampled_process_tree_rss_bytes": 1032290304,
+        "sampled_rss_cap_bytes": 2147483648,
+        "aggregate_rss_cap_bytes": null,
+        "wall_seconds": 11.219655791996047,
+        "started_at": "2026-10-20T16:28:52.412588+00:00",
+        "finished_at": "2026-10-20T16:29:03.632278+00:00",
+        "failure_boundary": "Three failures: outcome-basis refusal reason, same-run joined invocation availability, and default requested-count derivation; see complete JUnit and cases."
+      },
+      "deciding_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/result.json",
+          "sha256": "05ec6680f2794e5b3fe3ab20f31791ab6b7cc62df1989cd6dbf3bebac2c6ea4e",
+          "bytes": 8972
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/cases.jsonl",
+          "sha256": "92a3b25e77c0f4fc7d324324d59912d98960c17f35f8e1fe187f7d71885f2f3d",
+          "bytes": 161939
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/collection.json",
+          "sha256": "7346e5d520e004bf8546fc5b35a4dfd0a34753360b2e155b07f96dd240ba213c",
+          "bytes": 23457
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "4451fdbd89303858549e335898515da619ff1d31cf92413435f7a4d1f5a8cece",
+          "bytes": 57818
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "bytes": 471
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/pytest.xml",
+          "sha256": "37fd5bb7cf30aceeb4d2b6999e7a0b6b77de65880ee7b3fd1974bda518e7554a",
+          "bytes": 58597
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/origins.json",
+          "sha256": "b17ed170c05cd15951cd79e8d8d4d08554fbbc132b77d96add4deb84d11e54bc",
+          "bytes": 1352369
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/invocation.json",
+          "sha256": "9851ca73790fee51cf3ca4f59aa6fd75c1d6d1df372318ff8953047cdb30120b",
+          "bytes": 5551
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/process-tree.jsonl",
+          "sha256": "12fa51edc35d939b568feace4c5033a07e1c4180b6c9ec4e017011369ab9f818",
+          "bytes": 38846
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/controller-events.jsonl",
+          "sha256": "e7c26f6970725180a281bc2d2d18d9be66556ec2dab71d75c2fab393e14e0b38",
+          "bytes": 2224
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/actual/phase-output.jsonl",
+          "sha256": "4cb0c4ecd1796b6c7381f6bb85b15a014f175b4c770191bcde4ead8cc2d97565",
+          "bytes": 2158
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-funnel-six-whole-44e0747d-20261020-r1/request.json",
+          "sha256": "5c1b17f409042654344ba8e1a62f1c0269fcb87e29ab7e94896a7bc693dd7cd5",
+          "bytes": 13008
+        }
+      ],
+      "not_generated_artifacts": [],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "id": "c12_profile_two_r2",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2",
+      "description": "Two selected C12 profile cases; supervisor stopped after first completed call.",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+        "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/request.json",
+        "sha256": "9b46e2b27c5a3e8b569ef35e3274b35c8e25335c4172fc81b3607c301e32b5c4",
+        "bytes": 68452
+      },
+      "request_schema": "policyos.e02.root_existing_pytest_request.v1",
+      "request_pinned_input_count": 148,
+      "executor_sha256": "72198e62a08750cd0fe8270bf933fabc3cb0413e9e3bf1826373ee22534a4ea7",
+      "selectors": [
+        "tests/unit/remediation/test_emb_03.py::test_runtime_profile_bootstrap_stabilizes_modules_and_refuses_later_drift",
+        "tests/unit/remediation/test_emb_03.py::test_local_owned_runtime_material_producer_get_post_and_callable_falsifier"
+      ],
+      "selected_profile": "c12-real-encoder-profile",
+      "observed": {
+        "status": "resource_limit_abort",
+        "return_code": -15,
+        "aborted_reason": "sampled_process_tree_rss_cap",
+        "collected": 2,
+        "completed_calls": 1,
+        "calls_match_actual_collection": false,
+        "junit": null,
+        "source_unchanged": true,
+        "source_after_sha256": "501d6ec024d320672da4e03ff69ef8ca37e15b28f5763873ad89060c11122b12",
+        "max_sampled_process_tree_rss_bytes": 4134797312,
+        "sampled_rss_cap_bytes": 3758096384,
+        "aggregate_rss_cap_bytes": 4294967296,
+        "wall_seconds": 36.64095299993642,
+        "started_at": "2026-10-20T16:32:09.334027+00:00",
+        "finished_at": "2026-10-20T16:32:45.975022+00:00",
+        "first_case_observation": "The profile-bootstrap drift-stabilization case completed PASS; the producer GET/POST case was interrupted by the RSS supervisor before completion.",
+        "artifact_availability": {
+          "junit": "not_generated",
+          "origins": "not_generated"
+        }
+      },
+      "deciding_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/result.json",
+          "sha256": "dfbf3e0dc2aa9cc121d45b2f1bb716222e27655fe02872d739a3fc84a87799a8",
+          "bytes": 8631
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/cases.jsonl",
+          "sha256": "6251dd0d46e2295197b4f8ea60ccd8a4b27fb9c8560a32180cce19915be59e15",
+          "bytes": 1168
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/collection.json",
+          "sha256": "585a6bcc98c13877f5bfa789dd54007113bb31a4ad33f5d6b7dcda43a38cb7e0",
+          "bytes": 5045
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/pytest.stdout.txt",
+          "sha256": "e58f48a086b5755aaaa66dc8293557e02e7a941191e05a0a32ad8762d1b3dead",
+          "bytes": 1570
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/pytest.stderr.txt",
+          "sha256": "46557c8fd013e39968ecc17c86373ffde05ffd0be232b601c7fde908829b7e70",
+          "bytes": 6256
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/invocation.json",
+          "sha256": "7cc2be1ca28336a526870ee748960053a9058c1a3de8e8b2831eda6142ac804f",
+          "bytes": 7223
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/process-tree.jsonl",
+          "sha256": "85f4d4ca9fccbe5020765fe2750705c406f1f397fc1079c372e661c5a5b79e9a",
+          "bytes": 144703
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/controller-events.jsonl",
+          "sha256": "114f2040e09994600c07968ef5a8b5cdad1d1166d483190f3c8e483643d119f1",
+          "bytes": 2500
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/phase-output.jsonl",
+          "sha256": "92ea79e3f92ccfcf218d87d05726235fda62f60dabfe47d38d74cb628a6a0592",
+          "bytes": 2435
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/request.json",
+          "sha256": "9b46e2b27c5a3e8b569ef35e3274b35c8e25335c4172fc81b3607c301e32b5c4",
+          "bytes": 68452
+        }
+      ],
+      "not_generated_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/pytest.xml",
+          "status": "not_generated",
+          "reason": "not produced before supervisor resource-limit abort"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-two-skip-profile-actual-44e0747d-20261020-r2/actual/origins.json",
+          "status": "not_generated",
+          "reason": "not produced before supervisor resource-limit abort"
+        }
+      ],
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    {
+      "id": "c12_encoder_consumer_r3",
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3",
+      "description": "Separate single producer GET/POST/falsifier consumer case; completed normally with assertion failure.",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+        "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/request.json",
+        "sha256": "5b34bf4fc96f550ddebb18f496d2d323451a605971254725a4461745c9c76d93",
+        "bytes": 68554
+      },
+      "request_schema": "policyos.e02.root_existing_pytest_request.v1",
+      "request_pinned_input_count": 148,
+      "executor_sha256": "72198e62a08750cd0fe8270bf933fabc3cb0413e9e3bf1826373ee22534a4ea7",
+      "selectors": [
+        "tests/unit/remediation/test_emb_03.py::test_local_owned_runtime_material_producer_get_post_and_callable_falsifier"
+      ],
+      "selected_profile": "c12-real-encoder-profile",
+      "observed": {
+        "status": "command_failed",
+        "return_code": 1,
+        "aborted_reason": null,
+        "collected": 1,
+        "completed_calls": 1,
+        "calls_match_actual_collection": true,
+        "junit": {
+          "errors": 0,
+          "failures": 1,
+          "passed": 0,
+          "skipped": 0,
+          "tests": 1
+        },
+        "source_unchanged": true,
+        "source_after_sha256": "501d6ec024d320672da4e03ff69ef8ca37e15b28f5763873ad89060c11122b12",
+        "max_sampled_process_tree_rss_bytes": 5057970176,
+        "sampled_rss_cap_bytes": 5368709120,
+        "aggregate_rss_cap_bytes": 5905580032,
+        "wall_seconds": 152.83245766698383,
+        "started_at": "2026-10-20T16:35:20.377094+00:00",
+        "finished_at": "2026-10-20T16:37:53.209745+00:00",
+        "deciding_failure": "Producer drift was refused/restored; nine generated facts and GET 200 were observed; POST 200 returned, but the expected result [fact-1] was []; this is an explicit semantic FAIL, not an API PASS."
+      },
+      "deciding_artifacts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/result.json",
+          "sha256": "298068dda712c37c08bd2e90463e74650cd670aa48af7cd4e0737c147d15f41d",
+          "bytes": 8250
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/cases.jsonl",
+          "sha256": "a5889c5a6200df89e7b05bb18c77d77bf88063672c75c2935a23afb36f87ba9d",
+          "bytes": 15026
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/collection.json",
+          "sha256": "53618e34b7a88b730cf33207a2af1d735c28a3bd9d6e52a18b50208bfb81a23d",
+          "bytes": 4660
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/pytest.stdout.txt",
+          "sha256": "4bf0f8239f4c2e50be71457653a98e2561b322a4ad69885fd407956f961d9850",
+          "bytes": 16814
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/pytest.stderr.txt",
+          "sha256": "573eb94fbd1db9428ed0a15ba45ecbe714734a3bbae39b55665f11a722276a24",
+          "bytes": 221
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/pytest.xml",
+          "sha256": "9e2625d28a7947f706d69c7ddca650211d95856fb5e2b7312165eef46002ac94",
+          "bytes": 14009
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/origins.json",
+          "sha256": "4d2b6f90e535781d3b1717d0201baeffd2829f11a871b7c84283c00ba442d4e3",
+          "bytes": 1781430
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/invocation.json",
+          "sha256": "b5ec5311e10b6dac21e76cab7ef921e78923f3b7afcc6564afa25796b381b9fe",
+          "bytes": 7028
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/process-tree.jsonl",
+          "sha256": "9d6fc44b4c5b1ddf7de57512dfcef657b3a224d0f5c940d0dcb22911dbf27468",
+          "bytes": 631509
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/controller-events.jsonl",
+          "sha256": "3d5dff8a63c2c1450339abc2a980970146569a739c380a7c9230a3cc61b6ae0b",
+          "bytes": 2321
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/actual/phase-output.jsonl",
+          "sha256": "5f735692bed555179c185b502a528b866847b8975ab34b3ae0911fa09d426921",
+          "bytes": 2255
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-encoder-singlecase-44e0747d-20261020-r3/request.json",
+          "sha256": "5b34bf4fc96f550ddebb18f496d2d323451a605971254725a4461745c9c76d93",
+          "bytes": 68554
+        }
+      ],
+      "not_generated_artifacts": [],
+      "G_acceptance": false,
+      "closure_ids": []
+    }
+  ],
+  "unrun": [],
+  "global": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_finding_proposals": []
+  },
+  "retention_rule": "All complete deciding outputs remain in the cited LOCAL/raw actual/ directories. This receipt stores paths, SHA-256 values, and small result summaries only; it contains no copied raw test output."
+}

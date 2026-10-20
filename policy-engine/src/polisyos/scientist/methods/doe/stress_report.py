@@ -2,23 +2,30 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from datetime import UTC, datetime
 from enum import Enum
 from math import isclose, isfinite
-from typing import TYPE_CHECKING, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core.artifacts import ArtifactManifest, ArtifactRef
+from polisyos.ir.world.ids import stable_world_id_from_canon
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.scientist.methods.doe.designs import AdversarialPlan
 
 
 _STRESS_OUTCOME_BASIS_ARTIFACT_KIND = "scientist.stress_outcome_basis"
 _STRESS_OUTCOME_BASIS_SCHEMA_NAME = "polisyos.scientist.StressOutcomeBasis"
 _STRESS_OUTCOME_BASIS_SCHEMA_VERSION = "1.0"
+_STRESS_OUTCOME_BASIS_ADVERSARIAL_SCHEMA_VERSION = "1.1"
+_STRESS_OBJECTIVE_SOURCE_ARTIFACT_KIND = "scientist.stress_objective_source"
+_STRESS_OBJECTIVE_SOURCE_SCHEMA_NAME = "polisyos.scientist.StressObjectiveSource"
+_STRESS_OBJECTIVE_SOURCE_SCHEMA_VERSION = "1.0"
 _STRESS_TEST_REPORT_ARTIFACT_KIND = "scientist.stress_test_report"
 _STRESS_TEST_REPORT_SCHEMA_NAME = "polisyos.scientist.StressTestReport"
 _JSON_MEDIA_TYPE = "application/json"
@@ -54,6 +61,119 @@ class Vulnerability(BaseModel):
     mitigation: str = ""
 
 
+def _canon_safe(value: Any) -> Any:
+    """Normalize non-finite numbers for deterministic internal stress identifiers."""
+    if isinstance(value, float):
+        if math.isnan(value):
+            return "nan"
+        if math.isinf(value):
+            return "inf" if value > 0 else "-inf"
+        return f"{value:.12g}"
+    if isinstance(value, dict):
+        return {str(key): _canon_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_canon_safe(item) for item in value]
+    if isinstance(value, tuple):
+        return [_canon_safe(item) for item in value]
+    return value
+
+
+def _deduplicate_vulnerabilities(vulnerabilities: list[Vulnerability]) -> list[Vulnerability]:
+    """Apply the one canonical stress vulnerability projection used by producers and readers."""
+    unique: dict[str, Vulnerability] = {}
+    for vulnerability in vulnerabilities:
+        key = stable_world_id_from_canon(
+            prefix="stress.vuln",
+            payload=_canon_safe(
+                {
+                    "type": vulnerability.vulnerability_type.value,
+                    "params": vulnerability.parameter_values,
+                    "description": vulnerability.description,
+                    "objective_value": vulnerability.objective_value,
+                }
+            ),
+        )
+        if key not in unique:
+            unique[key] = vulnerability
+    return list(unique.values())
+
+
+class StressObjectiveEvidence(BaseModel):
+    """One source-replayable objective assessment for a single stress occurrence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    objective_name: str = Field(min_length=1)
+    objective_direction: Literal["minimize", "maximize"]
+    objective_rule_spec: str = Field(min_length=1)
+    score_assessment: dict[str, Any]
+    source_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def validate_selected_source(self) -> StressObjectiveEvidence:
+        """Require an exact selected JSON source profile for fresh replay."""
+        if (
+            self.source_ref.kind != _STRESS_OBJECTIVE_SOURCE_ARTIFACT_KIND
+            or self.source_ref.media_type != _JSON_MEDIA_TYPE
+            or self.source_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("stress_objective_source_profile_missing_or_mismatched")
+        return self
+
+
+def _objective_badness(raw_objective: float, direction: Enum) -> float:
+    """Map one finite raw objective to the existing adversarial badness scale."""
+    if not isfinite(raw_objective):
+        return float("nan")
+    if direction.value == "maximize":
+        return -raw_objective
+    return raw_objective
+
+
+def _is_objective_vulnerable(
+    raw_objective: float,
+    *,
+    threshold: float | None,
+    direction: Enum,
+) -> bool:
+    """Apply the existing adversarial threshold rule to a raw objective."""
+    if threshold is None:
+        return False
+    badness = _objective_badness(raw_objective, direction)
+    threshold_badness = _objective_badness(float(threshold), direction)
+    return isfinite(badness) and badness >= threshold_badness
+
+
+def _detect_objective_vulnerability(
+    *,
+    objective: float,
+    threshold: float | None,
+    direction: Enum,
+    parameters: dict[str, float],
+    vuln_id: str,
+) -> Vulnerability | None:
+    """Recompute the producer's typed objective-collapse finding."""
+    if threshold is None or not _is_objective_vulnerable(
+        objective, threshold=threshold, direction=direction
+    ):
+        return None
+    badness = _objective_badness(objective, direction)
+    threshold_badness = _objective_badness(threshold, direction)
+    return Vulnerability(
+        vulnerability_id=vuln_id,
+        vulnerability_type=VulnerabilityType.OBJECTIVE_COLLAPSE,
+        severity="high",
+        parameter_values=parameters,
+        objective_value=objective,
+        description=(
+            f"Objective {objective:.6f} violates threshold {threshold:.6f} "
+            f"(badness {badness:.6f} >= {threshold_badness:.6f}; "
+            f"direction {direction.value})"
+        ),
+    )
+
+
 class StressOutcomeRecord(BaseModel):
     """One emitted scenario occurrence; duplicate IDs remain separate rows."""
 
@@ -65,6 +185,7 @@ class StressOutcomeRecord(BaseModel):
     parameter_values: dict[str, float] = Field(default_factory=dict)
     vulnerabilities: list[Vulnerability] = Field(default_factory=list)
     reason_code: str | None = None
+    objective_evidence: StressObjectiveEvidence | None = None
 
 
 class StressOutcomeBasis(BaseModel):
@@ -72,7 +193,7 @@ class StressOutcomeBasis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     score_profile: Literal["finite_binary_scenario_v1"] = "finite_binary_scenario_v1"
     source_kind: Literal["adversarial_plan", "phase_d4_suite"]
     source_id: str = Field(min_length=1)
@@ -103,6 +224,8 @@ class StressScoreResolution(BaseModel):
     """Freshly recomputed finite outcome status and score."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+    _vulnerability_projection: list[Vulnerability] | None = PrivateAttr(default=None)
 
     status: Literal[
         "available",
@@ -206,6 +329,191 @@ def _manifest_has_input(manifest: ArtifactManifest, ref: ArtifactRef, *, role: s
     )
 
 
+def _resolve_adversarial_objective_evidence(
+    store: ArtifactStore,
+    basis: StressOutcomeBasis,
+    basis_manifest: ArtifactManifest,
+    component_ids: list[str],
+    plan: AdversarialPlan,
+) -> StressScoreResolution | None:
+    """Replay objective values and derive every persisted finite pass/fail row."""
+    if basis.schema_version == "1.0":
+        return _resolution(
+            "unbound",
+            component_ids,
+            "legacy_adversarial_objective_source_evidence_missing",
+        )
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.scientist.methods.doe.sampling import generate_adversarial_samples
+    from polisyos.scientist.methods.search.objective import (
+        ObjectiveScoreAssessment,
+        ObjectiveScoreStatus,
+        ObjectiveValue,
+        OptimizationDirection,
+        objective_value_matches_rule,
+    )
+
+    try:
+        planned_samples = generate_adversarial_samples(plan)
+    except Exception:
+        return _resolution(
+            "profile_mismatch", component_ids, "adversarial_plan_sampling_not_reproducible"
+        )
+    if len(planned_samples) != len(basis.outcomes):
+        return _resolution("invalid", component_ids, "plan_outcome_sample_count_mismatch")
+
+    selected_rule: tuple[str, str, str] | None = None
+    replayed_vulnerabilities: list[Vulnerability] = []
+    for sample, outcome in zip(planned_samples, basis.outcomes, strict=True):
+        if outcome.status not in {"passed", "failed"}:
+            continue
+        expected_parameters = {
+            parameter.name: float(value)
+            for parameter, value in zip(plan.parameter_specs, sample, strict=True)
+        }
+        if outcome.parameter_values != expected_parameters:
+            return _resolution("invalid", component_ids, "plan_parameter_values_mismatch")
+        evidence = outcome.objective_evidence
+        if evidence is None:
+            return _resolution("unbound", component_ids, "objective_source_evidence_missing")
+        if evidence.source_ref.manifest_profile_sha256 is None:
+            return _resolution("unbound", component_ids, "objective_source_profile_missing")
+        rule_identity = (
+            evidence.objective_name,
+            evidence.objective_direction,
+            evidence.objective_rule_spec,
+        )
+        if selected_rule is None:
+            selected_rule = rule_identity
+        elif selected_rule != rule_identity:
+            return _resolution(
+                "invalid", component_ids, "selected_objective_rule_changed_between_occurrences"
+            )
+
+        if not _manifest_has_input(
+            basis_manifest,
+            evidence.source_ref,
+            role=f"objective_source:{outcome.occurrence_index}",
+        ):
+            return _resolution("invalid", component_ids, "objective_source_lineage_mismatch")
+        try:
+            source_manifest = _read_selected_manifest(store, evidence.source_ref)
+            source_schema = source_manifest.artifact_schema
+            if (
+                source_manifest.kind != _STRESS_OBJECTIVE_SOURCE_ARTIFACT_KIND
+                or source_schema is None
+                or source_schema.name != _STRESS_OBJECTIVE_SOURCE_SCHEMA_NAME
+                or source_schema.version != _STRESS_OBJECTIVE_SOURCE_SCHEMA_VERSION
+            ):
+                return _resolution("invalid", component_ids, "objective_source_schema_mismatch")
+            source = load_core_json_artifact(
+                store,
+                evidence.source_ref,
+                manifest_profile_sha256=evidence.source_ref.manifest_profile_sha256,
+            )
+            if not isinstance(source, dict):
+                return _resolution("invalid", component_ids, "objective_source_not_mapping")
+        except _UnselectedArtifactProfileError:
+            return _resolution("unbound", component_ids, "objective_source_profile_missing")
+        except Exception:
+            return _resolution("invalid", component_ids, "objective_source_unreadable")
+
+        payload = evidence.score_assessment
+        if (
+            not isinstance(payload, dict)
+            or set(payload)
+            != {
+                "schema_version",
+                "objective_ref",
+                "rule_spec",
+                "required_input_groups",
+                "source_field_names",
+                "source_values",
+                "source_unit_bindings",
+                "source_sha256",
+                "value",
+                "status",
+                "limitation",
+            }
+            or payload.get("schema_version") != "2.0"
+            or payload.get("rule_spec") != evidence.objective_rule_spec
+        ):
+            return _resolution("invalid", component_ids, "objective_assessment_contract_mismatch")
+        assessment = ObjectiveScoreAssessment.from_payload(payload)
+        if assessment.to_payload() != payload:
+            return _resolution("invalid", component_ids, "objective_assessment_payload_malformed")
+        if assessment.status is not ObjectiveScoreStatus.AVAILABLE:
+            if assessment.status in {
+                ObjectiveScoreStatus.UNAVAILABLE,
+                ObjectiveScoreStatus.NOT_ESTABLISHED,
+            }:
+                return _resolution(
+                    "unbound",
+                    component_ids,
+                    assessment.limitation or "objective_score_not_available",
+                )
+            return _resolution("invalid", component_ids, "objective_score_assessment_invalid")
+        if assessment.value is None:
+            return _resolution("invalid", component_ids, "objective_score_value_missing")
+        try:
+            direction = OptimizationDirection(evidence.objective_direction)
+            objective = ObjectiveValue(
+                name=evidence.objective_name,
+                raw_value=assessment.value,
+                direction=direction,
+                score_status=assessment.status,
+                score_assessment=assessment,
+            )
+        except (TypeError, ValueError):
+            return _resolution("invalid", component_ids, "objective_assessment_invalid")
+        if not objective_value_matches_rule(
+            objective,
+            source,
+            expected_name=evidence.objective_name,
+            expected_direction=direction,
+            expected_rule_spec=evidence.objective_rule_spec,
+        ):
+            return _resolution("invalid", component_ids, "objective_source_replay_mismatch")
+
+        expected_vulnerability = _detect_objective_vulnerability(
+            objective=assessment.value,
+            threshold=plan.vulnerability_threshold,
+            direction=direction,
+            parameters=expected_parameters,
+            vuln_id=f"vuln_objective_{outcome.occurrence_index}",
+        )
+        expected_status = "failed" if expected_vulnerability is not None else "passed"
+        if outcome.status != expected_status:
+            return _resolution(
+                "invalid", component_ids, "objective_outcome_classification_mismatch"
+            )
+        expected_vulnerabilities = (
+            [] if expected_vulnerability is None else [expected_vulnerability]
+        )
+        if [item.model_dump(mode="json") for item in outcome.vulnerabilities] != [
+            item.model_dump(mode="json") for item in expected_vulnerabilities
+        ]:
+            return _resolution(
+                "invalid", component_ids, "objective_vulnerability_classification_mismatch"
+            )
+        replayed_vulnerabilities.extend(expected_vulnerabilities)
+
+    if selected_rule is None:
+        return _resolution("unbound", component_ids, "objective_source_evidence_missing")
+    # The selected objective is carried by the basis itself. The source and rows replay, but no
+    # independent request/run-state selection reference reaches this consumer, so this cannot
+    # qualify a protected finite score.
+    return _resolution(
+        "unbound",
+        component_ids,
+        "selected_objective_intent_not_independently_established",
+        vulnerability_projection=_deduplicate_vulnerabilities(replayed_vulnerabilities)[
+            : plan.collect_top_k
+        ],
+    )
+
+
 def _expected_adversarial_count(plan) -> int | None:
     """Recompute a finite plan denominator without trusting report counters."""
     from polisyos.scientist.methods.doe.designs import AdversarialStrategy
@@ -228,13 +536,28 @@ def _resolution(
     reason_code: str,
     *,
     predicate_status="not_established",
+    vulnerability_projection: list[Vulnerability] | None = None,
+    score_profile: Literal["finite_binary_scenario_v1"] | None = None,
+    total_scenarios_evaluated: int = 0,
+    passed_count: int = 0,
+    critical_count: int = 0,
+    high_count: int = 0,
+    medium_count: int = 0,
 ) -> StressScoreResolution:
-    return StressScoreResolution(
+    resolution = StressScoreResolution(
         status=status,
+        score_profile=score_profile,
+        total_scenarios_evaluated=total_scenarios_evaluated,
+        passed_count=passed_count,
+        critical_count=critical_count,
+        high_count=high_count,
+        medium_count=medium_count,
         component_ids=component_ids,
         reason_code=reason_code,
         predicate_status=predicate_status,
     )
+    resolution._vulnerability_projection = vulnerability_projection
+    return resolution
 
 
 def resolve_stress_score_components(
@@ -286,6 +609,8 @@ def resolve_stress_score_components(
         return _resolution("invalid", component_ids, "duplicate_component_id")
 
     total = passed = critical = high = medium = 0
+    projected_vulnerabilities: list[Vulnerability] = []
+    selected_intent_unbound: StressScoreResolution | None = None
     for component in components:
         if component.outcome_basis_ref.manifest_profile_sha256 is None:
             return _resolution("unbound", component_ids, "outcome_basis_profile_missing")
@@ -296,7 +621,11 @@ def resolve_stress_score_components(
                 StressOutcomeBasis,
                 expected_kind=_STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
                 expected_schema_name=_STRESS_OUTCOME_BASIS_SCHEMA_NAME,
-                expected_schema_version=_STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+                expected_schema_version=lambda item: (
+                    _STRESS_OUTCOME_BASIS_ADVERSARIAL_SCHEMA_VERSION
+                    if item.schema_version == _STRESS_OUTCOME_BASIS_ADVERSARIAL_SCHEMA_VERSION
+                    else _STRESS_OUTCOME_BASIS_SCHEMA_VERSION
+                ),
             )
         except Exception:
             return _resolution("invalid", component_ids, "outcome_basis_unreadable")
@@ -351,6 +680,10 @@ def resolve_stress_score_components(
             if actual_scenario_ids != basis.expected_scenario_ids[: len(actual_scenario_ids)]:
                 return _resolution("invalid", component_ids, "plan_outcome_roster_mismatch")
         else:
+            if basis.schema_version != _STRESS_OUTCOME_BASIS_SCHEMA_VERSION:
+                return _resolution(
+                    "invalid", component_ids, "phase_d4_basis_schema_version_mismatch"
+                )
             if (
                 basis.benchmark_evaluation_ref is None
                 or basis.plan_ref is not None
@@ -428,6 +761,27 @@ def resolve_stress_score_components(
                 (outcome.status == "passed") != (len(outcome.vulnerabilities) == 0)
             ):
                 return _resolution("invalid", component_ids, "outcome_and_violations_disagree")
+        if basis.source_kind == "adversarial_plan":
+            objective_resolution = _resolve_adversarial_objective_evidence(
+                store, basis, basis_manifest, component_ids, plan
+            )
+            if objective_resolution is not None:
+                if (
+                    objective_resolution.status == "unbound"
+                    and objective_resolution.reason_code
+                    == "selected_objective_intent_not_independently_established"
+                    and objective_resolution._vulnerability_projection is not None
+                ):
+                    projected_vulnerabilities.extend(objective_resolution._vulnerability_projection)
+                    selected_intent_unbound = objective_resolution
+                else:
+                    return objective_resolution
+        else:
+            projected_vulnerabilities.extend(
+                vulnerability
+                for outcome in basis.outcomes
+                for vulnerability in outcome.vulnerabilities
+            )
         total += len(basis.outcomes)
         passed += sum(item.status == "passed" for item in basis.outcomes)
         violations = [v for item in basis.outcomes for v in item.vulnerabilities]
@@ -437,7 +791,21 @@ def resolve_stress_score_components(
 
     if total == 0:
         return _resolution("not_evaluated", component_ids, "zero_observed_denominator")
-    return StressScoreResolution(
+    if selected_intent_unbound is not None:
+        resolution = _resolution(
+            "unbound",
+            component_ids,
+            "selected_objective_intent_not_independently_established",
+            score_profile="finite_binary_scenario_v1",
+            total_scenarios_evaluated=total,
+            passed_count=passed,
+            critical_count=critical,
+            high_count=high,
+            medium_count=medium,
+            vulnerability_projection=projected_vulnerabilities,
+        )
+        return resolution
+    resolution = StressScoreResolution(
         status="available",
         score_profile="finite_binary_scenario_v1",
         robustness_score=passed / total,
@@ -448,10 +816,11 @@ def resolve_stress_score_components(
         medium_count=medium,
         component_ids=component_ids,
         reason_code="source_bound_occurrences_recomputed",
-        # Both current source kinds are scored from their persisted outcome rows here.
-        # No independent, non-producing source is currently consumed by this resolver.
+        # Phase D4 remains independently bound to its benchmark evaluation.
         predicate_status="recomputed",
     )
+    resolution._vulnerability_projection = projected_vulnerabilities
+    return resolution
 
 
 class StressTestReport(BaseModel):
@@ -563,6 +932,15 @@ def _load_stress_report_source(
     return report, manifest
 
 
+def _vulnerability_projection_matches(
+    reported: list[Vulnerability], expected: list[Vulnerability]
+) -> bool:
+    """Compare the complete typed report projection in order, including descriptive fields."""
+    return [item.model_dump(mode="json") for item in reported] == [
+        item.model_dump(mode="json") for item in expected
+    ]
+
+
 def resolve_stress_report_artifact(
     store,
     report_ref: ArtifactRef,
@@ -634,12 +1012,48 @@ def resolve_stress_report_artifact(
             return report, _resolution("not_evaluated", [], "no_finite_occurrence_basis")
         if report.score_status == "available" or report.robustness_score is not None:
             return report, _resolution("invalid", [], "score_claim_without_finite_basis")
+        if report.score_status in {"unbound", "partial", "invalid", "profile_mismatch"}:
+            return report, _resolution(
+                report.score_status,
+                [],
+                report.score_reason or "finite_objective_basis_not_available",
+            )
         return report, _resolution("legacy_unknown", [], "finite_basis_not_established")
     resolution = resolve_stress_score_components(
         store, report.score_components, expected_candidate_ref=expected_candidate_ref
     )
+    projected_vulnerabilities = resolution._vulnerability_projection
+    if projected_vulnerabilities is not None and not _vulnerability_projection_matches(
+        report.vulnerabilities, projected_vulnerabilities
+    ):
+        return report, resolution.model_copy(
+            update={
+                "status": "invalid",
+                "robustness_score": None,
+                "reason_code": "report_vulnerability_projection_reconciliation_failed",
+            }
+        )
     if resolution.status != "available":
+        if resolution.reason_code == "selected_objective_intent_not_independently_established":
+            diagnostic_matches = (
+                report.score_profile == resolution.score_profile
+                and report.total_scenarios_evaluated == resolution.total_scenarios_evaluated
+                and report.critical_count == resolution.critical_count
+                and report.high_count == resolution.high_count
+                and report.medium_count == resolution.medium_count
+            )
+            if not diagnostic_matches:
+                return report, resolution.model_copy(
+                    update={
+                        "status": "invalid",
+                        "robustness_score": None,
+                        "reason_code": "report_summary_reconciliation_failed",
+                    }
+                )
+            return report, resolution
         if report.score_status == "available" or report.robustness_score is not None:
+            if resolution.reason_code == "legacy_adversarial_objective_source_evidence_missing":
+                return report, resolution
             resolution = resolution.model_copy(
                 update={
                     "status": "invalid",

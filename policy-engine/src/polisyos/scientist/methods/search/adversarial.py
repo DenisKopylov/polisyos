@@ -29,25 +29,38 @@ from polisyos.scientist.methods.doe.designs import (
 )
 from polisyos.scientist.methods.doe.sampling import generate_adversarial_samples
 from polisyos.scientist.methods.doe.stress_report import (
+    _STRESS_OBJECTIVE_SOURCE_ARTIFACT_KIND,
+    _STRESS_OBJECTIVE_SOURCE_SCHEMA_NAME,
+    _STRESS_OBJECTIVE_SOURCE_SCHEMA_VERSION,
+    _STRESS_OUTCOME_BASIS_ADVERSARIAL_SCHEMA_VERSION,
     _STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
     _STRESS_OUTCOME_BASIS_SCHEMA_NAME,
     _STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
     _STRESS_TEST_REPORT_ARTIFACT_KIND,
     _STRESS_TEST_REPORT_SCHEMA_NAME,
+    StressObjectiveEvidence,
     StressOutcomeBasis,
     StressOutcomeRecord,
     StressScoreComponent,
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
+    _canon_safe,
+    _deduplicate_vulnerabilities,
+    _detect_objective_vulnerability,
+    _is_objective_vulnerable,
+    _objective_badness,
     resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.contracts import SearchIteration
 from polisyos.scientist.methods.search.objective import (
     BaseObjective,
     CompositeObjective,
+    ObjectiveScoreStatus,
     ObjectiveValue,
     OptimizationDirection,
+    configured_objective_rule_spec,
+    objective_value_matches_rule,
 )
 from polisyos.scientist.methods.search.sentinels import SentinelObservation, SentinelSet
 from polisyos.scientist.methods.search.stages import CorrelationTracker
@@ -491,29 +504,6 @@ def _resolve_adversarial_direction(base_objective: object) -> OptimizationDirect
     raise AttributeError(f"'{type(base_objective).__name__}' object has no attribute 'direction'")
 
 
-def _objective_badness(raw_objective: float, direction: OptimizationDirection) -> float:
-    """Map a finite raw objective to one scalar where larger means worse."""
-    if not math.isfinite(raw_objective):
-        return float("nan")
-    if direction is OptimizationDirection.MAXIMIZE:
-        return -raw_objective
-    return raw_objective
-
-
-def _is_objective_vulnerable(
-    raw_objective: float,
-    *,
-    threshold: float | None,
-    direction: OptimizationDirection,
-) -> bool:
-    """Apply the canonical badness transform to a threshold check."""
-    if threshold is None:
-        return False
-    badness = _objective_badness(raw_objective, direction)
-    threshold_badness = _objective_badness(float(threshold), direction)
-    return math.isfinite(badness) and badness >= threshold_badness
-
-
 def _is_worse_objective(
     candidate: float,
     incumbent: float,
@@ -531,7 +521,7 @@ def _evaluate_stress_result(
     *,
     base_objective: CompositeObjective,
     result: object,
-) -> tuple[dict[str, Any], float, list[ObjectiveValue]]:
+) -> tuple[dict[str, Any], float, list[ObjectiveValue], ObjectiveValue]:
     """Validate one evaluator result before it enters stress-search state."""
     if not isinstance(result, dict):
         raise TypeError("stage_b_result_missing_or_not_mapping")
@@ -542,12 +532,109 @@ def _evaluate_stress_result(
     evaluated = base_objective.evaluate(simulation_results)
     objective = float(evaluated.raw_value)
     if not math.isfinite(objective):
+        if evaluated.score_status in {
+            ObjectiveScoreStatus.UNAVAILABLE,
+            ObjectiveScoreStatus.NOT_ESTABLISHED,
+        }:
+            assessment = evaluated.score_assessment
+            reason = (
+                assessment.limitation
+                if assessment is not None and assessment.limitation
+                else evaluated.score_status.value
+            )
+            raise _ObjectiveScoreUnavailable(evaluated.score_status, reason)
         raise ValueError("objective_value_missing_non_numeric_or_non_finite")
 
     details = list(base_objective.evaluate_detailed(simulation_results))
     if any(not math.isfinite(float(item.raw_value)) for item in details):
         raise ValueError("objective_detail_missing_non_numeric_or_non_finite")
-    return result, objective, details
+    return result, objective, details, evaluated
+
+
+class _ObjectiveScoreUnavailable(ValueError):
+    """Carry typed unavailable score state without mislabeling it numerical failure."""
+
+    def __init__(self, status: ObjectiveScoreStatus, reason: str) -> None:
+        super().__init__(reason)
+        self.status = status
+        self.reason = reason
+
+
+def _persist_stress_objective_evidence(
+    *,
+    cas: FileSystemCAS,
+    result: dict[str, Any],
+    objective: ObjectiveValue,
+    selected_rule_spec: str | None,
+    expected_name: str,
+    expected_direction: OptimizationDirection,
+) -> tuple[StressObjectiveEvidence | None, ObjectiveScoreStatus, str | None]:
+    """Persist a qualifying exact source and assessment, or retain a typed refusal."""
+    if selected_rule_spec is None:
+        return (
+            None,
+            ObjectiveScoreStatus.NOT_ESTABLISHED,
+            "selected_objective_rule_not_recomputable",
+        )
+    if objective.score_status is not ObjectiveScoreStatus.AVAILABLE:
+        assessment = objective.score_assessment
+        return (
+            None,
+            objective.score_status,
+            None if assessment is None else assessment.limitation,
+        )
+    if not objective_value_matches_rule(
+        objective,
+        result["simulation_results"],
+        expected_name=expected_name,
+        expected_direction=expected_direction,
+        expected_rule_spec=selected_rule_spec,
+    ):
+        return None, ObjectiveScoreStatus.INVALID, "selected_objective_source_replay_mismatch"
+    assessment = objective.score_assessment
+    if assessment is None:
+        return None, ObjectiveScoreStatus.NOT_ESTABLISHED, "selected_objective_assessment_missing"
+    try:
+        source_ref = cas.put_json(
+            result["simulation_results"],
+            PutOptions(
+                kind=_STRESS_OBJECTIVE_SOURCE_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=_STRESS_OBJECTIVE_SOURCE_SCHEMA_NAME,
+                    version=_STRESS_OBJECTIVE_SOURCE_SCHEMA_VERSION,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        evidence = StressObjectiveEvidence(
+            objective_name=expected_name,
+            objective_direction=expected_direction.value,
+            objective_rule_spec=selected_rule_spec,
+            score_assessment=assessment.to_payload(),
+            source_ref=source_ref,
+        )
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return (
+            None,
+            ObjectiveScoreStatus.NOT_ESTABLISHED,
+            "objective_source_persistence_not_established",
+        )
+    return evidence, ObjectiveScoreStatus.AVAILABLE, None
+
+
+def _merge_objective_score_status(
+    current: ObjectiveScoreStatus, observed: ObjectiveScoreStatus
+) -> ObjectiveScoreStatus:
+    """Keep the most limiting per-occurrence score status for the complete run."""
+    priority = {
+        ObjectiveScoreStatus.AVAILABLE: 0,
+        ObjectiveScoreStatus.NOT_ESTABLISHED: 1,
+        ObjectiveScoreStatus.UNAVAILABLE: 2,
+        ObjectiveScoreStatus.INVALID: 3,
+    }
+    return observed if priority[observed] > priority[current] else current
 
 
 def _numerical_vulnerability(
@@ -582,9 +669,38 @@ def run_stress_test(
     initial_samples = generate_adversarial_samples(adversarial_plan)
     objective_direction = _resolve_adversarial_direction(base_objective)
     source_objective_direction = base_objective.direction
+    selected_rule_spec = configured_objective_rule_spec(base_objective)
+    expected_objective_name = getattr(base_objective, "name", "")
+    candidate_ref: ArtifactRef | None = None
+    if cas is not None:
+        raw_candidate_ref = runtime_context.get("policy_candidate_ref")
+        if isinstance(raw_candidate_ref, ArtifactRef):
+            candidate_ref = raw_candidate_ref
+        elif isinstance(raw_candidate_ref, dict):
+            try:
+                candidate_ref = ArtifactRef.model_validate(raw_candidate_ref)
+            except Exception:
+                candidate_ref = None
+    capture_objective_sources = (
+        cas is not None
+        and candidate_ref is not None
+        and candidate_ref.manifest_profile_sha256 is not None
+    )
 
     vulnerabilities: list[Vulnerability] = []
     outcome_records: list[StressOutcomeRecord] = []
+    objective_score_status = (
+        ObjectiveScoreStatus.NOT_ESTABLISHED
+        if not capture_objective_sources or selected_rule_spec is None
+        else ObjectiveScoreStatus.AVAILABLE
+    )
+    objective_score_reason = (
+        "selected_objective_rule_not_recomputable"
+        if selected_rule_spec is None
+        else "persisted_objective_source_capture_required"
+    )
+    objective_evidence_complete = capture_objective_sources and selected_rule_spec is not None
+    unavailable_evaluation_count = 0
     adaptive_continuation = False
     worst_case_objective = float("nan")
     worst_case_parameters: dict[str, float] = {}
@@ -597,12 +713,51 @@ def run_stress_test(
         candidate = {"semantic": {"interventions": []}, **parameters}
         total_evaluated += 1
         try:
-            _, objective, _ = _evaluate_stress_result(
+            result, objective, _, objective_value = _evaluate_stress_result(
                 base_objective=base_objective,
                 result=stage_b_evaluator(candidate, runtime_context),
             )
+            objective_evidence = None
+            if capture_objective_sources and cas is not None:
+                objective_evidence, observed_status, reason = _persist_stress_objective_evidence(
+                    cas=cas,
+                    result=result,
+                    objective=objective_value,
+                    selected_rule_spec=selected_rule_spec,
+                    expected_name=expected_objective_name,
+                    expected_direction=source_objective_direction,
+                )
+                objective_score_status = _merge_objective_score_status(
+                    objective_score_status, observed_status
+                )
+                if objective_evidence is None:
+                    objective_evidence_complete = False
+                    objective_score_reason = reason or observed_status.value
         except Exception as exc:
+            if isinstance(exc, _ObjectiveScoreUnavailable):
+                unavailable_evaluation_count += 1
+                objective_score_status = _merge_objective_score_status(
+                    objective_score_status, exc.status
+                )
+                objective_score_reason = exc.reason
+                objective_evidence_complete = False
+                evaluation_unverified = True
+                outcome_records.append(
+                    StressOutcomeRecord(
+                        occurrence_index=len(outcome_records),
+                        scenario_id=f"initial:{idx}",
+                        status="skipped",
+                        parameter_values=parameters,
+                        reason_code=f"objective_score_{exc.status.value}",
+                    )
+                )
+                continue
             invalid_evaluation_count += 1
+            objective_score_status = _merge_objective_score_status(
+                objective_score_status, ObjectiveScoreStatus.INVALID
+            )
+            objective_score_reason = "objective_evaluation_invalid_or_failed"
+            objective_evidence_complete = False
             evaluation_unverified = True
             vulnerability = _numerical_vulnerability(
                 vulnerability_id=f"vuln_numerical_{idx}",
@@ -645,6 +800,7 @@ def run_stress_test(
                 status="failed" if scenario_vulnerabilities else "passed",
                 parameter_values=parameters,
                 vulnerabilities=scenario_vulnerabilities,
+                objective_evidence=objective_evidence,
             )
         )
         if vuln is not None and adversarial_plan.stop_on_first_vulnerability:
@@ -690,12 +846,53 @@ def run_stress_test(
             }
             total_evaluated += 1
             try:
-                result, objective, objective_details = _evaluate_stress_result(
+                result, objective, objective_details, objective_value = _evaluate_stress_result(
                     base_objective=base_objective,
                     result=stage_b_evaluator(candidate, runtime_context),
                 )
+                objective_evidence = None
+                if capture_objective_sources and cas is not None:
+                    objective_evidence, observed_status, reason = (
+                        _persist_stress_objective_evidence(
+                            cas=cas,
+                            result=result,
+                            objective=objective_value,
+                            selected_rule_spec=selected_rule_spec,
+                            expected_name=expected_objective_name,
+                            expected_direction=source_objective_direction,
+                        )
+                    )
+                    objective_score_status = _merge_objective_score_status(
+                        objective_score_status, observed_status
+                    )
+                    if objective_evidence is None:
+                        objective_evidence_complete = False
+                        objective_score_reason = reason or observed_status.value
             except Exception as exc:
+                if isinstance(exc, _ObjectiveScoreUnavailable):
+                    unavailable_evaluation_count += 1
+                    objective_score_status = _merge_objective_score_status(
+                        objective_score_status, exc.status
+                    )
+                    objective_score_reason = exc.reason
+                    objective_evidence_complete = False
+                    evaluation_unverified = True
+                    outcome_records.append(
+                        StressOutcomeRecord(
+                            occurrence_index=len(outcome_records),
+                            scenario_id=f"adaptive:{idx}",
+                            status="skipped",
+                            parameter_values=candidate_parameters,
+                            reason_code=f"objective_score_{exc.status.value}",
+                        )
+                    )
+                    break
                 invalid_evaluation_count += 1
+                objective_score_status = _merge_objective_score_status(
+                    objective_score_status, ObjectiveScoreStatus.INVALID
+                )
+                objective_score_reason = "objective_evaluation_invalid_or_failed"
+                objective_evidence_complete = False
                 evaluation_unverified = True
                 vulnerability = _numerical_vulnerability(
                     vulnerability_id=f"vuln_numerical_search_{idx}",
@@ -752,6 +949,7 @@ def run_stress_test(
                                 status="failed",
                                 parameter_values=candidate_parameters,
                                 vulnerabilities=scenario_vulnerabilities,
+                                objective_evidence=objective_evidence,
                             )
                         )
                         break
@@ -763,6 +961,7 @@ def run_stress_test(
                         status="failed" if scenario_vulnerabilities else "passed",
                         parameter_values=candidate_parameters,
                         vulnerabilities=scenario_vulnerabilities,
+                        objective_evidence=objective_evidence,
                     )
                 )
             stop_check = stopping.check(
@@ -779,6 +978,14 @@ def run_stress_test(
         worst_case_objective = float("nan")
 
     evaluation_status = "unverified" if evaluation_unverified else None
+    score_status = (
+        "invalid" if objective_score_status is ObjectiveScoreStatus.INVALID else "unbound"
+    )
+    if (
+        objective_score_reason == "persisted_objective_source_capture_required"
+        and not capture_objective_sources
+    ):
+        objective_score_reason = "persisted_candidate_and_objective_source_capture_required"
     robustness_score = None
     report = StressTestReport(
         report_id=stable_world_id_from_canon(
@@ -802,8 +1009,8 @@ def run_stress_test(
         medium_count=sum(1 for item in observed_vulnerabilities if item.severity == "medium"),
         robustness_score=None,
         score_profile="finite_binary_scenario_v1",
-        score_status="unbound",
-        score_reason="persisted_occurrence_basis_and_current_candidate_binding_required",
+        score_status=score_status,
+        score_reason=objective_score_reason,
         set_adequacy_status=evaluation_status,
         decision_packet_ref=decision_packet_ref,
         metadata={
@@ -812,6 +1019,9 @@ def run_stress_test(
             "objective_direction": objective_direction.value,
             "source_objective_direction": source_objective_direction.value,
             "evaluation_status": evaluation_status or "verified",
+            "objective_score_admission_status": objective_score_status.value,
+            "objective_score_admission_reason": objective_score_reason,
+            "objective_unavailable_evaluation_count": unavailable_evaluation_count,
             "invalid_evaluation_count": invalid_evaluation_count,
             "valid_evaluation_count": total_evaluated - invalid_evaluation_count,
             "observed_vulnerability_count": len(observed_vulnerabilities),
@@ -820,34 +1030,35 @@ def run_stress_test(
         },
     )
 
-    if cas is not None:
-        candidate_ref = runtime_context.get("policy_candidate_ref")
-        if not isinstance(candidate_ref, ArtifactRef):
-            try:
-                candidate_ref = (
-                    ArtifactRef.model_validate(candidate_ref)
-                    if isinstance(candidate_ref, dict)
-                    else None
-                )
-            except Exception:
-                candidate_ref = None
-        if candidate_ref is not None:
-            plan_ref = cas.put_json(
-                adversarial_plan.model_dump(mode="json"),
-                PutOptions(
-                    kind=_ADVERSARIAL_PLAN_ARTIFACT_KIND,
-                    media_type="application/json",
-                    schema=SchemaInfo(
-                        name=_ADVERSARIAL_PLAN_SCHEMA_NAME,
-                        version=_ADVERSARIAL_PLAN_SCHEMA_VERSION,
-                    ),
+    if cas is not None and candidate_ref is not None:
+        plan_ref = cas.put_json(
+            adversarial_plan.model_dump(mode="json"),
+            PutOptions(
+                kind=_ADVERSARIAL_PLAN_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=_ADVERSARIAL_PLAN_SCHEMA_NAME,
+                    version=_ADVERSARIAL_PLAN_SCHEMA_VERSION,
                 ),
-                canon_spec=CanonSpec(forbid_floats=False),
-                return_selected_profile=True,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        report = report.model_copy(update={"adversarial_plan_ref": str(plan_ref.artifact_id)})
+        complete_objective_evidence = (
+            objective_score_status is ObjectiveScoreStatus.AVAILABLE
+            and objective_evidence_complete
+            and bool(outcome_records)
+            and all(
+                outcome.status not in {"passed", "failed"} or outcome.objective_evidence is not None
+                for outcome in outcome_records
             )
+        )
+        if complete_objective_evidence:
             expected_count = total_evaluated if adaptive_continuation else len(initial_samples)
             source_id = f"adversarial_plan:{plan_ref.artifact_id}"
             basis = StressOutcomeBasis(
+                schema_version=_STRESS_OUTCOME_BASIS_ADVERSARIAL_SCHEMA_VERSION,
                 source_kind="adversarial_plan",
                 source_id=source_id,
                 expected_count=expected_count,
@@ -862,6 +1073,14 @@ def run_stress_test(
                 plan_ref=plan_ref,
                 candidate_ref=candidate_ref,
             )
+            objective_source_inputs = [
+                input_ref_from_artifact_ref(
+                    outcome.objective_evidence.source_ref,
+                    role=f"objective_source:{outcome.occurrence_index}",
+                )
+                for outcome in outcome_records
+                if outcome.objective_evidence is not None
+            ]
             basis_ref = cas.put_json(
                 basis.model_dump(mode="json"),
                 PutOptions(
@@ -869,11 +1088,12 @@ def run_stress_test(
                     media_type="application/json",
                     schema=SchemaInfo(
                         name=_STRESS_OUTCOME_BASIS_SCHEMA_NAME,
-                        version=_STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+                        version=_STRESS_OUTCOME_BASIS_ADVERSARIAL_SCHEMA_VERSION,
                     ),
                     inputs=[
                         input_ref_from_artifact_ref(plan_ref, role="adversarial_plan"),
                         input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+                        *objective_source_inputs,
                     ],
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
@@ -889,7 +1109,6 @@ def run_stress_test(
             )
             report = report.model_copy(
                 update={
-                    "adversarial_plan_ref": str(plan_ref.artifact_id),
                     "score_components": [component],
                     "score_status": resolution.status,
                     "score_reason": resolution.reason_code,
@@ -900,6 +1119,15 @@ def run_stress_test(
                     "critical_count": resolution.critical_count,
                     "high_count": resolution.high_count,
                     "medium_count": resolution.medium_count,
+                }
+            )
+        elif objective_score_status is not ObjectiveScoreStatus.INVALID:
+            report = report.model_copy(
+                update={
+                    "score_status": "unbound",
+                    "score_reason": objective_score_reason
+                    or "objective_source_evidence_incomplete",
+                    "robustness_score": None,
                 }
             )
         ref = cas.put_json(
@@ -915,11 +1143,7 @@ def run_stress_test(
                         )
                         for item in report.score_components
                     ]
-                    + (
-                        [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
-                        if candidate_ref is not None
-                        else []
-                    )
+                    + [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -928,71 +1152,6 @@ def run_stress_test(
         report.cas_artifact_id = str(ref.artifact_id)
         report._cas_artifact_ref = ref
     return report
-
-
-def _detect_objective_vulnerability(
-    *,
-    objective: float,
-    threshold: float | None,
-    direction: OptimizationDirection,
-    parameters: dict[str, float],
-    vuln_id: str,
-) -> Vulnerability | None:
-    if threshold is None or not _is_objective_vulnerable(
-        objective,
-        threshold=threshold,
-        direction=direction,
-    ):
-        return None
-    badness = _objective_badness(objective, direction)
-    threshold_badness = _objective_badness(threshold, direction)
-    return Vulnerability(
-        vulnerability_id=vuln_id,
-        vulnerability_type=VulnerabilityType.OBJECTIVE_COLLAPSE,
-        severity="high",
-        parameter_values=parameters,
-        objective_value=objective,
-        description=(
-            f"Objective {objective:.6f} violates threshold {threshold:.6f} "
-            f"(badness {badness:.6f} >= {threshold_badness:.6f}; "
-            f"direction {direction.value})"
-        ),
-    )
-
-
-def _deduplicate_vulnerabilities(vulnerabilities: list[Vulnerability]) -> list[Vulnerability]:
-    unique: dict[str, Vulnerability] = {}
-    for vulnerability in vulnerabilities:
-        key = stable_world_id_from_canon(
-            prefix="stress.vuln",
-            payload=_canon_safe(
-                {
-                    "type": vulnerability.vulnerability_type.value,
-                    "params": vulnerability.parameter_values,
-                    "description": vulnerability.description,
-                    "objective_value": vulnerability.objective_value,
-                }
-            ),
-        )
-        if key not in unique:
-            unique[key] = vulnerability
-    return list(unique.values())
-
-
-def _canon_safe(value: Any) -> Any:
-    if isinstance(value, float):
-        if math.isnan(value):
-            return "nan"
-        if math.isinf(value):
-            return "inf" if value > 0 else "-inf"
-        return f"{value:.12g}"
-    if isinstance(value, dict):
-        return {str(key): _canon_safe(item) for key, item in value.items()}
-    if isinstance(value, list):
-        return [_canon_safe(item) for item in value]
-    if isinstance(value, tuple):
-        return [_canon_safe(item) for item in value]
-    return value
 
 
 def persist_platform_meta_evaluation_report(

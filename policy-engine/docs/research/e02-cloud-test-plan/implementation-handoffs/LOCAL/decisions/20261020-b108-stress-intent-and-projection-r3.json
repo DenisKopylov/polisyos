@@ -1,0 +1,112 @@
+{
+  "kind": "implementation_decision_proposal",
+  "proposal_id": "B108-stress-objective-intent-and-projection-r2-final",
+  "criterion": "B108 #1, B_r19:2897-2910 (OPT-01/T1/V5): the configured objective, units, and source semantics determine whether an adversarial stress result is scoreable; an admissible alternative must not be ignored when primary data is absent.",
+  "author_role": "implementation_author_not_acceptor",
+  "decision_owner": "G",
+  "status": "proposed_for_independent_G_review",
+  "formal_closure_ids": [],
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P04",
+      "P05",
+      "P07",
+      "P12",
+      "P29",
+      "P30",
+      "P31",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "R1_property_gap": "R1 replays objective source, assessment, plan sample, pass/fail status, and severity against the rule carried by StressOutcomeBasis. It does not independently establish that this is the selected objective for the run. It also did not reconcile the complete report vulnerability list from source rows.",
+    "R2_repair": "Use one shared vulnerability deduplication/top-k projector for producer and fresh reader; derive every typed field and ordering in the presented report list from replayed outcomes. Preserve the R1 outcome replay, but return unbound for selected-objective admission when no independent expected-intent source reaches the consumer.",
+    "capability_state": "implemented_but_not_orchestrated for selected-intent authority; verification_missing until composed runtime receipt; semantic_test_missing until R2 behavioral tests execute",
+    "acceptance_signal": "Marker-preserving changes to occurrence vulnerability descriptions or report-level mitigation fail full projection reconciliation. A genuinely configured source-bound stress report still remains unbound at Level5 without a separate selection reference, with no finite score or failure blocker."
+  },
+  "source_trace": {
+    "base": "848119384c95bc6527deaeb549bf669c01c80617",
+    "observed_frame": "cbcb68bc89ad396497e07b358594708d8706654c@7d2854a8c3cb0e00f9ca3452602155e1ab93ce7b",
+    "trace_ref": "../caller-intent-source-trace-r1.json@f72518aa311fc0d4297320567226424a9285813c011756cb7e5ffcf57ddf74d7",
+    "facts": [
+      "ScenarioAdversaryWorker.execute is the only product call site found for run_stress_test; it receives an in-memory CompositeObjective but no independently selected objective-intent ref.",
+      "Level5 receives the selected report and candidate refs, not the original base_objective or a trusted selection/config ref.",
+      "The candidate ProblemFrame objective/KPI structure does not provide a verified mapping to the arbitrary CompositeObjective rule spec.",
+      "The optional decision_packet_ref is attached as lineage but the current caller does not resolve a selected objective from it or reconcile it to base_objective."
+    ],
+    "denominator": "12 matching tracked Python files from a 5,937 tracked-Python-file denominator in R1 inventory; bounded to the enumerated source/test query, not a global absence claim"
+  },
+  "alternatives": [
+    {
+      "choice": "Reuse the carried objective rule in the basis as the selected objective.",
+      "disposition": "rejected",
+      "reason": "This proves self-consistency of a producer-carried label and source replay, not selection for the consuming policy run. A fully self-consistent rule/name/direction can be changed together without an independent expected ref (P37/P38)."
+    },
+    {
+      "choice": "Reuse a verified upstream run/request objective-intent source and thread its exact ref to Level5.",
+      "disposition": "recommended narrow contract if the source owner can provide it",
+      "reason": "This would bind the producer's configured rule to an independent expected selection without making a new score authority. The current inspected chain has no such artifact or bridge; a source owner would need to specify the selected intent and provide the ref at both producer and consumer boundaries."
+    },
+    {
+      "choice": "Keep row/source replay as candidate diagnostics and protected score admission unbound until an upstream selected-intent source is wired.",
+      "disposition": "implemented as the current safe outcome",
+      "reason": "This preserves source and plan verification, forbids numeric score/blocker admission under unknown objective intent, and avoids inventing objective-selection law."
+    },
+    {
+      "choice": "Infer the intent from ProblemFrame objective labels, arbitrary context mappings, the decision-packet pointer, or the same report/basis.",
+      "disposition": "rejected",
+      "reason": "No existing typed equivalence/authority contract was found; these are labels or adjacent artifacts, not independent expected objective identity."
+    }
+  ],
+  "R2_contract": {
+    "selected_intent": "No available trusted expected objective intent is passed to the fresh Level5 resolver. For adversarial basis 1.1, source and planned-row replay may be retained as diagnostics, but the selected-objective score result remains `unbound` with `predicate_status=not_established` and no numeric robustness score.",
+    "presentation_projection": "For scoreable Phase D4 bases, the report vulnerability list is compared in full typed order to the exact basis outcomes. For adversarial bases, the reader recomputes objective vulnerability values, compares every field in each outcome row, applies the same canonical dedupe/top-k function used by the producer, then reconciles the entire report list. Any retained field change, omission, addition, or reorder is invalid.",
+    "phase_d4": "Leave current BenchmarkEvaluation-based score admission unchanged. Report vulnerability projection is reconciled from its already selected finite basis; this does not add causal or scientific calibration authority."
+  },
+  "compatibility_and_migration": {
+    "public_api": "No exported runtime API changes in R2.",
+    "stored_data": "StressOutcomeBasis 1.0 remains readable but no adversarial score is inferred. Version 1.1 remains typed and readable; its objective source can be replayed but cannot qualify selected objective intent without an independent source.",
+    "existing_behavior": "Level5 will now return `unbound`, omit numeric stress score, and avoid an authoritative stress_test_failed blocker when the objective-intent predicate is not established. Existing candidate diagnostics remain visible.",
+    "next_owner_input": "An upstream run/request owner must identify the authoritative selected-objective config ref and wire that same independently resolved ref into both producer admission and the fresh Level5 consumer. External causal calibration, issuer authority, and scientific adequacy remain separate predicates."
+  },
+  "prototype_and_falsifiers": {
+    "source_candidate": "R2 RAW postimages for stress_report.py, search/adversarial.py, and test_adversarial.py.",
+    "positive_control": "Actual configured GDP objective with exact source CAS and plan parameter replay produces candidate diagnostic row counts and vulnerability details; resolver returns unbound because no independent selected-intent ref reaches Level5.",
+    "negative_controls": [
+      "Change a vulnerability description in a persisted occurrence while preserving rule/source/plan refs; row recomputation must return invalid.",
+      "Change a full report vulnerability field such as mitigation while preserving summary counters and CAS lineage; report resolution must return invalid.",
+      "Change report summary severity counts while keeping basis refs and markers; unbound diagnostic projection still rejects the mismatched summary.",
+      "Run Level5 with a genuinely source-replayed finite adversarial report but no independent expected-intent ref; score is None and no stress_test_failed blocker is emitted.",
+      "Legacy v1.0 or evidence-missing adversarial basis remains unbound; malformed present source remains invalid."
+    ],
+    "test_source": [
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "runtime": "UNRUN in this author lane; no test subprocess or heavy gate executed.",
+    "actual_funnel_assertion": "The real run_stress_test → selected report CAS → Level5 → FunnelOrchestrator route remains bounded: an unbound stress score yields a Level5 defer_to_human terminal result; a prepared promotion_result does not cause Level6 to run or get projected as positive feedback. This is an authored assertion to execute after independent review, not a runtime receipt."
+  },
+  "remaining_G_choices": [
+    "Accept additive R2 full vulnerability projection reconciliation and the current unbound Level5 score behavior.",
+    "If an upstream owner supplies an objective-intent contract, decide its canonical source, authority/time/version semantics, and producer-to-Level5 bridge; no such source is claimed by this proposal."
+  ],
+  "limitations": [
+    "A missing selected-intent bridge prevents protected finite score admission even when the carried rule/source/plan replay is internally consistent.",
+    "This does not establish law, issuer permissions, causal calibration, external custody, or production currentness.",
+    "The new tests are not executed; a composed producer→CAS→fresh Level5 runtime receipt is still required after independent review."
+  ],
+  "R2_candidate_footprint": [
+    "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "policy-engine/release-fragments/unreleased/2026-10-20-e02-stress-objective-source-evidence.toml"
+  ],
+  "R2_verification": {
+    "static": "Canonical workspace-root Ruff and AST checks passed for all four changed Python postimages; the release TOML and proposal JSON parse. See r2-static-verification-frozen.json.",
+    "product_tests": "UNRUN_BY_AUTHOR_LANE",
+    "composed_runtime": "REQUIRED_AFTER_INDEPENDENT_REVIEW_AND_COMPOSITION",
+    "formal_closures": []
+  }
+}

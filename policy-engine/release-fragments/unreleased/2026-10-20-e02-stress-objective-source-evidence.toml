@@ -1,0 +1,22 @@
+id = "2026-10-20-e02-stress-objective-source-evidence"
+title = "Bind adversarial stress outcomes to objective evidence"
+type = "changed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Persist per-occurrence selected objective evidence for finite adversarial stress scores and replay its source, plan sample, pass/fail classification, and vulnerability severity before score admission."
+evidence = [
+  "tests/unit/scientist/search/test_adversarial.py",
+  "tests/unit/scientist/search/funnel/test_orchestrator.py",
+  "src/polisyos/scientist/methods/search/adversarial.py",
+  "src/polisyos/scientist/methods/doe/stress_report.py",
+]
+compatibility = "StressOutcomeBasis 1.1 adds typed per-occurrence objective-source evidence. Existing 1.0 artifacts remain readable, but adversarial finite scores without replayable evidence or an independently supplied selected-objective intent resolve as unbound. Phase D4 keeps its existing 1.0 benchmark-evaluation route."
+change_class = "internal"
+surface_classification = "internal: scientist stress evidence and score resolution"
+migration = "New adversarial runs persist objective assessments and exact source artifacts. A fresh Level5 consumer still needs an independently selected objective-intent reference before admitting a protected binary score; no such request/run-state bridge exists in the inspected chain. Retain source-replayed outcomes as candidate diagnostics until that contract is resolved; do not infer selection from the same report or basis."
+api = "No exported runtime API changes. The internal StressOutcomeBasis artifact advances additively to 1.1 for adversarial objective evidence."
+limitations = "Source replay, plan-threshold classification, and full typed vulnerability projection do not establish that the carried objective is the one selected for the policy run. The current Level5 route therefore keeps this score unbound. This mechanism does not establish causal adequacy, calibration, law, external authority, or production currentness. Runtime and composed consumer verification remain pending independent review."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

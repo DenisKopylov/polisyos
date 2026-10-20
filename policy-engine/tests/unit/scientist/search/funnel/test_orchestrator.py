@@ -872,9 +872,10 @@ class TestFunnelOrchestrator:
         stress_report_ref = stress_report.cas_artifact_ref
         assert stress_report_ref is not None
         assert stress_report_ref.manifest_profile_sha256 is not None
-        assert stress_report.score_status == "available"
+        assert stress_report.score_status == "unbound"
         assert stress_report.score_profile == "finite_binary_scenario_v1"
-        assert stress_report.robustness_score == 1.0
+        assert stress_report.robustness_score is None
+        assert stress_report.score_reason == "selected_objective_rule_not_recomputable"
 
         selection = BenchmarkEvaluation(
             loop_id="loop",
@@ -959,24 +960,26 @@ class TestFunnelOrchestrator:
         outcome = orch.advance(orch.submit(candidate, context), policy="full")
 
         assert outcome.completed is True
-        assert outcome.final_action == ("complete" if prepared else "defer_to_human")
+        assert outcome.final_action == "defer_to_human"
         assert runner_calls == []
         assert outcome.final_result is not None
-        assert outcome.final_result.stage_name == "funnel_L6_promotion"
-        level5_result = outcome.stage_results[5]
-        assert level5_result.terminal_action is None
-        assert level5_result.feedback["stress_score_status"] == "available"
+        assert outcome.final_result.stage_name == "funnel_L5_refutation_governance"
+        level5_result = outcome.final_result
+        assert level5_result.terminal_action == "defer_to_human"
+        assert level5_result.feedback["stress_score_status"] == "unbound"
         assert level5_result.feedback["stress_score_profile"] == "finite_binary_scenario_v1"
-        assert level5_result.feedback["stress_score_predicate_status"] == "recomputed"
-        assert level5_result.feedback["stress_score_value"] == 1.0
-        assert level5_result.feedback["stress_robust"] is True
-        assert not any(
+        assert level5_result.feedback["stress_score_predicate_status"] == "not_established"
+        assert level5_result.feedback["stress_score_value"] is None
+        assert level5_result.feedback["stress_robust"] is None
+        assert any(
             card.failure_type == "stress_score_unavailable" for card in level5_result.failure_cards
         )
-        if prepared:
-            assert outcome.final_result.feedback["promotion_result_read_only"] is True
-        else:
-            assert outcome.final_result.feedback["promotion_admission_status"] == "bridge_missing"
+        assert not any(
+            card.failure_type == "stress_test_failed" and card.is_blocker
+            for card in level5_result.failure_cards
+        )
+        assert "promotion_result" not in level5_result.feedback
+        assert "promotion_result_read_only" not in level5_result.feedback
         assert outcome.audit_refs
         assert outcome.actionable_side_information_refs
 

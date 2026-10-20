@@ -137,7 +137,7 @@ describe("RunOverviewProfileLineage", () => {
     await user.click(statusButton);
     expect(await screen.findByRole("dialog")).toHaveTextContent(verifiedBy);
     expect(
-      within(screen.getByRole("dialog")).getByText("Unknown", {
+      within(screen.getByRole("dialog")).getByLabelText("Unknown", {
         exact: true,
       }),
     ).toBeVisible();

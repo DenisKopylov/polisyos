@@ -27009,5 +27009,106 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "frontend-trustview-exact-accessible-status-query-r4-20261020": {
+    "slice_base": "76304aa2dd0703b59be82c6cc7b807829ca5dcb8",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "5218f4e08941dc186d259ed2f8d9b7115961978c952ffde2e835eb73125dd74b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-trustview-unknown-query-repair-r4-20261020/postimages/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+        "postimage_sha256": "2ff335f25bbc48561b89fec0cdc847c3c64236be508aead116b1ec5164c18a74"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "d7669ca6a54666a4c67dde716adea20b5e243a389faabff45c5568dd4fb380c5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-trustview-unknown-query-repair-r4-20261020/postimages/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+        "postimage_sha256": "b9a157494088487a33c30a7dd757160b5cf86fe6538f845b53863f41f53f0aaa"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-trustview-query-r4-adoption-20261020/source-application.json",
+      "sha256": "8e3a315c52ecedc6b6f90e331695e3d1741bda10bf05c904cf4daea22a19aa8a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-trustview-query-r4-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-trustview-unknown-query-repair-r4-20261020/manifest-v2.json",
+        "sha256": "4a2a3c8e9f851fe689a368f96acee887c2e112ff3a496c9bb8e4678932d88798"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-trustview-unknown-query-repair-r4-20261020/repair-r4.patch",
+        "sha256": "79a3a87a0475cba7639301562d8216c3849d0de8575ca5751fbe492fcd3bd591"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-trustview-unknown-query-repair-r4-20261020/independent-review-root-76304.json",
+        "sha256": "7a6fbab8c670c2ba96141cf7e66dea6322a570026f54704ca6ae6ab09eb0b083"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/canonical-fe-seven-consumer-actual-3e22ce0-20261020/manifest.json",
+        "sha256": "9602c9e1da94fd689fea4ec9c4127f12b02da00026a57aa53cc8be666f4d05b7"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same duplicate-visible-text query class repaired for all three affected dialog queries in the complete 421 maintained test/spec-file census; no product semantic change.",
+    "bounded_proof": "Independent GO, two exact reviewed test postimages; canonical ESLint and Prettier pass. Prior actual seven-module cohort was 49P3F and is not reused as repaired runtime proof.",
+    "limitations": [
+      "Two test files only; runtime seven-module repeat remains UNRUN.",
+      "Full generated-client/typecheck and installed/native gates remain pending.",
+      "Two known-owned incomplete N7/B108 test changes remain unchanged."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the seven complete lineage/quantity/consumer test modules under current source; preserve full outputs and exact before/after source frame.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

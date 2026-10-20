@@ -304,12 +304,36 @@ class _FrozenReferenceList(tuple[Any, ...]):
         return not self == other
 
 
-@dataclass(frozen=True, eq=False)
+@dataclass(frozen=True, eq=False, repr=False)
 class _FrozenReferenceMapping(Mapping[Any, Any]):
-    """Immutable lookup view with the original mapping's JSON wire captured."""
+    """Immutable lookup view with a lazily materialized legacy JSON wire."""
 
     _view: Mapping[Any, Any]
-    _wire_json: str
+    _wire_is_dict: bool = field(repr=False)
+    _wire_items: tuple[tuple[object, object], ...] = field(repr=False)
+    _wire_fallback: str | None = field(repr=False)
+    _wire_json_cache: str | None = field(default=None, init=False, repr=False, compare=False)
+
+    @property
+    def _wire_json(self) -> str:
+        """Return the exact legacy wire, serializing this subtree at most once."""
+
+        cached = self._wire_json_cache
+        if cached is not None:
+            return cached
+        wire_json = json.dumps(
+            _reference_wire_projection(self),
+            ensure_ascii=False,
+            sort_keys=False,
+            default=str,
+        )
+        object.__setattr__(self, "_wire_json_cache", wire_json)
+        return wire_json
+
+    def __repr__(self) -> str:
+        """Keep the prior private representation used by JSON's default=str path."""
+
+        return f"_FrozenReferenceMapping(_view={self._view!r}, _wire_json={self._wire_json!r})"
 
     def __getitem__(self, key: object) -> object:
         return self._view[key]
@@ -324,94 +348,179 @@ class _FrozenReferenceMapping(Mapping[Any, Any]):
         return self._view == other
 
 
+def _reference_wire_projection(value: object) -> object:
+    """Materialize the captured value using the existing JSON-facing rules."""
+
+    if isinstance(value, _FrozenReferenceMapping):
+        if not value._wire_is_dict:
+            return value._wire_fallback
+        return {key: _reference_wire_projection(item) for key, item in value._wire_items}
+    if isinstance(value, _FrozenReferenceList | tuple):
+        return [_reference_wire_projection(item) for item in value]
+    return value
+
+
 def _capture_reference_payload(
     value: object,
     ancestors: set[int] | None = None,
-) -> tuple[object, object]:
-    """Freeze one value and return its matching legacy JSON projection."""
+    memo: dict[int, object] | None = None,
+    captured_nodes: set[int] | None = None,
+) -> object:
+    """Freeze a value once per source-container identity without serializing subtrees."""
 
     if isinstance(value, _FrozenReferenceMapping):
-        return value, json.loads(value._wire_json)
+        return value
     active_ancestors = ancestors if ancestors is not None else set()
+    captured_by_identity = memo if memo is not None else {}
+    newly_captured = captured_nodes if captured_nodes is not None else set()
     if isinstance(value, Mapping | list | tuple):
         marker = id(value)
         if marker in active_ancestors:
             raise ValueError("Circular reference detected")
+        if marker in captured_by_identity:
+            return captured_by_identity[marker]
         active_ancestors.add(marker)
         try:
             if isinstance(value, Mapping):
                 if isinstance(value, dict):
                     source_items = tuple(value.items())
                     captured_by_source_key: dict[object, object] = {}
-                    wire_payload: dict[object, object] = {}
+                    frozen_key_by_source_key: dict[object, object] = {}
+                    wire_items: list[tuple[object, object]] = []
                     for key, item in sorted(source_items):
                         frozen_key = _freeze_reference_mapping_key(key)
-                        frozen_item, wire_item = _capture_reference_payload(item, active_ancestors)
+                        frozen_item = _capture_reference_payload(
+                            item,
+                            active_ancestors,
+                            captured_by_identity,
+                            newly_captured,
+                        )
                         captured_by_source_key[key] = frozen_item
-                        wire_payload[frozen_key] = wire_item
+                        frozen_key_by_source_key[key] = frozen_key
+                        wire_items.append((frozen_key, frozen_item))
                     frozen_view = MappingProxyType(
                         {
-                            _freeze_reference_mapping_key(key): captured_by_source_key[key]
+                            frozen_key_by_source_key[key]: captured_by_source_key[key]
                             for key, _item in source_items
                         }
                     )
-                    wire_json = json.dumps(
-                        wire_payload,
-                        ensure_ascii=False,
-                        sort_keys=False,
-                        default=str,
+                    frozen_mapping = _FrozenReferenceMapping(
+                        frozen_view,
+                        True,
+                        tuple(wire_items),
+                        None,
                     )
                 else:
                     fallback_text = str(value)
                     frozen_view = MappingProxyType(
                         {
                             _freeze_reference_mapping_key(key): _capture_reference_payload(
-                                item, active_ancestors
-                            )[0]
+                                item,
+                                active_ancestors,
+                                captured_by_identity,
+                                newly_captured,
+                            )
                             for key, item in value.items()
                         }
                     )
-                    wire_json = json.dumps(
+                    frozen_mapping = _FrozenReferenceMapping(
+                        frozen_view,
+                        False,
+                        (),
                         fallback_text,
-                        ensure_ascii=False,
-                        sort_keys=True,
-                        default=str,
                     )
-                frozen_mapping = _FrozenReferenceMapping(frozen_view, wire_json)
-                return frozen_mapping, json.loads(wire_json)
-            captured = tuple(_capture_reference_payload(item, active_ancestors) for item in value)
-            captured_items = tuple(item for item, _wire in captured)
+                captured_by_identity[marker] = frozen_mapping
+                newly_captured.add(id(frozen_mapping))
+                return frozen_mapping
+            captured_items = tuple(
+                _capture_reference_payload(
+                    item,
+                    active_ancestors,
+                    captured_by_identity,
+                    newly_captured,
+                )
+                for item in value
+            )
             frozen_sequence = (
                 _FrozenReferenceList(captured_items) if isinstance(value, list) else captured_items
             )
-            wire_sequence = [wire for _item, wire in captured]
-            return frozen_sequence, wire_sequence
+            captured_by_identity[marker] = frozen_sequence
+            newly_captured.add(id(frozen_sequence))
+            return frozen_sequence
         finally:
             active_ancestors.remove(marker)
     if type(value) is bytes:
-        return value, str(value)
+        return value
     if type(value) in (bool, type(None), str, int, float):
-        return value, value
+        return value
     if isinstance(value, str):
-        frozen_text = str.__str__(value)
-        return frozen_text, frozen_text
+        return str.__str__(value)
     if isinstance(value, int):
-        frozen_integer = int.__int__(value)
-        return frozen_integer, frozen_integer
+        return int.__int__(value)
     if isinstance(value, float):
-        frozen_float = float.__float__(value)
-        return frozen_float, frozen_float
+        return float.__float__(value)
     if isinstance(value, bytes):
-        fallback_text = str(value)
-        return fallback_text, fallback_text
-    fallback_text = str(value)
-    return fallback_text, fallback_text
+        return str(value)
+    return str(value)
+
+
+def _reference_wire_validation_roots(
+    value: object,
+    captured_nodes: set[int],
+) -> tuple[_FrozenReferenceMapping, ...]:
+    """Return unique dict subtrees whose JSON validity is not covered by an ancestor."""
+
+    roots: dict[int, _FrozenReferenceMapping] = {}
+    visited: set[tuple[int, bool]] = set()
+
+    def visit(node: object, inside_dict_wire: bool) -> None:
+        if isinstance(node, _FrozenReferenceMapping):
+            marker = id(node)
+            if marker not in captured_nodes:
+                return
+            state = (marker, inside_dict_wire)
+            if state in visited:
+                return
+            visited.add(state)
+            if node._wire_is_dict:
+                if not inside_dict_wire:
+                    roots.setdefault(marker, node)
+                for child in node._view.values():
+                    child_is_fallback_mapping = isinstance(child, _FrozenReferenceMapping) and not (
+                        child._wire_is_dict
+                    )
+                    visit(child, not child_is_fallback_mapping)
+                return
+            for child in node._view.values():
+                visit(child, False)
+            return
+        if isinstance(node, _FrozenReferenceList | tuple):
+            state = (id(node), inside_dict_wire)
+            if state in visited:
+                return
+            visited.add(state)
+            for child in node:
+                visit(child, inside_dict_wire)
+
+    visit(value, False)
+    return tuple(roots.values())
 
 
 def _freeze_reference_payload(value: object) -> object:
-    """Return the immutable side of one wire-and-lookup capture."""
+    """Return an immutable snapshot while validating each independent legacy JSON subtree."""
 
-    return _capture_reference_payload(value)[0]
+    if isinstance(value, _FrozenReferenceMapping):
+        return value
+    captured_nodes: set[int] = set()
+    captured = _capture_reference_payload(
+        value,
+        ancestors=set(),
+        memo={},
+        captured_nodes=captured_nodes,
+    )
+    for root in _reference_wire_validation_roots(captured, captured_nodes):
+        _ = root._wire_json
+    return captured
 
 
 def _materialize_reference_value(value: object) -> object:

@@ -1,0 +1,20 @@
+id = "2026-10-20-e02-credal-reference-capture-cost"
+title = "Reduce repeated credal-reference snapshot work"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Credal-reference snapshots freeze shared containers once and materialize each independent legacy JSON subtree once while preserving existing wire values and cycle refusal."
+evidence = [
+  "src/polisyos/runtime/quality/credal_reference.py",
+  "tests/unit/runtime/quality/test_credal_reference_capture_cost.py",
+]
+compatibility = "No public signature, status, authority, schema, or expected JSON projection changes are intended."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No migration is required."
+api = "No public API changes; this changes only the private snapshot/capture implementation."
+limitations = "Wire parity is covered for deterministic fallback conversions; a stateful __str__ nested in a repeated aliased container is snapshotted once per unique source container, so its call-count-dependent text may differ from repeated legacy traversal. The synthetic complexity probe does not establish the shape or size of the private N7 payload from the earlier capped run."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

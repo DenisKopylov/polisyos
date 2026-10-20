@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, TypeGuard
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core import artifacts, canon, scan_secret_and_pii
+from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
 from polisyos.data_forge import read_api
 from polisyos.data_forge.read_api import OfficialSnapshotAnswer
 from polisyos.data_forge.read_api.surfaces import available_surfaces, surface_module
@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     )
 
 
-class _MeasurementRootEvidenceStore(Protocol):
+class _MeasurementRootEvidenceStore(artifacts.RawManifestBytesReader, Protocol):
     """CAS reads needed to revalidate a selected MeasurementRoot authority identity."""
 
     def get_bytes(self, artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef) -> bytes:
@@ -293,7 +293,7 @@ def _search_catalog_with_status(
         )
         try:
             return DatasetSearchResponse.model_validate(payload)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return DatasetSearchResponse(limitation_code="query_status_unavailable")
 
     rows = catalog_graph.search_datasets(query, top_k=top_k, explain=explain)
@@ -595,14 +595,35 @@ def resolve_measurement_root_selected_profile(
 
     try:
         artifact_id = artifacts.ArtifactID(payload_ref)
-        manifest, _declaration = read_core_manifest_profile(
-            store, artifact_id, manifest_profile_sha256=manifest_profile_sha256
-        )
+        if payload_schema_ref == WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION:
+            expected_schema = artifacts.SchemaInfo(
+                name=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+                version="v1",
+            )
+        elif payload_schema_ref == FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION:
+            expected_schema = artifacts.SchemaInfo(
+                name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
+                version="v2",
+            )
+        else:
+            raise ValueError("measurement_root_selected_profile_schema_mismatch")
         selected_ref = artifacts.ArtifactRef(
             artifact_id=artifact_id,
-            kind=manifest.kind,
-            media_type=manifest.media_type,
+            kind="policyos.gy.measurement_root_payload",
+            media_type="application/json",
             manifest_profile_sha256=manifest_profile_sha256,
+        )
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=store,
+            selector=selected_ref,
+            expected_kind="policyos.gy.measurement_root_payload",
+            expected_media_type="application/json",
+            expected_schema=expected_schema,
+            expected_canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+            require_selected_profile=True,
+            expected_inputs=contracts.epoch._PayloadDerivedManifestInputClosure(
+                "measurement-root payload", "ordered"
+            ),
         )
         raw = store.get_bytes(selected_ref)
         if not store.verify(selected_ref).ok:
@@ -1454,11 +1475,40 @@ def resolve_fabric_measurement_root(
         media_type="application/json",
         manifest_profile_sha256=manifest_profile_sha256,
     )
-    raw = store.get_bytes(selected_ref)
-    manifest = store.get_manifest(selected_ref)
+    manifest = contracts.epoch._preflight_core_manifest_profile(
+        store=store,
+        selector=selected_ref,
+        expected_kind="policyos.gy.measurement_root_payload",
+        expected_media_type="application/json",
+        expected_schema=artifacts.SchemaInfo(
+            name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION, version="v2"
+        ),
+        expected_canon=artifacts.CanonInfo(forbid_floats=False),
+        require_selected_profile=True,
+        expected_inputs=contracts.epoch._PayloadDerivedManifestInputClosure(
+            "selected measurement-root payload", "ordered"
+        ),
+    )
     selected_profile = artifacts.artifact_manifest_profile_sha256(manifest)
     if selected_profile != manifest_profile_sha256:
         raise FabricMeasurementRootBindingError("measurement_root_selected_profile_mismatch")
+    if (
+        manifest.producer
+        != artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+            version="2.0.0",
+        )
+        or manifest.env is not None
+        or manifest.governance is not None
+        or manifest.tenant_context is None
+        or manifest.authority is None
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_source_manifest_invalid")
+    if not store.verify(selected_ref).ok:
+        raise FabricMeasurementRootBindingError("measurement_root_source_manifest_invalid")
+    raw = store.get_bytes(selected_ref)
+    if store.get_manifest(selected_ref) != manifest:
+        raise FabricMeasurementRootBindingError("measurement_root_source_manifest_invalid")
     payload = FabricMeasurementRootPayload.model_validate(
         load_core_json_artifact(
             store,
@@ -1518,11 +1568,37 @@ def resolve_fabric_measurement_root(
     )
 
     authority_envelope_ref = artifacts.resolve_authority_envelope_ref(store, authority)
+    authority_envelope_manifest = contracts.epoch._preflight_core_manifest_profile(
+        store=store,
+        selector=authority_envelope_ref,
+        expected_kind=artifacts.AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+        expected_media_type="application/json",
+        expected_schema=artifacts.SchemaInfo(
+            name=artifacts.AUTHORITY_ENVELOPE_SCHEMA_NAME,
+            version=artifacts.AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+        ),
+        expected_canon=manifest.canon,
+        expected_inputs=contracts.epoch._ExactManifestInputClosure(
+            (
+                artifacts.InputRef(
+                    artifact_id=payload.fetch_receipt_ref.artifact_id,
+                    role="fabric_fetch",
+                ),
+            )
+        ),
+        require_selected_profile=False,
+    )
     if not store.verify(authority_envelope_ref).ok:
         raise ValueError("measurement_root_authority_envelope_integrity_invalid")
-    store.get_manifest(authority_envelope_ref)
+    authority_envelope_raw = store.get_bytes(authority_envelope_ref)
+    if store.get_manifest(authority_envelope_ref) != authority_envelope_manifest:
+        raise ValueError("measurement_root_authority_envelope_integrity_invalid")
     emitted_authority = EvidenceAuthorityEnvelope.model_validate(
-        load_core_json_artifact(store, authority_envelope_ref)
+        load_core_json_artifact(
+            store,
+            authority_envelope_ref,
+            raw_payload_bytes=authority_envelope_raw,
+        )
     )
     opts, identity = _measurement_root_authority_configuration(
         payload.model_dump(mode="json"),
@@ -1663,6 +1739,24 @@ def _validate_resolved_measurement_root_evidence(
         )
         if evidence.measurement_root_ref != expected_payload_ref:
             raise FabricMeasurementRootBindingError("measurement_root_payload_ref_mismatch")
+        opts, identity = _measurement_root_authority_configuration(
+            evidence.payload.model_dump(mode="json"),
+            fabric_fetch_ref=evidence.fetch_receipt_ref,
+            source_checked_at=evidence.payload.source_agreement_checked_at,
+            execution_scope_binding=binding,
+        )
+        if opts.schema is None or opts.canon is None:
+            raise ValueError("measurement-root producer profile is incomplete")
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=store,
+            selector=expected_payload_ref,
+            expected_kind="policyos.gy.measurement_root_payload",
+            expected_media_type="application/json",
+            expected_schema=opts.schema,
+            expected_canon=opts.canon,
+            require_selected_profile=True,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(tuple(opts.inputs or ())),
+        )
         verification = store.verify(expected_payload_ref)
         if not verification.ok:
             raise ValueError(verification.error or "measurement-root artifact verification failed")
@@ -1671,15 +1765,10 @@ def _validate_resolved_measurement_root_evidence(
         )
         if stored_payload != evidence.payload:
             raise ValueError("measurement-root persisted payload differs from resolved evidence")
-        manifest = store.get_manifest(expected_payload_ref)
+        if store.get_manifest(expected_payload_ref) != manifest:
+            raise ValueError("measurement-root manifest changed after profile preflight")
         if manifest.authority is None:
             raise ValueError("measurement-root authority manifest is missing")
-        opts, identity = _measurement_root_authority_configuration(
-            evidence.payload.model_dump(mode="json"),
-            fabric_fetch_ref=evidence.fetch_receipt_ref,
-            source_checked_at=evidence.payload.source_agreement_checked_at,
-            execution_scope_binding=binding,
-        )
         from polisyos.runtime.http.services.control.artifacts import (
             AuthorityArtifactIdentityContext,
             verify_runtime_authority_artifact_identity,
@@ -1691,11 +1780,27 @@ def _validate_resolved_measurement_root_evidence(
         )
 
         authority_envelope_ref = artifacts.resolve_authority_envelope_ref(store, manifest.authority)
+        authority_envelope_manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=store,
+            selector=authority_envelope_ref,
+            expected_kind=artifacts.AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+            expected_media_type="application/json",
+            expected_schema=artifacts.SchemaInfo(
+                name=artifacts.AUTHORITY_ENVELOPE_SCHEMA_NAME,
+                version=artifacts.AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+            ),
+            expected_canon=opts.canon,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(tuple(opts.inputs or ())),
+            require_selected_profile=False,
+        )
         authority_verification = store.verify(authority_envelope_ref)
         if not authority_verification.ok:
             raise ValueError("measurement-root authority envelope integrity invalid")
+        authority_envelope_raw = store.get_bytes(authority_envelope_ref)
+        if store.get_manifest(authority_envelope_ref) != authority_envelope_manifest:
+            raise ValueError("measurement-root authority envelope manifest changed")
         emitted_authority = EvidenceAuthorityEnvelope.model_validate(
-            canon.from_canonical_bytes(store.get_bytes(authority_envelope_ref))
+            canon.from_canonical_bytes(authority_envelope_raw)
         )
         identity["same_input_closure"] = SameInputClosure.model_validate(
             identity["same_input_closure"]
@@ -1754,6 +1859,7 @@ def _read_validated_measurement_snapshot_artifact(
     expected_schema: artifacts.SchemaInfo,
     expected_producer: artifacts.ProducerInfo,
     expected_inputs: Sequence[artifacts.InputRef],
+    expected_canon: artifacts.CanonInfo | None,
 ) -> bytes:
     """Read one custody artifact with its immutable manifest contract enforced."""
 
@@ -1763,12 +1869,43 @@ def _read_validated_measurement_snapshot_artifact(
         or artifact_ref.media_type != expected_media_type
     ):
         raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    manifest = None
+    if expected_media_type == "application/json":
+        if expected_canon is None:
+            raise FabricMeasurementRootBindingError("measurement_root_snapshot_profile_unverified")
+        try:
+            manifest = contracts.epoch._preflight_core_manifest_profile(
+                store=store,
+                selector=artifact_ref,
+                expected_kind=expected_kind,
+                expected_media_type=expected_media_type,
+                expected_schema=expected_schema,
+                expected_canon=expected_canon,
+                expected_inputs=contracts.epoch._ExactManifestInputClosure(tuple(expected_inputs)),
+                require_selected_profile=False,
+            )
+        except CanonicalProfileRefusalError as exc:
+            raise FabricMeasurementRootBindingError(
+                "measurement_root_snapshot_profile_unverified"
+            ) from exc
+        if (
+            manifest.artifact_id != artifact_ref.artifact_id
+            or manifest.kind != expected_kind
+            or manifest.media_type != expected_media_type
+            or manifest.artifact_schema != expected_schema
+            or manifest.producer != expected_producer
+            or manifest.inputs != list(expected_inputs)
+        ):
+            raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
     try:
         verification = store.verify(artifact_ref)
         if not verification.ok:
             raise ValueError(verification.error or "artifact verification failed")
         raw = store.get_bytes(artifact_ref)
-        manifest = store.get_manifest(artifact_ref)
+        observed_manifest = store.get_manifest(artifact_ref)
+        if manifest is not None and observed_manifest != manifest:
+            raise ValueError("manifest changed after Core profile preflight")
+        manifest = observed_manifest
     except (OSError, TypeError, ValueError, RuntimeError) as exc:
         raise FabricMeasurementRootBindingError(
             "measurement_root_snapshot_custody_invalid"
@@ -1847,6 +1984,9 @@ def persist_measurement_root_data_snapshot(
                 role="catalog_binding",
             ),
         ),
+        expected_canon=artifacts.CanonInfo.from_spec(
+            canon.CanonSpec(forbid_floats=False, exclude_none=False)
+        ),
     )
     try:
         receipt = FabricFetchReceipt.model_validate(canon.from_canonical_bytes(receipt_raw))
@@ -1875,6 +2015,11 @@ def persist_measurement_root_data_snapshot(
         ),
         expected_producer=fetch_producer,
         expected_inputs=(),
+        expected_canon=(
+            artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False, exclude_none=False))
+            if payload_media_type == "application/json"
+            else None
+        ),
     )
     _read_validated_measurement_snapshot_artifact(
         store=store,
@@ -1892,6 +2037,7 @@ def persist_measurement_root_data_snapshot(
                 role="fabric_fetch",
             ),
         ),
+        expected_canon=_measurement_root_put_options(fabric_fetch_ref=fetch_receipt_ref).canon,
     )
     _read_validated_measurement_snapshot_artifact(
         store=store,
@@ -1904,6 +2050,9 @@ def persist_measurement_root_data_snapshot(
         ),
         expected_producer=fetch_producer,
         expected_inputs=(),
+        expected_canon=artifacts.CanonInfo.from_spec(
+            canon.CanonSpec(forbid_floats=False, exclude_none=False)
+        ),
     )
 
     snapshot = DataSnapshot(
@@ -2599,7 +2748,7 @@ def canonical_catalog_result_for_workspace_loop(
 def _catalog_source_registry_entry(selected: _CatalogRecordProtocol) -> object | None:
     try:
         registry = read_api.catalog.load_catalog_source_registry()
-    except (AttributeError, ImportError):
+    except AttributeError, ImportError:
         return None
     source_id = str(getattr(selected, "source", "") or "").strip()
     if source_id:
@@ -4129,7 +4278,7 @@ def _parse_datetime(value: object) -> datetime | None:
 def _positive_int(value: object) -> int | None:
     try:
         parsed = int(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
     return parsed if parsed > 0 else None
 

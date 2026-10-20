@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -92,6 +93,7 @@ def test_historical_production_receipt_wire_shape_survives_profiled_readback(
 
 def test_profileless_historical_production_receipt_remains_typed_refusal(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Legacy receipt bytes without a Core declaration never acquire reader authority."""
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
@@ -120,6 +122,20 @@ def test_profileless_historical_production_receipt_remains_typed_refusal(
             media_type="application/vnd.polisyos.epoch-production-receipt+json",
         ),
     )
+    reads: list[str] = []
+    read_raw_manifest = store.get_raw_manifest_bytes
+
+    def observe_raw_manifest(*args: Any, **kwargs: Any) -> bytes:
+        reads.append("raw_manifest")
+        return read_raw_manifest(*args, **kwargs)
+
+    def refuse_payload_access(*args: Any, **kwargs: Any) -> object:
+        reads.append("payload_or_verify")
+        raise AssertionError("profileless refusal must precede payload and integrity reads")
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", observe_raw_manifest)
+    monkeypatch.setattr(store, "verify", refuse_payload_access)
+    monkeypatch.setattr(store, "get_bytes", refuse_payload_access)
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
         epoch_contract.load_verified_epoch_statement(
             store=store,
@@ -127,6 +143,200 @@ def test_profileless_historical_production_receipt_remains_typed_refusal(
             expected_kind="epoch.production_receipt",
             expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
         )
+
+
+def test_prepared_statement_recomputes_its_payload_derived_manifest_input_edge(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Prepared inputs are derived from the typed stamp and checked before return."""
+    from tests.unit.runtime.quality.test_epoch_validity_cascade import (
+        _transition_history_fixture,
+    )
+
+    fixture = _transition_history_fixture(tmp_path)
+    store = fixture.store
+    query = semantic_epoch.EpochResolutionQuery(
+        scope_identity=fixture.scope,
+        authority_purpose="decision_validity",
+        valid_effect_coordinate_evidence_ref=ArtifactRef(
+            artifact_id=artifacts.ArtifactID(
+                f"sha256:{hashlib.sha256(b'valid-effect-evidence').hexdigest()}"
+            ),
+            kind="epoch.coordinate.valid-date.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+        valid_effect_coordinate_ref=fixture.current.valid_effect_coordinate_ref,
+        visibility_knowledge_cutoff_evidence_ref=ArtifactRef(
+            artifact_id=artifacts.ArtifactID(
+                f"sha256:{hashlib.sha256(b'visibility-evidence').hexdigest()}"
+            ),
+            kind="epoch.coordinate.knowledge-time.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+        visibility_knowledge_cutoff_ref=fixture.current.visibility_knowledge_cutoff_ref,
+        purpose_admission_cutoff_evidence_ref=ArtifactRef(
+            artifact_id=artifacts.ArtifactID(
+                f"sha256:{hashlib.sha256(b'admission-evidence').hexdigest()}"
+            ),
+            kind="epoch.coordinate.admission-time.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+        purpose_admission_cutoff_ref=fixture.current.purpose_admission_cutoff_ref,
+        requested_query_context_ref=fixture.current.requested_query_context_ref,
+    )
+    boundary_ref = ArtifactRef(
+        artifact_id=artifacts.ArtifactID(f"sha256:{hashlib.sha256(b'boundary-ref').hexdigest()}"),
+        kind="epoch.boundary_denominator_receipt",
+        media_type="application/vnd.polisyos.epoch+json",
+    )
+    facet_ref = ArtifactRef(
+        artifact_id=artifacts.ArtifactID(f"sha256:{hashlib.sha256(b'facet-ref').hexdigest()}"),
+        kind="epoch.facet_denominator_receipt",
+        media_type="application/vnd.polisyos.epoch+json",
+    )
+    stamp = epoch_contract.SemanticEpochStamp(
+        epoch_ref=fixture.current.epoch_ref,
+        semantic_manifest_ref=fixture.current_ref,
+        semantic_manifest_hash=fixture.current.manifest_content_hash,
+        boundary_denominator_receipt_ref=boundary_ref,
+        boundary_denominator_receipt_hash=f"sha256:{hashlib.sha256(b'boundary-hash').hexdigest()}",
+        facet_denominator_receipt_ref=facet_ref,
+        facet_denominator_receipt_hash=f"sha256:{hashlib.sha256(b'facet-hash').hexdigest()}",
+        requested_query_context_ref=query.requested_query_context_ref,
+        authority_purpose=query.authority_purpose,
+        valid_effect_coordinate_ref=query.valid_effect_coordinate_ref,
+        visibility_knowledge_cutoff_ref=query.visibility_knowledge_cutoff_ref,
+        purpose_admission_cutoff_ref=query.purpose_admission_cutoff_ref,
+        predicate_provenance_class="independently_reconciled",
+    )
+    projection: dict[str, object] = {
+        "query": query,
+        "stamp": stamp,
+        "boundary_candidate_refs": (),
+        "boundary_candidates_by_registration": (),
+        "owner_denominator_receipt_refs": (),
+        "status": "prepared",
+    }
+    statement = semantic_epoch.PreparedSemanticEpoch.canonical_statement_projection(projection)
+    raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(statement))
+    expected_inputs = [
+        artifacts.input_ref_from_artifact_ref(
+            fixture.current_ref,
+            role="semantic_manifest",
+        )
+    ]
+    selected_ref = store.put_bytes(
+        raw,
+        PutOptions(
+            kind="epoch.prepared",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+            inputs=expected_inputs,
+        ),
+        return_selected_profile=True,
+    )
+    prepared = semantic_epoch.PreparedSemanticEpoch(
+        prepared_epoch_ref=selected_ref,
+        prepared_content_hash=semantic_epoch._model_hash(
+            b"polisyos.epoch.prepared.v1\0",
+            statement,
+        ),
+        **statement,
+    )
+    assert prepared.statement_projection()["stamp"] == stamp
+    admitted = epoch_contract.load_verified_epoch_statement(
+        store=store,
+        ref=selected_ref,
+        expected_kind="epoch.prepared",
+    )
+    assert admitted["status"] == "prepared"
+    assert store.get_manifest(selected_ref).inputs == expected_inputs
+
+    anchor = store.put_bytes(
+        b"prepared-extra-edge",
+        PutOptions(kind="epoch.test_anchor", media_type="application/octet-stream"),
+    )
+    wrong_ref = store.put_bytes(
+        raw,
+        PutOptions(
+            kind="epoch.prepared",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+            inputs=[
+                *expected_inputs,
+                artifacts.input_ref_from_artifact_ref(anchor, role="unexpected_parent"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    assert wrong_ref.artifact_id == selected_ref.artifact_id
+    assert wrong_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    assert store.get_bytes(wrong_ref) == raw
+    assert len(store.get_manifest(wrong_ref).inputs) == 2
+
+    reads: list[str] = []
+    original_get_bytes = type(store).get_bytes
+    original_verify = type(store).verify
+    prepared_artifact_id = wrong_ref.artifact_id
+
+    def record_get_bytes(owner: object, ref: object) -> bytes:
+        if getattr(ref, "artifact_id", ref) == prepared_artifact_id:
+            reads.append("get_bytes")
+        return original_get_bytes(owner, ref)
+
+    def record_verify(owner: object, ref: object) -> object:
+        if getattr(ref, "artifact_id", ref) == prepared_artifact_id:
+            reads.append("verify")
+        return original_verify(owner, ref)
+
+    monkeypatch.setattr(type(store), "get_bytes", record_get_bytes)
+    monkeypatch.setattr(type(store), "verify", record_verify)
+    with pytest.raises(ValueError, match="epoch statement manifest input closure differs"):
+        epoch_contract.load_verified_epoch_statement(
+            store=store,
+            ref=wrong_ref,
+            expected_kind="epoch.prepared",
+        )
+    assert reads == ["verify", "get_bytes"]
+
+
+def test_epoch_issuance_closure_reader_refuses_profileless_core_before_payload(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A typed Core closure edge cannot reach payload or integrity reads unprofiled."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        DecisionPacketEpochIssuanceOwner,
+    )
+
+    store = FileSystemCAS(tmp_path / "profileless-closure-cas")
+    ref = store.put_bytes(
+        b"historical receipt bytes",
+        PutOptions(
+            kind="epoch.production_receipt",
+            media_type="application/vnd.polisyos.epoch-production-receipt+json",
+        ),
+    )
+    owner = DecisionPacketEpochIssuanceOwner(store=store, root=tmp_path / "issuance")
+    reads: list[str] = []
+    read_raw_manifest = store.get_raw_manifest_bytes
+
+    def observe_raw_manifest(*args: object, **kwargs: object) -> bytes:
+        reads.append("raw_manifest")
+        return read_raw_manifest(*args, **kwargs)
+
+    def refuse_payload_access(*args: object, **kwargs: object) -> object:
+        reads.append("payload_or_verify")
+        raise AssertionError("Core profile refusal must precede payload and integrity reads")
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", observe_raw_manifest)
+    monkeypatch.setattr(store, "verify", refuse_payload_access)
+    monkeypatch.setattr(store, "get_bytes", refuse_payload_access)
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        owner._read_exact(ref)
+    assert reads == ["raw_manifest"]
 
 
 def test_production_receipt_preserves_producer_selected_or_default_manifest_view(

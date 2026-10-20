@@ -240,6 +240,45 @@ class PersistedEpochCertificateIssuance(_IssuanceReceipt):
     issuance_receipt_ref: ArtifactRef
 
 
+def _issuance_model_manifest_inputs(value: BaseModel) -> list[artifacts.InputRef]:
+    """Reproduce the exact input rows written by each existing issuance producer."""
+
+    if isinstance(value, _InvocationRecipe):
+        refs = (*value.input_certificate_refs, value.invocation_ref)
+    elif isinstance(value, _IssuanceBasis):
+        refs = (
+            *value.invocation_input_refs,
+            value.inputs.epoch_manifest_ref,
+            *((value.inputs.recipe.recipe_ref,) if value.inputs.recipe is not None else ()),
+            value.execution_recipe.recipe_ref,
+            value.invocation_ref,
+            *value.complete_input_certificate_refs,
+            value.inputs.admission_evidence_ref,
+            value.inputs.verifier_provenance_ref,
+            value.epoch_history_snapshot_ref,
+        )
+    elif isinstance(value, _IssuanceReceipt):
+        refs = (
+            value.preparation.issuance_basis_ref,
+            value.binding.certificate_ref,
+            value.epoch_manifest_ref,
+        )
+    elif isinstance(value, DecisionPacketInvocationRecord):
+        # The Scientist invocation writer persists the embedded observed refs in
+        # the statement; its ArtifactWriteOptions.inputs is intentionally absent.
+        return []
+    else:
+        raise TypeError("epoch_certificate_issuance_model_input_contract_unregistered")
+    return [
+        artifacts.InputRef(
+            artifact_id=source.artifact_id,
+            role=f"source[{index}]",
+            manifest_profile_sha256=source.manifest_profile_sha256,
+        )
+        for index, source in enumerate(_canonical_refs(tuple(refs)))
+    ]
+
+
 class DecisionPacketEpochIssuanceOwner:
     """Prepare exact inputs, finalize actual emission, and enumerate admitted rows."""
 
@@ -293,12 +332,42 @@ class DecisionPacketEpochIssuanceOwner:
             input_resolver=input_resolver,
         )
 
-    def _read_exact(self, ref: ArtifactRef) -> bytes:
+    def _read_exact(
+        self,
+        ref: ArtifactRef,
+        *,
+        preflight_manifest: artifacts.ArtifactManifest | None = None,
+    ) -> bytes:
+        from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
         try:
+            admitted_manifest = preflight_manifest
+            if admitted_manifest is None:
+                codec = contracts.epoch.acquisition_artifact_codec(
+                    ref.kind,
+                    media_type=ref.media_type,
+                )
+                if codec is not None and codec.canon is not None:
+                    expected_schema = contracts.epoch._known_epoch_statement_manifest_schema(
+                        ref.kind, codec
+                    )
+                    admitted_manifest = contracts.epoch._preflight_core_manifest_profile(
+                        store=self.store,
+                        selector=ref,
+                        expected_kind=ref.kind,
+                        expected_media_type=codec.media_type,
+                        expected_schema=expected_schema,
+                        expected_canon=codec.canon,
+                        require_selected_profile=False,
+                        expected_inputs=contracts.epoch._UnownedManifestInputClosure(
+                            "external source artifact ancestry is not declared by this owner"
+                        ),
+                    )
             raw = self.store.get_bytes(ref)
             manifest = self.store.get_manifest(ref)
             if (
-                not self.store.verify(ref).ok
+                (admitted_manifest is not None and manifest != admitted_manifest)
+                or not self.store.verify(ref).ok
                 or _raw_hash(raw) != str(ref.artifact_id)
                 or ArtifactRef(
                     artifact_id=manifest.artifact_id,
@@ -310,22 +379,47 @@ class DecisionPacketEpochIssuanceOwner:
             ):
                 raise ValueError("exact evidence mismatch")
             return raw
+        except CanonicalProfileRefusalError:
+            raise
         except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("epoch_certificate_issuance_evidence_unresolved") from exc
 
-    def _read_model(self, ref: ArtifactRef, model: type[_Model], kind: str) -> _Model:
-        raw = self._read_exact(ref)
-        manifest = self.store.get_manifest(ref)
-        if (
-            ref.kind != kind
-            or ref.media_type != "application/json"
-            or manifest.artifact_schema != artifacts.SchemaInfo(name=kind, version="1.0")
-            or manifest.canon != artifacts.CanonInfo.from_spec(_CANON)
-        ):
-            raise ValueError("epoch_certificate_issuance_evidence_unresolved")
+    def _read_model(
+        self,
+        ref: ArtifactRef,
+        model: type[_Model],
+        kind: str,
+        *,
+        expected_inputs: (
+            contracts.epoch._ExactManifestInputClosure
+            | contracts.epoch._PayloadDerivedManifestInputClosure
+        ),
+    ) -> _Model:
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=self.store,
+            selector=ref,
+            expected_kind=kind,
+            expected_media_type="application/json",
+            expected_schema=artifacts.SchemaInfo(name=kind, version="1.0"),
+            expected_canon=artifacts.CanonInfo.from_spec(_CANON),
+            require_selected_profile=False,
+            expected_inputs=expected_inputs,
+        )
+        raw = self._read_exact(ref, preflight_manifest=manifest)
+        if self.store.get_manifest(ref) != manifest:
+            raise ValueError("epoch_certificate_issuance_manifest_changed_after_preflight")
         value = model.model_validate(canon.from_canonical_bytes(raw))
         if canon.to_canonical_bytes(value.model_dump(mode="json"), _CANON) != raw:
             raise ValueError("epoch_certificate_issuance_evidence_unresolved")
+        # For persisted owner models, the producer's source-ref projection is
+        # reconstructed from the decoded typed record. This post-read comparison
+        # precedes every caller's authority-bearing validation or return.
+        contracts.epoch._verify_decoded_manifest_input_closure(
+            manifest=manifest,
+            expectation=expected_inputs,
+            decoded_inputs=_issuance_model_manifest_inputs(value),
+            failure_message="epoch_certificate_issuance_input_closure_mismatch",
+        )
         return value
 
     def _persist(
@@ -349,7 +443,17 @@ class DecisionPacketEpochIssuanceOwner:
                 ],
             ),
         )
-        if self._read_model(ref, type(value), kind) != value:
+        if (
+            self._read_model(
+                ref,
+                type(value),
+                kind,
+                expected_inputs=contracts.epoch._ExactManifestInputClosure(
+                    _issuance_model_manifest_inputs(value)
+                ),
+            )
+            != value
+        ):
             raise ValueError("epoch_certificate_issuance_evidence_unresolved")
         return ref
 
@@ -364,7 +468,14 @@ class DecisionPacketEpochIssuanceOwner:
     def _read_basis(
         self, preparation: PersistedEpochCertificateIssuancePreparation
     ) -> _IssuanceBasis:
-        basis = self._read_model(preparation.issuance_basis_ref, _IssuanceBasis, _BASIS_KIND)
+        basis = self._read_model(
+            preparation.issuance_basis_ref,
+            _IssuanceBasis,
+            _BASIS_KIND,
+            expected_inputs=contracts.epoch._PayloadDerivedManifestInputClosure(
+                "epoch certificate issuance basis", "ordered"
+            ),
+        )
         if preparation.issuance_basis_content_hash != str(
             preparation.issuance_basis_ref.artifact_id
         ):
@@ -375,7 +486,17 @@ class DecisionPacketEpochIssuanceOwner:
     def _read_issuance_history(
         self, *, ref: ArtifactRef, content_hash: str, epoch: SemanticEpochManifest
     ) -> EpochScopeHistory:
-        raw = self._read_exact(ref)
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=self.store,
+            selector=ref,
+            expected_kind="epoch.scope_history",
+            expected_media_type="application/vnd.polisyos.epoch+json",
+            expected_canon=contracts.epoch.epoch_canon_info(),
+            expected_schema=None,
+            require_selected_profile=False,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+        )
+        raw = self._read_exact(ref, preflight_manifest=manifest)
         if (
             ref.kind != "epoch.scope_history"
             or ref.media_type != "application/vnd.polisyos.epoch+json"
@@ -419,7 +540,10 @@ class DecisionPacketEpochIssuanceOwner:
 
     def _read_invocation(self, ref: ArtifactRef, *, run_id: str) -> DecisionPacketInvocationRecord:
         record = self._read_model(
-            ref, DecisionPacketInvocationRecord, DECISION_PACKET_INVOCATION_KIND
+            ref,
+            DecisionPacketInvocationRecord,
+            DECISION_PACKET_INVOCATION_KIND,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
         )
         values = []
         for part_ref, kind in (
@@ -427,10 +551,21 @@ class DecisionPacketEpochIssuanceOwner:
             (record.run_manifest_ref, "scientist.decision_packet_invoked_run"),
             (record.node_spec_ref, "scientist.decision_packet_invoked_spec"),
         ):
-            raw = self._read_exact(part_ref)
-            value = canon.from_canonical_bytes(raw)
-            manifest = self.store.get_manifest(part_ref)
             profile = canon.CanonSpec(forbid_floats=False)
+            manifest = contracts.epoch._preflight_core_manifest_profile(
+                store=self.store,
+                selector=part_ref,
+                expected_kind=kind,
+                expected_media_type="application/json",
+                expected_schema=artifacts.SchemaInfo(name=kind, version="1.0"),
+                expected_canon=artifacts.CanonInfo.from_spec(profile),
+                require_selected_profile=False,
+                expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+            )
+            raw = self._read_exact(part_ref, preflight_manifest=manifest)
+            value = canon.from_canonical_bytes(raw)
+            if self.store.get_manifest(part_ref) != manifest:
+                raise ValueError("epoch_certificate_issuance_manifest_changed_after_preflight")
             if (
                 part_ref.kind != kind
                 or part_ref.media_type != "application/json"
@@ -521,6 +656,9 @@ class DecisionPacketEpochIssuanceOwner:
             basis.execution_recipe.recipe_ref,
             _InvocationRecipe,
             "scientist.decision_packet_invocation_recipe",
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(
+                _issuance_model_manifest_inputs(expected_recipe)
+            ),
         )
         if (
             record.input_refs != basis.invocation_input_refs
@@ -728,10 +866,35 @@ class DecisionPacketEpochIssuanceOwner:
         preparation: PersistedEpochCertificateIssuancePreparation,
         basis: _IssuanceBasis,
     ) -> EpochCertificateBinding:
-        packet_raw = self._read_exact(packet_ref)
-        if packet_ref.kind != "scientist.decision_packet":
+        packet_manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=self.store,
+            selector=packet_ref,
+            expected_kind="scientist.decision_packet",
+            expected_media_type="application/json",
+            expected_schema=artifacts.SchemaInfo(
+                name="polisyos.scientist.DecisionPacket", version="3.4"
+            ),
+            expected_canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+            require_selected_profile=False,
+            expected_inputs=contracts.epoch._RequiredManifestInputViewSubset(
+                tuple(basis.complete_input_certificate_refs)
+            ),
+        )
+        input_views = {
+            (str(row.artifact_id), row.manifest_profile_sha256) for row in packet_manifest.inputs
+        }
+        expected_input_views = {
+            (str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in basis.complete_input_certificate_refs
+        }
+        if not expected_input_views.issubset(input_views):
             raise ValueError("epoch_certificate_issuance_evidence_unresolved")
-        packet = canon.from_canonical_bytes(packet_raw)
+        packet_raw = self._read_exact(packet_ref, preflight_manifest=packet_manifest)
+        if self.store.get_manifest(packet_ref) != packet_manifest:
+            raise ValueError("epoch_certificate_issuance_manifest_changed_after_preflight")
+        packet = artifacts.load_core_json_artifact(
+            self.store, packet_ref, raw_payload_bytes=packet_raw
+        )
         envelope = DecisionValidityEnvelope.model_validate(packet["decision_validity_envelope"])
         dependency_id = str(preparation.issuance_basis_ref.artifact_id)
         selected = tuple(
@@ -745,16 +908,6 @@ class DecisionPacketEpochIssuanceOwner:
             or len(selected) != 1
             or selected[0].key != "semantic_epoch:" + dependency_id
         ):
-            raise ValueError("epoch_certificate_issuance_evidence_unresolved")
-        input_views = {
-            (str(row.artifact_id), row.manifest_profile_sha256)
-            for row in self.store.get_manifest(packet_ref).inputs
-        }
-        expected_input_views = {
-            (str(ref.artifact_id), ref.manifest_profile_sha256)
-            for ref in basis.complete_input_certificate_refs
-        }
-        if not expected_input_views.issubset(input_views):
             raise ValueError("epoch_certificate_issuance_evidence_unresolved")
         epoch = self._read_epoch(basis.inputs.epoch_manifest_ref)
         return bind_certificate_to_epoch(
@@ -822,7 +975,14 @@ class DecisionPacketEpochIssuanceOwner:
             raise ValueError("epoch_certificate_issuance_owner_unresolved") from exc
 
     def _read_issuance(self, ref: ArtifactRef) -> PersistedEpochCertificateIssuance:
-        receipt = self._read_model(ref, _IssuanceReceipt, _RECEIPT_KIND)
+        receipt = self._read_model(
+            ref,
+            _IssuanceReceipt,
+            _RECEIPT_KIND,
+            expected_inputs=contracts.epoch._PayloadDerivedManifestInputClosure(
+                "epoch certificate issuance receipt", "ordered"
+            ),
+        )
         basis = self._read_basis(receipt.preparation)
         expected = self._read_packet_binding(
             packet_ref=receipt.binding.certificate_ref,

@@ -118,18 +118,12 @@ The same typed owner models declare literal `ARTIFACT_KIND` and `ARTIFACT_MEDIA_
 
 ## Semantic epoch owner statement readback
 
-`load_verified_epoch_statement` applies the owner profile to `epoch.semantic_manifest` and
-`epoch.production_receipt`: exact kind and media type, absent artifact schema, and the declared
-`epoch_canon_info()` Core profile. It decodes the selected/default CAS view through the existing
-Core canonical-profile reader, then checks the content-addressed single frame. Semantic manifests
-carry no direct CAS input edges; production receipts carry exactly the `epoch_production_input`
-edges derived by the producer's shared seven-field contract helper, including each direct ref's
-selected-profile digest. `owner_denominator_receipt_refs` remain payload-level verification evidence
-for the owner consumer and are not promoted into the direct CAS edge set. A ref without
-`manifest_profile_sha256` selects the actual default manifest and is returned unchanged; that view
-is accepted when the manifest declares `epoch_canon_info()`. A historical owner manifest missing
-Core CanonInfo still raises `CanonicalProfileRefusalError`. The reader neither adds a selector nor
-restamps a manifest. This contract does not validate owner-denominator evidence or resolve child refs.
-Core CanonInfo checks serialization conformance only; it does not apply an IR law or make a receipt
-a native history, currentness, or authority claim.
+`load_verified_epoch_statement` and the shared Core manifest preflight bind a selected view to its exact kind, media type, declared Core CanonInfo, and an explicit schema expectation. `expected_schema=None` means the owner contract requires schema absence; a named `SchemaInfo` (or finite exact version set) is compared exactly. A schema-unowned contract must name its bounded scope, and is used only where the registered owner does not declare that manifest field. A ref with no `manifest_profile_sha256` remains the store's actual default view; the reader does not add a selector or infer a profile from bytes. A historical profileless manifest that lacks the required Core declaration remains a typed refusal.
 
+The native chronology policy owner applies this shared admission to its scope-history reference before its separate signed-evidence byte-equality read. The reference's absent selector still means the actual default view; a wrong or absent Core declaration is refused before history payload or integrity access. On an admitted view, the owner retains its existing byte-for-byte comparison against the canonical history projection.
+
+Each protected owner read now names its input-closure contract at admission. For writers that omit `ArtifactWriteOptions.inputs` or pass an empty list, the declared contract is exactly empty and an extra manifest edge is refused before payload or integrity reads. For `epoch.prepared`, the semantic-manifest edge is reconstructed from the decoded typed stamp; for `epoch.production_receipt`, the producer's shared seven-field helper reconstructs the direct `epoch_production_input` edge multiset, including each ref's selected-profile digest. These payload-derived edges are checked against the already-selected manifest before the typed value can be used. `owner_denominator_receipt_refs` remain payload-level verification evidence for their owner consumer and are not promoted into the production receipt's direct CAS edge set.
+
+Issuance packet binding retains its existing required-view subset rule over `complete_input_certificate_refs`; the shared preflight also checks that subset against the exact selected manifest. `_read_exact` can verify exact bytes for external source refs, but this owner does not declare every external artifact's parent-edge ancestry; that ancestry remains `not_established` unless a specific owner contract supplies it. A new protected writer kind must declare its typed input contract before using the shared loader; an omitted internal expectation is a refusal, not permission to accept arbitrary edges.
+
+These checks enforce Core serialization/profile and existing owner input contracts. They do not apply an IR law, validate owner-denominator evidence by themselves, make a receipt a native history/currentness/authority claim, or rewrite stored manifests. Existing producer options and public DTO/API exports remain unchanged. Historical records that do not satisfy their owner's existing declared contract require the existing owner lifecycle to reissue them; readers do not restamp them.

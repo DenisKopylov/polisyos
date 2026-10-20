@@ -12,7 +12,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.core import artifacts, canon
+from polisyos.core import artifacts, canon, contracts
 from polisyos.core.contracts import (
     DecisionValidityEpochImpactSnapshot,
     DecisionValidityEpochImpactSnapshotHandle,
@@ -23,6 +23,8 @@ from polisyos.core.contracts import (
     PersistedEpochTransitionDenominatorReconciliation,
 )
 from polisyos.runtime.quality.epoch_validity_cascade import (
+    _TRANSITION_CANON_INFO,
+    _TRANSITION_KIND,
     EpochDependencyDenominatorReceipt,
     EpochValidityTransitionArtifact,
     _epoch_dependency_target_refs,
@@ -114,9 +116,20 @@ def _read_transition_exact(
     from polisyos.core.artifacts import validate_core_model_json_artifact
 
     try:
-        manifest = store.get_manifest(ref)
-        raw = store.get_bytes(ref)
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=store,
+            selector=ref,
+            expected_kind=_TRANSITION_KIND,
+            expected_media_type=_CHRONOLOGY_MEDIA_TYPE,
+            expected_canon=_TRANSITION_CANON_INFO,
+            expected_schema=None,
+            require_selected_profile=False,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+        )
         report = store.verify(ref)
+        raw = store.get_bytes(ref)
+        if store.get_manifest(ref) != manifest:
+            raise ValueError("transition manifest changed after profile preflight")
         if not report.ok or _raw_digest(raw) != str(ref.artifact_id):
             raise ValueError("transition content identity mismatch")
         _validate_epoch_transition_manifest(ref=ref, manifest=manifest, raw=raw)
@@ -152,9 +165,20 @@ def _read_snapshot_exact(
 
     try:
         ref = handle.snapshot_ref
-        manifest = store.get_manifest(ref)
-        raw = store.get_bytes(ref)
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=store,
+            selector=ref,
+            expected_kind=_SNAPSHOT_KIND,
+            expected_media_type=_SNAPSHOT_MEDIA_TYPE,
+            expected_schema=artifacts.SchemaInfo(name=_SNAPSHOT_SCHEMA, version="1.0"),
+            expected_canon=_CANON_INFO,
+            require_selected_profile=False,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+        )
         report = store.verify(ref)
+        raw = store.get_bytes(ref)
+        if store.get_manifest(ref) != manifest:
+            raise ValueError("snapshot manifest changed after profile preflight")
         if (
             ref.kind != _SNAPSHOT_KIND
             or ref.media_type != _SNAPSHOT_MEDIA_TYPE
@@ -314,9 +338,22 @@ class EpochTransitionDenominatorReconciliationReader:
 
         try:
             ref = handle.reconciliation_receipt_ref
-            manifest = self._store.get_manifest(ref)
-            raw = self._store.get_bytes(ref)
+            manifest = contracts.epoch._preflight_core_manifest_profile(
+                store=self._store,
+                selector=ref,
+                expected_kind=_RECONCILIATION_KIND,
+                expected_media_type=_CHRONOLOGY_MEDIA_TYPE,
+                expected_schema=artifacts.SchemaInfo(name=_RECONCILIATION_SCHEMA, version="1.0"),
+                expected_canon=_CANON_INFO,
+                require_selected_profile=False,
+                expected_inputs=contracts.epoch._PayloadDerivedManifestInputClosure(
+                    "epoch denominator reconciliation receipt", "ordered"
+                ),
+            )
             report = self._store.verify(ref)
+            raw = self._store.get_bytes(ref)
+            if self._store.get_manifest(ref) != manifest:
+                raise ValueError("receipt manifest changed after profile preflight")
             if (
                 ref.kind != _RECONCILIATION_KIND
                 or ref.media_type != _CHRONOLOGY_MEDIA_TYPE

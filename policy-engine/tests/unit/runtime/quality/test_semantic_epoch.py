@@ -9,7 +9,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import contracts
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
@@ -1799,6 +1799,7 @@ def test_registered_codec_keeps_identity_tokens_and_unresolved_refs_distinct(
 
 def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     owner = substrate_registry.load_l5_catalog_authority(
@@ -1842,7 +1843,54 @@ def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(
         assert str(source_ref.artifact_id) == source_hash == epoch._raw_cas_hash(payload)
         assert selected.manifest_profile_sha256 is not None
         assert store.get_bytes(selected) == payload
-        assert store.get_manifest(selected).canon is None
+        selected_manifest = store.get_manifest(selected)
+        assert selected_manifest.canon is None
+        assert selected_manifest.artifact_schema is None
+
+        wrong_schema_ref = store.put_bytes(
+            payload,
+            PutOptions(
+                kind=selected.kind,
+                media_type=selected.media_type,
+                schema=SchemaInfo(name="polisyos.l5.SourceRegistry", version="1.0"),
+                canon=None,
+            ),
+            return_selected_profile=True,
+        )
+        assert wrong_schema_ref.artifact_id == selected.artifact_id
+        assert wrong_schema_ref.manifest_profile_sha256 != selected.manifest_profile_sha256
+        payload_reads: list[str] = []
+        original_verify = type(store).verify
+        original_get_bytes = type(store).get_bytes
+
+        def record_verify(
+            instance: object,
+            selector: object,
+            *,
+            _payload_reads: list[str] = payload_reads,
+            _original_verify: Any = original_verify,
+        ) -> object:
+            _payload_reads.append("verify")
+            return _original_verify(instance, selector)
+
+        def record_get_bytes(
+            instance: object,
+            selector: object,
+            *,
+            _payload_reads: list[str] = payload_reads,
+            _original_get_bytes: Any = original_get_bytes,
+        ) -> bytes:
+            _payload_reads.append("get_bytes")
+            return _original_get_bytes(instance, selector)
+
+        with monkeypatch.context() as context:
+            context.setattr(type(store), "verify", record_verify)
+            context.setattr(type(store), "get_bytes", record_get_bytes)
+            with pytest.raises(ValueError, match="manifest schema differs"):
+                epoch._load_selected_acquisition_mapping(
+                    store, wrong_schema_ref, expected_kind=selected.kind
+                )
+        assert payload_reads == []
     for assessment in receipt.assessments:
         selected, mapping = epoch._load_owner_projection_mapping(
             store, assessment.regime_source_ref

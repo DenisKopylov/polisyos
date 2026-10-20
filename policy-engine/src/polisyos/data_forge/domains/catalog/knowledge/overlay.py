@@ -943,9 +943,28 @@ def _load_external_statement(
         raise OverlayAdmissionError("semantic_external_receipt_profile_mismatch")
     if ref.manifest_profile_sha256 is None:
         raise OverlayAdmissionError("semantic_external_receipt_profile_missing", expected_kind)
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
+    try:
+        manifest = epoch_contract._preflight_core_manifest_profile(
+            store=artifact_store,
+            selector=ref,
+            expected_kind=expected_kind,
+            expected_media_type="application/vnd.polisyos.epoch+json",
+            expected_canon=epoch_contract.external_epoch_statement_canon_info(),
+            require_selected_profile=True,
+            expected_schema=None,
+            expected_inputs=epoch_contract._ExactManifestInputClosure(()),
+        )
+    except CanonicalProfileRefusalError as exc:
+        raise OverlayAdmissionError(
+            "semantic_external_receipt_profile_unverified",
+            f"{expected_kind}: {exc}",
+        ) from exc
     report = artifact_store.verify(ref)
-    manifest = artifact_store.get_manifest(ref)
     payload = artifact_store.get_bytes(ref)
+    if artifact_store.get_manifest(ref) != manifest:
+        raise OverlayAdmissionError("semantic_external_receipt_readback_failed")
     if (
         not bool(getattr(report, "ok", False))
         or str(ref.artifact_id) != f"sha256:{hashlib.sha256(payload).hexdigest()}"

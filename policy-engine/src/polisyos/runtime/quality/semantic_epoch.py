@@ -349,19 +349,14 @@ def _load_selected_acquisition_mapping(
     store: ArtifactStore, ref: ArtifactRef, *, expected_kind: str
 ) -> dict[str, object]:
     """Resolve one selected acquisition payload through its registered byte codec."""
-    if expected_kind in {"epoch.semantic_manifest", "epoch.production_receipt"}:
-        expected_media_type = (
-            "application/vnd.polisyos.epoch-production-receipt+json"
-            if expected_kind == "epoch.production_receipt"
-            else "application/vnd.polisyos.epoch+json"
-        )
+    codec = epoch_contract.acquisition_artifact_codec(expected_kind, media_type=ref.media_type)
+    if codec is not None and codec.payload_format == "epoch_frame" and codec.canon is not None:
         return epoch_contract.load_verified_epoch_statement(
             store=store,
             ref=ref,
             expected_kind=expected_kind,
-            expected_media_type=expected_media_type,
+            expected_media_type=codec.media_type,
         )
-    codec = epoch_contract.acquisition_artifact_codec(expected_kind, media_type=ref.media_type)
     if (
         codec is None
         or ref.manifest_profile_sha256 is None
@@ -371,9 +366,28 @@ def _load_selected_acquisition_mapping(
         raise ValueError("selected acquisition artifact selector is not established")
     if codec.payload_format in {"identity_token", "unresolved_reference"}:
         raise ValueError("selected reference has no evidence-byte resolver")
+    expected_schema = epoch_contract._known_epoch_statement_manifest_schema(expected_kind, codec)
+    if codec.canon is not None:
+        manifest = epoch_contract._preflight_core_manifest_profile(
+            store=store,
+            selector=ref,
+            expected_kind=expected_kind,
+            expected_media_type=codec.media_type,
+            expected_canon=codec.canon,
+            expected_schema=expected_schema,
+            require_selected_profile=False,
+            expected_inputs=epoch_contract._known_epoch_statement_manifest_inputs(expected_kind),
+        )
+    else:
+        manifest = store.get_manifest(ref)
+        if not epoch_contract._manifest_schema_matches(manifest, expected_schema):
+            raise ValueError("selected acquisition artifact manifest schema differs")
     report = store.verify(ref)
-    manifest = store.get_manifest(ref)
     payload = store.get_bytes(ref)
+    observed_manifest = store.get_manifest(ref)
+    if observed_manifest != manifest:
+        raise ValueError("selected acquisition artifact manifest changed after profile preflight")
+    manifest = observed_manifest
     if (
         not bool(getattr(report, "ok", False))
         or _raw_cas_hash(payload) != str(ref.artifact_id)
@@ -382,16 +396,7 @@ def _load_selected_acquisition_mapping(
         or getattr(manifest, "media_type", None) != codec.media_type
         or getattr(manifest, "canon", None) != codec.canon
         or artifacts.artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
-        or (codec.require_schema_absent and getattr(manifest, "artifact_schema", None) is not None)
-        or (
-            codec.schema_name is not None
-            and (
-                getattr(getattr(manifest, "artifact_schema", None), "name", None)
-                != codec.schema_name
-                or getattr(getattr(manifest, "artifact_schema", None), "version", None)
-                != codec.schema_version
-            )
-        )
+        or not epoch_contract._manifest_schema_matches(manifest, expected_schema)
     ):
         raise ValueError("selected acquisition artifact manifest or bytes differ")
     if codec.payload_format in {

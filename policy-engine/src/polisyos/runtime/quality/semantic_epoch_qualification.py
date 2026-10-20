@@ -226,15 +226,15 @@ class SemanticEpochNativePolicyOwner:
             or relation.native_denominator_ref.media_type != "application/vnd.polisyos.epoch+json"
         ):
             raise ValueError("native denominator source profile differs")
-        raw = self.deployment._runtime_repository().read_raw(
-            artifact_ref=relation.native_denominator_ref
-        )
         history = _HistoryStatement.model_validate(
             contracts.epoch.load_verified_epoch_statement(
                 store=self._store,
                 ref=relation.native_denominator_ref,
                 expected_kind="epoch.scope_history",
             )
+        )
+        raw = self.deployment._runtime_repository().read_raw(
+            artifact_ref=relation.native_denominator_ref
         )
         if raw != _history_view_bytes(
             scope=history.scope,

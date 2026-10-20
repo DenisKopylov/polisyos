@@ -706,6 +706,150 @@ def test_profileless_design_problem_history_is_candidate_only_and_refused_by_own
         history_reader._verify_design_problem_binding(historical_statement)
 
 
+def test_selected_design_problem_wrong_valid_canon_refuses_before_payload_reads(
+    tmp_path, monkeypatch
+) -> None:
+    """A selected, byte-conformant design problem must use its producer's exact CAN."""
+    from dataclasses import replace
+
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
+    _runtime, batch = _prepared(tmp_path / "current")
+    store = FileSystemCAS(tmp_path / "wrong-canon")
+    problem = _problem()
+    raw = core_contracts.chronology._canonical_raw_bytes(problem.model_dump(mode="json"))
+    expected_canon = artifacts.CanonInfo.from_spec(core_contracts.chronology.CHRONOLOGY_CANON_SPEC)
+    wrong_canon = artifacts.CanonInfo.from_spec(
+        replace(core_contracts.chronology.CHRONOLOGY_CANON_SPEC, max_depth=64)
+    )
+    assert wrong_canon != expected_canon
+
+    expected_schema = artifacts.SchemaInfo(
+        name="polisyos.runtime.DesignProblem",
+        version="1.0",
+    )
+    wrong_ref = store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.design_problem",
+            media_type="application/json",
+            schema=expected_schema,
+            canon=wrong_canon,
+        ),
+        return_selected_profile=True,
+    )
+    manifest = store.get_manifest(wrong_ref)
+    assert wrong_ref.manifest_profile_sha256 is not None
+    assert manifest.artifact_schema == expected_schema
+    assert manifest.canon == wrong_canon
+    assert (
+        artifacts.read_core_json_artifact(
+            store,
+            wrong_ref,
+            raw_payload_bytes=raw,
+        ).status
+        == "declared_bytes_conformant"
+    )
+
+    statement = batch.contexts.aggregate_context.statement.model_copy(
+        update={"design_problem_binding_ref": wrong_ref}
+    )
+    assert _semantic_hash("runtime.design_problem", problem) == (
+        statement.design_problem_binding_content_hash
+    )
+    reads: list[str] = []
+    original_get_bytes = type(store).get_bytes
+    original_verify = type(store).verify
+    wrong_artifact_id = wrong_ref.artifact_id
+
+    def record_get_bytes(owner, ref):
+        if getattr(ref, "artifact_id", ref) == wrong_artifact_id:
+            reads.append("get_bytes")
+        return original_get_bytes(owner, ref)
+
+    def record_verify(owner, ref):
+        if getattr(ref, "artifact_id", ref) == wrong_artifact_id:
+            reads.append("verify")
+        return original_verify(owner, ref)
+
+    monkeypatch.setattr(type(store), "get_bytes", record_get_bytes)
+    monkeypatch.setattr(type(store), "verify", record_verify)
+    reader = epoch_cascade_module.ArtifactPromotionOwnerQueryContextRepository(artifacts=store)
+    with pytest.raises(CanonicalProfileRefusalError) as refused:
+        reader._verify_design_problem_binding(statement)
+
+    assert refused.value.code == "canon_profile_typed_artifact_profile_mismatch"
+    assert reads == []
+
+
+def test_selected_design_problem_extra_manifest_input_refuses_before_payload_reads(
+    tmp_path, monkeypatch
+) -> None:
+    """The selected producer's omitted ``inputs`` option means an exact empty list."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
+    _runtime, batch = _prepared(tmp_path / "current")
+    store = FileSystemCAS(tmp_path / "extra-input")
+    problem = _problem()
+    raw = core_contracts.chronology._canonical_raw_bytes(problem.model_dump(mode="json"))
+    canon_info = artifacts.CanonInfo.from_spec(core_contracts.chronology.CHRONOLOGY_CANON_SPEC)
+    schema = artifacts.SchemaInfo(name="polisyos.runtime.DesignProblem", version="1.0")
+    source_ref = store.put_bytes(
+        b"unexpected parent",
+        artifacts.ArtifactWriteOptions(
+            kind="fixture.unexpected-parent",
+            media_type="application/octet-stream",
+        ),
+    )
+    extra_input = artifacts.input_ref_from_artifact_ref(
+        source_ref,
+        role="unexpected_parent",
+    )
+    selected_ref = store.put_bytes(
+        raw,
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.design_problem",
+            media_type="application/json",
+            schema=schema,
+            canon=canon_info,
+            inputs=[extra_input],
+        ),
+        return_selected_profile=True,
+    )
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert store.get_bytes(selected_ref) == raw
+    assert store.get_manifest(selected_ref).inputs == [extra_input]
+
+    statement = batch.contexts.aggregate_context.statement.model_copy(
+        update={"design_problem_binding_ref": selected_ref}
+    )
+    assert _semantic_hash("runtime.design_problem", problem) == (
+        statement.design_problem_binding_content_hash
+    )
+    reads: list[str] = []
+    original_get_bytes = type(store).get_bytes
+    original_verify = type(store).verify
+
+    def record_get_bytes(owner, ref):
+        if getattr(ref, "artifact_id", ref) == selected_ref.artifact_id:
+            reads.append("get_bytes")
+        return original_get_bytes(owner, ref)
+
+    def record_verify(owner, ref):
+        if getattr(ref, "artifact_id", ref) == selected_ref.artifact_id:
+            reads.append("verify")
+        return original_verify(owner, ref)
+
+    monkeypatch.setattr(type(store), "get_bytes", record_get_bytes)
+    monkeypatch.setattr(type(store), "verify", record_verify)
+    reader = epoch_cascade_module.ArtifactPromotionOwnerQueryContextRepository(artifacts=store)
+    with pytest.raises(CanonicalProfileRefusalError) as refused:
+        reader._verify_design_problem_binding(statement)
+
+    assert refused.value.code == "canon_profile_typed_artifact_profile_mismatch"
+    assert reads == []
+
+
 def test_no_owner_still_persists_one_not_established_row_per_declared_component(
     tmp_path,
 ) -> None:

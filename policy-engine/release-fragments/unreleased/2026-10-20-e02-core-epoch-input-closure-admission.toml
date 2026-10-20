@@ -1,0 +1,35 @@
+id = "2026-10-20-e02-core-epoch-input-closure-admission"
+title = "Bind protected Core epoch reads to declared owner input contracts"
+type = "fixed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Protected epoch/Core readers require typed input-closure and schema expectations, check known exact-empty inputs and exact schema absence or identity before payload access, and reconcile owner-derived inputs from decoded bytes before use."
+evidence = [
+  "src/polisyos/core/contracts/epoch.py",
+  "src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+  "src/polisyos/runtime/quality/epoch_denominator_reconciliation.py",
+  "src/polisyos/runtime/quality/epoch_validity_cascade.py",
+  "src/polisyos/runtime/quality/acquisition_executor.py",
+  "src/polisyos/runtime/quality/acquisition_world_growth.py",
+  "src/polisyos/runtime/quality/data_forge_binding.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/semantic_epoch.py",
+  "src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+  "src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+  "tests/unit/runtime/quality/test_open_world_risk.py",
+  "tests/unit/runtime/quality/test_acquisition_world_growth.py",
+  "tests/unit/runtime/quality/test_epoch_certificate_issuance.py",
+  "tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+  "tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+  "src/polisyos/core/contracts/README.md",
+]
+compatibility = "No public DTO, API, or producer option shape changes. A default ArtifactRef continues to select the actual default manifest, and selected-profile digests remain bound to their exact view. Existing selected views whose manifest edges violate their producer's already-declared contract now refuse at admission or before owner use."
+change_class = "internal"
+surface_classification = "internal: shared protected Core/epoch manifest admission; no new public API or generated-client surface."
+migration = "No historical manifest or hash is rewritten. Existing records that omit their producer's required direct-edge closure or required Core profile remain refusals; use the existing producer/lifecycle to reissue an eligible record under its declared contract. Do not infer selectors, profiles, or ancestry while migrating."
+api = "The shared reader requires every protected caller to supply an explicit typed input-closure and schema expectation. Exact schema absence, named schemas, and finite exact schema alternatives are checked from the selected manifest before payload reads; unowned schema scope must be explicit and bounded. Exact-empty writer contracts and required selected-view subsets are checked from the selected manifest before payload reads. Payload-derived input refs are recomputed from the decoded typed owner object and compared before the caller uses it. External ancestry not declared by a specific owner remains not_established."
+limitations = "Core CanonInfo and schema tags establish serialization conformance only; they do not apply an IR law or establish institutional authority, currentness, or native-history status. The generic issuance exact-byte reader does not claim undeclared external parent-edge closure. Runtime/pytest qualification remains pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/contracts/README.md"]
+runbook_docs = []

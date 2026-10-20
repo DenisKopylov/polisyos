@@ -8740,7 +8740,23 @@ class GenerationCycleController:
             ):
                 raise ValueError("measurement root envelope identity mismatch")
 
+            measurement_manifest = core_contracts.epoch._preflight_core_manifest_profile(
+                store=store,
+                selector=measurement_payload_ref,
+                expected_kind="policyos.gy.measurement_root_payload",
+                expected_media_type="application/json",
+                expected_schema=artifacts.SchemaInfo(
+                    name=FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION, version="v2"
+                ),
+                expected_canon=artifacts.CanonInfo(forbid_floats=False),
+                require_selected_profile=True,
+                expected_inputs=core_contracts.epoch._PayloadDerivedManifestInputClosure(
+                    "fabric measurement root payload", "ordered"
+                ),
+            )
             payload_raw = store.get_bytes(measurement_payload_ref)
+            if store.get_manifest(measurement_payload_ref) != measurement_manifest:
+                raise ValueError("measurement root manifest changed after profile preflight")
             payload = FabricMeasurementRootPayload.model_validate(
                 load_core_json_artifact(
                     store, measurement_payload_ref, raw_payload_bytes=payload_raw
@@ -8797,11 +8813,12 @@ class GenerationCycleController:
                 expected_media_type="application/json",
                 expected_schema=measurement_schema,
                 expected_producer=measurement_producer,
-                expected_inputs=(measurement_input,),
+                expected_inputs=core_contracts.epoch._ExactManifestInputClosure(
+                    (measurement_input,)
+                ),
             )
             if validated_payload_raw != payload_raw:
                 raise ValueError("measurement root payload readback changed")
-            measurement_manifest = store.get_manifest(measurement_payload_ref)
             authority = measurement_manifest.authority
             closure = measurement_manifest.same_input_closure
             if (
@@ -8845,11 +8862,34 @@ class GenerationCycleController:
             )
 
             authority_envelope_ref = artifacts.resolve_authority_envelope_ref(store, authority)
+            authority_envelope_manifest = core_contracts.epoch._preflight_core_manifest_profile(
+                store=store,
+                selector=authority_envelope_ref,
+                expected_kind=artifacts.AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+                expected_media_type="application/json",
+                expected_schema=artifacts.SchemaInfo(
+                    name=artifacts.AUTHORITY_ENVELOPE_SCHEMA_NAME,
+                    version=artifacts.AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+                ),
+                expected_canon=measurement_manifest.canon,
+                expected_inputs=core_contracts.epoch._ExactManifestInputClosure(
+                    (measurement_input,)
+                ),
+                require_selected_profile=False,
+            )
             if not store.verify(authority_envelope_ref).ok:
                 raise ValueError("measurement_root_authority_envelope_integrity_invalid")
-            store.get_manifest(authority_envelope_ref)
+            authority_envelope_raw = store.get_bytes(authority_envelope_ref)
+            if store.get_manifest(authority_envelope_ref) != authority_envelope_manifest:
+                raise ValueError(
+                    "measurement root authority manifest changed after profile preflight"
+                )
             emitted_authority = EvidenceAuthorityEnvelope.model_validate(
-                load_core_json_artifact(store, authority_envelope_ref)
+                load_core_json_artifact(
+                    store,
+                    authority_envelope_ref,
+                    raw_payload_bytes=authority_envelope_raw,
+                )
             )
             opts, identity = _measurement_root_authority_configuration(
                 payload.model_dump(mode="json"),
@@ -18139,7 +18179,7 @@ def _value_manifest_has_exact_inputs(
         return False
     try:
         manifest = get_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
-    except (AttributeError, OSError, TypeError, ValueError, KeyError):
+    except AttributeError, OSError, TypeError, ValueError, KeyError:
         return False
     inputs = getattr(manifest, "inputs", None)
     if not isinstance(inputs, Sequence) or isinstance(inputs, str | bytes | bytearray):

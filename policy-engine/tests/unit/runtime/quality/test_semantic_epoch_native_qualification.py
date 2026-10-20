@@ -20,6 +20,171 @@ def test_signed_native_epoch_policy_recomputes_and_persists_qualification(tmp_pa
     assert case.store.verify(result.projection_receipt.artifact_ref.artifact_id).ok
 
 
+@pytest.mark.parametrize(
+    ("manifest_profile", "expected_code"),
+    [
+        ("wrong_valid_profile", "canon_profile_typed_artifact_profile_mismatch"),
+        ("absent", "canon_profile_absent"),
+    ],
+)
+def test_native_history_manifest_profile_refuses_before_payload_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    manifest_profile: str,
+    expected_code: str,
+) -> None:
+    import json
+
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts.manifest import CanonInfo
+    from polisyos.core.canon.canon_json import CanonSpec
+    from tests._helpers.semantic_epoch_native import make_native_epoch_case
+
+    case = make_native_epoch_case(tmp_path)
+    target_ref = case.staged.history_snapshot_ref
+    assert target_ref.manifest_profile_sha256 is None
+    wrong_canon = CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    profile_reads: list[str] = []
+    payload_reads: list[str] = []
+    original_get_raw_manifest = type(case.store).get_raw_manifest_bytes
+    original_get_manifest = type(case.store).get_manifest
+    original_verify = type(case.store).verify
+    original_get_bytes = type(case.store).get_bytes
+
+    def is_target(selector: object) -> bool:
+        return getattr(selector, "artifact_id", selector) == target_ref.artifact_id
+
+    def replace_raw_manifest(
+        store: object,
+        selector: object,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        raw = original_get_raw_manifest(
+            store,
+            selector,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        if not is_target(selector):
+            return raw
+        profile_reads.append("raw")
+        manifest = json.loads(raw)
+        if manifest_profile == "absent":
+            manifest.pop("canon", None)
+        else:
+            manifest["canon"] = wrong_canon.model_dump(mode="json")
+        return json.dumps(manifest, ensure_ascii=False, separators=(",", ":")).encode()
+
+    def replace_typed_manifest(store: object, selector: object) -> object:
+        manifest = original_get_manifest(store, selector)
+        if is_target(selector):
+            profile_reads.append("typed")
+            return manifest.model_copy(update={"canon": wrong_canon})
+        return manifest
+
+    def record_verify(store: object, selector: object) -> object:
+        if is_target(selector):
+            payload_reads.append("verify")
+        return original_verify(store, selector)
+
+    def record_get_bytes(store: object, selector: object) -> bytes:
+        if is_target(selector):
+            payload_reads.append("get_bytes")
+        return original_get_bytes(store, selector)
+
+    monkeypatch.setattr(type(case.store), "get_raw_manifest_bytes", replace_raw_manifest)
+    monkeypatch.setattr(type(case.store), "get_manifest", replace_typed_manifest)
+    monkeypatch.setattr(type(case.store), "verify", record_verify)
+    monkeypatch.setattr(type(case.store), "get_bytes", record_get_bytes)
+
+    owner = case.deployment._state().chronology_policy_owner
+    assert owner is not None
+    with pytest.raises(CanonicalProfileRefusalError) as refused:
+        owner._native(case.query)
+
+    assert refused.value.code == expected_code
+    assert profile_reads == (["raw"] if manifest_profile == "absent" else ["raw", "typed"])
+    assert payload_reads == []
+
+
+def test_actual_prepared_writer_schema_absence_is_exact_before_payload_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A valid but wrong schema cannot replace the actual prepared-writer contract."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core import artifacts
+    from polisyos.core.artifacts import PutOptions
+    from polisyos.core.contracts import epoch as epoch_contract
+    from tests._helpers.semantic_epoch_native import make_native_epoch_case
+
+    case = make_native_epoch_case(tmp_path)
+    prepared_ref = case.scenario.prepared.prepared_epoch_ref
+    producer_manifest = case.store.get_manifest(prepared_ref)
+    prepared_bytes = case.store.get_bytes(prepared_ref)
+    expected_inputs = [
+        artifacts.input_ref_from_artifact_ref(
+            case.scenario.prepared.stamp.semantic_manifest_ref,
+            role="semantic_manifest",
+        )
+    ]
+    assert prepared_ref.manifest_profile_sha256 is not None
+    assert producer_manifest.artifact_schema is None
+    assert producer_manifest.inputs == expected_inputs
+    assert (
+        epoch_contract.load_verified_epoch_statement(
+            store=case.store,
+            ref=prepared_ref,
+            expected_kind="epoch.prepared",
+        )["status"]
+        == "prepared"
+    )
+
+    wrong_schema_ref = case.store.put_bytes(
+        prepared_bytes,
+        PutOptions(
+            kind="epoch.prepared",
+            media_type="application/vnd.polisyos.epoch+json",
+            schema=artifacts.SchemaInfo(
+                name="polisyos.runtime.PreparedSemanticEpoch", version="1.0"
+            ),
+            canon=producer_manifest.canon,
+            inputs=expected_inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert wrong_schema_ref.artifact_id == prepared_ref.artifact_id
+    assert wrong_schema_ref.manifest_profile_sha256 != prepared_ref.manifest_profile_sha256
+    assert case.store.get_bytes(wrong_schema_ref) == prepared_bytes
+    assert case.store.get_manifest(wrong_schema_ref).inputs == expected_inputs
+
+    payload_reads: list[str] = []
+    original_verify = type(case.store).verify
+    original_get_bytes = type(case.store).get_bytes
+
+    def record_verify(store: object, selector: object) -> object:
+        if getattr(selector, "artifact_id", selector) == wrong_schema_ref.artifact_id:
+            payload_reads.append("verify")
+        return original_verify(store, selector)
+
+    def record_get_bytes(store: object, selector: object) -> bytes:
+        if getattr(selector, "artifact_id", selector) == wrong_schema_ref.artifact_id:
+            payload_reads.append("get_bytes")
+        return original_get_bytes(store, selector)
+
+    monkeypatch.setattr(type(case.store), "verify", record_verify)
+    monkeypatch.setattr(type(case.store), "get_bytes", record_get_bytes)
+    with pytest.raises(CanonicalProfileRefusalError) as refused:
+        epoch_contract.load_verified_epoch_statement(
+            store=case.store,
+            ref=wrong_schema_ref,
+            expected_kind="epoch.prepared",
+        )
+
+    assert refused.value.code == "canon_profile_typed_artifact_profile_mismatch"
+    assert payload_reads == []
+
+
 def test_native_member_bytes_cannot_be_replaced_with_receipt_markers(tmp_path: Path) -> None:
     from tests._helpers.semantic_epoch_native import make_native_epoch_case
 
@@ -89,6 +254,54 @@ def test_real_epoch_finalization_activation_and_native_readback(tmp_path: Path) 
             overlay=case.scenario.overlay,
             authority=case.scenario.authority,
         )
+
+
+def test_activation_selected_receipt_refuses_before_payload_or_integrity_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.runtime.quality.acquisition_executor import (
+        SemanticEpochAdmissionResolutionError,
+        resolve_activated_semantic_epoch_admission,
+    )
+    from tests._helpers.semantic_epoch_native import (
+        finalize_native_epoch_case,
+        make_native_epoch_case,
+    )
+
+    case = make_native_epoch_case(tmp_path)
+    finalized = finalize_native_epoch_case(case)
+    selected_ref = finalized.receipt.semantic_epoch_production_receipt_ref
+    unselected_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    receipt = finalized.receipt.model_copy(
+        update={"semantic_epoch_production_receipt_ref": unselected_ref}
+    )
+    observed: list[str] = []
+    original_get_bytes = type(case.store).get_bytes
+    original_verify = type(case.store).verify
+
+    def record_get_bytes(store, ref):
+        if getattr(ref, "artifact_id", ref) == selected_ref.artifact_id:
+            observed.append("get_bytes")
+        return original_get_bytes(store, ref)
+
+    def record_verify(store, ref):
+        if getattr(ref, "artifact_id", ref) == selected_ref.artifact_id:
+            observed.append("verify")
+        return original_verify(store, ref)
+
+    monkeypatch.setattr(type(case.store), "get_bytes", record_get_bytes)
+    monkeypatch.setattr(type(case.store), "verify", record_verify)
+    with pytest.raises(SemanticEpochAdmissionResolutionError) as refused:
+        resolve_activated_semantic_epoch_admission(
+            receipt=receipt,
+            artifact_store=case.store,
+            overlay=case.scenario.overlay,
+            authority=case.scenario.authority,
+            epoch_deployment=case.deployment,
+        )
+
+    assert "canon_profile_selection_unverified" in refused.value.detail
+    assert observed == []
 
 
 def test_active_read_revalidates_current_source_authority_before_positive_use(

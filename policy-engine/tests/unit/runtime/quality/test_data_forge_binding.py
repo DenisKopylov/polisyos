@@ -1086,3 +1086,60 @@ def test_recorded_aggregation_rounds_once_and_refuses_nonfinite_values():
     for values in ((), (float("nan"),), (float("inf"),), (-float("inf"),), (1e308, 1e308)):
         with pytest.raises(owner.MeasurementRootBindingError, match=r"nonfinite|not_finite"):
             owner._sum_recorded_values(values)
+
+
+def test_snapshot_json_profileless_refuses_before_payload_or_integrity_reads(tmp_path, monkeypatch):
+    """JSON custody uses the declared Core profile before reading bytes or verifying."""
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality import data_forge_binding as owner
+
+    store = artifacts.FileSystemCAS(tmp_path / "profileless-snapshot-cas")
+    producer = artifacts.ProducerInfo(
+        component="polisyos.fabric.retrieval.executor.FetchExecutor",
+        version="1.0.0",
+    )
+    schema = artifacts.SchemaInfo(
+        name="polisyos.fabric.fetch_receipt.v1",
+        version="1.0.0",
+    )
+    ref = store.put_bytes(
+        b"{}",
+        artifacts.PutOptions(
+            kind="fabric.fetch_receipt",
+            media_type="application/json",
+            schema=schema,
+            producer=producer,
+            inputs=[],
+        ),
+    )
+    reads = []
+    read_raw_manifest = store.get_raw_manifest_bytes
+
+    def observe_raw_manifest(*args, **kwargs):
+        reads.append("raw_manifest")
+        return read_raw_manifest(*args, **kwargs)
+
+    def refuse_payload_access(*args, **kwargs):
+        reads.append("payload_or_verify")
+        raise AssertionError("profile refusal must precede payload and integrity reads")
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", observe_raw_manifest)
+    monkeypatch.setattr(store, "verify", refuse_payload_access)
+    monkeypatch.setattr(store, "get_bytes", refuse_payload_access)
+    with pytest.raises(
+        owner.FabricMeasurementRootBindingError,
+        match="measurement_root_snapshot_profile_unverified",
+    ):
+        owner._read_validated_measurement_snapshot_artifact(
+            store=store,
+            artifact_ref=ref,
+            expected_kind="fabric.fetch_receipt",
+            expected_media_type="application/json",
+            expected_schema=schema,
+            expected_producer=producer,
+            expected_inputs=(),
+            expected_canon=artifacts.CanonInfo.from_spec(
+                owner.canon.CanonSpec(forbid_floats=False, exclude_none=False)
+            ),
+        )
+    assert reads == ["raw_manifest"]

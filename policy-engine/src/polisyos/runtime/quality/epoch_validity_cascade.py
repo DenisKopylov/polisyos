@@ -381,9 +381,22 @@ def _read_model(
         )
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("chronology_artifact_profile_mismatch")
+    if profile_record is None and kind != _TRANSITION_KIND and ref.manifest_profile_sha256 is None:
+        raise ValueError("chronology_artifact_profile_mismatch")
+    manifest = core_contracts.epoch._preflight_core_manifest_profile(
+        store=store,
+        selector=ref,
+        expected_kind=expected_kind,
+        expected_media_type=expected_media_type,
+        expected_canon=expected_canon,
+        expected_schema=expected_schema,
+        expected_inputs=core_contracts.epoch._ExactManifestInputClosure(()),
+        require_selected_profile=False,
+    )
     report = store.verify(ref)
     raw = store.get_bytes(ref)
-    manifest = store.get_manifest(ref)
+    if store.get_manifest(ref) != manifest:
+        raise ValueError("chronology manifest changed after Core profile preflight")
     if (
         not report.ok
         or _raw_hash(raw) != str(ref.artifact_id)
@@ -616,13 +629,26 @@ def resolve_advisory_perturbation_event(
     """Resolve exact advisory bytes and reject profile or canonical drift."""
     from polisyos.core.artifacts import load_core_json_artifact
 
-    raw = store.get_bytes(ref)
-    report = store.verify(ref)
-    manifest = store.get_manifest(ref)
     expected_schema = artifacts.SchemaInfo(
         name=_ADVISORY_EVENT_SCHEMA_NAME,
         version=_ADVISORY_EVENT_SCHEMA_VERSION,
     )
+    manifest = core_contracts.epoch._preflight_core_manifest_profile(
+        store=store,
+        selector=ref,
+        expected_kind=_ADVISORY_EVENT_KIND,
+        expected_media_type="application/json",
+        expected_schema=expected_schema,
+        expected_canon=artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON),
+        require_selected_profile=False,
+        expected_inputs=core_contracts.epoch._PayloadDerivedManifestInputClosure(
+            "governance advisory event", "ordered"
+        ),
+    )
+    report = store.verify(ref)
+    raw = store.get_bytes(ref)
+    if store.get_manifest(ref) != manifest:
+        raise ValueError("epoch advisory manifest changed after Core profile preflight")
     if (
         not report.ok
         or str(ref.artifact_id) != _raw_hash(raw)
@@ -638,7 +664,13 @@ def resolve_advisory_perturbation_event(
     advisory = AdvisoryPerturbationEvent.model_validate(
         load_core_json_artifact(store, ref, raw_payload_bytes=raw)
     )
-    if _canonical_bytes(advisory) != raw:
+    expected_inputs = [
+        artifacts.input_ref_from_artifact_ref(
+            advisory.event_ref,
+            role="governance_monitor_event",
+        )
+    ]
+    if _canonical_bytes(advisory) != raw or manifest.inputs != expected_inputs:
         raise ValueError("epoch advisory event canonical bytes mismatch")
     return advisory
 
@@ -1147,9 +1179,20 @@ class FileSemanticEpochTransitionHistoryAdapter:
             core_contracts.epoch.canonical_epoch_bytes(statement)
         )
         try:
+            manifest = core_contracts.epoch._preflight_core_manifest_profile(
+                store=self._artifacts,
+                selector=history.history_snapshot_ref,
+                expected_kind="epoch.scope_history",
+                expected_media_type="application/vnd.polisyos.epoch+json",
+                expected_canon=core_contracts.epoch.epoch_canon_info(),
+                expected_schema=None,
+                require_selected_profile=False,
+                expected_inputs=core_contracts.epoch._ExactManifestInputClosure(()),
+            )
             report = self._artifacts.verify(history.history_snapshot_ref)
             raw = self._artifacts.get_bytes(history.history_snapshot_ref)
-            manifest = self._artifacts.get_manifest(history.history_snapshot_ref)
+            if self._artifacts.get_manifest(history.history_snapshot_ref) != manifest:
+                raise ValueError("scope history manifest changed after profile preflight")
         except (KeyError, OSError, TypeError, ValueError) as exc:
             raise ValueError("epoch transition scope history CAS readback failed") from exc
         if (
@@ -2043,7 +2086,43 @@ class ArtifactPromotionOwnerQueryContextRepository:
         self, *, context_ref: ArtifactRef
     ) -> PersistedPromotionOwnerQueryContext | PromotionOwnerQueryContextNonReceipt:
         try:
+            manifest, _declaration = artifacts.read_core_manifest_profile(
+                self._artifacts, context_ref
+            )
+            profiles = (
+                "aggregate_context_v3",
+                "aggregate_context",
+            )
+            profile_record = next(
+                (
+                    name
+                    for name in profiles
+                    if manifest.artifact_schema
+                    == artifacts.SchemaInfo(
+                        name=c4_profile(name).schema_name,
+                        version=c4_profile(name).schema_version,
+                    )
+                ),
+                None,
+            )
+            if profile_record is None:
+                raise ValueError("promotion_query_context_manifest_schema_unsupported")
+            profile = c4_profile(profile_record)
+            manifest = core_contracts.epoch._preflight_core_manifest_profile(
+                store=self._artifacts,
+                selector=context_ref,
+                expected_kind=profile.kind,
+                expected_media_type=profile.media_type,
+                expected_schema=artifacts.SchemaInfo(
+                    name=profile.schema_name, version=profile.schema_version
+                ),
+                expected_canon=artifacts.CanonInfo.from_spec(profile.canon_spec),
+                expected_inputs=core_contracts.epoch._ExactManifestInputClosure(()),
+                require_selected_profile=False,
+            )
             context_bytes = self._artifacts.get_bytes(context_ref)
+            if self._artifacts.get_manifest(context_ref) != manifest:
+                raise ValueError("promotion query manifest changed after profile preflight")
         except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"
@@ -2341,18 +2420,22 @@ class ArtifactPromotionOwnerQueryContextRepository:
         )
         if ref.kind != "runtime.design_problem" or ref.media_type != "application/json":
             raise ValueError("promotion_design_problem_profile_mismatch")
+        manifest = core_contracts.epoch._preflight_core_manifest_profile(
+            store=self._artifacts,
+            selector=ref,
+            expected_kind="runtime.design_problem",
+            expected_media_type="application/json",
+            expected_canon=artifacts.CanonInfo.from_spec(
+                core_contracts.chronology.CHRONOLOGY_CANON_SPEC
+            ),
+            expected_schema=expected_schema,
+            require_selected_profile=True,
+            expected_inputs=core_contracts.epoch._ExactManifestInputClosure(()),
+        )
         raw = self._artifacts.get_bytes(ref)
-        manifest = self._artifacts.get_manifest(ref)
-        selected_ref = artifacts.artifact_ref_for_manifest(manifest)
         if (
-            ref.manifest_profile_sha256 is None
-            or selected_ref != ref
-            or manifest.artifact_schema != expected_schema
-            or manifest.canon is None
-        ):
-            raise ValueError("promotion_design_problem_profile_mismatch")
-        if (
-            not self._artifacts.verify(ref).ok
+            self._artifacts.get_manifest(ref) != manifest
+            or not self._artifacts.verify(ref).ok
             or _raw_hash(raw) != str(ref.artifact_id)
             or manifest.kind != ref.kind
             or manifest.media_type != ref.media_type
@@ -2412,8 +2495,24 @@ class ArtifactPromotionOwnerQueryContextRepository:
         ref = evidence.query_artifact_ref
         if ref.kind != profile.kind or ref.media_type != profile.media_type:
             raise ValueError("promotion_query_family_substitution")
+        expected_schema = artifacts.SchemaInfo(
+            name=profile.schema_name,
+            version=profile.schema_version,
+        )
+        expected_canon = artifacts.CanonInfo.from_spec(profile.canon_spec)
+        manifest = core_contracts.epoch._preflight_core_manifest_profile(
+            store=self._artifacts,
+            selector=ref,
+            expected_kind=profile.kind,
+            expected_media_type=profile.media_type,
+            expected_schema=expected_schema,
+            expected_canon=expected_canon,
+            expected_inputs=core_contracts.epoch._ExactManifestInputClosure(()),
+            require_selected_profile=False,
+        )
         raw = self._artifacts.get_bytes(ref)
-        manifest = self._artifacts.get_manifest(ref)
+        if self._artifacts.get_manifest(ref) != manifest:
+            raise ValueError("promotion query manifest changed after profile preflight")
         observed_payload = load_core_json_artifact(self._artifacts, ref, raw_payload_bytes=raw)
         if not isinstance(observed_payload, dict):
             raise ValueError("promotion_query_context_binding_mismatch")

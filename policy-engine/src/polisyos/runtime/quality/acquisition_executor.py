@@ -1327,7 +1327,7 @@ def _year_in_scope(value: object, *, start_year: int, end_year: int) -> bool:
         return False
     try:
         year = int(str(value))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return False
     return start_year <= year <= end_year
 
@@ -2200,8 +2200,39 @@ def resolve_activated_semantic_epoch_admission(
     def read(ref: ArtifactRef, model: type[BaseModel]) -> BaseModel:
         from polisyos.core.artifacts import load_core_json_frame_records
 
+        expected_kind = (
+            "epoch.production_receipt"
+            if model is SemanticEpochProductionReceipt
+            else "epoch.admitted_acquisition_boundary_evidence"
+        )
+        expected_media_type = (
+            "application/vnd.polisyos.epoch-production-receipt+json"
+            if model is SemanticEpochProductionReceipt
+            else "application/vnd.polisyos.epoch+json"
+        )
+        if ref.kind != expected_kind or ref.media_type != expected_media_type:
+            raise ValueError("activation evidence reference profile differs")
+        expected_inputs = (
+            epoch_contract._ExactManifestInputClosure(())
+            if model is epoch_contract.AdmittedAcquisitionBoundaryEvidence
+            else epoch_contract._PayloadDerivedManifestInputClosure(
+                "semantic epoch production receipt", "multiset"
+            )
+        )
+        profile_manifest = epoch_contract._preflight_core_manifest_profile(
+            store=artifact_store,
+            selector=ref,
+            expected_kind=expected_kind,
+            expected_media_type=expected_media_type,
+            expected_canon=epoch_contract.epoch_canon_info(),
+            expected_schema=None,
+            require_selected_profile=True,
+            expected_inputs=expected_inputs,
+        )
         raw = artifact_store.get_bytes(ref)
         manifest = artifact_store.get_manifest(ref)
+        if manifest != profile_manifest:
+            raise ValueError("activation evidence manifest changed after profile preflight")
         if (
             not artifact_store.verify(ref).ok
             or f"sha256:{hashlib.sha256(raw).hexdigest()}" != str(ref.artifact_id)
@@ -2222,6 +2253,13 @@ def resolve_activated_semantic_epoch_admission(
             )
             if expected_raw != raw:
                 raise ValueError("activation production receipt canonical bytes differ")
+            expected_production_inputs = (
+                epoch_contract._semantic_epoch_production_receipt_input_refs(production)
+            )
+            if not epoch_contract._epoch_owner_manifest_inputs_match(
+                manifest.inputs, expected_production_inputs
+            ):
+                raise ValueError("activation production receipt input closure differs")
             return production
         return security.parse_canonical_statement(raw, model)
 

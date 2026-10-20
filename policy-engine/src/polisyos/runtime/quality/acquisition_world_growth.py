@@ -445,24 +445,34 @@ class AcquisitionWorldGrowthBridge:
         from polisyos.core.artifacts import (
             artifact_ref_for_manifest,
             read_core_json_artifact,
-            read_core_manifest_profile,
         )
 
         if not re.fullmatch(_SHA, action_phase_ref):
             raise ValueError("acquisition_action_phase_ref_invalid")
-        payload = self.artifact_store.get_bytes(action_phase_ref)
-        manifest = read_core_manifest_profile(self.artifact_store, action_phase_ref)[0]
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=self.artifact_store,
+            selector=action_phase_ref,
+            expected_kind="runtime_quality.acquisition_route_phase_receipt",
+            expected_media_type="application/json",
+            expected_schema=artifacts.SchemaInfo(
+                name="polisyos.runtime.AcquisitionRoutePhaseReceipt", version="1.0"
+            ),
+            expected_canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+            require_selected_profile=False,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+        )
         selected_ref = artifact_ref_for_manifest(manifest)
         producer, schema = manifest.producer, manifest.artifact_schema
         if (
-            "sha256:" + hashlib.sha256(payload).hexdigest() != action_phase_ref
-            or manifest.kind != "runtime_quality.acquisition_route_phase_receipt"
-            or producer is None
+            producer is None
             or producer.component != "polisyos.runtime.acquisition_route_loop"
             or schema is None
-            or schema.name != "polisyos.runtime.AcquisitionRoutePhaseReceipt"
-            or schema.version != "1.0"
         ):
+            raise ValueError("acquisition_action_phase_receipt_unverified")
+        payload = self.artifact_store.get_bytes(action_phase_ref)
+        if self.artifact_store.get_manifest(action_phase_ref) != manifest:
+            raise ValueError("acquisition_action_phase_receipt_unverified")
+        if "sha256:" + hashlib.sha256(payload).hexdigest() != action_phase_ref:
             raise ValueError("acquisition_action_phase_receipt_unverified")
         phase = AcquisitionRoutePhaseReceipt.model_validate(
             read_core_json_artifact(
@@ -813,7 +823,7 @@ class AcquisitionWorldGrowthBridge:
         """Read eligibility from a known negative; never create files or predict admission."""
         try:
             self._load_deferral(closure)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return False
         return True
 
@@ -1845,34 +1855,58 @@ class AcquisitionWorldGrowthBridge:
         return receipt, growth, admitted
 
     def _read(self, ref: str, kind: str) -> dict[str, Any]:
-        from polisyos.core.artifacts import (
-            artifact_ref_for_manifest,
-            load_core_json_artifact,
-            read_core_manifest_profile,
-        )
+        from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
 
-        payload = self.artifact_store.get_bytes(ref)
-        manifest = read_core_manifest_profile(self.artifact_store, ref)[0]
-        selected_ref = artifact_ref_for_manifest(manifest)
         schema_names = {
             _ATTEMPT_KIND: "AcquisitionWorldGrowthAttempt",
             _GROWTH_KIND: AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME,
+            _DEFERRAL_KIND: "AcquisitionWorldGrowthDeferral",
             _NO_GROWTH_KIND: "polisyos.runtime.AcquisitionWorldGrowthNoGrowthReceipt",
+            _REENTRY_KIND: "polisyos.runtime.AcquisitionOverlayReentryReceipt",
         }
+        schema_versions = {
+            _ATTEMPT_KIND: ("1.0", "1.1"),
+            _GROWTH_KIND: ("1.0", "1.1"),
+            _DEFERRAL_KIND: ("1.0",),
+            _NO_GROWTH_KIND: ("1.0", "1.1"),
+            _REENTRY_KIND: ("2.0",),
+        }
+        if kind not in schema_names:
+            raise ValueError("acquisition_world_growth_receipt_schema_contract_unregistered")
+        expected_schema = tuple(
+            artifacts.SchemaInfo(name=schema_names[kind], version=version)
+            for version in schema_versions[kind]
+        )
+        manifest = contracts.epoch._preflight_core_manifest_profile(
+            store=self.artifact_store,
+            selector=ref,
+            expected_kind=kind,
+            expected_media_type="application/json",
+            expected_canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+            expected_schema=expected_schema,
+            require_selected_profile=False,
+            expected_inputs=contracts.epoch._ExactManifestInputClosure(()),
+        )
+        selected_ref = artifact_ref_for_manifest(manifest)
         schema = manifest.artifact_schema
         if (
-            "sha256:" + hashlib.sha256(payload).hexdigest() != ref
-            or manifest.kind != kind
-            or manifest.authority is None
+            manifest.authority is None
             or manifest.producer is None
             or manifest.producer.component != "polisyos.runtime.acquisition_world_growth"
             or (kind in schema_names and schema is None)
             or (
                 kind in schema_names
                 and schema is not None
-                and (schema.name != schema_names[kind] or schema.version not in {"1.0", "1.1"})
+                and (
+                    schema.name != schema_names[kind] or schema.version not in schema_versions[kind]
+                )
             )
         ):
+            raise ValueError("acquisition_world_growth_receipt_unverified")
+        payload = self.artifact_store.get_bytes(ref)
+        if self.artifact_store.get_manifest(ref) != manifest:
+            raise ValueError("acquisition_world_growth_receipt_unverified")
+        if "sha256:" + hashlib.sha256(payload).hexdigest() != ref:
             raise ValueError("acquisition_world_growth_receipt_unverified")
         report = reconcile_authority_ref(
             artifact_store=self.artifact_store, event_log=self.event_log, cas_ref=ref

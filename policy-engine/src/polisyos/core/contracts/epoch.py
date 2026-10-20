@@ -10,16 +10,21 @@ from __future__ import annotations
 
 import hashlib
 from datetime import date, datetime
-from typing import Annotated, Any, Literal, NamedTuple, Protocol, Self
+from typing import TYPE_CHECKING, Annotated, Any, Literal, NamedTuple, Protocol, Self
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactID,
+    ArtifactManifest,
     ArtifactRef,
     CanonInfo,
     InputRef,
     RawManifestBytesReader,
+    SchemaInfo,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -147,6 +152,63 @@ class _EpochArtifactStore(RawManifestBytesReader, Protocol):
     def verify(self, artifact_id: ArtifactID | ArtifactRef) -> object: ...
 
 
+class _UnownedManifestSchemaExpectation(NamedTuple):
+    """Bounded schema scope that this reader does not own or infer."""
+
+    scope: str
+
+
+class _ExactManifestInputClosure(NamedTuple):
+    """Producer-declared direct inputs checked before payload access."""
+
+    refs: tuple[InputRef, ...]
+
+
+class _PayloadDerivedManifestInputClosure(NamedTuple):
+    """Direct inputs recomputed from typed payload bytes before authority use."""
+
+    owner: str
+    comparison: Literal["ordered", "multiset"]
+
+
+class _RequiredManifestInputViewSubset(NamedTuple):
+    """Existing owner refs that must occur in a larger manifest input view."""
+
+    refs: tuple[ArtifactRef, ...]
+
+
+class _UnownedManifestInputClosure(NamedTuple):
+    """Explicitly bound an input-lineage scope not declared by this owner."""
+
+    scope: str
+
+
+_ManifestSchemaExpectation = (
+    SchemaInfo | tuple[SchemaInfo | None, ...] | None | _UnownedManifestSchemaExpectation
+)
+
+_ManifestInputExpectation = (
+    _ExactManifestInputClosure
+    | _PayloadDerivedManifestInputClosure
+    | _RequiredManifestInputViewSubset
+    | _UnownedManifestInputClosure
+)
+
+
+def _manifest_schema_matches(manifest: object, expected_schema: _ManifestSchemaExpectation) -> bool:
+    """Check an owner schema expectation without reading artifact bytes."""
+    actual_schema = getattr(manifest, "artifact_schema", None)
+    if isinstance(expected_schema, _UnownedManifestSchemaExpectation):
+        if not expected_schema.scope.strip():
+            raise TypeError("unowned manifest schema expectation requires a bounded scope")
+        return True
+    if isinstance(expected_schema, tuple):
+        return actual_schema in expected_schema
+    if expected_schema is None or isinstance(expected_schema, SchemaInfo):
+        return actual_schema == expected_schema
+    raise TypeError("manifest admission requires an exact or explicitly unowned schema")
+
+
 def _frame(value: bytes) -> bytes:
     if len(value) >= 1 << 64:
         raise ValueError("epoch frame length exceeds uint64")
@@ -175,6 +237,78 @@ def _raw(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): _raw(item) for key, item in value.items()}
     return value
+
+
+def _preflight_core_manifest_profile(
+    *,
+    store: object,
+    selector: object,
+    expected_kind: str,
+    expected_media_type: str,
+    expected_canon: CanonInfo,
+    expected_schema: _ManifestSchemaExpectation,
+    require_selected_profile: bool,
+    expected_inputs: _ManifestInputExpectation,
+) -> ArtifactManifest:
+    """Admit one existing Core manifest view before any payload or integrity read.
+
+    ``selector`` is passed unchanged to the existing raw-manifest profile reader:
+    an unselected reference therefore remains the actual default view.  The
+    helper does not synthesize selectors or infer a profile from payload bytes.
+    Every callsite must explicitly choose an input-closure contract. Exact
+    producer contracts and required view subsets are checked at this manifest-only
+    boundary. Payload-derived contracts are checked from typed bytes before the
+    caller can use them. External ancestry is explicitly out of this owner's
+    closure claim; it must not be described as a verified parent-edge relation.
+    """
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256, read_core_manifest_profile
+
+    if isinstance(selector, ArtifactRef):
+        if selector.kind != expected_kind or selector.media_type != expected_media_type:
+            raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
+        if require_selected_profile and selector.manifest_profile_sha256 is None:
+            raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
+    manifest, _declaration = read_core_manifest_profile(store, selector)
+    selected_artifact_id = getattr(selector, "artifact_id", selector)
+    schema_contract_matches = _manifest_schema_matches(manifest, expected_schema)
+    manifest_inputs = getattr(manifest, "inputs", None)
+    if isinstance(expected_inputs, _ExactManifestInputClosure):
+        input_contract_matches = isinstance(manifest_inputs, list) and manifest_inputs == list(
+            expected_inputs.refs
+        )
+    elif isinstance(expected_inputs, _RequiredManifestInputViewSubset):
+        input_views = (
+            {(str(row.artifact_id), row.manifest_profile_sha256) for row in manifest_inputs}
+            if isinstance(manifest_inputs, list)
+            else set()
+        )
+        required_views = {
+            (str(ref.artifact_id), ref.manifest_profile_sha256) for ref in expected_inputs.refs
+        }
+        input_contract_matches = required_views.issubset(input_views)
+    elif isinstance(
+        expected_inputs,
+        _PayloadDerivedManifestInputClosure | _UnownedManifestInputClosure,
+    ):
+        input_contract_matches = True
+    else:
+        raise TypeError("Core manifest admission requires a typed input-closure contract")
+    if (
+        str(getattr(manifest, "artifact_id", None)) != str(selected_artifact_id)
+        or getattr(manifest, "kind", None) != expected_kind
+        or getattr(manifest, "media_type", None) != expected_media_type
+        or not schema_contract_matches
+        or getattr(manifest, "canon", None) != expected_canon
+        or not input_contract_matches
+        or (
+            isinstance(selector, ArtifactRef)
+            and selector.manifest_profile_sha256 is not None
+            and artifact_manifest_profile_sha256(manifest) != selector.manifest_profile_sha256
+        )
+    ):
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_profile_mismatch")
+    return ArtifactManifest.model_validate(manifest)
 
 
 def epoch_canon_info() -> CanonInfo:
@@ -377,9 +511,26 @@ def load_verified_epoch_statement(
         raise ValueError("epoch statement owner media type differs")
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("epoch statement reference profile differs")
+    codec = acquisition_artifact_codec(expected_kind, media_type=expected_media_type)
+    if codec is None or codec.canon is None:
+        raise ValueError("epoch statement has no registered Core profile")
+    expected_schema = _known_epoch_statement_manifest_schema(expected_kind, codec)
+    input_expectation = _known_epoch_statement_manifest_inputs(expected_kind)
+    manifest = _preflight_core_manifest_profile(
+        store=store,
+        selector=ref,
+        expected_kind=expected_kind,
+        expected_media_type=expected_media_type,
+        expected_canon=codec.canon,
+        expected_schema=expected_schema,
+        require_selected_profile=False,
+        expected_inputs=input_expectation,
+    )
     report = store.verify(ref)
-    manifest = store.get_manifest(ref)
     payload = store.get_bytes(ref)
+    observed_manifest = store.get_manifest(ref)
+    if observed_manifest != manifest:
+        raise ValueError("epoch statement manifest changed after profile preflight")
     if (
         not bool(getattr(report, "ok", False))
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
@@ -395,24 +546,23 @@ def load_verified_epoch_statement(
     decoded = load_core_json_frame_records(store, ref, raw_payload_bytes=payload)[0]
     if not isinstance(decoded, dict):
         raise ValueError("epoch statement payload is not a mapping")
-    if expected_kind in _EPOCH_OWNER_STATEMENT_MEDIA_TYPES:
-        # Read the Core profile first so an absent historical declaration remains
-        # a typed CanonicalProfileRefusalError instead of being repaired here.
-        if (
-            getattr(manifest, "artifact_schema", None) is not None
-            or getattr(manifest, "canon", None) != epoch_canon_info()
-        ):
-            raise ValueError("epoch statement Core profile differs")
-        if expected_kind == "epoch.semantic_manifest":
-            expected_inputs: tuple[InputRef, ...] = ()
-        else:
-            receipt = SemanticEpochProductionReceiptStatement.model_validate(decoded)
-            expected_inputs = _semantic_epoch_production_receipt_input_refs(receipt)
-        manifest_inputs = getattr(manifest, "inputs", None)
-        if not isinstance(manifest_inputs, tuple | list) or not _epoch_owner_manifest_inputs_match(
-            manifest_inputs, expected_inputs
-        ):
-            raise ValueError("epoch statement manifest input closure differs")
+    # Read the Core profile first so an absent historical declaration remains
+    # a typed CanonicalProfileRefusalError instead of being repaired here.
+    if expected_kind in _EPOCH_OWNER_STATEMENT_MEDIA_TYPES and (
+        getattr(manifest, "artifact_schema", None) is not None
+        or getattr(manifest, "canon", None) != epoch_canon_info()
+    ):
+        raise ValueError("epoch statement Core profile differs")
+    if isinstance(input_expectation, _PayloadDerivedManifestInputClosure):
+        expected_inputs = _epoch_statement_manifest_inputs_after_decode(expected_kind, decoded)
+        if expected_inputs is None:
+            raise TypeError("payload-derived epoch statement input contract is incomplete")
+        _verify_decoded_manifest_input_closure(
+            manifest=manifest,
+            expectation=input_expectation,
+            decoded_inputs=expected_inputs,
+            failure_message="epoch statement manifest input closure differs",
+        )
     return {str(key): value for key, value in decoded.items()}
 
 
@@ -1266,6 +1416,76 @@ def _semantic_epoch_production_receipt_input_refs(
     )
 
 
+def _known_epoch_statement_manifest_schema(
+    expected_kind: str, codec: AcquisitionArtifactCodec
+) -> _ManifestSchemaExpectation:
+    """Use the actual writer schema contract, or state the limited unowned scope.
+
+    A missing codec schema name is not evidence that the manifest must omit its
+    schema. Exact absence is used only for existing writers whose actual
+    ``ArtifactWriteOptions`` omit the schema, including the selected raw L5
+    registry source writers. Other registered source codecs with no schema
+    declaration retain an explicitly bounded unowned expectation.
+    """
+    if codec.schema_name is not None:
+        return SchemaInfo(name=codec.schema_name, version=codec.schema_version or "")
+    if (
+        codec.require_schema_absent
+        or expected_kind in _EPOCH_OWNER_STATEMENT_MEDIA_TYPES
+        or expected_kind in _EPOCH_ACQUISITION_ARTIFACT_KINDS
+        or expected_kind in _RAW_OWNER_SOURCE_KINDS
+        or expected_kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS
+        or expected_kind in _CANONICAL_OWNER_ROW_KINDS
+        or expected_kind == "epoch.history_append_receipt"
+    ):
+        return None
+    return _UnownedManifestSchemaExpectation(
+        f"{expected_kind} schema is not declared by its registered acquisition codec"
+    )
+
+
+def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInputExpectation:
+    """Return the input-closure contract declared by an existing writer.
+
+    The prepared and production-receipt writers persist typed references as
+    manifest inputs. Their readers derive those refs from the exact payload and
+    compare before authority use. The currently registered epoch/external
+    statement writers otherwise omit ``inputs``; that omission is the known
+    empty-list contract, not an unknown value. A newly accepted codec must add
+    its writer contract here before it can use this protected loader.
+    """
+    if expected_kind == "epoch.prepared":
+        return _PayloadDerivedManifestInputClosure("epoch.prepared", "multiset")
+    if expected_kind == "epoch.production_receipt":
+        return _PayloadDerivedManifestInputClosure("epoch.production_receipt", "multiset")
+    if (
+        expected_kind in _EPOCH_ACQUISITION_ARTIFACT_KINDS
+        or expected_kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS
+        or expected_kind in _CANONICAL_OWNER_ROW_KINDS
+        or expected_kind == "epoch.history_append_receipt"
+    ):
+        return _ExactManifestInputClosure(())
+    raise ValueError("epoch statement writer input contract is not registered")
+
+
+def _epoch_statement_manifest_inputs_after_decode(
+    expected_kind: str, decoded: dict[str, Any]
+) -> tuple[InputRef, ...]:
+    """Recompute existing typed epoch-writer input edges from exact statement bytes."""
+    if expected_kind == "epoch.prepared":
+        stamp = SemanticEpochStamp.model_validate(decoded.get("stamp"))
+        return (
+            input_ref_from_artifact_ref(
+                stamp.semantic_manifest_ref,
+                role="semantic_manifest",
+            ),
+        )
+    if expected_kind == "epoch.production_receipt":
+        receipt = SemanticEpochProductionReceiptStatement.model_validate(decoded)
+        return _semantic_epoch_production_receipt_input_refs(receipt)
+    raise ValueError("epoch statement has no payload-derived input contract")
+
+
 def _epoch_owner_manifest_inputs_match(
     actual: tuple[InputRef, ...] | list[InputRef],
     expected: tuple[InputRef, ...],
@@ -1288,6 +1508,26 @@ def _epoch_owner_input_keys(
             for value in values
         )
     )
+
+
+def _verify_decoded_manifest_input_closure(
+    *,
+    manifest: ArtifactManifest,
+    expectation: _ExactManifestInputClosure | _PayloadDerivedManifestInputClosure,
+    decoded_inputs: Sequence[InputRef],
+    failure_message: str,
+) -> None:
+    """Reconcile decoded owner refs with both the preflight view and manifest."""
+    actual = manifest.inputs
+    expected = list(decoded_inputs)
+    if isinstance(expectation, _ExactManifestInputClosure):
+        matches = actual == list(expectation.refs) == expected
+    elif expectation.comparison == "ordered":
+        matches = actual == expected
+    else:
+        matches = _epoch_owner_manifest_inputs_match(actual, expected)
+    if not matches:
+        raise ValueError(failure_message)
 
 
 class SemanticEpochHistoryAppendReceiptStatement(_EpochModel):

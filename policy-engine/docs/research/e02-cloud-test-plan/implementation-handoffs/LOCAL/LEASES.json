@@ -30206,5 +30206,275 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "can-r7-core-epoch-input-closure-admission-20261020-root-adoption": {
+    "slice_base": "d64342783124988af49aa1e7457526b655fbc5eb",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-core-epoch-input-closure-admission.toml": {
+        "candidate_change": "add",
+        "observed_current_sha256_at_75ab": null,
+        "operation": "write",
+        "postimage_sha256": "05bb723d8364d6a6bdf73370402f182348aae817fc1347298a6a8cd978dd5be1",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-core-epoch-input-closure-admission.toml"
+      },
+      "policy-engine/src/polisyos/core/contracts/README.md": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "9eeea941c4a37c47ab564d173fd328da75d86a7b704ab3e7e1116be09fb91f94",
+        "operation": "write",
+        "postimage_sha256": "4ba194d007b9cb514bbf19e45d2ffc118a7938ca2977931a8e404a4a5ba905a2",
+        "preimage_sha256": "9eeea941c4a37c47ab564d173fd328da75d86a7b704ab3e7e1116be09fb91f94",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/core/contracts/README.md"
+      },
+      "policy-engine/src/polisyos/core/contracts/epoch.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "6448347899f1306e2b35f7f50050aa636235b1bfbaa25aaa488f0bde958146b1",
+        "operation": "write",
+        "postimage_sha256": "36fa94bf08638dd91dbc1abe56d25a7d3e86711c65cde354f32999487eed3623",
+        "preimage_sha256": "6448347899f1306e2b35f7f50050aa636235b1bfbaa25aaa488f0bde958146b1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/core/contracts/epoch.py"
+      },
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "c8b2aa454084e8d889a27b70eaa508568aa7a9a0298e9771d0de0b8ab5d2b451",
+        "operation": "write",
+        "postimage_sha256": "d6a5afe3b11388eb540cd9aa70f865e3c841559040d689537f87278bb638230c",
+        "preimage_sha256": "c8b2aa454084e8d889a27b70eaa508568aa7a9a0298e9771d0de0b8ab5d2b451",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "a7b0f249bfd947faf766aebba1e6bc36bcab0b94d4209b39fa906adcfd5bf75d",
+        "operation": "write",
+        "postimage_sha256": "1cbb8686682a46af250ea60a56679c17b946a7060ea545fee7c54bdd86d592ff",
+        "preimage_sha256": "a7b0f249bfd947faf766aebba1e6bc36bcab0b94d4209b39fa906adcfd5bf75d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/acquisition_executor.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "a0b8525e27d830cfd91cb7c100b05b6955b13ffca4ebc9de490aea3d87854397",
+        "operation": "write",
+        "postimage_sha256": "d2d2a783313a3399d01c12973872f48f60f791fa99b75792258a7aa8ca1255f8",
+        "preimage_sha256": "a0b8525e27d830cfd91cb7c100b05b6955b13ffca4ebc9de490aea3d87854397",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "a68869e5025e933c35d9780af6b6a1dfa77d4e8b0dbb60ed280d0c2a5b5271d1",
+        "operation": "write",
+        "postimage_sha256": "5e6103cb8653e17ca50685aed0d9b8e1d34e14cf86ceb43fbb3a732a36cb6aa6",
+        "preimage_sha256": "a68869e5025e933c35d9780af6b6a1dfa77d4e8b0dbb60ed280d0c2a5b5271d1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/data_forge_binding.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "0e35cbe46167882b0de7fe1852eb3c7967009b742acd2007c89fe66c5f7fbbf9",
+        "operation": "write",
+        "postimage_sha256": "ce755528f8af56eedbc7e825241fb8758a93fd64c356069f7dc85307b0c43d4a",
+        "preimage_sha256": "0e35cbe46167882b0de7fe1852eb3c7967009b742acd2007c89fe66c5f7fbbf9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "5719e3d093af7db6d8afaf0fef61a66a5e64c6dc73bc0b75aecac101999dff6e",
+        "operation": "write",
+        "postimage_sha256": "b5a74f854344bdba0190e8ed5b16f8b53159554e915b88f4de26f02812bb0946",
+        "preimage_sha256": "5719e3d093af7db6d8afaf0fef61a66a5e64c6dc73bc0b75aecac101999dff6e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "2d468a397b3c4d8a0a0ae1d7d98e130defd33d36d6c5022917a1bbf81028170a",
+        "operation": "write",
+        "postimage_sha256": "1d7dc7635b59d8b05728d5b8fca66e82143b039a753bc4285d238b5db8781da5",
+        "preimage_sha256": "2d468a397b3c4d8a0a0ae1d7d98e130defd33d36d6c5022917a1bbf81028170a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "fa81816f2c025d1899fac91e19a497fe97d077a71ead55a1ebf31671bc64b8c8",
+        "operation": "write",
+        "postimage_sha256": "c9dbf0caad4cf7322b2786f6290f09c6fba6c383147c34c99f56a187a89975af",
+        "preimage_sha256": "fa81816f2c025d1899fac91e19a497fe97d077a71ead55a1ebf31671bc64b8c8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "a09f2b9f17ed7923a7313a23ec6d3df141036790a466a51d67f7123b7f6bc0d7",
+        "operation": "write",
+        "postimage_sha256": "a8a878fdffed0084f5b07e23cc405fa0fad553d0478eafb3bc4f6740f750e4f1",
+        "preimage_sha256": "a09f2b9f17ed7923a7313a23ec6d3df141036790a466a51d67f7123b7f6bc0d7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/semantic_epoch.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "e73fd31facfa750d1b8ea5164a465340fbee2b45f80bb41a652028e0c34b85f8",
+        "operation": "write",
+        "postimage_sha256": "9ffed576ee739dcd01834b766b6b790e4556103a14eef43e5f127c0b141ac7db",
+        "preimage_sha256": "e73fd31facfa750d1b8ea5164a465340fbee2b45f80bb41a652028e0c34b85f8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "6252a32ed8e410b9cae0ca914b9222b30aa3ccc2d26146eeea985e8e7e86a958",
+        "operation": "write",
+        "postimage_sha256": "b18015092b8bc6c5dfe0b8a008e704bb27f8fff927e44918f3030f0b65150b47",
+        "preimage_sha256": "6252a32ed8e410b9cae0ca914b9222b30aa3ccc2d26146eeea985e8e7e86a958",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "c29fddf554ade29aca642a17771c91a8f298b77b272905a404756127542140bc",
+        "operation": "write",
+        "postimage_sha256": "b7846654e8718281894586c00d01697003934fb264a6808b8496d13ba86bd459",
+        "preimage_sha256": "c29fddf554ade29aca642a17771c91a8f298b77b272905a404756127542140bc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "4dba5feaf26f5579a8ff532c24fdf9e7b6a6ecfb14fe777661e6187de6a28f99",
+        "operation": "write",
+        "postimage_sha256": "1f5d75eaf7c0281be9f2e017e9210fd9674e83d035cd4dfb551767c9252cad2f",
+        "preimage_sha256": "4dba5feaf26f5579a8ff532c24fdf9e7b6a6ecfb14fe777661e6187de6a28f99",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "6576334a089a2fe7c5f1512ec205a7d87d5bf60a2628e0ce7422f1a71f939c8b",
+        "operation": "write",
+        "postimage_sha256": "ac57dee57f4369b4f894f18640719a2c06b4cef379bc5faddd7a2cf7a4140f0e",
+        "preimage_sha256": "6576334a089a2fe7c5f1512ec205a7d87d5bf60a2628e0ce7422f1a71f939c8b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_open_world_risk.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "874bde576f4047a396e7e70ec1290c123c8df02ab3e86d9dc416d71c05e275eb",
+        "operation": "write",
+        "postimage_sha256": "c7bcd3589fefe1837f4429d80184fcaff65fae6bae47218557be4041b2e96476",
+        "preimage_sha256": "874bde576f4047a396e7e70ec1290c123c8df02ab3e86d9dc416d71c05e275eb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "c1f2e8d11624f8075d647d3aa3e184c22c9b84e207a7b2a6edc3d11995d3e8d0",
+        "operation": "write",
+        "postimage_sha256": "64b8ce68dbbb4bcee34d15486a963c91af590bf4dd72cefd8731846a8501af59",
+        "preimage_sha256": "c1f2e8d11624f8075d647d3aa3e184c22c9b84e207a7b2a6edc3d11995d3e8d0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py": {
+        "candidate_change": "modify",
+        "observed_current_sha256_at_75ab": "66ed143872e0463b3a7beb42491b88c5d19bbf855ccc8c678174215d94b4346d",
+        "operation": "write",
+        "postimage_sha256": "8c2741ffac99415baf7efcc2f20b5e65124249409bec785cc159208e104b19c8",
+        "preimage_sha256": "66ed143872e0463b3a7beb42491b88c5d19bbf855ccc8c678174215d94b4346d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/postimages/policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/source-application.json",
+      "sha256": "f7a66f229594757a8b5d69eabfbe1c1569d65d2239c9526921fbc1b2a7ba92d2"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/candidate-manifest-r7.json",
+        "sha256": "8935a09b255ebc6fe76defbd2d5eec6885f8c64213ea2f6e7022a4015582e2fd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/candidate-r7.patch",
+        "sha256": "8cd3aaea3bc53b2c4256e9b5ae80186653ea302240b1a3c92171d911a81db7e4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/source-consumer-census-r7-final.json",
+        "sha256": "f14a3776f42c5208bf6c00fe23c878c64efbb19a2b9fdd089ab5207628af65f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/classification-r7.md",
+        "sha256": "d615b415c51220ec050c76053ef63aaddc6069821885beb8b6e11d7ced0c8abb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-core-profile-guard-r7-20261020/static-validation-r7-final.json",
+        "sha256": "9df53843bdcb7015f882ad4b69beda3545391d02e2bbea437070322d3b6a582b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-independent-20261020/review.json",
+        "sha256": "65004579861e97e67fc389cbd22ce93309ae8e7ba5325cd6a58c0abde2bb718a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-r7-adopter-pending-20261020/readme-reconciliation.json",
+        "sha256": "e19dfdd66e821ead27941f8adf7e7d1902a65b966051436040cb2d1e2e020154"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-bridge-oracle-r7-root-runnable-20261020/plan.json",
+        "sha256": "fc8c0a740b0f222cfc6f2a194fd8ba70a65be73f5c1c452d8b3c6a5b374fd8ac"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "This is the SAME R6 schema-omission class. R7 widens it to one shared typed matcher and the complete current 28-preflight/39-loader source quantity, rather than adding per-codec patches. No further source-level future-proofing ladder is requested.",
+    "bounded_proof": "Independent source review GO; R7 target rows and N11/R5 state read back; actual runtime tests remain unrun. R7 remains blocked for qualification until actual controls run after the N7 composition/rebind.",
+    "limitations": [
+      "Independent R7 source review GO; real producer control cases and seven whole affected modules remain UNRUN on adopted source.",
+      "Source is composed before N7; its generation_cycle.py overlap must be explicitly merged into N7 later.",
+      "External raw unowned views stay bounded/limited; no production custody or authority facts invented.",
+      "Original two known dirty tests preserved; source freeze and G acceptance false; no formal closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run actual producer wrong-valid-schema and raw-none/profile controls with complete deciding outputs; after N7 composition replay all seven affected modules and profile companions.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1,0 +1,238 @@
+{
+  "adoption_map": [
+    {
+      "mapping": "R6/R7 module and test basenames retain their identities in the tracked package/test roots; R7 split_consumer supersedes the R6 row at the overlapping historical source path; path-dependent test/runner references are rebound to these canonical roots.",
+      "source": "R6/R7 composed helper set",
+      "tracked_implementation_root": "policy-engine/tools/quality/validation/q2_composite",
+      "tracked_test_root": "policy-engine/tests/repo_quality/tools/q2_composite"
+    },
+    {
+      "mapping": "reviewable postimages preserve prototype provenance, change imports/loader/output paths to the tracked source set, and bind full R10 implementation/test membership.",
+      "source": "R9 RAW coordinator/executor prototype",
+      "tracked_files": [
+        {
+          "origin": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/q2_composite_cli.py",
+          "path": "policy-engine/tools/quality/validation/q2_composite/q2_composite_cli.py"
+        },
+        {
+          "origin": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/host_profile_executor.py",
+          "path": "policy-engine/tools/quality/validation/q2_composite/host_profile_executor.py"
+        },
+        {
+          "origin": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/worker_host_driver.py",
+          "path": "policy-engine/tools/quality/validation/q2_composite/worker_host_driver.py"
+        },
+        {
+          "origin": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/test_worker_host_driver.py",
+          "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_host_driver.py"
+        }
+      ]
+    }
+  ],
+  "authorship_role": "local_candidate_author_not_independent_G_acceptance",
+  "candidate": "Tracked Q2 source composition and live host/Linux execution entrypoint. R10 imports the selected helpers from this package, validates the complete source/test set, and leaves historical RAW R6/R7 source manifests as provenance only.",
+  "companions": {
+    "package_init": {
+      "included_in_source_set": true,
+      "path": "policy-engine/tools/quality/validation/q2_composite/__init__.py"
+    },
+    "product_release_note": "not_applicable_private_verification_tooling_does_not_claim_changed_product_behavior",
+    "readme": {
+      "path": "policy-engine/tools/quality/validation/q2_composite/README.md",
+      "sha256": "b41913d89859405791c8b570a2792e9c2a100ca827795d7fb4e8ac1220917993"
+    }
+  },
+  "limits": [
+    "This source manifest proves local byte membership and loader selection, not build/installation or consumer behavior.",
+    "Recorded command adapters do not assert Docker or Linux execution.",
+    "Historical G/R6/R7 proposals and R8/R9 receipts are provenance only; this candidate has no independent G acceptance."
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P29",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "remaining": "physical artifacts, installed consumers, Linux runtime, and full 135-per-profile/18-supplemental receipts remain UNRUN",
+    "target": "real CLI → source-bound R6/R7 helpers → concrete host/worker executors → common three-profile barrier → supplemental callbacks; tested recorded command effects and stop/readback controls"
+  },
+  "proposals": {
+    "capability_label": "implemented_but_not_orchestrated_until_physical_consumer_matrix_is_replayed",
+    "closure_ids": [],
+    "formal_adjudication": "G_only",
+    "g_proposals": []
+  },
+  "runtime_contract": {
+    "barrier": "all 3 primary profile callbacks must complete and reconcile before supplemental callbacks; 6 supplemental selections per profile",
+    "entrypoint": "python -m tools.quality.validation.q2_composite.q2_composite_cli",
+    "primary_placement": "host 134 selected cases plus Linux-native LA029 1 selected case per profile, exactly 135 unique primary selections per profile",
+    "primary_profiles": 3,
+    "worker_lifecycle": "create/start/inspect/finalize/launch/stop exact owned container ID/post-stop inspect State.Running=false; retain stopped containers and volumes; no rm"
+  },
+  "schema": "policyos.e02.q2.canonical-composed-source.r10.v1",
+  "source_frame": {
+    "base_head": "2a55ff778c8b5a61a8e3c613d4434de1b2797657",
+    "base_parents": [
+      "b97dc6d109b7db87a70f6ee373518b5929b3b3b7"
+    ],
+    "base_tree": "23ab094b0a5a5fe2d3b0d2c7a64c312ff2c5f7b1",
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": null,
+    "candidate_status": "uncommitted_source_postimages_no_git_index_mutation",
+    "candidate_tree": null,
+    "target_paths_status_before_manifest": "?? policy-engine/tests/repo_quality/tools/q2_composite/test_profile_composite.py\n?? policy-engine/tests/repo_quality/tools/q2_composite/test_split_protocol.py\n?? policy-engine/tests/repo_quality/tools/q2_composite/test_worker_host_driver.py\n?? policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py\n?? policy-engine/tools/quality/validation/q2_composite/README.md\n?? policy-engine/tools/quality/validation/q2_composite/__init__.py\n?? policy-engine/tools/quality/validation/q2_composite/hatch_sdist_selection.py\n?? policy-engine/tools/quality/validation/q2_composite/host_profile_executor.py\n?? policy-engine/tools/quality/validation/q2_composite/profile_composite.py\n?? policy-engine/tools/quality/validation/q2_composite/profile_partition_runner.py\n?? policy-engine/tools/quality/validation/q2_composite/q2_composite_cli.py\n?? policy-engine/tools/quality/validation/q2_composite/run_q2_protocol_a94.py\n?? policy-engine/tools/quality/validation/q2_composite/split_consumer.py\n?? policy-engine/tools/quality/validation/q2_composite/split_protocol.py\n?? policy-engine/tools/quality/validation/q2_composite/split_source_runner.py\n?? policy-engine/tools/quality/validation/q2_composite/worker_host_driver.py\n?? policy-engine/tools/quality/validation/q2_composite/worker_mounts.py"
+  },
+  "source_set": {
+    "complete_input_denominator": "all *.py files discovered under the canonical q2_composite implementation and test roots; runtime verifier derives those roots and requires exact path-set equality",
+    "file_count": 16,
+    "files": [
+      {
+        "bytes": 53738,
+        "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_profile_composite.py",
+        "sha256": "006c9260e7501bbef2b6dda1f03547185f01e9bad1e7c31491f832dec4471d1b"
+      },
+      {
+        "bytes": 57506,
+        "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_split_protocol.py",
+        "sha256": "d66a5d3d6215aa5d698f3be8c4ad403a516f68035749484e119ff76ebbb70db0"
+      },
+      {
+        "bytes": 40630,
+        "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_host_driver.py",
+        "sha256": "dc28b7bdbc3e452e9352eaf305b6ad1a6d7f1ecdb6223155c0d8ae9b823829d4"
+      },
+      {
+        "bytes": 55019,
+        "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py",
+        "sha256": "d4c30527440f41c159eb1a3110eff686e1bfc5ad43cb232504ae9e3a52c2832f"
+      },
+      {
+        "bytes": 66,
+        "path": "policy-engine/tools/quality/validation/q2_composite/__init__.py",
+        "sha256": "227740bf731375bcce462e672d224f549e7bc6616ecfc399cd8a2f945ea9cf51"
+      },
+      {
+        "bytes": 8620,
+        "path": "policy-engine/tools/quality/validation/q2_composite/hatch_sdist_selection.py",
+        "sha256": "f56ad5d92c9056aa52d081b72c1e339bff926e6704b468700f4f288a8003becc"
+      },
+      {
+        "bytes": 25115,
+        "path": "policy-engine/tools/quality/validation/q2_composite/host_profile_executor.py",
+        "sha256": "c1aa83ff3e07082d16377382084131d4f7f48a51e593d653cdd736241591a5ce"
+      },
+      {
+        "bytes": 90359,
+        "path": "policy-engine/tools/quality/validation/q2_composite/profile_composite.py",
+        "sha256": "9e917403e64b9e3c5fb3da1bb68052df40341dec18617fef2016165bd9413f8c"
+      },
+      {
+        "bytes": 75452,
+        "path": "policy-engine/tools/quality/validation/q2_composite/profile_partition_runner.py",
+        "sha256": "0d6185477bc4f79d90a4a4adf0c5ac5713ceb217ef5e62e43a58aeb69f17a20e"
+      },
+      {
+        "bytes": 40061,
+        "path": "policy-engine/tools/quality/validation/q2_composite/q2_composite_cli.py",
+        "sha256": "eab418d3369b528036cf3fd7d04ca615af0e0e09c34c89dde61df6edbd5cfb6e"
+      },
+      {
+        "bytes": 11957,
+        "path": "policy-engine/tools/quality/validation/q2_composite/run_q2_protocol_a94.py",
+        "sha256": "b70342c9f7b36e0cf99170dbcb656eb8a72349f3b3313c46e094d12d312bfd16"
+      },
+      {
+        "bytes": 86281,
+        "path": "policy-engine/tools/quality/validation/q2_composite/split_consumer.py",
+        "sha256": "575870f362b0b9a325179cc98706ae0d31548917953ebc796fb13fdca46e193c"
+      },
+      {
+        "bytes": 85030,
+        "path": "policy-engine/tools/quality/validation/q2_composite/split_protocol.py",
+        "sha256": "0e94c5c038486d9d2610d60f7025ea1c00b7c211906971b971ddfc93bc8c9c41"
+      },
+      {
+        "bytes": 33945,
+        "path": "policy-engine/tools/quality/validation/q2_composite/split_source_runner.py",
+        "sha256": "e7c3e9aaa20ec6e69c00b5980fc1734b86e55323def09153312f080b31f88f58"
+      },
+      {
+        "bytes": 52683,
+        "path": "policy-engine/tools/quality/validation/q2_composite/worker_host_driver.py",
+        "sha256": "f788aa02567e12b7752d3ffbb8fb95e04d531c38cb64cf23f61edfa113d3dfee"
+      },
+      {
+        "bytes": 112919,
+        "path": "policy-engine/tools/quality/validation/q2_composite/worker_mounts.py",
+        "sha256": "95e04719efd8f137781f1a4df1a8e5608c3d37d3925f24374d45b4d81eba54d8"
+      }
+    ],
+    "set_digest_algorithm": "sha256(concat(sorted(utf8(path) + NUL + ascii(sha256(file_bytes)) + LF)))",
+    "sorted_path_sha256_digest": "15c032d41bfedff1b352951b1095900f839257e580b2b5a4dee260626a4359cb"
+  },
+  "upstream": {
+    "r6": {
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r6-20261020/manifest-r6.json",
+      "manifest_sha256": "5e9aa6be859c6237d1a4a335d73688326737b20480f9d7e1720195a7a2ae884e",
+      "role": "historical source proposal; original split_consumer is superseded by R7 at its overlapping path"
+    },
+    "r7": {
+      "legacy_declared_digest_role": "provenance_only_not_an_admission_predicate",
+      "legacy_declared_digest_sha256": "ac2b3a1d5cd04efd27c63da933ebc184fe553f01f1bacca1a1b36f79d83af804",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r7-20261020/manifest-r7-final-v3.json",
+      "manifest_sha256": "a4325fcc172729b0a25f79af738b8d96210340495d46f9568c248a309e22e8bc",
+      "recomputed_source_set_sha256": "91065f9f205974466a016bfebdf863fa1fb0e370a5b6a1bd8d0b7671d6421b45"
+    },
+    "r8": {
+      "disposition": "R8 held for missing actual production caller; R9 widens to the full CLI-to-worker source path",
+      "independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r8-20261020/independent-review-r8-20261020-v1/review.json",
+      "independent_review_sha256": "a3b514bc16259be1db8a7bdd5cee8374e29f828947c279f631ee955ab2970d87",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r8-20261020/source-manifest-r8.json",
+      "manifest_sha256": "6099159622450cfc5eb8e90dfbfef4abb13ec83f7acb9edffe8da0a1349952cf"
+    },
+    "r9_raw_prototype": {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020",
+      "disposition": "authoring source provenance only; current executable source is the tracked R10 package",
+      "modules": {
+        "host_profile_executor.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/host_profile_executor.py",
+          "sha256": "68d4cf9f34f10a82810884fda5ce65efc2cc4b7b62feebec4c6910d62bfccc01"
+        },
+        "q2_composite_cli.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/q2_composite_cli.py",
+          "sha256": "d7c7b06e9600b58749dca961397c67274c527b547490eae149db0b930ee6cb93"
+        },
+        "test_worker_host_driver.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/test_worker_host_driver.py",
+          "sha256": "9a723d6fae96c263f875d76f59be8eba9a79b85097c78d29c491b71b4a4b3283"
+        },
+        "worker_host_driver.py": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-split-candidate-r9-20261020/worker_host_driver.py",
+          "sha256": "48178a7bd24bccb147319ddd48a57226705e3350133b7ad086def25255d4f5e6"
+        }
+      }
+    },
+    "worker_runtime_binding": {
+      "container_creation": "not_performed",
+      "corrigendum_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-worker-runtime-binding-input-3c13-20261020-r1/corrigendum-v1.json",
+      "corrigendum_sha256": "5ef2d20d8d893083e5ea29ba079015a4a3140f689f80617934d1ac60a695a2ad",
+      "report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-worker-runtime-binding-input-3c13-20261020-r1/report-v1.json",
+      "report_sha256": "12ea47a9b7bc5c651431bb1f3a73c65b5ea61e138a6364bb29e9036f6adb9c2c"
+    }
+  },
+  "verification_status": {
+    "G_acceptance": "not_claimed",
+    "artifact_build_install_transfer": "UNRUN",
+    "ast": "pending_final_current_postimage_run",
+    "focused_pytest": "pending_final_current_postimage_run",
+    "independent_review": "pending",
+    "physical_docker_worker": "UNRUN",
+    "primary_3_profile_matrix": "UNRUN",
+    "ruff_check": "pending_final_current_postimage_run",
+    "ruff_format": "pending_final_current_postimage_run",
+    "supplemental_18_matrix": "UNRUN"
+  }
+}

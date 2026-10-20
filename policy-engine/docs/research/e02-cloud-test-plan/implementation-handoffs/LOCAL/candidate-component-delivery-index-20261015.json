@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "659678d99ea5729928bfcaae9cc31ea058fbfc2c0ef121d35e12210504c8c155",
+      "sha256": "090d0a4b1c08baf3208daf51539281649a71d3156a7d11478de16e29b343e191",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",

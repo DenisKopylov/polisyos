@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
 from polisyos.foundry.methods.catalog.causal.protocols import (
     FragmentCompositionData,
     GraphCausalData,
@@ -29,7 +30,12 @@ from polisyos.ir.analytics.causal import (
     RefutationResult,
     RefutationTestType,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    GraphProjectionStatus,
+    GraphType,
+)
 from polisyos.ir.analytics.cross_graph import InterfaceMapping, SCMFragment
 
 
@@ -267,26 +273,38 @@ def test_scm_query_data_valid_payload() -> None:
         nodes=["X", "Y"],
         edges=[CausalEdge(src="X", dst="Y")],
     )
-    scm_spec = {
-        "graph": graph.model_dump(mode="json"),
-        "mechanisms": [
-            {
-                "variable": "Y",
-                "parents": ["X"],
-                "family": "linear",
-                "family_params": {
-                    "intercept": 0.0,
-                    "coefficients": {"X": 1.0},
-                    "noise_std": 0.1,
-                },
-                "source": "data_fitted",
-            }
-        ],
-        "fitted": True,
-        "fit_method": "gcm",
-    }
+    fit_input = SCMFitData(
+        data=np.array(
+            [
+                [1.0, 2.0],
+                [1.5, 2.7],
+                [2.1, 3.3],
+            ],
+            dtype=float,
+        ),
+        column_names=["X", "Y"],
+        graph=graph,
+    )
+    # Use the owned native_hybrid producer instead of hand-authoring a fitted
+    # GCM claim without its selected-worker training and provenance records.
+    # This is an in-memory candidate profile; it does not assert external graph
+    # custody or selected DoWhy execution.
+    fit_result = HybridSCMFit.pure_step(
+        fit_input,
+        params={"fit_backend": "native_hybrid"},
+    )
+    fitted_candidate = fit_result["scm_spec"]
+    assert fitted_candidate.schema_version == "1.2"
+    assert fitted_candidate.fitted is True
+    assert fitted_candidate.fit_method == "native_hybrid"
+    assert fitted_candidate.fit_metrics["dowhy_available"] == 0.0
+    assert fitted_candidate.source_graph == graph
+    assert fitted_candidate.source_graph_ref is None
+    assert fitted_candidate.graph_projection is not None
+    assert fitted_candidate.graph_projection.status is GraphProjectionStatus.IDENTITY
+
     payload = SCMQueryData(
-        scm_spec=scm_spec,
+        scm_spec=fitted_candidate.model_dump(mode="json"),
         query={
             "query_type": "interventional",
             "treatment_variable": "X",
@@ -295,8 +313,50 @@ def test_scm_query_data_valid_payload() -> None:
             "n_samples": 128,
         },
     )
+    assert payload.scm_spec.fitted is True
+    assert payload.scm_spec.fit_method == "native_hybrid"
     assert payload.query.treatment_variable == "X"
     assert payload.query.outcome_variable == "Y"
+
+
+def test_scm_query_data_rejects_current_gcm_without_graph_source_disposition() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    with pytest.raises(
+        ValueError,
+        match="SCM 1.2 fitted artifacts require their graph source disposition",
+    ):
+        SCMQueryData(
+            scm_spec={
+                "schema_version": "1.2",
+                "graph": graph.model_dump(mode="json"),
+                "mechanisms": [
+                    {
+                        "variable": "Y",
+                        "parents": ["X"],
+                        "family": "linear",
+                        "family_params": {
+                            "intercept": 0.0,
+                            "coefficients": {"X": 1.0},
+                            "noise_std": 0.1,
+                        },
+                        "source": "data_fitted",
+                    }
+                ],
+                "fitted": True,
+                "fit_method": "gcm",
+            },
+            query={
+                "query_type": "interventional",
+                "treatment_variable": "X",
+                "treatment_value": 1.0,
+                "outcome_variable": "Y",
+                "n_samples": 128,
+            },
+        )
 
 
 def test_scm_query_data_rejects_unknown_variables() -> None:

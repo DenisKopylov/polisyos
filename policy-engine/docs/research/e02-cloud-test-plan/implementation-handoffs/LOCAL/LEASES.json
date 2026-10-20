@@ -44582,5 +44582,82 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-hte-r6-test-companions-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "9956d2d7e6da0ce64e187180ad817188c75d2508",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 20816,
+        "preimage_sha256": "e9a4414de1cde2c20ef9228dbfb9529b3475d796a7cdc36f5f06e6cc3066c41c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r6/postimages/policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+        "postimage_sha256": "8d71b3b73d7e9f7f034b169f7459a0ee73579d335493782a7266a26ef11ee05d"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_protocols.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 19457,
+        "preimage_sha256": "c2b2de40ad6f444873a5b6fc2d112f1bcf33a878d5a77e4027581fe4fcf11963",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r6/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_protocols.py",
+        "postimage_sha256": "bc94ef47b3697359ce7b484c15f4d54d59d818d408843b6d900dfc46f0452af8"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r6-test-companions-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "f1da586ffb4a3b9e2ca9c395a3bb934e6613345f09753e38365a6e2b1726ff74"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-r6-test-companions-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r6/postimage-manifest.json",
+        "sha256": "8d2a659c65c492ee05908802eeaa6b0a5691a03b38b00ee43f0f73b97fa8e9f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r6/unapplied.patch",
+        "sha256": "b442ca5f7ebd9d6023310b2db4c79ddcacc1cd9492c60c4482f68f3abfacc30a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r6/static-verification.json",
+        "sha256": "abbe8c4c575bb0dca879e14b43ef21655c3a0af542a1b62688eece3c9477c0ea"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r6/failure-partition.json",
+        "sha256": "b3580a0395fa4cd8246957575eaec87d4852d74bb3d915c6ec09577fc288c27a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-r6-batch-20261021-r1/review.json",
+        "sha256": "30d0258be6a4ec67eac7ec5fefaee9ce6999491196f07423383cccb0e20c88e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-restore-r3-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "0ef60f4ed225a46f8e081e2322cbc3386fe2dcb75d2b5cc0cc9403fa3ac58ae9"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "One shared inventory helper repairs every affected supplied-input/refusal test; actual producer-backed fixture replaces unsupported fitted-GCM self-label without weakening current schema.",
+      "falsifier": "Retain source/profile/limit markers while exceeding a Core input limit or removing graph source disposition. Native/historical/backend scope remains explicit."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Test-only source companion; HTE selected-input producer adopted at ee2. No real Runtime POST, worker completion, CAS/fresh GET, causal calibration or production authority established.",
+      "Broader SCM constructor/source-version static census is not an execution receipt; additional whole importer modules will be replayed before any attribution or repair.",
+      "Existing optional EconML method SKIPs remain pending supported locked backend installation; no absence/default substitution."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay original six whole Core/HTE/IR/materialization/protocol/method modules plus full SCM constructor/importer modules from complete census. Reconcile all actual cases/origins and retain deciding outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

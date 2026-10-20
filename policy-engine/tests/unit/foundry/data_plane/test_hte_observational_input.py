@@ -155,13 +155,18 @@ def _put_envelope(
     )
 
 
+def _artifact_id_strings(store: FileSystemCAS) -> set[str]:
+    """Return CAS IDs in their stable canonical wire representation."""
+    return {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+
+
 def test_canonical_envelope_is_materialized_and_reopened_by_fresh_reader(
     tmp_path: Path,
 ) -> None:
     cas_root = tmp_path / "cas"
     store = FileSystemCAS(cas_root, ownership_enforced=False)
     source_ref = _put_envelope(store)
-    ids_before = set(store.iter_artifact_ids())
+    ids_before = _artifact_id_strings(store)
 
     prepared = _prepare(store, source_ref)
 
@@ -188,7 +193,7 @@ def test_canonical_envelope_is_materialized_and_reopened_by_fresh_reader(
         tenant_id="tenant-test",
         cell_id="cell-test",
     )
-    assert set(store.iter_artifact_ids()) == ids_before
+    assert _artifact_id_strings(store) == ids_before
 
     fresh_store = FileSystemCAS.open_existing_read_only(cas_root)
     fresh_read = read_core_json_artifact_bounded(
@@ -229,7 +234,7 @@ def test_explicit_legacy_protocol_writes_profile_bound_envelope_and_fresh_reader
         source_ref,
         max_manifest_bytes=_limits().max_manifest_bytes,
     )
-    ids_before = set(store.iter_artifact_ids())
+    ids_before = _artifact_id_strings(store)
 
     prepared = _prepare(store, source_ref, protocol="legacy_hte_json_v1")
 
@@ -242,7 +247,7 @@ def test_explicit_legacy_protocol_writes_profile_bound_envelope_and_fresh_reader
     assert prepared.source_protocol == "legacy_hte_json_v1"
     assert prepared.normalization == "legacy_to_method_input_envelope_v1"
     assert "legacy_hte_json_v1_source_normalized" in prepared.limitations
-    assert len(set(store.iter_artifact_ids()) - ids_before) == 1
+    assert len(_artifact_id_strings(store) - ids_before) == 1
 
     fresh_store = FileSystemCAS.open_existing_read_only(cas_root)
     fresh_read = read_core_json_artifact_bounded(
@@ -290,12 +295,12 @@ def test_legacy_source_without_governance_is_not_written_public_by_default(
         schema=None,
         governance=None,
     )
-    ids_before = set(store.iter_artifact_ids())
+    ids_before = _artifact_id_strings(store)
 
     with pytest.raises(HTEInputPreparationRefusal, match="source_governance_unavailable"):
         _prepare(store, source_ref, protocol="legacy_hte_json_v1")
 
-    assert set(store.iter_artifact_ids()) == ids_before
+    assert _artifact_id_strings(store) == ids_before
 
 
 def test_legacy_source_requires_null_artifact_schema(tmp_path: Path) -> None:
@@ -343,12 +348,12 @@ def test_legacy_source_does_not_treat_typed_public_default_as_raw_declaration(
         "read_core_json_artifact_bounded",
         lambda *_args, **_kwargs: selected,
     )
-    ids_before = set(store.iter_artifact_ids())
+    ids_before = _artifact_id_strings(store)
 
     with pytest.raises(HTEInputPreparationRefusal, match="source_governance_unavailable"):
         _prepare(store, source_ref, protocol="legacy_hte_json_v1")
 
-    assert set(store.iter_artifact_ids()) == ids_before
+    assert _artifact_id_strings(store) == ids_before
 
 
 def test_canonical_envelope_preserves_absent_governance_as_absent(tmp_path: Path) -> None:
@@ -492,7 +497,7 @@ def test_core_resource_policy_limits_refuse_before_hte_materialization(
             kind="ir.observational_data",
             schema=None,
         )
-    ids_before = set(store.iter_artifact_ids())
+    ids_before = _artifact_id_strings(store)
     limits = _limits(**{limit_name: 1})
     monkeypatch.setattr(
         bindings,
@@ -502,7 +507,7 @@ def test_core_resource_policy_limits_refuse_before_hte_materialization(
 
     with pytest.raises(HTEInputPreparationRefusal, match="selected_source_read_refused"):
         _prepare(store, source_ref, protocol=protocol, limits=limits)
-    assert set(store.iter_artifact_ids()) == ids_before
+    assert _artifact_id_strings(store) == ids_before
 
 
 @pytest.mark.parametrize(

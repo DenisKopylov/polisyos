@@ -45,9 +45,15 @@ NETWORK_CAUSAL_DATA_CONTRACT_ID = "foundry.causal.network_causal_data.v1"
 PANEL_OBSERVATIONAL_DATA_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
 PROXY_MEASUREMENT_DATA_CONTRACT_ID = "foundry.causal.proxy_measurement_data.v1"
 DYNAMIC_TREATMENT_DATA_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
+HTE_OBSERVATIONAL_DATA_CONTRACT_ID = "foundry.causal.hte_observational_data.v1"
 PANEL_DATA_CONTRACT_ID = "foundry.econometrics.panel_data.v1"
 SURVIVAL_DATA_CONTRACT_ID = "foundry.ml.survival_data.v1"
 OBSERVATION_METHOD_INPUT_KIND = "ir.observation_method_input"
+OBSERVATION_METHOD_INPUT_SCHEMA_NAME = "polisyos.ir.ObservationMethodInputEnvelope"
+OBSERVATION_METHOD_INPUT_SCHEMA_VERSION = "1.0"
+HTE_OBSERVATIONAL_DATA_CONTRACT_FQN = (
+    "polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData"
+)
 
 
 class ContractCompatibilityTarget(KernelModel):
@@ -747,6 +753,10 @@ DYNAMIC_TREATMENT_TARGET = ContractCompatibilityTarget(
     contract_id=DYNAMIC_TREATMENT_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
 )
+HTE_OBSERVATIONAL_DATA_TARGET = ContractCompatibilityTarget(
+    contract_id=HTE_OBSERVATIONAL_DATA_CONTRACT_ID,
+    contract_fqn=HTE_OBSERVATIONAL_DATA_CONTRACT_FQN,
+)
 PANEL_ECONOMETRIC_TARGET = ContractCompatibilityTarget(
     contract_id=PANEL_DATA_CONTRACT_ID,
     contract_fqn="polisyos.foundry.methods.catalog.econometrics.protocols.PanelData",
@@ -798,11 +808,16 @@ SECTION_15_7_BUNDLE_MODELS: dict[str, type[KernelModel]] = {
 __all__ = [
     "BACKTEST_PLAN_TARGET",
     "DYNAMIC_TREATMENT_TARGET",
+    "HTE_OBSERVATIONAL_DATA_CONTRACT_FQN",
+    "HTE_OBSERVATIONAL_DATA_CONTRACT_ID",
+    "HTE_OBSERVATIONAL_DATA_TARGET",
     "LESSON_CARD_TARGET",
     "MULTIPLEX_NETWORK_TARGET",
     "NETWORK_ANALYSIS_TARGET",
     "NETWORK_DATA_TARGET",
     "OBSERVATION_METHOD_INPUT_KIND",
+    "OBSERVATION_METHOD_INPUT_SCHEMA_NAME",
+    "OBSERVATION_METHOD_INPUT_SCHEMA_VERSION",
     "PANEL_ECONOMETRIC_TARGET",
     "PANEL_OBSERVATIONAL_TARGET",
     "PROXY_MEASUREMENT_TARGET",

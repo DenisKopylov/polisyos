@@ -9,32 +9,42 @@ synthetic runtime state.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
 import jax.numpy as jnp
 import numpy as np
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts import (
     ArtifactStore,
+    CoreJsonArtifactBoundedRead,
     CoreJSONArtifactStore,
+    CoreJSONArtifactStreamingReader,
+    CoreJsonReadLimits,
     artifact_manifest_profile_sha256,
+    read_core_json_artifact_bounded,
     resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts.manifest import (
+    ArtifactGovernanceInfo,
     ArtifactManifest,
     ArtifactRef,
+    ArtifactTenantContextInfo,
+    CanonInfo,
     InputRef,
+    ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts import (
     ValueOuterSet,
     data_snapshot_owner_input_requirements,
@@ -66,6 +76,7 @@ from polisyos.foundry.execute.executor import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
+    HTEObservationalData,
     NetworkCausalData,
     PanelObservationalData,
     ProxyMeasurementData,
@@ -78,7 +89,16 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     NetworkData,
 )
 from polisyos.ir.kernel import SlotRegistry, SlotScope, SlotSpec, SlotValueType
-from polisyos.ir.observation.bundles import ContractCompatibilityTarget
+from polisyos.ir.observation.bundles import (
+    HTE_OBSERVATIONAL_DATA_CONTRACT_FQN,
+    HTE_OBSERVATIONAL_DATA_CONTRACT_ID,
+    HTE_OBSERVATIONAL_DATA_TARGET,
+    OBSERVATION_METHOD_INPUT_KIND,
+    OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
+    OBSERVATION_METHOD_INPUT_SCHEMA_VERSION,
+    ContractCompatibilityTarget,
+    ObservationMethodInputEnvelope,
+)
 
 _MISSING = object()
 _FLOAT_QUANT = Decimal("0.000000001")
@@ -103,6 +123,7 @@ _METHOD_CONTRACT_ALLOW_REGISTRY: dict[str, _MethodContractSpec] = {
     )
     for model_type in (
         DynamicTreatmentData,
+        HTEObservationalData,
         MultiplexNetworkData,
         NetworkCausalData,
         NetworkData,
@@ -113,6 +134,297 @@ _METHOD_CONTRACT_ALLOW_REGISTRY: dict[str, _MethodContractSpec] = {
         SurvivalData,
     )
 }
+
+
+type HTEInputLimits = CoreJsonReadLimits
+
+
+class _HTEObservationalInputStore(
+    CoreJSONArtifactStore,
+    CoreJSONArtifactStreamingReader,
+    Protocol,
+):
+    """Require both the producer's write path and bounded selected-view reader."""
+
+
+class HTEInputPreparationRefusal(ValueError):
+    """Refuse an HTE input when its selected artifact cannot be admitted."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+@dataclass(frozen=True)
+class PreparedHTEObservationalInput:
+    """Worker-local HTE DTO plus selected-source admission metadata.
+
+    ``data`` is an in-worker value. Callers must consume it before returning a
+    worker outcome and must persist only the typed references and metadata.
+    """
+
+    data: HTEObservationalData
+    submitted_ref: ArtifactRef
+    effective_ref: ArtifactRef
+    effective_artifact_schema: SchemaInfo
+    contract_target: ContractCompatibilityTarget
+    method_fqn: str
+    source_protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"]
+    normalization: Literal[
+        "canonical_passthrough",
+        "legacy_to_method_input_envelope_v1",
+    ]
+    limitations: tuple[
+        Literal[
+            "candidate_input_not_external_truth",
+            "scientific_validity_not_established",
+            "units_and_context_not_established",
+            "legacy_hte_json_v1_source_normalized",
+        ],
+        ...,
+    ]
+    source_governance: ArtifactGovernanceInfo | None
+    source_tenant_context: ArtifactTenantContextInfo | None
+    observed_manifest_bytes: int
+    observed_bytes: int
+    observed_depth: int
+    observed_elements: int
+
+
+_HTE_SOURCE_PROTOCOLS = ("method_input_envelope_v1", "legacy_hte_json_v1")
+_HTE_CANONICAL_INPUT_KIND = OBSERVATION_METHOD_INPUT_KIND
+_HTE_LEGACY_INPUT_KIND = "ir.observational_data"
+_HTE_CANDIDATE_LIMITATIONS = (
+    "candidate_input_not_external_truth",
+    "scientific_validity_not_established",
+    "units_and_context_not_established",
+)
+
+
+def _selected_source_governance(
+    bounded_read: CoreJsonArtifactBoundedRead,
+) -> ArtifactGovernanceInfo | None:
+    """Return governance only when the selected raw manifest declared it."""
+    try:
+        raw_manifest = json.loads(bounded_read.raw_manifest_bytes)
+    except (TypeError, ValueError, UnicodeDecodeError) as exc:
+        raise HTEInputPreparationRefusal("selected_manifest_invalid") from exc
+    if not isinstance(raw_manifest, dict):
+        raise HTEInputPreparationRefusal("selected_manifest_invalid")
+
+    raw_governance = raw_manifest.get("governance")
+    if raw_governance is None:
+        return None
+    if not isinstance(raw_governance, dict):
+        return None
+    raw_classification = raw_governance.get("classification")
+    if not isinstance(raw_classification, str) or not raw_classification.strip():
+        return None
+
+    governance = bounded_read.manifest.governance
+    if governance is None or governance.classification != raw_classification:
+        raise HTEInputPreparationRefusal("selected_governance_mismatch")
+    return governance
+
+
+def _materialize_hte_observational_data(
+    contract_payload: Mapping[str, Any],
+) -> HTEObservationalData:
+    """Apply the registered HTE DTO validator to one exact IR target."""
+    try:
+        value = materialize_method_contract(
+            contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
+            contract_payload=contract_payload,
+        )
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise HTEInputPreparationRefusal("invalid_hte_observational_data") from exc
+    if not isinstance(value, HTEObservationalData):
+        raise HTEInputPreparationRefusal("hte_target_materializer_mismatch")
+    return value
+
+
+def prepare_hte_observational_input(
+    *,
+    store: _HTEObservationalInputStore,
+    source_ref: ArtifactRef,
+    protocol: Literal["method_input_envelope_v1", "legacy_hte_json_v1"],
+    method_fqn: str,
+    limits: HTEInputLimits,
+) -> PreparedHTEObservationalInput:
+    """Decode one explicitly selected HTE source under pinned resource limits.
+
+    The selected Core JSON reader verifies the full manifest profile and bounds
+    selected manifest bytes, payload bytes, structural depth, and elements
+    before this function materializes NumPy arrays. Method selection/default
+    resolution belongs to Runtime; this function only echoes the exact
+    already-resolved method FQN.
+
+    Args:
+        store: Core JSON writer plus an owner-verified selected-member stream.
+        source_ref: Full selected artifact reference including its profile hash.
+        protocol: Explicitly selected envelope or legacy input protocol.
+        method_fqn: Exact method identity already resolved by Runtime.
+        limits: Required manifest and payload limits from the persisted
+            resource-policy revision.
+
+    Returns:
+        PreparedHTEObservationalInput: Worker-local DTO and profile-bound refs.
+
+    Raises:
+        HTEInputPreparationRefusal: If the selected protocol, profile, target,
+            resource bounds, governance metadata, or HTE DTO is inadmissible.
+    """
+    if protocol not in _HTE_SOURCE_PROTOCOLS:
+        raise HTEInputPreparationRefusal("unsupported_hte_source_protocol")
+    if not isinstance(method_fqn, str) or not method_fqn or method_fqn != method_fqn.strip():
+        raise HTEInputPreparationRefusal("invalid_selected_method_fqn")
+    if not source_ref.manifest_profile_sha256:
+        raise HTEInputPreparationRefusal("selected_manifest_profile_required")
+
+    expected_kind = (
+        _HTE_CANONICAL_INPUT_KIND
+        if protocol == "method_input_envelope_v1"
+        else _HTE_LEGACY_INPUT_KIND
+    )
+    if source_ref.kind != expected_kind or source_ref.media_type != _JSON_MEDIA_TYPE:
+        raise HTEInputPreparationRefusal("source_protocol_kind_mismatch")
+
+    try:
+        bounded_read = read_core_json_artifact_bounded(
+            store,
+            source_ref,
+            limits=limits,
+        )
+        if bounded_read.effective_ref != source_ref:
+            raise HTEInputPreparationRefusal("selected_source_ref_mismatch")
+        value = require_declared_profile(bounded_read.profile_read)
+    except HTEInputPreparationRefusal:
+        raise
+    except (OSError, TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal("selected_source_read_refused") from exc
+
+    governance = _selected_source_governance(bounded_read)
+    tenant_context = bounded_read.manifest.tenant_context
+
+    if protocol == "method_input_envelope_v1":
+        effective_artifact_schema = SchemaInfo(
+            name=OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
+            version=OBSERVATION_METHOD_INPUT_SCHEMA_VERSION,
+        )
+        if bounded_read.manifest.artifact_schema != effective_artifact_schema:
+            raise HTEInputPreparationRefusal("method_input_envelope_schema_mismatch")
+        if not isinstance(value, dict):
+            raise HTEInputPreparationRefusal("method_input_envelope_body_invalid")
+        if value.get("schema_version") != "policyos.ir.observation.method_input_envelope.v1":
+            raise HTEInputPreparationRefusal("method_input_envelope_discriminator_required")
+        try:
+            envelope = ObservationMethodInputEnvelope.model_validate(value)
+        except ValidationError as exc:
+            raise HTEInputPreparationRefusal("method_input_envelope_body_invalid") from exc
+        if (
+            envelope.contract_target.contract_id != HTE_OBSERVATIONAL_DATA_CONTRACT_ID
+            or envelope.contract_target.contract_fqn != HTE_OBSERVATIONAL_DATA_CONTRACT_FQN
+        ):
+            raise HTEInputPreparationRefusal("hte_contract_target_mismatch")
+        data = _materialize_hte_observational_data(envelope.contract_payload)
+        return PreparedHTEObservationalInput(
+            data=data,
+            submitted_ref=source_ref,
+            effective_ref=bounded_read.effective_ref,
+            effective_artifact_schema=effective_artifact_schema,
+            contract_target=envelope.contract_target,
+            method_fqn=method_fqn,
+            source_protocol=protocol,
+            normalization="canonical_passthrough",
+            limitations=_HTE_CANDIDATE_LIMITATIONS,
+            source_governance=governance,
+            source_tenant_context=tenant_context,
+            observed_manifest_bytes=bounded_read.observed_manifest_bytes,
+            observed_bytes=bounded_read.observed_bytes,
+            observed_depth=bounded_read.observed_depth,
+            observed_elements=bounded_read.observed_elements,
+        )
+
+    if bounded_read.manifest.artifact_schema is not None:
+        raise HTEInputPreparationRefusal("legacy_hte_schema_must_be_null")
+    if governance is None:
+        raise HTEInputPreparationRefusal("source_governance_unavailable")
+    if not isinstance(value, dict):
+        raise HTEInputPreparationRefusal("legacy_hte_body_invalid")
+    data = _materialize_hte_observational_data(value)
+
+    envelope = ObservationMethodInputEnvelope(
+        contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
+        contract_payload=data.model_dump(mode="json", exclude_none=False),
+    )
+    output_spec = CanonSpec(
+        forbid_floats=False,
+        forbid_nan_inf=True,
+        exclude_none=False,
+        max_depth=limits.max_depth,
+    )
+    try:
+        output_bytes = to_canonical_bytes(
+            envelope.model_dump(mode="json", exclude_none=False),
+            output_spec,
+        )
+    except (TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal("legacy_hte_normalization_refused") from exc
+    if len(output_bytes) > limits.max_bytes:
+        raise HTEInputPreparationRefusal("normalized_hte_input_exceeds_byte_limit")
+
+    try:
+        effective_artifact_schema = SchemaInfo(
+            name=OBSERVATION_METHOD_INPUT_SCHEMA_NAME,
+            version=OBSERVATION_METHOD_INPUT_SCHEMA_VERSION,
+        )
+        effective_ref = store.put_bytes(
+            output_bytes,
+            PutOptions(
+                kind=OBSERVATION_METHOD_INPUT_KIND,
+                media_type=_JSON_MEDIA_TYPE,
+                schema=effective_artifact_schema,
+                producer=ProducerInfo(
+                    component="polisyos.foundry.data_plane.prepare_hte_observational_input",
+                    version="1.0.0",
+                ),
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        source_ref,
+                        role="legacy_hte_json_v1_source",
+                    )
+                ],
+                canon=CanonInfo.from_spec(output_spec),
+                governance=governance,
+                tenant_context=tenant_context,
+            ),
+            return_selected_profile=True,
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise HTEInputPreparationRefusal("normalized_hte_input_write_refused") from exc
+    if not effective_ref.manifest_profile_sha256:
+        raise HTEInputPreparationRefusal("normalized_hte_profile_missing")
+
+    return PreparedHTEObservationalInput(
+        data=data,
+        submitted_ref=source_ref,
+        effective_ref=effective_ref,
+        effective_artifact_schema=effective_artifact_schema,
+        contract_target=HTE_OBSERVATIONAL_DATA_TARGET,
+        method_fqn=method_fqn,
+        source_protocol=protocol,
+        normalization="legacy_to_method_input_envelope_v1",
+        limitations=(
+            *_HTE_CANDIDATE_LIMITATIONS,
+            "legacy_hte_json_v1_source_normalized",
+        ),
+        source_governance=governance,
+        source_tenant_context=tenant_context,
+        observed_manifest_bytes=bounded_read.observed_manifest_bytes,
+        observed_bytes=bounded_read.observed_bytes,
+        observed_depth=bounded_read.observed_depth,
+        observed_elements=bounded_read.observed_elements,
+    )
 
 
 def materialize_method_contract(

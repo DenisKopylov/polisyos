@@ -136,6 +136,33 @@ policy authority to the supplied SCM or its output. Selected GCM continues to
 require a fully observed declared static DAG; its existing `ValueError` refusal
 now exposes the typed `reason_code="graph_not_declared_static_dag"`.
 
+### HTE observational input admission
+
+`polisyos.foundry.data_plane.prepare_hte_observational_input` is the Foundry
+owner for two explicit source protocols: a selected-profile
+`ir.observation_method_input` envelope, or an explicitly requested legacy
+`ir.observational_data` JSON artifact with no artifact schema. Both paths use
+Core's selected-view bounded JSON reader, with a separately pinned manifest
+byte limit and payload byte/depth/element limits, before constructing
+`HTEObservationalData`; the exact envelope schema, explicit body discriminator,
+stable contract ID, and protocol FQN must match. Legacy input is persisted as a
+new envelope with a lineage edge bound to the source manifest profile. Its
+source governance and tenant context are copied only when present, and
+normalization refuses when raw selected governance has no explicit
+classification. The prepared worker value carries the effective artifact
+schema and observed manifest/payload measurements from this bounded read, so
+the method bridge does not need a second manifest lookup.
+
+The HTE DTO enforces `n_obs >= 40`, a binary treatment, aligned finite numeric
+arrays, and its current optional-field rules. All four limits are required
+from the persisted Runtime resource-policy revision; this producer defines no
+numeric fallback. The result's arrays are worker-local, and the handoff retains
+only refs and typed admission metadata. These checks establish input shape and
+profile provenance, not units/context, method compatibility, external truth,
+causal identification, scientific validity, or publishability.
+Runtime/SharedExecutor invocation and estimator dispatch remain the end-to-end
+acceptance signal.
+
 ## Extension Points
 
 ### Installed selected-worker profile

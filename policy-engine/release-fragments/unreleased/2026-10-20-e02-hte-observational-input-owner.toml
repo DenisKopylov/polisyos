@@ -1,0 +1,38 @@
+id = "2026-10-20-e02-hte-observational-input-owner"
+title = "Add bounded HTE observational input preparation"
+type = "added"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Foundry adds a public-stable, bounded selected-profile producer for candidate HTE method inputs."
+evidence = [
+  "src/polisyos/foundry/data_plane/bindings.py",
+  "src/polisyos/ir/observation/bundles.py",
+  "src/polisyos/foundry/methods/catalog/causal/protocols.py",
+  "tests/unit/foundry/data_plane/test_hte_observational_input.py",
+  "src/polisyos/foundry/README.md",
+]
+
+compatibility = "The additive Python API is exposed from the supported public-stable polisyos.foundry.data_plane entrypoint. The stable HTE target is foundry.causal.hte_observational_data.v1 with its exact existing Foundry DTO FQN. Canonical inputs keep the method-input-envelope v1 body and outer 1.0 schema. Legacy JSON is accepted only when explicitly selected, then written as a profile-bound envelope with source lineage and inherited selected governance/tenant context."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.data_plane"
+migration = "No existing target version or canonical envelope is changed. Legacy callers must select `legacy_hte_json_v1` explicitly and provide a selected source profile; legacy sources without explicit raw governance classification remain refused."
+api = "The supported data_plane exports are HTEInputLimits, HTEInputPreparationRefusal, PreparedHTEObservationalInput, and prepare_hte_observational_input. HTEInputLimits is a typing alias for CoreJsonReadLimits, not a runtime constructor; construct limits with CoreJsonReadLimits(max_bytes=payload_byte_limit, max_depth=depth_limit, max_elements=element_limit, max_manifest_bytes=manifest_byte_limit), naming each field explicitly rather than relying on positional order. The producer requires a CoreJSONArtifactStore writer plus CoreJSONArtifactStreamingReader selected-view reader, exact protocol, selected ArtifactRef, and Runtime-resolved method FQN. Prepared results include worker-local data, selected refs and schema, governance/tenant context, normalization, limitations, and observed manifest/payload measurements."
+limitations = "Core enforces the selected raw-manifest byte cap and binds the bounded payload stream to the exact selected manifest; the independent payload byte/depth/element bounds run before Core decode and HTE array materialization. These input limits do not claim a whole-process RSS bound. The producer validates selected profile, bounded payload, target identity, and current HTE shape constraints. It does not establish units/context, dispatch an estimator, or establish external truth, causal identification, scientific validity, or publishability. The generated public-surface inventory currently reports unresolved_exports for polisyos.foundry.data_plane; the inventory owner must regenerate and review that output, and this fragment does not claim the review occurred. Runtime/SharedExecutor end-to-end invocation remains UNRUN until the producer is called by the actual worker path."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-hte-observational-input-owner"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry.data_plane"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add a public-stable selected-profile producer for bounded HTE method-input preparation; the output remains candidate-only."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -5,7 +5,7 @@ CAS-backed execution plans, binds runtime state, executes patch-first program
 graphs, and hands off to methods, calibration, uncertainty, and agent-based
 simulation surfaces.
 
-- Last updated: 2026-10-19
+- Last updated: 2026-10-21
 
 ## Purpose
 
@@ -77,6 +77,24 @@ agent-sim tooling.
 | `SentenceTransformerEmbedder` | Optional sentence-transformers adapter whose dependency loads only on construction.                        |
 | `MethodRouteConstraint`       | Stable candidate route constraint contract, implemented by the existing method-selection owner. |
 | `method_accepts_input_contract()` | Stable relation predicate over a method's actual input slots and executable type hints. |
+| `data_plane.prepare_hte_observational_input()` | Prepare a bounded, selected-profile HTE input for candidate method execution. |
+| `data_plane.PreparedHTEObservationalInput` | Worker-local prepared data plus source/effective refs and typed input metadata. |
+| `data_plane.HTEInputPreparationRefusal` | Typed refusal from selected-profile HTE input preparation. |
+| `data_plane.HTEInputLimits` | Type alias for Core's four-field `CoreJsonReadLimits`; construct limits with `CoreJsonReadLimits(max_bytes=payload_byte_limit, max_depth=depth_limit, max_elements=element_limit, max_manifest_bytes=manifest_byte_limit)` using explicit field names. |
+
+The HTE input exports are available from the supported public-stable
+`polisyos.foundry.data_plane` entrypoint. `HTEInputLimits` is a typing alias,
+not a runtime constructor; create the value with `CoreJsonReadLimits` from
+`polisyos.core.artifacts`, naming `max_bytes`, `max_depth`, `max_elements`,
+and `max_manifest_bytes` explicitly so documentation does not rely on
+positional field order. For example: `CoreJsonReadLimits(max_bytes=payload_byte_limit,
+max_depth=depth_limit, max_elements=element_limit,
+max_manifest_bytes=manifest_byte_limit)`. The producer prepares candidate input only and does
+not establish method compatibility, units/context, causal identification,
+external truth, scientific validity, or publishability. The generated
+public-surface inventory still reports `unresolved_exports` for this entrypoint;
+the inventory owner’s regeneration and review remain pending. This README does
+not claim that inventory review has occurred.
 
 The route interface's stable import boundary does not grant evidence authority.
 Its output remains a candidate search constraint; it certifies neither a source

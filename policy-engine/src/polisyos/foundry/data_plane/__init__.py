@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from .bindings import (
+    HTEInputLimits,
+    HTEInputPreparationRefusal,
     InputBindingsBuildResult,
+    PreparedHTEObservationalInput,
     UkraineFoundryIntakeResult,
     build_input_bindings,
     extract_feedback_diagnostics,
@@ -12,11 +15,15 @@ from .bindings import (
     load_input_bindings,
     load_ukraine_foundry_intake,
     materialize_method_contract,
+    prepare_hte_observational_input,
     resolve_bound_state_snapshot_ref,
 )
 
 __all__ = [
+    "HTEInputLimits",
+    "HTEInputPreparationRefusal",
     "InputBindingsBuildResult",
+    "PreparedHTEObservationalInput",
     "UkraineFoundryIntakeResult",
     "build_input_bindings",
     "extract_feedback_diagnostics",
@@ -25,5 +32,6 @@ __all__ = [
     "load_input_bindings",
     "load_ukraine_foundry_intake",
     "materialize_method_contract",
+    "prepare_hte_observational_input",
     "resolve_bound_state_snapshot_ref",
 ]

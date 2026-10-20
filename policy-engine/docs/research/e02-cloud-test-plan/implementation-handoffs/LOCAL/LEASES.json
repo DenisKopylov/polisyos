@@ -44166,5 +44166,147 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-hte-input-r5-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "f33220822489e3243a556d3ce908d5ee6f652447",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-hte-observational-input-owner.toml": {
+        "operation": "create",
+        "mode": "100644",
+        "bytes": 3781,
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-hte-observational-input-owner.toml",
+        "postimage_sha256": "089bb094e113c179a522b5c0b6e8b8ee5f7edbdb4a93371bc4d4173c6366cd2a"
+      },
+      "policy-engine/src/polisyos/foundry/data_plane/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 1057,
+        "preimage_sha256": "604b7bb3e4b6dd610fc4b9a8f753f6cc9076da51cd5a625187f518e0fc192b92",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/foundry/data_plane/__init__.py",
+        "postimage_sha256": "a8600aca8bfe1b6e3a2a4281fb84e888965cdcb04d95bdbc68592692718aee39"
+      },
+      "policy-engine/src/polisyos/foundry/data_plane/bindings.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 78044,
+        "preimage_sha256": "c680a1e00e47309ed1f10af703517dc5d3a4b3aa8d839d7fb027d63ea7273c45",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+        "postimage_sha256": "3de81f6c92130637e26709fe3bfa247488dbfd1c977b4cae7238520cdbbf7b8e"
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 30970,
+        "preimage_sha256": "373dbe5a72aa6535e07a38e875ecdccefb931ff9e417e57be4af9ab8281508a1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "postimage_sha256": "cc7e05babd6b944e66e8577aa533cfdd72bcb26ebac7df40bb0956174df234d2"
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 89233,
+        "preimage_sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+        "postimage_sha256": "ece93225711e7702b9dace607ab6cf9ab4941baa56bc847e19b3f35c7e8ca44b"
+      },
+      "policy-engine/src/polisyos/ir/observation/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 6213,
+        "preimage_sha256": "c1c639cc90d3efa4cec8a5e61dfee5bd4c61c0809d80a377a217cb34c91fd85c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/ir/observation/README.md",
+        "postimage_sha256": "a20ae84742d69bcd51c44a509945d577075da68a534f289df39071669cd7f53d"
+      },
+      "policy-engine/src/polisyos/ir/observation/bundles.py": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 39732,
+        "preimage_sha256": "b0009192519493354b278fa0a1074a2a05189c719831e7b44721a7aae48d1e36",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/ir/observation/bundles.py",
+        "postimage_sha256": "5b11297a8d8c414cd833e1fd6359d5b2b581d238f93d358061ee81c612fa8b49"
+      },
+      "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py": {
+        "operation": "create",
+        "mode": "100644",
+        "bytes": 20637,
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+        "postimage_sha256": "e9a4414de1cde2c20ef9228dbfb9529b3475d796a7cdc36f5f06e6cc3066c41c"
+      },
+      "policy-engine/src/polisyos/foundry/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "bytes": 16657,
+        "preimage_sha256": "a43952d104d1b1e85de6018db940e3e1f4bf126dcc9b7cdb68dbc23e922a0638",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimages/policy-engine/src/polisyos/foundry/README.md",
+        "postimage_sha256": "f10a4fd6ba45b413454c6978f6b2375c6ba696b5360725df00c967b6d8dc2472"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-input-r5-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "9e3577124f4336e0fbd62e67e4633cc0a3d9050bb803f0e7fb0569a19c808082"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hte-input-r5-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/postimage-manifest.json",
+        "sha256": "1caa45c2acaf10072efd85b7fabe1ad96d33c320f933da3208b52695e51b8610"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/unapplied.patch",
+        "sha256": "97b7554f613e696872aa713c3dcc95e1905c9e9c22fe32741b25fa6ecb4e1904"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad03-hte-input-owner-20261020-r5/implementation-handoff.md",
+        "sha256": "7d306d29820e574948fcbe54fe9a54e11c83723a5d7f239bb2a3b189815aec0f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-r3-core-composition-20261021-r1/review.json",
+        "sha256": "6ed76fda338452878512271d9e3478f7d15b7897b15f057483945261a6977272"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-r4-delta-20261021-r1/review.json",
+        "sha256": "19134cd0b43336f9e13d123d57dbd517c76cafac9237d87f09e60b309c960b3f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-hte-r5-keyword-delta-20261021-r1/review.json",
+        "sha256": "eb795058fc99748f2f33aa5be673393d2e1d5fa0417b182536e2374d1e36fe89"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-bounded-json-r10-reviewed-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "0bbf9c52ef1f99488b2c70744a469fc3b4c1192cb0bf8b5b4501c9550695e07d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r11-alias-oracle-reviewed-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "16265536183edf7a66ba9250e041113c63bcd9e1424c22d9433d819aa7eff908"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Whole selected-input producer/schema/materializer quantity across B and explicit A, preserving raw classification presence for the shared Runtime pre-POST/worker guard; no per-protocol public-default workaround.",
+      "falsifier": "Keep target/envelope/manifest markers but remove target/materializer, change profile/target/schema, supply malformed/null data or violate finite/binary/aligned n>=40 current DTO, exceed any of four bounds; require refusal before estimator dispatch."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "HTE producer source only. Runtime ordinary POST/shared B/A raw-governance guard, immutable intent, physical worker preparation/dispatch/persistence, fenced selected output and fresh GET remain separate pending composition.",
+      "Whole-process memory/CPU quota, scientific validity/causal identification/calibration, current production authority and publication are not established by these input bounds.",
+      "Public stable additive exports require authentic generated public-surface inventory owner regeneration and review; false inventory markers intentionally remain false and native release compatibility gate is pending/red by source, not waived or inherited.",
+      "No producer estimator/HTTP test or whole cohort has run on these newly adopted bytes."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete Core bounded module plus whole HTE input, IR bundle schema, method materialization, causal protocols and HTE methods in supported locked profile. Retain optional backend SKIPs honestly; provision actual selected forest_dr backend before Runtime/AD02 composed ordinary POST/worker/fresh GET proof.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

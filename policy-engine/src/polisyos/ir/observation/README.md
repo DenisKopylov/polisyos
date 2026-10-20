@@ -19,6 +19,16 @@ receive verifiable inputs instead of ad hoc in-memory structures.
 - [`causal_execution.py`](./causal_execution.py) — executable bounds/temporal DTR tasks and persistence helpers.
 - [`bridges.py`](./bridges.py) — standards bridges for SDMX, DDI, FHIR, and CDISC.
 
+The method-input envelope is a selected-profile transport artifact, not an
+authority claim. Its `schema_version` is the required body discriminator, its
+outer manifest uses `polisyos.ir.ObservationMethodInputEnvelope` version
+`1.0`, and its compatibility target keeps the existing two-field shape. The
+HTE owner uses the exact target
+`foundry.causal.hte_observational_data.v1` and the
+`polisyos.foundry.methods.catalog.causal.protocols.HTEObservationalData` FQN;
+the target gains no separate `version` field. Runtime admission still owns
+method selection, governance joins, and the execution lifecycle.
+
 ## Public entrypoints
 
 | Entrypoint                                                                                    | Use when                                                                                    | Defined in                                     |

@@ -207,6 +207,7 @@ class PanelObservationalData(BaseModel):
 class HTEObservationalData(BaseModel):
     """Cross-sectional observational data for HTE estimators."""
 
+    contract_id: ClassVar[str] = "foundry.causal.hte_observational_data.v1"
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     outcome: Any  # shape: (n_obs,)

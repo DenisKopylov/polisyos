@@ -3516,10 +3516,18 @@ class RecursiveGenerationCycleController:
                         CanonicalN9PromotionPort,
                     )
 
+                    candidate_cas_is_parent_owned = (
+                        controller._authority_scope == "contract_testing"
+                        and self._artifact_store is not None
+                        and controller._artifact_store is self._artifact_store
+                    )
+                    candidate_scope_is_established = (
+                        controller._authority_scope == "production" or candidate_cas_is_parent_owned
+                    )
                     if (
                         type(self) is not RecursiveGenerationCycleController
                         or type(controller) is not GenerationCycleController
-                        or controller._authority_scope != "production"
+                        or not candidate_scope_is_established
                         or controller._promotion_runtime is not None
                         or type(controller._promotion_port) is not CanonicalN9PromotionPort
                         or "run" in vars(controller)

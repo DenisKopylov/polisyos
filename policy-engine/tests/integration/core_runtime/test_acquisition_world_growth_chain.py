@@ -633,9 +633,10 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     generation_cycle_repo_root: Path | None = None,
     artifact_store: artifacts.FileSystemCAS | None = None,
 ):
-    # This is a downstream owner-chain witness: persist_wdi_route seeds its
-    # run through for_contract_testing. The protected-intent production
-    # recursive-leaf boundary is exercised by the paired unit test.
+    # This is a downstream owner-chain witness: the candidate parent and leaf
+    # use for_contract_testing and share the app CAS. The recursive result stays
+    # synthetic; the protected-intent production leaf boundary is tested in the
+    # paired unit suite.
     selected_artifact_store = None
     if guarded_cas:
         from polisyos.runtime.http.resilience import guard_runtime_cas

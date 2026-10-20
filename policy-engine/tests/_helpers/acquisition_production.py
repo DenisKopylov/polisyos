@@ -281,6 +281,7 @@ async def persist_wdi_route(
     controller = RecursiveGenerationCycleController.for_contract_testing(
         cycle_controller_factory=cycle_controller_factory,
         repo_root=generation_cycle_repo_root,
+        artifact_store=control._artifact_store,
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         manifest_ref = control._put_json_artifact(

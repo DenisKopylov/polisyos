@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import copy
+import gc
 import hashlib
 import json
 import re
+import tracemalloc
+from collections.abc import Callable
 
 import pytest
 from pydantic import ValidationError
@@ -254,6 +257,110 @@ def test_gy_hash_index_preserves_nested_semantic_rows_and_reference_hash() -> No
         {"row_id": "row-2", "value": 3},
     ]
     assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+
+
+def test_gy_content_hash_streams_five_measurement_rows_and_reduces_peak() -> None:
+    """Stream the whole semantic payload while preserving the legacy digest."""
+
+    profile = {
+        "profile_id": "selected-profile-5",
+        "schema_version": "controlled.measurement-profile.v1",
+        "created_at": "2026-10-20T10:00:00Z",
+    }
+    shared_basis = {
+        "basis_id": "producer-basis-5",
+        "source_family": "measurement",
+        "label": "доказ — measurement",
+        "verification": {"status": "candidate", "method": "controlled-fixture"},
+    }
+    sample_text = "x" * 1024
+    measurements = [
+        {
+            "measurement_id": f"measurement-{index}",
+            "estimate": float(index),
+            "selected_source_profile": profile,
+            "source_basis": shared_basis,
+            "lineage": [
+                {
+                    "sample_id": f"sample-{index}-{sample_index}",
+                    "content": f"{index}:{sample_index}:{sample_text}",
+                }
+                for sample_index in range(64)
+            ],
+            "runtime_metrics": {"duration_ms": index + 1},
+        }
+        for index in range(5)
+    ]
+    payload = {"selected_source_profile": profile, "measurements": measurements}
+
+    def measure_peak(operation: Callable[[], str]) -> tuple[str, int]:
+        gc.collect()
+        tracemalloc.start()
+        try:
+            result = operation()
+            _, peak = tracemalloc.get_traced_memory()
+        finally:
+            tracemalloc.stop()
+        return result, peak
+
+    expected_hash, legacy_peak = measure_peak(lambda: _reference_gy_content_hash(payload))
+    actual_hash, streamed_peak = measure_peak(lambda: gy_content_hash(payload))
+
+    assert actual_hash == expected_hash
+    assert streamed_peak < legacy_peak / 2
+
+    equal_unshared_payload = {
+        "selected_source_profile": copy.deepcopy(profile),
+        "measurements": [
+            {
+                **measurement,
+                "selected_source_profile": copy.deepcopy(profile),
+                "source_basis": copy.deepcopy(shared_basis),
+            }
+            for measurement in measurements
+        ],
+    }
+    assert gy_content_hash(equal_unshared_payload) == actual_hash
+
+    changed_measurements = list(measurements)
+    changed_measurements[-1] = {**measurements[-1], "estimate": 99.0}
+    changed_payload = {**payload, "measurements": changed_measurements}
+    assert gy_content_hash(changed_payload) != actual_hash
+
+
+def test_gy_content_hash_retains_legacy_default_str_fallback() -> None:
+    """Keep established hashing for custom containers and non-JSON scalar values."""
+
+    class DictSubclass(dict[str, object]):
+        pass
+
+    class RenderedValue:
+        def __str__(self) -> str:
+            return "legacy-rendered-value"
+
+    payload = {
+        "custom_mapping": DictSubclass({"created_at": "excluded", "value": 3}),
+        "custom_scalar": RenderedValue(),
+        "bytes": b"legacy-bytes",
+    }
+
+    assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+
+
+@pytest.mark.parametrize("depth", [499, 500, 600, 800])
+def test_gy_content_hash_matches_legacy_at_deep_builtin_json_depths(depth: int) -> None:
+    """Keep deep built-in payloads within the legacy digest boundary."""
+
+    payload: object = 0
+    for _ in range(depth):
+        payload = {"x": payload}
+
+    expected_hash = _reference_gy_content_hash(payload)
+    if depth == 500:
+        assert expected_hash == (
+            "sha256:067fc5e142269deaabceaa85887c32a87a5263010b2e56194642be954d53a80b"
+        )
+    assert gy_content_hash(payload) == expected_hash
 
 
 def test_gy_content_hash_uses_live_exclusion_behavior_not_rule_markers(

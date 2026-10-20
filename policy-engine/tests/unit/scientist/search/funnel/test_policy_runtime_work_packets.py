@@ -28,6 +28,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
+from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _build_policy_simulation_results_impl,
     _policy_runtime_execution_metadata,
@@ -203,6 +204,7 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
 
     chain_l3_engine = _RecordingWorkflowEngine(fidelity="medium")
     chain_l4_engine = _RecordingWorkflowEngine(fidelity="full")
+    chain_voi = PredictiveVOIScheduler()
     chain = FunnelOrchestrator(
         [
             Level3MediumFidelity(
@@ -211,13 +213,28 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
                 bootstrap_draws=64,
             ),
             Level4FullFidelity(workflow_engine=chain_l4_engine, estimated_cost_usd=0.2),
-        ]
+        ],
+        voi_scheduler=chain_voi,
     )
     chain_outcome = chain.advance(chain.submit(candidate_payload, caller_context), target_level=4)
 
-    assert direct_outcome.stage_results[4].is_promising
-    assert chain_outcome.stage_results[3].is_promising
-    assert chain_outcome.stage_results[4].is_promising
+    # The engine has no selected source-unit contract. Its packet is real and
+    # admitted, but the fiscal scalar remains limited and cannot enter VOI.
+    for outcome, level in ((direct_outcome, 4), (chain_outcome, 4)):
+        result = outcome.stage_results[level]
+        assert result.executed_work_packet_status == "available"
+        assert result.executed_work_packet_ref is not None
+        assert result.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert result.objective_value is None
+        assert result.score_assessment is not None
+        assert result.is_promising is False
+        assert result.simulation_results["metric_units"] == {}
+        assert result.feedback["selected_objective_admission"] == "unavailable"
+    assert chain_outcome.stage_results[3].score_status is ObjectiveScoreStatus.UNAVAILABLE
+    assert chain_outcome.stage_results[3].objective_value is None
+    assert chain_outcome.stage_results[3].is_promising is False
+    assert chain_voi.snapshot().observations == []
+    assert chain_voi.snapshot().observations == []
     assert direct_l4_engine.effective_config_inputs == chain_l4_engine.effective_config_inputs
     l3_config = chain_l3_engine.effective_config_inputs[0]
     assert l3_config["data_config"]["subsample_fraction"] == 0.35

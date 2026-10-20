@@ -352,6 +352,8 @@ class TestFunnelOrchestrator:
             "expected_status",
             "expected_action",
             "expected_promising",
+            "expected_verdict",
+            "expected_l6_status",
         ),
         [
             pytest.param(
@@ -361,6 +363,8 @@ class TestFunnelOrchestrator:
                 ObjectiveScoreStatus.UNAVAILABLE,
                 "defer",
                 False,
+                "DEFER",
+                ObjectiveScoreStatus.UNAVAILABLE,
                 id="missing-unit-stays-candidate-only",
             ),
             pytest.param(
@@ -370,6 +374,8 @@ class TestFunnelOrchestrator:
                 ObjectiveScoreStatus.AVAILABLE,
                 "complete",
                 True,
+                "APPROVE",
+                ObjectiveScoreStatus.AVAILABLE,
                 id="known-zero-remains-available",
             ),
             pytest.param(
@@ -377,8 +383,10 @@ class TestFunnelOrchestrator:
                 True,
                 ObjectiveScoreStatus.AVAILABLE,
                 ObjectiveScoreStatus.NOT_ESTABLISHED,
-                "defer",
+                "reject",
                 False,
+                "REJECT",
+                None,
                 id="removed-assessment-keeps-markers-but-cannot-approve",
             ),
         ],
@@ -391,6 +399,8 @@ class TestFunnelOrchestrator:
         expected_status,
         expected_action,
         expected_promising,
+        expected_verdict,
+        expected_l6_status,
     ):
         engine = MagicMock()
         engine.run.return_value = {
@@ -445,12 +455,15 @@ class TestFunnelOrchestrator:
         stage_b = orchestrator.as_stage_b_callable()(candidate, context)
         outcome = stage_b["_funnel_outcome"]
         assert outcome.final_action == expected_action
-        assert stage_b["feedback"]["verdict"] == ("APPROVE" if expected_promising else "DEFER")
+        assert stage_b["feedback"]["verdict"] == expected_verdict
         assert stage_b["objective_value"] == (0.0 if expected_promising else None)
         assert stage_b["is_promising"] is expected_promising
         assert outcome.stage_results[4].score_status is expected_status
         assert outcome.stage_results[4].is_promising is expected_promising
-        assert outcome.stage_results[6].score_status is expected_status
+        if expected_l6_status is None:
+            assert 6 not in outcome.stage_results
+        else:
+            assert outcome.stage_results[6].score_status is expected_l6_status
 
     @pytest.mark.parametrize("remove_l4_assessment", [False, True])
     def test_real_early_funnel_stages_continue_candidate_until_l4_source_score(
@@ -480,7 +493,7 @@ class TestFunnelOrchestrator:
         full_workflow = _ControlledWorkflow(
             {
                 "gdp_change": 0.0,
-                "budget_deficit": 0.1,
+                "budget_deficit": 0.0,
                 "metric_units": {
                     "gdp_change": "fixture-unit",
                     "budget_deficit": "fixture-unit",
@@ -984,28 +997,51 @@ class TestFunnelOrchestrator:
         assert outcome.lesson_refs
         assert lesson_registry.top_patterns(limit=5)[0].kind.value == "success"
 
-    def test_predictive_scheduler_receives_stage_observations(self):
-        stages = [
-            _make_stage(0, "L0"),
-            _make_stage(1, "L1"),
-            _make_stage(
-                2,
-                "L2",
-                cheap_signal=CheapSignalVector(
-                    expected_value_proxy=0.7,
-                    expected_information_gain=0.4,
-                ),
-            ),
-            _make_available_score_stage(4, "L4"),
-        ]
+    def test_predictive_scheduler_receives_source_bound_score_without_packet(self):
+        fixture_unit = "fixture-unit"
+        source = {
+            "gdp_change": 0.0,
+            "budget_deficit": 0.0,
+            "metric_units": {
+                "gdp_change": fixture_unit,
+                "budget_deficit": fixture_unit,
+            },
+        }
+
+        class _ControlledWorkflow:
+            def run(self, initial_state):
+                del initial_state
+                return {"simulation_results": dict(source), "feedback": {"verdict": "APPROVE"}}
+
         scheduler = PredictiveVOIScheduler()
-        orch = FunnelOrchestrator(stages, voi_scheduler=scheduler)
+        stage = Level4FullFidelity(
+            workflow_engine=_ControlledWorkflow(),
+            expected_objective_unit=fixture_unit,
+            estimated_cost_usd=0.2,
+        )
+        orchestrator = FunnelOrchestrator([stage], voi_scheduler=scheduler)
+        ticket = orchestrator.submit(
+            {}, {"run_id": "run-controlled-voi", "task_family": "policy", "domain": "fiscal"}
+        )
 
-        orch.evaluate({}, {"run_id": "run-1", "task_family": "policy", "domain": "fiscal"})
+        outcome = orchestrator.advance(ticket, target_level=4)
+        result = outcome.stage_results[4]
+        observations = scheduler.snapshot().observations
 
-        snapshot = scheduler.snapshot()
-        assert snapshot.observations
-        assert snapshot.observations[-1].candidate_id
+        assert result.score_status is ObjectiveScoreStatus.AVAILABLE
+        assert result.objective_value == 0.0
+        assert result.executed_work_packet_ref is None
+        assert result.executed_work_packet_status == "unavailable"
+        assert len(observations) == 1
+        observation = observations[0]
+        assert observation.candidate_id == ticket.candidate_hash
+        assert observation.stage_level == 4
+        assert observation.score_status is ObjectiveScoreStatus.AVAILABLE
+        assert observation.actual_objective_value == 0.0
+        assert observation.objective_source == source
+        assert observation.compute_cost_origin == "estimated"
+        assert observation.compute_cost_usd is not None
+        assert observation.compute_cost_usd >= 0.2
 
     @pytest.mark.parametrize("prepared", [False, True])
     def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path, prepared):

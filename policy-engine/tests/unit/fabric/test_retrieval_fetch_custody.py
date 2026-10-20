@@ -1086,6 +1086,7 @@ def _copy_artifact(store, original_ref, payload, *, inputs=None, profiled=True):
             canon.from_canonical_bytes(payload),
             options,
             canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+            return_selected_profile=True,
         )
     return store.put_bytes(payload, options)
 
@@ -1093,7 +1094,7 @@ def _copy_artifact(store, original_ref, payload, *, inputs=None, profiled=True):
 @pytest.mark.parametrize("mutation", ["tail_value", "stable_metadata", "source_changed"])
 def test_real_connector_readback_refuses_complete_counterfeit_chain(tmp_path, mutation):
     from polisyos.core import canon
-    from polisyos.core.artifacts import InputRef
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
     from polisyos.fabric.retrieval import custody
 
     with build_recorded_file_fetch_owner(tmp_path) as owner:
@@ -1135,9 +1136,9 @@ def test_real_connector_readback_refuses_complete_counterfeit_chain(tmp_path, mu
                     spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
                 ),
                 inputs=[
-                    InputRef(artifact_id=receipt.result.data.artifact_id, role="fetched_payload"),
-                    InputRef(
-                        artifact_id=receipt.catalog_binding_ref.artifact_id, role="catalog_binding"
+                    input_ref_from_artifact_ref(receipt.result.data, role="fetched_payload"),
+                    input_ref_from_artifact_ref(
+                        receipt.catalog_binding_ref, role="catalog_binding"
                     ),
                 ],
             )
@@ -1196,7 +1197,7 @@ def test_json_payload_storage_uses_the_encoded_snapshot_when_source_mutates(tmp_
 
 def test_profileless_json_payload_is_not_reclassified_as_verified(tmp_path):
     from polisyos.core import canon
-    from polisyos.core.artifacts import InputRef, PutOptions
+    from polisyos.core.artifacts import PutOptions, input_ref_from_artifact_ref
     from polisyos.fabric.retrieval import custody
 
     with build_recorded_file_fetch_owner(tmp_path) as owner:
@@ -1230,11 +1231,8 @@ def test_profileless_json_payload_is_not_reclassified_as_verified(tmp_path):
                 spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
             ),
             inputs=[
-                InputRef(artifact_id=profileless_payload.artifact_id, role="fetched_payload"),
-                InputRef(
-                    artifact_id=receipt.catalog_binding_ref.artifact_id,
-                    role="catalog_binding",
-                ),
+                input_ref_from_artifact_ref(profileless_payload, role="fetched_payload"),
+                input_ref_from_artifact_ref(receipt.catalog_binding_ref, role="catalog_binding"),
             ],
         )
 

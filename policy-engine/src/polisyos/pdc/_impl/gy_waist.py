@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
@@ -625,8 +625,12 @@ def strip_gy_volatile_fields(value: object) -> object:
     return value
 
 
-def gy_content_hash(value: object) -> str:
-    """Return a GY evidence content hash over time-stripped canonical JSON."""
+class _GyContentHashStreamFallbackError(RuntimeError):
+    """Signal that streaming should retry with the established hash path."""
+
+
+def _legacy_gy_content_hash(value: object) -> str:
+    """Return the established recursive projection and canonical JSON hash."""
 
     payload = json.dumps(
         strip_gy_volatile_fields(value),
@@ -635,6 +639,166 @@ def gy_content_hash(value: object) -> str:
         default=str,
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _gy_content_hash_plain_json(value: object) -> bool:
+    """Return whether ``value`` contains only built-in JSON-compatible values.
+
+    The explicit traversal stack keeps validation independent of Python's call
+    stack while preserving the legacy fallback for custom objects and cycles.
+    """
+
+    active_ids: set[int] = set()
+    frames: list[tuple[bool, int, Iterator[Any]]] = []
+    node: object = value
+    has_node = True
+
+    while True:
+        if has_node:
+            has_node = False
+            if node is None or type(node) in (bool, str, int, float):
+                pass
+            elif type(node) is dict:
+                marker = id(node)
+                if marker in active_ids:
+                    return False
+                active_ids.add(marker)
+                frames.append((True, marker, iter(node.items())))
+            elif type(node) in (list, tuple):
+                marker = id(node)
+                if marker in active_ids:
+                    return False
+                active_ids.add(marker)
+                frames.append((False, marker, iter(node)))
+            else:
+                return False
+
+        while frames:
+            is_mapping, marker, iterator = frames[-1]
+            try:
+                child = next(iterator)
+            except StopIteration:
+                frames.pop()
+                active_ids.remove(marker)
+                continue
+
+            if is_mapping:
+                key, node = child
+                if type(key) not in (str, int, float, bool, type(None)):
+                    return False
+            else:
+                node = child
+            has_node = True
+            break
+        else:
+            return True
+
+
+def _iter_gy_content_hash_json(
+    value: object,
+    encoder: json.JSONEncoder,
+) -> Iterator[str]:
+    """Yield compact canonical JSON with explicit container frames."""
+
+    active_ids: set[int] = set()
+    frames: list[tuple[bool, int, Iterator[Any], dict[str, object] | None]] = []
+    node: object = value
+    has_node = True
+
+    while True:
+        if has_node:
+            has_node = False
+            if type(node) is dict:
+                marker = id(node)
+                if marker in active_ids:
+                    raise RecursionError("maximum recursion depth exceeded")
+                active_ids.add(marker)
+                projected: dict[str, object] = {}
+                for key, item in node.items():
+                    key_text = str(key)
+                    if not is_gy_content_hash_excluded_field(key_text):
+                        projected[key_text] = item
+                keys = iter(sorted(projected))
+                try:
+                    first_key = next(keys)
+                except StopIteration:
+                    active_ids.remove(marker)
+                    yield "{}"
+                    continue
+                yield "{"
+                yield from encoder.iterencode(first_key)
+                yield ":"
+                frames.append((True, marker, keys, projected))
+                node = projected[first_key]
+                has_node = True
+                continue
+
+            if type(node) in (list, tuple):
+                marker = id(node)
+                if marker in active_ids:
+                    raise RecursionError("maximum recursion depth exceeded")
+                active_ids.add(marker)
+                items = iter(node)
+                try:
+                    first_item = next(items)
+                except StopIteration:
+                    active_ids.remove(marker)
+                    yield "[]"
+                    continue
+                yield "["
+                frames.append((False, marker, items, None))
+                node = first_item
+                has_node = True
+                continue
+
+            yield from encoder.iterencode(node)
+            continue
+
+        if not frames:
+            return
+
+        is_mapping, marker, iterator, projected = frames[-1]
+        try:
+            child = next(iterator)
+        except StopIteration:
+            frames.pop()
+            active_ids.remove(marker)
+            yield "}" if is_mapping else "]"
+            continue
+
+        yield ","
+        if is_mapping:
+            key = child
+            yield from encoder.iterencode(key)
+            yield ":"
+            if projected is None:
+                raise _GyContentHashStreamFallbackError
+            node = projected[key]
+        else:
+            node = child
+        has_node = True
+
+
+def gy_content_hash(value: object) -> str:
+    """Return a GY evidence content hash over time-stripped canonical JSON.
+
+    Built-in JSON-compatible containers validate and serialize iteratively, so
+    deeply nested values do not add recursion depth or a second full projected
+    tree. Custom containers, non-JSON scalars, and cycles keep the established
+    ``strip_gy_volatile_fields`` plus ``json.dumps(default=str)`` behavior.
+    """
+
+    if not _gy_content_hash_plain_json(value):
+        return _legacy_gy_content_hash(value)
+
+    digest = hashlib.sha256()
+    encoder = json.JSONEncoder(sort_keys=True, separators=(",", ":"), default=str)
+    try:
+        for fragment in _iter_gy_content_hash_json(value, encoder):
+            digest.update(fragment.encode("utf-8"))
+    except _GyContentHashStreamFallbackError:
+        return _legacy_gy_content_hash(value)
+    return "sha256:" + digest.hexdigest()
 
 
 def gy_recorded_content_hash(value: object) -> str:

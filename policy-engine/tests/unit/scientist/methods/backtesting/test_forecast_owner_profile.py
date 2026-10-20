@@ -20,6 +20,7 @@ from polisyos.ir import (
     InputRef,
     get_json_artifact,
     load_backtest_report,
+    normalize_artifact_ref,
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -50,6 +51,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.artifacts.manifest import ArtifactRef
+
+
+def _to_ir_artifact_ref(ref: CoreArtifactRef) -> ArtifactRefModel:
+    """Preserve a Core ref's exact selected view across the typed IR boundary."""
+    return ArtifactRefModel.model_validate(normalize_artifact_ref(ref))
 
 
 def _cas_profile(
@@ -206,18 +212,17 @@ def _request_with_profile(
         profile=profile,
         projection_payload=projection.model_dump(mode="json"),
     )
-    snapshot_payload = get_json_artifact(
-        ensure_ir_artifact_store(store), ArtifactRefModel.model_validate(source_ref)
-    )
+    observed_source_ref = _to_ir_artifact_ref(source_ref)
+    snapshot_payload = get_json_artifact(ensure_ir_artifact_store(store), observed_source_ref)
     snapshot = DataSnapshot.model_validate(snapshot_payload)
-    observed_data_ref = ArtifactRefModel.model_validate(snapshot.data_ref.model_dump(mode="json"))
+    observed_data_ref = _to_ir_artifact_ref(snapshot.data_ref)
     observed_payload = get_json_artifact(ensure_ir_artifact_store(store), observed_data_ref)
     member, _values = join_profile_member_to_observed_series(
         profile=profile,
         profile_ref=profile_ref,
         source_projection_ref=projection_ref,
         projection=projection,
-        observed_source_ref=ArtifactRefModel.model_validate(source_ref),
+        observed_source_ref=observed_source_ref,
         observed_data_ref=observed_data_ref,
         target_metric="metric",
         unit_id=unit_id,
@@ -382,7 +387,12 @@ def test_owner_consumes_exact_prebound_profile_member_receipt_and_report_edges(
     member = ForecastProfileMemberV1.model_validate(member_payload)
     assert member.profile_ref == profile_ref
     assert member.source_projection_ref == projection_ref
-    assert str(member.observed_source_ref.artifact_id) == str(source_ref.artifact_id)
+    assert member.observed_source_ref == ArtifactRefModel(
+        artifact_id=source_ref.artifact_id,
+        kind=source_ref.kind,
+        media_type=source_ref.media_type,
+        manifest_profile_sha256=source_ref.manifest_profile_sha256,
+    )
     assert member.unit_id == "UA"
     assert member.period_ids == tuple(range(34))
     assert member.row_count == len(selected_values)
@@ -475,7 +485,7 @@ def test_owner_consumes_real_value_profile_producer_output_and_persists_candidat
             kind="test.forecast.observed_data",
         )
         snapshot = DataSnapshot(
-            data_ref=CoreArtifactRef.model_validate(data_ref),
+            data_ref=data_ref,
             stats={"rows": len(observed_values), "source": "controlled_profile_test"},
         )
         snapshot_ref = _put_json(
@@ -510,8 +520,8 @@ def test_owner_consumes_real_value_profile_producer_output_and_persists_candidat
             profile_ref=profile_ref,
             source_projection_ref=projection_ref,
             projection=selected_projection,
-            observed_source_ref=ArtifactRefModel.model_validate(source_ref),
-            observed_data_ref=ArtifactRefModel.model_validate(data_ref),
+            observed_source_ref=_to_ir_artifact_ref(source_ref),
+            observed_data_ref=_to_ir_artifact_ref(data_ref),
             target_metric=outcome,
             unit_id=selected_unit,
             observed_values=observed_values,
@@ -545,6 +555,18 @@ def test_owner_consumes_real_value_profile_producer_output_and_persists_candidat
         assert member.unit_id == selected_unit
         assert member.outcome == outcome
         assert member.measurement_unit == "synthetic index"
+        assert member.observed_source_ref == ArtifactRefModel(
+            artifact_id=source_ref.artifact_id,
+            kind=source_ref.kind,
+            media_type=source_ref.media_type,
+            manifest_profile_sha256=source_ref.manifest_profile_sha256,
+        )
+        assert member.observed_data_ref == ArtifactRefModel(
+            artifact_id=data_ref.artifact_id,
+            kind=data_ref.kind,
+            media_type=data_ref.media_type,
+            manifest_profile_sha256=data_ref.manifest_profile_sha256,
+        )
         assert member.authority_scope == "predictive_only"
         assert member.completeness_status == "not_established"
     finally:

@@ -1,0 +1,16 @@
+id = "2026-10-20-gy-content-hash-iterative-streaming"
+title = "Stream built-in GY content hashes iteratively"
+type = "changed"
+component = "pdc"
+owner = "team-polisyos"
+summary = "Hash built-in JSON-compatible GY payloads with iterative validation and serialization while retaining the established digest and full payload denominator."
+evidence = [
+  "src/polisyos/pdc/_impl/gy_waist.py",
+  "tests/unit/pdc/test_gy_waist_contracts.py",
+]
+compatibility = "Internal hashing implementation change; legacy canonical digest values, volatile-field exclusions, key coercion/order, and full Credal reference semantics remain required."
+surface_classification = "internal: internal-only"
+api = "No public API, schema, or digest-version change."
+limitations = "Custom containers, non-JSON scalars, and cycles retain the legacy recursive fallback. Generic hashing has no thread-atomic snapshot guarantee for inputs mutated concurrently; the served Credal edge path hashes a locally materialized payload."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

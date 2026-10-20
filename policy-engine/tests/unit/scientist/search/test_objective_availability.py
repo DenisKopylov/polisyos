@@ -426,30 +426,24 @@ def test_marker_cannot_upgrade_absent_or_conflicting_fiscal_source() -> None:
 @pytest.mark.parametrize(
     "invocation",
     [
-        (
-            {
-                "evaluation_attempt_id": "attempt-effective-draws",
-                "requested_draw_count": 0,
-                "requested_draw_source": "effective_estimation_config",
-                "effective_estimation_config_sha256": "a" * 64,
-            },
-        ),
-        (
-            {
-                "evaluation_attempt_id": "attempt-no-draw-config",
-                "requested_draw_count": None,
-                "requested_draw_source": "unavailable",
-                "effective_estimation_config_sha256": None,
-            },
-        ),
-        (
-            {
-                "evaluation_attempt_id": "attempt-config-count-unknown",
-                "requested_draw_count": None,
-                "requested_draw_source": "effective_estimation_config",
-                "effective_estimation_config_sha256": "b" * 64,
-            },
-        ),
+        {
+            "evaluation_attempt_id": "attempt-effective-draws",
+            "requested_draw_count": 0,
+            "requested_draw_source": "effective_estimation_config",
+            "effective_estimation_config_sha256": "a" * 64,
+        },
+        {
+            "evaluation_attempt_id": "attempt-no-draw-config",
+            "requested_draw_count": None,
+            "requested_draw_source": "unavailable",
+            "effective_estimation_config_sha256": None,
+        },
+        {
+            "evaluation_attempt_id": "attempt-config-count-unknown",
+            "requested_draw_count": None,
+            "requested_draw_source": "effective_estimation_config",
+            "effective_estimation_config_sha256": "b" * 64,
+        },
     ],
     ids=("effective-draw-config", "identified-no-draw-config", "config-count-unknown"),
 )
@@ -468,19 +462,17 @@ def test_runtime_vector_accepts_complete_emitted_invocation_bindings(
 @pytest.mark.parametrize(
     "overrides",
     [
-        ({"evaluation_attempt_id": ""},),
-        ({"requested_draw_count": True},),
-        ({"requested_draw_count": -1},),
-        ({"requested_draw_source": "fixture"},),
-        ({"effective_estimation_config_sha256": "g" * 64},),
-        (
-            {
-                "requested_draw_source": "unavailable",
-                "requested_draw_count": 0,
-                "effective_estimation_config_sha256": None,
-            },
-        ),
-        ({"effective_estimation_config_sha256": None},),
+        {"evaluation_attempt_id": ""},
+        {"requested_draw_count": True},
+        {"requested_draw_count": -1},
+        {"requested_draw_source": "fixture"},
+        {"effective_estimation_config_sha256": "g" * 64},
+        {
+            "requested_draw_source": "unavailable",
+            "requested_draw_count": 0,
+            "effective_estimation_config_sha256": None,
+        },
+        {"effective_estimation_config_sha256": None},
     ],
     ids=(
         "blank-identity",
@@ -523,42 +515,32 @@ def test_equal_runtime_binding_values_still_require_the_typed_tuple_contract(
 @pytest.mark.parametrize(
     "invocation",
     [
-        (
-            {
-                "evaluation_attempt_id": None,
-                "requested_draw_count": None,
-                "requested_draw_source": "unavailable",
-                "effective_estimation_config_sha256": None,
-            },
-        ),
-        (
-            {
-                "evaluation_attempt_id": "attempt-incomplete",
-                "requested_draw_source": "unavailable",
-                "effective_estimation_config_sha256": None,
-            },
-        ),
-        (
-            {
-                "evaluation_attempt_id": "attempt-incomplete",
-                "requested_draw_count": None,
-                "effective_estimation_config_sha256": None,
-            },
-        ),
-        (
-            {
-                "requested_draw_count": 0,
-                "requested_draw_source": "effective_estimation_config",
-                "effective_estimation_config_sha256": "a" * 64,
-            },
-        ),
-        (
-            {
-                "evaluation_attempt_id": "attempt-incomplete",
-                "requested_draw_source": "unavailable",
-                "requested_draw_count": None,
-            },
-        ),
+        {
+            "evaluation_attempt_id": None,
+            "requested_draw_count": None,
+            "requested_draw_source": "unavailable",
+            "effective_estimation_config_sha256": None,
+        },
+        {
+            "evaluation_attempt_id": "attempt-incomplete",
+            "requested_draw_source": "unavailable",
+            "effective_estimation_config_sha256": None,
+        },
+        {
+            "evaluation_attempt_id": "attempt-incomplete",
+            "requested_draw_count": None,
+            "effective_estimation_config_sha256": None,
+        },
+        {
+            "requested_draw_count": 0,
+            "requested_draw_source": "effective_estimation_config",
+            "effective_estimation_config_sha256": "a" * 64,
+        },
+        {
+            "evaluation_attempt_id": "attempt-incomplete",
+            "requested_draw_source": "unavailable",
+            "requested_draw_count": None,
+        },
     ],
     ids=(
         "explicitly-limited-identity",
@@ -592,16 +574,14 @@ def test_valid_limited_or_incomplete_runtime_identity_stays_not_established(
 @pytest.mark.parametrize(
     "bootstrap_overrides",
     [
-        ({"evaluation_attempt_id": "attempt-other"},),
-        ({"requested_draw_count": 1},),
-        (
-            {
-                "requested_draw_count": None,
-                "requested_draw_source": "unavailable",
-                "effective_estimation_config_sha256": None,
-            },
-        ),
-        ({"effective_estimation_config_sha256": "b" * 64},),
+        {"evaluation_attempt_id": "attempt-other"},
+        {"requested_draw_count": 1},
+        {
+            "requested_draw_count": None,
+            "requested_draw_source": "unavailable",
+            "effective_estimation_config_sha256": None,
+        },
+        {"effective_estimation_config_sha256": "b" * 64},
     ],
     ids=("attempt-id", "draw-count", "draw-source", "config-digest"),
 )
@@ -1561,7 +1541,7 @@ def test_configured_bayesian_binding_keeps_custom_metric_labels_and_rejects_rule
         optional_stack_unavailable,
     )
     custom_metric = "local_welfare_index"
-    binding = _configured_search_metric_binding(custom_metric, "maximize")
+    binding = _configured_search_metric_binding(custom_metric, "maximize", "fixture-unit")
     assert binding is not None
     name, direction, rule_spec = binding
     assert name == custom_metric
@@ -1598,6 +1578,7 @@ def test_configured_bayesian_binding_keeps_custom_metric_labels_and_rejects_rule
         SearchSpace(bounds=[ParameterBounds(name="x", lower=0.0, upper=1.0)]),
         objective_name=custom_metric,
         objective_source_direction="maximize",
+        objective_source_unit="fixture-unit",
     )
     assert optimizer._selected_objective_rule_spec == rule_spec
     assert optimizer._score_is_admissible(evaluation)

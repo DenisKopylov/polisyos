@@ -229,14 +229,21 @@ async def test_protected_intent_cannot_route_through_context_free_custom_factory
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
     factory_calls: list[str] = []
+    store = FileSystemCAS(tmp_path / "candidate-cas")
+    child = GenerationCycleController(
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+        artifact_store=store,
+    )
 
-    def context_free_factory(node_ref: str, _problem: object):
+    def candidate_cas_factory(node_ref: str, _problem: object):
         factory_calls.append(node_ref)
-        raise AssertionError("protected leaf reached context-free custom factory")
+        return child
 
     controller = RecursiveGenerationCycleController.for_contract_testing(
-        cycle_controller_factory=context_free_factory,
+        cycle_controller_factory=candidate_cas_factory,
         repo_root=Path(__file__).resolve().parents[4],
+        artifact_store=store,
     )
     with pytest.raises(
         RecursiveGenerationCycleError,
@@ -2780,6 +2787,153 @@ async def test_implicit_contract_testing_candidate_completes_without_n9_authorit
     assert leaf.cycle_run.promotion_port.status == "not_promoted"
     assert leaf.cycle_run.promotion_port.receipts == ()
     assert leaf.cycle_run.promotion_port.certified_candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_contract_testing_candidate_leaf_uses_parent_bound_cas(tmp_path: Path) -> None:
+    """A scripted candidate leaf shares the parent CAS without gaining N9 authority."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        PendingN8ValuePort,
+        _budget,
+        _CounterexampleAwareGenerator,
+        _CurrentValidGrounding,
+        _problem,
+    )
+
+    store = FileSystemCAS(tmp_path / "candidate-cas")
+    problem = _problem(f"contract_candidate_shared_cas_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    child = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_CurrentValidGrounding(),
+        value_port=PendingN8ValuePort(),
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+        artifact_store=store,
+    )
+    outer = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=lambda _node_ref, _problem: child,
+        repo_root=tmp_path,
+        artifact_store=store,
+    )
+
+    routed = await outer.run(
+        graph,
+        problems_by_node={root_ref: problem},
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=2,
+        ),
+    )
+
+    leaf = routed.leaf_nodes[0].cycle_run
+    assert routed.authority_scope == "contract_testing"
+    assert leaf is not None
+    assert leaf.synthetic is True
+    assert leaf.promotion_port.status == "not_promoted"
+    assert leaf.promotion_port.receipts == ()
+
+
+@pytest.mark.parametrize(
+    "invalid_owner",
+    [
+        "wrong_cas",
+        "parent_wrapper",
+        "leaf_subclass",
+        "n9_port_subclass",
+        "n9_method_override",
+        "promotion_runtime",
+    ],
+)
+@pytest.mark.asyncio
+async def test_contract_testing_candidate_rejects_cas_or_n9_owner_transplant(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    invalid_owner: str,
+) -> None:
+    """Same-CAS candidate routing retains exact parent, leaf, and N9 owner checks."""
+
+    from tests.unit.runtime.quality.test_generation_cycle import _budget, _problem
+
+    parent_store = FileSystemCAS(tmp_path / "parent-cas")
+    leaf_store = (
+        FileSystemCAS(tmp_path / "leaf-cas") if invalid_owner == "wrong_cas" else parent_store
+    )
+    problem = _problem(f"contract_candidate_bad_owner_{invalid_owner}_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+
+    class LeafSubclass(GenerationCycleController):
+        pass
+
+    leaf_type = LeafSubclass if invalid_owner == "leaf_subclass" else GenerationCycleController
+    child_kwargs = {
+        "repo_root": tmp_path,
+        "authority_scope": "contract_testing",
+        "artifact_store": leaf_store,
+    }
+    if invalid_owner == "promotion_runtime":
+        child_kwargs["promotion_runtime"] = PromotionRuntime(store=leaf_store)
+    child = leaf_type(**child_kwargs)
+    if invalid_owner == "n9_port_subclass":
+        from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+
+        class PromotionPortSubclass(CanonicalN9PromotionPort):
+            pass
+
+        child._promotion_port = PromotionPortSubclass()
+    if invalid_owner == "n9_method_override":
+        child._promotion_port.deployment_identity_refusal = lambda _identity: None
+
+    class ParentWrapper(RecursiveGenerationCycleController):
+        pass
+
+    parent_type = (
+        ParentWrapper if invalid_owner == "parent_wrapper" else RecursiveGenerationCycleController
+    )
+    outer = parent_type.for_contract_testing(
+        cycle_controller_factory=lambda _node_ref, _problem: child,
+        repo_root=tmp_path,
+        artifact_store=parent_store,
+    )
+
+    async def n6_must_not_run(self, *args, **kwargs):
+        del self, args, kwargs
+        raise AssertionError("invalid owner reached N6")
+
+    monkeypatch.setattr(GenerationCycleController, "run", n6_must_not_run)
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_contract_testing_candidate_n9_owner_not_established",
+    ):
+        await outer.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+        )
 
 
 def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_transplants(

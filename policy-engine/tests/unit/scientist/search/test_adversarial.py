@@ -1394,6 +1394,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         *,
         component_status: str,
         component_reason: str,
+        report_reason: str = "score_claim_without_resolved_basis",
         report_ref: ArtifactRef | None = None,
     ) -> None:
         selected_component = component.model_copy(update={"outcome_basis_ref": ref})
@@ -1411,13 +1412,14 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             store, selected_report_ref, expected_candidate_ref=candidate_ref
         )
         assert report_resolution.status == "invalid"
-        assert report_resolution.reason_code == "score_claim_without_resolved_basis"
+        assert report_resolution.reason_code == report_reason
         assert report_resolution.robustness_score is None
 
     assert_basis_refusal(
         wrong_plan_basis_ref,
         component_status="invalid",
         component_reason="adversarial_plan_unreadable",
+        report_reason="adversarial_plan_unreadable",
     )
 
     # The complete report projection is derived from source rows, not trusted by list shape.

@@ -41646,5 +41646,227 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-candidate-cas-streaming-test-companions-20261020-r2": {
+    "slice_base": "624f9dee8a3cc1c13c899786d3de76bfe88d6b30",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-gy-content-hash-iterative-streaming.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "fae96e2b9033b34b7c614f09f9b5fd326fc9c70bbdbba240eeb68a0b2088037a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-cohort-n7-acquisition-materialized-20261020-r1/policy-engine/release-fragments/unreleased/2026-10-20-gy-content-hash-iterative-streaming.toml",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/pdc/_impl/gy_waist.py": {
+        "operation": "update",
+        "preimage_sha256": "46e408f302ea3aac811339a85cb698cbb5eaf5364d7b1596e56a2322f5c22599",
+        "postimage_sha256": "c22843ab9cd3779ce161940eb6ed7e807ad13f98ac2d8d1550bfac227da5b3e5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-cohort-n7-acquisition-materialized-20261020-r1/policy-engine/src/polisyos/pdc/_impl/gy_waist.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/pdc/test_gy_waist_contracts.py": {
+        "operation": "update",
+        "preimage_sha256": "34b3f34265ae4f6402c97b5bf909b59036cbcf460518ff2fac4d591cc3f666ea",
+        "postimage_sha256": "51d169053f41eeaba076b709bda10cacca4d7b294e0104fd7c00b2b03d5645f5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-cohort-n7-acquisition-materialized-20261020-r1/policy-engine/tests/unit/pdc/test_gy_waist_contracts.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py": {
+        "operation": "update",
+        "preimage_sha256": "a96c9f07c20b9f76df3b42e45bcd7601719e2c16379fd1f6520627e61a88e4bf",
+        "postimage_sha256": "24128b1847710d49f34ee8eeb6344688cb59266c5530faafbe6c85c5c7a83e7e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-canonical-import-postimage-delta-20261020-r1/policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/_helpers/acquisition_production.py": {
+        "operation": "update",
+        "preimage_sha256": "b7e0b33569eccc3c43baa777563a7ff6f7755db544bf2b260b390f013bb70841",
+        "postimage_sha256": "a312843f2f9082252d9c33cfbf402ebff9afb372f1228d95b40a6fe4e1404b99",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-canonical-import-postimage-delta-20261020-r1/policy-engine/tests/_helpers/acquisition_production.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py": {
+        "operation": "update",
+        "preimage_sha256": "95dd0dbcf2107b7165eda6063c0fc2f60362adbee14bfab39b3ade764d47d639",
+        "postimage_sha256": "66334ba0c291ec80c68f66276a0bdaaf5a39074988758a96d1214211fc645fb0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-canonical-import-postimage-delta-20261020-r1/policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py": {
+        "operation": "update",
+        "preimage_sha256": "8e0c433528f1496257f8eb88cc664ec1b1b3658ca62429f39725f5c2dcc9505e",
+        "postimage_sha256": "06467bf2a0820032a60beaa6c6de8e8337e328a3ac2a8a6135401bea350e33f6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-canonical-import-postimage-delta-20261020-r1/policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py": {
+        "operation": "update",
+        "preimage_sha256": "7599ca806df20f8e6d32361287e2342654bfdbef823148f43638de0e1d826bef",
+        "postimage_sha256": "3b5f9b1d7d6a6829d9752984741877c4310e972f4d549840d6474447e58a00ec",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-retrieval-profiled-copy-helper-author-20261020-r2/test_retrieval_fetch_custody.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/test_objective_availability.py": {
+        "preimage_sha256": "c796d5eb5b6a542ea95693a20f7ae0fb5fdf9ce7eec31adfb8a0cf34332cacd1",
+        "postimage_sha256": "1d067e51a4a067ab54fcc8b2a82ad7e05f42b47608393bd9384a000b3490c4fa",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r4/postimages/policy-engine/tests/unit/scientist/search/test_objective_availability.py",
+        "operation": "update",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py": {
+        "operation": "update",
+        "preimage_sha256": "c825e9dfc2f51d75372a753e6cf0e13d0ab2b7496cbc08879b72ceb745cffd71",
+        "postimage_sha256": "50d8fe7dbfb0fb92b90811da71ae61eb31885c391eb244d93764f89a970dac33",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-forecast-profile-core-ir-test-fixture-author-20261020-r1/postimages/policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-acquisition-candidate-cas-route.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "20698cab40412ab715679d3067aa3da7689ab0cc287b9e87a07c7d0a498c2416",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-decision-tracked-companion-20261020-r1/decision.md",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py": {
+        "operation": "update",
+        "preimage_sha256": "69dbea8b78702263b1cf54698b0b59ce310094178e9a003b43bf82543448b542",
+        "postimage_sha256": "592eab121c58baa1e8477735e018001be3cdd83d69c9e47712a70fab1ab41269",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r5-v3/postimages/policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": {
+        "operation": "update",
+        "preimage_sha256": "0fe0eb7fccbc4a5accf2f62233f3ca12ff60fe8fff9c4d61e26571f72da67893",
+        "postimage_sha256": "4dcd2c9895c85c24ec152c84f890cae97e7b6e40e51be4da18b1b902e2c1aab5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r5-v3/postimages/policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "update",
+        "preimage_sha256": "160cf74af81f418fe6cf4248302740c196d144e089ca6f5adf41d1793a9e436f",
+        "postimage_sha256": "c18250dde340da7b66f902d0b958fee49c459557ea0899e5ffbcacde2632eb7c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r5-v3/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r2/source-application.json",
+      "sha256": "099430fadf3904161a246bb4c604dae6235de475bc82d268206df2d5962245f1"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r2/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-whole-payload-hash-author-20261020-r3/manifest.json",
+        "sha256": "b7d278923feb2cd0634c1d337c7d047438c7d04325537911bd65267e24cbde2d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-whole-payload-hash-author-20261020-r3/candidate.patch",
+        "sha256": "f66c5a9955952c2bb30858a26b7d6becf16a83abdfaea4c7b339cb92f698b562"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-whole-payload-hash-r3-independent-review-20261020/review.md",
+        "sha256": "79bacb9d33ede63b00dbd2898a506a11e336e7a92a2b548c4fa282d907f81474"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-cas-candidate-route-r2-20261020/manifest.json",
+        "sha256": "7d89e4daaf781a4141fe03d236071be270508e03b051a04c59ffa1681a4a3b32"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-cas-candidate-route-r2-20261020/acquisition-cas-candidate-route-r2.patch",
+        "sha256": "72237da12ecb474c71591b7f042428897ed756a7e078b2c3f7a731a03ba9435d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-cas-candidate-independent-review-r2-d2d2-20261020/review.md",
+        "sha256": "4b801146f9e58106189ee05cbd5677dcd3c117f22c505de4d32543c7a3ce54b0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-retrieval-profiled-copy-helper-author-20261020-r2/manifest.json",
+        "sha256": "c3738a380b20ed2133ff90ce926d3abf9d21b94c0d466ce166ffcc1d1828fe6c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-retrieval-profiled-copy-helper-independent-review-20261020-r2/review.json",
+        "sha256": "586e80dffb395c6a448b8d75d4131d7af00da6623f4d287b4ad39d27246bef8c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-admission-frontier-r1-20261020/candidate-r4/manifest-r4.json",
+        "sha256": "25f77432ed4142ff06817193230b42951bb79dc576cd138e966225d5f1007799"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-vector-test-r4-independent-review-20261020-r1/review.json",
+        "sha256": "30c5b26b0fa2631271fbc2b9e7838e618f2bff304f881fca29d303145035414a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-forecast-profile-core-ir-test-fixture-author-20261020-r1/manifest.json",
+        "sha256": "fda5a2af893d39f2f119795bd6876d3b7d8d3c2e0b546c95f526c01107ffc7b8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-forecast-profile-core-ir-test-fixture-independent-review-20261020-r1/review.md",
+        "sha256": "463536eb48c6ece3df22b706ddc2717ac068256533bcb9577256810f35bf8542"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-cohort-n7-acquisition-materialized-20261020-r1/materialization-readback.json",
+        "sha256": "ef561be9c05b262f04690faec110c5583301b58f06bfd7c35f6c4814820582a2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-cas-candidate-route-r2-20261020/decision-packet.md",
+        "sha256": "08153b508c5046de577eea6449d120a8a47a418b85b89a3b475996af13f65da4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-candidate-cas-streaming-test-companions-20261020-r1/plan.json",
+        "sha256": "9f3a8eb5d9e00d199e16ef76f21215783940ed443bc8b32b1af2012a61375d78"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-canonical-import-postimage-delta-20261020-r1/manifest.json",
+        "sha256": "6fef29fa8046bfe24c3ac8f145d140b2ca5361f47ca35e714ddd34668c5e36e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r5-v3/manifest-r5-v3.json",
+        "sha256": "029a4deb100c23710abee56f6b201c284154e862a68916a190d5f6c3ac451313"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-r5-v3-independent-review-20261020-r1.json",
+        "sha256": "f089206fa4a59c8c19e08b985af92b1b43610812c8f9a0b7fded7d534c8f08e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-canonical-import-independent-review-20261020-r1/review.json",
+        "sha256": "202f841bd11c7348a756bc765711c7f28f28354c4c62e6a919581289f957cc24"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "acquisition": "SAME parent/factory/leaf/CAS handshake class deeper: widen shared exact-owner boundary once; no per-case bypass.",
+      "hash": "NEW generic whole-payload copy amplification; iterative full traversal, fallback for custom/cyclic inputs and complete compatibility tests.",
+      "retrieval": "SAME producer/profile handshake deeper: widen shared clone plus complete child inventory once, no reader weakening.",
+      "vector": "NEW shared single-arg pytest parameter shape/fixture-unit mismatch, all235 assertion ASTs preserved.",
+      "forecast": "NEW shared Core-to-IR fixture boundary separate from optional member initialization; one adapter for all conversions.",
+      "R5": "SAME fixture expectation class: shared reject/continue outcome assertions match actual stage execution; absentassessment still reject and no synthetic packet-backed unit.",
+      "canonical_imports": "NEW author tooling context mismatch; correct only import ordering/grouping with canonical root module Ruff, import-node multiset and entire non-import AST unchanged."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Product tests on this composed source remain UNRUN; independent static GO is not runtime evidence.",
+      "Full served N7 RSS growth is not attributed solely to hashing; unmodified three-node replay still required.",
+      "No source-unit provenance, external legal/custody/currentness/calibration or qualifying production workload established.",
+      "Protected authority, G acceptance and formal finding adjudication remain outside author approval.",
+      "R1 preflight I001 prevented all source writes; R2 preserves that receipt and uses separately reviewed import-only postimages."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole gy_waist contracts; acquisition16 plus epoch gate; retrieval44; score four whole modules; forecast/C12 four whole modules; unmodified served N7 three cases alone3GiB. Preserve all FAIL/ERROR/SKIP/UNRUN.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -2180,7 +2180,7 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
             )
             for row in revision_rows
         ]
-        assert [identifier for identifier, _text in generation_rows] == fact_ids
+        assert tuple(identifier for identifier, _text in generation_rows) == fact_ids
         assert reference.selector_path is not None
         generation_index_dir = reference.selector_path.parent
         publish_kwargs = {

@@ -42501,5 +42501,61 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-c12-ordered-id-oracle-adoption-20261020-r1": {
+    "slice_base": "11ff2421e04223fc961dd5a520768fd75bafe1e2",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_emb_03.py": {
+        "operation": "update",
+        "preimage_sha256": "d29fbc8b843ce684bd8a5f8cb1f327b89f7102e7deccfc20a9d8b319c0918d75",
+        "postimage_sha256": "0f6bd7c179627ca68c3c108b87b77e60fa4a054ed2e446ca7bdbcf83b9d1e227",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-generation-row-ordered-id-oracle-r3-20261020/postimages/test_emb_03.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-ordered-id-oracle-adoption-20261020-r1/source-application.json",
+      "sha256": "94a001a7b04a86b94689a8a6226f2bdb3bd4827e6c2a0e407920df8923ab02aa"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-ordered-id-oracle-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-generation-row-ordered-id-oracle-r3-20261020/manifest.json",
+        "sha256": "21339fb0dfe8ac682f25c5f94eebdd19aded65076a1e66bc4a76a3384cadf53f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-generation-row-ordered-id-oracle-independent-review-20261020-r1/review.json",
+        "sha256": "77072b55d11ea4c221cd95ede3bd54e4a05457b868c0dbbef70663241a79a3f9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-generation-row-ordered-id-oracle-r3-20261020/postimages/test_emb_03.py",
+        "sha256": "0f6bd7c179627ca68c3c108b87b77e60fa4a054ed2e446ca7bdbcf83b9d1e227"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "New fixture-oracle representation mismatch; full-file comparison census finds two relevant comparisons, sibling already normalized. No per-site repair ladder or authority relaxation.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "One test assertion only; no production changes.",
+      "Whole real-profile replay pending on adopted source; no G acceptance or closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run entire test_emb_03.py with existing real encoder profile, all28cases and later alternate-revision/fresh-intent controls, SOLO5GiB numeric1.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

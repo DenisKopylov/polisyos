@@ -1,0 +1,134 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "datasnapshot-import",
+  "slice_base": "7e349c782b03bcae729cc31796c2d0ff30635ce7",
+  "candidate": "848119384c95bc6527deaeb549bf669c01c80617",
+  "tree": "bb44f313247389f5bd1e6527832e39a1e5e94043",
+  "parents": [
+    "7e349c782b03bcae729cc31796c2d0ff30635ce7"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "5bd08f6bd1a47873eac4da3eedf00b12053b982e",
+      "sha256": "4339c0fe983ef205e20c14a5454061397dd73084427b3357b333e8e6dc987edd",
+      "bytes": 2928861,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "8f65365ab161ebe9f564308510b3af4f6a1a371d",
+      "sha256": "96f7fd4f89060b45d5460cf98c5c105af9a81d7be72e64c6a551027638ec3031",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_snapshot_lineage.py",
+      "mode": "100644",
+      "git_blob": "36bf5e1640d49cde0049e1966aa0d61cb7213e71",
+      "sha256": "0ae78682066e70b2d0378792697d2a12ae3a856d722cc860064a1bcbb3dbffe4",
+      "bytes": 25482,
+      "role": "code"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-canonical-import-20261020-r1/implementation-readback.json",
+    "sha256": "382433e0979debe89c41b1b39242316ac7e9def0d1909509103af3f6917a610c",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "Import CanonSpec from its actual public owner; import correction alone proves no profile or capability property.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "848119384c95bc6527deaeb549bf669c01c80617",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/request.json",
+        "sha256": "0cfd351c6876306ff5aaa3f5ed678b55d0af6a344441114e3ecf83e2782d1754",
+        "availability": "retained_local_ignored_raw"
+      },
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/result.json",
+        "sha256": "bef0d96eb5ff21c88f97fdd390b9a6a4e6a3a741e33e40dec04deef91c22d0c2",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.stdout.txt",
+        "sha256": "7bd7fb95562d003bcc2af3ccc9626a09056ef0022fa7798f86dc1f2112df6a74",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.xml",
+        "sha256": "26bdf988d7d4c76bde1a5bce9cea2bafb0362075debc1ade8dd01bb070ed2caf",
+        "availability": "retained_local_ignored_raw"
+      },
+      "source_unchanged": true,
+      "actual_collection": 196,
+      "actual_completed_calls": 196,
+      "result_counts": {
+        "errors": 0,
+        "failures": 12,
+        "passed": 184,
+        "skipped": 0,
+        "tests": 196
+      },
+      "interpretation": "196actualcalls184P12F0E0S; not a whole capability pass"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-canonical-import-20261020-r1/source-application.json",
+    "sha256": "2b72c1df3914f6930e7e9658c75f358f95e00e097e074a6fee0a664dde72a84a",
+    "availability": "retained_local_ignored_raw"
+  }
+}

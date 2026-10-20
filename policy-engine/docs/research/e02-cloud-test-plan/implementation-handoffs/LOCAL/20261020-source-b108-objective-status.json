@@ -1,0 +1,158 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "b108-objective-status",
+  "slice_base": "42fd7bdecbffba7e9369478fb916f09343e163b3",
+  "candidate": "cbcb68bc89ad396497e07b358594708d8706654c",
+  "tree": "7d2854a8c3cb0e00f9ca3452602155e1ab93ce7b",
+  "parents": [
+    "42fd7bdecbffba7e9369478fb916f09343e163b3"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "c3b69d84efee0bc9abeca402a3710e2e1577c5c6",
+      "sha256": "9c33d5fe7f2434a337eabe7cd4dfbe027e453eda00d9ac8c8ab0573e250a3a1a",
+      "bytes": 2962546,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "683960d575a3edb34dd0070a38143e9b07b23515",
+      "sha256": "6b678bfcea9a0b1ffee9f965a5ec0b06e68a4551ce70d6ca4bea3e173993f99f",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-b108-unit-bound-objective-score-finalization.toml",
+      "mode": "100644",
+      "git_blob": "ba05e20563635e803dd2835cd936096e51da32dd",
+      "sha256": "c9c34e2dfa202a0dfde3b702146327dd401a59041875cb67bd1c1b17b333e75f",
+      "bytes": 2098,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "mode": "100644",
+      "git_blob": "a200ae3bbc7a9a8eb71d6afa3f8ec00a3db6a85f",
+      "sha256": "1cebb4d85ea2852a5fb08bff734c82f92f21e879f42eeb27a96530abc08c4d21",
+      "bytes": 93360,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+      "mode": "100644",
+      "git_blob": "5e9529d5504e5907a0d048e2174380cbb444bd6a",
+      "sha256": "b3e117c77c9200e5736c0267813f5544a972d6b4ae34e20140603f25fe6310d3",
+      "bytes": 44547,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+      "mode": "100644",
+      "git_blob": "a76774d7e744c4321659862aa7bc3b7b08a9abc2",
+      "sha256": "a72bdbcb24743a0acc4163ab5372c699204b8d31ac83e5cb09f0b65086e0f29d",
+      "bytes": 7324,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-objective-final-status-20261020-r1/implementation-readback.json",
+    "sha256": "46a21f6c00ee9e0fe84f7762b8a6644227de0447239e25fa0bc549dd08c4ce8b",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "After all unit/status admission gates, non-AVAILABLE configured objective assessments carry no score; selected benchmark fixture uses existing source-replayable binding.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "cbcb68bc89ad396497e07b358594708d8706654c",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-ten-whole-composed-cbcb68bc-20261020-r1/request.json",
+        "sha256": "01ae1f968beb67a92ba9176dd6ec2bfcd7df8093a40236d2fb914b5094d26fe1",
+        "availability": "retained_local_ignored_raw"
+      },
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-ten-whole-composed-cbcb68bc-20261020-r1/actual/result.json",
+        "sha256": "67320010848b1f0f065fb554458231c257718110ffea39d34d0e28aac8cb22a3",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-ten-whole-composed-cbcb68bc-20261020-r1/actual/pytest.stdout.txt",
+        "sha256": "7ba596bb75f7ea728a07bf74992812fe2c47cde40957615d7e873b60f24ce4a4",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-ten-whole-composed-cbcb68bc-20261020-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-ten-whole-composed-cbcb68bc-20261020-r1/actual/pytest.xml",
+        "sha256": "b410976195fee2e65fc386d8e4171ded05773157509d59b3e6687d8d335b25c6",
+        "availability": "retained_local_ignored_raw"
+      },
+      "source_unchanged": true,
+      "actual_collection": 196,
+      "actual_completed_calls": 0,
+      "result_counts": {
+        "errors": 1,
+        "failures": 0,
+        "passed": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "interpretation": "196collected0calls1collectionERROR; does not qualify the newly expanded10module composition"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-objective-final-status-20261020-r1/source-application.json",
+    "sha256": "edf6eaaf6d97a0e306220987ec6e1eb6f55e7ae7dc2291074fa7130ec1fd7f83",
+    "availability": "retained_local_ignored_raw"
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "datasnapshot-optional-inputs",
+  "slice_base": "85ed7e4b27bd761292d68c8625f0b094451d1d9a",
+  "candidate": "b97fb9b7284629d388306bd860df6412898fa5ee",
+  "tree": "1b7e74ef6e053f6b4287e6668180634f59ff9973",
+  "parents": [
+    "85ed7e4b27bd761292d68c8625f0b094451d1d9a"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "871bf34c01ce14fe391dcc558ccbd6f0c4043cbf",
+      "sha256": "659678d99ea5729928bfcaae9cc31ea058fbfc2c0ef121d35e12210504c8c155",
+      "bytes": 2940382,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "e7f754d47e9854b06c4e98d4ae5cf2de8470a5c1",
+      "sha256": "64f37bc641cf1b3eb736548a43a30b8d42b5b301091f0f6cb39947a5a446e049",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-datasnapshot-owner-optional-inputs.toml",
+      "mode": "100644",
+      "git_blob": "c981c4c7fee4137119849332fecc44699f4c6e8f",
+      "sha256": "5450a834eb20c1d8499a023389b24955deaa10aecbda5d66029d200e8f9d00ab",
+      "bytes": 1765,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "mode": "100644",
+      "git_blob": "3701ea8f64f45a846e03b80217ff5f0f93b46143",
+      "sha256": "29f295e4105dde36fcb778becd7b0191046e206e24e20867fde95c35f1d72ac3",
+      "bytes": 18681,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/contracts/test_fabric_snapshot_owner_optional_inputs.py",
+      "mode": "100644",
+      "git_blob": "a784b5b6a07190ac836d39b7b7d01d7261790dc7",
+      "sha256": "70774720822f71a0dc1f3ad8c76304d017af0140a3e1fb4a81c51c862cfe4430",
+      "bytes": 7259,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-optional-contract-r5a-20261020-r1/implementation-readback.json",
+    "sha256": "058af17945f31caade9cb5e9d6f774084595780c3b72309e62db2255b1a1f1d4",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "Validate owner refs, allow only absent optional FabricBridge evidence/warnings, retain required/unexpected/malformed refusal, normalize canonical ArtifactID set keys.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "b97fb9b7284629d388306bd860df6412898fa5ee",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/request.json",
+        "sha256": "3a584b9b9ed124deaa0065f677ea7a4a13ae085cc44575e0e7f916a7bcee15fc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/result.json",
+        "sha256": "e926f1ec883d3a266d8d80db6c141ff8de54f9e54efaf65c92f532e82c55a488",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/pytest.stdout.txt",
+        "sha256": "ad5f5cde29e47f36327043f48dc45eeec2e0b77dec5d24c919930b4b0e88aa01",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/pytest.xml",
+        "sha256": "4870095a22b386e7611bf9dad838a8dd3b2038a905df393a7c3c19db4460485a",
+        "availability": "retained_local_ignored_raw"
+      },
+      "source_unchanged": true,
+      "actual_collection": 15,
+      "actual_completed_calls": 15,
+      "result_counts": {
+        "errors": 0,
+        "failures": 1,
+        "passed": 14,
+        "skipped": 0,
+        "tests": 15
+      },
+      "interpretation": "15actualcalls14typedcontractP1profile-removalcounterexampleF0E0S; realproducerpositive reached"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-optional-contract-r5a-20261020-r1/source-application.json",
+    "sha256": "44e063ec2bf362dd1e63f55ddf7a19cac44041a52578b024b50e87d374972c2b",
+    "availability": "retained_local_ignored_raw"
+  }
+}

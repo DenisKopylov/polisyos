@@ -40265,5 +40265,118 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-nine-source-handoff-receipts-20261020-r1": {
+    "slice_base": "cbcb68bc89ad396497e07b358594708d8706654c",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-r14.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "dfc0fdcae98ede3b51ffe83c6495e1c91df004749520c5db6e17b801d22b6a8b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-r14.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-docs-chronology.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "078c96a2bc40a8fffefe703f99e38c2fce7e532d3fe60f6e6b4288690b4fa7cc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-docs-chronology.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-owner-r4.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "958f54543092abb12680125b67b12da1d98311ba7d16ce8c5aa52b12dfcec363",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-owner-r4.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-b108-credal.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "9aa1a8819c5885ac10058cfa085fa1338c89cf94384b7862acd06d709c5b5107",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-b108-credal.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-import.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "9c67fa67074fbc5c50889d38ee7b38f848b46c864060e6e8873059db82695d3f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-import.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-b108-consumer-fixtures.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "2b7e80bf3119005e8528455c4c15d6704c446a2c79bcc6e1d2f65b5eba5f081e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-b108-consumer-fixtures.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-optional-inputs.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "37f4751d50fc7c4eb1b8a5bb27e13d43da00225deabbc6924803b5261bbe74df",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-optional-inputs.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-q2-canonical-source.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "6fd8b24e23be07759ddd3e44a10a5e4f5bba7239e11fc9a6a7a69f5d3f8d6ffd",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-q2-canonical-source.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-b108-objective-status.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "084dc44b082479fc94eda9b0d6ece51592f6458862cba6125d51bb9e5b91f626",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-b108-objective-status.json",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-nine-source-handoff-receipts-20261020-r1/source-application.json",
+      "sha256": "7d08acea2e1bcb30a5612dfddf1dc24d4ce0563158b6f9c3ee5bad7755f8704c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-nine-source-handoff-receipts-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/manifest-v2.json",
+        "sha256": "b27adae1ca9f77f0049d36d7bbc71cb61cc3637523ba71f77559bb71a0fabda1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-source-handoff-receipts-20261020-r1/full-denominator-check.json",
+        "sha256": "f3fd112560f31700be6d8e2c8bc48983a760ad1b1aeac8af0aae36f1552bfa27"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-oct20-nine-handoff-independent-review-20261020-r1/review.json",
+        "sha256": "a58a1655bd5c8fde4e53a7137938a1bb208c9a4c766a19250eb3fb7306d958a1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Records only. Manifestcanonical_writes=0 refersONLYRAWpacketdrafting, notpreviousnineimplementationcommits; fullfootprintsandcandidatesrecordthoseactualchanges.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "NinepartialSOURCEhandoffs are not a full-ID closeout orGadjudication; allindividualevaluationpending",
+      "Docs-onlynativecommit/PythonSKIP doesnotproveNative13green",
+      "Inheritedrednotclaimed; actualrecordskeeporiginalsourceframes; noproductsource/testchanges inthisreceiptcommit"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "ContinueblockingR5/annotation/Q2/stresssourceadoption andnewcomposedverification; full-ID282/291proposals andGdecisionpackets remainindividuallybound atfinalfreeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1,0 +1,929 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "r14",
+  "slice_base": "2a55ff778c8b5a61a8e3c613d4434de1b2797657",
+  "candidate": "daad3753f1db6d321cb465c62af7dcfe03dfd265",
+  "tree": "fd94cb5cffec6b15d2b1554d8f97b29d20e0da7f",
+  "parents": [
+    "2a55ff778c8b5a61a8e3c613d4434de1b2797657"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "dac3560975b14af8c5f63cf82b26838b256aa564",
+      "sha256": "7b935522c8a1f29e2b94bd7e897c7379717588176e600a9a82d5ed944b4ac785",
+      "bytes": 2858266,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "7ece29f6247e8445423be6ff1c868674bc49c4a1",
+      "sha256": "5675ba3bf840db272add45f3bdff0d0d07ee2315de6b948defeee566d019f315",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-policy-promotion-projection-r9.md",
+      "mode": "100644",
+      "git_blob": "7ef71024e9460b81031765bc6abcb7cf10c61c75",
+      "sha256": "21d9eeef46e131dd67998674cb3eba38e34e47837cfe887ad8ec06d98b9fe82c",
+      "bytes": 6019,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-state-and-workflow-finalization-r12.md",
+      "mode": "100644",
+      "git_blob": "3629069d6be8b374d7a4e3246c5ef84169a8d005",
+      "sha256": "99075a71e2c80ca97ab17595ede0c8ca362ac31b9856c2cc6edcbab420172801",
+      "bytes": 10118,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-state-and-workflow-finalization-r14.md",
+      "mode": "100644",
+      "git_blob": "516d5e24177a123e58fc19162c0531929cecfa18",
+      "sha256": "68808cfa49f008de64b8a733777237b22eb02c309c76a47d2e3e43512576f4ca",
+      "bytes": 7309,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-current-state-intake-emission-r10.md",
+      "mode": "100644",
+      "git_blob": "8f35cf660fd70bd8078035672a5af595cd5435a7",
+      "sha256": "32430bfa4e1f1df376264094a2a627f7aad2fe0fee2350bd3185d581978a0ddb",
+      "bytes": 2775,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-governance-report-currentness-r11.md",
+      "mode": "100644",
+      "git_blob": "c7dd27f1006b3951a6414f2a7c4255dcabd08184",
+      "sha256": "be0ea31343a92edaa56fc062be119db23eb26bd22240107ac7dc8ab1282a3426",
+      "bytes": 8035,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-no-score-selected-axis-r5.md",
+      "mode": "100644",
+      "git_blob": "7b53fbdc5fd3694f5e176273c34eb253058b70c2",
+      "sha256": "096ad9c7f477b58291472115eeeac1acf49e52386b2e46dd0e6a0fb0c6595f3c",
+      "bytes": 7597,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-owner-trace-live-descriptor-r13.md",
+      "mode": "100644",
+      "git_blob": "f4afa9b9cca57f02f77cccb07cd6548ddc90a30f",
+      "sha256": "9a85559c6e7c1f1c03bb2499706a78d5bf7a0c9431caa1f0e0db1db9fa7a1edc",
+      "bytes": 3448,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-score-source-unit-and-vector-basis-r6.md",
+      "mode": "100644",
+      "git_blob": "cbef9849676c3ec8be56824ca4eac6e274342cbc",
+      "sha256": "86d980bbdf8b8d43bebf6de9fbef318c3848784599891017a30c690ab712ee21",
+      "bytes": 15247,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-score-terminal-state-reconciliation-r8.md",
+      "mode": "100644",
+      "git_blob": "8d282a563083cbcd7bb4da28aa3e656bf1e1e271",
+      "sha256": "12b528e7c2968452200a357de359ce8c5913faf1483e9204be7fa146644eafa3",
+      "bytes": 3098,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-selected-score-projection-and-completion-r7.md",
+      "mode": "100644",
+      "git_blob": "b139182a4910004ef6835e2f31fdfc07564128a4",
+      "sha256": "748d9da689072ffb6d1724fc34eb96fbe746d50e0be833fa6b7d1adae1a43197",
+      "bytes": 4275,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b108-vector-score-source-schema-v1.md",
+      "mode": "100644",
+      "git_blob": "85ecfb181a62237b7ddb287abc9c10e2761a4a13",
+      "sha256": "5afc821df5ffabf34d9daa535833a8361f47e1062ed5e67807263b3a3b5c2301",
+      "bytes": 4056,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-governance-report-currentness.toml",
+      "mode": "100644",
+      "git_blob": "a52fbb83d6dbfeea9d0f04b350cf2a917890fc16",
+      "sha256": "278b989848e820f76c37070532e648e78dd77d855d6e8d445e9a6ffacb5be7ac",
+      "bytes": 545,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-selected-objective-score-binding.toml",
+      "mode": "100644",
+      "git_blob": "59293efce94ab1e6b515a8265e6173ff64b6b069",
+      "sha256": "d3ed6d2ac4395931a6a99bbfb6f02df5cfa4dc07a341457d2331002c58bd7bb2",
+      "bytes": 15100,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/README.md",
+      "mode": "100644",
+      "git_blob": "7318e7fe25fc5d5beeb221e81d6fc7240061eee5",
+      "sha256": "3277af2ef980de2a85679d577f57eef476d78dec5912a8230dff517c5a885792",
+      "bytes": 3327,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/context.py",
+      "mode": "100644",
+      "git_blob": "f388aa2433f209ed6d2e1f7a4131236e780b0b58",
+      "sha256": "de08748902906e8d34979fc559b9756ea9940b7364018d4c9cab2a88d400aaf3",
+      "bytes": 111166,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/manifest.py",
+      "mode": "100644",
+      "git_blob": "95b26565e26a3600ecf39cf66a0f9473de1611fd",
+      "sha256": "8b06269fe2413cb710c173242de17d72583d9bccb285eabc0ca07c46d8ce342c",
+      "bytes": 10010,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/README.md",
+      "mode": "100644",
+      "git_blob": "cb09308cb18b1865c68221ecd4c65950d66593a1",
+      "sha256": "1959514b30cca7b0b95721e21056c82986f25b54f7421ccd920ce777a679b78d",
+      "bytes": 6284,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/__init__.py",
+      "mode": "100644",
+      "git_blob": "f45d26b9056c226cd1bddfb547a57f286cd2a70c",
+      "sha256": "fab43872a0dc8c29a58e87d413a6364063e0acd8d8784774505916e55bb9ee87",
+      "bytes": 10133,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/report.py",
+      "mode": "100644",
+      "git_blob": "fcc5afde8684542dc5038208dd09139f6a2b1ae0",
+      "sha256": "b3be38071c4e2eca71015f903e33196ac8c7db5d382a168186483b3d5fe088ef",
+      "bytes": 5850,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/report_currentness.py",
+      "mode": "100644",
+      "git_blob": "8a8c155e23fc2a5abf8776ede92056b96174a30a",
+      "sha256": "7997ad4a85353e6c410088a4e163f1a18b7ea12f4f56663c19052fa776c5580d",
+      "bytes": 10035,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "mode": "100644",
+      "git_blob": "4673ab0db28b37abaa9a80508742f0038b560935",
+      "sha256": "fa867d08ed6c4f9cb8ada9591cb54087f7b217719f5e0c1832e331df8d0e7f88",
+      "bytes": 52583,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "mode": "100644",
+      "git_blob": "832537a8db25cbf3b19236b61119f1359f8415b3",
+      "sha256": "5a91c4c8bfc5de8eb5ec5666f81c364ef5c31f852fa8d9f03e7a23036a83e4ed",
+      "bytes": 104303,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+      "mode": "100644",
+      "git_blob": "4d936e89f022cc4d6806115a8da999e28d8ea677",
+      "sha256": "270afff675c424a30fe080708c0d0103c0be58be0ef09daf450a16e781bb4348",
+      "bytes": 42585,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "mode": "100644",
+      "git_blob": "c5468be8aa24c475cdcb7312d2a790a23bbb4401",
+      "sha256": "112e9a272240c92fd736c2d1f2b7c65958a47863185e4251845c6ff7346fbc86",
+      "bytes": 5778,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+      "mode": "100644",
+      "git_blob": "0c94dbb2bac3f47eac4a78fe1015f409b35484f2",
+      "sha256": "da540225f999b8e4d3bda865a67c77c3a337af237806d51292d5dab8df4b8625",
+      "bytes": 13468,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "mode": "100644",
+      "git_blob": "186263c92a5da1388b26edb05f6e2e9d6be34c8e",
+      "sha256": "16c24c2985f4e77c2a589aba6a7e313c6f00e6e00ebca139943f511a19c8ac4b",
+      "bytes": 22365,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+      "mode": "100644",
+      "git_blob": "c04dee4486fc794bdbbde8c5050cf35d52c0f474",
+      "sha256": "9687fc07425ebfe49f936ca225765a62288942337df6cd46e6e7724a72d86e12",
+      "bytes": 5682,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "mode": "100644",
+      "git_blob": "0d5c3948864880bccebf1b49241a4ad92e4a0e48",
+      "sha256": "c3c85e59cb6a2f75184afb2e04799b50977a3530e864f23552b1b9738aceec96",
+      "bytes": 13154,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+      "mode": "100644",
+      "git_blob": "fd59ec1ca761f093fa3ca175d7c21a8fdc52f29e",
+      "sha256": "5dcb054731b7e493769426fe4dca8f8776211e41f28886ea7e0eeb16c0d63242",
+      "bytes": 7704,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "mode": "100644",
+      "git_blob": "dd7d93f2165eff4d4acc94e88e9c02a30e46717b",
+      "sha256": "66962b4a4283b461fe8e616841ce59f0581113fb45f06492ff7f3690401225c6",
+      "bytes": 35430,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "mode": "100644",
+      "git_blob": "c15a8d9a0cd9f3f80dd0d0f82d0b24f4c75bfef2",
+      "sha256": "109885a157b4a9ee7622765bed53be617f542d31ac6630e83edf0a4024da23db",
+      "bytes": 14659,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "mode": "100644",
+      "git_blob": "22b1ddc2e7ae014839ffa79203b4ac40014669da",
+      "sha256": "45fa36fee13f341112a6215ed7e114e12bb3d38dfa91be09cd967476839dc5be",
+      "bytes": 73613,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "mode": "100644",
+      "git_blob": "015f26fa0b9380cf02d95704bc35f94fa99aebb9",
+      "sha256": "30f41d0456bf90c38137f7fa85e4415dcdbc7aaca0c2c23629a31f11ae991922",
+      "bytes": 20232,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "mode": "100644",
+      "git_blob": "bf37e00e7580e8b32fa1cbfd60c495a2e290591e",
+      "sha256": "c9d4fa739a7a17d281b7c4e3ae9bbd5271cedfc23e5bfc28b6e65085edf675e9",
+      "bytes": 64595,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "mode": "100644",
+      "git_blob": "aa34ce82b02f518a8e9f863a29ae5cd451ebc8c2",
+      "sha256": "cb7df5bb548100946806242a8e204e8aedb57986abe3706683712fe58f238e7b",
+      "bytes": 59460,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "mode": "100644",
+      "git_blob": "54171fb3354b9f40114c5dbe6e6ca076f6683386",
+      "sha256": "81ee7fd10123b9ba68b59a81950f7325a93cd0b35374f3b68e91d2f9d06bf96c",
+      "bytes": 79108,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/portfolio.py",
+      "mode": "100644",
+      "git_blob": "2dccaa9efe7bd1a1243bd086f14ef741c75aa92d",
+      "sha256": "56e3326754b5d013c5f93330b41816fbec87fbd58881f2f78994f3a54bb9ff5b",
+      "bytes": 9657,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "mode": "100644",
+      "git_blob": "d5efb0d5db880e90efe43d7380acbf679745f3f6",
+      "sha256": "061ccf99766dcc015c0833dc25ad13b98654889189d6833a959d0d898b8fe40e",
+      "bytes": 11745,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stage_contracts.py",
+      "mode": "100644",
+      "git_blob": "6b6b0e190bda7581c4e169fcc39908ff8470528f",
+      "sha256": "00a45aa0010e6a85812602ff52a7489610da7098ceef33258b8ed6a2ad950701",
+      "bytes": 3393,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "mode": "100644",
+      "git_blob": "d07aa102c3f6f4c8834285c2eb61f3d14a7da917",
+      "sha256": "da5d8ecfdc4dccdf35934e8927f1822b520d2d2f488c7747ffcd05292958aa79",
+      "bytes": 26155,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "mode": "100644",
+      "git_blob": "4b8c995b79f277b1a2b47da2cf7761a4b23e2e89",
+      "sha256": "8251a0d02758e759c49660b2c2acab9016ca0fb5cd3f445ff571d19356eea9f5",
+      "bytes": 4562,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "mode": "100644",
+      "git_blob": "f09633115c376a9a2b45fee15e80bba8213c78a3",
+      "sha256": "60f89f6c175c267ee8e51c05040ee4db74ce50994679df067ecc1cd1f78df663",
+      "bytes": 72776,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "mode": "100644",
+      "git_blob": "1aa028a77a3ad4ba980f8fac701abdb64c53c726",
+      "sha256": "2f35001c991bafb4073cd27f48dabcd6f9c63a2b715efc7d352278305a0b95e4",
+      "bytes": 16894,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "mode": "100644",
+      "git_blob": "c4999698849019cbbd9e42803b2b3864d18badab",
+      "sha256": "48347fd818f55537bebd0e879c1e9238499137b9054a1a8b5764131ed3750fa9",
+      "bytes": 40298,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "mode": "100644",
+      "git_blob": "b999c202092fe4050e0f5b7afcb108030440d399",
+      "sha256": "b0a2b5fbd8b165a3c24b5e34ed9fb08618c43abb11b63a15c4964e34b4366ecb",
+      "bytes": 7385,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+      "mode": "100644",
+      "git_blob": "e3081221e29e5f07e2915ad5ac2ee3022a42e1cb",
+      "sha256": "d60166e161d0aaac214af9b56ccb31a500e229d931c73fc9d3a2e50489146bb0",
+      "bytes": 60808,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "mode": "100644",
+      "git_blob": "e0e51ccec341bedfd9899af0f9aa2fc49863b1cf",
+      "sha256": "25b994c3dd4a32fd85c278e6193976a6c365bb8c19c09ad639d5e4ea30a3f685",
+      "bytes": 39411,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_verified_policy_report.py",
+      "mode": "100644",
+      "git_blob": "2aa8dfd57a025adb671163a5ba5ef6754d06e2f1",
+      "sha256": "fa0763f3d7ac19490cdc326c4be5df7230c98cf098cc86a3f8127a2c4a980550",
+      "bytes": 8844,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+      "mode": "100644",
+      "git_blob": "ba19a917f92ce1eec27ebcba25554912144af6ae",
+      "sha256": "8a6df931f3897b8c20969de2c113d937bdac2758d738753cd054bb37dcdef4c0",
+      "bytes": 39551,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py",
+      "mode": "100644",
+      "git_blob": "e288d228534128240f1d8fe809143bb47c7bc864",
+      "sha256": "33d65f35c2daec756ef215f4bfb1401d68a1b857b1f09563fc6fc410157a019a",
+      "bytes": 12829,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "mode": "100644",
+      "git_blob": "900cfa6575eb1a424c2f5e642c4e74683eea4e38",
+      "sha256": "7124fa3aab2c3550d26120fe3197ea1f44ecbf952a0eb93a83951ec44fb8550d",
+      "bytes": 46545,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+      "mode": "100644",
+      "git_blob": "01fd365eaca0c6b205143a11ca093d6b133e9719",
+      "sha256": "58157917cc1effad5aeea47ed4f7a432fe6ba528818f49376099b70337f068d4",
+      "bytes": 31067,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+      "mode": "100644",
+      "git_blob": "533574bad2e57ad7f25d019836e832c69ab822cc",
+      "sha256": "4afd27e6a5d3e463726f936c506d54159d45eb5ae9ab22feac80e012f8ad8af4",
+      "bytes": 20109,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+      "mode": "100644",
+      "git_blob": "cbe7d0fe59527fbd7b2ee94252d0bae82bceb4fe",
+      "sha256": "0b7d9eed0f5831698c95e3f263e81810dc6b016c272bee47bc2b88a94394027a",
+      "bytes": 60768,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "mode": "100644",
+      "git_blob": "bcb6f654920d42a2fc6c6d0ce4bb24eee0f25ef0",
+      "sha256": "f8ae9805a95f944f0bf1e452dc74712dcc75b2d66ffcbbd5151cba8df5142acf",
+      "bytes": 38581,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+      "mode": "100644",
+      "git_blob": "ee5fbf23ff338d136bd9471677199da3213a1ae3",
+      "sha256": "175514a06bddaa908e95420c1e6036194a0e33d8c57172c1952f85f6ef333e04",
+      "bytes": 18587,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "mode": "100644",
+      "git_blob": "fee4743b48b4e1bd5e6a3eb6bab949636184ae39",
+      "sha256": "e8d4329a0a2b8cbfc55eeef8ef7118c74fe9bcf38cb5e9d39b0f3b10266db1e2",
+      "bytes": 13410,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+      "mode": "100644",
+      "git_blob": "9ba8ec6ccfc271c9f0f5a8b9dcdd2563048f95ef",
+      "sha256": "85e24970172fee1ac69533365cf868ef683a16d2d6525354d4d02938de37d6d2",
+      "bytes": 6819,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+      "mode": "100644",
+      "git_blob": "c4aa643ff9904c81a7581db92c78aa8df85ea969",
+      "sha256": "40b72e46b196bc1b954e9400b66ac66dabb3d115a00bc4dfa3bed384354cf970",
+      "bytes": 39594,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py",
+      "mode": "100644",
+      "git_blob": "452f1a8bfd124179f08abd6ee0f95f10340464ca",
+      "sha256": "b3bfc83021df1981f66803be985c12ed9b593f87bf1edbdfb5ccf393e8df6dcb",
+      "bytes": 9249,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "mode": "100644",
+      "git_blob": "4d4d16c9a0aafdcb486923018d79ed04e48ea28f",
+      "sha256": "24d249a683b7f8e105cc26fdbad61d1d606ad88bc5193de21f3c9ebef2231a7c",
+      "bytes": 62185,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "mode": "100644",
+      "git_blob": "5915d7bf29b07e2862fe7d4a4480cd1abf249b5a",
+      "sha256": "000a38a49634712b51d2f1c7890985f3257f37900f5e4c5fd7fdd9bd78d52da2",
+      "bytes": 36204,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "mode": "100644",
+      "git_blob": "89a9416946cd85218e2f373eac4a026041afd24d",
+      "sha256": "23acf05ba02886ded82a64a64021f91f807665020e05a6f0dbd91009441aea3f",
+      "bytes": 116509,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/component_identity.py",
+      "mode": "100644",
+      "git_blob": "9f6e19d0e4ef7cf2276f7e927fb9ea7244051473",
+      "sha256": "cc109992d75c8afc17066adc1442b227b324ac14f4213f93d8cedd87c535edab",
+      "bytes": 10706,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "mode": "100644",
+      "git_blob": "9eb5d1540872be5465c52144deeb48a2bc71390c",
+      "sha256": "9d0f9ce3680a905c31a879cf7c96de83f00495f2fbd1dbe2078df082d894f14e",
+      "bytes": 95366,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/finalization.py",
+      "mode": "100644",
+      "git_blob": "a1d854ea6b1fe7d89363f16fa70c52c8006c615d",
+      "sha256": "31b4a4a4d27a3711d00e9bf8acea23040c5d721c71d914da97190a486a1c1768",
+      "bytes": 2887,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/producer_currentness.py",
+      "mode": "100644",
+      "git_blob": "24a6d221b3ef507942522604239cc9b282f33470",
+      "sha256": "d2ab6854798016c170fe12f6cc294cdabfcf0494bbd443c5aaf2f0361d61a740",
+      "bytes": 19236,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "mode": "100644",
+      "git_blob": "152025058fb7c22fe068078c539df4b7ffb1efb7",
+      "sha256": "3cdd9a5dc9cf291b252353b5e7b256f9338c5aaf5ce67cf65126d247ef0baa7b",
+      "bytes": 134622,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+      "mode": "100644",
+      "git_blob": "4977c0e0cc515406f9624dc591a069999ab817de",
+      "sha256": "a5c9ad8ba8aaefc94eb3963e4af59aed530680dbfbaff65304dbcf3dadf51a85",
+      "bytes": 56419,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "mode": "100644",
+      "git_blob": "05fa128a5f443114e22f2a18edaea7a6967f8d2d",
+      "sha256": "e51357392846d7155978106f745d582918ecd35434b2913973e037a95414e7fc",
+      "bytes": 92690,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "mode": "100644",
+      "git_blob": "13894ad509fdb6f69cee2049741ed01b2ceac1d0",
+      "sha256": "6d23e5f18b6df06035c04ac686e5f2ee929c4c18e3732ec0483f52cb3bac24d3",
+      "bytes": 74867,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/__init__.py",
+      "mode": "100644",
+      "git_blob": "3d3f55d770c3f8d0596210d9d25447531bf4e853",
+      "sha256": "00179948c13a44b9d4f3af5c21968226a0ee4e4ab31ef04f7ef2d924254881c1",
+      "bytes": 1942,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/currentness.py",
+      "mode": "100644",
+      "git_blob": "45770d447a3156b71d3fa3dd9de2dd3229dafff3",
+      "sha256": "ba7a43b76ea3cad041fd6a6b2db88bf45fda995efb5d5ec7f49b359bb7681d41",
+      "bytes": 4375,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/phase0/test_run_owner_event_emission.py",
+      "mode": "100644",
+      "git_blob": "3a2532e3140faf62140d19c00f60789ed0e1af72",
+      "sha256": "bad85b7983ed0b0d5d19181f925d116e7eb1120cd7936300267c733ea1264f69",
+      "bytes": 1246,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "mode": "100644",
+      "git_blob": "c72011aa2ffd039ead1075ba9d092bb8fff719cb",
+      "sha256": "7c7c57dd8e0e6c31f99ede9c4732319b685000e3b78f2dbf5bbc21b860c985a3",
+      "bytes": 32536,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_report_currentness.py",
+      "mode": "100644",
+      "git_blob": "8fd6bdee9c8fe385a2396029016af5c498072b37",
+      "sha256": "eac8fcb53efcfdd5ee95f699741cf54d022fe5c20fbaae530a79ccbc55f37657",
+      "bytes": 37387,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "mode": "100644",
+      "git_blob": "5bdc67068e59114c7cff5498286e5ca8e6f475c5",
+      "sha256": "0b075b3dff041e82024bec869c0fae825fc1d92c177b5103da30ee181b1e04fd",
+      "bytes": 23224,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "mode": "100644",
+      "git_blob": "ff0d509f705591ca6f5a9e6113a1969d04841eb8",
+      "sha256": "ae7921fc87ef4b2b287af2de9eb7262b3701657948083c2e404c72fd34d09a35",
+      "bytes": 57056,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "mode": "100644",
+      "git_blob": "ff7175648e1867c5cf85258133f6faee7d1c76ca",
+      "sha256": "e761ac8c7ee343a63afb9ef834ae01af8bd7ca8485ad68637b4225ccb83ba77e",
+      "bytes": 104993,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "mode": "100644",
+      "git_blob": "ca7044cc270e37558dfe77f7f941b8ecea39a21c",
+      "sha256": "926c16e7a7704de5bccba783ce3a01f98083a41c7b4ae14f408637c11715770c",
+      "bytes": 38794,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+      "mode": "100644",
+      "git_blob": "00a829f5d6733bf3a55d11edf5fd7a400796a254",
+      "sha256": "9747b96956eed6d47de09a465a3ec7aa6ac2dc134c15f1dd04d0e5c85c429c1d",
+      "bytes": 5278,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_build_verified_policy_report.py",
+      "mode": "100644",
+      "git_blob": "5a76f0a3a06db689d5e0332347aac3a8b29c036f",
+      "sha256": "671c17d8b2c48558aac4df439053b2421836b73ca6e741da73c06c4245bdfc59",
+      "bytes": 14571,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py",
+      "mode": "100644",
+      "git_blob": "a359e0ea212c18cd5f3865997d36ae25517c0ec9",
+      "sha256": "4aa458eed84466164766a3fe591d978278c14f2c2e2baa88ac3b552c97796572",
+      "bytes": 17153,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+      "mode": "100644",
+      "git_blob": "700f63323cd25b1f51bed224e84fc7b6874da965",
+      "sha256": "52d318d5eb24a847797ac033b863a4686f3e59fb4c0bd96f2fbdc94c171cef8a",
+      "bytes": 10817,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+      "mode": "100644",
+      "git_blob": "fc233fe797148a0a278442bf32cb026a3beb5f61",
+      "sha256": "85fbba3b6858b870f3aab6b94a4a299c5b59c0bc66526ead73c2097ce69a2f0d",
+      "bytes": 7272,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_translation.py",
+      "mode": "100644",
+      "git_blob": "a785bd0963fb56f3b63bb6421d3cba87aa751349",
+      "sha256": "890013dcbb62d9401a573bda5492f01604130943945bdbfea85df9016c2d2212",
+      "bytes": 15058,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+      "mode": "100644",
+      "git_blob": "71234a40a07acf07a7d22119410a8e4ba9e7e134",
+      "sha256": "38b97edda2fdb557cd15fe48eb35085695fc67d62f093e975b7dbbe9650d09b0",
+      "bytes": 35663,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+      "mode": "100644",
+      "git_blob": "eae90d14de11aa09ba640ca7826459ae4e8e3466",
+      "sha256": "0ce674f147f7867b524ebec7181b95818589f80bffe70caf2f53074c1acb318a",
+      "bytes": 117297,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "mode": "100644",
+      "git_blob": "21331ac10371b201f40d2c3b41659c3766002d6f",
+      "sha256": "61f75e16ab775018146e6571c9249364898b634c4f7916ef8040f07864b45a62",
+      "bytes": 44430,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "mode": "100644",
+      "git_blob": "a38e787c2586f0e33121f8e68eb487c4c1e2b14e",
+      "sha256": "be4a874b50cbce4774a9929823516a0f2c885a83c309800f4b82ecb1c1181b22",
+      "bytes": 107707,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_facade_exports.py",
+      "mode": "100644",
+      "git_blob": "7c1129e6c49d9e4051c15e84130f0128513c88db",
+      "sha256": "a61ebf48370ad4bdd91688d9860c973a4fa2a81608c94a672a3086613131ce23",
+      "bytes": 295,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py",
+      "mode": "100644",
+      "git_blob": "1230e012726a63037195a655c2cd7f290e67507e",
+      "sha256": "24d62417343861b2878b1e5a88cd6ac73a7a66894cbc11cf197567debd2df6be",
+      "bytes": 11540,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "mode": "100644",
+      "git_blob": "76ba67f4b84c2dde6e55655a4bfb21cdd144caf2",
+      "sha256": "65e56083c4d77e04eddcb24aae34457d5822c25db98108a34a3ad95718df2b21",
+      "bytes": 46107,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+      "mode": "100644",
+      "git_blob": "18d0e3a4ea068be23b27df94ba422a215f45bb42",
+      "sha256": "2722c7845e7f96e4c00a7008b2c83c55f6726e330be63da845edaee58c960b82",
+      "bytes": 11227,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+      "mode": "100644",
+      "git_blob": "6ba37b597747e4af26e43e3cf657225449810420",
+      "sha256": "160cf74af81f418fe6cf4248302740c196d144e089ca6f5adf41d1793a9e436f",
+      "bytes": 32142,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_score_admission_finalization.py",
+      "mode": "100644",
+      "git_blob": "da8dbc886222a7663297704dd6fb82c92bfec8c0",
+      "sha256": "caba4b7180c3fbd178a1958a8260729dd882bbae8314efe394b47997f992fa67",
+      "bytes": 5519,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py",
+      "mode": "100644",
+      "git_blob": "f0ccb55f76fa7016d481dce8371fa4785a362970",
+      "sha256": "bb20a635ee6bc343d83f947defcc65f6cff0096c273438a5d19484aaf2dc9443",
+      "bytes": 4057,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "mode": "100644",
+      "git_blob": "41c86ef05b69315e874a8e5748c782481d4b63ff",
+      "sha256": "34ac10d5b073dd5d2a1e78e510c39230b1e7c2678744c2f2f29d0922f822b13c",
+      "bytes": 43009,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_objective_availability.py",
+      "mode": "100644",
+      "git_blob": "4b3bbf1e23d8b8e6a4d9ceb7a1654f0a1a5c4099",
+      "sha256": "b6ef1cb039b1b3c939b2b772529b16275a7f5ff988402198b6afb1becb85f1e3",
+      "bytes": 53103,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_portfolio_search.py",
+      "mode": "100644",
+      "git_blob": "b31d18d1353a125b7f8f08e6519849d85c878dbb",
+      "sha256": "d616c168a6af2c0188e2dc32cf26b1924449bed004c19265fc30d23d9ff7f9be",
+      "bytes": 7758,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "mode": "100644",
+      "git_blob": "9f595575ea54d2b2cd22802363c100eac0aecce3",
+      "sha256": "25c23f7f8b9113be226e19c85798521d781aa38ceed5d7e0784b1831393a7b02",
+      "bytes": 100554,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r14-second-original-owned-capture-adoption-20261020-r6/actual-run/attempt-002/implementation-readback.json",
+    "sha256": "c7e5f381a6fa67c9a876c3dcd238540b7b072d65bf0ed25370f5cf730909de3f",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "Composed typed objective/source/status flow across producer, runtime vectors, funnel, persistence, and consumers; individual whole-property qualification remains pending.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "848119384c95bc6527deaeb549bf669c01c80617",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/request.json",
+        "sha256": "0cfd351c6876306ff5aaa3f5ed678b55d0af6a344441114e3ecf83e2782d1754",
+        "availability": "retained_local_ignored_raw"
+      },
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/result.json",
+        "sha256": "bef0d96eb5ff21c88f97fdd390b9a6a4e6a3a741e33e40dec04deef91c22d0c2",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.stdout.txt",
+        "sha256": "7bd7fb95562d003bcc2af3ccc9626a09056ef0022fa7798f86dc1f2112df6a74",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.xml",
+        "sha256": "26bdf988d7d4c76bde1a5bce9cea2bafb0362075debc1ade8dd01bb070ed2caf",
+        "availability": "retained_local_ignored_raw"
+      },
+      "source_unchanged": true,
+      "actual_collection": 196,
+      "actual_completed_calls": 196,
+      "result_counts": {
+        "errors": 0,
+        "failures": 12,
+        "passed": 184,
+        "skipped": 0,
+        "tests": 196
+      },
+      "interpretation": "196actualcalls184P12F0E0S; not a whole capability pass"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

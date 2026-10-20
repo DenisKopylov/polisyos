@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "docs-chronology",
+  "slice_base": "daad3753f1db6d321cb465c62af7dcfe03dfd265",
+  "candidate": "94ade67af14d8a5e4f2548c41b2a2afa6e4e374f",
+  "tree": "0df5442b016bdbea381275960aba3bf8578fc7cc",
+  "parents": [
+    "daad3753f1db6d321cb465c62af7dcfe03dfd265"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/reference/api/n6-cycle-history.md",
+      "mode": "100644",
+      "git_blob": "b4624c6dba09049c516b679071bf6a768efb6665",
+      "sha256": "a9256842e9ed1faafc58c5dffaad14dcdb83f3272ac712972fe3da1e38e1d560",
+      "bytes": 2150,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/reference/api/nl-profiled-run-inputs.md",
+      "mode": "100644",
+      "git_blob": "07814aa1984d4121090068cdb6b421da97aedcb0",
+      "sha256": "825a9c7e3dbbfa9be54c56dc857f868f18986bc3fb464680d0520789506b8efe",
+      "bytes": 3127,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/reference/contributor-start-here.md",
+      "mode": "100644",
+      "git_blob": "ae67cd42cdc60511fb2315504e3b4e222464c7cf",
+      "sha256": "5b0af6ee6338163b8b682188a6566daf3b8bda91b2a322065c32b5f3045115af",
+      "bytes": 12020,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "96341ec391699a7ba5196fbaab3400258b286f37",
+      "sha256": "2b4d33bebe2b08f7cd6700c2e2f0bde94316c3149425895539dfbd5f0e6d5e0a",
+      "bytes": 2867914,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "232c25c28208d7e2763682fee22dd174f234b15d",
+      "sha256": "6a331559a26db5589664f4d93b815f9c8d3247443b409e1784979e0fc785426a",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/chronology-denominator-scoped-public-surface-review-20261020.md",
+      "mode": "100644",
+      "git_blob": "46f151832cf56a6596b5205669dd05b75fdeed6b",
+      "sha256": "a21650cc57b91c4455f4e999a97f06bb28a0048ef5cf68bf7b2b2f9f1ce4ab20",
+      "bytes": 3777,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-chronology-failure-ref.toml",
+      "mode": "100644",
+      "git_blob": "2c4afcd0eff0b29e644c8607c155263896ee5e2d",
+      "sha256": "0a79d0924c0f0cf62a3fbc067929b1cae0af5c08a1d510ed60d921b948831902",
+      "bytes": 2719,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/chronology.py",
+      "mode": "100644",
+      "git_blob": "eb18e6e7df7c68c1543478c1dc6e75f6d04ffcfe",
+      "sha256": "4d478a30bdd04809b94f4d199ab7b1012a9ad97b1aa3e2359a812f4e9922cff2",
+      "bytes": 130993,
+      "role": "code"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-docs-chronology-failure-ref-20261020-r1/implementation-readback.json",
+    "sha256": "97c2571c6623319157d6176ebf9025d0c33cf2f0796de7ec56419ed6cb400add",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "Document/resource ownership and chronology failed-write locator projection; failure locator does not prove a persisted artifact.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "848119384c95bc6527deaeb549bf669c01c80617",
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-docs-accuracy-7e349c782b-attempt2-20261020/actual/result.json",
+        "sha256": "4d66bf6b2474f0297137bf02bda95d43b931eeadebf5249e669e36f08867cf71",
+        "availability": "retained_local_ignored_raw"
+      },
+      "late_log_hash_corrigendum": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native13-docs-accuracy-7e349c782b-attempt2-20261020/actual/output-hash-corrigendum-r1.json",
+        "sha256": "aaebd8c1308cd7c2f550f2b90acc2f1e016698c6d6ef72d86b2ac2feb8f10a02",
+        "availability": "retained_local_ignored_raw"
+      },
+      "interpretation": "one registered native docs-accuracy row PASS only; fullNative13 and strictdocsbuild remain unrun"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-docs-chronology-failure-ref-20261020-r1/source-application.json",
+    "sha256": "9b717e34ce0723ee1f44640fb4735595f53aae85da899b0f7e6823792df7558f",
+    "availability": "retained_local_ignored_raw"
+  }
+}

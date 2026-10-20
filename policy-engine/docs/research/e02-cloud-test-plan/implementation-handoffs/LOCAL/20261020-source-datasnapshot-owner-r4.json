@@ -1,0 +1,382 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "datasnapshot-owner-r4",
+  "slice_base": "94ade67af14d8a5e4f2548c41b2a2afa6e4e374f",
+  "candidate": "d38d25e402f8c7ce610a562c11d2451aadb79e37",
+  "tree": "ce968a8d5181bb74e9c5b1631359f7f4c91a7fcc",
+  "parents": [
+    "94ade67af14d8a5e4f2548c41b2a2afa6e4e374f"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "7f628a4db15bde69cfca439b79fec683725b40d8",
+      "sha256": "a15af544c2a18093c4a9bba9186e1d29cfe90f0cd2354701bb22a28032cd0562",
+      "bytes": 2906797,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "1c85d9daf7b464c4bae975ad5375f3fc3e78ef2a",
+      "sha256": "636147516be84ea3b6491e085d8401b2e67dad777244ec0505bafbaa12dace85",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-data-snapshot-owner-lineage.toml",
+      "mode": "100644",
+      "git_blob": "0c276720595cf8ac5ffa4589e9b9fa54d9ca2dcb",
+      "sha256": "c2857c7817c6073eb9457d380611e307209d01348b1aed84c079c1ea330f551c",
+      "bytes": 4273,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "mode": "100644",
+      "git_blob": "c6fa570614d13e34f373b8b198ec2129c4ed7a62",
+      "sha256": "c431e76b96cd3544f312091793cd1eb09af7c27bdf4d8d446c058bce803d6c52",
+      "bytes": 40086,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/README.md",
+      "mode": "100644",
+      "git_blob": "7f8ed42f0d1f81c6a528d94c6fda31e40895af59",
+      "sha256": "a00ccccfe3b940ba83c3c7a9af5b4ed8e8bcecbeaf314d536afa6b818e6646e4",
+      "bytes": 14870,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "mode": "100644",
+      "git_blob": "ae79f8fd10ddaa55350e2231db55a460130ad116",
+      "sha256": "a62e963fe857bf8a9c14d3d5059141114676010e41cb8fc0877046eeebe73a83",
+      "bytes": 71226,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+      "mode": "100644",
+      "git_blob": "2fc206174c56b0233dbc9befed7b46021220c118",
+      "sha256": "70de5428a5223e67d4b790935a7c1078b6d0e6817895a26c0d3591a4060427a9",
+      "bytes": 70376,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "mode": "100644",
+      "git_blob": "55dda55e50a1b3de8c7c73a9452ed74e6a416e5e",
+      "sha256": "ff4467e1105c280704c5efd96f7d075ef7ca14a8fb1116349004bc6460fff305",
+      "bytes": 18345,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "mode": "100644",
+      "git_blob": "a3adb4101c65148b1fc2b1ac9a72cdea4819bcf2",
+      "sha256": "a43952d104d1b1e85de6018db940e3e1f4bf126dcc9b7cdb68dbc23e922a0638",
+      "bytes": 15058,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "mode": "100644",
+      "git_blob": "a130199ebb01b09832fd44845655c832dd6406a6",
+      "sha256": "c680a1e00e47309ed1f10af703517dc5d3a4b3aa8d839d7fb027d63ea7273c45",
+      "bytes": 65544,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "mode": "100644",
+      "git_blob": "1ca7015233e634e085f378e7de3da813f7ef14b8",
+      "sha256": "68b308bae2d9a83e98153cce5fea25a9fc12f6b1436a7198f445e192e1554c78",
+      "bytes": 265763,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+      "mode": "100644",
+      "git_blob": "73fcaca023b6ad800729f25ed14627fd04bd6586",
+      "sha256": "7eb431bdea25900640d58f791ba75316f858bcf3a602beab6dab7dead8c8ae83",
+      "bytes": 68164,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "mode": "100644",
+      "git_blob": "b57c1ee28be93a9708ff838bfcdf97f23e30ad6a",
+      "sha256": "9400382f5338cde67857ee954ebf507e24d3cf42bbd180eef88f98a16d98fca9",
+      "bytes": 168870,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "mode": "100644",
+      "git_blob": "83819b350a30dd4fcc392d22661c17313d7ac3ce",
+      "sha256": "b4be747e4d44cf89b2b12c26a9003da01d9673a4d54c4a70dbc083392404a8cc",
+      "bytes": 95112,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "mode": "100644",
+      "git_blob": "cf9305e68c064115ac663370d5117c3fdf5217c2",
+      "sha256": "ed49b9d437d2b910c39b4244bb77498857129a60a40ea993af682052828e3563",
+      "bytes": 83736,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "mode": "100644",
+      "git_blob": "a9332caa0dcc455b902435059b5e48831ce8f907",
+      "sha256": "37c89c5d2396f9e6edb669dfe2f76a12a89d7c5ed02fd4caf8870370ed32cbcf",
+      "bytes": 180065,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_snapshot_lineage.py",
+      "mode": "100644",
+      "git_blob": "05cec24dca7632b9ae80ce7c3a201ca902807a6c",
+      "sha256": "0ac343a2d194715975b78539076071ca5ab967580f3a1ade05771c239cd68c43",
+      "bytes": 25486,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "mode": "100644",
+      "git_blob": "60f3a709dd08aacd1d19d1b95790d1c127e09e06",
+      "sha256": "56aa52f23e68f6ead9230e95b7d1b4e4ce81a58998f622db0f0acb60f6647157",
+      "bytes": 100433,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "mode": "100644",
+      "git_blob": "b1096e78106079a797f9953a52cbab275631005c",
+      "sha256": "59d2a61cf14d7e0e6eaf36a0b3617af68159714bce39be1fea31ed41c6b960f6",
+      "bytes": 931584,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "mode": "100644",
+      "git_blob": "db3d8b6b10812574debc95ee8f7192bc78b0ec98",
+      "sha256": "37e45f3e22695761935e109acbff12f379dc5a397ac020e48095270712e28f04",
+      "bytes": 234155,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+      "mode": "100644",
+      "git_blob": "42a099986b202cd75f2f4b2acd9de93da45dd49c",
+      "sha256": "18c0266401e65c8ab7c3ec7380c6da20bcc4101bbe3e8a2ab644659ef92be819",
+      "bytes": 85073,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "mode": "100644",
+      "git_blob": "76cae4c8b02bc31540c8fec43ea912f189879a6a",
+      "sha256": "1012298d2158696ea1f6156755b29ee5a6eb53f68b584086091da95b0ce658e1",
+      "bytes": 63680,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/adapters/fabric_bridge.py",
+      "mode": "100644",
+      "git_blob": "c2b69b2bf5a7cc52dc23a243244f0e0fefaed779",
+      "sha256": "e5c22f08cbc234dcb9f8d4d6bbde1ce2df7ffcd206cd28b498876365edca716d",
+      "bytes": 19801,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "mode": "100644",
+      "git_blob": "e739852b9ed6fca5f48956be92507f79e0632200",
+      "sha256": "8343a6cee1118f2228adba0888b4a4dc9298de4bca2acc02451b7051a0a1046a",
+      "bytes": 95932,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/world_model_record.py",
+      "mode": "100644",
+      "git_blob": "7fab478fb7f85d61c89733095831f924c1bbda38",
+      "sha256": "6b2e65d25a10e158842c13397ca5403fc85c35dc38574e8cf9dcc263a3f5ec96",
+      "bytes": 13528,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "mode": "100644",
+      "git_blob": "4c30d815ccc7555e24fab95cffcb8b8d0891812b",
+      "sha256": "dd0ebd59d9be51880e501217633264f1ba7723ed0c607a11a13baa0812d4a107",
+      "bytes": 83189,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "mode": "100644",
+      "git_blob": "b56e3026f356f12092ec5322c3addf5be1930d6f",
+      "sha256": "7ec8c01426d258f986f14f3601a50b0db8a2c1a777cf063545e77b9390d49a7a",
+      "bytes": 47384,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+      "mode": "100644",
+      "git_blob": "1fa67b290a0d82ffeb13411d7c56dd1c055d701e",
+      "sha256": "5276deba33c960c682f4995a02a9a5ba7c8cb3745ac72ab59e31b00d26269258",
+      "bytes": 123732,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "mode": "100644",
+      "git_blob": "758fda0f07abade0b874c6d51123628cdc5b3e9a",
+      "sha256": "7e0c97267ce987205d7150f77c09203bd6afade4de433e57a076e75296a4a039",
+      "bytes": 281837,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+      "mode": "100644",
+      "git_blob": "2831c7660206a7d2629797f31c9d70aa6bffca33",
+      "sha256": "c5ded1097533b02d031ccf66282397170daca6126dff0bf58988ab70483ede00",
+      "bytes": 324175,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "mode": "100644",
+      "git_blob": "0192b4a45a111beab5eb50dd9dfb73f86ba9e978",
+      "sha256": "d552288a94fbca401ef6740f6aff5e27e0e8a81c2be4ec81ed5c6164adc6898c",
+      "bytes": 110179,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_chronology_bridge.py",
+      "mode": "100644",
+      "git_blob": "17f367275996b38fd54b1d65b21e367bf8570a6e",
+      "sha256": "b90b88bf3a937364431652cc0c2d44b7a0554e88edfd8bb08d23ef2e5331b2a8",
+      "bytes": 18806,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_world_model_record.py",
+      "mode": "100644",
+      "git_blob": "05cc1506e32c79818ebcee069b44b01651ea589c",
+      "sha256": "90ad8cf06f1b997ef823527f02d4c87008d6d4b7055eb756dbb077b8fd1633be",
+      "bytes": 68207,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/adapters/test_fabric_bridge.py",
+      "mode": "100644",
+      "git_blob": "2f9136965b936e7696c439f9fd1ffb4ccd5c7d94",
+      "sha256": "ca61603fbf046bd5197dc64f431bf5404bc6d00ea28bb5e013c897255b854b28",
+      "bytes": 15832,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-owner-family-r4-known-owned-finish-20261020-r2/implementation-readback.json",
+    "sha256": "d39e92f74e89fcc2a0c187264a3ef80c51ba002d3bfd0026e348f069090e45e8",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "Typed owner-family DataSnapshot contracts, producer and reader joins; missing nested selected-profile continuity is a known open counterexample.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "b97fb9b7284629d388306bd860df6412898fa5ee",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/request.json",
+        "sha256": "3a584b9b9ed124deaa0065f677ea7a4a13ae085cc44575e0e7f916a7bcee15fc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/result.json",
+        "sha256": "e926f1ec883d3a266d8d80db6c141ff8de54f9e54efaf65c92f532e82c55a488",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/pytest.stdout.txt",
+        "sha256": "ad5f5cde29e47f36327043f48dc45eeec2e0b77dec5d24c919930b4b0e88aa01",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-optional-contract-r5a-postfix-20261020-r1/actual/pytest.xml",
+        "sha256": "4870095a22b386e7611bf9dad838a8dd3b2038a905df393a7c3c19db4460485a",
+        "availability": "retained_local_ignored_raw"
+      },
+      "source_unchanged": true,
+      "actual_collection": 15,
+      "actual_completed_calls": 15,
+      "result_counts": {
+        "errors": 0,
+        "failures": 1,
+        "passed": 14,
+        "skipped": 0,
+        "tests": 15
+      },
+      "interpretation": "15actualcalls14typedcontractP1profile-removalcounterexampleF0E0S; realproducerpositive reached"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-datasnapshot-owner-family-r4-known-owned-finish-20261020-r2/source-application.json",
+    "sha256": "8626a76d29f55f5a11d38b8e982c391a7810aebcffef4acfbca8ab75039aa32a",
+    "availability": "retained_local_ignored_raw"
+  }
+}

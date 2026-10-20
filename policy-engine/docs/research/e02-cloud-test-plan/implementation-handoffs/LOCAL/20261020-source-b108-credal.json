@@ -1,0 +1,214 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "b108-credal",
+  "slice_base": "d38d25e402f8c7ce610a562c11d2451aadb79e37",
+  "candidate": "7e349c782b03bcae729cc31796c2d0ff30635ce7",
+  "tree": "3927d5a4723b63626b60a61fdfad715fae1a4831",
+  "parents": [
+    "d38d25e402f8c7ce610a562c11d2451aadb79e37"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "0240d09f152967bb3e1ca4bb1eec186e9daaf6d3",
+      "sha256": "8a899b34efb8172e49d56cae834788f766df8e130725f8ce5bdfa742cf7b9c27",
+      "bytes": 2924765,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "97b77d3d7aa25fec92ac87202006ee58437ee6d2",
+      "sha256": "7579e43fa2979df7700525820ecf6061c8216beea486ac7d07eea45c67554560",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-credal-reference-capture.toml",
+      "mode": "100644",
+      "git_blob": "8ac0af6b5a4fd37345ca4efc13046b05465d0a52",
+      "sha256": "5c30835fe560c302557a650611e76b5ecb731f26d3004761cc5d43126c93b0ed",
+      "bytes": 1000,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "mode": "100644",
+      "git_blob": "4bccbfa320b8fc7758e044e6565484228b95ccfe",
+      "sha256": "11defcecd33ac23ca267406455507e47b37dc7417631dbaac1e2571983b8f9ed",
+      "bytes": 135988,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "mode": "100644",
+      "git_blob": "45d6297a7341d3919e2218196e78400f6265e998",
+      "sha256": "e7c624d83d1d0b3ac85c34ab9f1a8ff3d973f46d6aad34d88065a65c1d450092",
+      "bytes": 76692,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "mode": "100644",
+      "git_blob": "99cf74a4dea0a13e514e1b08d16e317ba675f3e8",
+      "sha256": "88d2b20e45b4a530cd3853f80b29e11f342d0fc9e64c2865d766c1df23fe5491",
+      "bytes": 93055,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+      "mode": "100644",
+      "git_blob": "6327763c511a560e3f7fd1c602aa5d375ab9614b",
+      "sha256": "b6b2e2ac638b557eacfe7d0b1c1df7877b34c3ca69ba453007974dc74f0850ee",
+      "bytes": 34866,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+      "mode": "100644",
+      "git_blob": "7884d835ccd0733cf5c838d8d09f01fe1c6e920d",
+      "sha256": "9f71ce283915d976125f1626035f46f4aab7eb8da632776ab54f8d7e802e27f8",
+      "bytes": 20598,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+      "mode": "100644",
+      "git_blob": "d54f2136492e31021b71e3b2a17fe4cd93f47f43",
+      "sha256": "19cfb1c734d9600c9da83d35c275fa5bb7626628b0d7554bc1a886f141f3a596",
+      "bytes": 31576,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "mode": "100644",
+      "git_blob": "f1048beb5a921bfcbc98d9bfb9738cc889e3bdc6",
+      "sha256": "75a7f51481afa64e59948b2c1787d2780c2fe235356d41899cc3ececefab4745",
+      "bytes": 40385,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "mode": "100644",
+      "git_blob": "b3128b1a21d56737adde098ffe867f49ccd9baa0",
+      "sha256": "be4124f3cd2a22616f4ed3efb5f767e2e96e1ded0004ea4f83dd5e91485a18dd",
+      "bytes": 136920,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference_capture_cost.py",
+      "mode": "100644",
+      "git_blob": "59e0b9bc2ec8a1a51e7c0c181bde7df14439fed5",
+      "sha256": "0f3f8800dcab2ee71117dfad370d8b259a70a0d784e5f2d588106e381ea87923",
+      "bytes": 15942,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+      "mode": "100644",
+      "git_blob": "bc8f09aad94eadc994ccb73389d0778b165a41ba",
+      "sha256": "9fd9368300940e3f6583b42867b311b4c169fa9990b09e416eb1739d7783aca3",
+      "bytes": 26400,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-credal-composition-20261020-r2/implementation-readback.json",
+    "sha256": "cb87d3679fb27770e82d4e5e2cc1efb055963df5f01d8ac50fa422c4b63631dc",
+    "availability": "retained_local_ignored_raw"
+  },
+  "property": "Retain physical fiscal source aliases without invented units; shared Credal provenance capture preserves wire/hash and invocation semantics; actual served memory/consumer completion remains pending.",
+  "source_vs_runtime_boundary": "Committed source and exact branch blob readback only. Evidence below retains its own actual source frame; a descendant or earlier run is never renamed to this implementation candidate.",
+  "selected_input_profile_backend": {
+    "source": "exact Git candidate/parent/tree and full footprint above",
+    "runtime_inputs": "controlled test fixtures only where an exact replay request is cited",
+    "environment": "own existing local locked environment; runtime environment/selection/options are those pinned in each exact request",
+    "authority": "no live production currentness, calibration, issuer, law, permission, or external custody attested"
+  },
+  "real_chain": {
+    "source_wiring": "See full changed source/tests and pinned source-application/readback rather than constructor/marker-only acceptance.",
+    "runtime_qualification": "not established for entire slice/capability",
+    "consumer_and_surface": "individual producer/artifact/bridge/consumer/API/GET/installed/browser paths must be joined by their source-bound receipts before any whole-property proposal"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "848119384c95bc6527deaeb549bf669c01c80617",
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/request.json",
+        "sha256": "0cfd351c6876306ff5aaa3f5ed678b55d0af6a344441114e3ecf83e2782d1754",
+        "availability": "retained_local_ignored_raw"
+      },
+      "deciding_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/result.json",
+        "sha256": "bef0d96eb5ff21c88f97fdd390b9a6a4e6a3a741e33e40dec04deef91c22d0c2",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.stdout.txt",
+        "sha256": "7bd7fb95562d003bcc2af3ccc9626a09056ef0022fa7798f86dc1f2112df6a74",
+        "availability": "retained_local_ignored_raw"
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "availability": "retained_local_ignored_raw"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-credal-nine-whole-composed-848119-20261020-r1/actual/pytest.xml",
+        "sha256": "26bdf988d7d4c76bde1a5bce9cea2bafb0362075debc1ade8dd01bb070ed2caf",
+        "availability": "retained_local_ignored_raw"
+      },
+      "source_unchanged": true,
+      "actual_collection": 196,
+      "actual_completed_calls": 196,
+      "result_counts": {
+        "errors": 0,
+        "failures": 12,
+        "passed": 184,
+        "skipped": 0,
+        "tests": 196
+      },
+      "interpretation": "196actualcalls184P12F0E0S; not a whole capability pass"
+    }
+  ],
+  "adversarial_removal_controls": {
+    "status": "UNRUN or incomplete on this exact implementation candidate",
+    "next_check": "Replay actual full-property removal controls retaining declarations/markers and removing runtime property; see individual test source and final composed verification queue."
+  },
+  "limitations": [
+    "No independent G code acceptance, integration publication or formal finding adjudication.",
+    "Original198authorclosed proposals are not new closures; all282IDs/291occurrences remain individually evaluated through canonical ledger.",
+    "Nested DataSnapshot profile continuity, stress source/outcome admission, required native gates, source-derived generated consumers, browser, installed wheel/rebuilt-sdist/Linux and authentic closeout still require their exact deciding evidence."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "existing decision procedure; no decision fabricated"
+    }
+  ],
+  "proposals": {
+    "status": "implementation_delivered_individual_criterion_evaluation_pending",
+    "individual_denominator": {
+      "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/finding-proposals.json",
+      "sha256": "1bd47384a114951b89305ec48892593ae061933d9d0b2fa884e63a47b3b97908",
+      "finding_ids": 282,
+      "occurrences": 291
+    },
+    "proposed_closed_ids": [],
+    "next_check": "Bind each ID and occurrence whole criterion/dependencies to exact composed code/input/backend/consumer evidence and retained failures; G adjudicates."
+  },
+  "G_accepted_checkpoint": {
+    "commit": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "meaning": "historical published G checkpoint; none of these own source commits inherit formal G acceptance"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b108-credal-composition-20261020-r2/source-application.json",
+    "sha256": "e8ea75d0e0ab33f31cb3c9cc32e452295c1d4a746bc5752ca85fe137df38e0ec",
+    "availability": "retained_local_ignored_raw"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "G_acceptance": false,
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate": "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e",
+  "closure_ids": [],
+  "footprint_count": 3,
+  "formal_status": "source receipt only; no G adjudication or closure claim",
+  "frame_kind": "source_leaf",
+  "full_no_renames_commit_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "postimage": {
+        "bytes": 1887560,
+        "git_blob_oid": "39bb656ba85d0da398237b5e9504c8bf6de87ea9",
+        "sha256": "69cd23472d5ccc86aac24309eff9bed0fd4c9c7010f31134d87cdfe7706e1564"
+      },
+      "preimage": {
+        "bytes": 1880236,
+        "git_blob_oid": "01ef0511039698b7964baeb9964338700da5aeee",
+        "sha256": "a8b195c6584a334441666cf9f7401b515422e19bca0bc4fcdcc119b7eed3fd72"
+      },
+      "status": "M"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "postimage": {
+        "bytes": 187705,
+        "git_blob_oid": "0cbb72fd249505ef84092f124891c2f016150b10",
+        "sha256": "e308424d4495ddf2a228b226bf686a4095b98973f1b41145dc29865aa3287abd"
+      },
+      "preimage": {
+        "bytes": 187705,
+        "git_blob_oid": "2c16f448444ccdbb3bf15882e87c9c3802947652",
+        "sha256": "24455ea7c7c06e040be442ffa698ce082ca7adf28ea5e23c6c435fece7a694de"
+      },
+      "status": "M"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "postimage": {
+        "bytes": 82088,
+        "git_blob_oid": "8e49f663969f3e4c462c2ceb4f6106432a77318b",
+        "sha256": "a825eab9c626e11232526af2f1eee7d76a2615522a9e9bb0731256cb72bc1f9f"
+      },
+      "preimage": {
+        "bytes": 81610,
+        "git_blob_oid": "2401896b346fffae5c8d9f3606e35da42b03c959",
+        "sha256": "2afd256ac12fe78b08e50930f1a4fc3b3a688ce1ad851fff47d8abfceaa521d4"
+      },
+      "status": "M"
+    }
+  ],
+  "integration_publication": false,
+  "parents": [
+    "026b799e8786b571c086aca9d3c40ed44f9fdc24"
+  ],
+  "preserved_other_owned_hashes_unchanged": true,
+  "preserved_other_owned_rows": {
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+  },
+  "purpose": "B61 owner-bound prepared-read cache fixture companion; bounded test witness, not complete B61 capability or authority.",
+  "readback": {
+    "bytes": 3352,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-owner-fixture-adoption-20261020/implementation-readback-preservation-r2.json",
+    "sha256": "753c0f89f6abea70858b5d19eec55ea96098682769e22530b67493a370821677"
+  },
+  "required_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+  ],
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "slice_base": "026b799e8786b571c086aca9d3c40ed44f9fdc24",
+  "source_freeze": false,
+  "source_test_paths": [
+    "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+  ],
+  "subject": "test(e02): bind prepared-read timeout fixture to its persisted owner",
+  "tracked_status_at_adoption": [
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "tree": "48761f21c684356892189a78cd8903a1aed76101"
+}

@@ -1,0 +1,75 @@
+{
+  "base": "42e0cf2f00791cf77c284fd1f91f490337614224",
+  "base_tree": "11b49e1a8f76569d78273c4d78d354c684a6b79d",
+  "first_parent_commit_count": 4,
+  "frames": [
+    {
+      "changed_path_count": 44,
+      "commit": "4d8a93f506aa0568b65bf354e0111339a86a19af",
+      "kind": "receipt_only",
+      "parents": [
+        "42e0cf2f00791cf77c284fd1f91f490337614224"
+      ],
+      "readback": {
+        "bytes": 10008,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-cut-receipt-adoption-20261020/implementation-readback-preservation-r2.json",
+        "sha256": "9efbb2fabedd309840a85c0cb084e4c214124abb88db4578edff5dcfe6ce5cb1"
+      },
+      "tree": "53db068c856be237b7734da9377f910553500203"
+    },
+    {
+      "changed_path_count": 4,
+      "commit": "026b799e8786b571c086aca9d3c40ed44f9fdc24",
+      "kind": "source_leaf",
+      "parents": [
+        "4d8a93f506aa0568b65bf354e0111339a86a19af"
+      ],
+      "readback": {
+        "bytes": 3403,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-i4-c12-test-boundary-adoption-20261020/implementation-readback-preservation-r2.json",
+        "sha256": "278518eeb80bcea85fcc27f7b62bbe830247e90dbac8be9bcd12f4073d5a868f"
+      },
+      "tree": "aa143e5b9b5713b7df463852eccc8eb5286e4ada"
+    },
+    {
+      "changed_path_count": 3,
+      "commit": "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e",
+      "kind": "source_leaf",
+      "parents": [
+        "026b799e8786b571c086aca9d3c40ed44f9fdc24"
+      ],
+      "readback": {
+        "bytes": 3352,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b61-owner-fixture-adoption-20261020/implementation-readback-preservation-r2.json",
+        "sha256": "753c0f89f6abea70858b5d19eec55ea96098682769e22530b67493a370821677"
+      },
+      "tree": "48761f21c684356892189a78cd8903a1aed76101"
+    },
+    {
+      "changed_path_count": 3,
+      "commit": "3ddec75a9c9f6c9f82c69147a88dc0dbb4d3bd08",
+      "kind": "source_leaf",
+      "parents": [
+        "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e"
+      ],
+      "readback": {
+        "bytes": 3356,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b198-profile-witness-adoption-20261020/implementation-readback-preservation-r2.json",
+        "sha256": "1f63d8db03de48431bb2122a92134b2a98818a3f1c4905a20b4d8b160030b829"
+      },
+      "tree": "cf1b5a0c032c0c38eb5afd998d66038eda425293"
+    }
+  ],
+  "full_path_status_and_pre_post_hashes_in_leaf_receipts": true,
+  "head": "3ddec75a9c9f6c9f82c69147a88dc0dbb4d3bd08",
+  "head_tree": "cf1b5a0c032c0c38eb5afd998d66038eda425293",
+  "journal": {
+    "bytes": 29057,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-source-frame-journal-20261019/frames.jsonl",
+    "sha256": "1956b5943561124af8bc53f28e417e73412c95fae0b0d6ec11cb6ca37eca38be"
+  },
+  "path_occurrences": 54,
+  "tip_parent_verified": true,
+  "tracked_source_cut_scope": "This proves the exact 42e-to-3ddec committed source interval only. It does not claim whole worktree cleanliness; two tracked dirty author files and existing untracked local artifacts remain outside the committed footprint.",
+  "unique_paths": 48
+}

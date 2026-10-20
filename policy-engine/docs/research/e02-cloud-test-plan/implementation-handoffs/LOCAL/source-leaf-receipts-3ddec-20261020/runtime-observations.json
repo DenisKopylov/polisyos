@@ -1,0 +1,485 @@
+{
+  "B198_history": {
+    "R7_static_review": {
+      "artifact_refs": {
+        "candidate_patch": {
+          "bytes": 16950,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/candidate.patch",
+          "sha256": "3625358a16a19bee18a3bed39d492db3f1cbbce32caf4472e2c2f9d495e767e2"
+        },
+        "candidate_test_module": {
+          "bytes": 157446,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/candidate_test_module.py",
+          "sha256": "1667a30e24eb78996b459a9d16d87a4f59b910c60a99a020b9d8ec30a5c2a2a3"
+        },
+        "independent_review": {
+          "bytes": 7791,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/independent-review-r1.json",
+          "sha256": "d2186f62a0b24413af43f0868bb5f0b583a32358dece4d89d6991e0d63698e63"
+        },
+        "manifest": {
+          "bytes": 10103,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/manifest.json",
+          "sha256": "1820106ca3902eaa84b0de3ae5fc9679028326e1d4946f3f9f3a3d02d81de5a4"
+        },
+        "static_readback": {
+          "bytes": 4233,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/independent-static-readback.json",
+          "sha256": "68f2de2fa4b5a76820df6d3d224a8b8d06b85864aae69a23086646cf1678bf6d"
+        },
+        "static_summary": {
+          "bytes": 1350,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r7-20261020/static-validation-summary.json",
+          "sha256": "c64c3ffa372745ddf8a793c27f2e886310baed7e4568f84d95d0e7e61c003a1d"
+        }
+      },
+      "candidate_module_postimage_sha256": "1667a30e24eb78996b459a9d16d87a4f59b910c60a99a020b9d8ec30a5c2a2a3",
+      "interpretation": "R7 preserves 22 old helper calls/37 assertions and adds profile-qualified and wrong-view negatives. It remains heuristic/non-gate; no authority is inferred.",
+      "manifest_sha256": "1820106ca3902eaa84b0de3ae5fc9679028326e1d4946f3f9f3a3d02d81de5a4",
+      "patch_sha256": "3625358a16a19bee18a3bed39d492db3f1cbbce32caf4472e2c2f9d495e767e2",
+      "review_sha256": "d2186f62a0b24413af43f0868bb5f0b583a32358dece4d89d6991e0d63698e63",
+      "static_readback_sha256": "68f2de2fa4b5a76820df6d3d224a8b8d06b85864aae69a23086646cf1678bf6d",
+      "static_summary_sha256": "c64c3ffa372745ddf8a793c27f2e886310baed7e4568f84d95d0e7e61c003a1d",
+      "status": "independent static GO_TO_BOUNDED_RUNTIME; actual source runtime at adopted source was UNRUN until the separate 3ddec whole-module receipt"
+    },
+    "current_applied_source_whole_module": {
+      "failure_count": 0,
+      "module_case_count": 55,
+      "pass_count": 55,
+      "receipt_ref": {
+        "bytes": 43678,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/result.json",
+        "sha256": "831a5e9299b94b072f4569184bfba4e0aca87efdc20137987b4971fc54c6222c"
+      },
+      "skip_count": 0
+    },
+    "historical_R6": {
+      "artifact_refs": {
+        "independent_review": {
+          "bytes": 5052,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/independent-review-r1.json",
+          "sha256": "54597c392fd3e514c757edb8df3909985f65f374b388e24fc05d5425f516bcc1"
+        },
+        "patch": {
+          "bytes": 12672,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/candidate.patch",
+          "sha256": "8ccff9e82790c85f81d8ad7c531b0d4d26819a86b586c02f362008eb30938114"
+        },
+        "qualification_observation": {
+          "bytes": 14624,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/qualification-observation.json",
+          "sha256": "6f8345dfd0bf7415a21894d050b4a8fedfbd391afeba32e2a6dbadf0c49d810c"
+        },
+        "runtime_request": {
+          "bytes": 5110,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/attempt-1/runtime-request.json",
+          "sha256": "d2770bab3fd46b044f2c1f6b89f0ce2525ab35458e00b48ed13135c6da10931d"
+        },
+        "runtime_result": {
+          "bytes": 5078,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b198-display-level-and-producer-absence-r6-20261020/attempt-1/runtime-result.json",
+          "sha256": "67b1fcdfcc5e0f2a91c63cb2a043f8e5b5ba4822d79ff3d175f477c1101c6cf5"
+        }
+      },
+      "finding": "Selected-profile lineage check failed for display 0.95; profileless default view continued to choose prior 0.8 envelope. Kept as historical bounded finding.",
+      "junit_sha256": "c7c480fd14899317df1c74b98fb4fae76e198bccc32a4abec7cae4e605c31a68",
+      "oracle_sha256": "fadb88164e0e2b802b69924cb559a415fc6f7557bc559d7662f8163fe9b328a6",
+      "qualification_sha256": "6f8345dfd0bf7415a21894d050b4a8fedfbd391afeba32e2a6dbadf0c49d810c",
+      "status": "red, historical source/profile selection witness",
+      "stdout_sha256": "675e1b4b02ed6b974ee0880f391273799b8dfd481cb92d307893a90195d66f4f"
+    },
+    "remaining": "Selected-profile behavior in this bounded test is not external law/issuer/currentness evidence and does not establish B198 formal closure."
+  },
+  "B61_history": {
+    "current_applied_source_whole_module": {
+      "failure_count": 0,
+      "module_case_count": 20,
+      "pass_count": 20,
+      "receipt_ref": {
+        "bytes": 43678,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/result.json",
+        "sha256": "831a5e9299b94b072f4569184bfba4e0aca87efdc20137987b4971fc54c6222c"
+      },
+      "skip_count": 0
+    },
+    "owner_bound_direct_body_prototype": {
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-retirement-independent-b61-owner-fixture-review-20261020/review.md",
+        "sha256": "3cf8b550a08be30596baa7ec9fa62cfd09499c66b8c80dcc1ec67cd2d92c1238"
+      },
+      "interpretation": "Supports the narrowly owner-bound fixture correction. The 3ddec actual two-module replay is the applied-source whole-module receipt.",
+      "runtime_seconds": 11.708,
+      "runtime_validation_sha256": "969be0b0e89ec3efa430346ba73f28f64c1f6c6c0a23f4da1fac67b8b4fcfdbd",
+      "script_sha256": "95fa8c1ce09f49e12f526081ee7a1efb89eebafc2c849daafd971becf3f69428",
+      "status": "bounded direct-body prototype PASS; not an applied-source whole-module result",
+      "stdout_sha256": "0e4286fe3ea8d780f20a21d15f493acd351dc0b7c4308ae7868334e5c7218b07"
+    },
+    "pre_repair_full_module": {
+      "actual_pre_repair_result_ref": {
+        "bytes": 516835,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-prepared-read-cache-wholemodule-20261020/attempt-1/actual-run/result.json",
+        "sha256": "53d86cf8c48ecffac1e9327ca4f3deda964c7b93ae6c34526245a1ac5b331fa6"
+      },
+      "collected": 20,
+      "deciding_outputs": [
+        {
+          "bytes": 3920,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-prepared-read-cache-wholemodule-20261020/attempt-1/actual-run/pytest.stdout.txt",
+          "sha256": "cda285ab4b75be731dc0a76bfced560343ba234d3aa86d8ddd0707346c2fe9e2"
+        },
+        {
+          "bytes": 7368,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-prepared-read-cache-wholemodule-20261020/attempt-1/actual-run/pytest.xml",
+          "sha256": "8ca0fa792faf75307af493a6f35ddb0b0849c50e7b4c123b56e329bb6e386313"
+        }
+      ],
+      "deselected": 0,
+      "failed": 1,
+      "limitation": "The failing fixture raised owner_inputs_mismatch before the intended prepared-read optional-context refusal; this was a fixture setup issue, not evidence against the intended product guard.",
+      "module": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+      "passed": 19,
+      "reconciliation_ref": {
+        "bytes": 18284,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-prepared-read-cache-wholemodule-20261020/attempt-1/reconciliation-v2.json",
+        "sha256": "0c108f06fd97439819a2f885a60bd32f6f396b8b9f8b91af4a924e57d5e0635b"
+      },
+      "source_frame": "4d8a93f506aa0568b65bf354e0111339a86a19af"
+    }
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "historical_full_id_ledger": {
+    "B198_historical_decision": "preserved; not converted into current formal closure",
+    "denominator": {
+      "canonical_occurrences": 291,
+      "finding_ids": 282,
+      "primary_bundles": 127,
+      "selection": "findings row index modulo four; coverage by ID; all refs/spans preserved",
+      "task_routes_are_not_closures": true
+    },
+    "full_ledger_RAW_reference": {
+      "bytes": 1569135,
+      "copied": false,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unified-full-id-proposal-ledger-b770-20261019-r2/ledger.json",
+      "sha256": "1d1d313670fd737dcf1c96e39ba78534881287c782342f7b8ba1a47287f57ca7"
+    },
+    "full_ledger_pointer": {
+      "bytes": 4228,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source-cut-reconciliation-20261020/historical-full-id-ledger-pointer.json",
+      "sha256": "e0a783afc05cd2f611084d5416345e5f1cdd47104df7cfb8ec2ea94d7303ae71"
+    },
+    "historical_author_proposed_closed": {
+      "finding_ids": 198,
+      "formal_G_closure": false,
+      "occurrences": 202
+    },
+    "historical_closure_occurrences_in_candidate_index": 9,
+    "historical_ledger_status": {
+      "G_acceptance": false,
+      "closure_now_by_id": {
+        "not_adjudicated": 282
+      },
+      "formal_G_closure_ids": [],
+      "note": "All four shard inputs and the four E addenda are static review records. Any prior bounded/partial outputs remain scoped as history; no generic PASS-to-ID closure mapping was applied.",
+      "runtime_results": {
+        "UNRUN": 291
+      }
+    },
+    "historical_other": {
+      "finding_ids": 84,
+      "occurrences": 89
+    },
+    "not_current_adjudication": true
+  },
+  "integration_publication": false,
+  "no_generic_pass_to_finding_closure_mapping": true,
+  "observations": [
+    {
+      "collected_and_executed": 102,
+      "command_argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/sandbox.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_i4_case_report_capture_r1",
+        "-p",
+        "e02_wave_capture_r8",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-c12-bounded-four-20261020-026b799e/bounded-four/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-c12-bounded-four-20261020-026b799e/bounded-four/pytest-cache",
+        "-o",
+        "log_file=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-c12-bounded-four-20261020-026b799e/bounded-four/pytest-log.txt",
+        "-o",
+        "tmp_path_retention_policy=all",
+        "-o",
+        "tmp_path_retention_count=1",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-c12-bounded-four-20261020-026b799e/bounded-four/benchmark-storage",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/pytest.xml",
+        "tests/unit/data_forge/read_api/test_surfaces.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/remediation/test_emb_03.py",
+        "tests/unit/lex/knowledge/test_threshold_candidate_math.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "deselected": 0,
+      "interpretation": "Bounded 4-module actual replay only; 2 explicit environment-dependent skips remain. This run is source-qualified to 026b, not automatically a full-composition/currentness receipt.",
+      "limits": [
+        "legal authority/admissibility",
+        "currentness/completeness of real legal sources",
+        "independent source-relation verification",
+        "full C12 or I4 closure",
+        "G acceptance",
+        "formal closure"
+      ],
+      "outcomes": {
+        "cases": 102,
+        "passed": 100,
+        "skipped": 2
+      },
+      "output_refs": {
+        "pytest_case_reports": {
+          "bytes": 94455,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/pytest-case-reports.jsonl",
+          "sha256": "f381eeac600a99be5d1021e8b4bc94aaa530912c9a588aa153fdf2ec502f4a46"
+        },
+        "pytest_collection_basis": {
+          "bytes": 18485,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/pytest-collection-basis.json",
+          "sha256": "fdffffda44e8bb9e3adb284a4606cb27972aae0cfd2c5902e9e20a6bf6f389d5"
+        },
+        "pytest_stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "pytest_stdout": {
+          "bytes": 1049,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/pytest.stdout.txt",
+          "sha256": "7fbb7face0682545c65f765bc8837a175e9293d5d1f7d2d3a31aff84d5101c1e"
+        },
+        "pytest_xml": {
+          "bytes": 17890,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/pytest.xml",
+          "sha256": "297a9969b7dbf812f4d84384132e99e03f13e5191a718255127eb75c34972616"
+        },
+        "r8_runtime_origins": {
+          "bytes": 1734992,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/bounded-four/runtime-module-origins.json",
+          "sha256": "f13558043c0c0e26ab4c99cfce6e77eb689c55f35133e69bb83e0fd7272e90c8"
+        }
+      },
+      "peak_sampled_process_tree_rss_bytes": 1034108928,
+      "property": "I4/C12 bounded consumer and numerical test replay",
+      "resource_limits": {
+        "cap_abort": "ERROR; no partial PASS",
+        "disk_floor_bytes": 1073741824,
+        "numeric_threads": 1,
+        "rss_cap_bytes": 3221225472,
+        "sample_seconds": 0.5,
+        "wall_seconds": 180,
+        "workers": 1
+      },
+      "result": {
+        "bytes": 50487,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-bounded-four-actual-20261020/actual-run/result.json",
+        "sha256": "2da9b3c3c5211f6084d89dd2cb09b9fb69b5e8e012df7bdcb263f8d39b0118dc"
+      },
+      "runtime_origin_scope": {
+        "captured_product_namespace_module_count": 1737,
+        "matched_regular_module_origins": 1737,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "runtime_seconds": 37.01369441696443,
+      "selected_whole_modules": [
+        "tests/unit/data_forge/read_api/test_surfaces.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/remediation/test_emb_03.py",
+        "tests/unit/lex/knowledge/test_threshold_candidate_math.py"
+      ],
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "026b799e8786b571c086aca9d3c40ed44f9fdc24",
+        "parent": "4d8a93f506aa0568b65bf354e0111339a86a19af",
+        "status_scope": "tracked paths only; this is not a claim that the worktree is otherwise clean",
+        "tracked_status_at_freeze": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tree": "aa143e5b9b5713b7df463852eccc8eb5286e4ada"
+      },
+      "source_frame_exact": {
+        "candidate": "026b799e8786b571c086aca9d3c40ed44f9fdc24",
+        "parent": "4d8a93f506aa0568b65bf354e0111339a86a19af",
+        "tree": "aa143e5b9b5713b7df463852eccc8eb5286e4ada"
+      },
+      "status": "bounded_four_modules_passed_for_review"
+    },
+    {
+      "collected_and_executed": 75,
+      "command_argv": [
+        "/usr/bin/sandbox-exec",
+        "-f",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/sandbox.sb",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_i4_case_report_capture_r1",
+        "-p",
+        "e02_wave_capture_r8",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-b61-b198-two-20261020-3ddec75a/bounded-two/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-b61-b198-two-20261020-3ddec75a/bounded-two/pytest-cache",
+        "-o",
+        "log_file=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-b61-b198-two-20261020-3ddec75a/bounded-two/pytest-log.txt",
+        "-o",
+        "tmp_path_retention_policy=all",
+        "-o",
+        "tmp_path_retention_count=1",
+        "--benchmark-storage=file:///Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/i4-b61-b198-two-20261020-3ddec75a/bounded-two/benchmark-storage",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/pytest.xml",
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "deselected": 0,
+      "disk_free_before_bytes": 16920989696,
+      "interpretation": "Observed 75/75 PASS, 0 fail/error/skip/deselect, exact modules at 3ddec, 1565/1565 matched regular origins within the captured polisyos/tools namespaces. This does not establish B61 beyond this module, B198 legal/currentness authority, all 13 Prepared-B contours, full E02 composition, G acceptance, or formal closure.",
+      "limits": [
+        "B61 full property or closure beyond the selected module",
+        "B198 profile/currentness authority beyond the selected module",
+        "full cross-module or full-suite composition",
+        "G acceptance",
+        "formal closure"
+      ],
+      "minimum_sampled_disk_free_bytes": 16626647040,
+      "module_case_counts": {
+        "tests.integration.scientist.orchestration.engine.test_skg_prepared_read_cache": 20,
+        "tests.unit.scientist.nodes.builtins.simulate.test_propagate_welfare": 55
+      },
+      "outcomes": {
+        "cases": 75,
+        "passed": 75
+      },
+      "output_refs": {
+        "pytest_case_reports": {
+          "bytes": 77263,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/pytest-case-reports.jsonl",
+          "sha256": "5e809e6da5bb69886f06ee25863e13162f360043a436434d454bcf9646154541"
+        },
+        "pytest_collection_basis": {
+          "bytes": 17440,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/pytest-collection-basis.json",
+          "sha256": "e5e18b63076d6ef71e0800f2fa8c5e2577ddf1f4c79ca5ce176e01f4ceb00f46"
+        },
+        "pytest_stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "pytest_stdout": {
+          "bytes": 1166,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/pytest.stdout.txt",
+          "sha256": "4a5d30cc0272125fa323864840d9da2769c4f3b58242b365f4783cfc773370e5"
+        },
+        "pytest_xml": {
+          "bytes": 15558,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/pytest.xml",
+          "sha256": "cbec11506f32d7495097814e02ed8357264bb5f2e03f2a5ed0f5545c6b1ed9dc"
+        },
+        "r8_runtime_origins": {
+          "bytes": 1579278,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/bounded-two/runtime-module-origins.json",
+          "sha256": "2e6413e47998c5ab4d7d87e33072d5d0701a99f3c61e0cb132b40c9ec27fc555"
+        }
+      },
+      "peak_sampled_process_tree_rss_bytes": 2313928704,
+      "property": "B61 prepared-read cache owner fixture plus B198 welfare selected-profile witness; two whole modules",
+      "resource_limits": {
+        "cap_abort": "ERROR; no partial PASS",
+        "disk_floor_bytes": 1073741824,
+        "numeric_threads": 1,
+        "rss_cap_bytes": 3221225472,
+        "sample_seconds": 0.5,
+        "wall_seconds": 600,
+        "workers": 1
+      },
+      "result": {
+        "bytes": 43678,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b61-b198-two-actual-20261020/actual-run/result.json",
+        "sha256": "831a5e9299b94b072f4569184bfba4e0aca87efdc20137987b4971fc54c6222c"
+      },
+      "runtime_origin_scope": {
+        "captured_product_namespace_module_count": 1565,
+        "matched_regular_module_origins": 1565,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "runtime_seconds": 61.57495479192585,
+      "selected_whole_modules": [
+        "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+      ],
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "3ddec75a9c9f6c9f82c69147a88dc0dbb4d3bd08",
+        "parent": "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e",
+        "status_scope": "tracked paths only; this is not a claim that the worktree is otherwise clean",
+        "tracked_status_at_freeze": " M policy-engine/tests/unit/runtime/quality/test_generation_cycle.py\n M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tree": "cf1b5a0c032c0c38eb5afd998d66038eda425293"
+      },
+      "source_frame_exact": {
+        "candidate": "3ddec75a9c9f6c9f82c69147a88dc0dbb4d3bd08",
+        "parent": "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e",
+        "tree": "cf1b5a0c032c0c38eb5afd998d66038eda425293"
+      },
+      "status": "bounded_two_modules_passed_for_review"
+    }
+  ],
+  "schema": "policyos.e02.runtime_observations.v2",
+  "source_cut": {
+    "candidate": "3ddec75a9c9f6c9f82c69147a88dc0dbb4d3bd08",
+    "parents": [
+      "89a31f6167e1a19c58fdd6e8ea5e36f422b8f09e"
+    ],
+    "source_freeze": false,
+    "tree": "cf1b5a0c032c0c38eb5afd998d66038eda425293"
+  },
+  "source_freeze": false,
+  "specific_next_checks": [
+    {
+      "next": "Retain the 3ddec 20/20 module pass. Continue source-bound prepared-read producer -> runtime cache/consumer and real inventory/authority evidence checks; no whole-property closure from this module alone.",
+      "scope": "B61"
+    },
+    {
+      "next": "Reconcile profile-selected view against actual current producer/profile lineage and any issuer/law evidence; the 55/55 test pass is behavioral only and does not supply authority or currentness.",
+      "scope": "B198"
+    },
+    {
+      "next": "Resolve two runtime-profile skips, then compose with the selected producer/profile and receiver, retain typed refusal, and test serving/legal currentness independently.",
+      "scope": "I4/C12"
+    },
+    {
+      "next": "Run the source-frozen full composed replay and native/rebuilt consumer gates after source freeze and independent reviews; preserve this packet as historical source/runtime observation.",
+      "scope": "E02"
+    }
+  ],
+  "status_boundaries": {
+    "G_acceptance": false,
+    "all_13_Prepared_B_contours": "not established by this packet",
+    "formal_G_closure_ids": [],
+    "full_E02_composition": "not established",
+    "integration_publication": false,
+    "legal_authority_and_external_currentness": "not established",
+    "source_freeze": false
+  }
+}

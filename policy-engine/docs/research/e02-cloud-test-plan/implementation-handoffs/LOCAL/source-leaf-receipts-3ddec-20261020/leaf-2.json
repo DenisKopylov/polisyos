@@ -1,0 +1,95 @@
+{
+  "G_acceptance": false,
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate": "026b799e8786b571c086aca9d3c40ed44f9fdc24",
+  "closure_ids": [],
+  "footprint_count": 4,
+  "formal_status": "source receipt only; no G adjudication or closure claim",
+  "frame_kind": "source_leaf",
+  "full_no_renames_commit_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "postimage": {
+        "bytes": 1880236,
+        "git_blob_oid": "01ef0511039698b7964baeb9964338700da5aeee",
+        "sha256": "a8b195c6584a334441666cf9f7401b515422e19bca0bc4fcdcc119b7eed3fd72"
+      },
+      "preimage": {
+        "bytes": 1871712,
+        "git_blob_oid": "5427d7b5d2aa31d51d3adfdde20e0815e40bc197",
+        "sha256": "fafb6df72fef8bf528bf1e90a8593d97eab0cecf2dece75580b1593f13640068"
+      },
+      "status": "M"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "postimage": {
+        "bytes": 187705,
+        "git_blob_oid": "2c16f448444ccdbb3bf15882e87c9c3802947652",
+        "sha256": "24455ea7c7c06e040be442ffa698ce082ca7adf28ea5e23c6c435fece7a694de"
+      },
+      "preimage": {
+        "bytes": 187705,
+        "git_blob_oid": "62019dafeb7f2d98bfa3c97feeb620362210ac0d",
+        "sha256": "eac5fb5b68816fbe63b7d68e94cd23c1ee4c95cefa71ecac6ca98b4a991cb970"
+      },
+      "status": "M"
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/knowledge/test_threshold_candidate_math.py",
+      "postimage": {
+        "bytes": 3262,
+        "git_blob_oid": "920b8b1db24efc45e9ffb4a34205b6fa4aacd95e",
+        "sha256": "5bbc170f552ec969b6e786dc591538b8e3359c3c4036b52dc7541f9659ddd343"
+      },
+      "preimage": null,
+      "status": "A"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "postimage": {
+        "bytes": 96955,
+        "git_blob_oid": "87db334ccda2bfc1c2b4b68eaa29292f3b2beaf0",
+        "sha256": "c7d98424630b7c90f178c4928c4c5c9bcc444405eac69f68b2abb299a533a7ae"
+      },
+      "preimage": {
+        "bytes": 94997,
+        "git_blob_oid": "25022d5936d0f84d987ee7e796017ef39d6f8e54",
+        "sha256": "bd9378a7759863899f62821390af5025f95d3db5245bd3c860f55d9fb3e29750"
+      },
+      "status": "M"
+    }
+  ],
+  "integration_publication": false,
+  "parents": [
+    "4d8a93f506aa0568b65bf354e0111339a86a19af"
+  ],
+  "preserved_other_owned_hashes_unchanged": true,
+  "preserved_other_owned_rows": {
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+  },
+  "purpose": "Two focused I4/C12 test companions for bounded candidate/refusal and numerical fixture replay.",
+  "readback": {
+    "bytes": 3403,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-i4-c12-test-boundary-adoption-20261020/implementation-readback-preservation-r2.json",
+    "sha256": "278518eeb80bcea85fcc27f7b62bbe830247e90dbac8be9bcd12f4073d5a868f"
+  },
+  "required_companions": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+  ],
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "slice_base": "4d8a93f506aa0568b65bf354e0111339a86a19af",
+  "source_freeze": false,
+  "source_test_paths": [
+    "policy-engine/tests/unit/lex/knowledge/test_threshold_candidate_math.py",
+    "policy-engine/tests/unit/remediation/test_emb_03.py"
+  ],
+  "subject": "test(e02): preserve Legal candidate retrieval and threshold authority boundary",
+  "tracked_status_at_adoption": [
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "tree": "aa143e5b9b5713b7df463852eccc8eb5286e4ada"
+}

@@ -28558,5 +28558,119 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "native-dynamic-import-body-proven-source-method-transfer-r3-20261020": {
+    "slice_base": "515f74337353af7a2ec68ad4845c02c9767d0ad2",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/decomposition_preflight.py": {
+        "operation": "write",
+        "preimage_sha256": "dd3e22a3dbc9be382bcc57520a198082952f35ae763896936a2e8d3d1f56327b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-internal-repair-10a9e80-20261020-r3/work/decomposition_preflight.py",
+        "postimage_sha256": "ec42492a650f7b052f986e9d67117dbd655457598172f397f213ec25764134cc"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": {
+        "operation": "write",
+        "preimage_sha256": "ff10fbee820735febc1a70fe6b3bcedeb3ddfcf9df57e5e894bc94e00fea20ed",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-internal-repair-10a9e80-20261020-r3/work/test_decomposition_preflight_gates.py",
+        "postimage_sha256": "40e10d0abeeefb29f00478fe2510bcdf73c78d64d99e0fdebba6936af559d19b"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-native-body-return-transfer-r3-adoption-20261020/source-application.json",
+      "sha256": "c14477b2aa58cdea03b55de8e3fcf8450da8d9adbbb31c848d93dc324ebd33a3"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-native-body-return-transfer-r3-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-internal-repair-10a9e80-20261020-r3/frozen-v3/manifest-v3.json",
+        "sha256": "8d855154a3f3536063ca9113a0ed3be43c7f2466d5ebed3d6fc042b4f27bc382"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-internal-repair-10a9e80-20261020-r3/frozen-v3/candidate.patch",
+        "sha256": "eba793d32e96a05ecd8bc08704eef88df625c41da4903f85f67a4a945eae6dd8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-internal-repair-10a9e80-20261020-r3/actual-focused-v1/receipt-v3.json",
+        "sha256": "080524e115d0c9e85d43662db9cda30b52fc26daabe27ffd5af781137d2ed25d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-r3-independent-review-20261020/review.json",
+        "sha256": "99051da07e066fdcdcfce7dc721ad5a320e8ed6fe31cb0af792df4f2f4d9b768"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-exception-independent-review-20261020/review.json",
+        "sha256": "76539e70f5b1e9565a29c9ea2abf6d01043bdd0c3abab907436ef8e021c0df73"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ruff-candidate-import-classification-decision-20261020-r1.md",
+        "sha256": "1ded61c078e0bba8ba47a2fa93130d69dfa1fe01fecfa7e173cccf5bfc74b4a0"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same typed transfer/annotation laundering class widened to all actual returns of the supported source-method family. Known concrete opaque external factory importer is refused; body-proven positive typed consumers remain supported.",
+    "bounded_proof": "Independent R3GO_BOUNDED_COHORT99051da0; exact live external factory importer red control on R2, 5R3focused tests PASS with retained positive consumers; all2postimages AST/native Ruff check+format/apply pass. Complete dynamic selection and maintained-source collector remain UNRUN.",
+    "limitations": [
+      "This implementation does not retire any expired exception or alter a gate threshold, issuer, date or waiver.",
+      "No global native gate, full maintained-source collector, full backend or release/publication green is established.",
+      "Dedicated mixed-return and unsupported-annotation caller runtime controls remain next-cohort coverage debt; source inspection shows unknown/mismatched joins fail closed, with no demonstrated green bypass.",
+      "The supported source-method family is bounded; unmodeled external results remain ambiguous rather than trusted by annotation.",
+      "Only scoped deciding outputs are retained; prior mistaken class-attribute falsifier was retracted by the independent R2 reviewer.",
+      "Physical native lint after complete source composition is deciding; earlier stdin check is preliminary.",
+      "Two known-owned N7/B108 dirty tests remain unchanged; no G acceptance, formal closure or global source freeze.",
+      "No deletion or Trash operation; generic helper relocation wording is inapplicable."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the complete actual dynamic-import regression selection with collection-derived counts, then the full maintained-source collector and native decomposition contract using the current actual source/input denominator. Assert unknown/mixed-return negatives and positive typed paths; only then consider removal of actually eliminated dynamic-inventory debt through the native owner.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

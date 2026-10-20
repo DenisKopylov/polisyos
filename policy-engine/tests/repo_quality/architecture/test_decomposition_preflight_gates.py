@@ -7857,3 +7857,209 @@ def test_dynamic_import_source_class_identity_escape_to_mutable_mapping_fails_cl
         and "guarded importer value escapes through a call argument" in finding.detail
         for finding in findings
     ), findings
+
+
+def test_dynamic_import_typed_path_argparse_and_source_method_transfers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.storage": """from pathlib import Path
+
+class FileSystemCAS:
+    def _sig_path(self, artifact_id: object) -> Path:
+        return Path("/tmp")
+""",
+            "polisyos.fixture_target": "class FixtureTarget: pass\n",
+            "polisyos.consumer": """import argparse
+import tempfile
+from importlib import import_module
+from pathlib import Path
+from polisyos.storage import FileSystemCAS
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--fixture-root", type=Path, required=True)
+parser.add_argument("--port", type=int, default=8017)
+args = parser.parse_args()
+root = args.fixture_root.resolve().parents[0]
+station = Path(tempfile.mkdtemp(dir=root))
+signature_path = FileSystemCAS(root)._sig_path(object())
+original_mode = signature_path.stat().st_mode & 0o777
+signature_path.chmod(original_mode)
+runtime_url = f"http://127.0.0.1:{args.port}/fixture"
+trace_label = f"selected:{import_module('polisyos.fixture_target').__name__}"
+import_module("polisyos.fixture_target")
+""",
+        },
+    )
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [(entry["call"], entry["pattern"]) for entry in entries] == [
+        ("importlib.import_module", "polisyos.fixture_target"),
+        ("importlib.import_module", "polisyos.fixture_target"),
+    ]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    assert preflight.validate_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    ("return_expression", "imports", "escape_boundary"),
+    [
+        ("import_module", "from importlib import import_module\n", "function return"),
+        (
+            "cast(Path, import_module)",
+            "from importlib import import_module\nfrom typing import cast\n",
+            "call argument",
+        ),
+    ],
+)
+def test_dynamic_import_path_annotation_cannot_hide_importer_return_flow(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    return_expression: str,
+    imports: str,
+    escape_boundary: str,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.storage": (
+                imports
+                + "from pathlib import Path\n\n"
+                + "class MisleadingPathFactory:\n"
+                + "    def path(self) -> Path:\n"
+                + f"        return {return_expression}\n"
+            ),
+            "polisyos.consumer": (
+                "from polisyos.storage import MisleadingPathFactory\n\n"
+                "path_value = MisleadingPathFactory().path()\n"
+                'path_value("polisyos.dynamic_importer_hidden_by_path_annotation")\n'
+            ),
+            "polisyos.target": "class Target: pass\n",
+        },
+    )
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match=f"guarded importer value escapes through a {escape_boundary}",
+    ):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_import_annotated_method_does_not_ground_external_factory_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.storage": """from pathlib import Path
+from opaque_vendor.factory import make_value
+
+class PathLookingFactory:
+    def path(self) -> Path:
+        return make_value()
+""",
+            "polisyos.consumer": """from polisyos.storage import PathLookingFactory
+
+path_value = PathLookingFactory().path()
+imported_target = path_value("polisyos.hidden_target").__name__
+""",
+            "polisyos.hidden_target": "class HiddenTarget: pass\n",
+        },
+    )
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    (tmp_path / "src/polisyos/__init__.py").write_text("", encoding="utf-8")
+
+    external_root = tmp_path / "deps"
+    (external_root / "opaque_vendor").mkdir(parents=True)
+    (external_root / "opaque_vendor/__init__.py").write_text("", encoding="utf-8")
+    external_module = external_root / "opaque_vendor" / "factory.py"
+    external_module.write_text(
+        "from importlib import import_module\n\ndef make_value():\n    return import_module\n",
+        encoding="utf-8",
+    )
+    selected_paths = set(preflight._dynamic_source_paths("src", "tools", "apps", "packages"))
+    assert external_module not in selected_paths
+
+    previous_modules = {
+        name: module
+        for name, module in sys.modules.items()
+        if name == "polisyos" or name.startswith("polisyos.")
+    }
+    for name in previous_modules:
+        del sys.modules[name]
+    try:
+        monkeypatch.syspath_prepend(str(external_root))
+        monkeypatch.syspath_prepend(str(tmp_path / "src"))
+        preflight.importlib.invalidate_caches()
+        runtime_namespace = runpy.run_path(str(tmp_path / "src/polisyos/consumer.py"))
+    finally:
+        for name in tuple(sys.modules):
+            if name == "polisyos" or name.startswith("polisyos."):
+                del sys.modules[name]
+        sys.modules.update(previous_modules)
+    assert runtime_namespace["imported_target"] == "polisyos.hidden_target"
+
+    with pytest.raises(
+        preflight.DynamicImportCollectionError,
+        match="dynamic importer binding is ambiguous or unresolved",
+    ):
+        preflight.collect_dynamic_imports()
+
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import source inventory is incomplete"
+        and "dynamic importer binding is ambiguous or unresolved" in finding.detail
+        for finding in findings
+    ), findings
+
+
+def test_dynamic_import_source_method_transfers_use_body_proven_path_stat_and_namespace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _dynamic_import_internal_modules_fixture(
+        tmp_path,
+        monkeypatch,
+        {
+            "polisyos.storage": """import argparse
+import os
+from pathlib import Path
+
+class SourceReader:
+    def path(self) -> Path:
+        return Path("/tmp")
+
+    def stat(self) -> os.stat_result:
+        return Path("/tmp").stat()
+
+    def namespace(self) -> argparse.Namespace:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--module")
+        return parser.parse_args()
+""",
+            "polisyos.consumer": """from importlib import import_module
+from polisyos.storage import SourceReader
+
+reader = SourceReader()
+path = reader.path()
+mode = reader.stat().st_mode & 0o777
+options = reader.namespace()
+import_module(options.module)
+""",
+        },
+    )
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [(entry["pattern"], entry["allowed_targets"]) for entry in entries] == [
+        ("options.module", [])
+    ]

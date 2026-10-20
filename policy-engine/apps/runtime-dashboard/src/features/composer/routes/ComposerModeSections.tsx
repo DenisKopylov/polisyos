@@ -50,6 +50,7 @@ import {
   buildNaturalLanguageLaunchRequest,
   buildWorkflowLaunchRequest,
   naturalLanguageLaunchSchema,
+  type NaturalLanguageLaunchFormInputValues,
   type NaturalLanguageLaunchFormValues,
   type ParamFormValue,
   type WorkflowLaunchFormInputValues,
@@ -1570,7 +1571,11 @@ export function NaturalLanguageComposerSection({
   );
   const navigate = useNavigate();
   const defaults = useMemo(() => buildNaturalLanguageDefaults(t), [t]);
-  const form = useForm<NaturalLanguageLaunchFormValues>({
+  const form = useForm<
+    NaturalLanguageLaunchFormInputValues,
+    unknown,
+    NaturalLanguageLaunchFormValues
+  >({
     defaultValues: defaults,
     mode: "onChange",
     resolver: zodResolver(naturalLanguageLaunchSchema),

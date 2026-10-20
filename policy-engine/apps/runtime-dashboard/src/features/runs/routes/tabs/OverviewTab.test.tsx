@@ -536,6 +536,12 @@ describe("OverviewTab", () => {
       media_type: "application/json",
       manifest_profile_sha256: `sha256:${"3".repeat(64)}`,
     };
+    const nonJsonValueDataProfile = {
+      artifact_id: `sha256:${"4".repeat(64)}`,
+      kind: "runtime.value_data_profile",
+      media_type: "text/plain",
+      manifest_profile_sha256: `sha256:${"5".repeat(64)}`,
+    };
     const model = {
       ...observed,
       artifact_id: `sha256:${"e".repeat(64)}`,
@@ -560,7 +566,11 @@ describe("OverviewTab", () => {
     overviewState.run = {
       run_id: "run-1",
       root_artifacts: [model, policy, rule],
-      root_input_artifacts: [observed, valueDataProfile],
+      root_input_artifacts: [
+        observed,
+        nonJsonValueDataProfile,
+        valueDataProfile,
+      ],
       candidate_simulation: {
         run_id: "run-1",
         artifact_status: "resolved",
@@ -581,6 +591,14 @@ describe("OverviewTab", () => {
     expect(screen.getByTestId("predictive-observed-source")).toHaveValue("");
     expect(screen.getByTestId("predictive-threshold")).toHaveValue(null);
     const form = screen.getByTestId("overview-predictive-calibration-form");
+    const valueDataProfileSelect = screen.getByTestId(
+      "predictive-value-data-profile",
+    );
+    expect(
+      within(valueDataProfileSelect).queryByRole("option", {
+        name: `runtime.value_data_profile · ${nonJsonValueDataProfile.artifact_id}`,
+      }),
+    ).not.toBeInTheDocument();
     const values: Record<string, string> = {
       candidate_source_ref: JSON.stringify([
         candidate.artifact_id,

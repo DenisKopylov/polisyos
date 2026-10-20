@@ -141,7 +141,10 @@ export type WorkflowLaunchFormInputValues = z.input<
   typeof workflowLaunchSchema
 >;
 export type WorkflowLaunchFormValues = z.output<typeof workflowLaunchSchema>;
-export type NaturalLanguageLaunchFormValues = z.infer<
+export type NaturalLanguageLaunchFormInputValues = z.input<
+  typeof naturalLanguageLaunchSchema
+>;
+export type NaturalLanguageLaunchFormValues = z.output<
   typeof naturalLanguageLaunchSchema
 >;
 export type ExpectedOutputFormValue = z.infer<typeof outputSchema>;

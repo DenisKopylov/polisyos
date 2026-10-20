@@ -13,6 +13,7 @@ import {
 } from "@/test/fixtures/profileLineageBatch";
 import { TrustInspector } from "@/shared/ui/trust-view";
 import { unknownTrustViewStatusButton } from "@/test/trustViewQueries";
+import { projectSelectedArtifactRef } from "@/shared/ui/quantity/selected-artifact-ref";
 import {
   boundLineageQueryKey,
   profileBindingAdmissionQueryKey,
@@ -424,11 +425,22 @@ function seedBoundAdmission(
   queryClient: ReturnType<typeof renderWithProviders>["queryClient"],
   graph: LineageGraphView,
 ) {
+  const selectedRef = projectSelectedArtifactRef(graph.selected_artifact_ref);
+  if (
+    selectedRef.status !== "candidate" ||
+    graph.profile_binding_status !== "verified" ||
+    graph.artifact_ref_provenance == null ||
+    graph.source_run_id !== runId
+  ) {
+    throw new Error(
+      "Cannot seed profile admission without an exact typed binding",
+    );
+  }
   const selector = {
     lineageId: graph.id,
-    selectedArtifactRef: graph.selected_artifact_ref ?? null,
-    artifactRefProvenance: graph.artifact_ref_provenance ?? null,
-    sourceRunId: graph.source_run_id ?? null,
+    selectedArtifactRef: selectedRef.selectedArtifactRef,
+    artifactRefProvenance: graph.artifact_ref_provenance,
+    sourceRunId: graph.source_run_id,
   };
   const generation = 1;
   queryClient.setQueryData(

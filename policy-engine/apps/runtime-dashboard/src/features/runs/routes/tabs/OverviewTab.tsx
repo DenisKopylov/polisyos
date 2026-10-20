@@ -1217,10 +1217,24 @@ function fullRunArtifactRefKey(ref: RunArtifactRef): string {
   ]);
 }
 
-function selectedValueRef(
-  options: RunArtifactRef[],
+type SelectedValueDataProfileRef = RunArtifactRef & {
+  media_type: "application/json";
+  manifest_profile_sha256: string;
+};
+
+function hasSelectedValueDataProfile(
+  ref: RunArtifactRef,
+): ref is SelectedValueDataProfileRef {
+  return (
+    ref.media_type === "application/json" &&
+    typeof ref.manifest_profile_sha256 === "string"
+  );
+}
+
+function selectedValueRef<TRef extends RunArtifactRef>(
+  options: readonly TRef[],
   key: string,
-): RunArtifactRef | undefined {
+): TRef | undefined {
   return options.find((ref) => fullRunArtifactRefKey(ref) === key);
 }
 
@@ -1261,7 +1275,9 @@ function PredictiveCalibrationPanel({
     (ref) => ref.kind === "fabric.data_snapshot",
   );
   const valueDataProfileRefs = rootInputs.filter(
-    (ref) => ref.kind === "runtime.value_data_profile",
+    (ref): ref is SelectedValueDataProfileRef =>
+      ref.kind === "runtime.value_data_profile" &&
+      hasSelectedValueDataProfile(ref),
   );
   const modelSpecRefs = rootArtifacts.filter(
     (ref) => ref.kind === "ir.model_spec",

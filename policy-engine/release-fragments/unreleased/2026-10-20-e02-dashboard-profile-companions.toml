@@ -1,0 +1,41 @@
+id = "2026-10-20-e02-dashboard-profile-companions"
+title = "Keep dashboard profile selection explicit and typed"
+type = "changed"
+component = "runtime-dashboard"
+owner = "team-frontend"
+summary = "Natural-language draft defaults represent unselected profile inputs explicitly, React Hook Form distinguishes Zod input from parsed output, and the run overview offers predictive profiles only when their reference is JSON with a profile digest."
+evidence = [
+  "apps/runtime-dashboard/src/features/clerk/domain/clerkDefaults.ts",
+  "apps/runtime-dashboard/src/features/composer/domain/forms.ts",
+  "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+  "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+  "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.test.tsx",
+  "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.test.ts",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+]
+compatibility = "Internal runtime-dashboard behavior only. New natural-language drafts retain explicit empty profile selections until an operator selects a profile; persisted draft parsing still uses the existing Zod schema. No public API or generated-client contract changes are declared by this companion."
+change_class = "internal"
+surface_classification = "internal: runtime-dashboard composer and run-overview profile controls"
+migration = "No external migration is required. Draft constructors and fixtures provide the profile selector keys as explicit empty selections. React Hook Form accepts the Zod input type and passes the parsed output type to the launch builder."
+api = "Internal dashboard forms and draft storage distinguish z.input from z.output for fields with Zod defaults. Predictive profile selection filters typed refs by runtime.value_data_profile kind, application/json media type, and a present manifest-profile digest before request assembly."
+limitations = "A selected profile reference is not evidence of external custody, currentness, causal calibration, issuer authority, or publication permission. The companion is a source proposal; root still needs the composed native typecheck, focused Vitest, and browser/API chain verification."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "dashboard-profile-draft-and-selector-internal"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime-dashboard composer and run-overview profile controls"
+owner = "team-frontend"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Keep unselected profile inputs explicit in drafts and admit predictive selectors only from JSON profile refs carrying a digest."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

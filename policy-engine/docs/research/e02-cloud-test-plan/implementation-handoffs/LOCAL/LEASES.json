@@ -41037,5 +41037,140 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-dashboard-profile-companions-20261020-r1": {
+    "slice_base": "b02cae2fb544290dc62c3ef7889e3bc1b40df7e4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/features/clerk/domain/clerkDefaults.ts": {
+        "operation": "update",
+        "preimage_sha256": "d727faa9536d3418b02f447cbc69fd859c0b93f48cac6976cb92755d925cb038",
+        "postimage_sha256": "ddc5b0d81636e9c7824d6b5df127c6173dc8601b61123979eaa179a71de670f0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/clerk/domain/clerkDefaults.ts",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/composer/domain/forms.ts": {
+        "operation": "update",
+        "preimage_sha256": "cb82ab1c19ab505b6570b2082d3de2d84a45c9606ec82d7910aa072656ea2731",
+        "postimage_sha256": "e89fa07ad945086fdff4db12e2d45039ee5d0d2e1b64ac2e79cb724f2ca8afdb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/composer/domain/forms.ts",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts": {
+        "operation": "update",
+        "preimage_sha256": "a85d07ed0085316c562d74959569f62c5b5a97f9e9d6143b25d487dfb006b6a9",
+        "postimage_sha256": "33d0a48679e56d9a73ab6aba19b102cd59c6aadac573b06cdc708ed71e1b60fc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx": {
+        "operation": "update",
+        "preimage_sha256": "89c62accdca494790fdde4236173be3b0abce4206283957e3c0be52e1c10476f",
+        "postimage_sha256": "edbe1fb8e1037ed1d160b26dcc2a386625179713b147bfb08dffd301f2b7fab2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.test.tsx": {
+        "operation": "update",
+        "preimage_sha256": "7908ffeb8c67212da4dc293821c2cd9b37c38ff82a758b1e9b116c438f8ef953",
+        "postimage_sha256": "c9a9341c40f96c3dea7c2aff900e1deb92a14242524c1d4af25d792bac635805",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.test.tsx",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.test.ts": {
+        "operation": "update",
+        "preimage_sha256": "2a8677da41500c93227b876c86a06be71b6cfe895af74c4c2880d45671c507d5",
+        "postimage_sha256": "71cb79a04ba588e8e3d5642fd20605923633bfb6a8aa9ed789bc0161bd518490",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.test.ts",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx": {
+        "operation": "update",
+        "preimage_sha256": "d0f73f52c2c451c59204300f425d9de1a97c4f0c2528e848f5abd46b1aafabdf",
+        "postimage_sha256": "c48db864e0a1b6d18ae97e997f9a5cb430f52261fce82b59a6f5826ae624b7b3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx": {
+        "operation": "update",
+        "preimage_sha256": "fe5f99caabc789affe64b520cadfc8146f3ea5cd7bde6d8e78f1e9205e66f701",
+        "postimage_sha256": "068e387c914d4175e1442d73a91d3fff8f2ae6a59df2a6fe4a45cbaf28a3b54b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+        "mode": "100644"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx": {
+        "operation": "update",
+        "preimage_sha256": "2ff335f25bbc48561b89fec0cdc847c3c64236be508aead116b1ec5164c18a74",
+        "postimage_sha256": "a939fde8a8ad3cd540ce1b88999816b02f0ee5e8f446fed8997f31028f953626",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/postimages/policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-dashboard-profile-companions.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "a51ee1e47c141389e26b78fe2914996a9fa12d5f25650506ba68384694862e68",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/release-fragment-postimage.toml",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-dashboard-profile-companions-20261020-r1/source-application.json",
+      "sha256": "ddeaa565c2c96051e216c0cd1127d823eea68d6cfaf9aaed570d45941e92318c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-dashboard-profile-companions-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/manifest-v1.json",
+        "sha256": "aa0cd42543cd4752c5a693fbb765d7ae6349a8ae056b9b1706e93163fda030d5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/candidate.patch",
+        "sha256": "bf1affaeae942f5b6475c9d65b0dca008096480521ff0fbc2ba326ac5b16b07e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/release-fragment-manifest.json",
+        "sha256": "633b08a4318ff6baa49d719b7178bf971c1e7ad91c055a4b3fea14b42ac6d532"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-companions-ad87d04-20261020-r1/release-fragment-postimage.toml",
+        "sha256": "a51ee1e47c141389e26b78fe2914996a9fa12d5f25650506ba68384694862e68"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-frontend-typecheck-independent-review-20261020-r1/review.json",
+        "sha256": "5c6f645ce87783d2dee26031d9d0fac0c611c5144ca888aa42f20f656d838a99"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "generated_schema_stale": "NEW class for this slice; all seven are covered by one source-of-truth OpenAPI export plus both generated consumers. Site edits/casts are prohibited. If a further missing lineage DTO member remains after authoritative generation, classify it SAME-class and widen the generator inputs/owner contract; do not patch one generated interface.",
+      "zod_input_output_generic_mismatch": "NEW class: defaulted schema fields require separate RHF input and parsed output types. Fixed at the useForm boundary and carried through persistence input union.",
+      "nl_default_fields_missing": "SAME class across four observed production/default and fixture sites: the clerk defaults plus three NL draft fixtures. Widened to all observed NL constructors and fixture literals; empty values mean explicitly unselected draft inputs, not authority or fallback. A future missing default is an example only if these same fields stay explicit across all NL constructor paths; otherwise reopen the full NL default constructor set.",
+      "profile_ref_ingress_widening": "NEW class: exact profile references must be narrowed at UI ingress before entering predictive request/cache selectors. Production route filters on JSON media plus present digest; test selector parses and requires exact source/provenance. A second occurrence should be widened into a shared typed ingress helper, not another site condition."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Handwritten companion covers ten of the seventeen pre-candidate TypeScript diagnostics; seven generated-schema diagnostics require official export/client regeneration.",
+      "Static independent GO is not actual TSC/Vitest/browser behavior.",
+      "Null, malformed and forged profile selector variants require composed behavior verification.",
+      "No external custody/currentness/causal calibration/issuer/permission or G acceptance established.",
+      "Release fragment reviewed by root: internal change and limitations, no added product implementation."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Official DS17 owner/OpenAPI/client regeneration after affected contract freeze, then all native typecheck phases, eight focused Vitest consumers and actual run-overview profile-lineage/browser chains with negative selection controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

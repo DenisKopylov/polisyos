@@ -12,12 +12,14 @@ import {
 import {
   naturalLanguageLaunchSchema,
   workflowLaunchDraftSchema,
+  type NaturalLanguageLaunchFormInputValues,
   type NaturalLanguageLaunchFormValues,
   type WorkflowLaunchFormInputValues,
 } from "@/features/composer/domain/forms";
 
 export type ComposerDraftMode = "nl" | "workflow";
 export type ComposerDraftValues =
+  | NaturalLanguageLaunchFormInputValues
   | NaturalLanguageLaunchFormValues
   | WorkflowLaunchFormInputValues;
 export type ComposerDraftRecord = {

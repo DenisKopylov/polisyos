@@ -3376,6 +3376,27 @@ def _control_service_from_request(request: Request) -> Any | None:
     return getattr(container, "control_service", None)
 
 
+def _run_predictive_calibration_with_service_source(
+    control_service: Any,
+    operation: Callable[..., Any],
+    /,
+    **kwargs: Any,
+) -> Any:
+    """Run a calibration producer or reader under its app-selected catalog source."""
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        run_catalog_source_call,
+    )
+
+    source = getattr(control_service, "catalog_serving_source", None)
+    if source is not None and type(source) is not CatalogServingSourcePaths:
+        raise service_unavailable(
+            "The configured catalog serving source is unavailable",
+            code="predictive_calibration_catalog_source_invalid",
+        )
+    return run_catalog_source_call(source, operation, **kwargs)
+
+
 def _artifact_ownership_evidence(
     store: Any,
     *,
@@ -4346,7 +4367,9 @@ if router is not None:
                 ),
             )
         try:
-            association_ref, association = produce_run_predictive_calibration(
+            association_ref, association = _run_predictive_calibration_with_service_source(
+                control_service,
+                produce_run_predictive_calibration,
                 store=ctx.store,
                 run=run,
                 request=body,
@@ -4422,7 +4445,9 @@ if router is not None:
                 ),
             )
         try:
-            association_ref, association = load_run_predictive_calibration(
+            association_ref, association = _run_predictive_calibration_with_service_source(
+                control_service,
+                load_run_predictive_calibration,
                 store=ctx.store,
                 run=run,
                 event_log=event_log,

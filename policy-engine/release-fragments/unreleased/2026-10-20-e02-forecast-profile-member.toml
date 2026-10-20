@@ -1,0 +1,34 @@
+id = "2026-10-20-e02-forecast-profile-member"
+title = "Bind predictive-calibration runs to selected EMP-01 profile members"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Predictive-calibration HTTP production and fresh reads use the app-selected catalog source, reopen the EMP-01 projection through the canonical Data Forge owner, enforce current profile-producer row/dataset rules, and bind the selected unit to observed-series bytes through a typed candidate receipt."
+evidence = [
+  "src/polisyos/core/contracts/forecast_profile_member.py",
+  "src/polisyos/runtime/quality/forecast_profile_binding.py",
+  "src/polisyos/runtime/http/services/predictive_calibration.py",
+  "src/polisyos/runtime/http/routes/runs.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+  "tests/unit/runtime/quality/test_forecast_profile_binding.py",
+  "tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py",
+  "tests/unit/runtime/http/test_predictive_calibration_event_selection.py",
+  "tests/integration/core_runtime/test_predictive_calibration_profile_owner_binding.py",
+  "tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "src/polisyos/calibration/README.md",
+  "src/polisyos/runtime/http/services/README.md",
+  "src/polisyos/scientist/methods/backtesting/README.md",
+  "docs/reference/api/runs.md",
+]
+compatibility = "Predictive-calibration association v4 adds selected profile/member refs and a joined_candidate/profileless_legacy status. Older generated clients with strict DTOs may reject the v4 response fields; regenerate them before consuming this response. Existing profileless history remains profileless, and malformed supplied profile inputs fail closed."
+change_class = "schema-openapi-abi"
+surface_classification = "public API: POST and GET /api/v1/runs/{run_id}/predictive-calibration; generated OpenAPI, runtime client, and dashboard response validation."
+migration = "Regenerate the API schema and generated clients against the v4 association response before rollout. No historical association is rewritten or upgraded. A new profile-bound run requires the exact ValueDataProfile ref and selected unit; requests without the pair retain the limited profileless behavior."
+api = "The POST producer and fresh GET reader bind to the exact CatalogServingSourcePaths selected by that app's ControlPlaneService; no module-location fallback is used for selected profiles. The runtime creates the ForecastProfileMemberV1 receipt after resolving the selected profile and exact activated-source-projection edge through the canonical Data Forge source, active overlay, receipt, and passport owner, then binding observed snapshot/data refs. Fresh GET reopens and recomputes the join; callers cannot submit the receipt. The API response surfaces the selected profile and member refs plus join status."
+limitations = "The receipt is predictive_only. Population scope, completeness, treatment assignment, source relation, source time/currentness, causal calibration, and production authority remain not_established. Missing or wrong request-local source context refuses a selected profile; profileless legacy requests remain candidate-only. Runtime intake applies the current owner producer's one-row-per-unit-period and single-dataset rules; it refuses aggregates or mixed-dataset profiles that the producer does not emit, though the generic row primitive can represent aggregate tuples."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []

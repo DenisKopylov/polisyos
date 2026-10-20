@@ -305,6 +305,16 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "WarningsBundle",
         "WarningsRef",
     ),
+    ".forecast_profile_member": (
+        "FORECAST_PROFILE_MEMBER_CONTRACT_VERSION",
+        "FORECAST_PROFILE_MEMBER_KIND",
+        "FORECAST_PROFILE_MEMBER_SCHEMA",
+        "FORECAST_PROFILE_MEMBER_SCHEMA_VERSION",
+        "ForecastProfileMemberV1",
+        "VALUE_DATA_PROFILE_KIND",
+        "VALUE_OWNER_PROJECTION_KIND",
+        "forecast_profile_observed_series_sha256",
+    ),
     ".foundry": (
         "AttractorAnalysisProvenance",
         "AttractorAnalysisRequest",
@@ -1085,6 +1095,16 @@ if TYPE_CHECKING:
         data_snapshot_reference_fields,
         data_snapshot_reference_input_roles,
     )
+    from .forecast_profile_member import (
+        FORECAST_PROFILE_MEMBER_CONTRACT_VERSION,
+        FORECAST_PROFILE_MEMBER_KIND,
+        FORECAST_PROFILE_MEMBER_SCHEMA,
+        FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+        VALUE_DATA_PROFILE_KIND,
+        VALUE_OWNER_PROJECTION_KIND,
+        ForecastProfileMemberV1,
+        forecast_profile_observed_series_sha256,
+    )
     from .foundry import (
         AttractorAnalysisProvenance,
         AttractorAnalysisRequest,
@@ -1753,6 +1773,11 @@ __all__ = [
     "FabricResult",
     "FabricResultRef",
     "FailureCardRef",
+    "FORECAST_PROFILE_MEMBER_CONTRACT_VERSION",
+    "FORECAST_PROFILE_MEMBER_KIND",
+    "FORECAST_PROFILE_MEMBER_SCHEMA",
+    "FORECAST_PROFILE_MEMBER_SCHEMA_VERSION",
+    "ForecastProfileMemberV1",
     "ForecastingUncertaintyBundleRef",
     "FoundryCompileConfig",
     "FoundryExecConfig",
@@ -2009,6 +2034,8 @@ __all__ = [
     "UniversalTimePredicate",
     "UnresolvedEquilibriumStart",
     "ValidationReportRef",
+    "VALUE_DATA_PROFILE_KIND",
+    "VALUE_OWNER_PROJECTION_KIND",
     "ValueOuterSet",
     "ValueOuterSetAssumptionStatus",
     "ValueOuterSetComparison",
@@ -2044,6 +2071,7 @@ __all__ = [
     "epoch_staleness_semantic_hash",
     "evaluate_skip_blocker_policy",
     "external_epoch_statement_canon_info",
+    "forecast_profile_observed_series_sha256",
     "legacy_family_for_construct",
     "require_production_approval_currentness_receipt",
     "scope_adjudication_candidate_digest",
@@ -2085,6 +2113,16 @@ if TYPE_CHECKING:
         NO_CALL_REASON_VALUES,
         PRODUCER_CALL_STATE_VALUES,
         validate_producer_call_observation,
+    )
+    from .forecast_profile_member import (
+        FORECAST_PROFILE_MEMBER_CONTRACT_VERSION,
+        FORECAST_PROFILE_MEMBER_KIND,
+        FORECAST_PROFILE_MEMBER_SCHEMA,
+        FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+        VALUE_DATA_PROFILE_KIND,
+        VALUE_OWNER_PROJECTION_KIND,
+        ForecastProfileMemberV1,
+        forecast_profile_observed_series_sha256,
     )
     from .foundry import (
         FeedbackConfig,

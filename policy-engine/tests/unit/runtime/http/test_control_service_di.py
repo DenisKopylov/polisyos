@@ -6,6 +6,7 @@ import os
 from collections.abc import AsyncIterator, Callable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from shutil import copyfile
 from threading import Condition, Event
 from types import SimpleNamespace
 from typing import Any
@@ -4285,12 +4286,19 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         load_empirical_calibration_evidence,
     )
     from polisyos.core.artifacts import (
+        FileSystemCAS,
         PutOptions,
         artifact_manifest_profile_sha256,
     )
     from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+    from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
     from polisyos.core.contracts.runtime import RunCandidateSimulationProjection
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api.catalog import (
+        CatalogServingSourceSelection,
+        default_acquisition_overlay_path,
+    )
+    from polisyos.ir import CanonSpec, InputRef, put_json_artifact
     from polisyos.ir.analytics.backtest import BacktestReportRef, load_backtest_report
     from polisyos.runtime.http import dev_identity_middleware
     from polisyos.runtime.http.routes import runs as runs_routes
@@ -4300,6 +4308,11 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         PredictiveCalibrationRequest,
     )
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+    from polisyos.runtime.quality.substrate_registry import (
+        catalog_serving_source_scope,
+        current_catalog_serving_source,
+        resolve_catalog_serving_source,
+    )
     from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
 
@@ -4335,7 +4348,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 "reason_code": "n4_outcome_target_binding_not_established",
                 "n4_target_variable": "government.balance",
                 "n4_metric_id": fixture.problem.outcome_of_interest.metric_id,
-                "observed_target_metric": "metric",
+                "observed_target_metric": report.metadata["target_metric"],
             }
 
             role_refs = (
@@ -4385,6 +4398,268 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 )
                 assert len(expected_edges) == len(source_roles)
                 assert sorted(actual_edges) == sorted(expected_edges)
+
+    cas_root = tmp_path / ".polisyos"
+    shared_cas = FileSystemCAS(cas_root)
+    from tests.integration.core_runtime.test_acquisition_world_growth_chain import (
+        _admit_served_wdi_projection,
+    )
+
+    owner_admission = await _admit_served_wdi_projection(
+        tmp_path / "profile-owner",
+        monkeypatch,
+        request,
+        baseline_country_code="UKR",
+        baseline_period_count=14,
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        artifact_store=shared_cas,
+    )
+    owner_repo_root = owner_admission.served.case.authority.repo_root
+    owner_overlay_path = owner_admission.served.case.call_args["overlay_path"]
+    assert (
+        owner_overlay_path.resolve() == default_acquisition_overlay_path(owner_repo_root).resolve()
+    )
+    selected_source = resolve_catalog_serving_source(
+        owner_repo_root,
+        selection=None,
+        requested_profile="preflight_core",
+    )
+    tenant_cas = shared_cas.for_tenant("tenant-fixture", cell_id="cell-fixture")
+    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        with catalog_serving_source_scope(selected_source):
+            value_profile = RealValueOwnerGateway(
+                repo_root=owner_repo_root,
+                catalog_serving_source=selected_source,
+                catalog_overlay_path=owner_overlay_path,
+                artifact_store=tenant_cas,
+                activated_observation_projection=owner_admission.projection,
+            ).load_value_data_profile(
+                candidate=object(),
+                problem=owner_admission.served.closure.design_problem_basis,
+                world_record=object(),
+            )
+        profile_unit_id = value_profile.rows[0].unit_id
+        profile_rows = tuple(
+            sorted(
+                (row for row in value_profile.rows if row.unit_id == profile_unit_id),
+                key=lambda row: row.period_id,
+            )
+        )
+        assert len(profile_rows) == 15
+        assert len({row.period_id for row in profile_rows}) == len(profile_rows)
+        profile_values = [row.outcome_value for row in profile_rows]
+        ir_store = _ensure_ir_artifact_store(tenant_cas)
+        projection_ref = put_json_artifact(
+            ir_store,
+            owner_admission.projection.model_dump(mode="json"),
+            kind="runtime.value_owner_source_projection",
+            schema_name="runtime.value_owner_source_projection.v1",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        selected_profile_ref = ArtifactRef.model_validate(
+            put_json_artifact(
+                ir_store,
+                value_profile.model_dump(mode="json"),
+                kind="runtime.value_data_profile",
+                schema_name="runtime.value_data_profile.v2",
+                schema_version="2.0",
+                inputs=(
+                    InputRef(
+                        artifact_id=projection_ref["artifact_id"],
+                        role="activated_source_projection",
+                        manifest_profile_sha256=projection_ref["manifest_profile_sha256"],
+                    ),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+        observed_data_ref = put_json_artifact(
+            ir_store,
+            {value_profile.outcome: profile_values},
+            kind="test.forecast.profile_observed_data",
+            schema_name="test.forecast.profile_observed_data.v1",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        observed_snapshot = DataSnapshot(
+            data_ref=ArtifactRef.model_validate(observed_data_ref),
+            stats={"rows": len(profile_values), "source": "selected_owner_profile_fixture"},
+        )
+        selected_profile_observed_ref = DataSnapshotRef.model_validate(
+            put_json_artifact(
+                ir_store,
+                observed_snapshot.model_dump(mode="json"),
+                kind="fabric.data_snapshot",
+                schema_name="fabric.data_snapshot.v1",
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+
+    # Build a second real Data Forge owner projection whose source contains two
+    # distinct declared condition groups for each unit-period. The candidate
+    # aggregate below is content-bound to those owner rows, but the supported
+    # serving producer refuses to aggregate them because no source rule grants
+    # aggregation at one unit-period.
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.generation_cycle import (
+        ValueDataProfile,
+        _derived_value_data_modalities,
+        _value_owner_row,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    local_source_rows = [
+        {
+            "country_code": "UA",
+            "year": year,
+            "balance": value,
+            "condition_json": json.dumps({"series": series}, sort_keys=True, separators=(",", ":")),
+        }
+        for year, values in zip(
+            (2021, 2022, 2023, 2024),
+            ((-20.0, -18.0), (-19.0, -17.0), (-18.0, -16.0), (-17.0, -15.0)),
+            strict=True,
+        )
+        for series, value in zip(("published", "revised"), values, strict=True)
+    ]
+    local_owner = make_native_multivariable_active_projections(
+        tmp_path / "local-profile-owner",
+        source_rows=local_source_rows,
+        variable_specs=(
+            {
+                "target_variable": "government.balance",
+                "raw_field": "balance",
+                "raw_unit": "percent_gdp",
+                "canonical_unit": "percent_gdp",
+                "valid_min": -100.0,
+                "valid_max": 100.0,
+                "temporal_start": "2021",
+                "temporal_end": "2024",
+            },
+        ),
+        condition_units_by_raw_field={"balance": "percent_gdp"},
+        artifact_store=tenant_cas,
+    )
+    local_projection = local_owner.projections["government.balance"]
+    local_sources_by_period: dict[int, list[tuple[float, str, str, str]]] = {}
+    for projected_row in local_projection.observations:
+        observation = projected_row.observation
+        assert observation.year is not None
+        local_sources_by_period.setdefault(observation.year, []).append(
+            (
+                observation.value,
+                observation.dataset_id,
+                observation.observation_id,
+                "percent_gdp",
+            )
+        )
+    assert tuple(sorted(local_sources_by_period)) == (2021, 2022, 2023, 2024)
+    assert all(len(rows) == 2 for rows in local_sources_by_period.values())
+    local_profile_rows = tuple(
+        _value_owner_row(
+            outcome="government.balance",
+            unit_id="UA",
+            period_id=period_id,
+            source_rows=tuple(source_rows),
+        )
+        for period_id, source_rows in sorted(local_sources_by_period.items())
+    )
+    local_rows_payload = tuple(row.model_dump(mode="json") for row in local_profile_rows)
+    local_profile_payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v2",
+        "outcome": "government.balance",
+        "measurement_unit": "percent_gdp",
+        "rows": local_rows_payload,
+        "owner_row_count": len(local_profile_rows),
+        "unit_count": 1,
+        "period_count": 4,
+        "available_data_modalities": _derived_value_data_modalities(local_profile_rows),
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": "candidate://actual-local-lift-owner-row-aggregate",
+        "owner_rows_content_hash": gy_content_hash(local_rows_payload),
+    }
+    local_aggregate_profile = ValueDataProfile.model_validate(
+        {
+            **local_profile_payload,
+            "content_hash": gy_content_hash(local_profile_payload),
+        }
+    )
+    assert all(len(row.source_row_content_hashes) == 2 for row in local_aggregate_profile.rows)
+    with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+        local_ir_store = _ensure_ir_artifact_store(tenant_cas)
+        local_projection_ref = put_json_artifact(
+            local_ir_store,
+            local_projection.model_dump(mode="json"),
+            kind="runtime.value_owner_source_projection",
+            schema_name="runtime.value_owner_source_projection.v1",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        local_profile_ref = ArtifactRef.model_validate(
+            put_json_artifact(
+                local_ir_store,
+                local_aggregate_profile.model_dump(mode="json"),
+                kind="runtime.value_data_profile",
+                schema_name="runtime.value_data_profile.v2",
+                schema_version="2.0",
+                inputs=(
+                    InputRef(
+                        artifact_id=local_projection_ref["artifact_id"],
+                        role="activated_source_projection",
+                        manifest_profile_sha256=local_projection_ref["manifest_profile_sha256"],
+                    ),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+        local_observed_values = [row.outcome_value for row in local_aggregate_profile.rows]
+        local_observed_data_ref = put_json_artifact(
+            local_ir_store,
+            {local_aggregate_profile.outcome: local_observed_values},
+            kind="test.forecast.profile_observed_data",
+            schema_name="test.forecast.profile_observed_data.v1",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        local_observed_snapshot = DataSnapshot(
+            data_ref=ArtifactRef.model_validate(local_observed_data_ref),
+            stats={"rows": len(local_observed_values), "source": "candidate_local_owner_rows"},
+        )
+        local_observed_ref = DataSnapshotRef.model_validate(
+            put_json_artifact(
+                local_ir_store,
+                local_observed_snapshot.model_dump(mode="json"),
+                kind="fabric.data_snapshot",
+                schema_name="fabric.data_snapshot.v1",
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+
+    def selected_snapshot(repo_root, target_root):
+        selected_database = target_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+        selected_database.parent.mkdir(parents=True, exist_ok=True)
+        copyfile(repo_root / "catalog" / "catalog.duckdb", selected_database)
+        return CatalogServingSourceSelection(
+            snapshot_root=target_root,
+            catalog_run_profile=selected_source.catalog_run_profile,
+        )
+
+    wdi_source_selection = selected_snapshot(owner_repo_root, tmp_path / "selected-wdi-source")
+    local_source_selection = selected_snapshot(
+        local_owner.repo_root, tmp_path / "selected-local-source"
+    )
 
     captured_inputs: list[ArtifactRef] = []
 
@@ -4442,8 +4717,14 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                     policy_default,
                     policy_selected,
                     _rule(context.store),
+                    ArtifactRef.model_validate(local_profile_ref),
+                    ArtifactRef.model_validate(local_observed_ref),
                 ]
             )
+            context.add_input(selected_profile_ref)
+            context.add_input(ArtifactRef.model_validate(selected_profile_observed_ref))
+            context.add_input(local_profile_ref)
+            context.add_input(ArtifactRef.model_validate(local_observed_ref))
         existing = {
             (str(item.artifact_id), item.manifest_profile_sha256)
             for item in context.run_manifest.inputs
@@ -4476,7 +4757,6 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         "POLISYOS_CONTROL_SQLITE_PATH",
         str(fixture_control_store_path),
     )
-    cas_root = tmp_path / ".polisyos"
     core_runs_root = cas_root / "runs"
     monkeypatch.setattr(
         dev_identity_middleware,
@@ -4484,8 +4764,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         _fixture_claims,
     )
 
-    def new_reader_app(*, allow_candidate_run_predictive_calibration_surface: bool | None = None):
-        app_options: dict[str, bool] = {}
+    def new_reader_app(
+        *,
+        allow_candidate_run_predictive_calibration_surface: bool | None = None,
+        source_repo_root=None,
+        catalog_source_selection: CatalogServingSourceSelection | None = None,
+    ):
+        app_options: dict[str, Any] = {}
         if allow_candidate_run_predictive_calibration_surface is not None:
             app_options["allow_candidate_run_predictive_calibration_surface"] = (
                 allow_candidate_run_predictive_calibration_surface
@@ -4495,10 +4780,74 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 cas_root=cas_root,
                 core_runs_root=core_runs_root,
                 allow_fixture_identity=True,
+                repo_root=owner_repo_root if source_repo_root is None else source_repo_root,
+                catalog_run_profile=(
+                    selected_source.catalog_run_profile
+                    if catalog_source_selection is None
+                    else catalog_source_selection.catalog_run_profile
+                ),
+                catalog_source_selection=catalog_source_selection,
                 **app_options,
             )
         _install_fixture_tenant_lifespan(app)
+        control_service = app.state.runtime_container.control_service
+        assert control_service is not None
+        app_source = control_service.catalog_serving_source
+        expected_repo_root = (
+            owner_repo_root if source_repo_root is None else source_repo_root
+        ).resolve()
+        assert app_source.repo_root == expected_repo_root
+        expected_profile = (
+            selected_source.catalog_run_profile
+            if catalog_source_selection is None
+            else catalog_source_selection.catalog_run_profile
+        )
+        assert app_source.catalog_run_profile == expected_profile
+        assert app_source.selection_basis == (
+            "legacy_default_candidate_only"
+            if catalog_source_selection is None
+            else "explicit_path_candidate_only"
+        )
         return app
+
+    route_source_calls: list[tuple[str, object, object]] = []
+    original_route_producer = runs_routes.produce_run_predictive_calibration
+    original_route_reader = runs_routes.load_run_predictive_calibration
+
+    def record_route_producer(*args: Any, **kwargs: Any) -> Any:
+        route_source_calls.append(
+            ("produce", current_catalog_serving_source(), kwargs.get("store"))
+        )
+        return original_route_producer(*args, **kwargs)
+
+    def record_route_reader(*args: Any, **kwargs: Any) -> Any:
+        route_source_calls.append(("read", current_catalog_serving_source(), kwargs.get("store")))
+        return original_route_reader(*args, **kwargs)
+
+    monkeypatch.setattr(runs_routes, "produce_run_predictive_calibration", record_route_producer)
+    monkeypatch.setattr(runs_routes, "load_run_predictive_calibration", record_route_reader)
+
+    unspecified_source = object()
+
+    def assert_route_source_bound(
+        reader_app: Any,
+        operation: str,
+        *,
+        expected_source: object = unspecified_source,
+    ) -> None:
+        control_service = reader_app.state.runtime_container.control_service
+        assert control_service is not None
+        selected_source = (
+            control_service.catalog_serving_source
+            if expected_source is unspecified_source
+            else expected_source
+        )
+        assert any(
+            operation_name == operation
+            and observed_store is reader_app.state.runtime_api_ctx.store
+            and observed_source is selected_source
+            for operation_name, observed_source, observed_store in route_source_calls
+        ), f"{operation} did not observe this app's exact configured source object"
 
     # RuntimeContainer startup launches an embedded worker whose first custody
     # scan can persist a nonreceipt into this shared CAS. Observe completion of
@@ -4555,6 +4904,19 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert candidate_refs[0]["manifest_profile_sha256"].startswith("sha256:")
         input_refs = run["root_input_artifacts"]
         for expected_ref in captured_inputs:
+            assert any(
+                actual_ref["artifact_id"] == str(expected_ref.artifact_id)
+                and actual_ref["kind"] == expected_ref.kind
+                and actual_ref["media_type"] == expected_ref.media_type
+                and actual_ref["manifest_profile_sha256"] == expected_ref.manifest_profile_sha256
+                for actual_ref in input_refs
+            )
+        for expected_ref in (
+            selected_profile_ref,
+            ArtifactRef.model_validate(selected_profile_observed_ref),
+            local_profile_ref,
+            ArtifactRef.model_validate(local_observed_ref),
+        ):
             assert any(
                 actual_ref["artifact_id"] == str(expected_ref.artifact_id)
                 and actual_ref["kind"] == expected_ref.kind
@@ -4981,6 +5343,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                     release_producer.set()
                 created = owner_future.result(timeout=360)
         assert created.status_code == 201, created.text
+        assert_route_source_bound(app, "produce")
+        assert_route_source_bound(second_app, "produce")
         assert len(owner_requests) == 1
         assert owner_requests[0].model_spec_ref.model_dump(mode="json") == selected["ir.model_spec"]
         assert (
@@ -5097,6 +5461,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         reopened = client.get(f"/api/v1/runs/{core_run_id}/predictive-calibration")
         assert reopened.status_code == 200, reopened.text
+        assert_route_source_bound(fresh_app, "read")
         reopened_result = reopened.json()
         assert reopened_result["association_ref"] == association_ref
         assert reopened_result["association"] == association
@@ -5243,11 +5608,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             json=comparison_body,
         )
         assert comparison_post.status_code == 201, comparison_post.text
+        assert_route_source_bound(comparison_app, "produce")
         comparison_post_result = comparison_post.json()
         comparison_reopened_response = comparison_client.get(
             f"/api/v1/runs/{core_run_id}/predictive-calibration"
         )
         assert comparison_reopened_response.status_code == 200, comparison_reopened_response.text
+        assert_route_source_bound(comparison_app, "read")
         comparison_reopened_result = comparison_reopened_response.json()
         assert comparison_reopened_result["association"] == comparison_post_result["association"]
         assert (
@@ -5352,6 +5719,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             f"/api/v1/runs/{core_run_id}/predictive-calibration"
         )
         assert comparison_reopened.status_code == 200, comparison_reopened.text
+        assert_route_source_bound(comparison_reader, "read")
         comparison_reopened_result = comparison_reopened.json()
         assert_persisted_evidence_identity(
             comparison_reader.state.runtime_api_ctx.store,
@@ -5363,6 +5731,213 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     assert comparison_reopened_result["association"] == comparison_association
     assert comparison_reopened_result["association"]["s10"] == comparison_association["s10"]
     assert comparison_reopened_result["association"]["s10"] != reopened_result["association"]["s10"]
+
+    # The selected EMP-01 route consumes a profile issued from the actual
+    # Data Forge owner above. Its profile and aligned observed series were
+    # attached through the run's ordinary root-input intake, then re-resolved
+    # by a fresh app whose ControlPlaneService selects the same owner repo.
+    profile_body = {
+        **body,
+        "intent_id": "ui-intent-r228-e2e-selected-profile",
+        "observed_source_ref": selected_profile_observed_ref.model_dump(mode="json"),
+        "target_metric": value_profile.outcome,
+        "value_data_profile_ref": selected_profile_ref.model_dump(mode="json"),
+        "value_data_unit_id": profile_unit_id,
+    }
+    profile_app = new_reader_app(catalog_source_selection=wdi_source_selection)
+    with TestClient(profile_app) as profile_client:
+        wait_for_startup_maintenance(profile_app)
+        assert (
+            profile_app.state.runtime_container.control_service.catalog_serving_source.selection_basis
+            == "explicit_path_candidate_only"
+        )
+        profile_post = profile_client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json=profile_body,
+        )
+        assert profile_post.status_code == 201, profile_post.text
+        assert_route_source_bound(profile_app, "produce")
+        profile_result = profile_post.json()
+        profile_association = profile_result["association"]
+        assert profile_association["profile_join_status"] == "joined_candidate"
+        assert profile_association["value_data_profile_ref"] == (
+            selected_profile_ref.model_dump(mode="json")
+        )
+        assert profile_association["forecast_profile_member_ref"] is not None
+        assert profile_association["assessment"] == "limited"
+        assert profile_association["authority_scope"] == "predictive_only"
+        assert profile_association["source_time_status"] == "not_established"
+        assert profile_association["population_scope_status"] == "not_established"
+
+    profile_fresh_app = new_reader_app(catalog_source_selection=wdi_source_selection)
+    with TestClient(profile_fresh_app) as profile_fresh_client:
+        wait_for_startup_maintenance(profile_fresh_app)
+        profile_get = profile_fresh_client.get(f"/api/v1/runs/{core_run_id}/predictive-calibration")
+        assert profile_get.status_code == 200, profile_get.text
+        assert_route_source_bound(profile_fresh_app, "read")
+        profile_reopened = profile_get.json()
+        assert profile_reopened["association_ref"] == profile_result["association_ref"]
+        assert profile_reopened["association"] == profile_association
+        assert_persisted_evidence_identity(
+            profile_fresh_app.state.runtime_api_ctx.store,
+            profile_reopened["association"],
+        )
+
+    # The profile is valid JSON/CAS/Core content and its source projection is
+    # re-opened from the actual local owner, but its per-unit-period aggregate
+    # is not producible under the selected owner's current identity rule.
+    aggregate_body = {
+        **body,
+        "intent_id": "ui-intent-i4-owner-aggregate-refusal",
+        "observed_source_ref": local_observed_ref.model_dump(mode="json"),
+        "target_metric": local_aggregate_profile.outcome,
+        "value_data_profile_ref": local_profile_ref.model_dump(mode="json"),
+        "value_data_unit_id": "UA",
+    }
+    local_app = new_reader_app(
+        source_repo_root=local_owner.repo_root,
+        catalog_source_selection=local_source_selection,
+    )
+    with TestClient(local_app) as local_client:
+        wait_for_startup_maintenance(local_app)
+        local_service = local_app.state.runtime_container.control_service
+        assert local_service is not None
+        assert local_service.catalog_serving_source.selection_basis == (
+            "explicit_path_candidate_only"
+        )
+        local_event_log = local_service._diagnostic_event_log
+        local_events_before = local_event_log.list_events(run_id=core_run_id, job_id=job_id)
+        local_cas_before = cas_byte_inventory()
+        local_request = PredictiveCalibrationRequest.model_validate(aggregate_body)
+        local_intent_key = calibration_service.RuntimeOperationIntentKey(
+            purpose="run.predictive_calibration.v1",
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
+            run_id=core_run_id,
+            intent_id=aggregate_body["intent_id"],
+            body_sha256=calibration_service._operation_body_sha256(
+                request=local_request,
+                run_id=core_run_id,
+                job_id=job_id,
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+                run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
+            ),
+        )
+        aggregate_refusal = local_client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json=aggregate_body,
+        )
+        assert_route_source_bound(
+            local_app,
+            "produce",
+            expected_source=local_service.catalog_serving_source,
+        )
+        assert aggregate_refusal.status_code == 422, aggregate_refusal.text
+        assert aggregate_refusal.json()["code"] == "predictive_calibration_value_profile_invalid"
+        assert cas_byte_inventory() == local_cas_before
+        assert event_receipts(
+            local_event_log.list_events(run_id=core_run_id, job_id=job_id)
+        ) == event_receipts(local_events_before)
+        refused_intent = local_event_log._store.get_runtime_operation_intent(local_intent_key)
+        assert refused_intent.status == "unknown"
+        assert refused_intent.record is None
+
+        # Removal control: if the call-site shape predicate is omitted, the
+        # same actual-source aggregate reaches the candidate consumer. All
+        # profile, projection, run-root, source, and status markers remain.
+        original_profile_binding = calibration_service.validate_profile_projection_binding
+
+        def validate_without_canonical_shape(**kwargs: Any) -> Any:
+            kwargs.pop("require_canonical_owner_profile_shape", None)
+            return original_profile_binding(**kwargs)
+
+        unguarded_body = {
+            **aggregate_body,
+            "intent_id": "ui-intent-i4-owner-aggregate-removal-control",
+        }
+        with monkeypatch.context() as removed_shape_probe:
+            removed_shape_probe.setattr(
+                calibration_service,
+                "validate_profile_projection_binding",
+                validate_without_canonical_shape,
+            )
+            unguarded_response = local_client.post(
+                f"/api/v1/runs/{core_run_id}/predictive-calibration",
+                json=unguarded_body,
+            )
+            assert_route_source_bound(
+                local_app,
+                "produce",
+                expected_source=local_service.catalog_serving_source,
+            )
+        assert unguarded_response.status_code == 201, unguarded_response.text
+
+    wrong_source = resolve_catalog_serving_source(
+        tmp_path,
+        selection=None,
+        requested_profile=selected_source.catalog_run_profile,
+    )
+    source_bytes_before_refusals = cas_byte_inventory()
+    source_events_before_refusals = event_receipts(
+        event_log.list_events(run_id=core_run_id, job_id=job_id)
+    )
+    wrong_source_app = new_reader_app(catalog_source_selection=wdi_source_selection)
+    with TestClient(wrong_source_app) as wrong_source_client:
+        wrong_source_service = wrong_source_app.state.runtime_container.control_service
+        assert wrong_source_service is not None
+        restored_source = wrong_source_service.catalog_serving_source
+        assert restored_source is not wrong_source
+        with monkeypatch.context() as wrong_source_probe:
+            wrong_source_probe.setattr(
+                ControlPlaneService,
+                "catalog_serving_source",
+                property(lambda _self: wrong_source),
+            )
+            wrong_source_get = wrong_source_client.get(
+                f"/api/v1/runs/{core_run_id}/predictive-calibration"
+            )
+            assert_route_source_bound(
+                wrong_source_app,
+                "read",
+                expected_source=wrong_source,
+            )
+            assert wrong_source_get.status_code == 409, wrong_source_get.text
+            assert wrong_source_get.json()["code"] == (
+                "predictive_calibration_value_profile_invalid"
+            )
+        assert wrong_source_service.catalog_serving_source is restored_source
+
+    missing_source_app = new_reader_app(catalog_source_selection=wdi_source_selection)
+    with TestClient(missing_source_app) as missing_source_client:
+        missing_source_service = missing_source_app.state.runtime_container.control_service
+        assert missing_source_service is not None
+        restored_source = missing_source_service.catalog_serving_source
+        assert restored_source is not None
+        with monkeypatch.context() as missing_source_probe:
+            missing_source_probe.setattr(
+                ControlPlaneService,
+                "catalog_serving_source",
+                property(lambda _self: None),
+            )
+            missing_source_get = missing_source_client.get(
+                f"/api/v1/runs/{core_run_id}/predictive-calibration"
+            )
+            assert_route_source_bound(
+                missing_source_app,
+                "read",
+                expected_source=None,
+            )
+            assert missing_source_get.status_code == 409, missing_source_get.text
+            assert missing_source_get.json()["code"] == (
+                "predictive_calibration_catalog_serving_source_context_missing"
+            )
+        assert missing_source_service.catalog_serving_source is restored_source
+    assert cas_byte_inventory() == source_bytes_before_refusals
+    assert event_receipts(event_log.list_events(run_id=core_run_id, job_id=job_id)) == (
+        source_events_before_refusals
+    )
 
 
 def test_parent_joint_atom_binding_requires_full_source_owned_identity() -> None:

@@ -29,11 +29,18 @@ from polisyos.core.artifacts import (
     ensure_ir_artifact_store,
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.contracts import ApiMeta, DataSnapshotRef, RunDetails
+from polisyos.core.contracts import (
+    ApiMeta,
+    DataSnapshot,
+    DataSnapshotRef,
+    ForecastProfileMemberV1,
+    RunDetails,
+)
 from polisyos.ir import (
     ArtifactRefModel,
     BacktestReport,
     InputRef,
+    get_json_artifact,
     load_backtest_report,
     normalize_artifact_ref,
     persist_backtest_report,
@@ -47,6 +54,20 @@ from polisyos.runtime.http.services.run_operation_idempotency import (
 )
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+from polisyos.runtime.quality.forecast_profile_binding import (
+    FORECAST_PROFILE_MEMBER_KIND,
+    FORECAST_PROFILE_MEMBER_SCHEMA,
+    FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+    VALUE_DATA_PROFILE_KIND,
+    VALUE_DATA_PROFILE_SCHEMA,
+    VALUE_DATA_PROFILE_SCHEMA_VERSION,
+    VALUE_OWNER_PROJECTION_KIND,
+    VALUE_OWNER_PROJECTION_SCHEMA,
+    VALUE_OWNER_PROJECTION_SCHEMA_VERSION,
+    ResolvedValueProfileProjection,
+    join_profile_member_to_observed_series,
+    validate_profile_projection_binding,
+)
 from polisyos.scientist.methods.backtesting import (
     CALIBRATION_RULE_ID,
     CalibrationRuleBinding,
@@ -67,8 +88,10 @@ if TYPE_CHECKING:
 _ASSOCIATION_KIND = "runtime.predictive_calibration_association"
 _LEGACY_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v2"
 _LEGACY_ASSOCIATION_VERSION = "2.0"
-_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v3"
-_ASSOCIATION_VERSION = "3.0"
+_PRIOR_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v3"
+_PRIOR_ASSOCIATION_VERSION = "3.0"
+_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v4"
+_ASSOCIATION_VERSION = "4.0"
 _N4_OUTCOME_BINDING_LIMITATION_CODE = "n4_outcome_target_binding_not_established"
 _N4_OUTCOME_BINDING_LIMITATION_REF = (
     f"s10://calibration/fail-closed/{_N4_OUTCOME_BINDING_LIMITATION_CODE}"
@@ -151,6 +174,8 @@ class PredictiveCalibrationRequest(BaseModel):
     intent_id: str = Field(min_length=1, max_length=120, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
     candidate_source_ref: ArtifactRef
     observed_source_ref: DataSnapshotRef
+    value_data_profile_ref: ArtifactRef | None = None
+    value_data_unit_id: str | None = None
     model_spec_ref: ArtifactRef
     policy_spec_ref: ArtifactRef
     calibration_rule_ref: ArtifactRef
@@ -160,6 +185,24 @@ class PredictiveCalibrationRequest(BaseModel):
     method_params: ForecastMethodParams
     temporal_roles: ForecastTemporalRoles
     seed: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _validate_value_profile_selection(self) -> PredictiveCalibrationRequest:
+        if (self.value_data_profile_ref is None) != (self.value_data_unit_id is None):
+            raise ValueError("value profile ref and selected unit must be supplied as a pair")
+        if self.value_data_profile_ref is not None:
+            if (
+                self.value_data_profile_ref.kind != VALUE_DATA_PROFILE_KIND
+                or self.value_data_profile_ref.media_type != "application/json"
+                or self.value_data_profile_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("value profile ref must select an exact JSON manifest view")
+            if (
+                not self.value_data_unit_id
+                or self.value_data_unit_id != self.value_data_unit_id.strip()
+            ):
+                raise ValueError("selected value profile unit must be a clean identifier")
+        return self
 
 
 class PredictiveCalibrationS10Summary(BaseModel):
@@ -194,6 +237,7 @@ class PredictiveCalibrationAssociation(BaseModel):
     schema_version: Literal[
         "polisyos.runtime.predictive_calibration_association.v2",
         "polisyos.runtime.predictive_calibration_association.v3",
+        "polisyos.runtime.predictive_calibration_association.v4",
     ] = _ASSOCIATION_SCHEMA
     event_id: str = Field(min_length=1)
     intent_id: str = Field(min_length=1, max_length=120)
@@ -212,6 +256,9 @@ class PredictiveCalibrationAssociation(BaseModel):
     backtest_report_ref: ArtifactRef
     empirical_evidence_ref: ArtifactRef
     uncertainty_bundle_ref: ArtifactRef
+    value_data_profile_ref: ArtifactRef | None = None
+    forecast_profile_member_ref: ArtifactRef | None = None
+    profile_join_status: Literal["joined_candidate", "profileless_legacy"] = "profileless_legacy"
     assessment: Literal["limited"] = "limited"
     authority_scope: Literal["predictive_only"] = "predictive_only"
     issuer_status: Literal["not_established"] = "not_established"
@@ -234,8 +281,23 @@ class PredictiveCalibrationAssociation(BaseModel):
 
     @model_validator(mode="after")
     def _validate_n4_s10_scope(self) -> PredictiveCalibrationAssociation:
+        if (self.value_data_profile_ref is None) != (self.forecast_profile_member_ref is None):
+            raise ValueError("predictive_calibration_profile_member_refs_incomplete")
+        if self.value_data_profile_ref is None:
+            if self.profile_join_status != "profileless_legacy":
+                raise ValueError("predictive_calibration_profileless_status_mismatch")
+        elif (
+            self.profile_join_status != "joined_candidate"
+            or self.value_data_profile_ref.kind != VALUE_DATA_PROFILE_KIND
+            or self.forecast_profile_member_ref.kind != FORECAST_PROFILE_MEMBER_KIND
+            or self.value_data_profile_ref.media_type != "application/json"
+            or self.forecast_profile_member_ref.media_type != "application/json"
+            or self.value_data_profile_ref.manifest_profile_sha256 is None
+            or self.forecast_profile_member_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("predictive_calibration_profile_member_binding_invalid")
         if (
-            self.schema_version == _ASSOCIATION_SCHEMA
+            self.schema_version in {_ASSOCIATION_SCHEMA, _PRIOR_ASSOCIATION_SCHEMA}
             or self.candidate_source_ref.kind == "runtime.quality.n4_candidate_scenario_source"
         ) and (
             self.s10.outcome_binding_status != "not_established"
@@ -326,6 +388,18 @@ def produce_run_predictive_calibration(
         request.calibration_rule_ref,
         expected_kind="ir.forecast_calibration_rule",
     )
+    selected_profile_binding: ResolvedValueProfileProjection | None = None
+    selected_profile_member: ForecastProfileMemberV1 | None = None
+    if request.value_data_profile_ref is not None:
+        _require_run_root_ref(request.value_data_profile_ref, run_bound_refs, "value_data_profile")
+        selected_profile_binding = _validate_selected_value_data_profile(
+            store, request.value_data_profile_ref
+        )
+        selected_profile_member = _build_selected_profile_member(
+            store=store,
+            request=request,
+            binding=selected_profile_binding,
+        )
     _require_event_scope(
         event_scope,
         run_id=run_id,
@@ -450,15 +524,24 @@ def produce_run_predictive_calibration(
             f"{run_id}:predictive-calibration:"
             f"{event_id.removeprefix('evt_predictive_calibration_')}"
         )
-        run_inputs = (
+        run_inputs = [
             _core_input(run_manifest_ref, "run_manifest"),
             _core_input(request.candidate_source_ref, "candidate_source"),
             _core_input(request.observed_source_ref, "observed_source"),
-        )
+        ]
+        if request.value_data_profile_ref is not None:
+            run_inputs.append(_core_input(request.value_data_profile_ref, "value_data_profile"))
         owner_request = ForecastOwnerRequest(
             observed_source_ref=DataSnapshotRef.model_validate(
                 request.observed_source_ref.model_dump()
             ),
+            value_data_profile_ref=(
+                None
+                if request.value_data_profile_ref is None
+                else _as_ir_artifact_ref(request.value_data_profile_ref)
+            ),
+            value_data_unit_id=request.value_data_unit_id,
+            forecast_profile_member=selected_profile_member,
             split=request.split,
             target_metric=request.target_metric.strip(),
             method_fqn=_METHOD_FQN,
@@ -519,6 +602,18 @@ def produce_run_predictive_calibration(
         report_metadata["source_time_status"] = "not_established"
         report_metadata["issuer_status"] = "not_established"
         report_metadata["n4_outcome_target_binding"] = n4_outcome_binding
+        report_metadata["profile_join_status"] = (
+            "joined_candidate"
+            if owner_result.value_data_profile_ref is not None
+            else "profileless_legacy"
+        )
+        if owner_result.value_data_profile_ref is not None:
+            report_metadata["value_data_profile_ref"] = (
+                owner_result.value_data_profile_ref.model_dump(mode="json")
+            )
+            report_metadata["forecast_profile_member_ref"] = (
+                owner_result.forecast_profile_member_ref.model_dump(mode="json")
+            )
         report_with_run_binding = preliminary_report.model_copy(
             update={"metadata": report_metadata}
         )
@@ -618,6 +713,21 @@ def produce_run_predictive_calibration(
             backtest_report_ref=ArtifactRef.model_validate(final_report_ref),
             empirical_evidence_ref=ArtifactRef.model_validate(evidence_ref),
             uncertainty_bundle_ref=ArtifactRef.model_validate(owner_result.uncertainty_bundle_ref),
+            value_data_profile_ref=(
+                None
+                if owner_result.value_data_profile_ref is None
+                else ArtifactRef.model_validate(owner_result.value_data_profile_ref)
+            ),
+            forecast_profile_member_ref=(
+                None
+                if owner_result.forecast_profile_member_ref is None
+                else ArtifactRef.model_validate(owner_result.forecast_profile_member_ref)
+            ),
+            profile_join_status=(
+                "joined_candidate"
+                if owner_result.value_data_profile_ref is not None
+                else "profileless_legacy"
+            ),
             observed_numerator=evidence.recomputed_numerator,
             observed_denominator=evidence.recomputed_denominator,
             observed_hit_rate=evidence.recomputed_pass_rate or 0.0,
@@ -658,6 +768,14 @@ def produce_run_predictive_calibration(
                     final_report_ref,
                     evidence_ref,
                     owner_result.uncertainty_bundle_ref,
+                    *(
+                        ()
+                        if owner_result.value_data_profile_ref is None
+                        else (
+                            owner_result.value_data_profile_ref,
+                            owner_result.forecast_profile_member_ref,
+                        )
+                    ),
                 ),
             ),
         )
@@ -692,6 +810,30 @@ def produce_run_predictive_calibration(
                 "Could not transition failed predictive-calibration intent; it remains pending"
             )
         raise
+
+
+def _is_predictive_calibration_association_event(
+    event: object,
+    *,
+    run_id: str,
+    job_id: str,
+) -> bool:
+    """Select only this producer's association publication before newest-first choice."""
+    artifact_refs = getattr(event, "artifact_refs", ())
+    if not isinstance(artifact_refs, (tuple, list)) or len(artifact_refs) != 1:
+        return False
+    artifact_id = str(artifact_refs[0])
+    return (
+        getattr(event, "event_type", None) == _ASSOCIATION_EVENT
+        and getattr(event, "event_source", None) == "polisyos.runtime"
+        and getattr(event, "producer_component", None)
+        == "polisyos.runtime.http.predictive_calibration"
+        and getattr(event, "phase", None) == "predictive_calibration_publication"
+        and getattr(event, "run_id", None) == run_id
+        and getattr(event, "job_id", None) == job_id
+        and getattr(event, "event_subject", None)
+        == f"run/{run_id}/job/{job_id}/predictive-calibration/{artifact_id}"
+    )
 
 
 def load_run_predictive_calibration(
@@ -733,7 +875,9 @@ def load_run_predictive_calibration(
         (
             item
             for item in reversed(records)
-            if getattr(getattr(item, "event", None), "event_type", None) == _ASSOCIATION_EVENT
+            if _is_predictive_calibration_association_event(
+                getattr(item, "event", None), run_id=run_id, job_id=job_id
+            )
         ),
         None,
     )
@@ -782,6 +926,9 @@ def load_run_predictive_calibration(
             "uncertainty_bundle_ref",
         )
     }
+    if association.value_data_profile_ref is not None:
+        expected_event_inputs.add(str(association.value_data_profile_ref.artifact_id))
+        expected_event_inputs.add(str(association.forecast_profile_member_ref.artifact_id))
     if (
         payload.get("intent_id") != association.intent_id
         or payload.get("request_sha256") != association.request_sha256
@@ -822,6 +969,7 @@ def _n4_outcome_target_binding_record(
 def _association_event_version(schema_version: str) -> str:
     versions = {
         _ASSOCIATION_SCHEMA: _ASSOCIATION_VERSION,
+        _PRIOR_ASSOCIATION_SCHEMA: _PRIOR_ASSOCIATION_VERSION,
         _LEGACY_ASSOCIATION_SCHEMA: _LEGACY_ASSOCIATION_VERSION,
     }
     try:
@@ -1224,6 +1372,14 @@ def _persist_association(
         (association.backtest_report_ref, "backtest_report"),
         (association.empirical_evidence_ref, "empirical_calibration_evidence"),
         (association.uncertainty_bundle_ref, "uncertainty_bundle"),
+        *(
+            ()
+            if association.value_data_profile_ref is None
+            else (
+                (association.value_data_profile_ref, "value_data_profile"),
+                (association.forecast_profile_member_ref, "forecast_profile_member"),
+            )
+        ),
     )
     edges = [
         InputRef(
@@ -1315,6 +1471,7 @@ def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalib
     manifest = store.get_manifest(ref)
     schema_contracts = {
         _ASSOCIATION_VERSION: _ASSOCIATION_SCHEMA,
+        _PRIOR_ASSOCIATION_VERSION: _PRIOR_ASSOCIATION_SCHEMA,
         _LEGACY_ASSOCIATION_VERSION: _LEGACY_ASSOCIATION_SCHEMA,
     }
     schema_version = getattr(getattr(manifest, "artifact_schema", None), "version", None)
@@ -1329,7 +1486,9 @@ def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalib
     if not store.verify(ref).ok:
         raise PredictiveCalibrationError("predictive_calibration_association_integrity_failed")
     from polisyos.ir import CanonViolation
-    from polisyos.ir import get_json_artifact_with_bytes as _get_json_artifact_with_bytes
+    from polisyos.ir import (
+        get_json_artifact_with_bytes as _get_json_artifact_with_bytes,
+    )
 
     try:
         payload, _raw_payload = _get_json_artifact_with_bytes(
@@ -1366,6 +1525,17 @@ def _validate_association_input_edges(
             (association.backtest_report_ref, "backtest_report"),
             (association.empirical_evidence_ref, "empirical_calibration_evidence"),
             (association.uncertainty_bundle_ref, "uncertainty_bundle"),
+            *(
+                ()
+                if association.value_data_profile_ref is None
+                else (
+                    (association.value_data_profile_ref, "value_data_profile"),
+                    (
+                        association.forecast_profile_member_ref,
+                        "forecast_profile_member",
+                    ),
+                )
+            ),
         )
     }
     actual = {
@@ -1373,6 +1543,251 @@ def _validate_association_input_edges(
     }
     if not expected.issubset(actual):
         raise PredictiveCalibrationError("predictive_calibration_association_edges_mismatch")
+
+
+def _validate_selected_value_data_profile(
+    store: ArtifactStore, reference: ArtifactRef
+) -> ResolvedValueProfileProjection:
+    """Resolve canonical EMP-01 bytes and the exact activated source projection."""
+    _require_selected_ref(store, reference, expected_kind=VALUE_DATA_PROFILE_KIND)
+    from polisyos.runtime.quality.substrate_registry import (
+        current_catalog_serving_source,
+    )
+
+    selected_source = current_catalog_serving_source()
+    if selected_source is None:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_catalog_serving_source_context_missing"
+        )
+    profile = _as_ir_artifact_ref(reference)
+    manifest = store.get_manifest(reference)
+    schema = getattr(manifest, "artifact_schema", None)
+    if (
+        schema is None
+        or schema.name != VALUE_DATA_PROFILE_SCHEMA
+        or schema.version != VALUE_DATA_PROFILE_SCHEMA_VERSION
+    ):
+        raise PredictiveCalibrationError("predictive_calibration_value_profile_schema_mismatch")
+    try:
+        payload = get_json_artifact(ensure_ir_artifact_store(store), profile)
+        from polisyos.data_forge.read_api.catalog import (
+            ActivatedAcquisitionObservationProjection,
+        )
+        from polisyos.runtime.quality import generation_cycle
+        from polisyos.runtime.quality.generation_cycle import ValueDataProfile
+
+        selected_profile = ValueDataProfile.model_validate(payload)
+        profile_inputs = [
+            item for item in manifest.inputs if item.role == "activated_source_projection"
+        ]
+        if len(profile_inputs) != 1 or profile_inputs[0].manifest_profile_sha256 is None:
+            raise ValueError("selected profile lacks one exact source projection edge")
+        source_input = profile_inputs[0]
+        projection_ref = ArtifactRef.model_validate(
+            {
+                "artifact_id": source_input.artifact_id,
+                "kind": VALUE_OWNER_PROJECTION_KIND,
+                "media_type": "application/json",
+                "manifest_profile_sha256": source_input.manifest_profile_sha256,
+            }
+        )
+        _require_selected_ref(
+            store,
+            projection_ref,
+            expected_kind=VALUE_OWNER_PROJECTION_KIND,
+        )
+        projection_manifest = store.get_manifest(projection_ref)
+        projection_schema = getattr(projection_manifest, "artifact_schema", None)
+        if (
+            projection_schema is None
+            or projection_schema.name != VALUE_OWNER_PROJECTION_SCHEMA
+            or projection_schema.version != VALUE_OWNER_PROJECTION_SCHEMA_VERSION
+        ):
+            raise ValueError("selected source projection schema is unsupported")
+        projection_payload = get_json_artifact(ensure_ir_artifact_store(store), projection_ref)
+        selected_projection = ActivatedAcquisitionObservationProjection.model_validate(
+            projection_payload
+        )
+        repo_root = selected_source.repo_root
+        owner_projection, owner_passport, _ = (
+            generation_cycle._read_canonical_active_source_projection(
+                repo_root=repo_root,
+                overlay_path=selected_source.overlay_path,
+                artifact_store=store,
+                supplied_projection=selected_projection,
+            )
+        )
+        projection = validate_profile_projection_binding(
+            profile=selected_profile,
+            projection_payload=owner_projection.model_dump(mode="json"),
+            passport_payload=owner_passport.model_dump(mode="json"),
+            require_canonical_owner_profile_shape=True,
+        )
+        return ResolvedValueProfileProjection(
+            profile=selected_profile,
+            source_projection_ref=_as_ir_artifact_ref(projection_ref),
+            projection=projection,
+            source_passport=owner_passport,
+        )
+    except Exception as exc:
+        raise PredictiveCalibrationError("predictive_calibration_value_profile_invalid") from exc
+
+
+def _build_selected_profile_member(
+    *,
+    store: ArtifactStore,
+    request: PredictiveCalibrationRequest,
+    binding: ResolvedValueProfileProjection,
+) -> ForecastProfileMemberV1:
+    """Bind the selected profile to exact observed-source and data artifacts."""
+    profile_ref = request.value_data_profile_ref
+    unit_id = request.value_data_unit_id
+    if profile_ref is None or unit_id is None:
+        raise PredictiveCalibrationError("predictive_calibration_value_profile_selection_missing")
+    try:
+        snapshot_payload = get_json_artifact(
+            ensure_ir_artifact_store(store),
+            _as_ir_artifact_ref(request.observed_source_ref),
+        )
+        snapshot = DataSnapshot.model_validate(snapshot_payload)
+        observed_data_ref = ArtifactRef.model_validate(snapshot.data_ref.model_dump(mode="json"))
+        _require_selected_ref(store, observed_data_ref, expected_kind=None)
+        observed_payload = get_json_artifact(
+            ensure_ir_artifact_store(store), _as_ir_artifact_ref(observed_data_ref)
+        )
+        if not isinstance(observed_payload, Mapping):
+            raise ValueError("observed source data is not a metric map")
+        member, _values = join_profile_member_to_observed_series(
+            profile=binding.profile,
+            profile_ref=_as_ir_artifact_ref(profile_ref),
+            source_projection_ref=binding.source_projection_ref,
+            projection=binding.projection,
+            observed_source_ref=_as_ir_artifact_ref(request.observed_source_ref),
+            observed_data_ref=_as_ir_artifact_ref(observed_data_ref),
+            target_metric=request.target_metric,
+            unit_id=unit_id,
+            observed_values=observed_payload.get(request.target_metric),
+            source_passport=binding.source_passport,
+        )
+        return member
+    except Exception as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_value_profile_observed_join_invalid"
+        ) from exc
+
+
+def _revalidate_profile_member_binding(
+    store: ArtifactStore,
+    association: PredictiveCalibrationAssociation,
+    report: BacktestReport,
+) -> None:
+    """Recompute the profile/member join from exact current CAS bytes on fresh GET."""
+    profile_ref = association.value_data_profile_ref
+    member_ref = association.forecast_profile_member_ref
+    if profile_ref is None or member_ref is None:
+        if association.profile_join_status != "profileless_legacy":
+            raise PredictiveCalibrationError("predictive_calibration_profileless_status_mismatch")
+        if (
+            association.schema_version == _ASSOCIATION_SCHEMA
+            and report.metadata.get("profile_join_status") != "profileless_legacy"
+        ):
+            raise PredictiveCalibrationError("predictive_calibration_profileless_report_mismatch")
+        return
+    if association.profile_join_status != "joined_candidate":
+        raise PredictiveCalibrationError("predictive_calibration_profile_member_status_mismatch")
+    binding = _validate_selected_value_data_profile(store, profile_ref)
+    _require_selected_ref(store, member_ref, expected_kind=FORECAST_PROFILE_MEMBER_KIND)
+    member_manifest = store.get_manifest(member_ref)
+    member_schema = getattr(member_manifest, "artifact_schema", None)
+    if (
+        member_schema is None
+        or member_schema.name != FORECAST_PROFILE_MEMBER_SCHEMA
+        or member_schema.version != FORECAST_PROFILE_MEMBER_SCHEMA_VERSION
+    ):
+        raise PredictiveCalibrationError("predictive_calibration_profile_member_schema_mismatch")
+    try:
+        member_payload = get_json_artifact(
+            ensure_ir_artifact_store(store), _as_ir_artifact_ref(member_ref)
+        )
+        member = ForecastProfileMemberV1.model_validate(member_payload)
+        snapshot_payload = get_json_artifact(
+            ensure_ir_artifact_store(store),
+            _as_ir_artifact_ref(association.observed_source_ref),
+        )
+        snapshot = DataSnapshot.model_validate(snapshot_payload)
+        snapshot_data_ref = ArtifactRefModel.model_validate(
+            snapshot.data_ref.model_dump(mode="json")
+        )
+        data_ref = _as_ir_artifact_ref(member.observed_data_ref)
+        if snapshot_data_ref != member.observed_data_ref:
+            raise ValueError(
+                "selected observed data ref does not exactly belong to the source snapshot"
+            )
+        if member.observed_source_ref != _as_ir_artifact_ref(association.observed_source_ref):
+            raise ValueError("member receipt names a different observed source view")
+        if member.source_projection_ref != binding.source_projection_ref:
+            raise ValueError("member receipt names a different source projection view")
+        _require_selected_ref(
+            store,
+            ArtifactRef.model_validate(data_ref.model_dump(mode="json")),
+            expected_kind=None,
+        )
+        observed_payload = get_json_artifact(ensure_ir_artifact_store(store), data_ref)
+        target_metric = _required_text(report.metadata.get("target_metric"), "target_metric")
+        if not isinstance(observed_payload, Mapping):
+            raise ValueError("observed source data is not a metric map")
+        recomputed, _values = join_profile_member_to_observed_series(
+            profile=binding.profile,
+            profile_ref=_as_ir_artifact_ref(profile_ref),
+            source_projection_ref=binding.source_projection_ref,
+            projection=binding.projection,
+            observed_source_ref=_as_ir_artifact_ref(association.observed_source_ref),
+            observed_data_ref=data_ref,
+            target_metric=target_metric,
+            unit_id=member.unit_id,
+            observed_values=observed_payload.get(target_metric),
+            source_passport=binding.source_passport,
+        )
+        if recomputed != member:
+            raise ValueError("stored profile/member join receipt differs from recomputation")
+        if report.metadata.get("profile_join_status") != "joined_candidate":
+            raise ValueError("run-bound report lost the selected profile join status")
+        if report.metadata.get("value_data_profile_ref") != profile_ref.model_dump(mode="json"):
+            raise ValueError("run-bound report lost the selected profile ref")
+        if report.metadata.get("forecast_profile_member_ref") != member_ref.model_dump(mode="json"):
+            raise ValueError("run-bound report lost the profile member receipt ref")
+        expected_edges = {
+            (
+                str(profile_ref.artifact_id),
+                "value_data_profile",
+                profile_ref.manifest_profile_sha256,
+            ),
+            (
+                str(binding.source_projection_ref.artifact_id),
+                "activated_source_projection",
+                binding.source_projection_ref.manifest_profile_sha256,
+            ),
+            (
+                str(association.observed_source_ref.artifact_id),
+                "observed_source",
+                association.observed_source_ref.manifest_profile_sha256,
+            ),
+            (
+                str(data_ref.artifact_id),
+                "observed_data",
+                data_ref.manifest_profile_sha256,
+            ),
+        }
+        actual_edges = {
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in member_manifest.inputs
+        }
+        if not expected_edges.issubset(actual_edges):
+            raise ValueError("profile member manifest lost exact source input edges")
+    except Exception as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_profile_member_reopen_mismatch"
+        ) from exc
 
 
 def _validate_current_run_binding(
@@ -1412,6 +1827,11 @@ def _validate_current_run_binding(
         ("model_spec", association.model_spec_ref),
         ("policy_spec", association.policy_spec_ref),
         ("calibration_rule", association.calibration_rule_ref),
+        *(
+            ()
+            if association.value_data_profile_ref is None
+            else (("value_data_profile", association.value_data_profile_ref),)
+        ),
     ):
         _require_run_root_ref(reference, run_bound_refs, role)
     _require_selected_ref(
@@ -1435,6 +1855,7 @@ def _validate_current_run_binding(
         ensure_ir_artifact_store(store),
         _as_ir_artifact_ref(association.backtest_report_ref),
     )
+    _revalidate_profile_member_binding(store, association, report)
     evidence = load_empirical_calibration_evidence(
         store,
         _as_ir_empirical_calibration_evidence_ref(association.empirical_evidence_ref),
@@ -1524,7 +1945,7 @@ def _recompute_s10(
         ensure_ir_artifact_store(store),
         _as_ir_artifact_ref(association.backtest_report_ref),
     )
-    if association.schema_version == _ASSOCIATION_SCHEMA:
+    if association.schema_version in {_ASSOCIATION_SCHEMA, _PRIOR_ASSOCIATION_SCHEMA}:
         target_metric = _required_text(report.metadata.get("target_metric"), "target_metric")
         expected_binding = _n4_outcome_target_binding_record(candidate_source, target_metric)
         if report.metadata.get("n4_outcome_target_binding") != expected_binding:

@@ -593,6 +593,7 @@ if TYPE_CHECKING:
         RecursiveCycleBudget,
         RecursiveLeafContextOwner,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
     from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
 
@@ -2641,6 +2642,16 @@ class ControlPlaneService(
     def scenario_head_store(self) -> ScenarioHeadStore:
         """Expose the narrow durable scenario-head authority to the runtime container."""
         return cast("ScenarioHeadStore", self._control_store)
+
+    @property
+    def catalog_serving_source(self) -> CatalogServingSourcePaths:
+        """Return the immutable catalog source selected by this app's composition root.
+
+        The selected paths are candidate source inputs only. Exposing the exact
+        object lets HTTP consumers bind their readback to the same source used by
+        the running control service; it does not confer provenance or currentness.
+        """
+        return self._catalog_serving_source
 
     @property
     def llm_producer_settlement_store(self) -> BudgetMiddleware | None:

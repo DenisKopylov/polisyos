@@ -559,21 +559,24 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
     generation_cycle_repo_root: Path | None = None,
+    artifact_store: artifacts.FileSystemCAS | None = None,
 ):
     # This is a downstream owner-chain witness: persist_wdi_route seeds its
     # run through for_contract_testing. The protected-intent production
     # recursive-leaf boundary is exercised by the paired unit test.
-    artifact_store = None
+    selected_artifact_store = None
     if guarded_cas:
         from polisyos.runtime.http.resilience import guard_runtime_cas
 
-        base_store = artifacts.FileSystemCAS(tmp_path / "control" / ".polisyos")
-        artifact_store = guard_runtime_cas(base_store.for_tenant(tenant_id, cell_id=cell_id))
-        request.addfinalizer(artifact_store.close)
+        base_store = artifact_store or artifacts.FileSystemCAS(tmp_path / "control" / ".polisyos")
+        selected_artifact_store = guard_runtime_cas(
+            base_store.for_tenant(tenant_id, cell_id=cell_id)
+        )
+        request.addfinalizer(selected_artifact_store.close)
     install_fixture_wdi_cost_basis(monkeypatch)
     control = _build_control_service(
         tmp_path / "control",
-        artifact_store=artifact_store,
+        artifact_store=selected_artifact_store,
     )
     if generation_cycle_repo_root is not None:
         # Use one real, isolated owner repo for recursive generation and the
@@ -817,6 +820,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
     tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
     cell_id: str = "cell-a",
     generation_cycle_repo_root: Path | None = None,
+    artifact_store: artifacts.FileSystemCAS | None = None,
 ):
     if not guarded_cas:
         return await _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
@@ -827,6 +831,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             tenant_id=tenant_id,
             cell_id=cell_id,
             generation_cycle_repo_root=generation_cycle_repo_root,
+            artifact_store=artifact_store,
         )
 
     from polisyos.core.security.tenant_context import tenant_scope
@@ -840,6 +845,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case(
             tenant_id=tenant_id,
             cell_id=cell_id,
             generation_cycle_repo_root=generation_cycle_repo_root,
+            artifact_store=artifact_store,
         )
 
 
@@ -861,7 +867,15 @@ async def test_actual_wdi_admits_delta_and_reenters_same_case(
 
 
 async def _admit_served_wdi_projection(
-    tmp_path, monkeypatch, request, *, baseline_country_code="UKR"
+    tmp_path,
+    monkeypatch,
+    request,
+    *,
+    baseline_country_code="UKR",
+    baseline_period_count: int = 3,
+    tenant_id: str = _SERVED_WDI_FIXTURE_TENANT_ID,
+    cell_id: str = "cell-a",
+    artifact_store: artifacts.FileSystemCAS | None = None,
 ):
     """Create the real WDI admission and return its verified active projection."""
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -877,11 +891,24 @@ async def _admit_served_wdi_projection(
         if expected_path in prepared_baselines:
             return expected_path
         baseline_path = original_baseline(repo_path, license_id=license_id)
-        base_observations = (
-            ("fixture-government-balance-2021", 2021, -18.4),
-            ("fixture-government-balance-2022", 2022, -17.8),
-            ("fixture-government-balance-2023", 2023, -18.2),
-        )
+        if baseline_period_count < 3:
+            raise ValueError("fixture baseline period count must be at least three")
+        if baseline_period_count == 3:
+            base_observations = (
+                ("fixture-government-balance-2021", 2021, -18.4),
+                ("fixture-government-balance-2022", 2022, -17.8),
+                ("fixture-government-balance-2023", 2023, -18.2),
+            )
+        else:
+            first_year = 2024 - baseline_period_count
+            base_observations = tuple(
+                (
+                    f"fixture-government-balance-{year}",
+                    year,
+                    -18.4 + (year - first_year) * 0.1,
+                )
+                for year in range(first_year, 2024)
+            )
         with duckdb.connect(str(baseline_path)) as con:
             con.executemany(
                 """
@@ -989,7 +1016,10 @@ async def _admit_served_wdi_projection(
         monkeypatch,
         request,
         guarded_cas=True,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
         generation_cycle_repo_root=tmp_path / "wdi" / "repo",
+        artifact_store=artifact_store,
     )
 
     assert len(projections) == 1

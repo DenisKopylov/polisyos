@@ -261,6 +261,13 @@ for the compatibility and rollout boundary.
 
 The association copies the evidence artifact's typed `failure_codes` into `evidence_reason_codes`; GET replay checks that projection against reopened evidence.
 
+The POST producer and GET reader run inside the exact catalog source context
+owned by the app's `ControlPlaneService`. Profile validation resolves its
+canonical Data Forge owner from that source's configured repository and overlay
+paths; absent request context fails closed for a selected profile. This path
+selection establishes neither source provenance nor currentness, and the
+profileless legacy request remains a candidate-only path.
+
 The shared runtime operation owner uses the purpose-neutral `run_operation_idempotency.py` contract and a shared SQLite/PostgreSQL owner table in `ControlPlaneStore`. Its unique scope is purpose, tenant, cell, authenticated-principal digest, typed `scope_kind`/`scope_id`, and caller intent; run-bound Forecast uses the actual run id as `scope_id`, while route-owned NL pre-admission uses a fixed route scope and retains the actual candidate run id as provenance. The body digest separately binds full selected refs and the exact run-manifest profile or launch intent. Same-scope concurrent callers share one database claim across app instances, changed bodies conflict, and the Forecast publication event plus exact association ref and completed row commit in one database transaction. An interrupted process can leave `pending`; the owner does not automatically transfer or rerun ambiguous work, and requires manual reconciliation. This is local database admission, not external provider exactly-once execution. Previously published pre-R229 events do not carry the principal scope, so matching legacy retries fail with `legacy_intent_scope_unverifiable` instead of being replayed or silently duplicated. SQLite two-instance and process-race tests are authored but UNRUN; PostgreSQL runtime behavior also remains UNRUN.
 
 

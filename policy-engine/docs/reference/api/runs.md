@@ -2,10 +2,10 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-10-14
+Freshness: 2026-10-20
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
-Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+Source pin: External candidate freeze manifest `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-v4-v7-author-r8-20261020/freeze-r8a/source-freeze.json`; the post-commit receipt will bind the adopted frozen source hash.
 Validation:
 
 - `uv run pytest -q tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/http/test_timeline_api.py tests/unit/runtime/http/test_runtime_api_authz.py`
@@ -48,7 +48,7 @@ for the complete schema-described and route-only surfaces.
 | `GET`  | `/api/v1/runs/live`                            | `text/event-stream`             | Route-only, schema-hidden global live stream                           |
 | `GET`  | `/api/v1/runs/{run_id}/live`                   | `text/event-stream`             | Route-only, schema-hidden per-run live stream                          |
 
-Common status codes for committed endpoints: `200`, `400`, `401`, `403`, `404`, `422`, `500`.
+Common status codes for committed endpoints: `200`, `201`, `400`, `401`, `403`, `404`, `409`, `422`, `500`.
 
 Validation anchors:
 
@@ -404,8 +404,11 @@ view is not retroactive producer attestation.
 ## Predictive calibration
 
 The committed generated OpenAPI snapshot and both generated TypeScript
-operation-type surfaces describe `GET` and `POST`
-`/api/v1/runs/{run_id}/predictive-calibration`. The route implementation is in
+operation-type surfaces list `GET` and `POST`
+`/api/v1/runs/{run_id}/predictive-calibration`. Their predictive-calibration
+association DTO shape has not yet been regenerated for the v4 fields, so a
+strict generated client may reject this candidate response until the canonical
+generator pass lands. The route implementation is in
 `src/polisyos/runtime/http/routes/runs.py`; this operation pair is schema
 described, not one of the schema-hidden live streams.
 
@@ -421,7 +424,10 @@ inputs as exact full-profile run roots; reopens each selected CAS profile;
 runs ForecastOwner; persists the empirical calibration bridge and limited S10
 candidate projection; and appends a versioned association-ref event. Earlier
 associations are not rewritten. Success returns `201`; unresolved or
-inadmissible selected inputs return `422`.
+inadmissible selected inputs return `422`. A selected source or profile that
+fails the canonical EMP-01 owner binding also returns `422` before event or
+operation-intent publication. Fresh `GET` replay under a missing or wrong app
+source returns `409`.
 
 A purpose-scoped SQL intent row serializes identical
 authenticated-principal/run/intent requests across app instances sharing the
@@ -448,6 +454,29 @@ forecasting uncertainty bundle. It remains limited with
 `authority_scope=predictive_only`; issuer, source-time currentness, population
 scope, and counterfactual credibility remain `not_established`. It is not a
 causal effect, recommendation, promotion, or publication authorization.
+
+Both POST production and GET replay execute under the immutable
+`CatalogServingSourcePaths` selected by that app's `ControlPlaneService`. The
+same composition-root source is used when a fresh app reopens a selected
+EMP-01 profile; a missing source context or a source that cannot reopen the
+canonical Data Forge owner projection returns a typed refusal. The selected
+profile path never falls back to a source inferred from the installed module
+location. Profileless legacy candidates continue through the existing limited
+path and make no Data Forge profile claim.
+
+For a profile-bound POST and its fresh GET, the route resolves the exact
+owner-issued active source projection through the configured Data Forge source
+and applies the current `ValueDataProfile` producer's one-row-per-unit-period
+and single-dataset rules. A valid CAS profile assembled from multiple rows for
+one unit-period is refused when the serving producer cannot emit that shape;
+the generic row calculation alone does not authorize the aggregation. An
+explicit `CatalogServingSourceSelection` may choose a fixed local snapshot, but
+its selection status remains candidate-only and does not establish source
+currentness. Missing or wrong source context and incompatible selected profile
+shape on `POST` return typed `422` refusals before the predictive-calibration
+event or operation-intent record is written. Missing or wrong source context
+on a fresh `GET` returns typed `409`. Existing profileless requests retain
+their limited behavior.
 
 The v3 S10 projection also carries `outcome_binding_status`, `limitation_refs`,
 `authority_boundary`, and `may_not_use_for`. When the selected N4 target-to-observed

@@ -59,3 +59,18 @@ Foundry callers use the Calibration root facade. This layout change leaves the
 17-name root API and empirical-evidence lazy bridge unchanged; it does not claim
 that unrelated unclassified package-root files or the full repository gate are
 closed.
+
+## Forecast profile member boundary
+
+The shared calibration package remains source-neutral. Runtime quality resolves
+the exact EMP-01 `ValueDataProfile` and reopens its activated projection through
+the canonical Data Forge source, active overlay, receipt, and passport owner. It
+compares the full owner-issued projection, recomputes profile rows, and applies
+the current producer's single source-row-per-unit-period and single-dataset
+rules before emitting the typed Core `ForecastProfileMemberV1` candidate
+receipt for the selected forecast unit and observed series. This candidate join
+does not establish source currentness, population completeness, treatment
+assignment, a source relation, causal calibration, or authority. The generic
+row primitive may represent aggregates, but Runtime intake refuses aggregates
+the current owner profile producer would not emit. The legacy profileless route
+stays profileless on fresh reads; it is not upgraded from adjacent bytes.

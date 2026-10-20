@@ -1293,6 +1293,7 @@ def make_native_multivariable_active_projections(
     variable_specs: Sequence[Mapping[str, object]],
     unadmitted_baseline_observations: Sequence[Mapping[str, object]] = (),
     condition_units_by_raw_field: Mapping[str, str] | None = None,
+    artifact_store: FileSystemCAS | None = None,
 ) -> SimpleNamespace:
     """Create active projections through the real signed epoch owner chain.
 
@@ -1311,7 +1312,7 @@ def make_native_multivariable_active_projections(
     source_rows_by_raw_field = _source_rows_by_raw_field(
         source_rows, variable_specs, condition_units_by_raw_field
     )
-    store = FileSystemCAS(tmp_path / "cas")
+    store = artifact_store or FileSystemCAS(tmp_path / "cas")
     journal = AppendOnlyEvidenceJournal(tmp_path / "journal.jsonl")
     overlay_path = catalog_read_api.default_acquisition_overlay_path(authority.repo_root)
     overlay = CatalogAcquisitionOverlay(authority.baseline_path, overlay_path)

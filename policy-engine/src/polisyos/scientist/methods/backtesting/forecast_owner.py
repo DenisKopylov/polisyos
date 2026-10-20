@@ -23,7 +23,16 @@ from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts import (
+    FORECAST_PROFILE_MEMBER_KIND,
+    FORECAST_PROFILE_MEMBER_SCHEMA,
+    FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+    VALUE_DATA_PROFILE_KIND,
+    DataSnapshot,
+    DataSnapshotRef,
+    ForecastProfileMemberV1,
+    forecast_profile_observed_series_sha256,
+)
 from polisyos.foundry.methods import (
     BackendSpec,
     ComputeBackend,
@@ -195,6 +204,9 @@ class ForecastOwnerRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     observed_source_ref: DataSnapshotRef
+    value_data_profile_ref: ArtifactRefModel | None = None
+    value_data_unit_id: str | None = None
+    forecast_profile_member: ForecastProfileMemberV1 | None = None
     split: TrainHoldoutSplit
     target_metric: str = Field(min_length=1)
     method_fqn: Literal["forecasting.univariate.exponential_smoothing@1.0.0"] = METHOD_FQN
@@ -210,6 +222,30 @@ class ForecastOwnerRequest(BaseModel):
 
     @model_validator(mode="after")
     def _validate_request(self) -> ForecastOwnerRequest:
+        if (self.value_data_profile_ref is None) != (self.value_data_unit_id is None):
+            raise ValueError("value profile ref and selected unit must be supplied as a pair")
+        if self.value_data_profile_ref is not None:
+            if (
+                self.value_data_profile_ref.kind != VALUE_DATA_PROFILE_KIND
+                or self.value_data_profile_ref.media_type != "application/json"
+                or self.value_data_profile_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("value profile ref must select an exact JSON manifest view")
+            if (
+                not self.value_data_unit_id
+                or self.value_data_unit_id != self.value_data_unit_id.strip()
+            ):
+                raise ValueError("selected value profile unit must be a clean identifier")
+            member = self.forecast_profile_member
+            if (
+                member is None
+                or member.profile_ref != self.value_data_profile_ref
+                or member.unit_id != self.value_data_unit_id
+                or member.target_metric != self.target_metric
+            ):
+                raise ValueError("selected value profile member receipt is incomplete")
+        elif self.forecast_profile_member is not None:
+            raise ValueError("profile member receipt requires an exact selected profile")
         if self.target_metric != self.target_metric.strip():
             raise ValueError("target_metric must not have surrounding whitespace")
         if self.report_id != self.report_id.strip():
@@ -256,6 +292,8 @@ class ForecastOwnerResult(BaseModel):
     authority_scope: Literal["predictive_only"] = "predictive_only"
     bridge_status: Literal["bridge_pending"] = "bridge_pending"
     observed_source_ref: ArtifactRefModel
+    value_data_profile_ref: ArtifactRefModel | None = None
+    forecast_profile_member_ref: ArtifactRefModel | None = None
     training_slice_ref: ArtifactRefModel
     method_artifact_ref: ArtifactRefModel
     calibration_rule_ref: ArtifactRefModel
@@ -569,6 +607,8 @@ def _expected_input_pairs(
     calibration_diagnostics_ref: ArtifactRefModel,
     model_spec_ref: ArtifactRefModel | None,
     policy_spec_ref: ArtifactRefModel | None,
+    value_data_profile_ref: ArtifactRefModel | None,
+    forecast_profile_member_ref: ArtifactRefModel | None,
 ) -> list[InputRef]:
     required = [
         _input(observed_source_ref, "observed_source"),
@@ -584,6 +624,15 @@ def _expected_input_pairs(
             [
                 _input(model_spec_ref, "model_spec"),
                 _input(policy_spec_ref, "policy_spec"),
+            ]
+        )
+    if (value_data_profile_ref is None) != (forecast_profile_member_ref is None):
+        raise ValueError("value profile and member receipt must be supplied as a pair")
+    if value_data_profile_ref is not None and forecast_profile_member_ref is not None:
+        required.extend(
+            [
+                _input(value_data_profile_ref, "value_data_profile"),
+                _input(forecast_profile_member_ref, "forecast_profile_member"),
             ]
         )
     return required
@@ -619,6 +668,26 @@ class ForecastOwner:
         values = _finite_series(
             observed_payload.get(request.target_metric), field="observed source"
         )
+        value_data_profile_ref = request.value_data_profile_ref
+        profile_member = request.forecast_profile_member
+        if value_data_profile_ref is not None:
+            if profile_member is None or request.value_data_unit_id is None:
+                raise ValueError("selected value profile member receipt is incomplete")
+            if (
+                profile_member.profile_ref != value_data_profile_ref
+                or profile_member.unit_id != request.value_data_unit_id
+                or profile_member.target_metric != request.target_metric
+                or profile_member.observed_source_ref != observed_source_ref
+                or profile_member.observed_data_ref != observed_data_ref
+                or profile_member.row_count != int(values.size)
+                or forecast_profile_observed_series_sha256(values.tolist())
+                != profile_member.observed_series_sha256
+            ):
+                raise ValueError(
+                    "selected profile member does not bind the resolved observed series"
+                )
+        elif profile_member is not None:
+            raise ValueError("profile member receipt requires an exact selected profile")
         if request.split.holdout_end > values.size:
             raise ValueError("explicit train/holdout split exceeds observed source length")
         if request.split.train_end < _MIN_TRAIN_OBSERVATIONS:
@@ -737,6 +806,25 @@ class ForecastOwner:
             }
         )
 
+        if profile_member is not None and value_data_profile_ref is not None:
+            forecast_profile_member_ref = _ref_from_payload(
+                put_json_artifact(
+                    _ensure_ir_artifact_store(self._store),
+                    profile_member.model_dump(mode="json"),
+                    kind=FORECAST_PROFILE_MEMBER_KIND,
+                    schema_name=FORECAST_PROFILE_MEMBER_SCHEMA,
+                    schema_version=FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+                    inputs=[
+                        _input(value_data_profile_ref, "value_data_profile"),
+                        _input(profile_member.source_projection_ref, "activated_source_projection"),
+                        _input(observed_source_ref, "observed_source"),
+                        _input(observed_data_ref, "observed_data"),
+                    ],
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
+            )
+
         training_slice_ref = _ref_from_payload(
             put_json_artifact(
                 _ensure_ir_artifact_store(self._store),
@@ -751,6 +839,23 @@ class ForecastOwner:
                     "values": train.tolist(),
                     "temporal_roles": request.temporal_roles.model_dump(mode="json"),
                     "authority_scope": "predictive_only",
+                    "profile_join_status": (
+                        "joined_candidate"
+                        if value_data_profile_ref is not None
+                        else "profileless_legacy"
+                    ),
+                    **(
+                        {}
+                        if value_data_profile_ref is None
+                        else {
+                            "value_data_profile_ref": value_data_profile_ref.model_dump(
+                                mode="json"
+                            ),
+                            "forecast_profile_member_ref": forecast_profile_member_ref.model_dump(
+                                mode="json"
+                            ),
+                        }
+                    ),
                 },
                 kind="ir.forecast_training_slice",
                 schema_name="polisyos.ir.ForecastTrainingSlice",
@@ -758,6 +863,14 @@ class ForecastOwner:
                 inputs=[
                     _input(observed_source_ref, "observed_source"),
                     _input(observed_data_ref, "observed_data"),
+                    *(
+                        []
+                        if value_data_profile_ref is None
+                        else [
+                            _input(value_data_profile_ref, "value_data_profile"),
+                            _input(forecast_profile_member_ref, "forecast_profile_member"),
+                        ]
+                    ),
                 ],
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
@@ -782,6 +895,14 @@ class ForecastOwner:
                 _input(training_slice_ref, "training_slice"),
                 _input(method_artifact_ref, "method_artifact"),
                 _input(calibration_rule_ref, "calibration_rule"),
+                *(
+                    []
+                    if value_data_profile_ref is None
+                    else [
+                        _input(value_data_profile_ref, "value_data_profile"),
+                        _input(forecast_profile_member_ref, "forecast_profile_member"),
+                    ]
+                ),
             ],
             return_selected_profile=True,
         )
@@ -872,6 +993,19 @@ class ForecastOwner:
             "coverage_denominator": coverage_denominator,
             "nominal_coverage": nominal_coverage,
             "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+            "profile_join_status": (
+                "joined_candidate" if value_data_profile_ref is not None else "profileless_legacy"
+            ),
+            **(
+                {}
+                if value_data_profile_ref is None
+                else {
+                    "value_data_profile_ref": value_data_profile_ref.model_dump(mode="json"),
+                    "forecast_profile_member_ref": forecast_profile_member_ref.model_dump(
+                        mode="json"
+                    ),
+                }
+            ),
         }
         calibration_diagnostics_ref = _ref_from_payload(
             put_json_artifact(
@@ -887,6 +1021,14 @@ class ForecastOwner:
                     _input(method_artifact_ref, "method_artifact"),
                     _input(calibration_rule_ref, "calibration_rule"),
                     _input(bundle_ref, "uncertainty_bundle"),
+                    *(
+                        []
+                        if value_data_profile_ref is None
+                        else [
+                            _input(value_data_profile_ref, "value_data_profile"),
+                            _input(forecast_profile_member_ref, "forecast_profile_member"),
+                        ]
+                    ),
                 ],
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
@@ -904,6 +1046,8 @@ class ForecastOwner:
             calibration_diagnostics_ref=calibration_diagnostics_ref,
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
+            value_data_profile_ref=value_data_profile_ref,
+            forecast_profile_member_ref=forecast_profile_member_ref,
         )
         resolved_manifest_inputs = [
             _resolve_input_ref(self._store, item) for item in request.manifest_inputs
@@ -966,6 +1110,21 @@ class ForecastOwner:
                 ),
                 "observed_source_ref": observed_source_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                "profile_join_status": (
+                    "joined_candidate"
+                    if value_data_profile_ref is not None
+                    else "profileless_legacy"
+                ),
+                **(
+                    {}
+                    if value_data_profile_ref is None
+                    else {
+                        "value_data_profile_ref": value_data_profile_ref.model_dump(mode="json"),
+                        "forecast_profile_member_ref": forecast_profile_member_ref.model_dump(
+                            mode="json"
+                        ),
+                    }
+                ),
             },
         )
         report, report_ref = BacktestOrchestrator(cas=self._store).run_with_ref(
@@ -989,6 +1148,21 @@ class ForecastOwner:
                 "calibration_diagnostics_ref": calibration_diagnostics_ref.model_dump(mode="json"),
                 "uncertainty_bundle_ref": uncertainty_bundle_ref.model_dump(mode="json"),
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                "profile_join_status": (
+                    "joined_candidate"
+                    if value_data_profile_ref is not None
+                    else "profileless_legacy"
+                ),
+                **(
+                    {}
+                    if value_data_profile_ref is None
+                    else {
+                        "value_data_profile_ref": value_data_profile_ref.model_dump(mode="json"),
+                        "forecast_profile_member_ref": forecast_profile_member_ref.model_dump(
+                            mode="json"
+                        ),
+                    }
+                ),
             },
         )
         if report.cas_artifact_id is None:
@@ -1027,13 +1201,28 @@ class ForecastOwner:
         for role, expected_id in (
             ("model_spec", expected_model_id),
             ("policy_spec", expected_policy_id),
+            (
+                "value_data_profile",
+                None if value_data_profile_ref is None else str(value_data_profile_ref.artifact_id),
+            ),
+            (
+                "forecast_profile_member",
+                None
+                if forecast_profile_member_ref is None
+                else str(forecast_profile_member_ref.artifact_id),
+            ),
         ):
             actual_edges = [
                 (str(item.artifact_id), item.role, item.manifest_profile_sha256)
                 for item in report_manifest.inputs
                 if item.role == role
             ]
-            expected_ref = model_spec_ref if role == "model_spec" else policy_spec_ref
+            expected_ref = {
+                "model_spec": model_spec_ref,
+                "policy_spec": policy_spec_ref,
+                "value_data_profile": value_data_profile_ref,
+                "forecast_profile_member": forecast_profile_member_ref,
+            }[role]
             expected_edges = (
                 []
                 if expected_id is None or expected_ref is None
@@ -1077,6 +1266,8 @@ class ForecastOwner:
             empirical_coverage=empirical_coverage,
             empirical_suitability=suitability,
             observed_source_ref=observed_source_ref,
+            value_data_profile_ref=value_data_profile_ref,
+            forecast_profile_member_ref=forecast_profile_member_ref,
             training_slice_ref=training_slice_ref,
             method_artifact_ref=method_artifact_ref,
             calibration_rule_ref=calibration_rule_ref,

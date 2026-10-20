@@ -67,3 +67,15 @@ Details: [Reference →](../../../../../docs/reference/scientist/index.md)
   empirical handoff.
 
 ## Predictive Calibration Owner Facade\n\nThe package root lazily exports `ForecastOwner` and its typed request/result contracts: `ForecastOwnerRequest`, `ForecastOwnerResult`, `CalibrationRuleBinding`, `ForecastMethodParams`, `ForecastTemporalRoles`, and `TrainHoldoutSplit`. `run_forecast_owner` delegates to the same owner class. The evidence is predictive-only and bridge-pending; it does not establish causal-effect authority, treatment assignment, or S10 promotion.
+
+## Selected EMP-01 forecast member
+
+When Runtime supplies a selected profile, `ForecastOwnerRequest` carries the
+typed Core `ForecastProfileMemberV1` receipt with the exact profile, activated
+projection, observed snapshot/data references, metric, unit, ordered periods,
+and observed-series digest. The owner checks the receipt against the resolved
+observed bytes and preserves the profile/member edges in the uncertainty bundle
+and report. Scientist does not load or interpret Data Forge projection
+internals. The receipt remains predictive-only: population scope, completeness,
+source relation, source time/currentness, treatment assignment, and causal
+calibration remain not established.

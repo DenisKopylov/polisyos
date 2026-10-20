@@ -2123,6 +2123,237 @@ def _avg_income_candidate() -> _Candidate:
     )
 
 
+def _avg_income_typed_atom_candidate(
+    problem: Any,
+    *,
+    unit_id: str | None = "binary",
+    treatment_variable: str = "agents.income",
+) -> _Candidate:
+    """Build a controlled candidate from the registered intervention-atom producer."""
+    from polisyos.ir.analytics.interventions import (
+        QueryTarget,
+        identification_plan_for_intervention,
+    )
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        build_intervention_atom_binding,
+    )
+    from tests.unit.runtime.quality.test_intervention_atom_binding import (
+        _context,
+        _intervention,
+        _linked,
+        _node,
+    )
+
+    intervention = _intervention()
+    causal_intervention = _node(variable=treatment_variable)
+    atom = build_intervention_atom_binding(
+        problem_frame_ref=gc._problem_ref(problem),
+        policy_spec_ref=_hash("a"),
+        intervention=intervention,
+        linked_intervention=_linked(intervention),
+        causal_intervention=causal_intervention,
+        query_target=QueryTarget(
+            outcome_variables=("avg_income",),
+            conditioning=("income_covariate",),
+            functional="ATE",
+        ),
+        identification_plan=identification_plan_for_intervention(causal_intervention),
+        causal_context=_context(intervention),
+        world_model_record_ref="world_model_record_candidate_fixture_only",
+        producer_ref="tests.unit.runtime.quality.test_value_gate:b31_source_atom",
+        provenance_refs=("controlled_fixture:candidate_atom_only",),
+        estimand_metric_id=problem.outcome_of_interest.metric_id,
+        estimand_unit_id=unit_id,
+    )
+    return replace(_avg_income_candidate(), atom=atom)
+
+
+def test_b31_source_atom_binding_requires_recomputed_exact_join() -> None:
+    from polisyos.runtime.quality import generation_cycle as gc
+
+    problem = _avg_income_problem()
+    candidate = _avg_income_typed_atom_candidate(problem)
+    estimand = EstimandSpec(
+        query_id="b31-controlled-source-estimand",
+        estimand_id="ATE",
+        outcome="avg_income",
+        treatment_or_exposure="agents.income",
+        covariates_or_conditioning=("income_covariate",),
+        adjustment_set=("income_covariate",),
+        unit="binary",
+    )
+    bind = gc._value_owner_source_atom_estimand_binding
+    assert (
+        bind(
+            candidate=candidate,
+            problem=problem,
+            estimand=estimand,
+            measurement_unit="binary",
+        )
+        == candidate.atom.content_hash
+    )
+
+    def refuses(
+        *,
+        selected_candidate: Any = candidate,
+        selected_problem: Any = problem,
+        selected_estimand: EstimandSpec = estimand,
+        selected_unit: str = "binary",
+        code: str,
+    ) -> None:
+        with pytest.raises(ValueError, match=code):
+            bind(
+                candidate=selected_candidate,
+                problem=selected_problem,
+                estimand=selected_estimand,
+                measurement_unit=selected_unit,
+            )
+
+    refuses(
+        selected_problem=problem.model_copy(update={"design_problem_id": "foreign_problem"}),
+        code="value_owner_source_atom_subject_mismatch",
+    )
+    refuses(
+        selected_estimand=replace(estimand, outcome="foreign_outcome"),
+        code="value_owner_source_atom_outcome_mismatch",
+    )
+    refuses(
+        selected_estimand=replace(estimand, estimand_id="ATT"),
+        code="value_owner_source_atom_functional_mismatch",
+    )
+    refuses(
+        selected_estimand=replace(estimand, treatment_or_exposure="government.balance"),
+        code="value_owner_source_atom_treatment_mismatch",
+    )
+    refuses(
+        selected_estimand=replace(estimand, covariates_or_conditioning=("foreign_covariate",)),
+        code="value_owner_source_atom_conditioning_mismatch",
+    )
+    refuses(
+        selected_estimand=replace(estimand, unit="percent"),
+        code="value_owner_source_atom_unit_mismatch",
+    )
+    refuses(selected_unit="percent", code="value_owner_source_atom_unit_mismatch")
+    refuses(
+        selected_candidate=_avg_income_typed_atom_candidate(problem, unit_id=None),
+        code="value_owner_source_atom_unit_unbound",
+    )
+    refuses(
+        selected_candidate=replace(
+            candidate,
+            atom=candidate.atom.model_copy(update={"content_hash": _hash("f")}),
+        ),
+        code="value_owner_source_atom_hash_mismatch",
+    )
+    refuses(selected_candidate=_avg_income_candidate(), code="value_owner_source_atom_untyped")
+
+
+def _rehash_typed_atom_candidate(candidate: Any, **atom_updates: Any) -> Any:
+    """Rehash controlled atom edits so tests reach semantic checks after identity passes."""
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    provisional = candidate.atom.model_copy(update=atom_updates)
+    content_hash = intervention_atom_content_hash(provisional)
+    atom = InterventionAtomBinding.model_validate(
+        {
+            **provisional.model_dump(mode="python"),
+            "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": content_hash,
+        }
+    )
+    return replace(candidate, atom=atom)
+
+
+def test_b31_source_atom_binding_rehydrates_expression_and_limits_ate_action() -> None:
+    from polisyos.ir.analytics.interventions import NodeIntervention, VariableAssignment
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        CausalAssignmentProjection,
+    )
+
+    problem = _avg_income_problem()
+    candidate = _avg_income_typed_atom_candidate(problem)
+    estimand = EstimandSpec(
+        query_id="b31-rehydrated-action-source-estimand",
+        estimand_id="ATE",
+        outcome="avg_income",
+        treatment_or_exposure="agents.income",
+        covariates_or_conditioning=("income_covariate",),
+        adjustment_set=("income_covariate",),
+        unit="binary",
+    )
+    bind = gc._value_owner_source_atom_estimand_binding
+    assert (
+        bind(
+            candidate=candidate,
+            problem=problem,
+            estimand=estimand,
+            measurement_unit="binary",
+        )
+        == candidate.atom.content_hash
+    )
+
+    # The changed expression is valid and the atom content hash is recomputed,
+    # while the cached assignment/write-set projection keeps the old action.
+    changed_action = NodeIntervention(
+        assignments=(
+            VariableAssignment(variable="government.balance", value_expr="balance + subsidy"),
+        )
+    )
+    changed_payload_only = candidate.atom.causal_do_expr.model_copy(
+        update={"expression_payload": changed_action.model_dump(mode="json")}
+    )
+    forged = _rehash_typed_atom_candidate(candidate, causal_do_expr=changed_payload_only)
+    with pytest.raises(ValueError, match="value_owner_source_atom_expression_projection_mismatch"):
+        bind(candidate=forged, problem=problem, estimand=estimand, measurement_unit="binary")
+
+    # A rehashed malformed payload cannot be treated as an absent expression.
+    malformed_projection = candidate.atom.causal_do_expr.model_copy(
+        update={"expression_payload": {"intervention_type": "unknown_action"}}
+    )
+    malformed = _rehash_typed_atom_candidate(candidate, causal_do_expr=malformed_projection)
+    with pytest.raises(ValueError, match="value_owner_source_atom_expression_invalid"):
+        bind(candidate=malformed, problem=problem, estimand=estimand, measurement_unit="binary")
+
+    # Generic atoms can represent multi-target actions; this ATE source route
+    # refuses them until it can reconcile the single-treatment coordinate.
+    multiple_action = NodeIntervention(
+        assignments=(
+            VariableAssignment(variable="agents.income", value_expr="income + subsidy(rate)"),
+            VariableAssignment(variable="government.balance", value_expr="balance - subsidy(rate)"),
+        )
+    )
+    multiple_projection = candidate.atom.causal_do_expr.model_copy(
+        update={
+            "assignments": (
+                CausalAssignmentProjection(
+                    variable="agents.income", value_expr="income + subsidy(rate)"
+                ),
+                CausalAssignmentProjection(
+                    variable="government.balance", value_expr="balance - subsidy(rate)"
+                ),
+            ),
+            "expression_payload": multiple_action.model_dump(mode="json"),
+            "write_variables": ("agents.income", "government.balance"),
+        }
+    )
+    multiple = _rehash_typed_atom_candidate(candidate, causal_do_expr=multiple_projection)
+    with pytest.raises(ValueError, match="value_owner_source_atom_multiple_treatments_unsupported"):
+        bind(candidate=multiple, problem=problem, estimand=estimand, measurement_unit="binary")
+
+    # A valid direct action must also be included in the linker-resolved slot set.
+    wrong_slots = _rehash_typed_atom_candidate(
+        candidate,
+        target_world_slots=("government.balance",),
+    )
+    with pytest.raises(ValueError, match="value_owner_source_atom_treatment_mismatch"):
+        bind(candidate=wrong_slots, problem=problem, estimand=estimand, measurement_unit="binary")
+
+
 def _controlled_avg_income_owner_profile() -> ValueDataProfile:
     """Build the controlled, content-valid N8 owner profile used by unit witnesses."""
     rows = []
@@ -6378,9 +6609,7 @@ def test_source_flip_output_root_rejects_paths_outside_local_raw(
         value_contract._source_flip_output_base(tmp_path.resolve(), tmp_path.resolve() / "outside")
 
 
-@pytest.mark.parametrize("method_name", ["aipw", "tmle"])
 def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
-    method_name: str,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -6416,14 +6645,12 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     )
     from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
 
-    method_fqn = {"aipw": AIPWEstimator.signature.fqn, "tmle": TMLEEstimator.signature.fqn}[
-        method_name
-    ]
+    method_fqn = AIPWEstimator.signature.fqn
+    problem, world = _avg_income_problem(), _world_record()
     candidate = replace(
-        _avg_income_candidate(),
+        _avg_income_typed_atom_candidate(problem),
         diversity_key=("grant", "country", "avg_income", "selected_owner_rows"),
     )
-    problem, world = _avg_income_problem(), _world_record()
     source_rows: list[dict[str, object]] = []
     for index in range(200):
         treatment = float(index % 2)
@@ -6434,7 +6661,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
                 "country_code": "UA",
                 "year": 1800 + index,
                 "avg_income": outcome,
-                "observed_treatment": treatment,
+                "agents.income": treatment,
                 "income_covariate": covariate,
                 "condition_json": '{"unit":"binary"}',
             }
@@ -6450,8 +6677,8 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
                 "canonical_unit": "binary",
             },
             {
-                "target_variable": "observed_treatment",
-                "raw_field": "observed_treatment",
+                "target_variable": "agents.income",
+                "raw_field": "agents.income",
                 "raw_unit": "binary",
                 "canonical_unit": "binary",
             },
@@ -6469,7 +6696,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
             "query_id": "n8-source-projection-controlled",
             "estimand_id": "ATE",
             "outcome": "avg_income",
-            "treatment_or_exposure": "observed_treatment",
+            "treatment_or_exposure": "agents.income",
             "covariates_or_conditioning": ["income_covariate"],
             "adjustment_set": ["income_covariate"],
             "population": "unspecified",
@@ -6487,7 +6714,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     )
     role_bindings: tuple[tuple[Literal["outcome", "treatment", "covariate"], str], ...] = (
         ("outcome", "avg_income"),
-        ("treatment", "observed_treatment"),
+        ("treatment", "agents.income"),
         ("covariate", "income_covariate"),
     )
     request = ValueOwnerSourceProjectionRequestV1(
@@ -6557,6 +6784,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         selected_gateway: RealValueOwnerGateway,
         *,
         candidate_override: Any | None = None,
+        selected_method_fqn: str | None = None,
     ) -> ValuePortObservation:
         selected_candidate = candidate if candidate_override is None else candidate_override
         with catalog_serving_source_scope(catalog_source):
@@ -6565,7 +6793,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
                     candidate=selected_candidate, simulation=simulation, problem=problem
                 ),
                 owner_gateway=selected_gateway,
-                requested_method_fqn=method_fqn,
+                requested_method_fqn=selected_method_fqn or method_fqn,
                 artifact_store=core_store,
             )(
                 candidate=selected_candidate,
@@ -6576,6 +6804,24 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
 
     observation = run(gateway)
     assert observation.status == "value_blocked"
+    from polisyos.ir.analytics.interventions import NodeIntervention, VariableAssignment
+
+    changed_action = NodeIntervention(
+        assignments=(
+            VariableAssignment(variable="government.balance", value_expr="balance + subsidy"),
+        )
+    )
+    producer_forgery = _rehash_typed_atom_candidate(
+        candidate,
+        causal_do_expr=candidate.atom.causal_do_expr.model_copy(
+            update={"expression_payload": changed_action.model_dump(mode="json")}
+        ),
+    )
+    producer_counts = (len(basis_refs), len(outer_sets))
+    producer_refusal = run(gateway, candidate_override=producer_forgery)
+    assert producer_refusal.status == "value_blocked"
+    assert "value_owner_source_atom_expression_projection_mismatch" in str(producer_refusal.reason)
+    assert (len(basis_refs), len(outer_sets)) == producer_counts
     assert observation.authority_blockers == ("candidate_fixture_value_run_not_authority",), (
         observation.reason
     )
@@ -6614,6 +6860,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         assignment.assignment_provenance == "consumer_asserted"
         and assignment.source_time_status == "not_established"
     )
+    assert assignment.candidate_content_hash == candidate.atom.content_hash
     assert assignment.outcome_bounds_unit == assignment.measurement_unit == "binary"
     assert len(assignment.role_profiles) == 3
     for role_profile in assignment.role_profiles:
@@ -6759,6 +7006,39 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         with catalog_serving_source_scope(catalog_source):
             return original_consumer(**consumer_kwargs)
 
+    foreign_problem = problem.model_copy(update={"design_problem_id": "foreign_b31_problem"})
+    wrong_join_candidates = (
+        (
+            _avg_income_typed_atom_candidate(foreign_problem),
+            "value_owner_source_atom_subject_mismatch",
+        ),
+        (
+            _avg_income_typed_atom_candidate(problem, treatment_variable="government.balance"),
+            "value_owner_source_atom_treatment_mismatch",
+        ),
+        (
+            producer_forgery,
+            "value_owner_source_atom_expression_projection_mismatch",
+        ),
+        (
+            _avg_income_typed_atom_candidate(problem, unit_id="synthetic_score"),
+            "value_owner_source_atom_unit_mismatch",
+        ),
+        (
+            replace(
+                candidate,
+                atom=candidate.atom.model_copy(update={"content_hash": _hash("f")}),
+            ),
+            "value_owner_source_atom_hash_mismatch",
+        ),
+    )
+    for wrong_candidate, refusal_code in wrong_join_candidates:
+        with (
+            catalog_serving_source_scope(catalog_source),
+            pytest.raises(ValueError, match=refusal_code),
+        ):
+            original_consumer(**{**consumer_kwargs, "candidate": wrong_candidate})
+
     # Missing the report-to-bounds reference is refused even with other markers present.
     with monkeypatch.context() as missing_basis_control:
 
@@ -6867,7 +7147,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     assert len(basis_refs) == panel_basis_count
     assert len(outer_sets) == panel_outer_count
 
-    genuine = projections["observed_treatment"]
+    genuine = projections["agents.income"]
     forged = ActivatedAcquisitionObservationProjection.issue(
         receipt_ref=genuine.receipt_ref,
         receipt_content_sha256=genuine.receipt_content_sha256,
@@ -6883,7 +7163,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         update={
             "variable_projections": tuple(
                 item.model_copy(update={"projection_payload": forged.model_dump(mode="json")})
-                if item.variable_id == "observed_treatment"
+                if item.variable_id == "agents.income"
                 else item
                 for item in request.variable_projections
             )
@@ -6908,7 +7188,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     original_loader = gc._load_value_data_profile_from_l1_dcat
 
     def fail_selected_treatment_load(**kwargs: Any) -> Any:
-        if kwargs.get("outcome") == "observed_treatment":
+        if kwargs.get("outcome") == "agents.income":
             treatment_calls = int(failure_state.get("treatment_calls", 0)) + 1
             failure_state["treatment_calls"] = treatment_calls
             if treatment_calls == failure_state.get("fail_on_call"):
@@ -6977,6 +7257,30 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     assert fresh_reload_code_text.value_ref is None
     assert len(basis_refs) == baseline_basis_count + 2
     assert len(outer_sets) == baseline_outer_count
+
+    # A second native method changes provenance only. The same atom and typed
+    # estimand remain one coordinate in both persisted bases and fresh outputs.
+    second_method_fqn = TMLEEstimator.signature.fqn
+    second_request = request.model_copy(update={"selected_method_fqn": second_method_fqn})
+    second_observation = run(
+        replace(gateway, source_projection_request=second_request),
+        selected_method_fqn=second_method_fqn,
+    )
+    assert second_observation.status == "value_blocked"
+    assert second_observation.authority_blockers == ("candidate_fixture_value_run_not_authority",)
+    assert second_observation.selected_method_fqn == second_method_fqn
+    second_basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
+        gc._value_load_ref_payload(ir_store, basis_refs[-1])
+    )
+    second_assignment = gc.ValueOwnerSourceVariableAssignmentV1.model_validate(
+        gc._value_load_ref_payload(ir_store, second_basis.assignment_ref)
+    )
+    assert basis.selected_method_fqn == AIPWEstimator.signature.fqn
+    assert second_basis.selected_method_fqn == second_method_fqn
+    assert second_assignment.candidate_content_hash == assignment.candidate_content_hash
+    assert second_assignment.candidate_content_hash == candidate.atom.content_hash
+    assert second_basis.estimand_coordinate == basis.estimand_coordinate
+    assert outer_sets[-1].coordinates == outer_sets[0].coordinates
 
 
 def test_n8_source_profile_selects_exact_active_projection_before_row_cap(
@@ -7261,11 +7565,11 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     )
     from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
 
+    problem, world = _avg_income_problem(), _world_record()
     candidate = replace(
-        _avg_income_candidate(),
+        _avg_income_typed_atom_candidate(problem, unit_id="synthetic_score"),
         diversity_key=("grant", "country", "avg_income", "synthetic_ci_channel"),
     )
-    problem, world = _avg_income_problem(), _world_record()
     source_rows: list[dict[str, object]] = []
     for index in range(200):
         treatment = float(index % 2)
@@ -7276,7 +7580,7 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
                 "country_code": "UA",
                 "year": 1800 + index,
                 "avg_income": outcome,
-                "observed_treatment": treatment,
+                "agents.income": treatment,
                 "income_covariate": covariate,
                 "condition_json": '{"population":"synthetic_candidate","time_basis":"year"}',
             }
@@ -7284,16 +7588,16 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     outcome_values = [float(row["avg_income"]) for row in source_rows]
     assert len(set(outcome_values)) > 2
     assert min(outcome_values) >= 0.0 and max(outcome_values) <= 13.0
-    assert {float(row["observed_treatment"]) for row in source_rows} == {0.0, 1.0}
-    assert sum(float(row["observed_treatment"]) == 1.0 for row in source_rows) == 100
-    assert sum(float(row["observed_treatment"]) == 0.0 for row in source_rows) == 100
+    assert {float(row["agents.income"]) for row in source_rows} == {0.0, 1.0}
+    assert sum(float(row["agents.income"]) == 1.0 for row in source_rows) == 100
+    assert sum(float(row["agents.income"]) == 0.0 for row in source_rows) == 100
     assert {float(row["income_covariate"]) for row in source_rows} == {0.0, 1.0}
     source_fixture = make_native_multivariable_active_projections(
         tmp_path / "synthetic-owner-source",
         source_rows=source_rows,
         condition_units_by_raw_field={
             "avg_income": "synthetic_score",
-            "observed_treatment": "binary",
+            "agents.income": "binary",
             "income_covariate": "binary",
         },
         variable_specs=(
@@ -7306,8 +7610,8 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
                 "valid_max": 13.0,
             },
             {
-                "target_variable": "observed_treatment",
-                "raw_field": "observed_treatment",
+                "target_variable": "agents.income",
+                "raw_field": "agents.income",
                 "raw_unit": "binary",
                 "canonical_unit": "binary",
                 "valid_min": 0.0,
@@ -7329,7 +7633,7 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
             "query_id": "n8-synthetic-asymmetric-ci-channel",
             "estimand_id": "ATE",
             "outcome": "avg_income",
-            "treatment_or_exposure": "observed_treatment",
+            "treatment_or_exposure": "agents.income",
             "covariates_or_conditioning": ["income_covariate"],
             "adjustment_set": ["income_covariate"],
             "population": "unspecified",
@@ -7347,7 +7651,7 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     )
     role_bindings: tuple[tuple[Literal["outcome", "treatment", "covariate"], str], ...] = (
         ("outcome", "avg_income"),
-        ("treatment", "observed_treatment"),
+        ("treatment", "agents.income"),
         ("covariate", "income_covariate"),
     )
     method_fqn = AIPWEstimator.signature.fqn

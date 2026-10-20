@@ -3477,6 +3477,11 @@ class RecursiveGenerationCycleController:
                             if leaf_context_owner is not None
                             else None
                         ),
+                        candidate_simulation_context_admission_owner=(
+                            leaf_context_owner._admission_owner
+                            if leaf_context_owner is not None
+                            else None
+                        ),
                         candidate_simulation_handoff=(
                             candidate_simulation_handoffs_by_node or {}
                         ).get(node_ref),

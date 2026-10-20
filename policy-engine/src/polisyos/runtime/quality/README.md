@@ -1093,3 +1093,14 @@ module-valued lazy exports from symbol re-exports, binds the getter result back 
 selected map row, and reconciles loaded map/module objects against the source projection.
 Ambiguous, dynamic, duplicate-key, missing-provider, and map/getter-disagreement cases
 remain unresolved; a same-named child module cannot replace a declared provider.
+
+## N7 acquisition planner facade
+
+The package facade exports `AcquisitionRequirementBasisBinding`, a strict typed
+binding from an N7 planner report to the exact compiler report used for the
+route, and `validate_persisted_acquisition_planner_report`, the consumer check
+that resolves the selected planner and compiler artifacts and verifies their
+content, scenario, and requirement join. These exports add no namespace-package
+behavior and do not change persisted schemas. A verified candidate report is
+not external custody or authority; the generated public-surface inventory and
+independent G acceptance remain pending for this source candidate.

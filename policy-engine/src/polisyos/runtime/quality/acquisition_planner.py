@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import weakref
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
@@ -35,7 +36,12 @@ from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.data_requirement import CapabilityRequirementResolution
+from polisyos.data_requirement import (
+    CapabilityRequirementResolution,
+    DataRequirementBasisResolution,
+    DataRequirementCompilationReport,
+    data_requirement_compilation_event_ref,
+)
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -51,6 +57,7 @@ from polisyos.runtime.quality.substrate_registry import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.contracts.control import FetchPlan
     from polisyos.data_forge.read_api import academic
     from polisyos.data_forge.read_api.catalog import CatalogRunProfile
     from polisyos.fabric.retrieval.service import (
@@ -89,10 +96,21 @@ def _serialize_capability_requirement_resolution_presence(
     """
 
     payload = handler(model)
-    if "capability_requirement_resolutions" not in model.model_fields_set and isinstance(
-        payload, dict
-    ):
-        payload.pop("capability_requirement_resolutions", None)
+    if isinstance(payload, dict):
+        for field_name in (
+            "capability_requirement_resolutions",
+            "planning_context_hash",
+            "planning_binding_hash",
+            "planner_report_ref",
+            "requirement_basis_binding",
+            "basis_limitation_code",
+            "cost_estimation_status",
+        ):
+            if field_name not in model.model_fields_set or (
+                field_name != "capability_requirement_resolutions"
+                and getattr(model, field_name, None) is None
+            ):
+                payload.pop(field_name, None)
     return payload
 
 
@@ -140,12 +158,22 @@ def _validated_catalog_run_profile(value: object | None) -> CatalogRunProfile | 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
 ACQUISITION_PLANNER_KIND = "runtime.acquisition_planner_report"
 ACQUISITION_PLANNER_SCHEMA_NAME = "polisyos.runtime.quality.AcquisitionPlannerReport"
-ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT = "1.0"
+ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT = "1.1"
 ACQUISITION_PLANNER_REPORT_KEY = "acquisition_planner_report"
 ACQUISITION_PLANNER_GATE_LAYER = "acquisition_planner"
 ACQUISITION_PLANNER_GATE_PHASE = "evidence_acquisition_boundary"
 ACQUISITION_RECEIPT_SCHEMA_VERSION = "policyos.runtime.quality.acquisition_receipt.v1"
 ACQUISITION_RECEIPT_KIND = "runtime.quality.acquisition_receipt"
+DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND = "runtime.data_requirement_compilation_report"
+DATA_REQUIREMENT_COMPILATION_ARTIFACT_SCHEMA = (
+    "polisyos.data_requirement.DataRequirementCompilationReport"
+)
+
+
+class AcquisitionPlannerBindingError(ValueError):
+    """Fail-closed mismatch between one N7 plan, its complete input and CAS readback."""
+
+
 ACQUISITION_FAMILY_DENOMINATOR = (
     "ID",
     "CERT",
@@ -962,6 +990,32 @@ class AcquisitionActionRecord(BaseModel):
         return self
 
 
+class AcquisitionRequirementBasisBinding(BaseModel):
+    """CAS binding to the exact compiler report used by one N7 route."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.n7_requirement_basis_binding.v1"] = (
+        "policyos.runtime.n7_requirement_basis_binding.v1"
+    )
+    compiler_report_ref: artifacts.ArtifactRef
+    compiler_report_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scenario_id: str = Field(min_length=1)
+    producer_report_ref: str = Field(min_length=1)
+    input_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    resolution: DataRequirementBasisResolution
+
+    @model_validator(mode="after")
+    def _validate_report_ref(self) -> AcquisitionRequirementBasisBinding:
+        if self.compiler_report_ref.kind != DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND:
+            raise ValueError("n7_compiler_report_ref_kind_mismatch")
+        if self.compiler_report_ref.media_type != "application/json":
+            raise ValueError("n7_compiler_report_ref_media_type_mismatch")
+        if not self.scenario_id.strip() or not self.producer_report_ref.strip():
+            raise ValueError("n7_compiler_report_subject_invalid")
+        return self
+
+
 class AcquisitionPlannerReport(BaseModel):
     """Run-level acquisition planner report."""
 
@@ -977,6 +1031,34 @@ class AcquisitionPlannerReport(BaseModel):
     capability_reality_status: Literal["implemented"] = "implemented"
     pattern_refs: tuple[str, ...] = ("P01", "P09", "P10")
     adr_refs: tuple[str, ...] = ("ADR-0166",)
+    planning_context_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    planning_binding_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    requirement_basis_binding: AcquisitionRequirementBasisBinding | None = None
+    basis_limitation_code: (
+        Literal[
+            "requirement_basis_not_established_candidate_only",
+            "consumer_declared_basis_candidate_only",
+            "non_authority_grade_basis_candidate_only",
+            "requirement_basis_not_established",
+            "requirement_gap_not_compiled",
+            "unbound_requirement_input_refused",
+        ]
+        | None
+    ) = None
+    cost_estimation_status: Literal["not_estimated"] | None = None
+
+    # Omit additive fields on historical reports that predate this binding.
+    @model_serializer(mode="wrap")
+    def _serialize_requirement_basis_presence(  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        return _serialize_capability_requirement_resolution_presence(self, handler)
 
     @field_validator("run_id")
     @classmethod
@@ -988,6 +1070,53 @@ class AcquisitionPlannerReport(BaseModel):
         record_ids = [record.acquisition_id for record in self.acquisition_records]
         if len(record_ids) != len(set(record_ids)):
             raise ValueError("acquisition_id values must be unique")
+        if (self.planning_context_hash is None) != (self.planning_binding_hash is None):
+            raise ValueError("acquisition_planner_report_binding_pair_mismatch")
+        if self.basis_limitation_code is not None:
+            if self.requirement_basis_binding is None:
+                raise ValueError("acquisition_planner_basis_limitation_ref_missing")
+            if self.status not in {"warn", "blocked"}:
+                raise ValueError("acquisition_planner_basis_limitation_status_mismatch")
+            resolution = self.requirement_basis_binding.resolution
+            expected_candidate_grade = {
+                "requirement_basis_not_established_candidate_only": (
+                    resolution.state == "not_established"
+                ),
+                "consumer_declared_basis_candidate_only": (
+                    resolution.state == "established"
+                    and resolution.basis_grade == "consumer_asserted"
+                ),
+                "non_authority_grade_basis_candidate_only": (
+                    resolution.state == "established"
+                    and resolution.basis_grade == "institutionally_supplied"
+                ),
+            }
+            if self.basis_limitation_code in expected_candidate_grade:
+                if not expected_candidate_grade[self.basis_limitation_code]:
+                    raise ValueError("acquisition_planner_basis_limitation_grade_mismatch")
+                if self.status != "warn" or self.cost_estimation_status is not None:
+                    raise ValueError("acquisition_planner_candidate_basis_status_mismatch")
+            if self.basis_limitation_code in {
+                "requirement_basis_not_established",
+                "requirement_gap_not_compiled",
+                "unbound_requirement_input_refused",
+            }:
+                if self.status != "blocked" or self.acquisition_records:
+                    raise ValueError("acquisition_planner_basis_refusal_must_block_without_records")
+                if self.cost_estimation_status != "not_estimated":
+                    raise ValueError("acquisition_planner_basis_cost_must_remain_unestimated")
+                if (
+                    self.basis_limitation_code == "requirement_basis_not_established"
+                    and resolution.state != "not_established"
+                ):
+                    raise ValueError("acquisition_planner_unestablished_basis_mismatch")
+                if self.basis_limitation_code == "requirement_gap_not_compiled" and (
+                    resolution.state != "established"
+                    or resolution.basis_grade not in {"recomputed", "independently_reconciled"}
+                ):
+                    raise ValueError("acquisition_planner_empty_gap_basis_mismatch")
+        elif self.cost_estimation_status is not None:
+            raise ValueError("acquisition_planner_cost_status_without_basis_limitation")
         return self
 
 
@@ -1294,6 +1423,8 @@ class AcquisitionReceipt(BaseModel):
     capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
     compiled_spec_count: int = Field(ge=0)
     planner_report: AcquisitionPlannerReport
+    planner_report_ref: artifacts.ArtifactRef | None = None
+    requirement_basis_binding: AcquisitionRequirementBasisBinding | None = None
     acquisition_family_scores: tuple[AcquisitionFamilyScore, ...]
     owner_artifacts: tuple[AcquisitionOwnerArtifact, ...] = ()
     journal_entries: tuple[AcquisitionJournalEntry, ...] = ()
@@ -1325,6 +1456,17 @@ class AcquisitionReceipt(BaseModel):
 
     @model_validator(mode="after")
     def _set_content_hash(self) -> AcquisitionReceipt:
+        if (
+            self.planner_report.requirement_basis_binding is not None
+            and self.requirement_basis_binding != self.planner_report.requirement_basis_binding
+        ):
+            raise ValueError("acquisition_receipt_requirement_basis_binding_mismatch")
+        if self.planner_report.basis_limitation_code in {
+            "requirement_basis_not_established",
+            "requirement_gap_not_compiled",
+            "unbound_requirement_input_refused",
+        } and (self.owner_artifacts or self.status != "blocked"):
+            raise ValueError("acquisition_receipt_empty_basis_cannot_complete")
         if not self.content_hash:
             object.__setattr__(self, "content_hash", _receipt_content_hash(self))
         return self
@@ -1909,6 +2051,8 @@ def plan_evidence_acquisition(
     gaps: Sequence[AcquisitionGap | Mapping[str, Any]],
     voi_report: BaseModel | Mapping[str, Any] | None = None,
     generated_at: datetime | None = None,
+    planning_context_hash: str | None = None,
+    requirement_basis_binding: AcquisitionRequirementBasisBinding | None = None,
 ) -> AcquisitionPlannerReport:
     """Plan evidence acquisition actions for runtime gaps.
 
@@ -1940,13 +2084,20 @@ def plan_evidence_acquisition(
     )
     summary = _report_summary(records)
     status = "blocked" if summary["blocked"] else "warn" if summary["limited"] else "pass"
-    return AcquisitionPlannerReport(
+    report = AcquisitionPlannerReport(
         run_id=run_id,
         generated_at=_utc(generated_at),
         acquisition_records=records,
         status=status,
         summary=summary,
         authority_boundary=_authority_boundary(),
+        requirement_basis_binding=requirement_basis_binding,
+    )
+    if planning_context_hash is None:
+        return report
+    return bind_acquisition_planner_report(
+        report,
+        planning_context_hash=planning_context_hash,
     )
 
 
@@ -1956,6 +2107,8 @@ def plan_requirement_gap_acquisition(
     requirement_gaps: Sequence[AcquisitionRequirementGap | Mapping[str, Any]],
     voi_report: BaseModel | Mapping[str, Any] | None = None,
     generated_at: datetime | None = None,
+    planning_context_hash: str | None = None,
+    requirement_basis_binding: AcquisitionRequirementBasisBinding | None = None,
 ) -> AcquisitionPlannerReport:
     """Plan acquisition from typed gaps derived from compiled RequirementSpecs.
 
@@ -1981,6 +2134,8 @@ def plan_requirement_gap_acquisition(
         gaps=[gap.to_acquisition_gap() for gap in normalized],
         voi_report=voi_report,
         generated_at=generated_at,
+        planning_context_hash=planning_context_hash,
+        requirement_basis_binding=requirement_basis_binding,
     )
 
 
@@ -2268,6 +2423,11 @@ def run_acquisition_closed_loop(
     network_counter: AcquisitionNetworkCallCounter | None = None,
     useful_design_rate_before: float = 0.0,
     generated_at: datetime | None = None,
+    planner_report: AcquisitionPlannerReport | None = None,
+    planner_report_ref: artifacts.ArtifactRef | Mapping[str, Any] | None = None,
+    requirement_basis_binding: AcquisitionRequirementBasisBinding | None = None,
+    artifact_store: ArtifactStore | None = None,
+    require_persisted_planner_report: bool = False,
 ) -> AcquisitionReceipt:
     """Execute N7 over compiled gaps and return a content-bound re-entry receipt.
 
@@ -2285,7 +2445,8 @@ def run_acquisition_closed_loop(
         if isinstance(world_snapshot, AcquisitionWorldSnapshot)
         else AcquisitionWorldSnapshot.model_validate(world_snapshot)
     )
-    specs = tuple(_spec_payload(spec) for spec in data_requirement_specs)
+    spec_rows = tuple(data_requirement_specs)
+    specs = tuple(_spec_payload(spec) for spec in spec_rows)
     resolution_rows = (
         None
         if capability_requirement_resolutions is None
@@ -2296,15 +2457,100 @@ def run_acquisition_closed_loop(
             for resolution in capability_requirement_resolutions
         )
     )
+    planning_generated_at = (
+        planner_report.generated_at
+        if planner_report is not None and generated_at is None
+        else _utc(generated_at)
+    )
+    planning_context_hash = n7_planner_input_content_hash(
+        run_id=run_id,
+        acquisition_request=request,
+        compiled_requirement_specs=spec_rows,
+        world_snapshot=world,
+        capability_requirement_resolutions=resolution_rows,
+        requirement_basis_binding=requirement_basis_binding,
+        design_problem=design_problem,
+        generated_at=planning_generated_at,
+    )
     gaps = requirement_gaps_from_compiled_specs(
-        data_requirement_specs=data_requirement_specs,
+        data_requirement_specs=spec_rows,
         capability_requirement_resolutions=resolution_rows,
     )
-    planner_report = plan_requirement_gap_acquisition(
-        run_id=run_id,
-        requirement_gaps=gaps,
-        generated_at=generated_at,
+    normalized_planner_ref = (
+        planner_report_ref
+        if isinstance(planner_report_ref, artifacts.ArtifactRef)
+        else artifacts.ArtifactRef.model_validate(planner_report_ref)
+        if planner_report_ref is not None
+        else None
     )
+    if planner_report is None:
+        planner_report = plan_requirement_gap_acquisition(
+            run_id=run_id,
+            requirement_gaps=gaps,
+            generated_at=planning_generated_at,
+            planning_context_hash=(planning_context_hash if artifact_store is not None else None),
+            requirement_basis_binding=requirement_basis_binding,
+        )
+        if artifact_store is not None:
+            try:
+                normalized_planner_ref = persist_and_verify_acquisition_planner_report(
+                    artifact_store,
+                    planner_report,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise AcquisitionPlannerBindingError(
+                    f"acquisition_planner_report_persistence_refused:{exc}"
+                ) from exc
+    else:
+        if (
+            planner_report.run_id != run_id
+            or planner_report.requirement_basis_binding != requirement_basis_binding
+            or not acquisition_planner_report_matches_context(
+                planner_report,
+                planning_context_hash=planning_context_hash,
+            )
+        ):
+            raise AcquisitionPlannerBindingError("acquisition_planner_report_binding_mismatch")
+        expected_records = tuple(
+            (gap.requirement_gap_id, gap.compiled_requirement_ref) for gap in gaps
+        )
+        actual_records = tuple(
+            (record.requirement_gap_ref, record.compiled_requirement_ref)
+            for record in planner_report.acquisition_records
+        )
+        if actual_records != expected_records:
+            raise AcquisitionPlannerBindingError(
+                "acquisition_planner_report_gap_denominator_mismatch"
+            )
+    if require_persisted_planner_report and normalized_planner_ref is None:
+        raise AcquisitionPlannerBindingError("acquisition_planner_report_ref_missing")
+    if planner_report.planning_context_hash is not None and normalized_planner_ref is None:
+        raise AcquisitionPlannerBindingError("acquisition_planner_report_ref_missing")
+    if normalized_planner_ref is not None:
+        if artifact_store is None:
+            raise AcquisitionPlannerBindingError("acquisition_planner_report_store_missing")
+        persisted_issues = _validate_persisted_planner_report(
+            store=artifact_store,
+            ref=normalized_planner_ref,
+            report=planner_report,
+        )
+        if persisted_issues:
+            raise AcquisitionPlannerBindingError(json.dumps(persisted_issues, sort_keys=True))
+    if requirement_basis_binding is not None:
+        if artifact_store is None:
+            raise AcquisitionPlannerBindingError("n7_compiler_report_store_missing")
+        basis_issues = _validate_persisted_data_requirement_compilation_report(
+            store=artifact_store,
+            binding=requirement_basis_binding,
+        )
+        if basis_issues:
+            raise AcquisitionPlannerBindingError(json.dumps(basis_issues, sort_keys=True))
+    if planner_report.basis_limitation_code in {
+        "requirement_basis_not_established",
+        "requirement_gap_not_compiled",
+        "unbound_requirement_input_refused",
+    }:
+        raise AcquisitionPlannerBindingError("n7_basis_refusal_must_not_dispatch_owner")
     gateway = owner_gateway or RecordedAcquisitionOwnerGateway(artifacts_by_requirement={})
     counter = network_counter or getattr(gateway, "network_counter", None)
     if not isinstance(counter, AcquisitionNetworkCallCounter):
@@ -2408,7 +2654,7 @@ def run_acquisition_closed_loop(
     receipt = AcquisitionReceipt(
         receipt_id=f"acquisition-receipt:{_slug(run_id)}:{cycle_index}",
         run_id=run_id,
-        generated_at=_utc(generated_at),
+        generated_at=planning_generated_at,
         status=status,
         source_cycle_index=cycle_index,
         reentry_cycle_index=cycle_index,
@@ -2417,6 +2663,8 @@ def run_acquisition_closed_loop(
         capability_requirement_resolutions=resolution_rows,
         compiled_spec_count=len(specs),
         planner_report=planner_report,
+        planner_report_ref=normalized_planner_ref,
+        requirement_basis_binding=requirement_basis_binding,
         acquisition_family_scores=_acquisition_family_scores(projection.affected_region),
         owner_artifacts=tuple(owner_artifacts),
         journal_entries=tuple(journal_entries),
@@ -2479,8 +2727,11 @@ def acquisition_receipt_has_verified_emission(receipt: AcquisitionReceipt) -> bo
 
 def validate_acquisition_receipt(
     receipt: AcquisitionReceipt | Mapping[str, Any],
+    *,
+    artifact_store: ArtifactStore | None = None,
+    require_persisted_planner_report: bool = False,
 ) -> tuple[dict[str, Any], ...]:
-    """Recompute N7 receipt invariants from owner artifact content."""
+    """Recompute N7 receipt invariants from owner artifact content and CAS readback."""
 
     try:
         normalized = (
@@ -2493,6 +2744,44 @@ def validate_acquisition_receipt(
     issues: list[dict[str, Any]] = []
     if not acquisition_receipt_has_verified_emission(normalized):
         issues.append({"code": "acquisition_receipt_current_context_replay_unavailable"})
+    if normalized.planner_report.run_id != normalized.run_id:
+        issues.append({"code": "acquisition_planner_report_run_id_mismatch"})
+    if normalized.requirement_basis_binding != normalized.planner_report.requirement_basis_binding:
+        issues.append({"code": "acquisition_receipt_requirement_basis_binding_mismatch"})
+    basis_binding = normalized.requirement_basis_binding
+    if basis_binding is not None:
+        if artifact_store is None:
+            if require_persisted_planner_report:
+                issues.append({"code": "n7_compiler_report_store_missing"})
+        else:
+            issues.extend(
+                _validate_persisted_data_requirement_compilation_report(
+                    store=artifact_store,
+                    binding=basis_binding,
+                )
+            )
+        if (
+            basis_binding.resolution.state == "not_established"
+            and not normalized.compiled_requirement_specs
+            and not normalized.capability_requirement_resolutions
+        ):
+            issues.append({"code": "n7_unestablished_basis_cannot_be_completed_empty"})
+    if require_persisted_planner_report and normalized.planner_report_ref is None:
+        issues.append({"code": "acquisition_planner_report_ref_missing"})
+    if normalized.planner_report_ref is not None:
+        if artifact_store is None:
+            if require_persisted_planner_report:
+                issues.append({"code": "acquisition_planner_report_store_missing"})
+        else:
+            issues.extend(
+                _validate_persisted_planner_report(
+                    store=artifact_store,
+                    ref=normalized.planner_report_ref,
+                    report=normalized.planner_report,
+                )
+            )
+    elif normalized.planner_report.planning_context_hash is not None:
+        issues.append({"code": "acquisition_planner_report_ref_missing"})
     if normalized.compiled_spec_count != len(normalized.compiled_requirement_specs):
         issues.append({"code": "acquisition_compiled_first_gap_only"})
     if len(normalized.planner_report.acquisition_records) != len(
@@ -3100,7 +3389,11 @@ def _owner_component_for_record(
 ) -> str:
     if spec.get("schema_version") == "policyos.runtime.acquisition_requirement_gap.v1":
         gap = AcquisitionRequirementGap.model_validate(
-            {key: value for key, value in spec.items() if key != "runtime_grounding_context"}
+            {
+                key: value
+                for key, value in spec.items()
+                if key in AcquisitionRequirementGap.model_fields
+            }
         )
         if gap.metadata.get("source") == _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE:
             return "data_forge.skg"
@@ -3211,7 +3504,7 @@ def _resolve_local_fabric_capture_path(
 
 def _captured_fabric_fetches(
     *,
-    plan: Any,
+    plan: FetchPlan,
     postflight: FetchCapturePostflightView,
     store: ArtifactStore,
     catalog: object,
@@ -3312,7 +3605,7 @@ def _captured_fabric_fetches(
 
 def _validate_fabric_capture_ref(
     store: ArtifactStore,
-    ref: Any,
+    ref: artifacts.ArtifactRef,
     *,
     expected_kind: str,
     expected_media_types: set[str],
@@ -3489,6 +3782,214 @@ def _stable_content_hash(payload: Mapping[str, Any] | Sequence[Any]) -> str:
         default=str,
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def n7_planner_input_content_hash(
+    *,
+    run_id: str,
+    acquisition_request: Mapping[str, Any],
+    compiled_requirement_specs: Sequence[BaseModel | Mapping[str, Any]],
+    world_snapshot: AcquisitionWorldSnapshot | Mapping[str, Any],
+    capability_requirement_resolutions: Sequence[
+        CapabilityRequirementResolution | Mapping[str, Any]
+    ]
+    | None,
+    requirement_basis_binding: AcquisitionRequirementBasisBinding | None = None,
+    design_problem: BaseModel | None,
+    generated_at: datetime | None,
+) -> str:
+    """Hash the complete candidate-band request basis consumed by one N7 plan."""
+
+    world = (
+        world_snapshot
+        if isinstance(world_snapshot, AcquisitionWorldSnapshot)
+        else AcquisitionWorldSnapshot.model_validate(world_snapshot)
+    )
+    specs = tuple(_spec_payload(spec) for spec in compiled_requirement_specs)
+    resolutions = (
+        None
+        if capability_requirement_resolutions is None
+        else tuple(
+            row.model_dump(mode="json")
+            if isinstance(row, BaseModel)
+            else CapabilityRequirementResolution.model_validate(row).model_dump(mode="json")
+            for row in capability_requirement_resolutions
+        )
+    )
+    problem_payload = design_problem.model_dump(mode="json") if design_problem is not None else None
+    request_payload = json.loads(
+        json.dumps(
+            dict(acquisition_request),
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    )
+    payload = {
+        "schema_version": "policyos.runtime.n7_planner_input_binding.v1",
+        "run_id": _required_text(run_id),
+        "generated_at": _utc(generated_at).isoformat(),
+        "acquisition_request": request_payload,
+        "compiled_requirement_specs": specs,
+        "capability_requirement_resolutions": resolutions,
+        "world_snapshot": world.model_dump(mode="json"),
+        "design_problem": problem_payload,
+    }
+    if requirement_basis_binding is not None:
+        payload["requirement_basis_binding"] = requirement_basis_binding.model_dump(mode="json")
+    return _stable_content_hash(payload)
+
+
+def bind_acquisition_planner_report(
+    report: AcquisitionPlannerReport,
+    *,
+    planning_context_hash: str,
+) -> AcquisitionPlannerReport:
+    """Bind complete report bytes to the exact N7 input-content hash."""
+
+    unbound = report.model_copy(
+        update={"planning_context_hash": None, "planning_binding_hash": None}
+    )
+    report_payload = unbound.model_dump(
+        mode="json",
+        exclude={"planning_context_hash", "planning_binding_hash"},
+    )
+    binding_hash = _stable_content_hash(
+        {
+            "schema_version": "policyos.runtime.n7_planner_output_binding.v1",
+            "planning_context_hash": planning_context_hash,
+            "planner_report": report_payload,
+        }
+    )
+    return report.model_copy(
+        update={
+            "planning_context_hash": planning_context_hash,
+            "planning_binding_hash": binding_hash,
+        }
+    )
+
+
+def acquisition_planner_report_matches_context(
+    report: AcquisitionPlannerReport,
+    *,
+    planning_context_hash: str,
+) -> bool:
+    """Recompute the stored input-to-plan binding without planning a second time."""
+
+    if report.planning_context_hash != planning_context_hash or not report.planning_binding_hash:
+        return False
+    expected = bind_acquisition_planner_report(
+        report,
+        planning_context_hash=planning_context_hash,
+    )
+    return expected.planning_binding_hash == report.planning_binding_hash
+
+
+def _validate_persisted_planner_report(
+    *,
+    store: ArtifactStore,
+    ref: artifacts.ArtifactRef,
+    report: AcquisitionPlannerReport,
+) -> tuple[dict[str, Any], ...]:
+    """Resolve the selected fixed-schema CAS object and compare exact report bytes."""
+
+    issues: list[dict[str, Any]] = []
+    try:
+        if ref.kind != ACQUISITION_PLANNER_KIND or ref.media_type != "application/json":
+            return ({"code": "acquisition_planner_report_ref_profile_mismatch"},)
+        manifest = store.get_manifest(ref)
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind != ACQUISITION_PLANNER_KIND
+            or manifest.media_type != "application/json"
+            or schema is None
+            or schema.name != ACQUISITION_PLANNER_SCHEMA_NAME
+            or schema.version != ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT
+        ):
+            return ({"code": "acquisition_planner_report_manifest_profile_mismatch"},)
+        persisted = load_acquisition_planner_report(store, ref)
+    except Exception as exc:
+        return (
+            {
+                "code": "acquisition_planner_report_readback_failed",
+                "error": str(exc),
+            },
+        )
+    if persisted != report:
+        issues.append({"code": "acquisition_planner_report_readback_mismatch"})
+    if report.requirement_basis_binding is not None:
+        issues.extend(
+            _validate_persisted_data_requirement_compilation_report(
+                store=store,
+                binding=report.requirement_basis_binding,
+            )
+        )
+    return tuple(issues)
+
+
+def validate_persisted_acquisition_planner_report(
+    store: ArtifactStore,
+    ref: artifacts.ArtifactRef,
+    report: AcquisitionPlannerReport,
+    *,
+    expected_scenario_id: str,
+    expected_compiled_requirement_ref: str,
+) -> tuple[dict[str, Any], ...]:
+    """Re-resolve a selected plan and its compiler basis for a route consumer.
+
+    The embedded report and deterministic compiler event locator are not
+    evidence by themselves. This consumer check resolves both selected CAS
+    objects, validates their fixed profiles and content bindings, and joins
+    the exact route requirement to the persisted compiler output.
+    """
+
+    if type(ref) is not artifacts.ArtifactRef:
+        return ({"code": "acquisition_planner_report_ref_untyped"},)
+    if type(report) is not AcquisitionPlannerReport:
+        return ({"code": "acquisition_planner_report_untyped"},)
+    issues = list(_validate_persisted_planner_report(store=store, ref=ref, report=report))
+    if (
+        report.planning_context_hash is None
+        or report.planning_binding_hash is None
+        or not acquisition_planner_report_matches_context(
+            report,
+            planning_context_hash=report.planning_context_hash,
+        )
+    ):
+        issues.append({"code": "acquisition_planner_report_context_binding_missing"})
+    binding = report.requirement_basis_binding
+    if binding is None:
+        issues.append({"code": "acquisition_requirement_basis_not_established"})
+        return tuple(issues)
+    if binding.scenario_id != expected_scenario_id:
+        issues.append({"code": "acquisition_requirement_basis_subject_mismatch"})
+    if (
+        not isinstance(expected_compiled_requirement_ref, str)
+        or not expected_compiled_requirement_ref
+    ):
+        issues.append({"code": "acquisition_compiled_requirement_ref_missing"})
+        return tuple(issues)
+    try:
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        compiler_report = DataRequirementCompilationReport.model_validate(
+            load_core_json_artifact(store, binding.compiler_report_ref)
+        )
+    except Exception as exc:
+        issues.append(
+            {
+                "code": "n7_compiler_report_readback_failed",
+                "error": str(exc),
+            }
+        )
+        return tuple(issues)
+    if compiler_report.scenario_id != expected_scenario_id:
+        issues.append({"code": "acquisition_compiler_report_subject_mismatch"})
+    if expected_compiled_requirement_ref not in {
+        spec.requirement_id for spec in compiler_report.specs
+    }:
+        issues.append({"code": "acquisition_compiled_requirement_not_in_basis"})
+    return tuple(issues)
 
 
 def load_planner_acquisition_cost_schedule() -> PlannerAcquisitionCostSchedule:
@@ -4486,11 +4987,21 @@ def acquisition_report_inputs(
                 continue
             seen.add(ref)
             inputs.append(artifacts.InputRef(artifact_id=artifact_id, role=role))
+    basis_binding = report.requirement_basis_binding
+    if basis_binding is not None:
+        artifact_id = str(basis_binding.compiler_report_ref.artifact_id)
+        if artifact_id not in seen:
+            inputs.append(
+                artifacts.InputRef(
+                    artifact_id=basis_binding.compiler_report_ref.artifact_id,
+                    role="data_requirement_compiler_report",
+                )
+            )
     return inputs
 
 
 def persist_acquisition_planner_report(
-    store: Any,
+    store: ArtifactStore,
     report: AcquisitionPlannerReport,
     *,
     inputs: list[artifacts.InputRef] | None = None,
@@ -4513,7 +5024,7 @@ def persist_acquisition_planner_report(
 
 
 def load_acquisition_planner_report(
-    store: Any,
+    store: ArtifactStore,
     ref: artifacts.ArtifactRef,
 ) -> AcquisitionPlannerReport:
     """Load a persisted acquisition planner report from CAS."""
@@ -4521,6 +5032,161 @@ def load_acquisition_planner_report(
 
     payload = load_core_json_artifact(store, ref)
     return AcquisitionPlannerReport.model_validate(payload)
+
+
+def data_requirement_compilation_report_digest(
+    report: DataRequirementCompilationReport,
+) -> str:
+    """Hash the complete normalized compiler report payload."""
+
+    return _stable_content_hash(report.model_dump(mode="json"))
+
+
+def persist_and_verify_data_requirement_compilation_report(
+    store: ArtifactStore,
+    report: DataRequirementCompilationReport,
+    *,
+    expected_scenario_id: str,
+) -> AcquisitionRequirementBasisBinding:
+    """Persist and read back the exact compiler report used by N7."""
+
+    if type(report) is not DataRequirementCompilationReport:
+        raise TypeError("n7_compiler_report_untyped")
+    scenario_id = _required_text(expected_scenario_id)
+    if not _compiler_report_source_binding_is_complete(report, scenario_id=scenario_id):
+        raise ValueError("n7_compiler_report_subject_or_input_binding_mismatch")
+    ref = store.put_json(
+        report,
+        artifacts.PutOptions(
+            kind=DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=DATA_REQUIREMENT_COMPILATION_ARTIFACT_SCHEMA,
+                version=report.schema_version,
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    binding = AcquisitionRequirementBasisBinding(
+        compiler_report_ref=ref,
+        compiler_report_digest=data_requirement_compilation_report_digest(report),
+        scenario_id=scenario_id,
+        producer_report_ref=report.producer_report_ref,
+        input_content_hash=report.input_content_hash,
+        resolution=report.requirement_basis,
+    )
+    issues = _validate_persisted_data_requirement_compilation_report(
+        store=store,
+        binding=binding,
+        expected_report=report,
+    )
+    if issues:
+        raise ValueError(json.dumps(issues, sort_keys=True))
+    return binding
+
+
+def _validate_persisted_data_requirement_compilation_report(
+    *,
+    store: ArtifactStore,
+    binding: AcquisitionRequirementBasisBinding,
+    expected_report: DataRequirementCompilationReport | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Resolve a basis CAS ref and compare its complete typed report and digest."""
+
+    ref = binding.compiler_report_ref
+    try:
+        if (
+            ref.kind != DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND
+            or ref.media_type != "application/json"
+        ):
+            return ({"code": "n7_compiler_report_ref_profile_mismatch"},)
+        manifest = store.get_manifest(ref)
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind != DATA_REQUIREMENT_COMPILATION_ARTIFACT_KIND
+            or manifest.media_type != "application/json"
+            or schema is None
+            or schema.name != DATA_REQUIREMENT_COMPILATION_ARTIFACT_SCHEMA
+        ):
+            return ({"code": "n7_compiler_report_manifest_profile_mismatch"},)
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        payload = load_core_json_artifact(store, ref)
+        report = DataRequirementCompilationReport.model_validate(payload)
+    except Exception as exc:
+        return ({"code": "n7_compiler_report_readback_failed", "error": str(exc)},)
+    if schema.version != report.schema_version:
+        return ({"code": "n7_compiler_report_schema_version_mismatch"},)
+    if (
+        report.scenario_id != binding.scenario_id
+        or not _compiler_report_source_binding_is_complete(
+            report,
+            scenario_id=binding.scenario_id,
+        )
+        or report.producer_report_ref != binding.producer_report_ref
+        or report.input_content_hash != binding.input_content_hash
+        or report.requirement_basis != binding.resolution
+    ):
+        return ({"code": "n7_compiler_report_binding_mismatch"},)
+    if data_requirement_compilation_report_digest(report) != binding.compiler_report_digest:
+        return ({"code": "n7_compiler_report_digest_mismatch"},)
+    if expected_report is not None and report.model_dump(mode="json") != expected_report.model_dump(
+        mode="json"
+    ):
+        return ({"code": "n7_compiler_report_readback_content_mismatch"},)
+    return ()
+
+
+def _compiler_report_source_binding_is_complete(
+    report: DataRequirementCompilationReport,
+    *,
+    scenario_id: str,
+) -> bool:
+    """Require producer-owned run, scenario, rule, and content references."""
+
+    run_ref = f"run:{report.run_id}"
+    scenario_ref = f"scenario:{scenario_id}"
+    expected_event_ref = data_requirement_compilation_event_ref(report.run_id)
+    return bool(
+        report.scenario_id == scenario_id
+        and run_ref in report.subject_refs
+        and scenario_ref in report.subject_refs
+        and report.rule_version_refs
+        and isinstance(report.producer_report_ref, str)
+        and report.producer_report_ref == expected_event_ref
+        and isinstance(report.input_content_hash, str)
+        and re.fullmatch(r"sha256:[0-9a-f]{64}", report.input_content_hash)
+        and type(report.requirement_basis) is DataRequirementBasisResolution
+        and report.requirement_basis.reason_codes
+    )
+
+
+def validate_persisted_data_requirement_compilation_report(
+    store: ArtifactStore,
+    binding: AcquisitionRequirementBasisBinding,
+    *,
+    expected_report: DataRequirementCompilationReport | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Validate a compiler report CAS binding against an optional fresh replay."""
+
+    return _validate_persisted_data_requirement_compilation_report(
+        store=store,
+        binding=binding,
+        expected_report=expected_report,
+    )
+
+
+def persist_and_verify_acquisition_planner_report(
+    store: ArtifactStore,
+    report: AcquisitionPlannerReport,
+) -> artifacts.ArtifactRef:
+    """Persist then resolve the exact fixed-profile planner report before execution."""
+
+    ref = persist_acquisition_planner_report(store, report)
+    issues = _validate_persisted_planner_report(store=store, ref=ref, report=report)
+    if issues:
+        raise ValueError(json.dumps(issues, sort_keys=True))
+    return ref
 
 
 def acquisition_planner_reports_from_quality_evidence(

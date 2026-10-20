@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Mapping
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -74,7 +75,7 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("POLISYOS_TEST_REPO_ROOT", Path(__file__).resolve().parents[3]))
 _ACQ01_ROUTE_STORE_UNSPECIFIED = object()
 _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED = object()
 
@@ -236,43 +237,32 @@ def _problem(
     )
 
 
-def test_n7_explicit_specs_take_precedence_and_preserve_empty_primary() -> None:
+def test_n7_caller_specs_and_runtime_hints_are_unbound_not_compiler_basis() -> None:
     hinted = ({"source": "runtime-hint"},)
     alias = ({"source": "compiled-alias"},)
     explicit = ({"source": "explicit"},)
     controller = GenerationCycleController()
     problem = _problem(runtime_hints={"n7_data_requirement_specs": hinted})
 
-    assert (
-        controller._n7_data_requirement_specs(
-            problem,
-            acquisition_request={
-                "data_requirement_specs": explicit,
-                "compiled_requirement_specs": alias,
-            },
-        )
-        == explicit
+    basis = controller._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={
+            "data_requirement_specs": explicit,
+            "compiled_requirement_specs": alias,
+        },
     )
-    assert (
-        controller._n7_data_requirement_specs(
-            problem,
-            acquisition_request={
-                "data_requirement_specs": (),
-                "compiled_requirement_specs": alias,
-            },
-        )
-        == ()
-    )
-    assert (
-        controller._n7_data_requirement_specs(
-            problem,
-            acquisition_request={"compiled_requirement_specs": alias},
-        )
-        == alias
+
+    assert basis.specs == tuple(basis.compilation_report.specs)
+    assert explicit not in basis.specs
+    assert alias not in basis.specs
+    assert basis.unbound_input_fields == (
+        "acquisition_request.data_requirement_specs",
+        "acquisition_request.compiled_requirement_specs",
+        "runtime_hints.n7_data_requirement_specs",
     )
 
 
-def test_n7_acquisition_rejects_untyped_requirement_spec_before_gateway(
+def test_n7_without_cycle_bound_source_gap_never_calls_owner_gateway(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -282,14 +272,9 @@ def test_n7_acquisition_rejects_untyped_requirement_spec_before_gateway(
         measurement_root_execution_binding=_contract_testing_measurement_root_binding(tmp_path),
     )
     problem = _problem()
-    monkeypatch.setattr(
-        controller,
-        "_n7_data_requirement_basis",
-        lambda *_args, **_kwargs: ((object(),), None),
-    )
 
     def unexpected_gateway(_problem: DesignProblem) -> object:
-        raise AssertionError("an untyped requirement spec must fail before owner use")
+        raise AssertionError("an unbound request must fail before owner use")
 
     monkeypatch.setattr(controller, "_n7_owner_gateway", unexpected_gateway)
     cycle = SimpleNamespace(
@@ -298,18 +283,14 @@ def test_n7_acquisition_rejects_untyped_requirement_spec_before_gateway(
         revision_request=SimpleNamespace(strategy_payload={"acquisition_request": {}}),
     )
 
-    with pytest.raises(
-        generation_cycle_module.GenerationCycleError,
-        match="n7_data_requirement_specs_invalid",
-    ):
-        controller._run_n7_acquisition_if_requested(problem, cycle=cycle)
+    assert controller._run_n7_acquisition_if_requested(problem, cycle=cycle) is None
 
 
-def test_n7_typed_any_of_gap_precedes_explicit_specs() -> None:
+def test_n7_typed_gap_and_spec_aliases_cannot_replace_compiler_output() -> None:
     gap = value_input_world_knowledge_requirement_gap(claim_ref="claim:acq")
     controller = GenerationCycleController()
 
-    specs = controller._n7_data_requirement_specs(
+    basis = controller._n7_data_requirement_basis_with_report(
         _problem(),
         acquisition_request={
             "requirement_gap": gap.model_dump(mode="json"),
@@ -318,8 +299,13 @@ def test_n7_typed_any_of_gap_precedes_explicit_specs() -> None:
         },
     )
 
-    assert len(specs) == 1
-    assert specs[0] == gap
+    assert basis.specs == tuple(basis.compilation_report.specs)
+    assert gap not in basis.specs
+    assert basis.unbound_input_fields == (
+        "acquisition_request.requirement_gap",
+        "acquisition_request.data_requirement_specs",
+        "acquisition_request.compiled_requirement_specs",
+    )
 
 
 def test_n7_fallback_handoff_preserves_statement_domain_scope_and_resolver(
@@ -685,6 +671,27 @@ def _fixture_data_requirement_spec() -> DataRequirementSpec:
     )
 
 
+def _compiled_data_requirement_spec(
+    problem: DesignProblem,
+    *,
+    family: str,
+) -> DataRequirementSpec:
+    """Return one exact compiler output for the controlled source-family fixture."""
+
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={"driver": f"acquire_data:{family}"},
+    )
+    matches = tuple(
+        spec
+        for spec in basis.specs
+        if type(spec) is DataRequirementSpec and spec.required_data_families == (family,)
+    )
+    if len(matches) != 1:
+        raise AssertionError("controlled_compiler_family_must_resolve_to_one_spec")
+    return matches[0]
+
+
 def _acq01_source_requirement_id(problem_id: str) -> str:
     from polisyos.runtime.quality.data_forge_binding import _gy_slug
 
@@ -791,6 +798,10 @@ def _real_acq01_route(
     problem: DesignProblem,
     *,
     candidate_content_hash: str,
+    candidate_id: str = "candidate_metric_test",
+    target_world_slots: tuple[str, ...] = ("agents.income",),
+    requirement_ref: str = "data-requirement:acq-01-file-tabular",
+    artifact_store: Any | None = None,
 ) -> Any:
     """Build one recorded WorldBank route through the existing owners.
 
@@ -839,13 +850,13 @@ def _real_acq01_route(
 
     data_spec = _fixture_data_requirement_spec().model_copy(
         update={
-            "requirement_id": "data-requirement:acq-01-file-tabular",
-            "claim_id": "claim:acq-01-file-tabular",
+            "requirement_id": requirement_ref,
+            "claim_id": f"claim:{requirement_ref.removeprefix('data-requirement:')}",
             "required_data_families": ("metric.test",),
         }
     )
     capture_root = tmp_path / "capture"
-    with build_worldbank_fetch_owner(capture_root) as owner:
+    with build_worldbank_fetch_owner(capture_root, artifact_store=artifact_store) as owner:
         resolved = owner.service.resolve(
             DataResolveRequest(
                 data_needs=[DataNeed(metric=owner.plan.metric_id)],
@@ -993,7 +1004,9 @@ def _real_acq01_route(
             tx_time_scope="2026-09-22T00:00:00+00:00",
             resolution="row",
             branch_mode=BranchMode.OBSERVED,
-            policy_slot_ids=("agents.income", "government.balance"),
+            policy_slot_ids=tuple(
+                dict.fromkeys(("agents.income", "government.balance", *target_world_slots))
+            ),
             producer_ref="tests.unit.remediation.test_acq_01.real_route",
             required_substrate_families=("metric.test",),
             substrate_registry_artifact_ref=route_registry_ref,
@@ -1033,9 +1046,9 @@ def _real_acq01_route(
             "acquired_substrate_registrations": [registration.model_dump(mode="json")],
             "candidate_bindings": [
                 {
-                    "candidate_id": "candidate_metric_test",
+                    "candidate_id": candidate_id,
                     "candidate_content_hash": candidate_content_hash,
-                    "target_world_slots": ["agents.income"],
+                    "target_world_slots": list(target_world_slots),
                 }
             ],
             "acq01_route": {
@@ -1065,7 +1078,9 @@ def _real_acq01_route(
                     "tx_time_scope": "2026-09-22T00:00:00+00:00",
                     "resolution": "row",
                     "branch_mode": BranchMode.OBSERVED.value,
-                    "policy_slot_ids": ["agents.income", "government.balance"],
+                    "policy_slot_ids": list(
+                        dict.fromkeys(("agents.income", "government.balance", *target_world_slots))
+                    ),
                     "producer_ref": "tests.unit.remediation.test_acq_01.real_route",
                     "data_forge_role": "academic",
                     "required_substrate_families": ["metric.test"],
@@ -1080,7 +1095,7 @@ def _real_acq01_route(
             cost_usd=0.0,
             quality={"owner_endpoint": "RetrievalService.resolve/execute_fetch_plans"},
             rights={"recording": "owner_response_replay_only"},
-            binding_refs=(data_spec.requirement_id, "candidate_metric_test"),
+            binding_refs=(data_spec.requirement_id, candidate_id),
             journal_ref="journal://n7/acq-01/file-tabular",
             capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
                 owner_component="fabric.retrieval",

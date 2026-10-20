@@ -91,6 +91,10 @@ from polisyos.core.contracts.value_outer_set import (
     ValueOuterSetIdentificationStatus,
 )
 from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.data_requirement import (
+    DataRequirementCompilationReport,
+    DataRequirementSpec,
+)
 from polisyos.data_requirement.compiler import (
     DataRequirementCompiler,
     ScenarioFamilyDeclarationInputError,
@@ -126,17 +130,26 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCostBasisRecord,
     AcquisitionGroundingRederivation,
     AcquisitionOwnerGateway,
+    AcquisitionPlannerBindingError,
     AcquisitionPlannerReport,
     AcquisitionReceipt,
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    RequirementGapFamily,
+    acquisition_planner_report_matches_context,
     acquisition_receipt_has_verified_emission,
+    bind_acquisition_planner_report,
     grounding_coverage_requirement_gap,
     l1_variable_availability_requirement_gap,
+    n7_planner_input_content_hash,
+    persist_and_verify_acquisition_planner_report,
+    persist_and_verify_data_requirement_compilation_report,
     plan_requirement_gap_acquisition,
     produce_acquisition_cost_basis_record,
+    requirement_gaps_from_compiled_specs,
     run_acquisition_closed_loop,
+    validate_persisted_data_requirement_compilation_report,
     value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.confidence_ledger import (
@@ -222,7 +235,6 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     SchedulingDecision,
     SimpleVOIScheduler,
 )
-from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: TC001
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 if TYPE_CHECKING:
@@ -242,6 +254,7 @@ if TYPE_CHECKING:
         CandidateSimulationN5InputV5,
     )
     from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
         CycleSubstrateContext,
         CycleSubstrateContextArtifactOwner,
         VerifiedNLJobScope,
@@ -258,6 +271,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist.orchestration.engine import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _GENERATION_CYCLE_V3_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
 _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v4"
@@ -308,6 +322,7 @@ def _generation_cycle_v5_wire_projection(payload: dict[str, Any]) -> dict[str, A
                 projected_cycles.append(raw_cycle)
                 continue
             cycle = dict(raw_cycle)
+            cycle.pop("acquisition_routing_report_ref", None)
             raw_simulation = cycle.get("simulation")
             if isinstance(raw_simulation, dict):
                 simulation = dict(raw_simulation)
@@ -331,6 +346,7 @@ def _generation_cycle_v6_wire_projection(payload: dict[str, Any]) -> dict[str, A
                 projected_cycles.append(raw_cycle)
                 continue
             cycle = dict(raw_cycle)
+            cycle.pop("acquisition_routing_report_ref", None)
             raw_simulation = cycle.get("simulation")
             if isinstance(raw_simulation, dict):
                 simulation = dict(raw_simulation)
@@ -375,12 +391,50 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_cycle_substrate_context_invalid",
         "n7_cycle_substrate_context_mismatch",
         "n7_requirement_gap_invalid",
+        "n7_data_requirement_specs_invalid",
+        "n7_data_families_invalid",
+        "n7_family_declaration_invalid",
         "n7_runtime_store_not_supplied",
         "n7_execution_scope_not_established",
+        "n7_planner_report_persistence_refused",
+        "n7_planner_report_persistence_unavailable",
+        "n7_planner_report_binding_refused",
+        "n7_compiler_report_persistence_refused",
+        "n7_compiler_report_persistence_unavailable",
+        "n7_compiler_report_binding_refused",
+        "n7_runtime_store_identity_mismatch",
+        "n7_acquisition_request_invalid",
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
     }
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _N7DataRequirementBasis:
+    """One compiler result and the exact candidate inputs derived for N7."""
+
+    specs: tuple[object, ...]
+    capability_resolutions: tuple[CapabilityRequirementResolution, ...] | None
+    compilation_report: DataRequirementCompilationReport
+    unbound_input_fields: tuple[str, ...] = ()
+    routed_source_gap: AcquisitionRequirementGap | None = None
+    routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
+    routing_limitation_code: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _N7PlannedRoute:
+    """Persisted plan plus the exact inputs it will authorize for N7 dispatch."""
+
+    acquisition_request: Mapping[str, Any]
+    basis: _N7DataRequirementBasis
+    world_snapshot: AcquisitionWorldSnapshot
+    report: AcquisitionPlannerReport
+    cost_basis: AcquisitionCostBasisRecord | None
+    report_ref: CASArtifactRef
+
+
 _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
     {
         "simulation_only_k_sim_not_world_evidence",
@@ -2008,7 +2062,189 @@ def _requirement_missing_distributions(
         variable_prefix = "canonical_variable_observations:"
         if field.startswith(variable_prefix) and field[len(variable_prefix) :].strip():
             rows.append(field[len(variable_prefix) :].strip())
+    issue_codes = requirement.metadata.get("issue_codes")
+    if isinstance(issue_codes, Sequence) and not isinstance(issue_codes, str | bytes | bytearray):
+        for issue_code in issue_codes:
+            if isinstance(issue_code, str) and issue_code.startswith("acquire_data:"):
+                family = issue_code.partition(":")[2].strip()
+                if family:
+                    rows.append(family)
     return tuple(dict.fromkeys(rows))
+
+
+def _n7_requirement_family(requirement: AcquisitionRequirementGap) -> str | None:
+    """Return one exact source-declared family for a typed internal gap."""
+
+    source = requirement.metadata.get("source")
+    if source == "l1_dcat_variable_availability":
+        availability = requirement.metadata.get("availability")
+        if not isinstance(availability, Mapping):
+            return None
+        variable_id = availability.get("variable_id")
+        if not isinstance(variable_id, str) or not variable_id.strip():
+            return None
+        normalized = variable_id.strip()
+        if requirement.missing_requirement_fields != (
+            f"canonical_variable_observations:{normalized}",
+        ):
+            return None
+        return normalized
+    if source == "cgf_grounding_coverage":
+        issue_codes = requirement.metadata.get("issue_codes")
+        if not isinstance(issue_codes, Sequence) or isinstance(
+            issue_codes, str | bytes | bytearray
+        ):
+            return None
+        families = tuple(
+            item.partition(":")[2]
+            for item in issue_codes
+            if isinstance(item, str) and item.startswith("acquire_data:")
+        )
+        return families[0] if len(families) == 1 and families[0] else None
+    return None
+
+
+def _n7_compiler_families_for_source_gap(
+    problem: DesignProblem,
+    *,
+    acquisition_request: Mapping[str, Any],
+    source_gap: AcquisitionRequirementGap,
+) -> tuple[tuple[str, ...], str | None]:
+    """Derive one candidate compiler family from the bound typed gap producer.
+
+    Some producer signals, such as the value port's fixed
+    ``value_panel_data_missing`` blocker, identify a routing reason rather than
+    the missing variable itself. The current typed L1 gap is the source of the
+    family in that case. Other explicit family selectors must agree exactly;
+    the bridge never fans out from a client's additional selectors.
+    """
+
+    family = _n7_requirement_family(source_gap)
+    if family is None:
+        return (), "requirement_gap_not_compiled"
+    explicit_request = {key: value for key, value in acquisition_request.items() if key != "driver"}
+    explicitly_selected = _n7_required_data_families(problem, explicit_request)
+    if explicitly_selected and explicitly_selected != (family,):
+        return (), "unbound_requirement_input_refused"
+    driver = acquisition_request.get("driver")
+    if isinstance(driver, str) and driver.startswith("acquire_data:"):
+        driver_family = driver.partition(":")[2]
+        source_kind = source_gap.metadata.get("source")
+        is_value_port_routing_code = (
+            source_kind == "l1_dcat_variable_availability"
+            and driver == "acquire_data:value_panel_data_missing"
+        )
+        if driver_family != family and not is_value_port_routing_code:
+            return (), "unbound_requirement_input_refused"
+    return (family,), None
+
+
+def _n7_cycle_source_gap(
+    problem: DesignProblem,
+    *,
+    cycle: object,
+    acquisition_request: Mapping[str, Any],
+) -> tuple[AcquisitionRequirementGap | None, str | None]:
+    """Validate that request routing bytes exactly repeat the selected cycle's producer gap."""
+
+    raw_present = "requirement_gap" in acquisition_request
+    if type(cycle) is not GenerationCycleRecord:
+        return (
+            None,
+            "unbound_requirement_input_refused" if raw_present else "requirement_gap_not_compiled",
+        )
+    source_gap = _cycle_acquisition_requirement(cycle.grounding, cycle.value_port)
+    if source_gap is None:
+        return (
+            None,
+            "unbound_requirement_input_refused" if raw_present else "requirement_gap_not_compiled",
+        )
+    if not raw_present:
+        return None, "unbound_requirement_input_refused"
+    try:
+        request_gap = AcquisitionRequirementGap.model_validate(
+            acquisition_request["requirement_gap"]
+        )
+        source_gap = AcquisitionRequirementGap.model_validate(source_gap.model_dump(mode="json"))
+    except (TypeError, ValueError):
+        return None, "unbound_requirement_input_refused"
+    if request_gap.model_dump(mode="json") != source_gap.model_dump(mode="json"):
+        return None, "unbound_requirement_input_refused"
+    driver = acquisition_request.get("driver")
+    source_issues = (
+        *cycle.grounding.issue_codes,
+        *cycle.value_port.authority_blockers,
+    )
+    if not isinstance(driver, str) or driver not in source_issues:
+        return None, "unbound_requirement_input_refused"
+    binding = source_gap.metadata.get("candidate_binding")
+    expected_problem_ref = _problem_ref(problem)
+    if (
+        not isinstance(binding, Mapping)
+        or binding.get("candidate_id") != cycle.selected_candidate_ref
+        or binding.get("candidate_content_hash") != cycle.selected_candidate_content_hash
+        or binding.get("design_problem_ref") != expected_problem_ref
+        or expected_problem_ref != (cycle.design_problem_basis_ref or cycle.design_problem_ref)
+    ):
+        return None, "unbound_requirement_input_refused"
+    return source_gap, None
+
+
+def _n7_compiler_gap_matches_source(
+    spec: object,
+    requirement: AcquisitionRequirementGap,
+) -> bool:
+    """Match an internal routing signal to one independently compiled requirement."""
+
+    if type(spec) is not DataRequirementSpec:
+        return False
+    source_refs = set(spec.source_requirement_refs)
+    if {
+        requirement.requirement_gap_id,
+        requirement.compiled_requirement_ref,
+    }.intersection(source_refs):
+        return True
+    family = _n7_requirement_family(requirement)
+    return family is not None and spec.required_data_families == (family,)
+
+
+def _n7_route_compiler_gaps(
+    *,
+    source_gap: AcquisitionRequirementGap,
+    specs: Sequence[object],
+    capability_resolutions: Sequence[CapabilityRequirementResolution] | None,
+) -> tuple[tuple[AcquisitionRequirementGap, ...], str | None]:
+    """Preserve all compiler gaps while linking one exact source gap to its spec."""
+
+    matching_specs = tuple(
+        spec for spec in specs if _n7_compiler_gap_matches_source(spec, source_gap)
+    )
+    if len(matching_specs) != 1:
+        return (), "requirement_gap_not_compiled"
+    compiled_ref = matching_specs[0].requirement_id
+    compiler_gaps = requirement_gaps_from_compiled_specs(
+        data_requirement_specs=specs,
+        capability_requirement_resolutions=capability_resolutions,
+    )
+    matching_gaps = tuple(
+        gap for gap in compiler_gaps if gap.compiled_requirement_ref == compiled_ref
+    )
+    if len(matching_gaps) != 1:
+        return (), "requirement_gap_not_compiled"
+    routed_ref = source_gap.requirement_gap_id
+    routed_gaps = tuple(
+        gap.model_copy(
+            update={
+                "scenario_requirement_refs": tuple(
+                    dict.fromkeys((*gap.scenario_requirement_refs, routed_ref))
+                )
+            }
+        )
+        if gap.compiled_requirement_ref == compiled_ref
+        else gap
+        for gap in compiler_gaps
+    )
+    return routed_gaps, None
 
 
 class GenerationCycleRecord(_StrictModel):
@@ -2042,6 +2278,7 @@ class GenerationCycleRecord(_StrictModel):
     revision_driver: Literal["counterexample", "none"] = "none"
     acquisition_receipt: dict[str, Any] | None = None
     acquisition_routing_report: AcquisitionPlannerReport | None = None
+    acquisition_routing_report_ref: CASArtifactRef | None = None
     acquisition_cost_basis_record: AcquisitionCostBasisRecord | None = None
     acquisition_cost_basis_hash: str | None = Field(
         default=None,
@@ -2087,11 +2324,20 @@ class GenerationCycleRecord(_StrictModel):
             raise ValueError("acquisition_route_cannot_mint_owner_receipt")
         if self.acquisition_routing_report is None:
             if (
-                self.acquisition_cost_basis_record is not None
+                self.acquisition_routing_report_ref is not None
+                or self.acquisition_cost_basis_record is not None
                 or self.acquisition_cost_basis_hash is not None
             ):
-                raise ValueError("acquisition_cost_requires_canonical_route")
+                raise ValueError("acquisition_route_companions_require_canonical_route")
             return self
+        route_ref = self.acquisition_routing_report_ref
+        if route_ref is not None and (
+            route_ref.kind != "runtime.acquisition_planner_report"
+            or route_ref.media_type != "application/json"
+        ):
+            raise ValueError("acquisition_routing_report_ref_profile_mismatch")
+        if self.acquisition_routing_report.planning_context_hash is not None and route_ref is None:
+            raise ValueError("acquisition_routing_report_ref_required")
         if self.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             raise ValueError("acquisition_route_cannot_satisfy_terminal")
         requirement = _cycle_acquisition_requirement(
@@ -2099,15 +2345,54 @@ class GenerationCycleRecord(_StrictModel):
             self.value_port,
         )
         records = self.acquisition_routing_report.acquisition_records
-        if requirement is None or len(records) != 1:
+        if requirement is None:
             raise ValueError("acquisition_route_requirement_mismatch")
-        record = records[0]
-        if (
-            record.requirement_gap_ref != requirement.requirement_gap_id
-            or record.compiled_requirement_ref != requirement.compiled_requirement_ref
-            or record.claim_ref != requirement.claim_ref
-        ):
+        if not records:
+            if (
+                self.acquisition_routing_report.status == "blocked"
+                and self.acquisition_routing_report.basis_limitation_code
+                in {
+                    "requirement_basis_not_established",
+                    "requirement_gap_not_compiled",
+                    "unbound_requirement_input_refused",
+                }
+                and self.acquisition_routing_report.cost_estimation_status == "not_estimated"
+                and self.acquisition_routing_report.requirement_basis_binding is not None
+                and self.acquisition_cost_basis_record is None
+                and self.acquisition_cost_basis_hash is None
+            ):
+                return self
             raise ValueError("acquisition_route_requirement_mismatch")
+        direct_matches = tuple(
+            record
+            for record in records
+            if record.requirement_gap_ref == requirement.requirement_gap_id
+            and record.compiled_requirement_ref == requirement.compiled_requirement_ref
+            and record.claim_ref == requirement.claim_ref
+        )
+        routed_matches = tuple(
+            record
+            for record in records
+            if requirement.requirement_gap_id in record.scenario_requirement_refs
+        )
+        if direct_matches:
+            if len(direct_matches) != 1:
+                raise ValueError("acquisition_route_requirement_mismatch")
+            record = direct_matches[0]
+        else:
+            family = _n7_requirement_family(requirement)
+            if (
+                len(routed_matches) != 1
+                or family is None
+                or routed_matches[0].requirement_family != RequirementGapFamily.DATA.value
+                or routed_matches[0].compiled_requirement_ref
+                not in routed_matches[0].scenario_requirement_refs
+                or family not in routed_matches[0].scenario_requirement_refs
+                or f"required_data_family:{family}"
+                not in routed_matches[0].missing_requirement_fields
+            ):
+                raise ValueError("acquisition_route_requirement_mismatch")
+            record = routed_matches[0]
         cost = self.acquisition_cost_basis_record
         if cost is None:
             if self.acquisition_cost_basis_hash is not None:
@@ -6984,6 +7269,9 @@ class GenerationCycleController:
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+        candidate_simulation_context_admission_owner: (
+            ConfiguredCandidateSimulationContextAdmissionOwner | None
+        ) = None,
         generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
         | None = None,
         generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
@@ -7123,6 +7411,22 @@ class GenerationCycleController:
         self._candidate_cycle_context_job_ref: CASArtifactRef | None = None
         self._candidate_simulation_handoff = candidate_simulation_handoff
         self._candidate_simulation_currentness_resolver = candidate_simulation_currentness_resolver
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+        )
+
+        if candidate_simulation_context_admission_owner is not None and (
+            type(candidate_simulation_context_admission_owner)
+            is not ConfiguredCandidateSimulationContextAdmissionOwner
+        ):
+            raise ValueError("generation_cycle_candidate_context_admission_owner_untyped")
+        if candidate_simulation_context_admission_owner is not None and (
+            candidate_simulation_context_admission_owner.store is not artifact_store
+        ):
+            raise ValueError("generation_cycle_candidate_context_admission_store_mismatch")
+        self._candidate_simulation_context_admission_owner = (
+            candidate_simulation_context_admission_owner
+        )
         self._generic_cycle_simulation_admission_owner = generic_cycle_simulation_admission_owner
         self._generic_cycle_simulation_handoff = generic_cycle_simulation_handoff
         self._generic_cycle_simulation_child_selection = generic_cycle_simulation_child_selection
@@ -7486,11 +7790,18 @@ class GenerationCycleController:
                         cycle=cycle,
                     )
                     if planned_route is not None:
-                        routing_report, cost_basis = planned_route
                         cycle = _cycle_with_acquisition_routing_report(
                             cycle,
-                            report=routing_report,
-                            cost_basis=cost_basis,
+                            report=planned_route.report,
+                            report_ref=planned_route.report_ref,
+                            cost_basis=planned_route.cost_basis,
+                        )
+                        acquisition_receipt = self._run_n7_acquisition_if_requested(
+                            current_problem,
+                            cycle=cycle,
+                            planner_report=planned_route.report,
+                            planner_report_ref=planned_route.report_ref,
+                            planned_route=planned_route,
                         )
                     else:
                         acquisition_receipt = self._run_n7_acquisition_if_requested(
@@ -7514,8 +7825,9 @@ class GenerationCycleController:
                 except GenerationCycleError as exc:
                     terminal_status = "blocked"
                     blocked_reason = exc.code
-                    cycle = _blocked_cycle(cycle, reason=blocked_reason).model_copy(
-                        update={"acquisition_receipt": acquisition_receipt.model_dump(mode="json")}
+                    cycle = _cycle_with_n7_acquisition_receipt(
+                        _blocked_cycle(cycle, reason=blocked_reason),
+                        acquisition_receipt.model_dump(mode="json"),
                     )
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
@@ -8274,26 +8586,62 @@ class GenerationCycleController:
         finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
 
+    def _n7_runtime_artifact_store(self) -> ArtifactStore | None:
+        """Return the same controller CAS used by persisted source handoffs."""
+
+        repository_store = (
+            self._source_repository.store if self._source_repository is not None else None
+        )
+        if (
+            self._artifact_store is not None
+            and repository_store is not None
+            and self._artifact_store is not repository_store
+        ):
+            raise GenerationCycleError("n7_runtime_store_identity_mismatch")
+        return self._artifact_store or repository_store
+
     def _run_n7_acquisition_if_requested(
         self,
         problem: DesignProblem,
         *,
         cycle: GenerationCycleRecord,
+        planner_report: AcquisitionPlannerReport | None = None,
+        planner_report_ref: CASArtifactRef | None = None,
+        planned_route: _N7PlannedRoute | None = None,
     ) -> AcquisitionReceipt | None:
         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            return None
+        if planned_route is None:
+            planned_route = self._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+            if planned_route is None:
+                return None
+        if planner_report is None:
+            planner_report = planned_route.report
+        if planner_report_ref is None:
+            planner_report_ref = planned_route.report_ref
+        if planner_report != planned_route.report or planner_report_ref != planned_route.report_ref:
+            raise GenerationCycleError("n7_planner_report_binding_refused")
+        normalized_request = dict(planned_route.acquisition_request)
+        basis = planned_route.basis
+        world_snapshot = planned_route.world_snapshot
+        basis_binding = planned_route.report.requirement_basis_binding
+        if planner_report is not None and planner_report.basis_limitation_code in {
+            "requirement_basis_not_established",
+            "requirement_gap_not_compiled",
+            "unbound_requirement_input_refused",
+        }:
+            # This is a typed, persisted refusal. It carries no fabricated gap,
+            # no estimate of zero, and no owner dispatch.
+            return None
+        if basis.routing_limitation_code is not None:
             return None
         if (
             self._measurement_root_execution_binding is None
             or not self._measurement_root_execution_binding.authority_eligible
         ):
             raise GenerationCycleError("n7_execution_scope_not_established")
-        acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
-        if not isinstance(acquisition_request, Mapping):
-            return None
-        specs, capability_resolutions = self._n7_data_requirement_basis(
-            problem,
-            acquisition_request=acquisition_request,
-        )
+        specs = basis.specs
+        capability_resolutions = basis.capability_resolutions
         if not specs and not capability_resolutions:
             return None
 
@@ -8313,60 +8661,233 @@ class GenerationCycleController:
         owner_gateway = self._n7_owner_gateway(problem)
         if owner_gateway is None:
             raise GenerationCycleError("n7_runtime_store_not_supplied")
-        world_snapshot = self._n7_world_snapshot(
-            problem,
-            cycle=cycle,
-            acquisition_request=acquisition_request,
-            specs=specs,
+        artifact_store = self._n7_runtime_artifact_store()
+        if planner_report is not None and (planner_report_ref is None or artifact_store is None):
+            raise GenerationCycleError("n7_planner_report_persistence_unavailable")
+        if planned_route is not None and basis_binding is None:
+            raise GenerationCycleError("n7_compiler_report_binding_refused")
+        run_id = (
+            planner_report.run_id
+            if planner_report is not None
+            else f"n7-cycle:{problem.design_problem_id}:{cycle.cycle_index}"
         )
-
-        return run_acquisition_closed_loop(
-            run_id=f"n7-reentry:{problem.design_problem_id}:{cycle.cycle_index}",
-            acquisition_request={
-                **acquisition_request,
-                "cycle_index": cycle.cycle_index,
-            },
-            data_requirement_specs=tuple(compiled_specs),
-            world_snapshot=world_snapshot,
-            capability_requirement_resolutions=capability_resolutions,
-            design_problem=problem,
-            owner_gateway=owner_gateway,
-            useful_design_rate_before=float(
-                problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
-            ),
-            generated_at=self._generated_at,
-        )
+        try:
+            return run_acquisition_closed_loop(
+                run_id=run_id,
+                acquisition_request=normalized_request,
+                data_requirement_specs=tuple(compiled_specs),
+                world_snapshot=world_snapshot,
+                capability_requirement_resolutions=capability_resolutions,
+                requirement_basis_binding=basis_binding,
+                design_problem=problem,
+                owner_gateway=owner_gateway,
+                useful_design_rate_before=float(
+                    problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
+                ),
+                generated_at=(
+                    planner_report.generated_at
+                    if planner_report is not None
+                    else self._generated_at
+                ),
+                planner_report=planner_report,
+                planner_report_ref=planner_report_ref,
+                artifact_store=artifact_store,
+                require_persisted_planner_report=planner_report is not None,
+            )
+        except AcquisitionPlannerBindingError as exc:
+            error_code = (
+                "n7_compiler_report_binding_refused"
+                if "compiler_report" in str(exc)
+                else "n7_planner_report_binding_refused"
+            )
+            raise GenerationCycleError(error_code, str(exc)) from exc
 
     def _plan_n7_requirement_gap_if_requested(
         self,
         problem: DesignProblem,
         *,
         cycle: GenerationCycleRecord,
-    ) -> tuple[AcquisitionPlannerReport, AcquisitionCostBasisRecord | None] | None:
-        """Route one typed requirement gap without fabricating acquired evidence."""
+    ) -> _N7PlannedRoute | None:
+        """Persist the compiler basis and plan before any N7 owner dispatch."""
 
         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             return None
-        acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
-        if not isinstance(acquisition_request, Mapping):
-            return None
-        raw_gap = acquisition_request.get("requirement_gap")
-        if raw_gap is None:
-            return None
+        strategy_payload = cycle.revision_request.strategy_payload
+        if "acquisition_request" in strategy_payload:
+            raw_request = strategy_payload["acquisition_request"]
+            if not isinstance(raw_request, Mapping):
+                raise GenerationCycleError("n7_acquisition_request_invalid")
+            acquisition_request = raw_request
+        else:
+            acquisition_request = {}
+        normalized_request = {
+            **acquisition_request,
+            "cycle_index": cycle.cycle_index,
+        }
+        basis = self._n7_data_requirement_basis_with_report(
+            problem,
+            acquisition_request=normalized_request,
+            cycle=cycle,
+        )
+        artifact_store = self._n7_runtime_artifact_store()
+        if artifact_store is None:
+            raise GenerationCycleError("n7_compiler_report_persistence_unavailable")
         try:
-            gap = AcquisitionRequirementGap.model_validate(raw_gap)
-        except Exception as exc:
+            basis_binding = persist_and_verify_data_requirement_compilation_report(
+                artifact_store,
+                basis.compilation_report,
+                expected_scenario_id=problem.design_problem_id,
+            )
+        except (OSError, RuntimeError) as exc:
             raise GenerationCycleError(
-                "n7_requirement_gap_invalid",
+                "n7_compiler_report_persistence_refused",
                 str(exc),
             ) from exc
-        report = plan_requirement_gap_acquisition(
-            run_id=(f"n7-routing:{problem.design_problem_id}:{cycle.cycle_index}"),
-            requirement_gaps=(gap,),
-            generated_at=self._generated_at,
+        except (TypeError, ValueError) as exc:
+            error_code = (
+                "n7_compiler_report_binding_refused"
+                if "subject" in str(exc) or "binding" in str(exc) or "untyped" in str(exc)
+                else "n7_compiler_report_persistence_refused"
+            )
+            raise GenerationCycleError(error_code, str(exc)) from exc
+        gaps = basis.routed_compiler_gaps
+        run_id = f"n7-cycle:{problem.design_problem_id}:{cycle.cycle_index}"
+        planning_generated_at = self._generated_at or datetime.now(UTC)
+        world_snapshot = self._n7_world_snapshot(
+            problem,
+            cycle=cycle,
+            acquisition_request=normalized_request,
+            specs=basis.specs,
         )
-        record = report.acquisition_records[0] if len(report.acquisition_records) == 1 else None
-        distributions = _requirement_missing_distributions(gap)
+        context_hash = n7_planner_input_content_hash(
+            run_id=run_id,
+            acquisition_request=normalized_request,
+            compiled_requirement_specs=basis.specs,
+            world_snapshot=world_snapshot,
+            capability_requirement_resolutions=basis.capability_resolutions,
+            requirement_basis_binding=basis_binding,
+            design_problem=problem,
+            generated_at=planning_generated_at,
+        )
+        if basis.unbound_input_fields:
+            report = AcquisitionPlannerReport(
+                run_id=run_id,
+                generated_at=planning_generated_at,
+                acquisition_records=(),
+                status="blocked",
+                summary={
+                    "record_count": 0,
+                    "limited": 0,
+                    "blocked": 0,
+                    "accepted_deficit": 0,
+                    "acquire": 0,
+                    "rerun": 0,
+                },
+                authority_boundary={},
+                requirement_basis_binding=basis_binding,
+                basis_limitation_code="unbound_requirement_input_refused",
+                cost_estimation_status="not_estimated",
+            )
+        elif basis.routing_limitation_code is not None:
+            report = AcquisitionPlannerReport(
+                run_id=run_id,
+                generated_at=planning_generated_at,
+                acquisition_records=(),
+                status="blocked",
+                summary={
+                    "record_count": 0,
+                    "limited": 0,
+                    "blocked": 0,
+                    "accepted_deficit": 0,
+                    "acquire": 0,
+                    "rerun": 0,
+                },
+                authority_boundary={},
+                requirement_basis_binding=basis_binding,
+                basis_limitation_code=basis.routing_limitation_code,
+                cost_estimation_status="not_estimated",
+            )
+        elif gaps:
+            report = plan_requirement_gap_acquisition(
+                run_id=run_id,
+                requirement_gaps=gaps,
+                generated_at=planning_generated_at,
+                requirement_basis_binding=basis_binding,
+            )
+            basis_state = basis_binding.resolution
+            if basis_state.state != "established":
+                report = report.model_copy(
+                    update={
+                        "status": "warn" if report.status == "pass" else report.status,
+                        "basis_limitation_code": (
+                            "requirement_basis_not_established_candidate_only"
+                        ),
+                    }
+                )
+            elif basis_state.basis_grade == "consumer_asserted":
+                report = report.model_copy(
+                    update={
+                        "status": "warn" if report.status == "pass" else report.status,
+                        "basis_limitation_code": "consumer_declared_basis_candidate_only",
+                    }
+                )
+            elif basis_state.basis_grade in {
+                "institutionally_supplied",
+                "not_established",
+            }:
+                report = report.model_copy(
+                    update={
+                        "status": "warn" if report.status == "pass" else report.status,
+                        "basis_limitation_code": "non_authority_grade_basis_candidate_only",
+                    }
+                )
+        else:
+            basis_is_authority_grade = (
+                basis_binding.resolution.state == "established"
+                and basis_binding.resolution.basis_grade
+                in {"recomputed", "independently_reconciled"}
+            )
+            report = AcquisitionPlannerReport(
+                run_id=run_id,
+                generated_at=planning_generated_at,
+                acquisition_records=(),
+                status="blocked",
+                summary={
+                    "record_count": 0,
+                    "eligible_strategy_count": 0,
+                    "ineligible_strategy_count": 0,
+                    "limited": 0,
+                    "blocked": 0,
+                    "accepted_deficit": 0,
+                    "acquire": 0,
+                    "rerun": 0,
+                },
+                authority_boundary={},
+                requirement_basis_binding=basis_binding,
+                basis_limitation_code=(
+                    "requirement_gap_not_compiled"
+                    if basis_is_authority_grade
+                    else "requirement_basis_not_established"
+                ),
+                cost_estimation_status="not_estimated",
+            )
+        report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
+        route_ref = (
+            basis.routed_source_gap.requirement_gap_id
+            if basis.routed_source_gap is not None
+            else None
+        )
+        route_records = tuple(
+            record
+            for record in report.acquisition_records
+            if route_ref is not None and route_ref in record.scenario_requirement_refs
+        )
+        record = route_records[0] if len(route_records) == 1 else None
+        distributions = (
+            _requirement_missing_distributions(basis.routed_source_gap)
+            if basis.routed_source_gap is not None
+            else ()
+        )
         cost_basis = (
             produce_acquisition_cost_basis_record(
                 missing_distribution=distributions[0],
@@ -8375,7 +8896,24 @@ class GenerationCycleController:
             if record is not None and len(distributions) == 1
             else None
         )
-        return report, cost_basis
+        try:
+            report_ref = persist_and_verify_acquisition_planner_report(
+                artifact_store,
+                report,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_planner_report_persistence_refused",
+                str(exc),
+            ) from exc
+        return _N7PlannedRoute(
+            acquisition_request=normalized_request,
+            basis=basis,
+            world_snapshot=world_snapshot,
+            report=report,
+            cost_basis=cost_basis,
+            report_ref=report_ref,
+        )
 
     def _n7_data_requirement_specs(
         self,
@@ -8401,31 +8939,62 @@ class GenerationCycleController:
         tuple[CapabilityRequirementResolution, ...] | None,
     ]:
         """Compile data specs and retain typed capability results when available."""
+        basis = self._n7_data_requirement_basis_with_report(
+            problem,
+            acquisition_request=acquisition_request,
+        )
+        return basis.specs, basis.capability_resolutions
 
-        raw_gap = acquisition_request.get("requirement_gap")
-        if isinstance(raw_gap, Mapping):
-            gap = AcquisitionRequirementGap.model_validate(raw_gap)
-            expected = value_input_world_knowledge_requirement_gap(claim_ref=gap.claim_ref)
-            if gap.model_dump(mode="json") == expected.model_dump(mode="json"):
-                # Carry the actual unsatisfied any_of request, without fabricating
-                # data-family requirements or claiming either alternative is met.
-                return (gap,), None
-        # A present primary field is authoritative, including an explicit empty
-        # tuple.  Falling through via ``or`` used to let a stale alias or runtime
-        # hint overwrite an intentional empty requirement set.
-        for key in ("data_requirement_specs", "compiled_requirement_specs"):
-            if key not in acquisition_request:
-                continue
-            explicit = acquisition_request[key]
-            if explicit is None:
-                continue
-            if isinstance(explicit, Sequence) and not isinstance(explicit, str | bytes | bytearray):
-                return tuple(explicit), None
-            raise GenerationCycleError("n7_data_requirement_specs_invalid")
-        hinted = problem.runtime_hints.get("n7_data_requirement_specs")
-        if hinted is not None:
-            return tuple(hinted), None
+    def _n7_data_requirement_basis_with_report(
+        self,
+        problem: DesignProblem,
+        *,
+        acquisition_request: Mapping[str, Any],
+        cycle: GenerationCycleRecord | None = None,
+    ) -> _N7DataRequirementBasis:
+        """Retain the exact compiler output alongside the selected candidate inputs."""
+
+        # The compiler remains the only source of requirement specs and resolver
+        # rows. A typed cycle gap may select one already-compiled requirement for
+        # routing, but its payload never changes the compiler denominator.
+        unbound_input_fields = tuple(
+            [
+                f"acquisition_request.{key}"
+                for key in (
+                    "data_requirement_specs",
+                    "compiled_requirement_specs",
+                )
+                if key in acquisition_request
+            ]
+            + (
+                ["runtime_hints.n7_data_requirement_specs"]
+                if "n7_data_requirement_specs" in problem.runtime_hints
+                else []
+            )
+        )
+        raw_gap_present = "requirement_gap" in acquisition_request
+        source_gap: AcquisitionRequirementGap | None = None
+        routing_limitation_code: str | None = None
+        if cycle is not None or raw_gap_present:
+            source_gap, routing_limitation_code = _n7_cycle_source_gap(
+                problem,
+                cycle=cycle,
+                acquisition_request=acquisition_request,
+            )
+            if routing_limitation_code == "unbound_requirement_input_refused":
+                unbound_input_fields = (
+                    "acquisition_request.requirement_gap",
+                    *unbound_input_fields,
+                )
         families = _n7_required_data_families(problem, acquisition_request)
+        if cycle is not None and source_gap is not None:
+            families, source_family_limitation = _n7_compiler_families_for_source_gap(
+                problem,
+                acquisition_request=acquisition_request,
+                source_gap=source_gap,
+            )
+            if source_family_limitation is not None:
+                routing_limitation_code = source_family_limitation
         profile_aliases = (
             "scenario_profile",
             "pilot_profile",
@@ -8433,6 +9002,8 @@ class GenerationCycleController:
             "profile",
         )
         raw_context = acquisition_request.get("context")
+        if "context" in acquisition_request and not isinstance(raw_context, Mapping):
+            raise GenerationCycleError("n7_cycle_substrate_context_invalid", "context_untyped")
         context_profile_supplied = isinstance(raw_context, Mapping) and any(
             key in raw_context for key in ("scenario_profile", "pilot_profile", "scope_profile")
         )
@@ -8441,11 +9012,6 @@ class GenerationCycleController:
             or context_profile_supplied
             or "n7_scope_profile" in problem.runtime_hints
         )
-        direct_requirement_supplied = any(
-            key in acquisition_request for key in ("required_constructs", "construct_refs")
-        )
-        if not families and not explicit_profile_supplied and not direct_requirement_supplied:
-            return (), None
         family_frontier_fields = (
             "required_data_families",
             "world_slots",
@@ -8532,7 +9098,29 @@ class GenerationCycleController:
                 ),
                 str(exc),
             ) from exc
-        return tuple(report.specs), report.capability_requirement_resolutions
+        if type(report) is not DataRequirementCompilationReport:
+            raise GenerationCycleError("n7_compiler_report_binding_refused", "report_untyped")
+        routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
+        if source_gap is not None:
+            routed_compiler_gaps, routing_limitation_code = _n7_route_compiler_gaps(
+                source_gap=source_gap,
+                specs=tuple(report.specs),
+                capability_resolutions=report.capability_requirement_resolutions,
+            )
+        elif cycle is None:
+            routed_compiler_gaps = requirement_gaps_from_compiled_specs(
+                data_requirement_specs=tuple(report.specs),
+                capability_requirement_resolutions=report.capability_requirement_resolutions,
+            )
+        return _N7DataRequirementBasis(
+            specs=tuple(report.specs),
+            capability_resolutions=report.capability_requirement_resolutions,
+            compilation_report=report,
+            unbound_input_fields=unbound_input_fields,
+            routed_source_gap=source_gap,
+            routed_compiler_gaps=routed_compiler_gaps,
+            routing_limitation_code=routing_limitation_code,
+        )
 
     def _n7_capability_resolver(
         self,
@@ -9460,6 +10048,7 @@ class GenerationCycleController:
             revalidate_cycle_substrate_context,
         )
 
+        self._resolve_candidate_simulation_context_handoff(problem)
         prior_context = self._cycle_substrate_context
         if prior_context is None:
             raise GenerationCycleError("n7_acq01_prior_context_missing")
@@ -9838,6 +10427,439 @@ class GenerationCycleController:
         )
         return context_job_ref
 
+    def _reissue_candidate_simulation_context_after_n7(
+        self,
+        acquired_context: CycleSubstrateContext,
+        *,
+        problem: DesignProblem,
+    ) -> object:
+        """Replace the configured V5 handoff through its owners after N7 changes WMR."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextOffer,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextOwnerError,
+            VerifiedNLJobScope,
+            build_candidate_cycle_substrate_context,
+            build_cycle_substrate_context,
+            candidate_cycle_substrate_source_profile_selection,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+            is_supported_cycle_substrate_context_job_artifact,
+            revalidate_cycle_substrate_context,
+        )
+
+        old_handoff = self._candidate_simulation_handoff
+        admission_owner = self._candidate_simulation_context_admission_owner
+        context_owner = self._candidate_cycle_context_artifact_owner
+        verified_scope = self._candidate_cycle_verified_nl_job_scope
+        old_currentness = self._candidate_simulation_currentness_resolver
+        if (
+            type(old_handoff) is not CandidateSimulationContextHandoff
+            or type(admission_owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
+            or admission_owner.store is not self._artifact_store
+            or type(context_owner) is not CycleSubstrateContextArtifactOwner
+            or context_owner._store is not self._artifact_store
+            or type(verified_scope) is not VerifiedNLJobScope
+            or not verified_scope._was_issued_by_verified_nl_execution_owner
+            or not callable(old_currentness)
+            or self._repo_root is None
+            or self._source_repository is None
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_context_owner_binding_missing")
+        if (
+            old_handoff.job_id != verified_scope.job_id
+            or old_handoff.run_id != verified_scope.run_id
+            or old_handoff.tenant_id != verified_scope.tenant_id
+            or old_handoff.cell_id != verified_scope.cell_id
+            or old_handoff.profile.profile_selection_ref != cycle_job_profile_selection_ref(problem)
+            or old_handoff.context.design_problem_ref != cycle_job_design_problem_ref(problem)
+            or self._candidate_cycle_context_job_ref is None
+            or artifact_ref_identity_key(self._candidate_cycle_context_job_ref)
+            != artifact_ref_identity_key(old_handoff.context_job_ref)
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_handoff_scope_mismatch")
+        try:
+            if old_currentness() is not True:
+                raise GenerationCycleError("n7_candidate_simulation_old_handoff_not_current")
+            old_job = context_owner.resolve_for_current_job(
+                old_handoff.context_job_ref,
+                problem=problem,
+                repo_root=Path(self._repo_root),
+                verified_nl_job_scope=verified_scope,
+            )
+        except GenerationCycleError:
+            raise
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_old_context_readback_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if (
+            not is_supported_cycle_substrate_context_job_artifact(old_job)
+            or old_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+            or old_job.context.model_dump(mode="json")
+            != old_handoff.context.model_dump(mode="json")
+            or old_job.context.model_dump(mode="json")
+            != self._cycle_substrate_context.model_dump(mode="json")
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_old_context_readback_mismatch")
+
+        try:
+            source_selection = candidate_cycle_substrate_source_profile_selection(problem)
+            offer = admission_owner.admit_context_for_acquired_world(
+                problem=problem,
+                profile_selection_ref=old_handoff.profile.profile_selection_ref,
+                world_model_record=acquired_context.world_model_record,
+                job_id=verified_scope.job_id,
+                run_id=verified_scope.run_id,
+                tenant_id=verified_scope.tenant_id,
+                cell_id=verified_scope.cell_id,
+            )
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_context_reissue_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if (
+            type(offer) is not CandidateSimulationContextOffer
+            or offer.context.design_problem_ref != cycle_job_design_problem_ref(problem)
+            or offer.profile.profile_selection_ref != old_handoff.profile.profile_selection_ref
+            or offer.profile.profile_id != old_handoff.profile.profile_id
+            or offer.profile.rule != old_handoff.profile.rule
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_context_offer_binding_mismatch")
+
+        final_context = offer.context
+
+        def compose_source_profile(
+            current_offer: CandidateSimulationContextOffer,
+        ) -> CycleSubstrateContext:
+            if source_selection is None:
+                return current_offer.context
+            source_context = build_candidate_cycle_substrate_context(
+                Path(self._repo_root),
+                problem=problem,
+                world_model_record=current_offer.context.world_model_record,
+                substrate_registry=current_offer.context.substrate_registry,
+            )
+            base = current_offer.context
+            if (
+                source_context.source_profile is None
+                or source_context.world_model_record.content_hash
+                != base.world_model_record.content_hash
+                or source_context.substrate_registry.model_dump(mode="json")
+                != base.substrate_registry.model_dump(mode="json")
+                or tuple(source_context.selected_registry_entry_hashes)
+                != tuple(base.selected_registry_entry_hashes)
+                or source_context.intervention_substrate.model_dump(mode="json")
+                != base.intervention_substrate.model_dump(mode="json")
+                or source_context.transport_context != base.transport_context
+                or source_context.source_pack_content_hash != base.source_pack_content_hash
+            ):
+                raise GenerationCycleError(
+                    "n7_candidate_source_profile_context_join_not_established"
+                )
+            try:
+                return revalidate_cycle_substrate_context(
+                    build_cycle_substrate_context(
+                        design_problem_ref=base.design_problem_ref,
+                        domain=base.domain,
+                        substrate_registry=base.substrate_registry,
+                        selected_registry_entry_hashes=base.selected_registry_entry_hashes,
+                        world_model_record=base.world_model_record,
+                        intervention_substrate=base.intervention_substrate,
+                        candidate_levers=source_context.candidate_levers,
+                        transport_context=base.transport_context,
+                        source_pack_content_hash=base.source_pack_content_hash,
+                        substrate_input_content_hash=source_context.substrate_input_content_hash,
+                        source_profile=source_context.source_profile,
+                    )
+                )
+            except (TypeError, ValueError) as exc:
+                raise GenerationCycleError(
+                    "n7_candidate_source_profile_context_compose_refused", str(exc)
+                ) from exc
+
+        if source_selection is not None:
+            try:
+                final_context = compose_source_profile(offer)
+            except (
+                CycleSubstrateContextOwnerError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                if isinstance(exc, GenerationCycleError):
+                    raise
+                raise GenerationCycleError(
+                    "n7_candidate_source_profile_reissue_refused",
+                    str(getattr(exc, "code", None) or exc),
+                ) from exc
+        try:
+            new_ref = context_owner.persist_for_current_job(
+                final_context,
+                problem=problem,
+                repo_root=Path(self._repo_root),
+                verified_nl_job_scope=verified_scope,
+            )
+            new_job = context_owner.resolve_for_current_job(
+                new_ref,
+                problem=problem,
+                repo_root=Path(self._repo_root),
+                verified_nl_job_scope=verified_scope,
+            )
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_context_persist_readback_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if (
+            not is_supported_cycle_substrate_context_job_artifact(new_job)
+            or new_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+            or new_job.context.model_dump(mode="json") != final_context.model_dump(mode="json")
+            or new_job.context.world_model_record.content_hash
+            != offer.context.world_model_record.content_hash
+            or new_job.job_id != verified_scope.job_id
+            or new_job.run_id != verified_scope.run_id
+            or new_job.tenant_id != verified_scope.tenant_id
+            or new_job.cell_id != verified_scope.cell_id
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_context_owner_readback_mismatch")
+        if candidate_simulation_profile_ref(offer.profile) != offer.profile_config_ref:
+            raise GenerationCycleError("n7_candidate_simulation_reissued_profile_ref_mismatch")
+        new_handoff = CandidateSimulationContextHandoff(
+            context=new_job.context,
+            context_job_ref=new_ref,
+            profile=offer.profile,
+            profile_config_ref=offer.profile_config_ref,
+            job_id=verified_scope.job_id,
+            run_id=verified_scope.run_id,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+            model_declaration=offer.model_declaration,
+            model_declaration_ref=offer.model_declaration_ref,
+            ncm_ref=offer.ncm_ref,
+        )
+
+        def current_reissued_handoff() -> bool:
+            try:
+                if old_currentness() is not True:
+                    return False
+                replay = context_owner.resolve_for_current_job(
+                    new_ref,
+                    problem=problem,
+                    repo_root=Path(self._repo_root),
+                    verified_nl_job_scope=verified_scope,
+                )
+                if (
+                    not is_supported_cycle_substrate_context_job_artifact(replay)
+                    or replay.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+                    or replay.context.model_dump(mode="json")
+                    != new_handoff.context.model_dump(mode="json")
+                ):
+                    return False
+                fresh_offer = admission_owner.admit_context_for_acquired_world(
+                    problem=problem,
+                    profile_selection_ref=new_handoff.profile.profile_selection_ref,
+                    world_model_record=acquired_context.world_model_record,
+                    job_id=verified_scope.job_id,
+                    run_id=verified_scope.run_id,
+                    tenant_id=verified_scope.tenant_id,
+                    cell_id=verified_scope.cell_id,
+                )
+                return (
+                    type(fresh_offer) is CandidateSimulationContextOffer
+                    and fresh_offer.model_dump(mode="json") == offer.model_dump(mode="json")
+                    and compose_source_profile(fresh_offer).model_dump(mode="json")
+                    == new_handoff.context.model_dump(mode="json")
+                )
+            except (CycleSubstrateContextOwnerError, OSError, RuntimeError, TypeError, ValueError):
+                return False
+
+        if current_reissued_handoff() is not True:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_reissued_currentness_not_established"
+            )
+        if type(self._simulation_port) is not JointSimulationPort:
+            raise GenerationCycleError("n7_candidate_simulation_canonical_n5_not_established")
+
+        old_state = (
+            self._cycle_substrate_context,
+            self._candidate_cycle_context_job_ref,
+            self._candidate_simulation_handoff,
+            self._candidate_simulation_currentness_resolver,
+        )
+        port_state = tuple(
+            (port, name, getattr(port, name))
+            for port, name in (
+                (self._generation_port, "_candidate_simulation_handoff"),
+                (self._simulation_port, "_candidate_simulation_handoff"),
+                (self._simulation_port, "_candidate_simulation_currentness_resolver"),
+            )
+            if hasattr(port, name)
+        )
+        try:
+            self._bind_cycle_substrate_context(new_handoff.context, context_job_ref=new_ref)
+            self._candidate_simulation_handoff = new_handoff
+            self._candidate_simulation_currentness_resolver = current_reissued_handoff
+            for port, name, _old_value in port_state:
+                setattr(
+                    port,
+                    name,
+                    current_reissued_handoff
+                    if name == "_candidate_simulation_currentness_resolver"
+                    else new_handoff,
+                )
+            if current_reissued_handoff() is not True:
+                raise GenerationCycleError(
+                    "n7_candidate_simulation_reissued_currentness_changed_during_bind"
+                )
+        except Exception:
+            self._bind_cycle_substrate_context(old_state[0], context_job_ref=old_state[1])
+            self._candidate_simulation_handoff = old_state[2]
+            self._candidate_simulation_currentness_resolver = old_state[3]
+            for port, name, old_value in port_state:
+                setattr(port, name, old_value)
+            raise
+        return new_handoff
+
+    def _reissue_n7_candidate_scenario_source(
+        self,
+        cycle: GenerationCycleRecord,
+        *,
+        problem: DesignProblem,
+        handoff: object,
+        origin_handoff: object,
+    ) -> object:
+        """Rebind the persisted N4 proposal and lineage to the new owner context."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+        from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalRun
+        from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
+        from polisyos.runtime.quality.world_model_record import WorldModelRecord
+
+        if (
+            type(handoff) is not CandidateSimulationContextHandoff
+            or type(origin_handoff) is not CandidateSimulationContextHandoff
+            or self._source_repository is None
+        ):
+            raise GenerationCycleError("n7_candidate_scenario_source_owner_missing")
+        raw_ref = cycle.simulation.diagnostics.get("candidate_simulation_n4_source_selected_ref")
+        if not isinstance(raw_ref, Mapping):
+            raise GenerationCycleError("n7_candidate_scenario_origin_source_ref_missing")
+        try:
+            origin_ref = CASArtifactRef.model_validate(raw_ref)
+            if (
+                cycle.simulation.candidate_simulation_n4_source_ref is None
+                or artifact_ref_identity_key(origin_ref)
+                != artifact_ref_identity_key(cycle.simulation.candidate_simulation_n4_source_ref)
+            ):
+                raise ValueError("n7_candidate_scenario_origin_source_ref_mismatch")
+            origin = self._source_repository.load_candidate_scenario_source_for_n5(
+                origin_ref,
+                expected_run_id=handoff.run_id,
+                expected_job_id=handoff.job_id,
+                expected_tenant_id=handoff.tenant_id,
+                expected_cell_id=handoff.cell_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_scenario_origin_source_readback_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if (
+            type(origin) is not N4CandidateScenarioSourceRecordV3
+            or origin.candidate.candidate_id != cycle.selected_candidate_ref
+            or origin.candidate.atom.content_hash != cycle.selected_candidate_content_hash
+            or origin.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+            or origin.context_hash != origin_handoff.context.content_hash
+            or type(cycle.simulation.world_model_record) is not WorldModelRecord
+            or origin.world_model_record_hash != cycle.simulation.world_model_record.content_hash
+            or origin.world_model_record_hash
+            != origin_handoff.context.world_model_record.content_hash
+            or origin.source_record.source_record.context_job_ref
+            != cycle.simulation.candidate_simulation_context_job_ref
+            or origin.source_record.source_record.context_job_ref != origin_handoff.context_job_ref
+            or origin.profile_selection_ref != handoff.profile.profile_selection_ref
+        ):
+            raise GenerationCycleError("n7_candidate_scenario_origin_source_binding_mismatch")
+        source_v1 = origin.source_record.source_record
+        result = self._candidate_scenario_proposal_result(
+            N4CandidateScenarioProposalRun(
+                proposal=origin.proposal,
+                l2_confidence_vintage=source_v1.l2_confidence_vintage,
+                k_ref_limitation_code=source_v1.k_ref_limitation_code,
+            ),
+            problem=problem,
+            stable_subject_ref=origin.stable_subject_ref,
+            origin_source_ref=origin_ref,
+        )
+        if result.status != "generated" or result.source_ref is None or len(result.candidates) != 1:
+            raise GenerationCycleError(
+                "n7_candidate_scenario_source_reissue_not_established",
+                result.candidate_limitation_code or result.status,
+            )
+        candidate = result.candidates[0]
+        if (
+            candidate.candidate_id != cycle.selected_candidate_ref
+            or candidate.atom.content_hash == cycle.selected_candidate_content_hash
+            or candidate.atom.world_model_record_ref
+            != handoff.context.world_model_record.world_model_record_id
+        ):
+            raise GenerationCycleError("n7_candidate_scenario_reissue_identity_mismatch")
+        try:
+            rebound = self._source_repository.load_candidate_scenario_source_for_n5(
+                result.source_ref,
+                expected_run_id=handoff.run_id,
+                expected_job_id=handoff.job_id,
+                expected_tenant_id=handoff.tenant_id,
+                expected_cell_id=handoff.cell_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_scenario_reissued_source_readback_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if (
+            type(rebound) is not N4CandidateScenarioSourceRecordV3
+            or rebound.origin_source_ref is None
+            or artifact_ref_identity_key(rebound.origin_source_ref)
+            != artifact_ref_identity_key(origin_ref)
+            or rebound.semantic_identity_hash != origin.semantic_identity_hash
+            or rebound.candidate.candidate_id != cycle.selected_candidate_ref
+            or rebound.candidate_occurrence_hash != candidate.atom.content_hash
+            or rebound.context_hash != handoff.context.content_hash
+            or rebound.world_model_record_hash != handoff.context.world_model_record.content_hash
+            or rebound.source_record.source_record.context_job_ref != handoff.context_job_ref
+        ):
+            raise GenerationCycleError("n7_candidate_scenario_reissued_source_binding_mismatch")
+        return candidate
+
     @staticmethod
     def _set_cycle_context_consumer(
         consumer: object,
@@ -10024,12 +11046,113 @@ class GenerationCycleController:
             validate_acquisition_receipt,
         )
 
-        receipt_issues = validate_acquisition_receipt(acquisition_receipt)
+        artifact_store = self._n7_runtime_artifact_store()
+        require_persisted_planner_report = acquisition_receipt.planner_report_ref is not None
+        receipt_issues = validate_acquisition_receipt(
+            acquisition_receipt,
+            artifact_store=artifact_store,
+            require_persisted_planner_report=require_persisted_planner_report,
+        )
         if receipt_issues:
             raise GenerationCycleError(
                 "n7_receipt_invalid",
                 json.dumps(receipt_issues, sort_keys=True),
             )
+        if acquisition_receipt.planner_report_ref is not None:
+            cycle_has_route_carrier = (
+                cycle.acquisition_routing_report is not None
+                or cycle.acquisition_routing_report_ref is not None
+            )
+            if (
+                acquisition_receipt.planner_report.run_id
+                != f"n7-cycle:{problem.design_problem_id}:{cycle.cycle_index}"
+                or acquisition_receipt.source_cycle_index != cycle.cycle_index
+                or acquisition_receipt.reentry_cycle_index != cycle.cycle_index
+                or (
+                    cycle_has_route_carrier
+                    and (
+                        cycle.acquisition_routing_report_ref
+                        != acquisition_receipt.planner_report_ref
+                        or cycle.acquisition_routing_report != acquisition_receipt.planner_report
+                    )
+                )
+            ):
+                raise GenerationCycleError("n7_planner_report_cycle_binding_mismatch")
+            request = acquisition_receipt.acquisition_request
+            basis = self._n7_data_requirement_basis_with_report(
+                problem,
+                acquisition_request=request,
+                cycle=cycle,
+            )
+            if basis.unbound_input_fields or basis.routing_limitation_code is not None:
+                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+            specs = basis.specs
+            capability_resolutions = basis.capability_resolutions
+            if (
+                tuple(
+                    spec.model_dump(mode="json") if isinstance(spec, BaseModel) else dict(spec)
+                    for spec in specs
+                )
+                != acquisition_receipt.compiled_requirement_specs
+            ):
+                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+            expected_route_rows = tuple(
+                (
+                    gap.requirement_gap_id,
+                    gap.compiled_requirement_ref,
+                    gap.scenario_requirement_refs,
+                )
+                for gap in basis.routed_compiler_gaps
+            )
+            actual_route_rows = tuple(
+                (
+                    record.requirement_gap_ref,
+                    record.compiled_requirement_ref,
+                    record.scenario_requirement_refs,
+                )
+                for record in acquisition_receipt.planner_report.acquisition_records
+            )
+            if actual_route_rows != expected_route_rows:
+                raise GenerationCycleError("n7_planner_report_request_basis_mismatch")
+            basis_binding = acquisition_receipt.requirement_basis_binding
+            if basis_binding is not None:
+                if artifact_store is None:
+                    raise GenerationCycleError("n7_compiler_report_store_missing")
+                basis_issues = validate_persisted_data_requirement_compilation_report(
+                    artifact_store,
+                    basis_binding,
+                    expected_report=basis.compilation_report,
+                )
+                if basis_issues:
+                    raise GenerationCycleError(
+                        "n7_compiler_report_replay_mismatch",
+                        json.dumps(basis_issues, sort_keys=True),
+                    )
+            world_snapshot = self._n7_world_snapshot(
+                problem,
+                cycle=cycle,
+                acquisition_request=request,
+                specs=specs,
+            )
+            expected_context_hash = n7_planner_input_content_hash(
+                run_id=acquisition_receipt.run_id,
+                acquisition_request=request,
+                compiled_requirement_specs=specs,
+                world_snapshot=world_snapshot,
+                capability_requirement_resolutions=(
+                    capability_resolutions
+                    if capability_resolutions is not None
+                    else acquisition_receipt.capability_requirement_resolutions
+                ),
+                requirement_basis_binding=basis_binding,
+                design_problem=problem,
+                generated_at=acquisition_receipt.generated_at,
+            )
+            if not acquisition_planner_report_matches_context(
+                acquisition_receipt.planner_report,
+                planning_context_hash=expected_context_hash,
+            ):
+                raise GenerationCycleError("n7_planner_report_context_binding_mismatch")
         if self._authority_scope != "contract_testing":
             # This local receipt is not Data Forge native admission evidence:
             # it carries no independently resolved OverlayAdmissionReceipt,
@@ -10062,7 +11185,7 @@ class GenerationCycleController:
         )
         if rederived is None:
             return (
-                cycle.model_copy(update={"acquisition_receipt": receipt_payload}),
+                _cycle_with_n7_acquisition_receipt(cycle, receipt_payload),
                 cycle_summaries,
             )
         if not isinstance(rederived, AcquisitionGroundingRederivation):
@@ -10127,41 +11250,112 @@ class GenerationCycleController:
                 "n7_reentry_source_profile_selection_invalid",
                 str(exc),
             ) from exc
-        if source_selection is not None:
-            # The acquired WMR is the basis for a fresh V5 projection; never
-            # carry the previous cycle's source rows into the new context.
+        origin_handoff = self._candidate_simulation_handoff
+        reissued_candidate = None
+        if source_selection is not None and origin_handoff is not None:
+            # The old V5 handoff is an immutable occurrence. Reissue both the
+            # owner context and the persisted N4 source against the acquired WMR.
+            old_transition_state = (
+                self._cycle_substrate_context,
+                self._candidate_cycle_context_job_ref,
+                self._candidate_simulation_handoff,
+                self._candidate_simulation_currentness_resolver,
+                self._value_port,
+                dict(self._candidate_scenario_source_refs),
+                list(self._source_issues),
+            )
+            transition_consumer_fields = (
+                "_cycle_substrate_context",
+                "_candidate_simulation_handoff",
+                "_candidate_simulation_currentness_resolver",
+                "cycle_substrate_context",
+            )
+            old_consumer_state = tuple(
+                (consumer, name, getattr(consumer, name))
+                for consumer in (
+                    self._generation_port,
+                    self._simulation_port,
+                    self._value_port,
+                )
+                for name in transition_consumer_fields
+                if hasattr(consumer, name)
+            )
+            try:
+                new_handoff = self._reissue_candidate_simulation_context_after_n7(
+                    rebuilt_context,
+                    problem=problem,
+                )
+                reissued_candidate = self._reissue_n7_candidate_scenario_source(
+                    cycle,
+                    problem=problem,
+                    handoff=new_handoff,
+                    origin_handoff=origin_handoff,
+                )
+            except Exception:
+                (
+                    self._cycle_substrate_context,
+                    self._candidate_cycle_context_job_ref,
+                    self._candidate_simulation_handoff,
+                    self._candidate_simulation_currentness_resolver,
+                    self._value_port,
+                    prior_source_refs,
+                    prior_source_issues,
+                ) = old_transition_state
+                self._candidate_scenario_source_refs.clear()
+                self._candidate_scenario_source_refs.update(prior_source_refs)
+                self._source_issues[:] = prior_source_issues
+                for consumer, name, value in old_consumer_state:
+                    setattr(consumer, name, value)
+                raise
+            rebound_context = self._cycle_substrate_context
+        elif source_selection is not None:
+            # Keep the historical source-profile route when no V5 handoff
+            # exists; it cannot claim the V5 acquired-world transition.
             self._bind_cycle_substrate_context(rebuilt_context)
             self._ensure_selected_candidate_source_profile(
                 problem,
                 previous_problem=problem,
             )
+            rebound_context = self._cycle_substrate_context
         else:
             self._persist_resolve_and_bind_cycle_substrate_context(
                 rebuilt_context,
                 previous_problem=problem,
                 problem=problem,
             )
-        rebound_context = self._cycle_substrate_context
+            rebound_context = self._cycle_substrate_context
         if type(rebound_context) is not CycleSubstrateContext:
             raise GenerationCycleError("n7_reentry_current_context_rebind_missing")
         rebound_world_ref = rebound_context.world_model_record.world_model_record_id
-        rebound_atom = prior_atom.model_copy(update={"world_model_record_ref": rebound_world_ref})
-        rebound_atom = rebound_atom.model_copy(
-            update={
-                "atom_id": (
-                    "atom_"
-                    f"{intervention_atom_content_hash(rebound_atom).removeprefix('sha256:')[:16]}"
-                ),
-                "content_hash": intervention_atom_content_hash(rebound_atom),
-            }
-        )
-        rebound_atom = InterventionAtomBinding.model_validate(
-            rebound_atom.model_dump(mode="python")
-        )
-        selected_candidate = _N7ReentryCandidate(
-            candidate_id=cycle.selected_candidate_ref,
-            atom=rebound_atom,
-        )
+        if reissued_candidate is not None:
+            rebound_atom = reissued_candidate.atom
+            if (
+                reissued_candidate.candidate_id != cycle.selected_candidate_ref
+                or rebound_atom.world_model_record_ref != rebound_world_ref
+                or rebound_atom.content_hash == cycle.selected_candidate_content_hash
+            ):
+                raise GenerationCycleError("n7_reentry_reissued_candidate_binding_mismatch")
+            selected_candidate = reissued_candidate
+        else:
+            rebound_atom = prior_atom.model_copy(
+                update={"world_model_record_ref": rebound_world_ref}
+            )
+            rebound_atom = rebound_atom.model_copy(
+                update={
+                    "atom_id": (
+                        "atom_"
+                        f"{intervention_atom_content_hash(rebound_atom).removeprefix('sha256:')[:16]}"
+                    ),
+                    "content_hash": intervention_atom_content_hash(rebound_atom),
+                }
+            )
+            rebound_atom = InterventionAtomBinding.model_validate(
+                rebound_atom.model_dump(mode="python")
+            )
+            selected_candidate = _N7ReentryCandidate(
+                candidate_id=cycle.selected_candidate_ref,
+                atom=rebound_atom,
+            )
         # The owner write changes the world basis. Re-enter the existing N5/N8
         # owner nodes so downstream results cannot remain bound to the old basis.
         dependent = self._joint_value_node(
@@ -10218,7 +11412,8 @@ class GenerationCycleController:
             revision=revision,
             voi_decision=voi_decision,
             stable_design_problem_ref=stable_design_problem_ref,
-        ).model_copy(update={"acquisition_receipt": receipt_payload})
+        )
+        reentered = _cycle_with_n7_acquisition_receipt(reentered, receipt_payload)
         return reentered, _n7_reentered_summaries(
             cycle_summaries,
             candidate_id=cycle.selected_candidate_ref,
@@ -10429,6 +11624,130 @@ class GenerationCycleController:
             ),
         )
 
+    def _resolve_candidate_simulation_context_handoff(
+        self,
+        problem: DesignProblem,
+    ) -> bool:
+        """Resolve and retain a current owner handoff before N7 can reuse its context."""
+
+        handoff = self._candidate_simulation_handoff
+        if handoff is None:
+            return False
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContext,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextOwnerError,
+            VerifiedNLJobScope,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+            is_supported_cycle_substrate_context_job_artifact,
+            revalidate_cycle_substrate_context,
+        )
+
+        if type(handoff) is not CandidateSimulationContextHandoff:
+            raise GenerationCycleError("n7_candidate_simulation_handoff_untyped")
+        try:
+            checked_handoff = CandidateSimulationContextHandoff.model_validate(
+                handoff.model_dump(mode="python")
+            )
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_handoff_invalid",
+                str(exc),
+            ) from exc
+        context_owner = self._candidate_cycle_context_artifact_owner
+        verified_scope = self._candidate_cycle_verified_nl_job_scope
+        if (
+            type(context_owner) is not CycleSubstrateContextArtifactOwner
+            or self._artifact_store is None
+            or context_owner._store is not self._artifact_store
+            or type(verified_scope) is not VerifiedNLJobScope
+            or not verified_scope._was_issued_by_verified_nl_execution_owner
+            or self._repo_root is None
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_context_owner_binding_missing")
+        if (
+            checked_handoff.job_id != verified_scope.job_id
+            or checked_handoff.run_id != verified_scope.run_id
+            or checked_handoff.tenant_id != verified_scope.tenant_id
+            or checked_handoff.cell_id != verified_scope.cell_id
+            or checked_handoff.profile.profile_selection_ref
+            != cycle_job_profile_selection_ref(problem)
+            or checked_handoff.context.design_problem_ref != cycle_job_design_problem_ref(problem)
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_handoff_scope_mismatch")
+        currentness_resolver = self._candidate_simulation_currentness_resolver
+        if not callable(currentness_resolver):
+            raise GenerationCycleError("n7_candidate_simulation_handoff_currentness_missing")
+        try:
+            current = currentness_resolver()
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_handoff_currentness_refused",
+                str(exc),
+            ) from exc
+        if current is not True:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_handoff_currentness_not_established"
+            )
+        try:
+            resolved_job = context_owner.resolve_for_current_job(
+                checked_handoff.context_job_ref,
+                problem=problem,
+                repo_root=Path(self._repo_root),
+                verified_nl_job_scope=verified_scope,
+            )
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_handoff_owner_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if (
+            not is_supported_cycle_substrate_context_job_artifact(resolved_job)
+            or resolved_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+            or resolved_job.job_id != checked_handoff.job_id
+            or resolved_job.run_id != checked_handoff.run_id
+            or resolved_job.tenant_id != checked_handoff.tenant_id
+            or resolved_job.cell_id != checked_handoff.cell_id
+            or resolved_job.context.model_dump(mode="json")
+            != checked_handoff.context.model_dump(mode="json")
+        ):
+            raise GenerationCycleError("n7_candidate_simulation_handoff_owner_readback_mismatch")
+        try:
+            resolved_context = revalidate_cycle_substrate_context(resolved_job.context)
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_candidate_simulation_handoff_context_invalid",
+                str(exc),
+            ) from exc
+        bound_contexts = (
+            self._cycle_substrate_context,
+            getattr(self._generation_port, "_cycle_substrate_context", None),
+            getattr(self._simulation_port, "_cycle_substrate_context", None),
+            getattr(self._value_port, "cycle_substrate_context", None),
+        )
+        for bound_context in bound_contexts:
+            if bound_context is None:
+                continue
+            if type(bound_context) is not CycleSubstrateContext or bound_context.model_dump(
+                mode="json"
+            ) != resolved_context.model_dump(mode="json"):
+                raise GenerationCycleError("n7_candidate_simulation_handoff_context_diverged")
+        self._bind_cycle_substrate_context(
+            resolved_context,
+            context_job_ref=checked_handoff.context_job_ref,
+        )
+        return True
+
     def _ensure_selected_candidate_source_profile(
         self,
         problem: DesignProblem,
@@ -10454,6 +11773,8 @@ class GenerationCycleController:
             raise GenerationCycleError(
                 "n4_candidate_source_profile_selection_invalid", str(exc)
             ) from exc
+        if self._resolve_candidate_simulation_context_handoff(problem):
+            return
         if selection is None:
             return
         context_owner = self._candidate_cycle_context_artifact_owner
@@ -16910,12 +18231,14 @@ def _cycle_with_acquisition_routing_report(
     cycle: GenerationCycleRecord,
     *,
     report: AcquisitionPlannerReport,
+    report_ref: CASArtifactRef | None,
     cost_basis: AcquisitionCostBasisRecord | None,
 ) -> GenerationCycleRecord:
-    """Attach typed N7 routing evidence through full record validation."""
+    """Attach typed N7 routing evidence and its selected persisted report ref."""
 
     values = {name: getattr(cycle, name) for name in GenerationCycleRecord.model_fields}
     values["acquisition_routing_report"] = report
+    values["acquisition_routing_report_ref"] = report_ref
     values["acquisition_cost_basis_record"] = cost_basis
     values["acquisition_cost_basis_hash"] = (
         cost_basis.record_content_hash if cost_basis is not None else None
@@ -16949,7 +18272,23 @@ def _cycle_with_n7_route_failure(
         update={
             "counterexample": counterexample,
             "acquisition_receipt": None,
+        }
+    )
+
+
+def _cycle_with_n7_acquisition_receipt(
+    cycle: GenerationCycleRecord,
+    receipt_payload: dict[str, Any],
+) -> GenerationCycleRecord:
+    """Move route evidence into the content-bound receipt after owner execution."""
+
+    return cycle.model_copy(
+        update={
+            "acquisition_receipt": receipt_payload,
             "acquisition_routing_report": None,
+            "acquisition_routing_report_ref": None,
+            "acquisition_cost_basis_record": None,
+            "acquisition_cost_basis_hash": None,
         }
     )
 
@@ -18212,6 +19551,95 @@ def _value_manifest_has_exact_inputs(
     return observed_edges == expected_edges
 
 
+def _value_owner_source_atom_estimand_binding(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    estimand: object,
+    measurement_unit: str,
+) -> str:
+    """Recompute the candidate atom's exact subject and estimand join for N8.
+
+    This is a candidate-only structural binding. It does not establish source
+    assignment, issuer authority, currentness, calibration, or production value.
+    """
+    from polisyos.foundry.methods import EstimandSpec
+    from polisyos.ir.analytics.interventions import NodeIntervention
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        _node_assignments,
+        _target_variables,
+        intervention_atom_content_hash,
+    )
+
+    if not isinstance(estimand, EstimandSpec):
+        raise ValueError("value_owner_source_estimand_untyped")
+    raw_atom = _object_get(candidate, "atom")
+    if not isinstance(raw_atom, InterventionAtomBinding):
+        raise ValueError("value_owner_source_atom_untyped")
+    try:
+        recomputed_hash = intervention_atom_content_hash(raw_atom)
+    except Exception as exc:
+        raise ValueError("value_owner_source_atom_invalid") from exc
+    if (
+        raw_atom.content_hash != recomputed_hash
+        or _candidate_content_hash(candidate) != recomputed_hash
+    ):
+        raise ValueError("value_owner_source_atom_hash_mismatch")
+    try:
+        atom = InterventionAtomBinding.model_validate(raw_atom.model_dump(mode="python"))
+        actual_intervention = atom.to_causal_intervention()
+        actual_writes = _target_variables(actual_intervention)
+        actual_assignments = _node_assignments(actual_intervention)
+    except Exception as exc:
+        raise ValueError("value_owner_source_atom_expression_invalid") from exc
+
+    if (
+        atom.causal_do_expr.intervention_type.value != actual_intervention.intervention_type
+        or atom.causal_do_expr.write_variables != actual_writes
+        or atom.causal_do_expr.assignments != actual_assignments
+    ):
+        raise ValueError("value_owner_source_atom_expression_projection_mismatch")
+    if not isinstance(actual_intervention, NodeIntervention):
+        raise ValueError("value_owner_source_atom_action_type_unsupported")
+    if len(actual_writes) != 1 or len(actual_assignments) != 1:
+        raise ValueError("value_owner_source_atom_multiple_treatments_unsupported")
+
+    if atom.problem_frame_ref != _problem_ref(problem):
+        raise ValueError("value_owner_source_atom_subject_mismatch")
+    intended = atom.intended_downstream_estimand
+    outcome = _value_outcome_variable(candidate, problem)
+    if (
+        outcome is None
+        or estimand.outcome != outcome
+        or intended.outcome_variables != (estimand.outcome,)
+    ):
+        raise ValueError("value_owner_source_atom_outcome_mismatch")
+    if estimand.estimand_id != "ATE" or intended.functional != estimand.estimand_id:
+        raise ValueError("value_owner_source_atom_functional_mismatch")
+    metric_id = _object_get(_object_get(problem, "outcome_of_interest"), "metric_id")
+    if not isinstance(metric_id, str) or not metric_id.strip() or intended.metric_id != metric_id:
+        raise ValueError("value_owner_source_atom_metric_mismatch")
+    treatment = estimand.treatment_or_exposure
+    target_world_slots = tuple(atom.target_world_slots)
+    if (
+        not isinstance(treatment, str)
+        or not treatment.strip()
+        or len(target_world_slots) != len(set(target_world_slots))
+        or not set(actual_writes).issubset(target_world_slots)
+        or treatment != actual_writes[0]
+        or actual_assignments[0].variable != treatment
+    ):
+        raise ValueError("value_owner_source_atom_treatment_mismatch")
+    if intended.conditioning_set != tuple(estimand.covariates_or_conditioning):
+        raise ValueError("value_owner_source_atom_conditioning_mismatch")
+    if not isinstance(intended.unit_id, str) or not intended.unit_id.strip():
+        raise ValueError("value_owner_source_atom_unit_unbound")
+    if intended.unit_id != estimand.unit or intended.unit_id != measurement_unit:
+        raise ValueError("value_owner_source_atom_unit_mismatch")
+    return recomputed_hash
+
+
 def _value_owner_source_projection_intent(
     *,
     gateway: RealValueOwnerGateway,
@@ -18248,6 +19676,12 @@ def _value_owner_source_projection_intent(
         raise ValueError("value_owner_source_outcome_binding_mismatch")
     if estimand.unit != outcome_profile.measurement_unit:
         raise ValueError("value_owner_source_outcome_unit_not_identity")
+    candidate_atom_hash = _value_owner_source_atom_estimand_binding(
+        candidate=candidate,
+        problem=problem,
+        estimand=estimand,
+        measurement_unit=outcome_profile.measurement_unit,
+    )
     outcome_binding = next(item for item in request.variable_projections if item.role == "outcome")
     if gateway.activated_observation_projection is None:
         raise ValueError("value_owner_source_outcome_projection_missing")
@@ -18351,7 +19785,7 @@ def _value_owner_source_projection_intent(
         "authority_scope": "candidate_fixture_only",
         "production_value_eligible": False,
         "candidate_id": _candidate_id(candidate),
-        "candidate_content_hash": _candidate_content_hash(candidate),
+        "candidate_content_hash": candidate_atom_hash,
         "design_problem_ref": _problem_ref(problem),
         "world_model_record_content_hash": str(_object_get(world_record, "content_hash")),
         "selected_method_fqn": request.selected_method_fqn,
@@ -18620,6 +20054,13 @@ def _value_owner_reloaded_source_profiles(
         )
     except Exception as exc:
         raise ValueError("value_owner_source_fresh_request_invalid") from exc
+    estimand = _typed_value_estimand_spec(request.estimand_spec_json)
+    candidate_atom_hash = _value_owner_source_atom_estimand_binding(
+        candidate=candidate,
+        problem=problem,
+        estimand=estimand,
+        measurement_unit=assignment.measurement_unit,
+    )
     if (
         request.selected_method_fqn
         not in {
@@ -18627,7 +20068,7 @@ def _value_owner_reloaded_source_profiles(
             "causal.treatment_effects.tmle@1.0.0",
         }
         or assignment.candidate_id != _candidate_id(candidate)
-        or assignment.candidate_content_hash != _candidate_content_hash(candidate)
+        or assignment.candidate_content_hash != candidate_atom_hash
         or assignment.design_problem_ref != _problem_ref(problem)
         or assignment.world_model_record_content_hash
         != str(_object_get(world_record, "content_hash"))

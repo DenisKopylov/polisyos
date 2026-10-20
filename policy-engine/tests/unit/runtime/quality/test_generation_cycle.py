@@ -17,6 +17,7 @@ from uuid import uuid4
 
 import pytest
 
+import polisyos.runtime.quality.acquisition_planner as acquisition_planner_module
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import canon
@@ -6145,12 +6146,12 @@ def _n9_receipt(
     }
 
 
-def _n7_substrate_registry() -> SubstrateRegistry:
+def _n7_substrate_registry(*, family_id: str = "owner_panel_missing") -> SubstrateRegistry:
     entry = build_substrate_registry_entry(
         _n7_registration(
-            source_id="baseline.owner_panel_missing",
-            family_id="owner_panel_missing",
-            snapshot_id="baseline:owner_panel_missing",
+            source_id=f"baseline.{family_id}",
+            family_id=family_id,
+            snapshot_id=f"baseline:{family_id}",
         )
     )
     return build_substrate_registry(
@@ -7594,19 +7595,17 @@ async def test_production_n7_route_less_claim_cannot_reenter_n5(
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
     cycle = run.cycles[0]
-    assert len(emitted_local_receipts) == 1
-    local_receipt = emitted_local_receipts[0]
-    assert local_receipt.owner_artifacts[0].payload["acq01_route"] == route_marker
-    assert local_receipt.owner_artifacts[0].payload["acquired_substrate_registrations"]
-    assert local_receipt.grown_world_after_ref
-    assert "same_cycle_reentry" in local_receipt.authority_boundary["authoritative_for"]
-    assert "affected_region_revalidation" in local_receipt.authority_boundary["authoritative_for"]
+    assert emitted_local_receipts == []
     assert n5_calls == 1  # initial N5 only; the unadmitted local WMR is never consumed
     assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_routing_report is None
+    assert cycle.acquisition_cost_basis_record is None
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.voi_decision.next_action == "escalate"
     assert cycle.search_iteration.status == "acquisition_required"
-    assert cycle.counterexample.diagnostic.code == ("n6.acquisition.n7_runtime_store_not_supplied")
+    assert cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_compiler_report_persistence_unavailable"
+    )
 
 
 @pytest.mark.asyncio
@@ -7876,6 +7875,7 @@ def _assert_n7_reentered_in_candidate_band(
 @pytest.mark.asyncio
 async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     class _ObserveActionsController(GenerationCycleController):
         def __init__(self, **kwargs: Any) -> None:
@@ -7887,15 +7887,13 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
             self.action_decisions.append(decision)
             return decision
 
-    data_spec = _n7_data_requirement_spec()
     problem = _problem().model_copy(
         update={
             "runtime_hints": {
-                "n7_data_requirement_specs": (data_spec,),
                 "n7_world_snapshot": AcquisitionWorldSnapshot(
                     world_ref="world://before/n6-n7",
-                    known_slots=("owner_panel_missing",),
-                    dependency_index={"owner_panel_missing": ("candidate_cycle_1",)},
+                    known_slots=("administrative_tax_receipts",),
+                    dependency_index={"administrative_tax_receipts": ("candidate_cycle_1",)},
                     design_revalidation_stages={
                         "candidate_cycle_1": (
                             "identification",
@@ -7904,7 +7902,9 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
                             "grounding",
                         )
                     },
-                    substrate_registry=_n7_substrate_registry().model_dump(mode="json"),
+                    substrate_registry=_n7_substrate_registry(
+                        family_id="administrative_tax_receipts"
+                    ).model_dump(mode="json"),
                 ),
                 "n7_useful_design_rate_before": 0.0,
             }
@@ -7915,50 +7915,226 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
         candidate_id="candidate_cycle_1",
         target_world_slot="policy_outcome_slot",
     )
+    requirement_gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_cycle_1",
+        candidate_content_hash=atom.content_hash,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="administrative_tax_receipts",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref=(
+                "repo://production_data/dataset_catalog.duckdb#variable/administrative_tax_receipts"
+            ),
+        ),
+        authority_level=problem.authority_profile.requested_authority_level,
+    )
+    compiler_basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={"required_data_families": ("administrative_tax_receipts",)},
+    )
+    from polisyos.runtime.quality.acquisition_planner import requirement_gaps_from_compiled_specs
+
+    compiled_gaps = requirement_gaps_from_compiled_specs(
+        data_requirement_specs=compiler_basis.specs,
+        capability_requirement_resolutions=compiler_basis.capability_resolutions,
+    )
+    matching_compiler_gaps = tuple(
+        gap
+        for gap in compiled_gaps
+        if gap.missing_requirement_fields == ("required_data_family:administrative_tax_receipts",)
+    )
+    assert len(matching_compiler_gaps) == 1
+    compiled_gap = matching_compiler_gaps[0]
     payload = _n7_owner_payload(
-        acquired_family="owner_panel_missing",
-        source_id="fabric.owner_panel_missing",
+        acquired_family="administrative_tax_receipts",
+        source_id="fabric.administrative_tax_receipts",
         candidate_id="candidate_cycle_1",
         candidate_content_hash=atom.content_hash,
         target_world_slots=atom.target_world_slots,
     )
     artifact = AcquisitionOwnerArtifact.from_payload(
         owner_component="fabric.ingestion",
-        requirement_ref=data_spec.requirement_id,
-        artifact_ref="fabric://recorded/owner-panel-missing",
+        requirement_ref=compiled_gap.compiled_requirement_ref,
+        artifact_ref="fabric://recorded/administrative-tax-receipts",
         payload=payload,
         cost_usd=2.0,
         quality={"capture": "real_owner_recording"},
         rights={"license": "recorded-open"},
         binding_refs=("candidate_cycle_1",),
-        journal_ref="journal://n7/owner-panel-missing/001",
+        journal_ref="journal://n7/administrative-tax-receipts/001",
         capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
             owner_component="fabric.ingestion",
             owner_endpoint="fabric.ingestion.acquire",
-            owner_request={"requirement_ref": data_spec.requirement_id},
+            owner_request={"requirement_ref": compiled_gap.compiled_requirement_ref},
             owner_response=payload,
             captured_at=datetime(2026, 7, 5, tzinfo=UTC),
             capture_mode="local_substrate_owner",
         ),
     )
     simulation_probe = _N7ReentrySimulationPort()
-    value_probe = _N7ReentryPendingValuePort()
+
+    class _TypedGapThenPendingValuePort(_N7ReentryPendingValuePort):
+        def __call__(self, **kwargs: Any) -> ValuePortObservation:
+            if self.calls:
+                return super().__call__(**kwargs)
+            candidate = kwargs["candidate"]
+            call = {
+                "candidate_id": str(candidate.candidate_id),
+                "simulation_status": kwargs["simulation"].status,
+                "cycle_index": kwargs["cycle_index"],
+            }
+            self.calls.append(call)
+            return ValuePortObservation(
+                status="value_blocked",
+                candidate_id=call["candidate_id"],
+                authority_blockers=("acquire_data:value_panel_data_missing",),
+                reason="Current owner tax-receipt observations are missing.",
+                decision_grade="blocked",
+                acquisition_requirement=requirement_gap,
+            )
+
+    persistence_order: list[str] = []
+    persist_report = acquisition_planner_module.persist_acquisition_planner_report
+    load_report = acquisition_planner_module.load_acquisition_planner_report
+
+    def persist_and_record(*args: Any, **kwargs: Any) -> Any:
+        ref = persist_report(*args, **kwargs)
+        persistence_order.append("persist")
+        return ref
+
+    def load_and_record(*args: Any, **kwargs: Any) -> Any:
+        report = load_report(*args, **kwargs)
+        persistence_order.append("readback")
+        return report
+
+    monkeypatch.setattr(
+        acquisition_planner_module,
+        "persist_acquisition_planner_report",
+        persist_and_record,
+    )
+    monkeypatch.setattr(
+        acquisition_planner_module,
+        "load_acquisition_planner_report",
+        load_and_record,
+    )
+
+    class _OrderedRecordedGateway(RecordedAcquisitionOwnerGateway):
+        def acquire(self, **kwargs: Any) -> AcquisitionOwnerArtifact | None:
+            persistence_order.append("owner")
+            return super().acquire(**kwargs)
+
+    value_probe = _TypedGapThenPendingValuePort()
+    owner_gateway = _OrderedRecordedGateway(
+        artifacts_by_requirement={requirement_gap.compiled_requirement_ref: artifact}
+    )
     controller = _ObserveActionsController(
         generation_port=_CounterexampleAwareGenerator(first_atom=atom),
         grounding_port=_AcquisitionGrounding(),
         simulation_port=simulation_probe,
         value_port=value_probe,
-        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
-            artifacts_by_requirement={data_spec.requirement_id: artifact}
-        ),
+        acquisition_owner_gateway=owner_gateway,
         authority_scope="contract_testing",
         measurement_root_execution_binding=measurement_execution_binding(tmp_path),
+        repo_root=tmp_path,
     )
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
-    assert run.cycles[0].acquisition_receipt is not None
+    assert run.cycles[0].acquisition_receipt is not None, (
+        run.cycles[0].counterexample.diagnostic.model_dump(mode="json"),
+        persistence_order,
+    )
     receipt = run.cycles[0].acquisition_receipt
+    assert "requirement_gap" in receipt["acquisition_request"]
+    assert receipt["planner_report_ref"]
+    assert persistence_order[0:3] == ["persist", "readback", "readback"]
+    assert persistence_order.index("persist") < persistence_order.index("owner")
+    assert persistence_order.index("owner") > persistence_order.index("readback")
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionReceipt,
+        load_acquisition_planner_report,
+        validate_acquisition_receipt,
+    )
+
+    receipt_model = AcquisitionReceipt.model_validate(receipt)
+    assert receipt_model.planner_report_ref is not None
+    assert controller._source_repository is not None
+    persisted_report = load_acquisition_planner_report(
+        controller._source_repository.store,
+        receipt_model.planner_report_ref,
+    )
+    assert persisted_report == receipt_model.planner_report
+    receipt_issues = validate_acquisition_receipt(
+        receipt_model,
+        artifact_store=controller._source_repository.store,
+        require_persisted_planner_report=True,
+    )
+    assert not any(
+        issue["code"].startswith("acquisition_planner_report") for issue in receipt_issues
+    )
+    stripped_receipt = receipt_model.model_dump(mode="json")
+    stripped_receipt.pop("planner_report_ref")
+    stripped_issues = validate_acquisition_receipt(
+        stripped_receipt,
+        artifact_store=controller._source_repository.store,
+        require_persisted_planner_report=True,
+    )
+    assert any(
+        issue["code"] == "acquisition_planner_report_ref_missing" for issue in stripped_issues
+    )
+    # Same gap IDs with different planner bytes fail the resolved CAS join.
+    mismatched_receipt = receipt_model.model_dump(mode="json")
+    mismatched_receipt["planner_report"]["acquisition_records"][0]["recommended_strategy"] = (
+        "agency_request"
+    )
+    mismatched_receipt.pop("content_hash")
+    mismatched_issues = validate_acquisition_receipt(
+        mismatched_receipt,
+        artifact_store=controller._source_repository.store,
+        require_persisted_planner_report=True,
+    )
+    assert any(
+        issue["code"] == "acquisition_planner_report_readback_mismatch"
+        for issue in mismatched_issues
+    )
+
+    # The complete request bytes are bound before owner dispatch; preserving
+    # requirement IDs while changing request metadata cannot reuse this plan.
+    from polisyos.runtime.quality.acquisition_planner import (
+        run_acquisition_closed_loop,
+    )
+
+    typed_spec = DataRequirementSpec.model_validate(receipt_model.compiled_requirement_specs[0])
+    changed_request = {
+        **receipt_model.acquisition_request,
+        "context": {"same_ids_different_bytes": "changed"},
+    }
+    changed_world = controller._n7_world_snapshot(
+        problem,
+        cycle=run.cycles[0],
+        acquisition_request=changed_request,
+        specs=(typed_spec,),
+    )
+    owner_calls_before = persistence_order.count("owner")
+    with pytest.raises(ValueError, match="acquisition_planner_report_binding_mismatch"):
+        run_acquisition_closed_loop(
+            run_id=receipt_model.run_id,
+            acquisition_request=changed_request,
+            data_requirement_specs=(typed_spec,),
+            world_snapshot=changed_world,
+            capability_requirement_resolutions=receipt_model.capability_requirement_resolutions,
+            design_problem=problem,
+            owner_gateway=owner_gateway,
+            generated_at=receipt_model.generated_at,
+            planner_report=receipt_model.planner_report,
+            planner_report_ref=receipt_model.planner_report_ref,
+            artifact_store=controller._source_repository.store,
+            require_persisted_planner_report=True,
+        )
+    assert persistence_order.count("owner") == owner_calls_before
     assert receipt["source_cycle_index"] == 0
     assert receipt["reentry_cycle_index"] == 0
     _assert_n7_reentered_in_candidate_band(
@@ -7979,6 +8155,24 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
     assert "candidate_cycle_1" in (
         run.fronts.research.candidate_ids + run.fronts.quarantine.candidate_ids
     )
+
+    report_blob, _ = controller._source_repository.store._paths(
+        receipt_model.planner_report_ref.artifact_id
+    )
+    original_report_bytes = report_blob.read_bytes()
+    try:
+        report_blob.write_bytes(original_report_bytes + b"\x00")
+        corrupted_issues = validate_acquisition_receipt(
+            receipt_model,
+            artifact_store=controller._source_repository.store,
+            require_persisted_planner_report=True,
+        )
+        assert any(
+            issue["code"] == "acquisition_planner_report_readback_failed"
+            for issue in corrupted_issues
+        )
+    finally:
+        report_blob.write_bytes(original_report_bytes)
 
 
 @pytest.mark.asyncio
@@ -9170,37 +9364,357 @@ async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
         run.cycles[0].revision_request.strategy_payload["acquisition_request"]["driver"]
         == "acquire_data:value_panel_data_missing"
     )
-    assert run.cycles[0].acquisition_routing_report is not None
+    assert run.cycles[0].acquisition_routing_report is None
     assert run.cycles[0].acquisition_receipt is None
-    record = run.cycles[0].acquisition_routing_report.acquisition_records[0]
-    assert record.recommended_strategy.value == "production_snapshot_build"
-    assert record.terminal_disposition.value == "acquire"
-    assert record.claim_ref == "value-claim:candidate_cgf_shadow"
+    assert run.cycles[0].counterexample.diagnostic.code == (
+        "n6.acquisition.n7_compiler_report_persistence_unavailable"
+    )
     assert run.fronts.decision.candidate_ids == ()
 
 
+def test_n7_bound_l1_gap_selects_its_exact_compiler_family() -> None:
+    problem = _problem("n7_l1_gap_family_binding")
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_l1_gap_family",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="firm_survival",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://controlled-test/firm-survival",
+        ),
+        authority_level="research",
+    )
+
+    families, limitation = generation_cycle_module._n7_compiler_families_for_source_gap(
+        problem,
+        acquisition_request={
+            "driver": "acquire_data:value_panel_data_missing",
+            "requirement_gap": source_gap.model_dump(mode="json"),
+        },
+        source_gap=source_gap,
+    )
+    conflicting, conflict_code = generation_cycle_module._n7_compiler_families_for_source_gap(
+        problem,
+        acquisition_request={
+            "driver": "acquire_data:value_panel_data_missing",
+            "required_data_families": ("other_family",),
+            "requirement_gap": source_gap.model_dump(mode="json"),
+        },
+        source_gap=source_gap,
+    )
+
+    assert families == ("firm_survival",)
+    assert limitation is None
+    assert conflicting == ()
+    assert conflict_code == "unbound_requirement_input_refused"
+
+
+def test_n7_data_requirement_basis_uses_compiler_report_and_refuses_unbound_gap_or_hint() -> None:
+    problem = _problem().model_copy(
+        update={"runtime_hints": {"n7_data_requirement_specs": (_n7_data_requirement_spec(),)}}
+    )
+    gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_generic_gap",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref="sha256:" + "2" * 64,
+        availability=L1VariableAvailability(
+            variable_id="generic_gap_measure",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://controlled-test/generic-gap-measure",
+        ),
+        authority_level="research",
+    )
+
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={"requirement_gap": gap.model_dump(mode="json")},
+    )
+
+    assert basis.specs == tuple(basis.compilation_report.specs)
+    assert basis.capability_resolutions == (
+        basis.compilation_report.capability_requirement_resolutions
+    )
+    assert basis.unbound_input_fields == (
+        "acquisition_request.requirement_gap",
+        "runtime_hints.n7_data_requirement_specs",
+    )
+    assert all(spec != gap for spec in basis.specs)
+
+
+@pytest.mark.parametrize(
+    "raw_gap",
+    [None, [], "present-but-malformed", {"schema_version": "wrong"}],
+)
+def test_n7_present_malformed_gap_is_recorded_as_unbound_input_refusal(raw_gap: Any) -> None:
+    problem = _problem().model_copy(
+        update={"runtime_hints": {"n7_data_requirement_specs": (_n7_data_requirement_spec(),)}}
+    )
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={"requirement_gap": raw_gap},
+    )
+    assert basis.specs == tuple(basis.compilation_report.specs)
+    assert basis.unbound_input_fields == (
+        "acquisition_request.requirement_gap",
+        "runtime_hints.n7_data_requirement_specs",
+    )
+
+
+def test_n7_source_gap_routes_only_one_exact_compiler_requirement() -> None:
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_route_join",
+        candidate_content_hash="sha256:" + "7" * 64,
+        design_problem_ref="sha256:" + "8" * 64,
+        availability=L1VariableAvailability(
+            variable_id="owner_panel_missing",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://controlled-test/owner-panel-missing",
+        ),
+        authority_level="research",
+    )
+    matching_spec = _n7_data_requirement_spec().model_copy(
+        update={"required_data_families": ("owner_panel_missing",)}
+    )
+    other_spec = _n7_data_requirement_spec().model_copy(
+        update={
+            "requirement_id": "data-requirement:other-panel",
+            "claim_id": "claim-other-panel",
+            "required_data_families": ("other_panel",),
+        }
+    )
+    original_specs = tuple(spec.model_dump(mode="json") for spec in (matching_spec, other_spec))
+
+    routed, limitation = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=(matching_spec, other_spec),
+        capability_resolutions=None,
+    )
+
+    assert limitation is None
+    assert len(routed) == 2
+    selected = next(
+        gap for gap in routed if gap.compiled_requirement_ref == matching_spec.requirement_id
+    )
+    untouched = next(
+        gap for gap in routed if gap.compiled_requirement_ref == other_spec.requirement_id
+    )
+    assert source_gap.requirement_gap_id in selected.scenario_requirement_refs
+    assert source_gap.requirement_gap_id not in untouched.scenario_requirement_refs
+    assert (
+        tuple(spec.model_dump(mode="json") for spec in (matching_spec, other_spec))
+        == original_specs
+    )
+
+
+def test_n7_source_gap_refuses_missing_or_ambiguous_compiler_match() -> None:
+    source_gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_ambiguous_route",
+        candidate_content_hash="sha256:" + "9" * 64,
+        design_problem_ref="sha256:" + "a" * 64,
+        availability=L1VariableAvailability(
+            variable_id="duplicate_panel",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://controlled-test/duplicate-panel",
+        ),
+        authority_level="research",
+    )
+    matching = _n7_data_requirement_spec().model_copy(
+        update={"required_data_families": ("duplicate_panel",)}
+    )
+    repeated = matching.model_copy(
+        update={
+            "requirement_id": "data-requirement:duplicate-panel-second-claim",
+            "claim_id": "claim:duplicate-panel-second-claim",
+        }
+    )
+
+    no_match, no_match_code = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=(_n7_data_requirement_spec(),),
+        capability_resolutions=None,
+    )
+    ambiguous, ambiguous_code = generation_cycle_module._n7_route_compiler_gaps(
+        source_gap=source_gap,
+        specs=(matching, repeated),
+        capability_resolutions=None,
+    )
+
+    assert no_match == ()
+    assert no_match_code == "requirement_gap_not_compiled"
+    assert ambiguous == ()
+    assert ambiguous_code == "requirement_gap_not_compiled"
+
+
 @pytest.mark.asyncio
-async def test_canonical_n7_route_attaches_exact_owner_cost_basis() -> None:
+async def test_n7_source_gap_request_requires_exact_current_problem_and_gap_bytes() -> None:
+    problem = _problem()
     controller = GenerationCycleController(
-        generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    )
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+    request = cycle.revision_request.strategy_payload["acquisition_request"]
+
+    source_gap, limitation = generation_cycle_module._n7_cycle_source_gap(
+        problem,
+        cycle=cycle,
+        acquisition_request=request,
+    )
+    changed_gap_request = {
+        **request,
+        "requirement_gap": {
+            **request["requirement_gap"],
+            "claim_ref": "value-claim:foreign-candidate",
+        },
+    }
+    transplanted_problem = problem.model_copy(
+        update={"problem_statement": "Different content with the same problem ID."}
+    )
+    changed_source, changed_code = generation_cycle_module._n7_cycle_source_gap(
+        problem,
+        cycle=cycle,
+        acquisition_request=changed_gap_request,
+    )
+    transplanted_source, transplanted_code = generation_cycle_module._n7_cycle_source_gap(
+        transplanted_problem,
+        cycle=cycle,
+        acquisition_request=request,
+    )
+    basis = controller._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request=request,
+        cycle=cycle,
+    )
+    conflict_basis = controller._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={**request, "required_data_families": ("foreign_family",)},
+        cycle=cycle,
+    )
+
+    assert source_gap is not None
+    assert limitation is None
+    assert changed_source is None
+    assert changed_code == "unbound_requirement_input_refused"
+    assert transplanted_source is None
+    assert transplanted_code == "unbound_requirement_input_refused"
+    assert basis.unbound_input_fields == ()
+    assert tuple(spec.required_data_families for spec in basis.specs) == (("firm_survival",),)
+    assert basis.compilation_report.requirement_basis.basis_grade == "consumer_asserted"
+    assert basis.routing_limitation_code is None
+    assert len(basis.routed_compiler_gaps) == 1
+    assert source_gap.requirement_gap_id in basis.routed_compiler_gaps[0].scenario_requirement_refs
+    assert conflict_basis.routing_limitation_code == "unbound_requirement_input_refused"
+    assert conflict_basis.routed_compiler_gaps == ()
+
+
+@pytest.mark.asyncio
+async def test_n7_typed_gap_persists_costed_plan_before_authority_refusal(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.acquisition_planner import (
+        acquisition_report_inputs,
+        load_acquisition_planner_report,
+        validate_persisted_data_requirement_compilation_report,
+    )
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=tmp_path,
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    cycle = run.cycles[0]
+    assert cycle.acquisition_routing_report is not None, cycle.counterexample.diagnostic.model_dump(
+        mode="json"
+    )
+    assert cycle.acquisition_routing_report_ref is not None
+    assert cycle.acquisition_cost_basis_record is not None
+    assert cycle.acquisition_receipt is None
+    assert controller._source_repository is not None
+    persisted_report = load_acquisition_planner_report(
+        controller._source_repository.store,
+        cycle.acquisition_routing_report_ref,
+    )
+    assert persisted_report == cycle.acquisition_routing_report
+    basis_binding = persisted_report.requirement_basis_binding
+    assert basis_binding is not None
+    assert basis_binding.scenario_id == _problem().design_problem_id
+    assert basis_binding.resolution.state == "established"
+    assert basis_binding.resolution.basis_grade == "consumer_asserted"
+    assert persisted_report.status == "warn"
+    assert persisted_report.basis_limitation_code == "consumer_declared_basis_candidate_only"
+    assert len(persisted_report.acquisition_records) == 1
+    assert cycle.acquisition_cost_basis_record.missing_distribution == "firm_survival"
+    assert (
+        cycle.acquisition_cost_basis_hash == cycle.acquisition_cost_basis_record.record_content_hash
+    )
+    assert cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_execution_scope_not_established"
+    )
+    assert (
+        validate_persisted_data_requirement_compilation_report(
+            controller._source_repository.store,
+            basis_binding,
+        )
+        == ()
+    )
+    planner_inputs = acquisition_report_inputs(persisted_report)
+    assert any(
+        row.role == "data_requirement_compiler_report"
+        and row.artifact_id == basis_binding.compiler_report_ref.artifact_id
+        for row in planner_inputs
+    )
+
+
+@pytest.mark.asyncio
+async def test_conflicting_n7_family_declaration_is_costed_refusal(
+    tmp_path: Path,
+) -> None:
+    class _ConflictingFamilyRevision:
+        def __call__(self, **kwargs: Any) -> Any:
+            default = kwargs["default_revision"]
+            payload = dict(default.strategy_payload)
+            request = dict(payload["acquisition_request"])
+            request["required_data_families"] = ("other_panel",)
+            payload["acquisition_request"] = request
+            return default.model_copy(update={"strategy_payload": payload})
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
         value_port=_CostedDataGapValuePort(),
+        revision_policy=_ConflictingFamilyRevision(),
+        authority_scope="contract_testing",
+        repo_root=tmp_path,
     )
 
     run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
 
     cycle = run.cycles[0]
     assert cycle.acquisition_routing_report is not None
-    assert cycle.acquisition_cost_basis_record is not None
-    cost = cycle.acquisition_cost_basis_record
-    assert cost.missing_distribution == "administrative_tax_receipts"
-    assert (
-        cost.strategy
-        == cycle.acquisition_routing_report.acquisition_records[0].recommended_strategy
+    assert cycle.acquisition_cost_basis_record is None
+    assert cycle.acquisition_routing_report.status == "blocked"
+    assert cycle.acquisition_routing_report.basis_limitation_code == (
+        "unbound_requirement_input_refused"
     )
-    assert cost.schedule_content_hash == (
-        "sha256:258c2dd22214b8a3bf9157cb6ad186b6320317b526d2f951098bd72ead9328d3"
-    )
-    assert cycle.acquisition_cost_basis_hash == cost.record_content_hash
+    assert cycle.acquisition_routing_report.cost_estimation_status == "not_estimated"
+    assert cycle.acquisition_routing_report.acquisition_records == ()
 
 
 @pytest.mark.asyncio
@@ -9878,12 +10392,43 @@ async def test_typed_value_world_knowledge_gap_routes_without_renaming_blocker()
     assert acquisition["requirement_gap"]["metadata"]["satisfaction_status"] == ("unsatisfied")
     assert cycle.acquisition_routing_report is not None
     assert cycle.acquisition_receipt is None
-    assert cycle.acquisition_routing_report.status == "pass"
-    assert len(cycle.acquisition_routing_report.acquisition_records) == 1
-    record = cycle.acquisition_routing_report.acquisition_records[0]
-    assert record.compiled_requirement_ref == ("runtime-requirement:value-input-world-knowledge:v1")
-    assert record.claim_ref == "value-claim:candidate_cgf_shadow"
-    assert record.terminal_disposition.value == "acquire"
+    assert cycle.acquisition_routing_report.status == "blocked"
+    assert cycle.acquisition_routing_report.basis_limitation_code == (
+        "unbound_requirement_input_refused"
+    )
+    assert cycle.acquisition_routing_report.cost_estimation_status == "not_estimated"
+    assert cycle.acquisition_routing_report.acquisition_records == ()
+
+
+@pytest.mark.asyncio
+async def test_canonical_n7_route_attaches_exact_owner_cost_basis(tmp_path: Path) -> None:
+    """A source-bound typed gap keeps its compiled plan and exact cost basis."""
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
+        value_port=_CostedDataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=tmp_path,
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    cycle = run.cycles[0]
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report_ref is not None
+    assert cycle.acquisition_cost_basis_record is not None
+    cost = cycle.acquisition_cost_basis_record
+    assert cost.missing_distribution == "administrative_tax_receipts"
+    assert (
+        cost.strategy
+        == cycle.acquisition_routing_report.acquisition_records[0].recommended_strategy
+    )
+    assert cost.schedule_content_hash == (
+        "sha256:258c2dd22214b8a3bf9157cb6ad186b6320317b526d2f951098bd72ead9328d3"
+    )
+    assert cycle.acquisition_cost_basis_hash == cost.record_content_hash
+    assert cycle.acquisition_routing_report.requirement_basis_binding is not None
+    assert cycle.acquisition_routing_report.requirement_basis_binding.compiler_report_ref
 
 
 @pytest.mark.asyncio
@@ -12062,3 +12607,47 @@ def test_generic_n5_consumers_replay_scoped_source_before_using_candidate(
     assert len(observed_loads) == 1
     assert observed_loads[0]["expected_tenant_id"] == tenant_id
     assert observed_loads[0]["expected_cell_id"] == cell_id
+
+
+def test_n7_data_requirement_basis_keeps_noncanonical_typed_gap_ahead_of_stale_hint() -> None:
+    problem = _problem().model_copy(
+        update={"runtime_hints": {"n7_data_requirement_specs": (_n7_data_requirement_spec(),)}}
+    )
+    gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_generic_gap",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        availability=L1VariableAvailability(
+            variable_id="generic_gap_measure",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref="repo://controlled-test/generic-gap-measure",
+        ),
+        authority_level="research",
+    )
+    families, limitation = generation_cycle_module._n7_compiler_families_for_source_gap(
+        problem,
+        acquisition_request={
+            "driver": "acquire_data:value_panel_data_missing",
+            "requirement_gap": gap.model_dump(mode="json"),
+        },
+        source_gap=gap,
+    )
+    basis = GenerationCycleController()._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={
+            "required_data_families": families,
+            "requirement_gap": gap.model_dump(mode="json"),
+        },
+    )
+
+    assert families == ("generic_gap_measure",)
+    assert limitation is None
+    assert basis.specs == tuple(basis.compilation_report.specs)
+    assert all(spec != gap for spec in basis.specs)
+    assert basis.unbound_input_fields == (
+        "acquisition_request.requirement_gap",
+        "runtime_hints.n7_data_requirement_specs",
+    )

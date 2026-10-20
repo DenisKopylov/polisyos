@@ -25,6 +25,11 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobRecord,
     ControlPlaneStore,
 )
+from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionPlannerReport,
+    persist_acquisition_planner_report,
+    validate_persisted_acquisition_planner_report,
+)
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteClosureError,
     AcquisitionRouteLoop,
@@ -40,6 +45,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleController,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tests._helpers.measurement_execution_binding import measurement_execution_binding
 from tests.unit.runtime.quality.test_generation_cycle import (
     REPO_ROOT,
     _CgfGenerationPort,
@@ -58,7 +64,7 @@ def _options(*, kind: str, schema_name: str) -> ArtifactWriteOptions:
     )
 
 
-async def _compiled() -> CompiledRecursiveGenerationCycleRun:
+async def _compiled(*, cas: FileSystemCAS, repo_root: Path) -> CompiledRecursiveGenerationCycleRun:
     problem = _problem("ds15_costed_closure")
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
@@ -73,6 +79,9 @@ async def _compiled() -> CompiledRecursiveGenerationCycleRun:
         cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
             generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
             value_port=_CostedDataGapValuePort(),
+            authority_scope="contract_testing",
+            measurement_root_execution_binding=measurement_execution_binding(repo_root),
+            artifact_store=cas,
             repo_root=REPO_ROOT,
         ),
     )
@@ -97,6 +106,36 @@ async def _compiled() -> CompiledRecursiveGenerationCycleRun:
     return CompiledRecursiveGenerationCycleRun.model_validate(
         {**payload, "content_hash": gy_content_hash(payload)}
     )
+
+
+def test_route_consumer_refuses_legacy_plan_without_persisted_compiler_basis(
+    tmp_path: Path,
+) -> None:
+    """A persisted legacy plan cannot authorize a new protected route."""
+
+    cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
+    report = AcquisitionPlannerReport(
+        run_id="run-legacy-plan",
+        generated_at=NOW,
+        acquisition_records=(),
+        status="blocked",
+        summary={},
+        authority_boundary={},
+    )
+    ref = persist_acquisition_planner_report(cas, report)
+
+    issues = validate_persisted_acquisition_planner_report(
+        cas,
+        ref,
+        report,
+        expected_scenario_id="scenario-legacy",
+        expected_compiled_requirement_ref="data-requirement:legacy",
+    )
+
+    assert "acquisition_requirement_basis_not_established" in {issue["code"] for issue in issues}
+    assert "acquisition_planner_report_context_binding_missing" in {
+        issue["code"] for issue in issues
+    }
 
 
 def _append_terminal(
@@ -158,7 +197,7 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
     event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=cas)
-    compiled = await _compiled()
+    compiled = await _compiled(cas=cas, repo_root=tmp_path)
     compiled_payload = compiled.model_dump(mode="json")
     if unsupported_schema:
         compiled_payload["schema_version"] = (

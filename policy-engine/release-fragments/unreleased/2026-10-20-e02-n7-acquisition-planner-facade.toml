@@ -1,0 +1,38 @@
+id = "2026-10-20-e02-n7-acquisition-planner-facade"
+title = "Expose the N7 persisted acquisition-basis consumer"
+type = "changed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "The public-experimental runtime-quality facade exposes two typed consumers for the N7 compiler-report and persisted planner-report chain."
+evidence = [
+  "src/polisyos/runtime/quality/__init__.py",
+  "src/polisyos/runtime/quality/acquisition_planner.py",
+  "src/polisyos/runtime/quality/acquisition_route_loop.py",
+  "src/polisyos/runtime/quality/README.md",
+  "tests/unit/runtime/quality/test_acquisition_route_loop.py",
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
+]
+compatibility = "The two named facade exports are additive on the public-experimental polisyos.runtime.quality surface. Persisted artifact schemas, HTTP APIs, and generated clients are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality.AcquisitionRequirementBasisBinding and polisyos.runtime.quality.validate_persisted_acquisition_planner_report"
+migration = "Import the binding and validator from polisyos.runtime.quality when consuming the N7 persisted planner/compiler artifact chain."
+api = "AcquisitionRequirementBasisBinding records the exact compiler-report CAS ref, digest, scenario, producer locator, input hash, and typed basis. validate_persisted_acquisition_planner_report resolves and verifies the selected planner and compiler artifacts and joins the expected scenario and compiled requirement."
+limitations = "Generated public-surface inventory regeneration and owner review remain pending; no inventory-review attestation is made. G acceptance remains independent. These exports and controlled source-bound checks do not establish external custody, live production currentness, or authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "n7-acquisition-planner-facade-exports"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality.AcquisitionRequirementBasisBinding and validate_persisted_acquisition_planner_report"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose two additive typed consumers on the experimental runtime-quality facade; no persisted schema or generated client changes are introduced."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

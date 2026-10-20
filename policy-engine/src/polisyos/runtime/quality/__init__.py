@@ -15,6 +15,7 @@ from .acquisition_planner import (
     AcquisitionGapType,
     AcquisitionNextAction,
     AcquisitionPlannerReport,
+    AcquisitionRequirementBasisBinding,
     AcquisitionRequirementGap,
     AcquisitionStrategy,
     AcquisitionStrategyRecord,
@@ -30,6 +31,7 @@ from .acquisition_planner import (
     plan_evidence_acquisition,
     plan_requirement_gap_acquisition,
     requirement_gaps_from_compiled_specs,
+    validate_persisted_acquisition_planner_report,
 )
 from .approval import (
     ProductionApprovalCurrentnessProjection,
@@ -1356,6 +1358,7 @@ __all__ = [
     "AcquisitionGapType",
     "AcquisitionNextAction",
     "AcquisitionPlannerReport",
+    "AcquisitionRequirementBasisBinding",
     "AcquisitionRequirementGap",
     "AcquisitionState",
     "AcquisitionStrategy",
@@ -2062,6 +2065,7 @@ __all__ = [
     "validate_obligation_rule_construct_refs",
     "validate_observability_orchestration_static_audit_records",
     "validate_pass1b_tenant_cas_approval_governance_record",
+    "validate_persisted_acquisition_planner_report",
     "validate_policy_benchmarking_record",
     "validate_policy_design_best_in_class_benchmarking_records",
     "validate_policy_design_case_concept_spine",

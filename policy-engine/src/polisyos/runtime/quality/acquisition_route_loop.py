@@ -16,6 +16,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionPlannerReport,
     load_planner_acquisition_cost_schedule,
     produce_acquisition_cost_basis_record,
+    validate_persisted_acquisition_planner_report,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
@@ -506,6 +507,22 @@ class AcquisitionRouteLoop:
         if report is None or cost is None or len(report.acquisition_records) != 1:
             raise AcquisitionRouteClosureError("costed_route_not_unique")
         planner_record = report.acquisition_records[0]
+        planner_ref = source_cycle.acquisition_routing_report_ref
+        if planner_ref is None:
+            raise AcquisitionRouteClosureError("acquisition_planner_report_ref_required")
+        basis_issues = validate_persisted_acquisition_planner_report(
+            self._artifact_store,
+            planner_ref,
+            report,
+            expected_scenario_id=compiled.design_problem.design_problem_id,
+            expected_compiled_requirement_ref=planner_record.compiled_requirement_ref,
+        )
+        if basis_issues:
+            first_issue = basis_issues[0]
+            code = first_issue.get("code") if isinstance(first_issue, dict) else None
+            raise AcquisitionRouteClosureError(
+                code if isinstance(code, str) else "acquisition_planner_basis_not_revalidated"
+            )
         schedule = load_planner_acquisition_cost_schedule()
         recomputed = produce_acquisition_cost_basis_record(
             missing_distribution=cost.missing_distribution,

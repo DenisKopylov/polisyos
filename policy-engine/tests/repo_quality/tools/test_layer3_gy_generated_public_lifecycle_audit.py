@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
+import io
 import json
+import os
 import re
+import runpy
 import subprocess
+import sys
 import tempfile
 import tomllib
 from collections.abc import Iterator
+from contextlib import redirect_stderr, redirect_stdout
 from importlib import import_module
 from pathlib import Path
 from typing import Any
@@ -111,14 +117,341 @@ def test_inventory_registration_is_recomputed_from_custody(
 
 @pytest.mark.parametrize("suffix", [".blob", ".jsonl"])
 def test_output_root_census_includes_unregistered_cas_members(tmp_path: Path, suffix: str) -> None:
+    _init_git_repo(tmp_path)
     root = tmp_path / "architecture/cas"
     root.mkdir(parents=True)
     artifact = root / f"unregistered{suffix}"
     artifact.write_bytes(b"source evidence\n")
-    observed = _validator()._iter_contract_derived_output_root_files(
-        tmp_path, {"architecture/cas"}, (set(), set())
-    )
+    observed = _validator()._iter_contract_derived_output_root_files(tmp_path, {"architecture/cas"})
     assert observed == [artifact.relative_to(tmp_path).as_posix()]
+
+
+def test_output_root_inventory_preserves_file_symlink_members_and_markers(
+    tmp_path: Path,
+) -> None:
+    """Output inventory keeps file links while source-read eligibility rejects them."""
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    _init_git_repo(repo_root)
+    output_root = repo_root / "corr/out"
+    output_root.mkdir(parents=True)
+    private_inputs = repo_root / "private-inputs"
+    private_inputs.mkdir()
+    marker_payload = private_inputs / "marker-payload.txt"
+    marker_bytes = b'{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n'
+    marker_payload.write_bytes(marker_bytes)
+    internal_link = output_root / "linked.json"
+    internal_link.symlink_to(Path(os.path.relpath(marker_payload, output_root)))
+
+    outside_root = tmp_path / "outside-repository"
+    outside_root.mkdir()
+    outside_payload = outside_root / "outside-marker.txt"
+    outside_payload.write_bytes(marker_bytes)
+    external_link = output_root / "external.json"
+    external_link.symlink_to(outside_payload)
+
+    validator = _load_source_read_candidate_validator()
+    output_files = validator._iter_contract_derived_output_root_files(repo_root, {"corr/out"})
+    internal_relative = internal_link.relative_to(repo_root).as_posix()
+    external_relative = external_link.relative_to(repo_root).as_posix()
+    assert output_files == sorted([internal_relative, external_relative])
+    assert validator._repo_file_is_safe(repo_root, internal_relative)
+    assert not validator._repo_source_file_is_safe(repo_root, internal_relative)
+    assert not validator._repo_file_is_safe(repo_root, external_relative)
+
+    markers = validator._iter_gy_marked_artifact_files(
+        repo_root, (set(), set()), extra_candidate_paths=output_files
+    )
+    assert markers == [internal_relative]
+
+    snapshot_before = validator._snapshot_selected_output_root_files(repo_root, {"corr/out"})
+    assert snapshot_before is not None
+    assert set(snapshot_before) == {internal_relative, external_relative}
+    assert snapshot_before[internal_relative][0] == "symlink"
+    assert snapshot_before[external_relative][0] == "symlink"
+
+    second_payload = private_inputs / "second-marker-payload.txt"
+    second_payload.write_bytes(marker_bytes)
+    internal_link.unlink()
+    internal_link.symlink_to(Path(os.path.relpath(second_payload, output_root)))
+    snapshot_after = validator._snapshot_selected_output_root_files(repo_root, {"corr/out"})
+    assert snapshot_after is not None
+    assert snapshot_after != snapshot_before
+
+
+def test_complete_output_root_membership_does_not_depend_on_marker_format_or_scope(
+    tmp_path: Path,
+) -> None:
+    """Every current root member stays accountable when marker parsing cannot classify it."""
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    repo_root = _write_ignored_owner_output_registry(
+        repo_root,
+        source="generated_artifacts",
+        output_declaration='["owner-output/manifest.json"]',
+    )
+    root = repo_root / "owner-output/nested"
+    private = repo_root / "private-inputs"
+    private.mkdir()
+    marker = b'{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n'
+    marker_txt = root / "committed-marker.txt"
+    marker_txt.write_bytes(marker)
+    excluded_marker = root / "excluded-marker.json"
+    excluded_marker.write_bytes(marker)
+    no_extension = root / "unclassified-marker"
+    no_extension.write_bytes(marker)
+    corrupt_json = root / "corrupt.json"
+    corrupt_json.write_bytes(b"\xff\x00not-json")
+    opaque_binary = root / "opaque.bin"
+    opaque_binary.write_bytes(b"\x00\xff\x01")
+    source = private / "source.json"
+    source.write_bytes(b'{"source":"ordinary"}\n')
+    hardlink_alias = root / "source-alias.bin"
+    os.link(source, hardlink_alias)
+    internal_link = root / "internal-link.json"
+    internal_link.symlink_to(Path(os.path.relpath(source, root)))
+    dangling_link = root / "dangling-link.json"
+    dangling_link.symlink_to("missing-target.json")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    hidden_marker = outside / "hidden.json"
+    hidden_marker.write_bytes(marker)
+    directory_link = root / "directory-link"
+    directory_link.symlink_to(outside, target_is_directory=True)
+    fifo = root / "nonregular.pipe"
+    if hasattr(os, "mkfifo"):
+        os.mkfifo(fifo)
+
+    generated = repo_root / "architecture/generated_artifacts.toml"
+    with generated.open("a", encoding="utf-8") as stream:
+        stream.write(
+            "\n[[gy_marker_scan_exclusion]]\n"
+            'id = "explicit-marker-scan-exclusion"\n'
+            'owner = "tests"\n'
+            'rationale = "the marker classifier intentionally excludes this exact path"\n'
+            'paths = ["owner-output/nested/excluded-marker.json"]\n'
+        )
+
+    tracked = [
+        "owner-output/nested/committed-marker.txt",
+        "owner-output/nested/excluded-marker.json",
+        "owner-output/nested/unclassified-marker",
+        "owner-output/nested/corrupt.json",
+        "owner-output/nested/opaque.bin",
+        "private-inputs/source.json",
+        "owner-output/nested/source-alias.bin",
+        "owner-output/nested/internal-link.json",
+        "owner-output/nested/dangling-link.json",
+        "owner-output/nested/directory-link",
+    ]
+    subprocess.run(["git", "add", "--force", "--", *tracked], cwd=repo_root, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "fixture members",
+        ],
+        cwd=repo_root,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "ls-files", "--error-unmatch", "--", tracked[0]],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    validator = _validator()
+    report = validator.validate_gy_lifecycle_registry(repo_root)
+    expected = set(tracked) - {"private-inputs/source.json"}
+    expected.update(
+        {
+            "owner-output/manifest.json",
+            "owner-output/nested/marker.json",
+        }
+    )
+    if hasattr(os, "mkfifo"):
+        expected.add("owner-output/nested/nonregular.pipe")
+    assert expected <= set(report["output_root_files"])
+    assert expected - {"owner-output/nested/marker.json"} <= set(
+        report["unaccounted_output_root_files"]
+    )
+    assert "owner-output/nested/committed-marker.txt" not in report["marker_detected_outputs"]
+    assert "owner-output/nested/excluded-marker.json" not in report["marker_detected_outputs"]
+    assert any(
+        issue.get("code") == "layer3_gy_unaccounted_output_root_file"
+        and issue.get("path") == "owner-output/nested/committed-marker.txt"
+        for issue in report["issues"]
+    )
+    assert "owner-output/nested/directory-link/hidden.json" not in report["output_root_files"]
+
+    snapshot_before = validator._snapshot_selected_output_root_files(
+        repo_root,
+        {"owner-output"},
+    )
+    assert snapshot_before is not None
+    assert expected <= set(snapshot_before)
+    if hasattr(os, "mkfifo"):
+        assert snapshot_before["owner-output/nested/nonregular.pipe"][0] == "other"
+    assert snapshot_before["owner-output/nested/directory-link"][0] == "symlink"
+
+    marker_txt.write_bytes(marker + b"changed\n")
+    snapshot_after_content_change = validator._snapshot_selected_output_root_files(
+        repo_root,
+        {"owner-output"},
+    )
+    assert snapshot_after_content_change is not None
+    assert snapshot_after_content_change != snapshot_before
+
+    new_member = root / "fresh-untracked-no-extension"
+    new_member.write_bytes(b"new output")
+    snapshot_after_addition = validator._snapshot_selected_output_root_files(
+        repo_root,
+        {"owner-output"},
+    )
+    assert snapshot_after_addition is not None
+    assert "owner-output/nested/fresh-untracked-no-extension" in snapshot_after_addition
+    assert snapshot_after_addition != snapshot_after_content_change
+    new_member.unlink()
+    snapshot_after_removal = validator._snapshot_selected_output_root_files(
+        repo_root,
+        {"owner-output"},
+    )
+    assert snapshot_after_removal == snapshot_after_content_change
+
+
+def test_missing_committed_output_root_member_remains_unaccounted(tmp_path: Path) -> None:
+    """A committed selected-root member cannot disappear when its worktree file is absent."""
+    repo_root = _write_ignored_owner_output_registry(
+        tmp_path,
+        source="generated_artifacts",
+        output_declaration='["owner-output/manifest.json"]',
+    )
+    missing_relative = "owner-output/nested/missing-committed.txt"
+    missing_path = repo_root / missing_relative
+    missing_path.write_text("committed output member\n", encoding="utf-8")
+    subprocess.run(["git", "add", "--force", "--", missing_relative], cwd=repo_root, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "committed selected-root member",
+        ],
+        cwd=repo_root,
+        check=True,
+    )
+    missing_path.unlink()
+
+    validator = _validator()
+    report = validator.validate_gy_lifecycle_registry(repo_root)
+    assert missing_relative in report["output_root_files"]
+    assert missing_relative in report["unaccounted_output_root_files"]
+    assert any(
+        issue.get("code") == "layer3_gy_unaccounted_output_root_file"
+        and issue.get("path") == missing_relative
+        for issue in report["issues"]
+    )
+    assert validator._snapshot_selected_output_root_files(repo_root, {"owner-output"}) is None
+
+
+def test_committed_members_are_scoped_to_nested_product_roots(tmp_path: Path) -> None:
+    """Git tree membership uses the product prefix and only selected roots."""
+    _init_git_repo(tmp_path)
+    product_root = tmp_path / "product"
+    selected = product_root / "owner-output/nested/committed.bin"
+    unrelated = tmp_path / "unrelated/committed.bin"
+    selected.parent.mkdir(parents=True)
+    unrelated.parent.mkdir()
+    selected.write_bytes(b"selected")
+    unrelated.write_bytes(b"outside selected root")
+    subprocess.run(
+        [
+            "git",
+            "add",
+            "--",
+            "product/owner-output/nested/committed.bin",
+            "unrelated/committed.bin",
+        ],
+        cwd=tmp_path,
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "--quiet",
+            "-m",
+            "nested product roots",
+        ],
+        cwd=tmp_path,
+        check=True,
+    )
+    selected.unlink()
+
+    validator = _validator()
+    members, incomplete = validator._committed_output_root_member_paths(
+        product_root, ("owner-output",)
+    )
+    assert members == ("owner-output/nested/committed.bin",)
+    assert incomplete == ()
+
+
+def test_unreadable_output_subtree_is_typed_and_never_a_green_empty_inventory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failed subtree read rejects the inventory and source-read snapshot."""
+    repo_root = tmp_path / "repo"
+    selected_root = repo_root / "corr/out"
+    (selected_root / "locked").mkdir(parents=True)
+    _init_git_repo(repo_root)
+    validator = _validator()
+    original_walk = validator.os.walk
+
+    def denied_walk(
+        root: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        del args
+        onerror = kwargs["onerror"]
+        onerror(PermissionError(13, "permission denied", str(Path(root) / "locked")))
+        yield str(root), ["locked"], []
+
+    monkeypatch.setattr(validator.os, "walk", denied_walk)
+    issues: list[dict[str, Any]] = []
+    assert (
+        validator._iter_contract_derived_output_root_files(
+            repo_root,
+            {"corr/out"},
+            issues=issues,
+        )
+        == []
+    )
+    assert issues == [
+        {
+            "code": "layer3_gy_output_root_inventory_incomplete",
+            "path": "corr/out/locked",
+        }
+    ]
+    assert validator._snapshot_selected_output_root_files(repo_root, {"corr/out"}) is None
 
 
 @pytest.mark.parametrize(
@@ -372,13 +705,17 @@ def test_malformed_declared_gy_output_path_refuses_without_root_walk(
 
     validator = _validator()
     walked: list[Path] = []
-    original_iter_files = validator.iter_files
+    original_walk = validator.os.walk
 
-    def recording_iter_files(root: Path) -> Iterator[Path]:
-        walked.append(root)
-        yield from original_iter_files(root)
+    def recording_walk(
+        root: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        walked.append(Path(root))
+        yield from original_walk(root, *args, **kwargs)
 
-    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    monkeypatch.setattr(validator.os, "walk", recording_walk)
     report = validator.validate_gy_lifecycle_registry(tmp_path)
     expected_code = (
         "layer3_gy_producer_declared_output_bad_path"
@@ -469,13 +806,17 @@ def test_non_string_declared_gy_output_values_refuse_without_root_walk(
 
     validator = _validator()
     walked: list[Path] = []
-    original_iter_files = validator.iter_files
+    original_walk = validator.os.walk
 
-    def recording_iter_files(root: Path) -> Iterator[Path]:
-        walked.append(root)
-        yield from original_iter_files(root)
+    def recording_walk(
+        root: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        walked.append(Path(root))
+        yield from original_walk(root, *args, **kwargs)
 
-    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    monkeypatch.setattr(validator.os, "walk", recording_walk)
     report = validator.validate_gy_lifecycle_registry(tmp_path)
     expected_code = (
         "layer3_gy_producer_declared_output_bad_type"
@@ -535,13 +876,17 @@ def test_producer_path_object_is_not_stringified_into_an_output_root(
 
     validator = _validator()
     walked: list[Path] = []
-    original_iter_files = validator.iter_files
+    original_walk = validator.os.walk
 
-    def recording_iter_files(root: Path) -> Iterator[Path]:
-        walked.append(root)
-        yield from original_iter_files(root)
+    def recording_walk(
+        root: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        walked.append(Path(root))
+        yield from original_walk(root, *args, **kwargs)
 
-    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    monkeypatch.setattr(validator.os, "walk", recording_walk)
     report = validator.validate_gy_lifecycle_registry(tmp_path)
 
     assert report["status"] == "fail"
@@ -687,13 +1032,17 @@ def test_non_collection_declared_outputs_fail_closed_before_root_walk(
     )
     validator = _validator()
     walked: list[Path] = []
-    original_iter_files = validator.iter_files
+    original_walk = validator.os.walk
 
-    def recording_iter_files(root: Path) -> Iterator[Path]:
-        walked.append(root)
-        yield from original_iter_files(root)
+    def recording_walk(
+        root: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        walked.append(Path(root))
+        yield from original_walk(root, *args, **kwargs)
 
-    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    monkeypatch.setattr(validator.os, "walk", recording_walk)
     report = validator.validate_gy_lifecycle_registry(repo_root)
     expected_code = (
         "layer3_gy_producer_declared_outputs_bad_type"
@@ -733,13 +1082,17 @@ def test_producer_none_output_collection_fails_closed_before_root_walk(
     )
     validator = _validator()
     walked: list[Path] = []
-    original_iter_files = validator.iter_files
+    original_walk = validator.os.walk
 
-    def recording_iter_files(root: Path) -> Iterator[Path]:
-        walked.append(root)
-        yield from original_iter_files(root)
+    def recording_walk(
+        root: str | Path,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Iterator[tuple[str, list[str], list[str]]]:
+        walked.append(Path(root))
+        yield from original_walk(root, *args, **kwargs)
 
-    monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+    monkeypatch.setattr(validator.os, "walk", recording_walk)
     report = validator.validate_gy_lifecycle_registry(repo_root)
 
     assert report["status"] == "fail"
@@ -810,7 +1163,7 @@ def test_declared_output_roots_reveal_ignored_owner_markers(tmp_path: Path, sour
     )
 
 
-def test_output_root_walks_overlapping_ignored_roots_once_and_skips_symlinks(
+def test_output_root_walks_overlapping_roots_once_and_records_directory_symlink_leaves(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     repo_root = tmp_path
@@ -830,21 +1183,24 @@ def test_output_root_walks_overlapping_ignored_roots_once_and_skips_symlinks(
         (owner_root / "linked").symlink_to(outside, target_is_directory=True)
 
         validator = _validator()
-        original_iter_files = validator.iter_files
+        original_walk = validator.os.walk
         visited_roots: list[str] = []
 
-        def recording_iter_files(root: Path) -> Iterator[Path]:
-            visited_roots.append(root.relative_to(repo_root).as_posix())
-            yield from original_iter_files(root)
+        def recording_walk(
+            root: str | Path,
+            *args: Any,
+            **kwargs: Any,
+        ) -> Iterator[tuple[str, list[str], list[str]]]:
+            visited_roots.append(Path(root).relative_to(repo_root).as_posix())
+            yield from original_walk(root, *args, **kwargs)
 
-        monkeypatch.setattr(validator, "iter_files", recording_iter_files)
+        monkeypatch.setattr(validator.os, "walk", recording_walk)
         observed = validator._iter_contract_derived_output_root_files(
             repo_root,
             {"owner-output", "owner-output/nested"},
-            (set(), set()),
         )
 
-        assert observed == ["owner-output/nested/untracked.json"]
+        assert observed == ["owner-output/linked", "owner-output/nested/untracked.json"]
         assert visited_roots == ["owner-output"]
         markers = validator._iter_gy_marked_artifact_files(
             repo_root,
@@ -949,3 +1305,349 @@ def test_gy_generated_public_lifecycle_rejects_missing_pattern_and_acceptance() 
     codes = _codes(validator.validate(audit))
     assert "pattern_coverage_drift" in codes
     assert "missing_acceptance_guardrail" in codes
+
+
+def _load_source_read_candidate_validator() -> Any:
+    candidate_path = (
+        Path(__file__).resolve().parents[3]
+        / "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "_la021_source_read_candidate_lifecycle_validator",
+        candidate_path,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _product_root_for_grounding_producer() -> tuple[Path, Path]:
+    module_name = "tools.quality.validation.check_grounding_refusal_sensitivity"
+    spec = importlib.util.find_spec(module_name)
+    assert spec is not None and isinstance(spec.origin, str)
+    producer_path = Path(spec.origin).resolve()
+    return producer_path.parents[3], producer_path
+
+
+def _invoke_grounding_producer(
+    product_root: Path,
+    producer_path: Path,
+    arguments: list[str],
+) -> None:
+    module_name = "tools.quality.validation.check_grounding_refusal_sensitivity"
+    old_argv = sys.argv
+    old_path = list(sys.path)
+    old_cwd = Path.cwd()
+    sys.path[:0] = [str(product_root), str(product_root / "src")]
+    sys.argv = [str(producer_path), *arguments]
+    os.chdir(product_root)
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    exit_code = 0
+    try:
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            try:
+                runpy.run_module(module_name, run_name="__main__", alter_sys=True)
+            except SystemExit as exc:
+                exit_code = (
+                    0 if exc.code is None else int(exc.code) if isinstance(exc.code, int) else 1
+                )
+    finally:
+        sys.argv = old_argv
+        sys.path[:] = old_path
+        os.chdir(old_cwd)
+    assert exit_code == 0, f"grounding producer failed: {stderr.getvalue()}"
+
+
+def test_lifecycle_source_input_requires_observed_real_producer_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only actual bound reads can classify source candidates under output roots."""
+    product_root, producer_path = _product_root_for_grounding_producer()
+    fixture_root = tmp_path / "scanner-repository"
+    fixture_root.mkdir()
+    _init_git_repo(fixture_root)
+
+    from tests._helpers.world_model_record import _build_record
+
+    _store, built, _model_spec, _registry_ref = _build_record(tmp_path / "world-model")
+    cas_root = tmp_path / "world-model/cas"
+    world_ref = str(built.record_ref.artifact_id)
+    output_relative = "architecture/policy_design_case/corr/grounding_refusal_sensitivity.json"
+    declarations = fixture_root / "architecture/policy_design_case/corr/grounding-2026-09-08"
+    frame_path = declarations / "frame.json"
+    suite_path = declarations / "suite.json"
+    unused_path = fixture_root / "architecture/policy_design_case/corr/unused-safe.json"
+    sibling_path = (
+        fixture_root / "architecture/policy_design_case/corr/same-parent-stray-marker.json"
+    )
+    report_path = fixture_root / output_relative
+
+    common_arguments = [
+        "--repo-root",
+        str(product_root),
+        "--world-cas",
+        str(cas_root),
+        "--world-ref",
+        world_ref,
+        "--declarations",
+        str(declarations),
+        "--report",
+        str(report_path),
+    ]
+    _invoke_grounding_producer(product_root, producer_path, ["--declare", *common_arguments])
+    unused_path.write_text('{"example":"declared but unread"}\n', encoding="utf-8")
+    sibling_path.write_text(
+        '{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n',
+        encoding="utf-8",
+    )
+    _invoke_grounding_producer(product_root, producer_path, ["--write", *common_arguments])
+    assert frame_path.is_file() and suite_path.is_file() and report_path.is_file()
+
+    workflow_relative = "tools/quality/validation/check_grounding_refusal_sensitivity.py"
+    workflow_path = fixture_root / workflow_relative
+    workflow_path.parent.mkdir(parents=True)
+    workflow_path.write_bytes(producer_path.read_bytes())
+    frame_relative = frame_path.relative_to(fixture_root).as_posix()
+    suite_relative = suite_path.relative_to(fixture_root).as_posix()
+    unused_relative = unused_path.relative_to(fixture_root).as_posix()
+    source_of_truth = ", ".join(
+        (frame_relative, suite_relative, unused_relative, workflow_relative)
+    )
+    module_name = "tools.quality.validation.check_grounding_refusal_sensitivity"
+    check_command = [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        module_name,
+        "--check",
+        *common_arguments,
+    ]
+    regenerate_command = [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        module_name,
+        "--write",
+        *common_arguments,
+    ]
+    family = {
+        "id": "policy-design-case-grounding-refusal-sensitivity",
+        "owner": "tests",
+        "approval_owner": "tests",
+        "lifecycle": "generated_committed",
+        "gy_lifecycle_family": True,
+        "generator": "genuine typed WMR producer fixture",
+        "verifier": "same-process exact read and output recheck",
+        "promotion_target": "source read-use only",
+        "stale_output_behavior": "fail",
+        "drift_gate": "automated",
+        "source_of_truth": source_of_truth,
+        "outputs": [output_relative],
+        "regenerate_commands": [" ".join(regenerate_command)],
+        "workflow": workflow_relative,
+        "check_cwd": str(product_root),
+        "check_command": check_command,
+    }
+    registry = "[[family]]\n" + "\n".join(
+        f"{key} = {json.dumps(value)}" for key, value in family.items()
+    )
+    (fixture_root / "architecture/generated_artifacts.toml").parent.mkdir(
+        parents=True, exist_ok=True
+    )
+    (fixture_root / "architecture/generated_artifacts.toml").write_text(
+        registry + "\n", encoding="utf-8"
+    )
+    (fixture_root / "architecture/public_surface").mkdir(parents=True)
+    (fixture_root / "architecture/public_surface/contract.toml").write_text("", encoding="utf-8")
+
+    validator = _load_source_read_candidate_validator()
+    report = validator.validate_gy_lifecycle_registry(fixture_root)
+    frame = frame_relative
+    suite = suite_relative
+    unused = unused_relative
+    sibling = sibling_path.relative_to(fixture_root).as_posix()
+    assert set(report["source_input_read_paths"]) == {frame, suite}
+    assert frame not in report["unaccounted_output_root_files"]
+    assert suite not in report["unaccounted_output_root_files"]
+    assert unused in report["unaccounted_output_root_files"]
+    assert sibling in report["unaccounted_output_root_files"]
+    assert sibling in report["marker_detected_outputs"]
+
+    # Remove the read witness while retaining the same declarations and marker bytes.
+    monkeypatch.setattr(
+        validator, "_verified_source_input_read_paths", lambda *args, **kwargs: set()
+    )
+    without_read_witness = validator.validate_gy_lifecycle_registry(fixture_root)
+    assert frame in without_read_witness["unaccounted_output_root_files"]
+    assert suite in without_read_witness["unaccounted_output_root_files"]
+    assert sibling in without_read_witness["marker_detected_outputs"]
+
+
+def test_source_read_bridge_fails_closed_on_removed_or_stale_witness(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Synthetic runner controls bind source reads, writer, env, and outputs."""
+    product_root, _producer_path = _product_root_for_grounding_producer()
+    fixture_root = tmp_path / "probe-repository"
+    fixture_root.mkdir()
+    (fixture_root / ".gitignore").write_text(".venv/\n", encoding="utf-8")
+    (fixture_root / ".venv").symlink_to(product_root / ".venv", target_is_directory=True)
+    _init_git_repo(fixture_root)
+    module_relative = "la021probe/tools/quality/validation/source_read_probe.py"
+    module_path = fixture_root / module_relative
+    module_path.parent.mkdir(parents=True)
+    for package in (
+        fixture_root / "la021probe/__init__.py",
+        fixture_root / "la021probe/tools/__init__.py",
+        fixture_root / "la021probe/tools/quality/__init__.py",
+        fixture_root / "la021probe/tools/quality/validation/__init__.py",
+    ):
+        package.write_text("", encoding="utf-8")
+    original_module = """
+import os
+import sys
+from pathlib import Path
+
+OUTPUTS = ["corr/output.json"]
+
+def declared_outputs():
+    return OUTPUTS
+
+def main():
+    flags = set(sys.argv[1:])
+    frame = Path("corr/frame.json")
+    suite = Path("corr/suite.json")
+    if "--no-read" not in flags:
+        if "--text-read" in flags:
+            frame.read_text(encoding="utf-8")
+        else:
+            frame.read_bytes()
+        suite.read_bytes()
+    if "--read-output-hardlink" in flags:
+        Path("corr/output-hardlink.json").read_bytes()
+    if "--read-symlink-leaf" in flags:
+        Path("corr/frame-symlink.json").read_bytes()
+    if "--read-symlink-parent" in flags:
+        Path("corr/linked-directory/frame.json").read_bytes()
+    if "--mutate-input" in flags:
+        frame.write_bytes(frame.read_bytes() + b"changed")
+    if "--mutate-writer" in flags:
+        Path(__file__).write_text("# changed writer\\n", encoding="utf-8")
+    if "--mutate-output" in flags:
+        Path("corr/output.json").write_bytes(b"changed output\\n")
+    if "--add-sibling" in flags:
+        Path("corr/new-sibling.txt").write_bytes(b"unregistered sibling\\n")
+    if "--mutate-sibling" in flags:
+        Path("corr/same-parent-stray-marker.json").write_bytes(b'{"changed":true}\\n')
+    if "--delete-sibling" in flags:
+        Path("corr/same-parent-stray-marker.json").unlink()
+    if "--mutate-env" in flags:
+        os.environ["LA021_SOURCE_READ_ENV_CONTROL"] = "changed"
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+"""
+    module_path.write_text(original_module, encoding="utf-8")
+    corr = fixture_root / "corr"
+    corr.mkdir()
+    frame = corr / "frame.json"
+    suite = corr / "suite.json"
+    unused = corr / "unused.json"
+    output = corr / "output.json"
+    frame.write_bytes(b'{"frame":true}\n')
+    suite.write_bytes(b'{"suite":true}\n')
+    unused.write_bytes(b'{"unused":true}\n')
+    output.write_bytes(b'{"output":true}\n')
+    sibling = corr / "same-parent-stray-marker.json"
+    sibling_bytes = b'{"schema_version":"policyos.policy_design_case.layer3_gy_probe.v1"}\n'
+    sibling.write_bytes(sibling_bytes)
+    output_alias = corr / "output-hardlink.json"
+    os.link(output, output_alias)
+    frame_symlink = corr / "frame-symlink.json"
+    frame_symlink.symlink_to(frame)
+    external = tmp_path / "external"
+    external.mkdir()
+    external_frame = external / "frame.json"
+    external_frame.write_bytes(frame.read_bytes())
+    parent_symlink = corr / "linked-directory"
+    parent_symlink.symlink_to(external, target_is_directory=True)
+    module_name = "la021probe.tools.quality.validation.source_read_probe"
+    base_arguments = ("--check",)
+    family = {
+        "workflow": module_relative,
+        "check_cwd": ".",
+        "check_command": ["uv", "run", "python", "-m", module_name, *base_arguments],
+    }
+    candidates = (
+        "corr/frame.json",
+        "corr/suite.json",
+        "corr/unused.json",
+        "corr/output-hardlink.json",
+        "corr/frame-symlink.json",
+        "corr/linked-directory/frame.json",
+    )
+    outputs = ("corr/output.json",)
+    validator = _load_source_read_candidate_validator()
+    monkeypatch.syspath_prepend(str(fixture_root))
+
+    def observed(*extra: str) -> set[str]:
+        family["check_command"] = [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            module_name,
+            *base_arguments,
+            *extra,
+        ]
+        return validator._execute_bound_family_check_for_source_reads(
+            fixture_root,
+            family,
+            candidates=candidates,
+            outputs=outputs,
+            output_root_directories=("corr",),
+            scope_exclusions=(set(), set()),
+        )
+
+    assert observed() == {"corr/frame.json", "corr/suite.json"}
+    assert observed("--no-read") == set()
+    assert observed("--text-read") == {"corr/suite.json"}
+    assert observed("--read-output-hardlink") == {"corr/frame.json", "corr/suite.json"}
+    assert observed("--read-symlink-leaf") == {"corr/frame.json", "corr/suite.json"}
+    assert observed("--read-symlink-parent") == {"corr/frame.json", "corr/suite.json"}
+    assert validator._repo_file_is_safe(fixture_root, "corr/frame-symlink.json")
+    assert not validator._repo_source_file_is_safe(fixture_root, "corr/frame-symlink.json")
+    assert not validator._repo_file_is_safe(fixture_root, "corr/linked-directory/frame.json")
+    assert not validator._repo_source_file_is_safe(fixture_root, "corr/linked-directory/frame.json")
+
+    output_before = output.read_bytes()
+    assert observed("--mutate-output") == set()
+    output.write_bytes(output_before)
+
+    assert observed("--add-sibling") == set()
+    (corr / "new-sibling.txt").unlink()
+    assert observed("--mutate-sibling") == set()
+    sibling.write_bytes(sibling_bytes)
+    assert observed("--delete-sibling") == set()
+    sibling.write_bytes(sibling_bytes)
+
+    frame_before = frame.read_bytes()
+    assert observed("--mutate-input") == set()
+    frame.write_bytes(frame_before)
+
+    writer_before = module_path.read_bytes()
+    assert observed("--mutate-writer") == set()
+    module_path.write_bytes(writer_before)
+
+    environment_key = "LA021_SOURCE_READ_ENV_CONTROL"
+    assert environment_key not in os.environ
+    assert observed("--mutate-env") == set()
+    assert environment_key not in os.environ

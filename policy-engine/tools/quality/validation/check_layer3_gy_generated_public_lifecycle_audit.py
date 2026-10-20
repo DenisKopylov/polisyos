@@ -16,20 +16,28 @@ from time import perf_counter as _timing_perf_counter
 _TIMING_STARTED_AT = _timing_perf_counter()
 
 import argparse
+import builtins
 import contextlib
 import hashlib
 import importlib.util
+import io
 import json
+import os
 import re
+import runpy
+import stat
 import subprocess
 import sys
+import threading
 import tomllib
 from collections.abc import Iterable, Sequence
+from functools import lru_cache
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, BinaryIO
 
+from tools.lib.fs import FileReadMeasurement, measure_file_reads
 from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
-from tools.quality.validation.directory_health_inventory import iter_files, iter_git_paths
+from tools.quality.validation.directory_health_inventory import iter_git_paths, iter_nul_records
 
 DEFAULT_AUDIT = (
     Path(__file__).resolve().parents[3]
@@ -89,7 +97,8 @@ GY_LIFECYCLE_ALLOWED_CLASSIFICATIONS = {
     "source_committed",
     "surface_out_of_scope",
 }
-GY_OUTPUT_ROOT_EXTENSIONS = {
+# Only bounds files considered for marker parsing; output-root accounting has no suffix filter.
+GY_MARKER_CANDIDATE_EXTENSIONS = {
     ".blob",
     ".json",
     ".jsonl",
@@ -165,6 +174,9 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
             "discovered_artifacts": [],
             "registered_artifacts": [],
             "registered_outputs": [],
+            "output_root_files": [],
+            "source_input_read_paths": [],
+            "unaccounted_output_root_files": [],
             "registered_artifact_count": 0,
             "orphan_count": 0,
             "phantom_output_count": 0,
@@ -205,7 +217,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
         _iter_contract_derived_output_root_files(
             repo_root,
             output_root_directories,
-            marker_scan_exclusions,
+            issues=issues,
         )
     )
     marker_detected_outputs = set(
@@ -225,7 +237,17 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
         scope_exclusions=marker_scan_exclusions,
     )
     output_root_files = raw_output_root_files - owned_non_gy_allowlist
-    accounted_output_root_files = producer_declared_outputs | source_committed_outputs
+    source_input_read_paths = _verified_source_input_read_paths(
+        repo_root,
+        gy_families,
+        output_root_files=output_root_files,
+        producer_outputs_by_family=producer_outputs_by_family,
+        family_output_paths=family_output_paths,
+        scope_exclusions=marker_scan_exclusions,
+    )
+    accounted_output_root_files = (
+        producer_declared_outputs | source_committed_outputs | source_input_read_paths
+    )
     for output in sorted(accounted_output_root_files):
         if output not in raw_output_root_files:
             issues.append(
@@ -349,6 +371,7 @@ def validate_gy_lifecycle_registry(repo_root: Path) -> dict[str, Any]:
         "marker_scan_excluded_paths": sorted(marker_scan_exclusions[0]),
         "marker_scan_excluded_directories": sorted(marker_scan_exclusions[1]),
         "output_root_files": sorted(output_root_files),
+        "source_input_read_paths": sorted(source_input_read_paths),
         "unaccounted_output_root_files": sorted(output_root_files - accounted_output_root_files),
         "registered_artifacts": registered_artifacts,
         "registered_outputs": sorted(output_claims),
@@ -473,7 +496,7 @@ def _discover_gy_artifact_paths(repo_root: Path) -> list[str]:
     output_root_files = _iter_contract_derived_output_root_files(
         repo_root,
         output_root_directories,
-        marker_scan_exclusions,
+        issues=issues,
     )
     marker_detected_outputs = set(
         _iter_gy_marked_artifact_files(
@@ -650,14 +673,526 @@ def _public_surface_gy_generated_artifact_outputs(
 def _iter_contract_derived_output_root_files(
     repo_root: Path,
     output_root_directories: set[str],
-    scope_exclusions: ScanExclusions,
+    *,
+    issues: list[dict[str, Any]] | None = None,
 ) -> list[str]:
-    """Return candidate files under unique, declared output roots only."""
+    """Return the complete member inventory beneath selected output roots."""
     return _iter_repo_relative_output_files(
         repo_root,
         output_root_directories,
-        scope_exclusions=scope_exclusions,
+        issues=issues,
     )
+
+
+class _ObservedSourceBinaryReader:
+    """Hash bytes actually returned by one bounded candidate-file read."""
+
+    def __init__(
+        self,
+        stream: BinaryIO,
+        *,
+        path: str,
+        expected_sha256: str,
+        expected_bytes: int,
+        measurement: FileReadMeasurement,
+    ) -> None:
+        self._stream = stream
+        self._path = path
+        self._expected_sha256 = expected_sha256
+        self._expected_bytes = expected_bytes
+        self._measurement = measurement
+        self._digest = hashlib.sha256()
+        self._byte_count = 0
+        self._read_called = False
+        self._seek_called = False
+        self._unsupported_access = False
+        self._closed = False
+
+    def _record(self, value: object) -> None:
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            data = bytes(value)
+            self._digest.update(data)
+            self._byte_count += len(data)
+            self._read_called = True
+
+    def read(self, size: int = -1) -> bytes:
+        value = self._stream.read(size)
+        self._record(value)
+        return value
+
+    def read1(self, size: int = -1) -> bytes:
+        reader = getattr(self._stream, "read1", self._stream.read)
+        value = reader(size)
+        self._record(value)
+        return value
+
+    def readall(self) -> bytes:
+        reader = getattr(self._stream, "readall", self._stream.read)
+        value = reader()
+        self._record(value)
+        return value
+
+    def readinto(self, buffer: bytearray | memoryview) -> int | None:
+        count = self._stream.readinto(buffer)
+        if count:
+            self._record(memoryview(buffer)[:count])
+        return count
+
+    def readinto1(self, buffer: bytearray | memoryview) -> int | None:
+        reader = getattr(self._stream, "readinto1", self._stream.readinto)
+        count = reader(buffer)
+        if count:
+            self._record(memoryview(buffer)[:count])
+        return count
+
+    def readline(self, size: int = -1) -> bytes:
+        value = self._stream.readline(size)
+        self._record(value)
+        return value
+
+    def readlines(self, hint: int = -1) -> list[bytes]:
+        values = self._stream.readlines(hint)
+        for value in values:
+            self._record(value)
+        return values
+
+    def seek(self, offset: int, whence: int = 0) -> int:
+        self._seek_called = True
+        return self._stream.seek(offset, whence)
+
+    def __iter__(self) -> _ObservedSourceBinaryReader:
+        return self
+
+    def __next__(self) -> bytes:
+        value = self.readline()
+        if not value:
+            raise StopIteration
+        return value
+
+    def __enter__(self) -> _ObservedSourceBinaryReader:
+        self._stream.__enter__()
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> bool:
+        try:
+            result = self._stream.__exit__(exc_type, exc, tb)
+        finally:
+            self.close()
+        return bool(result)
+
+    def close(self) -> None:
+        if self._closed:
+            return
+        try:
+            self._stream.close()
+        finally:
+            self._closed = True
+            digest = self._digest.hexdigest()
+            self._measurement.record(
+                Path(self._path),
+                "observed_python_binary_read",
+                status="read" if self._read_called else "opened_without_read",
+                bytes=self._byte_count,
+                sha256=digest if self._read_called else None,
+                complete_candidate_read=(
+                    self._read_called
+                    and not self._seek_called
+                    and not self._unsupported_access
+                    and self._byte_count == self._expected_bytes
+                    and digest == self._expected_sha256
+                ),
+            )
+
+    def __getattr__(self, name: str) -> object:
+        if name in {"raw", "peek", "fileno", "detach"}:
+            self._unsupported_access = True
+        return getattr(self._stream, name)
+
+
+_SOURCE_PATH_TOKEN = re.compile(
+    r"(?<![A-Za-z0-9_])((?:architecture|src|tools|tests)/"
+    r"(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+)"
+)
+
+
+def _source_of_truth_path_candidates(value: object) -> tuple[str, ...]:
+    """Parse exact path-shaped selectors; declarations alone never grant source role."""
+    if not isinstance(value, str):
+        return ()
+    paths = {
+        normalized
+        for match in _SOURCE_PATH_TOKEN.finditer(value)
+        if (normalized := _normalize_repo_relative_path(match.group(1).rstrip(".,;:")))
+    }
+    return tuple(sorted(paths))
+
+
+def _sha256_regular_file(path: Path) -> str | None:
+    if path.is_symlink() or not path.is_file():
+        return None
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+def _environment_sha256() -> str:
+    frozen = json.dumps(
+        sorted(os.environ.items()),
+        ensure_ascii=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(frozen).hexdigest()
+
+
+def _configured_check_module(
+    family: dict[str, Any],
+) -> tuple[str, tuple[str, ...]] | None:
+    """Accept only the declared ``uv run python -m ... --check`` command shape."""
+    command = family.get("check_command")
+    workflow = family.get("workflow")
+    if (
+        not isinstance(command, list)
+        or len(command) < 6
+        or any(not isinstance(item, str) or not item for item in command)
+        or command[:4] != ["uv", "run", "python", "-m"]
+        or not isinstance(workflow, str)
+        or not workflow.endswith(".py")
+    ):
+        return None
+    module_name = command[4]
+    expected_module = workflow[:-3].replace("/", ".")
+    arguments = tuple(command[5:])
+    if module_name != expected_module or "--check" not in arguments:
+        return None
+    if any(flag in arguments for flag in ("--write", "--declare", "--declare-proof-input")):
+        return None
+    return module_name, arguments
+
+
+def _verified_source_input_read_paths(
+    repo_root: Path,
+    gy_families: list[dict[str, Any]],
+    *,
+    output_root_files: set[str],
+    producer_outputs_by_family: dict[str, set[str]],
+    family_output_paths: dict[int, list[str]],
+    scope_exclusions: ScanExclusions,
+) -> set[str]:
+    """Subtract only exact source candidates read by a successful bound check run.
+
+    Source declarations choose candidates inside that family's selected output roots.
+    Same-process reads qualify only while the complete selected-root member set, byte
+    identities, workflow, arguments, environment, and declared output identities stay
+    stable. This proves bounded Python file-read use, not causality or authority.
+    """
+    qualified: set[str] = set()
+    for family in gy_families:
+        if family.get("lifecycle") != "generated_committed":
+            continue
+        family_id = str(family.get("id") or "")
+        outputs = set(family_output_paths.get(id(family), [])) | set(
+            producer_outputs_by_family.get(family_id, set())
+        )
+        output_root_directories = tuple(
+            _minimal_repo_relative_directories(
+                {
+                    PurePosixPath(output).parent.as_posix()
+                    for output in outputs
+                    if PurePosixPath(output).parent.as_posix() != "."
+                }
+            )
+        )
+        if not output_root_directories:
+            continue
+        candidates = tuple(
+            sorted(
+                path
+                for path in _source_of_truth_path_candidates(family.get("source_of_truth"))
+                if path in output_root_files
+                and any(path.startswith(f"{root}/") for root in output_root_directories)
+            )
+        )
+        if not candidates:
+            continue
+        try:
+            qualified.update(
+                _execute_bound_family_check_for_source_reads(
+                    repo_root,
+                    family,
+                    candidates=candidates,
+                    outputs=tuple(sorted(outputs)),
+                    output_root_directories=output_root_directories,
+                    scope_exclusions=scope_exclusions,
+                )
+            )
+        except (OSError, RuntimeError, ValueError, TypeError):
+            # Unsupported or stale observations leave every candidate unaccounted.
+            continue
+    return qualified
+
+
+def _execute_bound_family_check_for_source_reads(
+    repo_root: Path,
+    family: dict[str, Any],
+    *,
+    candidates: tuple[str, ...],
+    outputs: tuple[str, ...],
+    output_root_directories: tuple[str, ...],
+    scope_exclusions: ScanExclusions,
+) -> set[str]:
+    """Run a supported check and recheck the selected output-root basis."""
+    configured = _configured_check_module(family)
+    if configured is None or not candidates or not outputs or not output_root_directories:
+        return set()
+    module_name, arguments = configured
+    workflow = family.get("workflow")
+    assert isinstance(workflow, str)
+    workflow_relative = _normalize_repo_relative_path(workflow)
+    workflow_path = repo_root / workflow_relative if workflow_relative else Path()
+    workflow_digest_before = _sha256_regular_file(workflow_path)
+    if workflow_digest_before is None or not _repo_source_file_is_safe(
+        repo_root, workflow_relative
+    ):
+        return set()
+
+    expected_module = workflow_relative[:-3].replace("/", ".")
+    try:
+        module_spec = importlib.util.find_spec(module_name)
+    except (ImportError, ModuleNotFoundError, ValueError):
+        return set()
+    if (
+        module_name != expected_module
+        or module_spec is None
+        or not isinstance(module_spec.origin, str)
+        or not module_spec.origin.endswith(".py")
+    ):
+        return set()
+    try:
+        module_path = Path(module_spec.origin).resolve(strict=True)
+    except OSError:
+        return set()
+    module_digest_before = _sha256_regular_file(module_path)
+    if module_digest_before is None or module_digest_before != workflow_digest_before:
+        return set()
+
+    # ``uv run python`` must resolve to the same project environment as this process.
+    active_prefix = Path(sys.prefix).resolve()
+    code_root = next(
+        (
+            parent
+            for parent in module_path.parents
+            if (parent / ".venv").is_dir() and (parent / ".venv").resolve() == active_prefix
+        ),
+        None,
+    )
+    if code_root is None:
+        return set()
+    if threading.active_count() != 1:
+        return set()
+    active_environment = os.environ.get("VIRTUAL_ENV")
+    if active_environment and Path(active_environment).resolve() != Path(sys.prefix).resolve():
+        return set()
+
+    check_cwd_value = family.get("check_cwd", ".")
+    if not isinstance(check_cwd_value, str):
+        return set()
+    if check_cwd_value in {"", "."}:
+        check_cwd = repo_root
+    else:
+        declared_cwd = Path(check_cwd_value)
+        if declared_cwd.is_absolute():
+            try:
+                check_cwd = declared_cwd.resolve(strict=True)
+                check_cwd.relative_to(code_root)
+            except (OSError, ValueError):
+                return set()
+            if check_cwd != declared_cwd:
+                return set()
+        else:
+            check_cwd_relative = _normalize_repo_relative_path(check_cwd_value)
+            if not check_cwd_relative:
+                return set()
+            check_cwd = repo_root
+            for part in PurePosixPath(check_cwd_relative).parts:
+                check_cwd = check_cwd / part
+                if check_cwd.is_symlink():
+                    return set()
+            try:
+                check_cwd.resolve(strict=True).relative_to(code_root)
+            except (OSError, ValueError):
+                return set()
+        if not check_cwd.is_dir() or check_cwd.is_symlink():
+            return set()
+
+    if "--world-cas" in arguments:
+        index = arguments.index("--world-cas")
+        if index + 1 >= len(arguments):
+            return set()
+        cas_path = Path(arguments[index + 1])
+        if not cas_path.is_absolute():
+            cas_path = check_cwd / cas_path
+        if cas_path.is_symlink() or not cas_path.is_dir():
+            # Some check entrypoints build a missing CAS as a convenience. Never do that here.
+            return set()
+
+    output_root_before = _snapshot_selected_output_root_files(
+        repo_root,
+        output_root_directories,
+    )
+    if output_root_before is None:
+        return set()
+    output_identities: set[tuple[int, int]] = set()
+    for relative in outputs:
+        identity = _repo_file_lstat_identity(repo_root, relative)
+        if identity is None:
+            return set()
+        output_identities.add(identity)
+    candidate_hashes: dict[str, tuple[tuple[int, int], str, int]] = {}
+    for relative in candidates:
+        identity = _repo_file_lstat_identity(repo_root, relative)
+        if identity is None or identity in output_identities or relative in outputs:
+            continue
+        snapshot = _snapshot_regular_repo_file(repo_root, relative)
+        if snapshot is None or (snapshot[0], snapshot[1]) != identity:
+            continue
+        candidate_hashes[relative] = (identity, snapshot[5], snapshot[2])
+    if not candidate_hashes:
+        return set()
+
+    environment_digest = _environment_sha256()
+    candidate_by_absolute_path = {
+        (repo_root / relative).absolute(): (relative, sha, byte_count)
+        for relative, (_identity, sha, byte_count) in candidate_hashes.items()
+    }
+    unsupported_candidates: set[str] = set()
+    read_events: list[dict[str, Any]] = []
+    old_builtin_open = builtins.open
+    old_io_open = io.open
+    old_argv = sys.argv
+    old_path = list(sys.path)
+    old_cwd = Path.cwd()
+    old_dont_write_bytecode = sys.dont_write_bytecode
+    old_environment = dict(os.environ)
+    stdout = io.StringIO()
+    stderr = io.StringIO()
+    exit_code = 1
+    environment_changed_during_invocation = False
+    snapshot: dict[str, Any] = {"inputs": []}
+    try:
+        with measure_file_reads(repo_root) as measurement:
+
+            def _observed_open_factory(original_open: Any) -> Any:
+                def _observed_open(
+                    file: object,
+                    mode: str = "r",
+                    *args: object,
+                    **kwargs: object,
+                ) -> Any:
+                    stream = original_open(file, mode, *args, **kwargs)
+                    if not isinstance(file, (str, bytes, os.PathLike)):
+                        return stream
+                    try:
+                        raw_path = Path(os.fsdecode(file))
+                    except (TypeError, ValueError):
+                        return stream
+                    absolute = raw_path if raw_path.is_absolute() else Path.cwd() / raw_path
+                    try:
+                        absolute = Path(os.path.abspath(absolute))
+                    except OSError:
+                        return stream
+                    source = candidate_by_absolute_path.get(absolute)
+                    if source is None or not ("r" in mode or "+" in mode):
+                        return stream
+                    relative, expected_sha, expected_bytes = source
+                    if "b" not in mode:
+                        unsupported_candidates.add(relative)
+                        measurement.record(
+                            Path(relative),
+                            "observed_python_text_read_unsupported",
+                            status="unsupported",
+                        )
+                        return stream
+                    return _ObservedSourceBinaryReader(
+                        stream,
+                        path=relative,
+                        expected_sha256=expected_sha,
+                        expected_bytes=expected_bytes,
+                        measurement=measurement,
+                    )
+
+                return _observed_open
+
+            builtins.open = _observed_open_factory(old_builtin_open)
+            io.open = _observed_open_factory(old_io_open)
+            sys.dont_write_bytecode = True
+            sys.path[:] = [str(code_root), str(code_root / "src"), *old_path]
+            sys.argv = [str(module_path), *arguments]
+            os.chdir(check_cwd)
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                try:
+                    runpy.run_module(module_name, run_name="__main__", alter_sys=True)
+                    exit_code = 0
+                except SystemExit as exc:
+                    exit_code = (
+                        0 if exc.code is None else int(exc.code) if isinstance(exc.code, int) else 1
+                    )
+                except Exception:
+                    exit_code = 1
+            snapshot = measurement.snapshot(complete_verdict=False)
+    except (OSError, RuntimeError, ValueError, TypeError):
+        return set()
+    finally:
+        environment_changed_during_invocation = _environment_sha256() != environment_digest
+        os.environ.clear()
+        os.environ.update(old_environment)
+        builtins.open = old_builtin_open
+        io.open = old_io_open
+        sys.argv = old_argv
+        sys.path[:] = old_path
+        sys.dont_write_bytecode = old_dont_write_bytecode
+        os.chdir(old_cwd)
+
+    if exit_code != 0 or environment_changed_during_invocation:
+        return set()
+    if (
+        _sha256_regular_file(workflow_path) != workflow_digest_before
+        or _sha256_regular_file(module_path) != module_digest_before
+    ):
+        return set()
+    output_root_after = _snapshot_selected_output_root_files(
+        repo_root,
+        output_root_directories,
+    )
+    if output_root_after is None or output_root_after != output_root_before:
+        return set()
+    for relative, (expected_identity, expected_digest, expected_bytes) in candidate_hashes.items():
+        candidate_snapshot = _snapshot_regular_repo_file(repo_root, relative)
+        if candidate_snapshot is None:
+            return set()
+        if (
+            (candidate_snapshot[0], candidate_snapshot[1]) != expected_identity
+            or candidate_snapshot[5] != expected_digest
+            or candidate_snapshot[2] != expected_bytes
+        ):
+            return set()
+
+    for item in snapshot["inputs"]:
+        if item.get("operation") == "observed_python_binary_read" and item.get("status") == "read":
+            read_events.append(item)
+    qualified: set[str] = set()
+    for relative, (_identity, expected_digest, expected_bytes) in candidate_hashes.items():
+        if relative in unsupported_candidates:
+            continue
+        if any(
+            event.get("path") == relative
+            and event.get("complete_candidate_read") is True
+            and event.get("bytes") == expected_bytes
+            and event.get("sha256") == expected_digest
+            for event in read_events
+        ):
+            qualified.add(relative)
+    return qualified
 
 
 def _minimal_repo_relative_directories(directories: Iterable[str]) -> list[str]:
@@ -691,51 +1226,363 @@ def _safe_repo_directory(repo_root: Path, relative: str) -> Path | None:
     return path if path.is_dir() else None
 
 
+def _repo_path_lstat(
+    repo_root: Path,
+    relative: str,
+) -> tuple[Path, os.stat_result] | None:
+    """Return one repo path's lstat after rejecting every symlink parent."""
+    normalized = _normalize_discovered_repo_relative_path(relative)
+    if not normalized:
+        return None
+    root = repo_root.resolve()
+    path = root
+    parts = PurePosixPath(normalized).parts
+    for part in parts[:-1]:
+        path = path / part
+        try:
+            parent_info = path.lstat()
+        except OSError:
+            return None
+        if not stat.S_ISDIR(parent_info.st_mode):
+            return None
+    path = path / parts[-1]
+    try:
+        return path, path.lstat()
+    except OSError:
+        return None
+
+
+def _repo_file_lstat_identity(repo_root: Path, relative: str) -> tuple[int, int] | None:
+    """Return identity only for a regular leaf with nonsymlink parents."""
+    observed = _repo_path_lstat(repo_root, relative)
+    if observed is None:
+        return None
+    _path, info = observed
+    if not stat.S_ISREG(info.st_mode):
+        return None
+    return info.st_dev, info.st_ino
+
+
+def _snapshot_regular_repo_file(
+    repo_root: Path,
+    relative: str,
+) -> tuple[int, int, int, int, int, str] | None:
+    """Hash a regular nonsymlink file while binding its lstat identity and times."""
+    observed = _repo_path_lstat(repo_root, relative)
+    if observed is None:
+        return None
+    path, before = observed
+    if not stat.S_ISREG(before.st_mode):
+        return None
+    nofollow = getattr(os, "O_NOFOLLOW", None)
+    if nofollow is None:
+        return None
+    try:
+        descriptor = os.open(
+            path,
+            os.O_RDONLY | nofollow | getattr(os, "O_CLOEXEC", 0),
+        )
+    except OSError:
+        return None
+    digest = hashlib.sha256()
+    byte_count = 0
+    try:
+        opened = os.fstat(descriptor)
+        if not stat.S_ISREG(opened.st_mode) or (opened.st_dev, opened.st_ino) != (
+            before.st_dev,
+            before.st_ino,
+        ):
+            return None
+        while chunk := os.read(descriptor, 1024 * 1024):
+            digest.update(chunk)
+            byte_count += len(chunk)
+        after_descriptor = os.fstat(descriptor)
+        after_path = path.lstat()
+        if (
+            (after_descriptor.st_dev, after_descriptor.st_ino) != (opened.st_dev, opened.st_ino)
+            or (after_path.st_dev, after_path.st_ino) != (opened.st_dev, opened.st_ino)
+            or after_descriptor.st_size != opened.st_size
+            or after_descriptor.st_mtime_ns != opened.st_mtime_ns
+            or after_descriptor.st_ctime_ns != opened.st_ctime_ns
+            or byte_count != opened.st_size
+        ):
+            return None
+    except OSError:
+        return None
+    finally:
+        os.close(descriptor)
+    return (
+        opened.st_dev,
+        opened.st_ino,
+        byte_count,
+        opened.st_mtime_ns,
+        opened.st_ctime_ns,
+        digest.hexdigest(),
+    )
+
+
+def _selected_output_root_member_inventory(
+    repo_root: Path,
+    output_root_directories: Iterable[str],
+) -> tuple[list[str], list[str]]:
+    """Enumerate all selected-root members and paths whose contents are unobservable.
+
+    Membership is independent of marker suffixes and marker-scan exclusions. Directory
+    symlinks are retained as leaf members but never traversed. Errors are returned for a
+    typed fail-closed issue or source-read refusal rather than being treated as absence.
+    """
+    repo_root = repo_root.resolve()
+    roots = tuple(_minimal_repo_relative_directories(output_root_directories))
+    committed_paths, git_incomplete = _committed_output_root_member_paths(repo_root, roots)
+    paths: set[str] = set(committed_paths)
+    incomplete: set[str] = set(git_incomplete)
+
+    def repo_relative(path: Path, fallback: str) -> str:
+        try:
+            return path.relative_to(repo_root).as_posix()
+        except ValueError:
+            return fallback
+
+    for relative_directory in roots:
+        root = _safe_repo_directory(repo_root, relative_directory)
+        if root is None:
+            if _repo_directory_resolution_is_unsafe(repo_root, relative_directory):
+                incomplete.add(relative_directory)
+            continue
+
+        def record_walk_error(
+            error: OSError,
+            *,
+            selected_root: Path = root,
+            root_name: str = relative_directory,
+        ) -> None:
+            raw_path = error.filename
+            error_path = Path(os.fsdecode(raw_path)) if raw_path else selected_root
+            incomplete.add(repo_relative(error_path, root_name))
+
+        for directory, dirnames, filenames in os.walk(
+            root,
+            topdown=True,
+            onerror=record_walk_error,
+            followlinks=False,
+        ):
+            current = Path(directory)
+            for name in tuple(dirnames):
+                path = current / name
+                relative = repo_relative(path, relative_directory)
+                try:
+                    info = path.lstat()
+                except OSError:
+                    paths.add(relative)
+                    incomplete.add(relative)
+                    dirnames.remove(name)
+                    continue
+                if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+                    paths.add(relative)
+                    dirnames.remove(name)
+            for name in filenames:
+                path = current / name
+                relative = repo_relative(path, relative_directory)
+                paths.add(relative)
+                try:
+                    path.lstat()
+                except OSError:
+                    incomplete.add(relative)
+
+    return sorted(paths), sorted(incomplete)
+
+
+def _committed_output_root_member_paths(
+    repo_root: Path,
+    roots: tuple[str, ...],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Read committed members only below selected roots for this immutable HEAD."""
+    if not roots:
+        return (), ()
+    try:
+        head_result = subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", "HEAD"],
+            cwd=repo_root,
+            check=False,
+            capture_output=True,
+        )
+    except OSError:
+        return (), roots
+    if head_result.returncode == 1:
+        # An initialized repository with no commit has no committed root members.
+        return (), ()
+    if head_result.returncode != 0:
+        return (), roots
+    head = head_result.stdout.decode("ascii", errors="strict").strip()
+    try:
+        prefix = _git_worktree_prefix(repo_root)
+    except (OSError, subprocess.SubprocessError, UnicodeError):
+        return (), roots
+    return _committed_output_root_members_for_head(str(repo_root), head, prefix, roots)
+
+
+@lru_cache(maxsize=128)
+def _committed_output_root_members_for_head(
+    repo_root: str,
+    head: str,
+    prefix: str,
+    roots: tuple[str, ...],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Cache only immutable tree paths; every call still re-walks the working roots."""
+    pathspec_prefix = f"{prefix}/" if prefix else ""
+    pathspecs = [f":(top,literal){pathspec_prefix}{root}" for root in roots]
+    command = ["git", "ls-tree", "-r", "--full-tree", "-z", head, "--", *pathspecs]
+    try:
+        process = subprocess.Popen(  # noqa: S603
+            command,
+            cwd=repo_root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            bufsize=0,
+        )
+    except OSError:
+        return (), roots
+    assert process.stdout is not None
+    paths: set[str] = set()
+    malformed = False
+    try:
+        chunks = iter(lambda: process.stdout.read(64 * 1024), b"")
+        for record in iter_nul_records(chunks):
+            _metadata, separator, git_path = record.partition("\t")
+            if not separator:
+                malformed = True
+                continue
+            relative = git_path
+            if prefix:
+                prefix_with_separator = f"{prefix}/"
+                if not relative.startswith(prefix_with_separator):
+                    continue
+                relative = relative[len(prefix_with_separator) :]
+            normalized = _normalize_discovered_repo_relative_path(relative)
+            if not normalized:
+                malformed = True
+                continue
+            if any(normalized == root or normalized.startswith(f"{root}/") for root in roots):
+                paths.add(normalized)
+        returncode = process.wait()
+        if returncode or malformed:
+            return tuple(sorted(paths)), roots
+        return tuple(sorted(paths)), ()
+    finally:
+        process.stdout.close()
+        if process.poll() is None:
+            process.terminate()
+            process.wait()
+
+
+def _repo_directory_resolution_is_unsafe(repo_root: Path, relative: str) -> bool:
+    """Distinguish a missing output root from an existing unsafe or unreadable one."""
+    path = repo_root.resolve()
+    for part in PurePosixPath(relative).parts:
+        path = path / part
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return True
+        if not stat.S_ISDIR(info.st_mode):
+            return True
+    return False
+
+
+def _snapshot_output_root_member(repo_root: Path, relative: str) -> tuple[Any, ...] | None:
+    """Bind one selected root member's identity and, when regular, its bytes."""
+    observed = _repo_path_lstat(repo_root, relative)
+    if observed is None:
+        return None
+    path, info = observed
+    common = (
+        info.st_dev,
+        info.st_ino,
+        info.st_mode,
+        info.st_size,
+        info.st_mtime_ns,
+        info.st_ctime_ns,
+    )
+    if stat.S_ISREG(info.st_mode):
+        snapshot = _snapshot_regular_repo_file(repo_root, relative)
+        return ("regular", *snapshot) if snapshot is not None else None
+    if stat.S_ISLNK(info.st_mode):
+        try:
+            return ("symlink", *common, os.readlink(path))
+        except OSError:
+            return None
+    return ("other", *common)
+
+
+def _snapshot_selected_output_root_files(
+    repo_root: Path,
+    output_root_directories: Iterable[str],
+) -> dict[str, tuple[Any, ...]] | None:
+    """Recompute complete root membership and bind each member before and after checks."""
+    paths, incomplete = _selected_output_root_member_inventory(
+        repo_root,
+        output_root_directories,
+    )
+    if incomplete:
+        return None
+    snapshot: dict[str, tuple[Any, ...]] = {}
+    for relative in paths:
+        member = _snapshot_output_root_member(repo_root, relative)
+        if member is None:
+            return None
+        snapshot[relative] = member
+    return snapshot
+
+
 def _repo_file_is_safe(repo_root: Path, relative: str) -> bool:
-    """Require a regular file whose parent traversal stays inside the repo."""
+    """Require a repo-contained regular file with nonsymlink parent traversal.
+
+    The leaf may be a file symlink when its resolved target is a regular file inside the
+    repository. This is the existing inventory policy; source-read eligibility is stricter.
+    """
     normalized = _normalize_discovered_repo_relative_path(relative)
     if not normalized:
         return False
+    root = repo_root.resolve()
+    path = root
     parts = PurePosixPath(normalized).parts
-    path = repo_root
     for part in parts[:-1]:
         path = path / part
         if path.is_symlink():
             return False
-    path = repo_root.joinpath(*parts)
+    path = root.joinpath(*parts)
     try:
         resolved = path.resolve(strict=True)
-        resolved.relative_to(repo_root)
+        resolved.relative_to(root)
     except (OSError, RuntimeError, ValueError):
         return False
     return resolved.is_file()
+
+
+def _repo_source_file_is_safe(repo_root: Path, relative: str) -> bool:
+    """Require a regular nonsymlink leaf and nonsymlink parents for read witnesses."""
+    return _repo_file_lstat_identity(repo_root, relative) is not None
 
 
 def _iter_repo_relative_output_files(
     repo_root: Path,
     directories: Iterable[str],
     *,
-    scope_exclusions: ScanExclusions,
+    issues: list[dict[str, Any]] | None = None,
 ) -> list[str]:
-    """Walk coalesced explicit roots without following directory symlinks."""
-    repo_root = repo_root.resolve()
-    paths: set[str] = set()
-    for relative_directory in _minimal_repo_relative_directories(directories):
-        root = _safe_repo_directory(repo_root, relative_directory)
-        if root is None:
-            continue
-        for path in iter_files(root):
-            if path.suffix.lower() not in GY_OUTPUT_ROOT_EXTENSIONS:
-                continue
-            relative = path.relative_to(repo_root).as_posix()
-            if not _is_discovered_artifact_scope_path(
-                relative,
-                scope_exclusions=scope_exclusions,
-            ):
-                continue
-            if _repo_file_is_safe(repo_root, relative):
-                paths.add(relative)
-    return sorted(paths)
+    """Return every member under explicit roots, not only marker-readable formats."""
+    paths, incomplete = _selected_output_root_member_inventory(repo_root, directories)
+    if issues is not None:
+        issues.extend(
+            {
+                "code": "layer3_gy_output_root_inventory_incomplete",
+                "path": relative,
+            }
+            for relative in incomplete
+        )
+    return paths
 
 
 def _iter_gy_marked_artifact_files(
@@ -780,7 +1627,10 @@ def _iter_repo_artifact_candidate_files(
             else:
                 relative = git_path
             normalized = _normalize_discovered_repo_relative_path(relative)
-            if not normalized or Path(normalized).suffix.lower() not in GY_OUTPUT_ROOT_EXTENSIONS:
+            if (
+                not normalized
+                or Path(normalized).suffix.lower() not in GY_MARKER_CANDIDATE_EXTENSIONS
+            ):
                 continue
             if not _is_discovered_artifact_scope_path(
                 normalized,
@@ -793,7 +1643,7 @@ def _iter_repo_artifact_candidate_files(
         normalized = _normalize_discovered_repo_relative_path(relative)
         if (
             normalized
-            and Path(normalized).suffix.lower() in GY_OUTPUT_ROOT_EXTENSIONS
+            and Path(normalized).suffix.lower() in GY_MARKER_CANDIDATE_EXTENSIONS
             and _is_discovered_artifact_scope_path(
                 normalized,
                 scope_exclusions=scope_exclusions,
@@ -970,7 +1820,7 @@ def _generated_artifact_gy_output_root_allowlist(
     for relative in _iter_repo_relative_output_files(
         repo_root,
         allowed_directories,
-        scope_exclusions=scope_exclusions,
+        issues=issues,
     ):
         if _allowlisted_non_gy_path(
             repo_root,

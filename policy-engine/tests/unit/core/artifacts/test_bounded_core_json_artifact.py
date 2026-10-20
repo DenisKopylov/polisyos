@@ -202,7 +202,7 @@ def test_bounded_model_validator_reuses_core_alias_tuple_and_schema_admission(
 
     assert typed == _TypedBoundedTuplePayload(
         schema_version="1.0",
-        values=(("alpha", 2), ("beta", 4)),
+        legacy_values=(("alpha", 2), ("beta", 4)),
     )
     assert type(typed.values) is tuple
     assert all(type(row) is tuple for row in typed.values)

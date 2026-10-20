@@ -44003,5 +44003,71 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-r11-alias-oracle-reviewed-adoption-20261021-r1": {
+    "slice_base": "9b7ef0c7120e40133590bfe04935dd58d372c407",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py": {
+        "operation": "update",
+        "preimage_sha256": "97d920fdb8fb2eafe3423af57bc404f18f81b82759fae50776a677f22732cd8d",
+        "postimage_sha256": "79c8769161e3723a1c2ff30b9ad5fcd3d66f6d04bd8ed8f2076ea3ee27203715",
+        "git_base_preimage_sha256": "97d920fdb8fb2eafe3423af57bc404f18f81b82759fae50776a677f22732cd8d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261021-r11-alias-expected-oracle-r1/postimages/policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py",
+        "bytes": 39779,
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r11-alias-oracle-reviewed-adoption-20261021-r1/source-application.json",
+      "sha256": "30212b2b6f94c54fe48edd2f874c22cc6f202782cb5edf59bf7471cdf6f06e3b"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r11-alias-oracle-reviewed-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-and-terminal-four-whole-9b7ef0c7-20261021-r1/actual/result.json",
+        "sha256": "684c0c2b9b955a6858b799de903a723bbe9dfaad5ecee99b866d312541441382"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-and-terminal-four-whole-9b7ef0c7-20261021-r1/actual/pytest.stdout.txt",
+        "sha256": "0466e7bc9f6fe15009f3f36c6c4f727d0670af4fa96045da5447eeddc4d15a35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261021-r10-runtime-correctness/r3-decimal-exact-type/manifest.json",
+        "sha256": "daa32fc0a8abfcc7bc99c4aef98b48a8e0767508923d091d15f5f53c7e7ce45b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-bounded-selected-json-owner-20261021-r11-alias-expected-oracle-r1/manifest.json",
+        "sha256": "b7fff57fb61e7df4439fb51e5bd6df07037eaf6a1ae99aadc746da2e9c47101a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-r11-alias-oracle-independent-review-20261021-r1/review.json",
+        "sha256": "1500dd82dfdf9379935f0f3518eebe5f8b62823c2d0a077cd484f8239268f0b3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "classification": "Same R11 expected-fixture alias/test-oracle class, not a product decoder defect or a new alias policy.",
+      "quantity": "Complete test module AST census found one direct _TypedBoundedTuplePayload expected-model constructor; it is repaired through the public validation alias. No other constructor expectation in the module remains on the invalid field-name spelling."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "One expected DTO constructor changes to its declared alias; production Core reader, strict fixture contract and all semantic assertions remain unchanged.",
+      "Prior exact whole129=128P1F is retained; post-adoption full replay is pending.",
+      "No G acceptance/formal closure or new external/scientific authority claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Replay complete bounded/owned/selected Core and terminal engine modules, then paired VOI and HTE importer cohorts on current frozen source.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -4,9 +4,10 @@ import hashlib
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+from typing import Any
 
 import pytest
-from pydantic import BaseModel, TypeAdapter, ValidationError
+from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 
 import polisyos.core as core
 import polisyos.core.contracts as core_contracts
@@ -512,6 +513,138 @@ def test_denominator_mismatch_is_a_pre_positive_query_bound_failure() -> None:
                 "observed_denominator_ref": failure.expected_denominator_ref,
             }
         )
+
+
+def test_chronology_raw_mapping_honors_pydantic_field_exclusions() -> None:
+    statement = _policy_statement(required_native_head_role=None)
+    owner_ref = statement.owner_provenance_ref
+
+    assert contract._raw_value(owner_ref) == owner_ref.model_dump(mode="python")
+    assert "manifest_profile_sha256" not in contract._raw_value(owner_ref)
+
+    selected_profile = _digest("b")
+    selected_owner_ref = owner_ref.model_copy(update={"manifest_profile_sha256": selected_profile})
+    selected_statement = statement.model_copy(update={"owner_provenance_ref": selected_owner_ref})
+    selected_mapping = contract._raw_model_mapping(selected_statement)
+    assert selected_mapping["owner_provenance_ref"]["manifest_profile_sha256"] == selected_profile
+    assert contract._predicate_policy_content_hash(selected_statement) != (
+        contract._predicate_policy_content_hash(statement)
+    )
+    assert selected_mapping["required_native_head_role"] is None
+
+    class StaticExcludeProbe(BaseModel):
+        visible: str
+        hidden: str = Field(exclude=True)
+
+    assert contract._raw_model_mapping(StaticExcludeProbe(visible="keep", hidden="omit")) == {
+        "visible": "keep"
+    }
+
+    from polisyos.core.security.chronology_anchor import (
+        canonical_statement_bytes,
+        parse_canonical_statement,
+    )
+
+    payload = canonical_statement_bytes(statement)
+    assert parse_canonical_statement(payload, type(statement)) == statement
+
+    explicit_null = contract._raw_model_mapping(statement)
+    explicit_null["owner_provenance_ref"]["manifest_profile_sha256"] = None
+    noncanonical = contract._frame_record(contract._canonical_raw_bytes(explicit_null))
+    with pytest.raises(ValueError, match="not canonical"):
+        parse_canonical_statement(noncanonical, type(statement))
+
+
+def test_policy_reader_round_trips_profiles_and_refuses_noncanonical_present_values(
+    tmp_path: Path,
+) -> None:
+    query = _query()
+    context = contract.PredicatePolicyResolutionContext(
+        query=query,
+        key=contract._policy_selection_key_for_query(query),
+    )
+    store = FileSystemCAS(tmp_path / "policy-cas")
+    reader = contract.ChronologyPredicatePolicyArtifacts(store=store)
+
+    def persist_raw(raw_mapping: dict[str, Any]) -> tuple[ArtifactRef, contract.Digest]:
+        raw = contract._canonical_raw_bytes(raw_mapping)
+        payload = contract._frame_record(raw)
+        ref = store.put_bytes(
+            payload,
+            ArtifactWriteOptions(
+                kind="fixture.predicate-policy",
+                media_type="application/octet-stream",
+            ),
+        )
+        content_hash = contract._sha256_digest(contract._POLICY_PREFIX, payload)
+        return ref, content_hash
+
+    statement = _policy_statement(required_native_head_role=None)
+    profileless_ref, profileless_hash = persist_raw(contract._raw_model_mapping(statement))
+    profileless = reader.load_policy(
+        context=context,
+        policy_ref=profileless_ref,
+        expected_content_hash=profileless_hash,
+    )
+    assert isinstance(profileless, contract.PersistedPredicateAdmissionPolicy)
+    assert profileless.statement == statement
+    assert profileless.policy_content_hash == profileless_hash
+
+    selected_profile = _digest("b")
+    selected_owner_ref = statement.owner_provenance_ref.model_copy(
+        update={"manifest_profile_sha256": selected_profile}
+    )
+    selected_statement = statement.model_copy(update={"owner_provenance_ref": selected_owner_ref})
+    selected_ref, selected_hash = persist_raw(contract._raw_model_mapping(selected_statement))
+    selected = reader.load_policy(
+        context=context,
+        policy_ref=selected_ref,
+        expected_content_hash=selected_hash,
+    )
+    assert isinstance(selected, contract.PersistedPredicateAdmissionPolicy)
+    assert selected.statement.owner_provenance_ref.manifest_profile_sha256 == selected_profile
+    assert selected.policy_content_hash == selected_hash
+
+    excluded_null = contract._raw_model_mapping(statement)
+    excluded_null["owner_provenance_ref"]["manifest_profile_sha256"] = None
+    noncanonical_ref, noncanonical_hash = persist_raw(excluded_null)
+    noncanonical = reader.load_policy(
+        context=context,
+        policy_ref=noncanonical_ref,
+        expected_content_hash=noncanonical_hash,
+    )
+    assert isinstance(noncanonical, contract.PolicyBindingMismatchFailure)
+    assert noncanonical.status == "rejected"
+
+    malformed_profile = contract._raw_model_mapping(statement)
+    malformed_profile["owner_provenance_ref"]["manifest_profile_sha256"] = "not-a-digest"
+    malformed_ref, malformed_hash = persist_raw(malformed_profile)
+    malformed = reader.load_policy(
+        context=context,
+        policy_ref=malformed_ref,
+        expected_content_hash=malformed_hash,
+    )
+    assert isinstance(malformed, contract.PolicyBindingMismatchFailure)
+    assert malformed.status == "rejected"
+
+    missing_required = contract._raw_model_mapping(statement)
+    del missing_required["required_native_head_role"]
+    missing_field_ref, missing_field_hash = persist_raw(missing_required)
+    missing_field = reader.load_policy(
+        context=context,
+        policy_ref=missing_field_ref,
+        expected_content_hash=missing_field_hash,
+    )
+    assert isinstance(missing_field, contract.PolicyBindingMismatchFailure)
+    assert missing_field.status == "rejected"
+
+    missing_artifact = reader.load_policy(
+        context=context,
+        policy_ref=_ref("f", kind="fixture.predicate-policy"),
+        expected_content_hash=profileless_hash,
+    )
+    assert isinstance(missing_artifact, contract.PolicyBytesMissingFailure)
+    assert missing_artifact.status == "not_established"
 
 
 def test_policy_head_requirement_is_required_nullable_and_canonical_null() -> None:

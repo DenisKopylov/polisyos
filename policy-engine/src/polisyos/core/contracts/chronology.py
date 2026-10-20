@@ -85,10 +85,7 @@ def _raw_value(value: Any) -> Any:
     if isinstance(value, Enum):
         return value.value
     if isinstance(value, BaseModel):
-        return {
-            field.alias or name: _raw_value(getattr(value, name))
-            for name, field in value.__class__.model_fields.items()
-        }
+        return _raw_model_mapping(value)
     if isinstance(value, tuple | list):
         return [_raw_value(item) for item in value]
     if isinstance(value, dict):
@@ -97,10 +94,15 @@ def _raw_value(value: Any) -> Any:
 
 
 def _raw_model_mapping(value: BaseModel) -> dict[str, Any]:
-    return {
-        field.alias or name: _raw_value(getattr(value, name))
-        for name, field in value.__class__.model_fields.items()
-    }
+    raw: dict[str, Any] = {}
+    for name, field in value.__class__.model_fields.items():
+        field_value = getattr(value, name)
+        if field.exclude is True or (
+            field.exclude_if is not None and field.exclude_if(field_value)
+        ):
+            continue
+        raw[field.alias or name] = _raw_value(field_value)
+    return raw
 
 
 def _canonical_raw_bytes(value: Any) -> bytes:
@@ -850,7 +852,7 @@ class ChronologyPredicatePolicyArtifacts:
     ) -> bytes | PredicatePolicyResolutionFailure:
         try:
             report = self._store.verify(artifact_ref)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return self._missing(context, role, artifact_ref)
         if not report.ok:
             if report.actual_sha256_hex is None:
@@ -858,7 +860,7 @@ class ChronologyPredicatePolicyArtifacts:
             return self._mismatch(context, artifact_ref)
         try:
             payload = self._store.get_bytes(artifact_ref)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        except KeyError, OSError, RuntimeError, TypeError, ValueError:
             return self._missing(context, role, artifact_ref)
         if _sha256_digest(payload) != str(artifact_ref.artifact_id):
             return self._mismatch(context, artifact_ref)
@@ -928,7 +930,9 @@ class ChronologyPredicatePolicyArtifacts:
             if _canonical_raw_bytes(raw) != records[0]:
                 raise ValueError("non-canonical statement")
             statement = model.model_validate(raw)
-        except (TypeError, ValueError):
+            if _canonical_raw_bytes(_raw_model_mapping(statement)) != records[0]:
+                raise ValueError("typed statement is not canonical")
+        except TypeError, ValueError:
             return self._mismatch(context, artifact_ref)
         semantic_hash = _sha256_digest(prefix, _frame_record(records[0]))
         if expected_content_hash is not None and semantic_hash != expected_content_hash:

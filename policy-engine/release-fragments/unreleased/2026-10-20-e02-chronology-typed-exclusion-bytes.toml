@@ -1,0 +1,39 @@
+id = "2026-10-20-e02-chronology-typed-exclusion-bytes"
+title = "Align typed chronology bytes with field exclusions"
+type = "fixed"
+component = "core"
+owner = "team-polisyos"
+summary = "Align the shared recursive chronology byte projection with Pydantic field exclusions when an affected typed model graph contains an excluded nested value."
+evidence = [
+  "src/polisyos/core/contracts/chronology.py",
+  "src/polisyos/core/security/anchor_lineage.py",
+  "src/polisyos/core/security/chronology_anchor.py",
+  "src/polisyos/core/artifacts/signed_evidence.py",
+  "src/polisyos/runtime/quality/chronology_proof.py",
+  "src/polisyos/runtime/quality/semantic_epoch.py",
+  "src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+  "tests/unit/core/contracts/test_chronology.py",
+]
+compatibility = "The shared recursive mapper follows nested Pydantic exclusion metadata for typed chronology payloads that actually contain an excluded value. The historical discriminator is a nested ArtifactRef with manifest_profile_sha256=null; its profile field is omitted from canonical bytes. Where this value occurs, policy/admission reading reports PolicyBindingMismatchFailure/status=rejected for the old explicit-null alternate, while parse_canonical_statement raises ValueError on a noncanonical statement. Other signed-record and hash/projection paths can observe changed bytes or identities without a reader status. Selected profiles and required nullable fields without exclusion metadata preserve their canonical meaning. This does not claim every chronology or profileless record is affected."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: typed chronology bytes and identity projections containing a nested ArtifactRef with an unselected manifest profile; complete route/member inventory remains pending"
+migration = "Keep existing CAS bytes immutable. For a typed chronology value containing a nested ArtifactRef with manifest_profile_sha256=null, strict canonical readers may reject the former explicit-null bytes and downstream hashes or signatures may differ under the corrected projection. Do not normalize bytes in place or infer a profile. Reissue only through the artifact owner after independent source, profile-epoch, content, custody, signature, lineage, and admission revalidation; write a new reference and digest and rebuild dependent bindings. Reader results remain consumer-specific. Where evidence is unavailable, retain the bytes and report the exact typed result or not_established limitation. Production prevalence is not_established."
+api = "Public DTOs and call signatures are unchanged. The shared recursive chronology mapper applies nested Pydantic FieldInfo exclude/exclude_if metadata. This affects callers only when their typed value graph includes an excluded value, including policy encoding/admission, anchor statements and lineage, signed-evidence record bytes, and runtime chronology proof/semantic-epoch/qualification hashes or projections. The policy reader and canonical statement parser retain distinct refusal behavior; other hash/projection callers may have no reader status."
+limitations = "The focused 3-test candidate probe covers the profileless reference projection, selected-profile preservation, policy/admission typed refusal, and unchanged required-null golden. The canonical 145-test chronology consumer replay remains required after adoption. Production occurrence, signature migration, and transparent legacy-history support are not established. Public-surface inventory review remains pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/chronology-profileless-policy-bytes-migration.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "chronology-typed-profileless-artifact-ref-canonical-bytes"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "typed chronology bytes and identity projections whose nested ArtifactRef has manifest_profile_sha256=null; complete public route/member inventory is pending"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Canonical typed chronology bytes omit an unselected nested ArtifactRef profile wherever Pydantic exclusion metadata applies. Strict readers may reject historical explicit-null bytes; selected profiles and required nullable non-excluded fields remain preserved."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/chronology-profileless-policy-bytes-migration.md"]

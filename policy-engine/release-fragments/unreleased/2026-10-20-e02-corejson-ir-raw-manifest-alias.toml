@@ -1,0 +1,19 @@
+id = "2026-10-20-e02-corejson-ir-raw-manifest-alias"
+title = "Reuse the Core raw-manifest reader in the IR bridge"
+type = "fixed"
+component = "ir-artifacts"
+owner = "team-polisyos"
+summary = "The Core-to-IR adapter serves IR manifest-byte reads through Core's required selected raw-manifest reader, so a conforming CoreJSONArtifactStore need not implement an unrelated legacy alias."
+evidence = [
+  "src/polisyos/core/artifacts/ir_adapter.py",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_core_json_store_without_legacy_manifest_alias_reads_selected_raw_view",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_does_not_fallback_from_required_raw_reader",
+  "tests/unit/core/artifacts/test_ir_adapter.py::test_static_ir_adapter_cannot_launder_missing_core_json_reader",
+]
+compatibility = "The Core ArtifactStore and CoreJSONArtifactStore protocols are unchanged. The adapter forwards the exact typed selector, including manifest_profile_sha256, through get_raw_manifest_bytes; malformed selected raw profiles continue to fail before payload reads. A Core store without the raw reader is not an IR JSON reader, even if it exposes an undeclared get_manifest_bytes alias."
+change_class = "internal"
+surface_classification = "internal: polisyos.ir.artifacts is not a supported entrypoint"
+migration = "No persisted bytes, CAS identifiers, public exports, or owner implementations change. Core stores already satisfying CoreJSONArtifactStore gain the existing IR bridge behavior without adding an optional get_manifest_bytes alias."
+api = "CoreToIRArtifactStoreAdapter.get_manifest_bytes now delegates to its existing get_raw_manifest_bytes bridge."
+limitations = "This fixes the adapter's read-method mismatch only; it does not establish historical profile compatibility, profileless admission, producer authority, or a new public surface."
+generated_client_compatibility = "not_applicable"

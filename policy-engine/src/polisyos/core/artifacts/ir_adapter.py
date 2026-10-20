@@ -475,13 +475,7 @@ class CoreToIRArtifactStoreAdapter:
 
     def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
         """Return the exact selected raw sidecar bytes from the wrapped Core owner."""
-        reader = getattr(self.store, "get_manifest_bytes", None)
-        if not callable(reader):
-            raise TypeError("Core artifact store must expose get_manifest_bytes for IR reads")
-        manifest_bytes = reader(_coerce_core_artifact_selector(artifact_id))
-        if not isinstance(manifest_bytes, bytes):
-            raise TypeError("Core get_manifest_bytes() must return bytes")
-        return manifest_bytes
+        return self.get_raw_manifest_bytes(artifact_id)
 
     def verify(self, artifact_id: ArtifactSelector) -> VerificationReport:
         """Verify a selector against its exact Core artifact and manifest view."""

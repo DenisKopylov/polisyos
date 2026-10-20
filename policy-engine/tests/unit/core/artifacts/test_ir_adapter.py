@@ -338,13 +338,13 @@ def test_ensure_ir_artifact_store_adapts_dynamic_core_facade_selected_view(
         "manifest_profile_sha256": selected_ref.manifest_profile_sha256,
     }
     observed_selectors = []
-    read_manifest_bytes = core_store.get_manifest_bytes
+    read_raw_manifest_bytes = core_store.get_raw_manifest_bytes
 
-    def record_manifest_selector(value):
+    def record_manifest_selector(value, *, manifest_profile_sha256=None):
         observed_selectors.append(value)
-        return read_manifest_bytes(value)
+        return read_raw_manifest_bytes(value, manifest_profile_sha256=manifest_profile_sha256)
 
-    monkeypatch.setattr(core_store, "get_manifest_bytes", record_manifest_selector)
+    monkeypatch.setattr(core_store, "get_raw_manifest_bytes", record_manifest_selector)
 
     ir_store = ensure_ir_artifact_store(DynamicCoreFacade(core_store))
 
@@ -353,6 +353,129 @@ def test_ensure_ir_artifact_store_adapts_dynamic_core_facade_selected_view(
     assert len(observed_selectors) == 1
     assert isinstance(observed_selectors[0], CoreArtifactRef)
     assert observed_selectors[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+
+
+def test_core_json_store_without_legacy_manifest_alias_reads_selected_raw_view(tmp_path) -> None:
+    """The Core JSON reader port alone supports an exact selected-view IR read."""
+
+    class RawOnlyCoreJSONStore:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+            self.raw_selectors: list[object] = []
+
+        def __getattr__(self, name: str):
+            if name == "get_manifest_bytes":
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+        def get_raw_manifest_bytes(
+            self, selector, *, manifest_profile_sha256: str | None = None
+        ) -> bytes:
+            self.raw_selectors.append(selector)
+            return self._target.get_raw_manifest_bytes(
+                selector, manifest_profile_sha256=manifest_profile_sha256
+            )
+
+    payload = b'{"nested":{"value":1}}'
+    core_store = FileSystemCAS(tmp_path / "core-json-raw-only")
+    core_store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="test.ir-core-json-raw-only",
+            media_type="application/json",
+            canon=CoreCanonInfo(max_depth=0),
+        ),
+    )
+    selected_ref = core_store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="test.ir-core-json-raw-only",
+            media_type="application/json",
+            canon=CoreCanonInfo(max_depth=8),
+        ),
+    )
+    assert selected_ref.manifest_profile_sha256 is not None
+
+    raw_only_store = RawOnlyCoreJSONStore(core_store)
+    ir_store = ensure_ir_artifact_store(raw_only_store)
+
+    assert isinstance(ir_store, CoreToIRArtifactStoreAdapter)
+    assert get_json_artifact(ir_store, selected_ref) == {"nested": {"value": 1}}
+    assert len(raw_only_store.raw_selectors) == 1
+    selected = raw_only_store.raw_selectors[0]
+    assert isinstance(selected, CoreArtifactRef)
+    assert selected.manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+
+
+@pytest.mark.parametrize(
+    ("raw_result", "expected_error", "message"),
+    [
+        pytest.param(
+            "malformed",
+            IRCanonViolation,
+            "unsupported_ir_canon_profile",
+            id="malformed-raw-profile",
+        ),
+        pytest.param("non-bytes", TypeError, "must return bytes", id="non-bytes-raw-result"),
+        pytest.param("raises", OSError, "raw reader failure", id="raw-reader-error"),
+    ],
+)
+def test_ir_adapter_does_not_fallback_from_required_raw_reader(
+    tmp_path, raw_result: str, expected_error: type[Exception], message: str
+) -> None:
+    """A present raw capability is authoritative even if a legacy alias disagrees."""
+
+    class DivergentCoreJSONStore:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+            self.raw_result = raw_result
+            self.raw_reads = 0
+            self.legacy_alias_reads = 0
+            self.payload_reads = 0
+
+        def __getattr__(self, name: str):
+            return getattr(self._target, name)
+
+        def get_raw_manifest_bytes(
+            self, selector, *, manifest_profile_sha256: str | None = None
+        ) -> object:
+            self.raw_reads += 1
+            if self.raw_result == "raises":
+                raise OSError("raw reader failure")
+            raw = self._target.get_raw_manifest_bytes(
+                selector, manifest_profile_sha256=manifest_profile_sha256
+            )
+            if self.raw_result == "non-bytes":
+                return "not bytes"
+            manifest = json.loads(raw)
+            manifest["canon"] = {}
+            return json.dumps(manifest, separators=(",", ":")).encode()
+
+        def get_manifest_bytes(self, selector) -> bytes:
+            self.legacy_alias_reads += 1
+            return self._target.get_raw_manifest_bytes(selector)
+
+        def get_bytes(self, selector) -> bytes:
+            self.payload_reads += 1
+            return self._target.get_bytes(selector)
+
+    core_store = FileSystemCAS(tmp_path / "malformed-raw-profile")
+    ref = core_store.put_bytes(
+        b'{"value":1}',
+        ArtifactWriteOptions(
+            kind="test.ir-malformed-required-raw-profile",
+            media_type="application/json",
+            canon=CoreCanonInfo(),
+        ),
+    )
+    conflicting_store = DivergentCoreJSONStore(core_store)
+
+    with pytest.raises(expected_error, match=message):
+        get_json_artifact(ensure_ir_artifact_store(conflicting_store), ref)
+
+    assert conflicting_store.raw_reads == 1
+    assert conflicting_store.legacy_alias_reads == 0
+    assert conflicting_store.payload_reads == 0
 
 
 def test_runtime_protocol_bridge_derives_inherited_and_annotated_members() -> None:
@@ -396,11 +519,20 @@ def test_static_ir_adapter_cannot_launder_missing_core_json_reader(tmp_path) -> 
                 raise AttributeError(name)
             return getattr(self._target, name)
 
-    adapter = CoreToIRArtifactStoreAdapter(
-        BaseOnlyFacade(FileSystemCAS(tmp_path / "base-only-adapter"))
+    owner = FileSystemCAS(tmp_path / "base-only-adapter")
+    ref = owner.put_bytes(
+        b'{"value":1}',
+        ArtifactWriteOptions(
+            kind="test.ir-core-base-only",
+            media_type="application/json",
+            canon=CoreCanonInfo(),
+        ),
     )
+    adapter = CoreToIRArtifactStoreAdapter(BaseOnlyFacade(owner))
 
     assert not matches_artifact_store_protocol(adapter, CoreJSONArtifactStore)
+    with pytest.raises(TypeError, match="must expose get_raw_manifest_bytes"):
+        get_json_artifact(adapter, ref)
 
 
 def test_ir_adapter_selected_core_methods_keep_bytes_options_and_exact_profile(tmp_path) -> None:
@@ -1333,16 +1465,16 @@ def _observe_selected_core_reads(
 ) -> tuple[CoreToIRArtifactStoreAdapter, dict[str, list[object]]]:
     """Return the real typed Core-to-IR adapter and record its exact selectors."""
     observed: dict[str, list[object]] = {
-        "get_manifest_bytes": [],
+        "get_raw_manifest_bytes": [],
         "get_manifest": [],
         "get_bytes": [],
     }
     for method_name in observed:
         reader = getattr(core_store, method_name)
 
-        def record(selector, *, name=method_name, read=reader):
+        def record(selector, *, name=method_name, read=reader, **kwargs):
             observed[name].append(selector)
-            return read(selector)
+            return read(selector, **kwargs)
 
         monkeypatch.setattr(core_store, method_name, record)
     ir_store = ensure_ir_artifact_store(core_store)
@@ -1356,7 +1488,7 @@ def _assert_exact_selected_core_read_selectors(
     """Require every observed read family to retain the complete selected ref."""
     expected = normalize_artifact_ref(selected_ref)
     assert expected["manifest_profile_sha256"] == selected_ref.manifest_profile_sha256
-    for method_name in ("get_manifest_bytes", "get_manifest", "get_bytes"):
+    for method_name in ("get_raw_manifest_bytes", "get_manifest", "get_bytes"):
         selectors = observed[method_name]
         assert selectors, f"No selected-view {method_name} calls were observed"
         for selector in selectors:
@@ -1743,18 +1875,18 @@ def test_ir_reader_preserves_selected_manifest_view_through_manifest_and_blob_re
     core_store = FileSystemCAS(root)
     ir_store = ensure_ir_artifact_store(core_store)
     selectors: list[tuple[str, object]] = []
-    get_manifest_bytes = core_store.get_manifest_bytes
+    get_raw_manifest_bytes = core_store.get_raw_manifest_bytes
     get_bytes = core_store.get_bytes
 
-    def record_manifest_selector(selector):
-        selectors.append(("manifest", selector))
-        return get_manifest_bytes(selector)
+    def record_manifest_selector(selector, *, manifest_profile_sha256=None):
+        selectors.append(("raw-manifest", selector))
+        return get_raw_manifest_bytes(selector, manifest_profile_sha256=manifest_profile_sha256)
 
     def record_blob_selector(selector):
         selectors.append(("blob", selector))
         return get_bytes(selector)
 
-    monkeypatch.setattr(core_store, "get_manifest_bytes", record_manifest_selector)
+    monkeypatch.setattr(core_store, "get_raw_manifest_bytes", record_manifest_selector)
     monkeypatch.setattr(core_store, "get_bytes", record_blob_selector)
 
     loaded = get_json_artifact(_ensure_ir_artifact_store(ir_store), selected_ref)
@@ -1765,9 +1897,9 @@ def test_ir_reader_preserves_selected_manifest_view_through_manifest_and_blob_re
     assert loaded == {"nested": {"value": 1}}
     assert loaded_from_normalized_ref == loaded
     assert selectors == [
-        ("manifest", selected_ref),
+        ("raw-manifest", selected_ref),
         ("blob", selected_ref),
-        ("manifest", selected_ref),
+        ("raw-manifest", selected_ref),
         ("blob", selected_ref),
     ]
 
@@ -1786,15 +1918,15 @@ def test_ir_reader_gets_raw_profile_from_cache_durable_owner(tmp_path, monkeypat
         schema_name="test.ir-cache-raw-profile",
         schema_version="1.0",
     )
-    remote_raw_manifest = remote.get_manifest_bytes(ref["artifact_id"])
+    remote_raw_manifest = remote.get_raw_manifest_bytes(ref["artifact_id"])
 
     def reject_local_raw_manifest(*_args, **_kwargs):
         pytest.fail("raw profile read bypassed the durable owner")
 
-    monkeypatch.setattr(local, "get_manifest_bytes", reject_local_raw_manifest)
+    monkeypatch.setattr(local, "get_raw_manifest_bytes", reject_local_raw_manifest)
 
     assert get_json_artifact(_ensure_ir_artifact_store(ir_store), ref) == payload
-    assert remote.get_manifest_bytes(ref["artifact_id"]) == remote_raw_manifest
+    assert remote.get_raw_manifest_bytes(ref["artifact_id"]) == remote_raw_manifest
 
 
 @pytest.mark.parametrize(

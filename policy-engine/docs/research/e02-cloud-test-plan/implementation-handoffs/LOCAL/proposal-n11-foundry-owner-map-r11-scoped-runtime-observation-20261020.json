@@ -1,0 +1,388 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal N11 criterion closure",
+      "global N11 owner graph or owner-source closure",
+      "production currentness or authority",
+      "public-surface inventory approval",
+      "complete pytest/import input closure"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+  "candidate_tree_sha": "7bdad7df3302c270b7d5485f13b0db0b24c90f91",
+  "capability_state_or_finding_state": {
+    "authority": "not_established; this receipt grants none.",
+    "capability_label": "verification_missing",
+    "current_behavior": "not_established",
+    "source_mechanism_state": "Selected owner-map and adjacent helper modules pass historically; current complete N11 owner graph and source/input closure remain not_established."
+  },
+  "checks": [
+    {
+      "command": "Exact argv, cwd and environment are in the pinned request.json.",
+      "exit_code": 0,
+      "input_qualification": "The request pins five selected files only. Runtime origins include common, core and confidence_ledger outside those five pins; complete transitive input closure is not established.",
+      "max_sampled_process_tree_rss_bytes": 1987641344,
+      "minimum_sampled_disk_free_bytes": 10517463040,
+      "name": "Canonical whole-two-module pytest invocation at historical 8aff",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/request.json",
+          "sha256": "593743ccd43b13b65e4b2e95dff4fbcce127fa4ef081ab791b1b344e486ce77a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/result.json",
+          "sha256": "d80ed8642f443e7613e7ba88bba0bee4c40bf07594a309921c83eb2b00bea960"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/pytest.xml",
+          "sha256": "5a9d4581786b545e592b1e60fff2d88abb40346d50a6f1e3205bf315ec257cba"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/canonical-whole-two-module-pytest.stdout.txt",
+          "sha256": "ddaec11a66a9a3694461fe0c1dd95f553e83c858bc2c427d41033a18d3230647"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/canonical-whole-two-module-pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/controller-events.jsonl",
+          "sha256": "bd6c0012db50804582e267735c348e4b4ffb6de09ae1b387a199ab07a8d8bb75"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/phase-output.jsonl",
+          "sha256": "057a2b82f873f5022248ddd2a61753f601c9e9180c264a632e1cc2fed48d9394"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/process-tree.jsonl",
+          "sha256": "8b359fe5009be47c38ac692a0ffe636c998980ae614f6cb1886a1b12ba25cede"
+        }
+      ],
+      "wall_seconds": 43.00685029197484
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": {
+    "current_direct_pin_recheck": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r3-qualification-addenda-20261020/current-frame-rebind-v1.json",
+      "sha256": "e9907e95e919814e2d534e5cecfbd594b865d03df5c1b2e46f21dd2f6e9f9256"
+    },
+    "historical_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/pytest.xml",
+        "sha256": "5a9d4581786b545e592b1e60fff2d88abb40346d50a6f1e3205bf315ec257cba"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/canonical-whole-two-module-pytest.stdout.txt",
+        "sha256": "ddaec11a66a9a3694461fe0c1dd95f553e83c858bc2c427d41033a18d3230647"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/canonical-whole-two-module-pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/controller-events.jsonl",
+        "sha256": "bd6c0012db50804582e267735c348e4b4ffb6de09ae1b387a199ab07a8d8bb75"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/phase-output.jsonl",
+        "sha256": "057a2b82f873f5022248ddd2a61753f601c9e9180c264a632e1cc2fed48d9394"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/actual-run/process-tree.jsonl",
+        "sha256": "8b359fe5009be47c38ac692a0ffe636c998980ae614f6cb1886a1b12ba25cede"
+      }
+    ],
+    "historical_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/request.json",
+      "sha256": "593743ccd43b13b65e4b2e95dff4fbcce127fa4ef081ab791b1b344e486ce77a"
+    },
+    "historical_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/canonical-attempt-2/result.json",
+      "sha256": "d80ed8642f443e7613e7ba88bba0bee4c40bf07594a309921c83eb2b00bea960"
+    },
+    "source_commit_footprint_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-foundry-selection-literal-owner-map-20261020-r2/implementation-readback-preservation-r2.json",
+      "sha256": "1940551f062886da3b4ba97842c1008f0996b96a8cd46cb0ef91f03c86946696"
+    }
+  },
+  "commit_subject": "Record scoped N11 Foundry owner-map runtime evidence; no currentness or closure claim",
+  "current_composed_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-corejson-ir-raw-manifest-alias-20261020-r1/implementation-readback-preservation-r2.json",
+    "scope": "Current source composition frame for a direct-pin comparison only; not an N11 runtime replay.",
+    "sha256": "7d0717c05623d346bfda7b1811384bbfbba828129ab24e12ece386258ca0d4e5"
+  },
+  "denominator": {
+    "collected_case_count": 53,
+    "complete_transitive_import_or_source_closure": "not_established",
+    "failed": 0,
+    "five_selected_direct_run_pins": [
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "228a229d91c4596c797593fba9bc68f8ae517f9935ac73a046b0a3de997f19ee"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+        "sha256": "d13880c9c8cd88dc50d12026e97d528ed4c877a393138e49bf16992cafb8bef3"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/tests/unit/foundry/methods/selection/test_literal_owner_routes.py",
+        "sha256": "aaac58f719e04a24c21cabac665d3588f69e5c00a86fcaf0d76a03e3c0bba850"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+        "sha256": "7a9c6bc2e0f924c0cc6e8a35a67447bf44af51eca1456e32ed24712fbc3d3a56"
+      }
+    ],
+    "historical_runtime_head": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+    "historical_runtime_tree": "7bdad7df3302c270b7d5485f13b0db0b24c90f91",
+    "module_counts": {
+      "tests/unit/foundry/methods/selection/test_literal_owner_routes.py": 4,
+      "tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py": 49
+    },
+    "passed": 53,
+    "whole_module_count": 2
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": {
+    "historical_source_commit_path_count": 5,
+    "historical_source_commit_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/release-fragments/unreleased/2026-10-20-n11-foundry-selection-owner-map.toml",
+      "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+      "policy-engine/tests/unit/foundry/methods/selection/test_literal_owner_routes.py"
+    ],
+    "interpretation": "The equal counts describe different sets; only two paths overlap. The direct pin set is neither the full source commit footprint nor the transitive input closure.",
+    "overlap_count": 2,
+    "overlap_paths": [
+      "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+      "policy-engine/tests/unit/foundry/methods/selection/test_literal_owner_routes.py"
+    ],
+    "runtime_selected_direct_pin_count": 5,
+    "runtime_selected_direct_pins": [
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "228a229d91c4596c797593fba9bc68f8ae517f9935ac73a046b0a3de997f19ee"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+        "sha256": "d13880c9c8cd88dc50d12026e97d528ed4c877a393138e49bf16992cafb8bef3"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/tests/unit/foundry/methods/selection/test_literal_owner_routes.py",
+        "sha256": "aaac58f719e04a24c21cabac665d3588f69e5c00a86fcaf0d76a03e3c0bba850"
+      },
+      {
+        "current_head_match": true,
+        "current_worktree_match": true,
+        "path": "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+        "sha256": "7a9c6bc2e0f924c0cc6e8a35a67447bf44af51eca1456e32ed24712fbc3d3a56"
+      }
+    ]
+  },
+  "identity": "n11-foundry-owner-map-r11-scoped-runtime-observation-20261020",
+  "implementation_commits": [
+    {
+      "commit": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+      "note": "This source commit footprint is distinct from the five selected runtime direct pins.",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/release-fragments/unreleased/2026-10-20-n11-foundry-selection-owner-map.toml",
+        "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+        "policy-engine/tests/unit/foundry/methods/selection/test_literal_owner_routes.py"
+      ],
+      "source_commit_footprint_count": 5,
+      "tree": "7bdad7df3302c270b7d5485f13b0db0b24c90f91"
+    }
+  ],
+  "independent_review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-independent-review-20261020/review.json",
+      "sha256": "de0d0887330318c4a1d9850c8e898c8fa803cb189286fc462413b3f730b7aaee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-independent-canonical-run-review-20261020/review.json",
+      "sha256": "231fddbc041dcee72cdc8ecaed11be4011bf40f9b22dc47a4390e3c711e33d36"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r3-qualification-addenda-20261020/receipt-r3-erratum-v1.json",
+      "sha256": "77388c4806c182cbbf3ffb2a933fa18ac981b23cfe160312e2d01afadd680ce3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r3-qualification-addenda-20261020/current-frame-rebind-v1.json",
+      "sha256": "e9907e95e919814e2d534e5cecfbd594b865d03df5c1b2e46f21dd2f6e9f9256"
+    }
+  ],
+  "integration_publication": {
+    "canonical_location": "Local evidence/decision packet registry only.",
+    "integration_publication": false,
+    "public_api_or_generated_surface_change": false,
+    "public_surface_inventory_reviewed": false
+  },
+  "limitations_and_next_owner": [
+    "The 53-case result is historical at 8aff, not a current 3c13 runtime result.",
+    "Five selected direct run pins are not the complete pytest/import input closure.",
+    "Private dir(module) membership changes; only the scoped 40-name __all__ claim is preserved.",
+    "The five-path source-commit footprint is distinct from the five direct runtime pins.",
+    "The source release fragment leaves public_surface_inventory_reviewed=false; this receipt does not flip it.",
+    "Root retains canonical write, index/LEASE application and source-freeze authority."
+  ],
+  "next_check": "If current N11 behavior is needed, run the authorized current-source owner/test workflow after source freeze and establish the full consumed input denominator. Do not infer current behavior or closure from this historical pass or five direct-pin check.",
+  "original_criteria_proposal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/candidate-manifest.json",
+    "sha256": "64d26698c39ac5cffcf19345bb3c44d9b6d43545350b446288dffa0d768c0b63"
+  },
+  "parents": [
+    "ebbe5987e49b5964d67620faa824cd50668ed783"
+  ],
+  "predicate_basis": "Historical request/result/JUnit and independent run review; exact owner source commit readback; separate current 3c13 direct-pin recheck.",
+  "predicate_basis_detail": {
+    "current_frame_recheck": "Five selected direct hashes match 3c13 HEAD and worktree. This does not establish transitive closure or current behavior.",
+    "historical_runtime": "Bound to 8aff: 53 pass, 0 fail.",
+    "runtime_origins": "The result records common/core/confidence_ledger runtime-overlay origins outside the five direct pins."
+  },
+  "preservation": {
+    "current_root_source_frame_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-corejson-ir-raw-manifest-alias-20261020-r1/implementation-readback-preservation-r2.json",
+      "sha256": "7d0717c05623d346bfda7b1811384bbfbba828129ab24e12ece386258ca0d4e5"
+    },
+    "historical_run_source_state_unchanged": true,
+    "no_current_n11_runtime_replay": true,
+    "root_reported_source_journal_row": {
+      "qualification": "Mutable journal omitted; current base/readback bind the source frame.",
+      "row": 69,
+      "sha256": "8fe23fcfb2750ec2671a3e1443f97048b2cbd4fcd1423ee915b110a98ed91fe3"
+    },
+    "source_commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-foundry-selection-literal-owner-map-20261020-r2/implementation-readback-preservation-r2.json",
+      "sha256": "1940551f062886da3b4ba97842c1008f0996b96a8cd46cb0ef91f03c86946696"
+    }
+  },
+  "property": {
+    "private_module_directory_listing": {
+      "custom_dir_source": {
+        "lines": [
+          104,
+          105
+        ],
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/__init__.py",
+        "sha256": "d13880c9c8cd88dc50d12026e97d528ed4c877a393138e49bf16992cafb8bef3"
+      },
+      "preserved": false,
+      "reason": "The module defines __dir__ as sorted({*globals(), *__all__}). The candidate removes _RECEIPT_IMPORTS and _REQUIREMENT_IMPORTS from globals and adds _EXPORT_MODULES, so private dir(module) membership changes."
+    },
+    "proxy_divergence": "The __all__ assertion covers the public 40-name list, not private names returned by dir(module). This receipt claims only the former and records the latter as changed.",
+    "public_export_entries_preserved": 40,
+    "statement": "The N11 candidate exposes a literal 40-entry Foundry selection owner map and its source behavior passed the selected whole owner-map module plus the adjacent finite-facade helper module at historical 8aff."
+  },
+  "proposal_fields": {
+    "G_acceptance": false,
+    "complete_input_closure": "not_established",
+    "current_runtime": "not_established",
+    "formal_closure_ids": [],
+    "global_owner_graph": "not_established",
+    "public_surface_inventory_reviewed": false,
+    "purpose": "Register a bounded historical source-bound runtime observation with corrected private-dir and direct-pin qualifications."
+  },
+  "record_type": "scoped_runtime_observation_receipt",
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "profile": "Existing policy-engine .venv; no environment installation or regeneration.",
+    "python_version": "3.14.3",
+    "runtime_command_id": "canonical-whole-two-module-pytest",
+    "selected_modules": [
+      "tests/unit/foundry/methods/selection/test_literal_owner_routes.py",
+      "tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py"
+    ]
+  },
+  "slice": "N11 Foundry selection owner-map source and historical whole-module runtime observation",
+  "slice_base_sha": "ebbe5987e49b5964d67620faa824cd50668ed783",
+  "slice_base_tree_sha": "12c9eefa43cb1040eb55723ec6f0160af85f7aa7",
+  "source_change_commits": [
+    "8aff19299d7d248dbea9f382c8fd654b5040839f"
+  ],
+  "source_freeze": false,
+  "source_provenance": {
+    "candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/candidate-manifest.json",
+      "sha256": "64d26698c39ac5cffcf19345bb3c44d9b6d43545350b446288dffa0d768c0b63"
+    },
+    "candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-20261020/candidate.patch",
+      "sha256": "e88d52f68e543e619ba95015fb85291374109abb57707ba0b6c0139fc8cb912d"
+    },
+    "owner_source_commit": {
+      "commit_request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-foundry-selection-literal-owner-map-20261020-r2/commit-request-preservation-r2.json",
+        "sha256": "fcd22f544c19143ba83027175dbb69127844da2d044904682c804e62342e1e44"
+      },
+      "head": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+      "parent": "ebbe5987e49b5964d67620faa824cd50668ed783",
+      "plan": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-foundry-selection-literal-owner-map-20261020-r2/plan.json",
+        "sha256": "2d925f3a93a893c8ec7d102b533297b01fd6f0ca56883b617540e30e5ce063a7"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-foundry-selection-literal-owner-map-20261020-r2/implementation-readback-preservation-r2.json",
+        "sha256": "1940551f062886da3b4ba97842c1008f0996b96a8cd46cb0ef91f03c86946696"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-n11-foundry-selection-literal-owner-map-20261020-r2/source-application.json",
+        "sha256": "83e9ae7f8e9aec67eb1b7ad22d1a7fe63ff978c95542f12f2e23dd4dae0854c1"
+      },
+      "tree": "7bdad7df3302c270b7d5485f13b0db0b24c90f91"
+    },
+    "release_fragment": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-n11-foundry-selection-owner-map.toml",
+      "public_surface_inventory_reviewed": false,
+      "sha256": "61d349028c8f468cc579c9f5c4b0d45f3ac11a67ebeae1246a6a7eac68791fa2"
+    },
+    "source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-foundry-selection-owner-map-r11-independent-review-20261020/review.json",
+      "sha256": "de0d0887330318c4a1d9850c8e898c8fa803cb189286fc462413b3f730b7aaee"
+    }
+  },
+  "status": "scoped_runtime_pass",
+  "time_and_version_semantics": {
+    "authority": "No production currentness, source freshness, issuer authority or current global owner-graph claim.",
+    "current_frame": "3c13fdf9c4d84511fb4baa3bb425a3fbd933cdf7 / f249c5d665b42faeb72508e6be8a0fe4f3be7192",
+    "current_frame_pin_check": "Five direct pin matches only; no current N11 replay.",
+    "historical_runtime_time": "Historical at 8aff only."
+  },
+  "unit": "LOCAL",
+  "verification_status": "Qualified historical 53/53 selected-case runtime pass at 8aff only; not current-source, complete-input-closure, global-owner-graph or criterion-closure verification."
+}

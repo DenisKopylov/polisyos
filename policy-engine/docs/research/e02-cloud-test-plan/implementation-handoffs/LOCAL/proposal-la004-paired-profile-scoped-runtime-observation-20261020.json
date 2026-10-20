@@ -1,0 +1,704 @@
+{
+  "schema": "policyos.e02.la004.scoped_runtime_observation_proposal.v1",
+  "identity": "la004-paired-profile-scoped-runtime-observation-20261020",
+  "record_type": "scoped_runtime_observation_proposal",
+  "status": "author_proposal_only",
+  "unit": "LA-004",
+  "slice": "Current-source, selected paired fiscal/labor profile runtime observation",
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "3abe8222f7465622c78694e4d718074a602b8d87",
+  "candidate_tree_sha": "70c055133ca170f966b31425e81a3ff55c4a0ef2",
+  "parents": [
+    "8aff19299d7d248dbea9f382c8fd654b5040839f"
+  ],
+  "commit_subject_at_run_frame": "docs(e02): record scoped B199/B200 B86 runtime observation",
+  "source_frame_change_footprint": {
+    "commit": "3abe8222f7465622c78694e4d718074a602b8d87",
+    "paths_changed_by_that_commit": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-b199-b200-b86-scoped-runtime-observation-20261020.json"
+      }
+    ],
+    "interpretation": "The source-frame commit itself records handoff/index documentation; runtime code and tests are bound separately by the exact selected path hashes below and the full R10 snapshot."
+  },
+  "current_composed_readback": {
+    "head_at_runtime": "3abe8222f7465622c78694e4d718074a602b8d87",
+    "tree_at_runtime": "70c055133ca170f966b31425e81a3ff55c4a0ef2",
+    "parent": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+    "source_before_and_after_equal": true,
+    "transfer_to_later_source": false,
+    "note": "This is an observation at the exact 3abe source frame. No claim is transferred to a later checkout; source_freeze is false."
+  },
+  "original_criteria_reference": {
+    "criterion_id": "LA-004",
+    "criterion_card": {
+      "id": "LA-004",
+      "document": "LA_r09",
+      "lines": [
+        167,
+        197
+      ],
+      "sha256": "6e02db40071d978f1bb642bfff99ad1eb8102a565e90238a90259ed15f5acf4a",
+      "card": "ECO-01"
+    },
+    "criteria_status_in_coverage_at_run_frame": {
+      "ledger_status_historical": "partial",
+      "appendix_c_status_separate": "partial",
+      "closure_now": "not_adjudicated",
+      "criterion_specific_acceptance_not_executed": "The frozen F paired-profile receipts cover a bounded comparison of the declared legacy and plugin fiscal/labor profiles across selected matched and divergent regimes, including state/units, timestep, tax, balance and RNG semantics. This is not whole-model or production-caller equivalence. Formal closure remains not adjudicated; no Gini/welfare sign-off or optimizer caller is required by LA-004. A possible C/PPO negative-wealth input into strict Gini remains a separate cross-edge without a combined runtime witness."
+    },
+    "method_decision_reference": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md#f-m14",
+    "source_documents_at_run_frame": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256_at_source_frame": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+        "role": "LA-004 coverage and current adjudication row"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "sha256_at_source_frame": "8cffe1c44ccb94a279526a7978c4fbb14139d2d2699951ad5c4899dc2f74162f",
+        "role": "F-M14 method decision reference"
+      }
+    ],
+    "record_handling": "F-M14 and the coverage row are cited without resolving their status difference here. This proposal does not alter adjudication or import older 964/412 results."
+  },
+  "property": {
+    "statement": "At the exact 3abe source frame, the three complete selected test modules execute the recorded paired fiscal/labor profile comparisons. The nine focal cases exercise finite matched/differing tax and labor profiles, including explicit stock-flow conversion, tax-base distinction, uniform income/policy assumptions, progressive-tax step cases, seed/clock behavior, and full-state/RNG distinctions.",
+    "observed_result": "54 unique collected cases across three complete modules; all 54 executed and passed. All nine focal LA-004 paired cases were collected, call-passed, and JUnit-passed. Thirteen requested product runtime modules loaded from file origins and matched the full R10 tracked-source snapshot.",
+    "interpretation_limit": "This is finite selected-profile runtime evidence, not whole-model equivalence or production-caller equivalence. It does not establish the full current-source LA-004 acceptance denominator or resolve the criterion adjudication.",
+    "out_of_scope": [
+      "No optimizer, Gini, welfare, calibration, or production-parameter generalization claim.",
+      "No production caller or owner-supplied institutional evidence claim.",
+      "No whole-repository or full E02 acceptance.",
+      "No transfer of historical 964/412 results to this source frame."
+    ]
+  },
+  "denominator": {
+    "whole_module_count": 3,
+    "module_case_counts": [
+      {
+        "path": "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "collected_count": 7
+      },
+      {
+        "path": "tests/unit/foundry/plugins/test_economic_profiles.py",
+        "collected_count": 33
+      },
+      {
+        "path": "tests/unit/remediation/test_eco_01.py",
+        "collected_count": 14
+      }
+    ],
+    "collected_unique": 54,
+    "executed": 54,
+    "passed": 54,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "deselected_or_filtered": 0,
+    "focal_paired_cases_count": 9,
+    "focal_paired_cases": [
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_matched_zero_employment_regime_preserves_distinct_full_state_and_rng_laws",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.0]",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.25]",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_progressive_tax_complete_state_budget_and_step_profile[0.5]",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profile_consumers.py::test_registered_transition_labor_composite_uses_supplied_seed_and_retains_distinct_clock",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profiles.py::test_equal_one_period_tax_equations_require_explicit_stock_flow_conversion",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/foundry/plugins/test_economic_profiles.py::test_equal_subsidy_transfer_equations_require_uniform_income_and_policy",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/remediation/test_eco_01.py::test_income_tax_and_economic_tax_keep_distinct_tax_bases",
+        "outcome": "passed"
+      },
+      {
+        "nodeid": "tests/unit/remediation/test_eco_01.py::test_threshold_and_transition_labor_profiles_remain_distinct",
+        "outcome": "passed"
+      }
+    ],
+    "selection_basis_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest-collection-basis.json",
+    "selection_basis_sha256": "eafe834aaae47f72aebb68329c34f195aadc5bc098a74be12a3fa71e80476b14",
+    "selection_rule": "Exact three whole-module selectors; no -k/-m/deselect/ignore, no xdist; collection, execution, and JUnit reconciled."
+  },
+  "checks": [
+    {
+      "name": "Exact bounded whole-module pytest replay",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "command_reference": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/execution-request.json",
+        "sha256": "b8294265400e0cf043db42b98d0beddbec89c834b2a81b1282786c447480c718",
+        "role": "Exact argv and effective runtime configuration; preserves default pytest plugin autoload."
+      },
+      "runtime": {
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "python_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "pytest": "9.0.2",
+        "environment": "Existing policy-engine/.venv; no install or package substitution; standard pytest.ini; default plugin autoload preserved."
+      },
+      "input_closure": "54 unique nodeids from exactly the three full modules; collection basis, per-case reports, JUnit, runtime origins, and R10 before/after snapshots are bound in the outputs."
+    },
+    {
+      "name": "Independent read-only LA-004 evidence QA",
+      "outcome": "GO for bounded current-source finite paired-profile evidence; no formal closure or G acceptance",
+      "scope": "Reconciliation of the recorded LA-004 current-source finite paired fiscal/labor profile run only. No test rerun, canonical write, closure change, production calibration claim, optimizer/Gini claim, or full-repository acceptance.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-independent-20261020/qa.json",
+        "sha256": "9315b147cb35357c71b7f392e47c6cc01e20f3c0102a7898a26129d9fcc07cf0",
+        "role": "Independent review of the exact runtime packet, source frame, focal cases, controls, and bounded claim."
+      }
+    }
+  ],
+  "verification_status": "Qualified bounded current-source finite paired-profile runtime observation: 54/54 selected whole-module cases passed, including 9/9 focal paired cases. Not criterion-wide verification or closure.",
+  "capability_state_or_finding_state": {
+    "capability_label": "verification_missing",
+    "bounded_observation": "The selected finite current-source cases are verified by actual execution and captured origin/readback evidence.",
+    "full_criterion_state": "Full current-source LA-004 criterion verification and formal adjudication remain not_established; the previous 964/412 result is historical and not transferred.",
+    "authority": "not_established; this observation grants no policy authority or publication permission."
+  },
+  "predicate_basis": "recomputed_for_selected_test_observations; not_established_for_full_criterion_transfer",
+  "predicate_basis_detail": "Collected/executed/JUnit equality, selected test outcomes, loaded module origins, and before/after R10 equality were recomputed from run outputs. The full original criterion denominator, production-caller coverage, and any transfer from earlier 964/412 results are not established by this selected replay.",
+  "source_provenance": {
+    "historical_runtime_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "3abe8222f7465622c78694e4d718074a602b8d87",
+      "tree": "70c055133ca170f966b31425e81a3ff55c4a0ef2",
+      "parent": "8aff19299d7d248dbea9f382c8fd654b5040839f"
+    },
+    "run_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/handoff.json",
+      "sha256": "1008851aaee63f6722867442a2880a003546f0396458ee435f546286beacb6ce",
+      "role": "Complete actual LA-004 run summary and per-artifact source/output references."
+    },
+    "actual_run_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/result.json",
+      "sha256": "5c9d48c0f0c6fee3d8128e4b9d4810762fa27da0e3beb55cd7ef2ff5660569e8",
+      "role": "Actual bounded run result, process limits, selection, outputs, source frame, and closure flags."
+    },
+    "current_source_transfer": {
+      "status": "not_established",
+      "reason": "No runtime replay was performed against any later source frame; source_freeze is false."
+    }
+  },
+  "full_code_test_config_companion_footprint": {
+    "interpretation": "The 16 selected source/test pins, 13 observed runtime origin rows, 2 effective configuration files, and whole R10 before/after snapshots are separate, non-substitutable bounds.",
+    "selected_relevant_source_and_test_paths": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+        "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+        "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+        "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+        "sha256": "c69d8d1e4c672a41f6eef1a4e752c1dd3bf1b9aaf2dfc06183ab1e4208bf1875",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+        "sha256": "63afb8661adbd98dbad9d2420a41033c47a87b7955a1d239498661de01087353",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+        "sha256": "979b7e6e52f9276b65dc5def2ea29c476d8a1b32aadbbc68fa0d6237ff017da6",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+        "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+        "sha256": "1ee1cd50bdc99b036d4ab190cbff99e24751c46b35358f34f40f2792cbde517c",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/__init__.py",
+        "sha256": "7a091edee34d6d83491a46698481739d9dd9c3787360de7d69b2a3d9f06ef963",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+        "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+        "sha256": "fee306f84dd909ea4542d4f25296257c9b8941d8f98004f22c0c4456883ff7c1",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+        "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da",
+        "role": "product source module"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+        "sha256": "45de157284f38de32d11f33ec0537bd7ce4859095a64ee4d765562c202554e6b",
+        "role": "test module"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+        "sha256": "dc8415c4f765073986a7bc64304360a15a181f1b73b49f315c0dd8d303c37a6d",
+        "role": "test module"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+        "sha256": "7d7e963b08694de88700526de1d15bca4d2e231a034969ec548d62181d84502d",
+        "role": "test module"
+      }
+    ],
+    "selected_runtime_origin_rows": [
+      {
+        "module": "polisyos.foundry.contracts.state",
+        "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+        "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.execute.executor",
+        "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+        "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.execute.mechanisms.fiscal",
+        "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+        "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.execute.mechanisms.labor",
+        "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+        "sha256": "c69d8d1e4c672a41f6eef1a4e752c1dd3bf1b9aaf2dfc06183ab1e4208bf1875",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.methods.catalog.mechanism.runtime",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+        "sha256": "63afb8661adbd98dbad9d2420a41033c47a87b7955a1d239498661de01087353",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.methods.catalog.mechanism.runtime_registry",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+        "sha256": "979b7e6e52f9276b65dc5def2ea29c476d8a1b32aadbbc68fa0d6237ff017da6",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.methods.loss",
+        "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+        "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.plugins.composite",
+        "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+        "sha256": "1ee1cd50bdc99b036d4ab190cbff99e24751c46b35358f34f40f2792cbde517c",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/__init__.py",
+        "sha256": "7a091edee34d6d83491a46698481739d9dd9c3787360de7d69b2a3d9f06ef963",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.baselines",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+        "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.mechanisms",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+        "sha256": "fee306f84dd909ea4542d4f25296257c9b8941d8f98004f22c0c4456883ff7c1",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.plugin",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+        "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      },
+      {
+        "module": "polisyos.foundry.plugins.economics.state",
+        "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da",
+        "loaded": true,
+        "origin_kind": "file",
+        "matches_full_R10_snapshot": true
+      }
+    ],
+    "runtime_origin_count": 13,
+    "effective_test_configuration": [
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "role": "pytest configuration"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "228a229d91c4596c797593fba9bc68f8ae517f9935ac73a046b0a3de997f19ee",
+        "role": "project/test dependency and tool configuration"
+      }
+    ],
+    "full_R10_tracked_source_snapshot": {
+      "tracked_entry_count": 25901,
+      "before": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/source-before.json",
+        "bytes": 19534333,
+        "sha256": "e24ba20a3de001b5e50e6da950aba42f9f75ac2179813f024c1a1e7a29c69758"
+      },
+      "after": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/source-after.json",
+        "bytes": 19534333,
+        "sha256": "e24ba20a3de001b5e50e6da950aba42f9f75ac2179813f024c1a1e7a29c69758"
+      },
+      "byte_identity": true,
+      "tracked_status_before_and_after": " M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "status_limit": "The captured tracked status includes one known unrelated modified test path; this is not a whole-worktree-clean claim."
+    },
+    "loaded_test_conftest_files": [
+      {
+        "path": "policy-engine/tests/conftest.py",
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+        "role": "loaded pytest conftest / fixture setup"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/conftest.py",
+        "sha256": "db90b500ca0b1c0bdc0d7fab7f60d414a54d90549a2caa9dd52693344d773d92",
+        "role": "loaded pytest conftest / fixture setup"
+      }
+    ],
+    "captured_runner_and_helper_files": [
+      {
+        "name": "A94",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/supervise.py",
+        "sha256": "a94a662308270ba3aca96c1d9c75e53a05e37a923a6188d0f464f8ac1e90909e",
+        "role": "captured execution/support helper; not product source"
+      },
+      {
+        "name": "R10_snapshot",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/r10_snapshot.py",
+        "sha256": "8b8f6716d28dc3a4065bdd08b3c3cad1ca1b4d44d5ba76062d5a27e2dcbce05e",
+        "role": "captured execution/support helper; not product source"
+      },
+      {
+        "name": "R8",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r8-reference-binding-candidate-20261020-r3/e02_wave_capture_r10_candidate.py",
+        "sha256": "e7c41bb479982eb8ba35145314665b517b7de346189bee02aba4fb48dffaaf98",
+        "role": "captured execution/support helper; not product source"
+      },
+      {
+        "name": "case_capture",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-full22-execution-20261019/attempt-8-first3/e02_i4_case_report_capture_r1.py",
+        "sha256": "eb88d6c9e3dd6b88a7a7cda5534c42dde8e488a1a11654b98e852f71643a72b4",
+        "role": "captured execution/support helper; not product source"
+      },
+      {
+        "name": "runner",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/run_la004_actual.py",
+        "sha256": "ce71864002b6b139dcaface4514d97f5bd85dc51bbdae2be4ca37bfc926b036b",
+        "role": "bounded runner source; not product source"
+      },
+      {
+        "name": "sandbox_profile",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/sandbox.sb",
+        "sha256": "310095fc578356f3e7ddd08de49d2c13539eeb502b52fe7359ae47175050746e",
+        "role": "applied child sandbox profile"
+      }
+    ],
+    "locked_environment_input": {
+      "path": "policy-engine/uv.lock",
+      "sha256_at_source_frame": "03b9a1db187745340234656cbff0b567e0495135f2d75dd0d61562178e2defff",
+      "role": "tracked dependency lock input; existing venv was run without reinstall or re-resolution"
+    },
+    "dimensions_are_distinct": "Selected source/test file pins identify 16 relevant tracked files; conftests/config/lock pin execution context; runtime origin rows identify modules actually imported; the 25,901-entry R10 before/after snapshots establish whole tracked-source stability; the 54-case collection denominator is separately pinned.",
+    "selected_relevant_source_and_test_path_count": 16,
+    "configuration_path_count": 2,
+    "loaded_test_conftest_count": 2,
+    "captured_runner_and_helper_count": 6
+  },
+  "selected_input_profile_backend": {
+    "backend": "Existing local product Python environment; no package installation, source copy, or dependency substitution.",
+    "environment": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python; Python 3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]; pytest 9.0.2; standard pytest.ini; default plugin autoload preserved; numeric threads 1; workers 1.",
+    "resource_limits": {
+      "cap_abort_semantics": "ERROR; partial execution is not PASS",
+      "minimum_free_disk_bytes": 1073741824,
+      "numeric_threads": 1,
+      "sample_period_seconds": 0.5,
+      "sampled_process_tree_rss_cap_bytes": 2147483648,
+      "wall_seconds": 90,
+      "workers": 1
+    },
+    "resource_observation": {
+      "wall_seconds": 22.198147000046447,
+      "max_sampled_process_tree_rss_bytes": 1122779136,
+      "minimum_sampled_disk_free_bytes": 10366930944,
+      "sample_count": 40,
+      "process_group_gone": true,
+      "pid_absent_after_reap": true,
+      "return_code": 0,
+      "status": "passed"
+    },
+    "controller_note": "The controller wrapper caught successful SystemExit(0) in a BaseException handler and emitted a misleading “preflight/failure: SystemExit: 0” banner; the captured A94 child result is return_code 0/status passed, and the runner session exit_code is 0. No test failure or A94 abort occurred."
+  },
+  "time_and_version_semantics": {
+    "source_version": "3abe8222f7465622c78694e4d718074a602b8d87",
+    "run_started_at": null,
+    "run_finished_at": null,
+    "verification_window": "Run only; no post-run source-frame transfer.",
+    "data_time_semantics": "Test fixture/profile semantics only; no real-world data currentness or production temporal claim."
+  },
+  "independent_review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-independent-20261020/qa.json",
+      "sha256": "9315b147cb35357c71b7f392e47c6cc01e20f3c0102a7898a26129d9fcc07cf0",
+      "reviewer_decision": "GO for bounded current-source finite paired-profile evidence; no formal closure or G acceptance",
+      "scope": "Reconciliation of the recorded LA-004 current-source finite paired fiscal/labor profile run only. No test rerun, canonical write, closure change, production calibration claim, optimizer/Gini claim, or full-repository acceptance.",
+      "availability": "shared_local_host_raw; not committed"
+    }
+  ],
+  "preservation": {
+    "run_source_snapshot_before_after_sha256": "e24ba20a3de001b5e50e6da950aba42f9f75ac2179813f024c1a1e7a29c69758",
+    "source_unchanged_during_run": true,
+    "known_tracked_worktree_change_at_run": " M policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "whole_worktree_clean_claim": false,
+    "historical_964_412_transfer": false
+  },
+  "commands_and_full_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/handoff.json",
+      "sha256": "1008851aaee63f6722867442a2880a003546f0396458ee435f546286beacb6ce",
+      "role": "Complete run summary and references to captured inputs/outputs.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/controller-events.jsonl",
+      "sha256": "8ed063503488205cf937fda2f0db4e54272e6318e9971c61c7aefc0a8c96e542",
+      "bytes": 2031,
+      "role": "A94 controller lifecycle and reaping events.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/execution-request.json",
+      "sha256": "b8294265400e0cf043db42b98d0beddbec89c834b2a81b1282786c447480c718",
+      "bytes": 14179,
+      "role": "Exact argv, effective config, selected code/test pins, environment, limits, and helper identities.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/phase-output.jsonl",
+      "sha256": "d0fb7a3c8ac1b970c2c859ed0d9176b789a61a5860b494c9d5c99473195ca7cb",
+      "bytes": 1965,
+      "role": "Complete sampled run-phase output.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/process-tree.jsonl",
+      "sha256": "87906943dbdc7611f0adc8df1a2a6593b9e11c249a16c53d6a5af5865315608f",
+      "bytes": 67055,
+      "role": "Sampled child process tree and resource measurements.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest-case-reports.jsonl",
+      "sha256": "872c92b57b5846106294bd063a4bcedec1669b02555db1a88b3927bd7bc62c68",
+      "bytes": 51230,
+      "role": "Per-case setup/call/teardown report stream.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest-collection-basis.json",
+      "sha256": "eafe834aaae47f72aebb68329c34f195aadc5bc098a74be12a3fa71e80476b14",
+      "bytes": 12153,
+      "role": "Collected nodeids, config, module set, deselections, and collection count.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest-provenance.json",
+      "sha256": "ec039bab0d0a6c1021e5ec4264714b4cbf8a14525034357e30840ee288bdafb8",
+      "bytes": 375876,
+      "role": "Plugin binding, origins, pytest runtime provenance, collected and executed nodeids.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "Complete child pytest stderr.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest.stdout.txt",
+      "sha256": "4921515eaf349ca77922a64b08af359027480e8bcc0721b6633d422bda1c413a",
+      "bytes": 100,
+      "role": "Complete child pytest stdout.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/pytest.xml",
+      "sha256": "c1d2069b3789250537e6ac9c7c71c3215c3503e8bf248189b61899ecbf798adb",
+      "bytes": 9762,
+      "role": "Complete JUnit output with test-case outcomes.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/result.json",
+      "sha256": "5c9d48c0f0c6fee3d8128e4b9d4810762fa27da0e3beb55cd7ef2ff5660569e8",
+      "bytes": 58427,
+      "role": "Bounded decision result, counts, source frame, process status, resource measurements, and closure flags.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/run_la004_actual.py",
+      "sha256": "ce71864002b6b139dcaface4514d97f5bd85dc51bbdae2be4ca37bfc926b036b",
+      "bytes": 27081,
+      "role": "Exact local bounded runner; RAW-only harness source.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/sandbox.sb",
+      "sha256": "310095fc578356f3e7ddd08de49d2c13539eeb502b52fe7359ae47175050746e",
+      "bytes": 1437,
+      "role": "Applied child sandbox profile.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/source-after.json",
+      "sha256": "e24ba20a3de001b5e50e6da950aba42f9f75ac2179813f024c1a1e7a29c69758",
+      "bytes": 19534333,
+      "role": "Full R10 tracked-source snapshot after execution.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-20261020/actual-run/source-before.json",
+      "sha256": "e24ba20a3de001b5e50e6da950aba42f9f75ac2179813f024c1a1e7a29c69758",
+      "bytes": 19534333,
+      "role": "Full R10 tracked-source snapshot before execution.",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la004-paired-profile-actual-3abe-independent-20261020/qa.json",
+      "sha256": "9315b147cb35357c71b7f392e47c6cc01e20f3c0102a7898a26129d9fcc07cf0",
+      "role": "Independent source/evidence QA.",
+      "availability": "shared_local_host_raw; not committed"
+    }
+  ],
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance or G acceptance",
+      "formal LA-004 closure or adjudication",
+      "transfer of the historical 964/412 result to the 3abe source frame",
+      "whole-model or production-caller equivalence",
+      "optimizer, Gini, welfare, calibration, or production-parameter conclusions",
+      "global E02 acceptance or integration publication"
+    ]
+  },
+  "proposal_fields": {
+    "author_proposal_only": true,
+    "evidence_status": "bounded_current_source_selected_profile_runtime_pass",
+    "formal_adjudication": "not_adjudicated",
+    "occurrence_level_decision": "LA-004 only; no closure proposed; other IDs and occurrences are untouched.",
+    "pattern_pass": {
+      "relevant": [
+        "P29",
+        "P35",
+        "P37",
+        "P38"
+      ],
+      "anti_pattern": "No marker-only result, test-name sampling, or historical-result transfer is used to represent the full criterion. Whole-module collection, execution, JUnit, origins, and R10 source snapshots are bound separately.",
+      "P38_property": "The measured property is the behavior exercised by these exact finite fiscal/labor profile tests at the pinned 3abe source frame.",
+      "P38_boundary": "A 54-case selected replay cannot stand for the full original criterion or later source frames; this proposal records that as a limit, not as a green full-criterion gate."
+    }
+  },
+  "integration_publication": {
+    "status": "out_of_scope",
+    "reason": "A local bounded runtime observation only; it is not a production authority or publication receipt."
+  },
+  "limitations_and_next_owner": [
+    "Only three whole modules and their 54 collected cases were executed; nine are the exact paired-profile focal cases.",
+    "The pinned sources are from 3abe8222f7465622c78694e4d718074a602b8d87; no later source frame was replayed.",
+    "The run does not claim optimizer, Gini, welfare, calibration, or production-parameter behavior. These are outside this proposal’s scope.",
+    "Prior 964/412 evidence remains historical and is not incorporated or transferred.",
+    "The criterion coverage row at the run frame remains not_adjudicated; the F-M14 text and coverage record are cited without resolving that record state here."
+  ],
+  "next_check": [
+    "If updating the full LA-004 criterion, bind and replay its complete finite-profile source/test/config input set at the then-current source frame; do not infer current acceptance from historical 964/412 or this selected 54-case run.",
+    "Keep this observation separate from any optimizer/Gini/welfare or production-caller question; those require their own source-bound owner scope if pursued."
+  ],
+  "G_acceptance": false,
+  "formal_G_closure_ids": [],
+  "closure_ids": [],
+  "source_freeze": false
+}

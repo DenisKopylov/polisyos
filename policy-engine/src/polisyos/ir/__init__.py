@@ -470,6 +470,7 @@ __all__ = [
     "load_post_adaptation_policy_value_summary",
     "load_posterior_summary",
     "load_sensitivity_result",
+    "load_simulation_result_subject_uncertainty_projection",
     "load_simulation_result_uncertainty_admission",
     "load_strategic_decomposition_failure_card",
     "load_strategic_response_bundle",
@@ -1751,6 +1752,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "load_simulation_result_uncertainty_admission": (
         "polisyos.ir.analytics.uncertainty",
         "load_simulation_result_uncertainty_admission",
+    ),
+    "load_simulation_result_subject_uncertainty_projection": (
+        "polisyos.ir.analytics.uncertainty",
+        "load_simulation_result_subject_uncertainty_projection",
     ),
     "load_strategic_decomposition_failure_card": (
         "polisyos.ir.analytics.strategic",

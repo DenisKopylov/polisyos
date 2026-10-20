@@ -183,9 +183,25 @@ parameter units come from the exact bound registry; moment/parameter axis order,
 source/model/input references, initial and replay StateSnapshot 2.2 nested NPZ/schema
 bytes and selected manifests, finite-difference
 points, requested execution config, seeds, and actual replay artifacts remain in
-the matrix's `response_basis` and manifest lineage. The internal companion reader
-recomputes that basis and the Jacobian/weighting/Fisher matrices from fresh CAS
-states before returning them.
+the matrix's `response_basis` and manifest lineage.
+
+Each replay overlays only the differentiated node/parameter values on the full
+exact source override bundle; the derived bundle retains that selected source ref
+as `input.original_parameter_override_bundle_ref`. The fresh reader reconstructs
+the merged map and compares the complete replay request with the admitted source
+request. A profileless source result remains legacy-limited, and a present source
+override without an exact selected manifest profile is refused.
+
+
+`load_execute_response_basis_candidate()` is the public fresh reader for the
+selected response diagnostic. It reopens and recomputes the execute basis and
+Jacobian from fresh CAS states before returning `ExecuteResponseBasisCandidate`
+with exact selected source identities. The Scientist node carries that complete source map into its propagation report
+and output-envelope lineage. The fresh IR reader reconciles every
+`response_context.*` manifest edge in both artifacts against the complete source
+map. Each edge must preserve its exact selected artifact and profile; the reader
+resolves that CAS view and verifies both content bytes and selected-manifest bytes
+before returning the candidate projection.
 
 This profile requires explicit inline observed moments and parameter center,
 registered global scalar response slots, an explicit current StateSnapshot 2.2
@@ -197,9 +213,9 @@ paths retain their behavior and produce no execute-state basis.
 
 The basis describes a local numerical response and always has
 `gate_eligible=False`. It provides neither a measurement law nor causal,
-scientific, or Runtime admission. An uncertainty/Scientist adapter must select
-and validate its own source/law/target contract before consuming this internal
-basis; this producer does not implement that cross-owner adapter. Registered
+scientific, or Runtime admission. The IR roster check verifies persisted
+identity consistency only; the Scientist adapter does not claim external
+source/law/target authority. Registered
 deterministic income tax is an available synthetic witness, not a calibrated
 fiscal model.
 

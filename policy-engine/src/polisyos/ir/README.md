@@ -35,6 +35,7 @@ through the root facade; linker entry points are in
 | `polisyos.ir.ProblemFrame`, `PolicySpec`, `ModelSpec`                     | Use the base Trinity contracts through the root import path                  | [`__init__.py`](./__init__.py)                           |
 | `polisyos.ir.ArtifactRefModel`                                            | Use a typed reference to a persisted IR/CAS artifact through the root facade | [`registry/refs.py`](./registry/refs.py)                 |
 | `polisyos.ir.get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()` | Use the reflection/catalog API for local discovery and generated docs        | [`schemas`](./schemas/__init__.py)                       |
+| `polisyos.ir.load_simulation_result_subject_uncertainty_projection()`    | Fresh-read one metric or state-slot uncertainty subject with explicit limits | [`analytics/uncertainty.py`](./analytics/uncertainty.py) |
 | `polisyos.ir.ObservationRecord`, `ObservationPanel`                       | Use the base observation surface for record/panel payloads                   | [`observation/contracts.py`](./observation/contracts.py) |
 | `polisyos.ir.CausalReadinessBundle`, `CausalExecutionBundle`              | Use readiness/execution bundles for downstream Foundry/Scientist execution   | [`observation`](./observation/README.md)                 |
 | `polisyos.ir.CausalEffectReport`, `TransportabilityResult`, `HTEResult`   | Use the canonical analytics result models                                    | [`analytics`](./analytics/README.md)                     |
@@ -42,6 +43,17 @@ through the root facade; linker entry points are in
 | `polisyos.ir.linker.link_trinity()`                                       | Link a Trinity payload to the registry surface before compilation/runtime    | [`linker/README.md`](./linker/README.md)                 |
 
 ## Internal Layout
+
+`load_simulation_result_subject_uncertainty_projection()` preserves the existing metric
+admission path. Its `state_slot` path resolves the selected SimulationResult, propagation
+report, output envelope, and exact manifest edges. It compares the complete
+`response_context.*` input roster in both manifests with the producer-carried
+selected source identities and resolves their selected CAS content and manifest
+bytes. A legacy report without this roster remains a limited candidate; malformed,
+foreign, orphaned, or mismatching selected identities suppress the projection.
+A successful state-slot read remains candidate-only and gate-ineligible: this IR
+reader does not recompute the Foundry response matrix or verify successful draw
+identities.
 ## Supported owner facets
 
 The supported subpackage facades are grouped by contract owner: `polisyos.ir.kernel` and `polisyos.ir.world` for their lazy owner maps; `polisyos.ir.connectors` for connector contracts; `polisyos.ir.loading` for fact-log and citation contracts; `polisyos.ir.registry` for typed artifact references; `polisyos.ir.model_layer` for shared model vocabulary; and `polisyos.ir.trinity` for Trinity contracts and its selected-CAS artifact loader. These routes preserve defining-object identity. The artifact loader validates the selected IR CAS view, manifest owner metadata, and payload schema; it does not establish issuer authority or currentness.

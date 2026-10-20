@@ -8,6 +8,7 @@ import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
+from hashlib import sha256
 from statistics import NormalDist
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
 
@@ -272,7 +273,7 @@ def supports_value_uncertainty_projection_contract(owner: type[object]) -> bool:
         return False
     try:
         parameters = inspect.signature(projector).parameters
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return False
     return all(
         name in parameters and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
@@ -2172,6 +2173,26 @@ class PersistedUncertaintyAdmission:
         return self.envelope is not None and not self.limitation_codes
 
 
+@dataclass(frozen=True, slots=True)
+class PersistedUncertaintySubjectProjection:
+    """Expose one freshly resolved uncertainty envelope without granting authority.
+
+    Metric reads retain the existing admission behavior. State-slot reads can
+    return a candidate projection after checking its selected CAS lineage, but
+    this shared IR reader does not recompute the Foundry response basis or
+    establish successful draw identities. Its envelope is therefore never an
+    admitted normative value.
+    """
+
+    subject_kind: Literal["metric", "state_slot"]
+    subject_id: str
+    envelope: UncertaintyEnvelope | None
+    envelope_ref: UncertaintyEnvelopeRef | None
+    limitation_codes: tuple[str, ...] = ()
+    candidate_only: Literal[True] = True
+    gate_eligible: Literal[False] = False
+
+
 _SIMULATION_UNCERTAINTY_READ_ERRORS = (
     AttributeError,
     KeyError,
@@ -2350,6 +2371,503 @@ def load_simulation_result_uncertainty_admission(
         None,
         tuple(dict.fromkeys(limitations)),
     )
+
+
+def load_simulation_result_subject_uncertainty_projection(
+    store: ArtifactStore,
+    simulation_result_ref: Any,
+    *,
+    subject_kind: Literal["metric", "state_slot"],
+    subject_id: str,
+) -> PersistedUncertaintySubjectProjection:
+    """Freshly resolve one metric or state-slot uncertainty projection.
+
+    Metric requests delegate to the established conservative admission reader,
+    preserving its behavior. State-slot requests validate the selected
+    simulation-result, propagation-report, and envelope refs and their exact
+    manifest input edges. A successful state-slot result is still candidate
+    evidence: this generic IR layer cannot recompute the source Foundry
+    response matrix or verify successful draw identities.
+
+    Args:
+        store: Artifact store holding the persisted simulation artifacts.
+        simulation_result_ref: Selected SimulationResult ref for the fresh read.
+        subject_kind: Exact subject family requested by the consumer.
+        subject_id: Exact metric ID or state-slot ID requested by the consumer.
+
+    Returns:
+        PersistedUncertaintySubjectProjection: The resolved candidate envelope,
+        or a typed limitation explaining why no envelope could be projected.
+    """
+    if not isinstance(subject_id, str) or not subject_id.strip():
+        return PersistedUncertaintySubjectProjection(
+            subject_kind=subject_kind,
+            subject_id=str(subject_id),
+            envelope=None,
+            envelope_ref=None,
+            limitation_codes=("uncertainty_subject_id_invalid",),
+        )
+    if subject_kind == "metric":
+        admission = load_simulation_result_uncertainty_admission(
+            store,
+            simulation_result_ref,
+            subject_id,
+        )
+        return PersistedUncertaintySubjectProjection(
+            subject_kind="metric",
+            subject_id=subject_id,
+            envelope=admission.envelope,
+            envelope_ref=None,
+            limitation_codes=admission.limitation_codes,
+        )
+    if subject_kind != "state_slot":
+        return PersistedUncertaintySubjectProjection(
+            subject_kind="state_slot",
+            subject_id=subject_id,
+            envelope=None,
+            envelope_ref=None,
+            limitation_codes=("uncertainty_subject_kind_unsupported",),
+        )
+    return _load_state_slot_uncertainty_projection(
+        store,
+        simulation_result_ref,
+        subject_id=subject_id,
+    )
+
+
+def _load_state_slot_uncertainty_projection(
+    store: ArtifactStore,
+    simulation_result_ref: Any,
+    *,
+    subject_id: str,
+) -> PersistedUncertaintySubjectProjection:
+    limitations: list[str] = []
+    envelope: UncertaintyEnvelope | None = None
+    envelope_ref: UncertaintyEnvelopeRef | None = None
+    try:
+        simulation_reference = _normalized_artifact_reference(store, simulation_result_ref)
+        if simulation_reference.get("kind") != "foundry.simulation_result":
+            return _state_slot_projection_failure(
+                subject_id,
+                "simulation_result_kind_mismatch",
+            )
+        simulation_manifest = store.get_manifest(simulation_reference)
+        _check_persisted_artifact_identity(
+            simulation_manifest,
+            simulation_reference,
+            expected_kind="foundry.simulation_result",
+            expected_schema="polisyos.core.SimulationResult",
+            expected_version=None,
+            prefix="simulation_result",
+            limitations=limitations,
+        )
+        if not simulation_reference.get("manifest_profile_sha256"):
+            limitations.append("simulation_result_selected_profile_missing")
+        simulation_payload = get_json_artifact(store, simulation_reference)
+        if not isinstance(simulation_payload, dict):
+            return _state_slot_projection_failure(
+                subject_id,
+                *limitations,
+                "simulation_result_payload_invalid",
+            )
+        payload_version = simulation_payload.get("schema_version")
+        artifact_schema = getattr(simulation_manifest, "artifact_schema", None)
+        if (
+            not isinstance(payload_version, str)
+            or getattr(artifact_schema, "version", None) != payload_version
+        ):
+            limitations.append("simulation_result_schema_version_mismatch")
+
+        raw_envelopes = simulation_payload.get("uncertainty_envelopes")
+        raw_envelope_ref = (
+            raw_envelopes.get(subject_id) if isinstance(raw_envelopes, dict) else None
+        )
+        if not isinstance(raw_envelope_ref, dict):
+            return _state_slot_projection_failure(
+                subject_id,
+                *limitations,
+                "state_slot_envelope_ref_missing",
+            )
+        envelope_reference = normalize_artifact_ref(raw_envelope_ref)
+        if envelope_reference.get("kind") != "ir.uncertainty_envelope":
+            limitations.append("state_slot_envelope_kind_mismatch")
+        if not envelope_reference.get("manifest_profile_sha256"):
+            limitations.append("state_slot_envelope_selected_profile_missing")
+        envelope_manifest = store.get_manifest(envelope_reference)
+        _check_persisted_artifact_identity(
+            envelope_manifest,
+            envelope_reference,
+            expected_kind="ir.uncertainty_envelope",
+            expected_schema="ir.uncertainty_envelope",
+            expected_version="1.1",
+            prefix="state_slot_envelope",
+            limitations=limitations,
+        )
+        envelope = UncertaintyEnvelope.model_validate(get_json_artifact(store, envelope_reference))
+        envelope_ref = UncertaintyEnvelopeRef.model_validate(envelope_reference)
+
+        raw_report_ref = simulation_payload.get("propagation_report_ref")
+        if not isinstance(raw_report_ref, dict):
+            return _state_slot_projection_failure(
+                subject_id,
+                *limitations,
+                "propagation_report_ref_missing",
+            )
+        report_reference = normalize_artifact_ref(raw_report_ref)
+        if report_reference.get("kind") != "foundry.propagation_report":
+            limitations.append("propagation_report_kind_mismatch")
+        if not report_reference.get("manifest_profile_sha256"):
+            limitations.append("propagation_report_selected_profile_missing")
+        report_manifest = store.get_manifest(report_reference)
+        _check_persisted_artifact_identity(
+            report_manifest,
+            report_reference,
+            expected_kind="foundry.propagation_report",
+            expected_schema="polisyos.foundry.PropagationReport",
+            expected_version="1.1",
+            prefix="propagation_report",
+            limitations=limitations,
+        )
+        report_payload = get_json_artifact(store, report_reference)
+        if not isinstance(report_payload, dict):
+            return _state_slot_projection_failure(
+                subject_id,
+                *limitations,
+                "propagation_report_payload_invalid",
+            )
+
+        _check_state_slot_simulation_lineage(
+            simulation_manifest,
+            simulation_payload=simulation_payload,
+            report_payload=report_payload,
+            subject_id=subject_id,
+            envelope_reference=envelope_reference,
+            report_reference=report_reference,
+            limitations=limitations,
+        )
+        _check_state_slot_report_projection(
+            store,
+            report_manifest,
+            report_payload=report_payload,
+            envelope=envelope,
+            envelope_manifest=envelope_manifest,
+            subject_id=subject_id,
+            envelope_reference=envelope_reference,
+            limitations=limitations,
+        )
+    except _SIMULATION_UNCERTAINTY_READ_ERRORS as exc:
+        limitations.append(f"persisted_state_slot_projection_read_failed:{type(exc).__name__}")
+
+    if envelope is not None:
+        # These are fixed reader limitations, not claims supplied by artifact
+        # metadata. The IR projection is never the response-basis verifier.
+        limitations.extend(
+            (
+                "execute_response_basis_revalidation_not_performed_by_ir",
+                "draw_success_ledger_missing",
+                "draw_basis_verifier_missing",
+                "external_parameter_unit_authority_not_established",
+            )
+        )
+    unique_limitations = tuple(dict.fromkeys(limitations))
+    if any(code.startswith("state_slot_projection_chain_invalid:") for code in unique_limitations):
+        envelope = None
+        envelope_ref = None
+    return PersistedUncertaintySubjectProjection(
+        subject_kind="state_slot",
+        subject_id=subject_id,
+        envelope=envelope,
+        envelope_ref=envelope_ref,
+        limitation_codes=unique_limitations,
+    )
+
+
+def _state_slot_projection_failure(
+    subject_id: str,
+    *limitations: str,
+) -> PersistedUncertaintySubjectProjection:
+    return PersistedUncertaintySubjectProjection(
+        subject_kind="state_slot",
+        subject_id=subject_id,
+        envelope=None,
+        envelope_ref=None,
+        limitation_codes=tuple(dict.fromkeys(limitations)),
+    )
+
+
+def _check_state_slot_simulation_lineage(
+    manifest: Any,
+    *,
+    simulation_payload: dict[str, Any],
+    report_payload: dict[str, Any],
+    subject_id: str,
+    envelope_reference: dict[str, str],
+    report_reference: dict[str, str],
+    limitations: list[str],
+) -> None:
+    inputs = _manifest_inputs(manifest)
+    expected = {
+        f"state_slot_envelope.{subject_id}": _artifact_reference_identity(envelope_reference),
+        "propagation_report": _artifact_reference_identity(report_reference),
+    }
+    for role, selected_identity in expected.items():
+        matching = [
+            (artifact_id, profile)
+            for input_role, artifact_id, profile in inputs
+            if input_role == role
+        ]
+        if matching != [selected_identity]:
+            limitations.append(f"state_slot_projection_chain_invalid:simulation:{role}")
+    candidate = report_payload.get("response_basis_candidate")
+    raw_selected = (
+        candidate.get("selected_simulation_result_ref") if isinstance(candidate, dict) else None
+    )
+    raw_base = next(
+        (
+            {"artifact_id": artifact_id, "manifest_profile_sha256": profile}
+            for role, artifact_id, profile in inputs
+            if role == "base_simulation_result"
+        ),
+        None,
+    )
+    try:
+        if not isinstance(raw_selected, dict) or raw_base is None:
+            raise ValueError("base result binding missing")
+        if _artifact_reference_identity(normalize_artifact_ref(raw_selected)) != (
+            str(raw_base["artifact_id"]),
+            raw_base.get("manifest_profile_sha256"),
+        ):
+            limitations.append("state_slot_projection_chain_invalid:simulation:base_result")
+    except KeyError, TypeError, ValueError, ValidationError:
+        limitations.append("state_slot_projection_chain_invalid:simulation:base_result")
+    raw_config = simulation_payload.get("propagation_config_ref")
+    try:
+        config_identity = _artifact_reference_identity(normalize_artifact_ref(raw_config))
+        config_edges = [
+            (artifact_id, profile)
+            for role, artifact_id, profile in inputs
+            if role == "propagation_config"
+        ]
+        if config_edges != [config_identity]:
+            limitations.append("state_slot_projection_chain_invalid:simulation:config")
+    except TypeError, ValueError, ValidationError:
+        limitations.append("state_slot_projection_chain_invalid:simulation:config")
+
+
+def _check_state_slot_report_projection(
+    store: ArtifactStore,
+    manifest: Any,
+    *,
+    report_payload: dict[str, Any],
+    envelope: UncertaintyEnvelope,
+    envelope_manifest: Any,
+    subject_id: str,
+    envelope_reference: dict[str, str],
+    limitations: list[str],
+) -> None:
+    projection_map = report_payload.get("state_slot_outputs")
+    if not isinstance(projection_map, dict):
+        limitations.append("state_slot_projection_chain_invalid:report:outputs_missing")
+        return
+    output = projection_map.get(subject_id)
+    if not isinstance(output, dict):
+        limitations.append("state_slot_projection_chain_invalid:report:subject_missing")
+        return
+    if output.get("subject_kind") != "state_slot" or output.get("subject_id") != subject_id:
+        limitations.append("state_slot_projection_chain_invalid:report:subject_identity")
+    state_path = output.get("state_path")
+    unit_id = output.get("unit_id")
+    if (
+        not isinstance(state_path, str)
+        or not state_path
+        or not isinstance(unit_id, str)
+        or not unit_id
+    ):
+        limitations.append("state_slot_projection_chain_invalid:report:subject_descriptor")
+    output_envelope = output.get("envelope_ref")
+    if not isinstance(output_envelope, dict):
+        limitations.append("state_slot_projection_chain_invalid:report:envelope_ref_missing")
+    else:
+        try:
+            if _artifact_reference_identity(normalize_artifact_ref(output_envelope)) != (
+                _artifact_reference_identity(envelope_reference)
+            ):
+                limitations.append("state_slot_projection_chain_invalid:report:envelope_ref")
+        except TypeError, ValueError, ValidationError:
+            limitations.append("state_slot_projection_chain_invalid:report:envelope_ref_invalid")
+    metadata_subject = envelope.metadata.get("uncertainty_subject")
+    if not isinstance(metadata_subject, dict) or (
+        metadata_subject.get("kind") != "state_slot"
+        or metadata_subject.get("id") != subject_id
+        or metadata_subject.get("state_path") != state_path
+        or metadata_subject.get("unit_id") != unit_id
+    ):
+        limitations.append("state_slot_projection_chain_invalid:envelope:subject_identity")
+    if envelope.gate_eligible:
+        limitations.append("state_slot_projection_chain_invalid:envelope:gate_eligible")
+
+    candidate = report_payload.get("response_basis_candidate")
+    if not isinstance(candidate, dict):
+        limitations.append("state_slot_projection_chain_invalid:report:response_basis_missing")
+        return
+    required_refs = {
+        "selected_simulation_result_ref": "response_basis.selected_simulation_result",
+        "source_simulation_result_ref": "response_basis.source_simulation_result",
+        "diagnostic_ref": "response_basis.identifiability_diagnostic",
+        "sensitivity_matrix_ref": "response_basis.sensitivity_matrix",
+        "calibration_report_ref": "response_basis.calibration_report",
+        "propagation_config_ref": "response_basis.propagation_config",
+        "calibration_execution_input_basis_ref": (
+            "response_basis.calibration_execution_input_basis"
+        ),
+    }
+    report_inputs = _manifest_inputs(manifest)
+    envelope_inputs = _manifest_inputs(envelope_manifest)
+    envelope_input_roles = {
+        "response_basis.selected_simulation_result",
+        "response_basis.source_simulation_result",
+        "response_basis.identifiability_diagnostic",
+        "response_basis.sensitivity_matrix",
+        "response_basis.calibration_report",
+        "response_basis.calibration_execution_input_basis",
+        "response_basis.propagation_config",
+    }
+    for field_name, role in required_refs.items():
+        raw_ref = candidate.get(field_name)
+        try:
+            if not isinstance(raw_ref, dict):
+                raise ValueError("missing selected ref")
+            identity = _artifact_reference_identity(normalize_artifact_ref(raw_ref))
+        except TypeError, ValueError, ValidationError:
+            limitations.append(f"state_slot_projection_chain_invalid:report:{field_name}")
+            continue
+        matching = [
+            (artifact_id, profile)
+            for input_role, artifact_id, profile in report_inputs
+            if input_role == role
+        ]
+        if matching != [identity]:
+            limitations.append(f"state_slot_projection_chain_invalid:report:{role}")
+        if role in envelope_input_roles:
+            envelope_matching = [
+                (artifact_id, profile)
+                for input_role, artifact_id, profile in envelope_inputs
+                if input_role == role
+            ]
+            if envelope_matching != [identity]:
+                limitations.append(f"state_slot_projection_chain_invalid:envelope:{role}")
+    if candidate.get("gate_eligible") is not False:
+        limitations.append("state_slot_projection_chain_invalid:report:authority_label")
+    if candidate.get("evidence_grade") != "candidate":
+        limitations.append("state_slot_projection_chain_invalid:report:evidence_grade")
+    _check_response_context_input_roster(
+        store,
+        candidate,
+        report_manifest=manifest,
+        envelope_manifest=envelope_manifest,
+        limitations=limitations,
+    )
+    envelope_role = f"state_slot_envelope.{subject_id}"
+    matches = [
+        (artifact_id, profile)
+        for role, artifact_id, profile in report_inputs
+        if role == envelope_role
+    ]
+    if matches != [_artifact_reference_identity(envelope_reference)]:
+        limitations.append(f"state_slot_projection_chain_invalid:report:{envelope_role}")
+
+
+def _check_response_context_input_roster(
+    store: ArtifactStore,
+    candidate: dict[str, Any],
+    *,
+    report_manifest: Any,
+    envelope_manifest: Any,
+    limitations: list[str],
+) -> None:
+    """Reconcile every response-context input with its selected CAS content."""
+    if "source_inputs" not in candidate:
+        limitations.append("execute_response_source_roster_not_established")
+        return
+    source_inputs = candidate.get("source_inputs")
+    if not isinstance(source_inputs, dict) or not source_inputs:
+        limitations.append(
+            "state_slot_projection_chain_invalid:report:response_context_source_identity"
+        )
+        return
+
+    expected: list[tuple[str, str, str | None]] = []
+    try:
+        for source_role, raw_identity in sorted(source_inputs.items()):
+            if not isinstance(source_role, str) or not source_role.strip():
+                raise ValueError("response source role must be a non-empty string")
+            if not isinstance(raw_identity, dict) or set(raw_identity) != {
+                "ref",
+                "content_sha256",
+                "manifest_sha256",
+            }:
+                raise ValueError("response source identity fields are incomplete")
+
+            ref = ArtifactRefModel.model_validate(raw_identity["ref"])
+            reference = normalize_artifact_ref(ref)
+            if reference.get("manifest_profile_sha256") is None:
+                raise ValueError("response source ref must select its manifest profile")
+            content_digest = raw_identity["content_sha256"]
+            manifest_digest = raw_identity["manifest_sha256"]
+            for digest in (content_digest, manifest_digest):
+                if (
+                    not isinstance(digest, str)
+                    or not digest.startswith("sha256:")
+                    or _SHA256_HEX.fullmatch(digest.removeprefix("sha256:")) is None
+                ):
+                    raise ValueError("response source digest is malformed")
+
+            selected_manifest = store.get_manifest(ref)
+            if (
+                str(getattr(selected_manifest, "artifact_id", "")) != reference["artifact_id"]
+                or str(getattr(selected_manifest, "kind", "")) != reference["kind"]
+                or str(getattr(selected_manifest, "media_type", "")) != reference["media_type"]
+            ):
+                raise ValueError("response source ref differs from its selected manifest")
+            if "sha256:" + sha256(store.get_bytes(ref)).hexdigest() != content_digest:
+                raise ValueError("response source content digest differs from CAS bytes")
+            if "sha256:" + sha256(store.get_manifest_bytes(ref)).hexdigest() != manifest_digest:
+                raise ValueError("response source manifest digest differs from selected view")
+
+            expected.append(
+                (
+                    f"response_context.{source_role}",
+                    reference["artifact_id"],
+                    reference.get("manifest_profile_sha256"),
+                )
+            )
+    except (
+        AttributeError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+        ValidationError,
+    ):
+        limitations.append(
+            "state_slot_projection_chain_invalid:report:response_context_source_identity"
+        )
+        return
+
+    for label, manifest in (
+        ("report", report_manifest),
+        ("envelope", envelope_manifest),
+    ):
+        actual = [
+            (role, artifact_id, profile)
+            for role, artifact_id, profile in _manifest_inputs(manifest)
+            if role.startswith("response_context.")
+        ]
+        if sorted(actual) != sorted(expected):
+            limitations.append(
+                f"state_slot_projection_chain_invalid:{label}:response_context_roster"
+            )
 
 
 def _normalized_artifact_reference(store: ArtifactStore, ref: Any) -> dict[str, str]:
@@ -2612,10 +3130,16 @@ def _check_propagation_report(
             )
             if not (
                 math.isclose(
-                    float(bounds[0]), envelope.confidence_interval[0], rel_tol=1e-6, abs_tol=1e-8
+                    float(bounds[0]),
+                    envelope.confidence_interval[0],
+                    rel_tol=1e-6,
+                    abs_tol=1e-8,
                 )
                 and math.isclose(
-                    float(bounds[1]), envelope.confidence_interval[1], rel_tol=1e-6, abs_tol=1e-8
+                    float(bounds[1]),
+                    envelope.confidence_interval[1],
+                    rel_tol=1e-6,
+                    abs_tol=1e-8,
                 )
             ):
                 limitations.append("propagation_draw_interval_summary_mismatch")
@@ -2678,6 +3202,7 @@ __all__ = [
     "OutputContractDeclaration",
     "ParametricFitCarrier",
     "PersistedUncertaintyAdmission",
+    "PersistedUncertaintySubjectProjection",
     "PosteriorSamplesCarrier",
     "PropagationMethod",
     "PullBackNotRepresentableError",
@@ -2700,6 +3225,7 @@ __all__ = [
     "compress_envelope",
     "envelope_meets_trust_policy",
     "join_envelopes",
+    "load_simulation_result_subject_uncertainty_projection",
     "load_simulation_result_uncertainty_admission",
     "load_uncertainty_envelope",
     "persist_uncertainty_envelope",

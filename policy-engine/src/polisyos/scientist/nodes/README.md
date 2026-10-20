@@ -67,6 +67,15 @@ covariance, draws, propagation, reports, and orchestration. The facade forwards
 its evaluator and sampler callbacks; the draw path shares Foundry's bounded
 evaluation-failure classifier rather than maintaining another cause traversal.
 
+`simulate/propagate_uncertainty.py` can opt into an execute-backed state-slot
+projection with `propagation_response_basis`. It freshly validates the
+selected Foundry response candidate and calibration report/input-basis chain,
+then projects only the requested persisted state slots. It carries the complete
+response source identity map into the report and output-envelope lineage. The
+fresh IR reader reconciles that roster and the selected CAS byte identities;
+it does not recompute the Foundry matrix or verify successful draw identities.
+The output and projection remain candidate-only and gate-ineligible.
+
 `simulate/run_distributional_analysis.py` retains the registered node and
 orchestration contract. Adjacent `distributional_analysis_*` modules group its
 ordinal, justification, bounds, artifact, and subgroup helpers. Existing helper

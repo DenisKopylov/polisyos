@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
+import logging
 from decimal import Decimal
 from fractions import Fraction
+from hashlib import sha256
 
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts import ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
@@ -20,15 +27,36 @@ from polisyos.core.contracts.foundry import (
     FoundryExecConfig,
     FoundryExecutionInputBasis,
     Metrics,
+    ParameterOverrideBundle,
+    ParameterOverrideBundleRef,
     ProgramGraph,
     SimulationResult,
+    SimulationResultRef,
     StateSnapshotRef,
 )
-from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.registry import (
+    build_default_registry_bundle,
+    load_registry_bundle_content,
+)
+from polisyos.core.run.context import RunContext
+from polisyos.foundry.calibration import (
+    ExecuteResponseBasisCandidate,
+    load_execute_response_basis_candidate,
+)
+from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
+from polisyos.foundry.calibration.execution_basis import (
+    load_calibration_execution_input_basis,
+    put_calibration_execution_input_basis,
+)
 from polisyos.foundry.calibration.identifiability import (
     IdentifiabilityDiagnosticConfig,
     _load_execute_response_matrix,
+    attach_identifiability_diagnostic_ref,
     identifiability_diagnostic,
+)
+from polisyos.foundry.calibration.report import (
+    CalibrationReport,
+    put_calibration_report,
 )
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
@@ -39,10 +67,29 @@ from polisyos.foundry.execute import (
 )
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
+from polisyos.ir import get_json_artifact
+from polisyos.ir.analytics.calibration import (
+    CalibrationConfig,
+    CalibrationTarget,
+    TrainableParamRef,
+)
+from polisyos.ir.analytics.uncertainty import (
+    load_simulation_result_subject_uncertainty_projection,
+)
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+    PropagateUncertaintyNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_PROPAGATION_REPORT_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_CALIBRATION_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
@@ -56,6 +103,8 @@ def _native_fixture(
     store=None,
     return_selected_profile=True,
     feedback=False,
+    unrelated_override=False,
+    source_override_profile_selected=True,
 ):
     store = FileSystemCAS(tmp_path / "cas") if store is None else store
     registry = build_default_registry_bundle(store, return_selected_profile=True)
@@ -93,24 +142,40 @@ def _native_fixture(
         registry_bundle_ref=registry.bundle_ref,
         return_selected_profile=True,
     )
+    interventions = [
+        {
+            "intervention_id": "tax",
+            "kind": "income_tax",
+            "target": {
+                "kind": "predicate",
+                "field": "id",
+                "operator": "==",
+                "value": "all",
+            },
+            "schedule": {"start_step": 0, "duration_steps": 1},
+            "params": {"rate": Decimal("0.5")},
+        }
+    ]
+    if unrelated_override:
+        interventions.append(
+            {
+                "intervention_id": "unrelated_tax",
+                "kind": "income_tax",
+                "target": {
+                    "kind": "predicate",
+                    "field": "id",
+                    "operator": "==",
+                    "value": "all",
+                },
+                "schedule": {"start_step": 0, "duration_steps": 1},
+                "params": {"rate": Decimal("0")},
+            }
+        )
     policy = TrinityBundle(
         problem_frame=ProblemFrame(problem_id="response", domain=ProblemDomain.FISCAL),
         policy_spec=PolicySpec(
             policy_id="response",
-            interventions=[
-                {
-                    "intervention_id": "tax",
-                    "kind": "income_tax",
-                    "target": {
-                        "kind": "predicate",
-                        "field": "id",
-                        "operator": "==",
-                        "value": "all",
-                    },
-                    "schedule": {"start_step": 0, "duration_steps": 1},
-                    "params": {"rate": Decimal("0.5")},
-                }
-            ],
+            interventions=interventions,
         ),
         model_spec=ModelSpec(
             model_id="response",
@@ -157,7 +222,9 @@ def _native_fixture(
     assert compiled.ok
     feedback_config_ref = None
     if feedback:
-        from polisyos.foundry._internal.quickstart import prepare_trivial_feedback_config
+        from polisyos.foundry._internal.quickstart import (
+            prepare_trivial_feedback_config,
+        )
 
         feedback_config_ref = prepare_trivial_feedback_config(
             store,
@@ -166,7 +233,30 @@ def _native_fixture(
         )
     plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(compiled.exec_plan_ref)))
     program = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(plan.program_ref)))
-    tax_node = next(node for node in program.nodes if node.mechanism_type == "income_tax")
+    tax_node = next(node for node in program.nodes if node.node_id == "tax")
+    source_override_ref = None
+    if unrelated_override:
+        unrelated_tax = next(node for node in program.nodes if node.node_id == "unrelated_tax")
+        source_override_payload_ref = store.put_json(
+            ParameterOverrideBundle(
+                overrides={unrelated_tax.node_id: {"rate": 0.125}},
+                sources={unrelated_tax.node_id: ["controlled_source_override"]},
+                notes=["controlled_selected_source_override"],
+            ),
+            PutOptions(
+                kind=ParameterOverrideBundle.ARTIFACT_KIND,
+                media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                    version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=source_override_profile_selected,
+        )
+        source_override_ref = ParameterOverrideBundleRef.model_validate(
+            source_override_payload_ref.model_dump(mode="python")
+        )
     result = execute_foundry(
         store,
         ExecuteRequest(
@@ -174,6 +264,7 @@ def _native_fixture(
             input_bindings_ref=bindings_result.input_bindings_ref,
             registry_bundle_ref=registry.bundle_ref,
             feedback_config_ref=feedback_config_ref,
+            parameter_override_bundle_ref=source_override_ref,
             exec_config=FoundryExecConfig(seed=29),
             return_selected_profile=return_selected_profile,
         ),
@@ -185,6 +276,9 @@ def _native_fixture(
     poststate = load_state_snapshot(store, snapshot_ref=simulation.state_snapshot_ref)
     if feedback:
         assert np.isfinite(float(poststate.government_balance))
+    elif unrelated_override:
+        assert np.isfinite(float(poststate.government_balance))
+        assert float(poststate.government_balance) != pytest.approx(sum(reported_income) / 2 - 2)
     else:
         assert float(poststate.government_balance) == pytest.approx(sum(reported_income) / 2 - 2)
     return store, result.simulation_result_ref, f"{tax_node.node_id}.rate"
@@ -207,6 +301,113 @@ def _diagnostic(store, simulation_ref, parameter):
     )
 
 
+def _assert_unrelated_source_override_survives_replays(
+    store, source_ref, parameter, matrix_ref, *, profile_selected
+):
+    source = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source_ref)))
+    source_admission = admit_execution_source(store, source_ref)
+    if profile_selected:
+        assert source_admission.mode == "single_step_basis"
+        assert source_admission.basis is not None
+        source_request = source_admission.basis.request
+        source_override_ref = source_request.parameter_override_bundle_ref
+    else:
+        assert source_admission.mode == "legacy_profileless"
+        source_request = None
+        edges = [
+            item
+            for item in store.get_manifest(source_ref).inputs
+            if item.role == "parameter_override_bundle"
+        ]
+        assert len(edges) == 1
+        assert edges[0].manifest_profile_sha256 is not None
+        source_override_ref = ParameterOverrideBundleRef(
+            artifact_id=edges[0].artifact_id,
+            manifest_profile_sha256=edges[0].manifest_profile_sha256,
+        )
+    assert source_override_ref is not None
+    assert source_override_ref.manifest_profile_sha256 is not None
+    original_bundle = ParameterOverrideBundle.model_validate(
+        from_canonical_bytes(store.get_bytes(source_override_ref))
+    )
+    assert original_bundle.overrides == {"unrelated_tax": {"rate": 0.125}}
+    assert original_bundle.sources == {"unrelated_tax": ["controlled_source_override"]}
+    assert original_bundle.notes == ["controlled_selected_source_override"]
+
+    target_node, separator, target_param = parameter.rpartition(".")
+    assert separator and target_node == "tax" and target_param == "rate"
+    matrix = from_canonical_bytes(store.get_bytes(matrix_ref))
+    response_basis = matrix["response_basis"]
+    assert response_basis["gate_eligible"] is False
+    source_input = response_basis["source_inputs"]["source.parameter_override_bundle"]["ref"]
+    assert source_input == source_override_ref.model_dump(mode="json")
+    for replay in response_basis["replays"]:
+        override_ref = ParameterOverrideBundleRef.model_validate(replay["override"]["ref"])
+        override = ParameterOverrideBundle.model_validate(
+            from_canonical_bytes(store.get_bytes(override_ref))
+        )
+        expected_overrides = {
+            "unrelated_tax": {"rate": 0.125},
+            target_node: {"rate": float(replay["theta"][parameter])},
+        }
+        assert override.overrides == expected_overrides
+        assert override.sources == {
+            "unrelated_tax": ["controlled_source_override"],
+            target_node: ["identifiability_diagnostic"],
+        }
+        assert override.notes == [
+            "controlled_selected_source_override",
+            "aggregate_moment_identifiability_replay",
+        ]
+        override_inputs = store.get_manifest(override_ref).inputs
+        assert override_inputs == [
+            input_ref_from_artifact_ref(
+                source_override_ref,
+                role="input.original_parameter_override_bundle_ref",
+            )
+        ]
+
+        request_ref = replay["request"]["ref"]
+        request = ExecuteRequest.model_validate(from_canonical_bytes(store.get_bytes(request_ref)))
+        assert request.parameter_override_bundle_ref == override_ref
+        assert request.return_selected_profile is profile_selected
+        if source_request is not None:
+            expected_request = source_request.model_dump(mode="json")
+            expected_request["parameter_override_bundle_ref"] = override_ref.model_dump(mode="json")
+            expected_request["exec_config"]["seed"] = replay["seed"]
+            assert request.model_dump(mode="json") == expected_request
+
+        child_ref = SimulationResultRef.model_validate(replay["result"]["ref"])
+        child = admit_execution_source(store, child_ref)
+        expected_mode = "single_step_basis" if profile_selected else "legacy_profileless"
+        assert child.mode == expected_mode
+        if child.basis is not None:
+            assert child.basis.request == request
+            assert child.basis.parameter_overrides == expected_overrides
+        else:
+            child_edges = [
+                item
+                for item in child.simulation_manifest.inputs
+                if item.role == "parameter_override_bundle"
+            ]
+            assert child_edges == [
+                input_ref_from_artifact_ref(override_ref, role="parameter_override_bundle")
+            ]
+
+        if (
+            profile_selected
+            and replay["theta"] == {parameter: 0.5}
+            and replay["seed"] == source_request.exec_config.seed
+        ):
+            child_state = load_state_snapshot(
+                store, snapshot_ref=child.simulation_result.state_snapshot_ref
+            )
+            source_state = load_state_snapshot(store, snapshot_ref=source.state_snapshot_ref)
+            assert float(child_state.government_balance) == pytest.approx(
+                float(source_state.government_balance)
+            )
+
+
 def test_native_zero_baseline_has_dimensioned_nonzero_response(tmp_path):
     store, simulation_ref, parameter = _native_fixture(tmp_path)
     diagnostic = _diagnostic(store, simulation_ref, parameter)
@@ -223,7 +424,9 @@ def test_native_zero_baseline_has_dimensioned_nonzero_response(tmp_path):
 
 
 def test_explicit_profileless_execute_optout_remains_legacy(tmp_path):
-    store, source, parameter = _native_fixture(tmp_path, return_selected_profile=False)
+    store, source, parameter = _native_fixture(
+        tmp_path, return_selected_profile=False, unrelated_override=True
+    )
     source_payload = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source)))
     assert source.manifest_profile_sha256 is None
     assert source_payload.schema_version == SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
@@ -239,6 +442,9 @@ def test_explicit_profileless_execute_optout_remains_legacy(tmp_path):
     assert diagnostic.sensitivity_matrix_ref is not None
     payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
     assert payload["response_basis"]["gate_eligible"] is False
+    _assert_unrelated_source_override_survives_replays(
+        store, source, parameter, diagnostic.sensitivity_matrix_ref, profile_selected=False
+    )
     for replay in payload["response_basis"]["replays"]:
         request = ExecuteRequest.model_validate(
             from_canonical_bytes(store.get_bytes(replay["request"]["ref"]))
@@ -261,6 +467,34 @@ def test_explicit_profileless_execute_optout_remains_legacy(tmp_path):
         )
 
 
+def test_legacy_source_with_unselected_override_refuses_replay(tmp_path, monkeypatch):
+    store, source, parameter = _native_fixture(
+        tmp_path,
+        return_selected_profile=False,
+        unrelated_override=True,
+        source_override_profile_selected=False,
+    )
+    admitted = admit_execution_source(store, source)
+    assert admitted.mode == "legacy_profileless"
+    source_override_edges = [
+        item
+        for item in admitted.simulation_manifest.inputs
+        if item.role == "parameter_override_bundle"
+    ]
+    assert len(source_override_edges) == 1
+    assert source_override_edges[0].manifest_profile_sha256 is None
+
+    def no_replay(*args, **kwargs):
+        pytest.fail("an unselected present source override was silently omitted")
+
+    monkeypatch.setattr("polisyos.foundry.execute.api.execute", no_replay)
+    with pytest.raises(
+        ValueError,
+        match="legacy response source parameter override has no selected manifest profile",
+    ):
+        _diagnostic(store, source, parameter)
+
+
 def test_selected_summary_and_state_routes_replay_the_admitted_request(tmp_path, monkeypatch):
     from polisyos.foundry.calibration.identifiability import (
         _build_execute_summary_evaluator,
@@ -268,7 +502,7 @@ def test_selected_summary_and_state_routes_replay_the_admitted_request(tmp_path,
     )
     from polisyos.foundry.execute import admit_execution_source, execute
 
-    store, source, parameter = _native_fixture(tmp_path)
+    store, source, parameter = _native_fixture(tmp_path, unrelated_override=True)
     source_payload = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source)))
     assert admit_execution_source(store, source).mode == "single_step_basis"
     requests = []
@@ -307,6 +541,24 @@ def test_selected_summary_and_state_routes_replay_the_admitted_request(tmp_path,
     assert all("return_selected_profile" in request.model_fields_set for request in requests)
     assert all(request.exec_plan_ref == source_payload.exec_plan_ref for request in requests)
     assert all(request.input_bindings_ref == requests[0].input_bindings_ref for request in requests)
+    source_request = admit_execution_source(store, source).basis.request
+    source_override_ref = source_request.parameter_override_bundle_ref
+    assert source_override_ref is not None
+    for request in requests:
+        assert request.parameter_override_bundle_ref is not None
+        replay_bundle = ParameterOverrideBundle.model_validate(
+            from_canonical_bytes(store.get_bytes(request.parameter_override_bundle_ref))
+        )
+        assert replay_bundle.overrides == {
+            "unrelated_tax": {"rate": 0.125},
+            "tax": {"rate": 0.5},
+        }
+        assert store.get_manifest(request.parameter_override_bundle_ref).inputs == [
+            input_ref_from_artifact_ref(
+                source_override_ref,
+                role="input.original_parameter_override_bundle_ref",
+            )
+        ]
 
 
 def test_foundry_admission_returns_exact_basis_inventory(tmp_path):
@@ -331,7 +583,10 @@ def test_foundry_admission_returns_exact_basis_inventory(tmp_path):
     [
         ("profileless_ref", "execution_source_basis_selected_profile_missing"),
         ("missing_edge", "execution_source_requires_one_execution_input_basis_edge"),
-        ("mismatched_edge", "execution_source_basis_ref_differs_from_exact_result_edge"),
+        (
+            "mismatched_edge",
+            "execution_source_basis_ref_differs_from_exact_result_edge",
+        ),
         (
             "explicit_optout",
             "execution_source_basis_request_did_not_explicitly_select_profiles",
@@ -511,7 +766,7 @@ def test_metric_name_collision_does_not_bind_counter_to_response_unit(tmp_path):
 
 
 def test_fresh_reader_recomputes_actual_native_response(tmp_path):
-    store, simulation_ref, parameter = _native_fixture(tmp_path)
+    store, simulation_ref, parameter = _native_fixture(tmp_path, unrelated_override=True)
     diagnostic = _diagnostic(store, simulation_ref, parameter)
     payload = _load_execute_response_matrix(
         FileSystemCAS(tmp_path / "cas"),
@@ -527,7 +782,99 @@ def test_fresh_reader_recomputes_actual_native_response(tmp_path):
             finite_diff_rel_step=0.01,
         ),
     )
+    _assert_unrelated_source_override_survives_replays(
+        store, simulation_ref, parameter, diagnostic.sensitivity_matrix_ref, profile_selected=True
+    )
+    assert payload["response_basis"]["gate_eligible"] is False
+    # The unrelated source tax shifts the level; the differentiated tax still has the
+    # exact registered state response from the fixture's reported-income series.
     np.testing.assert_allclose(payload["jacobian"], [[4.0]], rtol=2e-5)
+
+    # Retain every response-basis marker and replace one real replay with a content-bound
+    # bundle that drops the unrelated source override. The fresh reader must reject the
+    # semantic map divergence, rather than accept the unchanged roster shape.
+    matrix_manifest = store.get_manifest(diagnostic.sensitivity_matrix_ref)
+    changed_matrix = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
+    changed_record = changed_matrix["response_basis"]["replays"][0]
+    theta = changed_record["theta"]
+    fake_override_ref = store.put_json(
+        ParameterOverrideBundle(
+            overrides={"tax": {"rate": float(theta[parameter])}},
+            sources={"tax": ["identifiability_diagnostic"]},
+            notes=["aggregate_moment_identifiability_replay"],
+        ),
+        PutOptions(
+            kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    request_ref = ExecuteRequest.model_validate(
+        from_canonical_bytes(store.get_bytes(changed_record["request"]["ref"]))
+    )
+    fake_request_ref = store.put_json(
+        request_ref.model_copy(update={"parameter_override_bundle_ref": fake_override_ref}),
+        PutOptions(
+            kind="foundry.identifiability_replay_request",
+            media_type="application/json",
+            inputs=[
+                input_ref_from_artifact_ref(simulation_ref, role="response.source"),
+                input_ref_from_artifact_ref(fake_override_ref, role="response.override"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    def identity(ref):
+        return {
+            "ref": ref.model_dump(mode="json"),
+            "content_sha256": "sha256:" + sha256(store.get_bytes(ref)).hexdigest(),
+            "manifest_sha256": "sha256:" + sha256(store.get_manifest_bytes(ref)).hexdigest(),
+        }
+
+    changed_record["override"] = identity(fake_override_ref)
+    changed_record["request"] = identity(fake_request_ref)
+    replacements = {
+        "response.override.0": input_ref_from_artifact_ref(
+            fake_override_ref, role="response.override.0"
+        ),
+        "response.request.0": input_ref_from_artifact_ref(
+            fake_request_ref, role="response.request.0"
+        ),
+    }
+    changed_inputs = [replacements.get(item.role, item) for item in matrix_manifest.inputs]
+    changed_matrix_ref = store.put_json(
+        changed_matrix,
+        PutOptions(
+            kind=matrix_manifest.kind,
+            media_type=matrix_manifest.media_type,
+            schema=matrix_manifest.artifact_schema,
+            inputs=changed_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="merged source/finite-difference map"):
+        _load_execute_response_matrix(
+            store,
+            changed_matrix_ref,
+            source_ref=simulation_ref,
+            response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
 
 
 def test_actual_response_matrix_reader_refuses_non_object_payload(response_case):
@@ -742,7 +1089,10 @@ def test_unknown_partial_response_refuses_without_dropping_known_slots(response_
             simulation_result_ref=source,
             observed_moment_bundle={"balance": 0.0, "unknown": 0.0},
             parameter_center={parameter: 0.5},
-            response_slots={"balance": "government.balance", "unknown": "not.registered"},
+            response_slots={
+                "balance": "government.balance",
+                "unknown": "not.registered",
+            },
             config=IdentifiabilityDiagnosticConfig(bootstrap_reps=0, profile_grid_size=0),
         )
 
@@ -899,7 +1249,11 @@ print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_bas
 def test_axis_order_is_bound_on_actual_two_slot_response(response_case):
     _, store, source, parameter, _ = response_case
     config = IdentifiabilityDiagnosticConfig(
-        simulation_reps=2, bootstrap_reps=0, profile_grid_size=0, seed=29, finite_diff_rel_step=0.01
+        simulation_reps=2,
+        bootstrap_reps=0,
+        profile_grid_size=0,
+        seed=29,
+        finite_diff_rel_step=0.01,
     )
     slots = {"balance": "government.balance", "rate": "global.tax_rate"}
     diagnostic = identifiability_diagnostic(
@@ -1159,3 +1513,343 @@ def test_nested_state_npz_bytes_are_verified_before_state_interpretation(
             ),
         )
     assert type(refusal.value) is ArtifactIntegrityError
+
+
+def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(tmp_path):
+    store, source_simulation_ref, parameter = _native_fixture(tmp_path)
+    diagnostic = _diagnostic(store, source_simulation_ref, parameter)
+    assert diagnostic.diagnostic_ref is not None
+    selected_simulation_ref = attach_identifiability_diagnostic_ref(
+        store,
+        simulation_result_ref=source_simulation_ref,
+        diagnostic_ref=diagnostic.diagnostic_ref,
+    )
+    response = load_execute_response_basis_candidate(store, selected_simulation_ref)
+    assert isinstance(response, ExecuteResponseBasisCandidate)
+    registry_ref = response.source_inputs["registry"].ref
+    execution_plan_ref = response.source_inputs["exec_plan"].ref
+    program_graph_ref = response.source_inputs["program"].ref
+    base_state_ref = StateSnapshotRef.model_validate(
+        response.source_inputs["bound_state"].ref.model_dump(mode="python")
+    )
+    registry = load_registry_bundle_content(store, registry_ref)
+    execution_plan = ExecPlan.model_validate(
+        get_json_artifact(ensure_ir_artifact_store(store), execution_plan_ref)
+    )
+    program_graph = ProgramGraph.model_validate(
+        get_json_artifact(ensure_ir_artifact_store(store), program_graph_ref)
+    )
+    base_state = load_state_snapshot(store, snapshot_ref=base_state_ref)
+
+    node_id, _, parameter_id = parameter.rpartition(".")
+
+    def load_parameter_payload(ref):
+        assert isinstance(ref, ArtifactRef)
+        return get_json_artifact(ensure_ir_artifact_store(store), ref)
+
+    calibration_config = CalibrationConfig(
+        targets=[
+            CalibrationTarget(
+                target_id="balance",
+                model_metric_path="government.balance",
+                fabric_query=None,
+            )
+        ],
+        trainables=[TrainableParamRef(node_id=node_id, param_id=parameter_id)],
+        steps=1,
+        max_steps=1,
+        learning_rate=1e-10,
+        seed=29,
+        hessian={"enabled": True, "max_params": 1},
+    )
+    calibrator = Calibrator(
+        CalibratorInputs(
+            config=calibration_config,
+            program_graph=program_graph,
+            exec_plan=execution_plan,
+            base_state=base_state,
+            mechanism_registry=registry.mechanism_registry,
+            slot_registry=registry.slot_registry,
+            merge_registry=registry.merge_registry,
+            selector_field_registry=registry.selector_field_registry,
+            parameter_loader=load_parameter_payload,
+            constraint_registry=registry.constraint_registry,
+            raw_targets={"balance": [response.fitted_moments["balance"]]},
+            controls_seq=jnp.asarray([0]),
+            exec_plan_ref=execution_plan_ref,
+            registry_bundle_ref=registry_ref,
+            mechanism_registry_ref=response.source_inputs["registry.mechanism_registry"].ref,
+            units_registry=registry.units_registry,
+            units_registry_ref=response.source_inputs["registry.units_registry"].ref,
+            base_state_snapshot_ref=base_state_ref,
+        )
+    )
+    report, report_ref = calibrator.run_and_persist(store)
+    assert report_ref.manifest_profile_sha256 is not None
+    assert report.uncertainty_envelopes is not None
+    assert parameter in report.uncertainty_envelopes
+    assert report.calibrated_params[parameter] == response.parameter_center[parameter]
+    report_manifest = store.get_manifest(report_ref)
+    basis_edge = next(
+        edge for edge in report_manifest.inputs if edge.role == "calibration_execution_input_basis"
+    )
+    basis_ref = ArtifactRef(
+        artifact_id=basis_edge.artifact_id,
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=basis_edge.manifest_profile_sha256,
+    )
+    calibration_basis = load_calibration_execution_input_basis(store, basis_ref)
+    assert calibration_basis.target_inputs[0].source_kind == "caller_raw_targets"
+    assert calibration_basis.source_attestation_status == "not_established"
+
+    def execute_node(*, selected_report_ref, run_id):
+        run = RunContext.start(
+            store=store,
+            registry_bundle=registry_ref,
+            run_dir=tmp_path / run_id,
+            run_id=run_id,
+        )
+        context = ExecutionContext(
+            store=store,
+            run=run,
+            logger=logging.getLogger(f"test.execute-response-bridge.{run_id}"),
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={INPUT_CALIBRATION_REPORT_REF: selected_report_ref},
+            artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: selected_simulation_ref},
+            params={
+                "propagation_response_basis": {
+                    "schema_version": "1.0",
+                    "state_slot_ids": ["government.balance"],
+                },
+                "propagation_config": {
+                    "preferred_method": "monte_carlo",
+                    "mc_n_samples": 100,
+                    "mc_batch_size": 100,
+                    "mc_min_valid_samples": 50,
+                },
+            },
+        )
+        return PropagateUncertaintyNode().execute(context, state), state
+
+    outcome, input_state = execute_node(selected_report_ref=report_ref, run_id="b190-positive")
+    assert outcome.status == "ok"
+    output_simulation_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    output_simulation = SimulationResult.model_validate(
+        get_json_artifact(ensure_ir_artifact_store(store), output_simulation_ref)
+    )
+    output_envelope_ref = output_simulation.uncertainty_envelopes["government.balance"]
+    assert output_envelope_ref.manifest_profile_sha256 is not None
+    propagated_report_ref = outcome.state.artifacts_index[ARTIFACT_PROPAGATION_REPORT_REF]
+    propagated_report = get_json_artifact(ensure_ir_artifact_store(store), propagated_report_ref)
+    assert propagated_report["methods"] == ["monte_carlo"]
+    response_claim = propagated_report["response_basis_candidate"]
+    assert response_claim["evidence_grade"] == "candidate"
+    assert response_claim["gate_eligible"] is False
+    assert response_claim["mapping_status"] == "candidate_only"
+    assert response_claim["source_inputs"] == {
+        role: identity.model_dump(mode="json")
+        for role, identity in sorted(response.source_inputs.items())
+    }
+    assert "calibration_source_attestation_not_established" in response_claim["limitation_codes"]
+    assert "calibration_uncertainty_law_not_authoritative" in response_claim["limitation_codes"]
+    assert "external_parameter_unit_authority_not_established" in response_claim["limitation_codes"]
+    assert propagated_report["state_slot_outputs"]["government.balance"]["envelope_ref"] == (
+        output_envelope_ref.model_dump(mode="json")
+    )
+    projection = load_simulation_result_subject_uncertainty_projection(
+        ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas")),
+        output_simulation_ref,
+        subject_kind="state_slot",
+        subject_id="government.balance",
+    )
+    assert projection.envelope is not None
+    assert projection.envelope_ref == output_envelope_ref
+    assert projection.candidate_only is True
+    assert projection.gate_eligible is False
+    assert "execute_response_basis_revalidation_not_performed_by_ir" in (
+        projection.limitation_codes
+    )
+    assert "draw_success_ledger_missing" in projection.limitation_codes
+    assert projection.envelope.ci_width > 0.0
+
+    report_manifest = store.get_manifest(report_ref)
+    config_edge = next(edge for edge in report_manifest.inputs if edge.role == "calibration_config")
+    config_ref = ArtifactRef(
+        artifact_id=config_edge.artifact_id,
+        kind="foundry.calibration_config",
+        media_type="application/json",
+        manifest_profile_sha256=config_edge.manifest_profile_sha256,
+    )
+    stripped_basis_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[input_ref_from_artifact_ref(config_ref, role="calibration_config")],
+    )
+    stripped_outcome, stripped_state = execute_node(
+        selected_report_ref=stripped_basis_report_ref,
+        run_id="b190-missing-basis-edge",
+    )
+    assert stripped_outcome.status == "fail"
+    assert stripped_outcome.error is not None
+    assert stripped_outcome.error.code == "propagation_response_basis_invalid"
+    assert "calibration_execution_input_basis" in stripped_outcome.error.message
+    assert stripped_outcome.artifacts == []
+    assert stripped_outcome.state.artifacts_index == stripped_state.artifacts_index
+
+    wrong_base_state_checksum = (
+        "0" * 64 if calibration_basis.base_state_checksum_sha256 != "0" * 64 else "1" * 64
+    )
+    corrupted_basis = type(calibration_basis).model_validate(
+        {
+            **calibration_basis.model_dump(mode="python"),
+            "base_state_checksum_sha256": wrong_base_state_checksum,
+        }
+    )
+    basis_input_edges = list(store.get_manifest(basis_ref).inputs)
+    corrupted_basis_ref = put_calibration_execution_input_basis(
+        store,
+        corrupted_basis,
+        inputs=basis_input_edges,
+    )
+    corrupted_basis_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[
+            input_ref_from_artifact_ref(config_ref, role="calibration_config"),
+            input_ref_from_artifact_ref(
+                corrupted_basis_ref,
+                role="calibration_execution_input_basis",
+            ),
+        ],
+    )
+    corrupted_basis_outcome, corrupted_basis_state = execute_node(
+        selected_report_ref=corrupted_basis_report_ref,
+        run_id="b190-corrupted-base-state-checksum",
+    )
+    assert corrupted_basis_outcome.status == "fail"
+    assert corrupted_basis_outcome.error is not None
+    assert corrupted_basis_outcome.error.code == "propagation_response_basis_invalid"
+    assert "base_state_checksum_sha256 digest mismatch" in (corrupted_basis_outcome.error.message)
+    assert corrupted_basis_outcome.artifacts == []
+    assert corrupted_basis_outcome.state.artifacts_index == corrupted_basis_state.artifacts_index
+
+    parameter_input_index = next(
+        index
+        for index, item in enumerate(calibration_basis.parameter_inputs)
+        if item.node_id == node_id and parameter_id in item.parameter_ids
+    )
+    parameter_input = calibration_basis.parameter_inputs[parameter_input_index]
+    assert parameter_input.source_ref is not None
+    assert diagnostic.diagnostic_ref.manifest_profile_sha256 is not None
+    corrupted_parameter_inputs = list(calibration_basis.parameter_inputs)
+    corrupted_parameter_inputs[parameter_input_index] = type(parameter_input).model_validate(
+        {
+            **parameter_input.model_dump(mode="python"),
+            "source_ref": diagnostic.diagnostic_ref.model_dump(mode="python"),
+        }
+    )
+    corrupted_parameter_basis = type(calibration_basis).model_validate(
+        {
+            **calibration_basis.model_dump(mode="python"),
+            "parameter_inputs": corrupted_parameter_inputs,
+        }
+    )
+    parameter_edge_role = f"parameter_input.{parameter_input.ordinal}"
+    corrupted_parameter_edges = [
+        input_ref_from_artifact_ref(diagnostic.diagnostic_ref, role=parameter_edge_role)
+        if edge.role == parameter_edge_role
+        else edge
+        for edge in basis_input_edges
+    ]
+    corrupted_parameter_basis_ref = put_calibration_execution_input_basis(
+        store,
+        corrupted_parameter_basis,
+        inputs=corrupted_parameter_edges,
+    )
+    corrupted_parameter_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[
+            input_ref_from_artifact_ref(config_ref, role="calibration_config"),
+            input_ref_from_artifact_ref(
+                corrupted_parameter_basis_ref,
+                role="calibration_execution_input_basis",
+            ),
+        ],
+    )
+    corrupted_parameter_outcome, corrupted_parameter_state = execute_node(
+        selected_report_ref=corrupted_parameter_report_ref,
+        run_id="b190-foreign-parameter-input-source",
+    )
+    assert corrupted_parameter_outcome.status == "fail"
+    assert corrupted_parameter_outcome.error is not None
+    assert corrupted_parameter_outcome.error.code == "propagation_response_basis_invalid"
+    assert "parameter input source differs from program node" in (
+        corrupted_parameter_outcome.error.message
+    )
+    assert corrupted_parameter_outcome.artifacts == []
+    assert (
+        corrupted_parameter_outcome.state.artifacts_index
+        == corrupted_parameter_state.artifacts_index
+    )
+
+    envelope = report.uncertainty_envelopes[parameter]
+    change = (
+        min(
+            envelope.ci_upper - envelope.point_estimate,
+            envelope.point_estimate - envelope.ci_lower,
+        )
+        / 4
+    )
+    assert change > 0.0
+    altered_payload = envelope.model_dump(mode="python")
+    altered_payload["point_estimate"] = envelope.point_estimate + change
+    if isinstance(altered_payload["distribution_payload"], dict):
+        altered_payload["distribution_payload"]["parameters"]["mean"] += change
+    altered_envelope = type(envelope).model_validate(altered_payload)
+    report_payload = report.model_dump(mode="python")
+    report_payload["uncertainty_envelopes"] = {
+        **report.uncertainty_envelopes,
+        parameter: altered_envelope,
+    }
+    altered_report = CalibrationReport.model_validate(report_payload)
+    altered_report_ref = put_calibration_report(
+        store,
+        altered_report,
+        inputs=[
+            input_ref_from_artifact_ref(config_ref, role="calibration_config"),
+            input_ref_from_artifact_ref(
+                basis_ref,
+                role="calibration_execution_input_basis",
+            ),
+        ],
+    )
+    altered_outcome, altered_state = execute_node(
+        selected_report_ref=altered_report_ref,
+        run_id="b190-mutated-envelope-bytes",
+    )
+    assert altered_outcome.status == "fail"
+    assert altered_outcome.error is not None
+    assert altered_outcome.error.code == "propagation_response_basis_invalid"
+    assert "calibration envelope changed" in altered_outcome.error.message
+    assert altered_outcome.artifacts == []
+    assert altered_outcome.state.artifacts_index == altered_state.artifacts_index
+
+    profileless_report_ref = ArtifactRef(
+        artifact_id=report_ref.artifact_id,
+        kind=report_ref.kind,
+        media_type=report_ref.media_type,
+    )
+    profileless_outcome, profileless_state = execute_node(
+        selected_report_ref=profileless_report_ref,
+        run_id="b190-profileless-report-ref",
+    )
+    assert profileless_outcome.status == "fail"
+    assert profileless_outcome.error is not None
+    assert profileless_outcome.error.code == "propagation_response_basis_invalid"
+    assert "does not select a manifest profile" in profileless_outcome.error.message
+    assert profileless_outcome.artifacts == []
+    assert profileless_outcome.state.artifacts_index == profileless_state.artifacts_index

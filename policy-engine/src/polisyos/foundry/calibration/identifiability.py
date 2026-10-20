@@ -10,7 +10,7 @@ from numbers import Real
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256,
@@ -42,6 +42,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResultRef,
     StateSnapshot,
 )
+from polisyos.foundry.calibration.execution_basis import canonical_input_sha256
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_abm_result_from_simulation,
 )
@@ -1174,6 +1175,7 @@ def _persist_sensitivity_matrix(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=True,
     )
 
 
@@ -1391,11 +1393,13 @@ def _build_execute_summary_evaluator(
                 _response_input_ref(store, feedback_edges[0]).model_dump(mode="python")
             )
         )
+        parameter_override_ref = _legacy_parameter_override_ref(store, manifest.inputs)
         base_request = ExecuteRequest(
             exec_plan_ref=source.exec_plan_ref,
             input_bindings_ref=bindings_ref,
             registry_bundle_ref=bindings.registry_bundle_ref,
             feedback_config_ref=feedback_config_ref,
+            parameter_override_bundle_ref=parameter_override_ref,
             return_selected_profile=False,
         )
     else:
@@ -1403,6 +1407,8 @@ def _build_execute_summary_evaluator(
             "execute-backed identifiability does not replay feedback_uncomposed source "
             f"{simulation_result_ref.artifact_id}"
         )
+    if base_request.parameter_override_bundle_ref is not None:
+        _source_parameter_override_bundle(store, base_request.parameter_override_bundle_ref)
 
     def evaluate(theta: Mapping[str, float], seed: int | None) -> Mapping[str, float]:
         from polisyos.foundry.execute.api import execute
@@ -1411,6 +1417,7 @@ def _build_execute_summary_evaluator(
         bundle_ref = _persist_flat_parameter_overrides(
             store,
             theta,
+            base_parameter_override_bundle_ref=base_request.parameter_override_bundle_ref,
             return_selected_profile=selected,
         )
         request = _execution_replay_request(
@@ -1485,32 +1492,99 @@ def _find_input(inputs: Sequence[InputRef], role: str) -> InputRef | None:
     return next((item for item in inputs if item.role == role), None)
 
 
-def _persist_flat_parameter_overrides(
-    store: FileSystemCAS,
+def _source_parameter_override_bundle(
+    store: FileSystemCAS, ref: ParameterOverrideBundleRef
+) -> ParameterOverrideBundle:
+    """Load a source override only through its exact selected manifest profile."""
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("response source parameter override has no selected manifest profile")
+    return _load_model(store, ref, ParameterOverrideBundle)
+
+
+def _merge_parameter_override_maps(
+    base: Mapping[str, Mapping[str, Any]],
+    extra: Mapping[str, Mapping[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Apply a partial node/parameter map over its exact selected source map."""
+    merged: dict[str, dict[str, Any]] = {}
+    for node_id, values in base.items():
+        if not isinstance(node_id, str) or not isinstance(values, Mapping):
+            raise ValueError("source parameter override bundle has an invalid node map")
+        merged[node_id] = dict(values)
+    for node_id, values in extra.items():
+        if not isinstance(node_id, str) or not isinstance(values, Mapping):
+            raise ValueError("response parameter override has an invalid node map")
+        merged.setdefault(node_id, {}).update(dict(values))
+    return merged
+
+
+def _flat_theta_parameter_overrides(
     theta: Mapping[str, float],
-    *,
-    return_selected_profile: bool = False,
-) -> ParameterOverrideBundleRef:
-    overrides: dict[str, dict[str, float]] = {}
+) -> dict[str, dict[str, float]]:
+    """Convert one complete differentiated point to Foundry's nested override shape."""
+    varied: dict[str, dict[str, float]] = {}
     for key, value in theta.items():
         if "." not in key:
             raise ValueError(
                 "execute-backed identifiability diagnostics require node_id.parameter keys"
             )
         node_id, param_name = key.split(".", 1)
-        overrides.setdefault(node_id, {})[param_name] = float(value)
+        if not node_id or not param_name:
+            raise ValueError(
+                "execute-backed identifiability diagnostics require node_id.parameter keys"
+            )
+        varied.setdefault(node_id, {})[param_name] = float(value)
+    return varied
+
+
+def _persist_flat_parameter_overrides(
+    store: FileSystemCAS,
+    theta: Mapping[str, float],
+    *,
+    base_parameter_override_bundle_ref: ParameterOverrideBundleRef | None = None,
+    return_selected_profile: bool = False,
+) -> ParameterOverrideBundleRef:
+    varied = _flat_theta_parameter_overrides(theta)
     if type(return_selected_profile) is not bool:
         raise TypeError("return_selected_profile must be a bool")
+
+    source_bundle = (
+        None
+        if base_parameter_override_bundle_ref is None
+        else _source_parameter_override_bundle(store, base_parameter_override_bundle_ref)
+    )
+    overrides = _merge_parameter_override_maps(
+        {} if source_bundle is None else source_bundle.overrides,
+        varied,
+    )
+    sources = (
+        {}
+        if source_bundle is None
+        else {node_id: list(values) for node_id, values in source_bundle.sources.items()}
+    )
+    for node_id in varied:
+        node_sources = sources.setdefault(node_id, [])
+        if "identifiability_diagnostic" not in node_sources:
+            node_sources.append("identifiability_diagnostic")
+    notes = [] if source_bundle is None else list(source_bundle.notes)
+    notes.append("aggregate_moment_identifiability_replay")
+    inputs = (
+        []
+        if base_parameter_override_bundle_ref is None
+        else [
+            input_ref_from_artifact_ref(
+                base_parameter_override_bundle_ref,
+                role="input.original_parameter_override_bundle_ref",
+            )
+        ]
+    )
     ref = store.put_json(
-        ParameterOverrideBundle(
-            overrides=overrides,
-            sources={node_id: ["identifiability_diagnostic"] for node_id in overrides},
-            notes=["aggregate_moment_identifiability_replay"],
-        ),
+        ParameterOverrideBundle(overrides=overrides, sources=sources, notes=notes),
         PutOptions(
             kind="foundry.parameter_override_bundle",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.ParameterOverrideBundle", version="1.0"),
+            inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
         return_selected_profile=return_selected_profile,
@@ -1530,8 +1604,8 @@ def _vector_to_mapping(names: Sequence[str], values: np.ndarray) -> dict[str, fl
     return {str(name): float(value) for name, value in zip(names, values, strict=True)}
 
 
-class _ResponseIdentity(BaseModel):
-    """Exact CAS bytes and selected manifest used by a local response diagnostic."""
+class ExecuteResponseSourceIdentity(BaseModel):
+    """Exact CAS content and selected manifest identity used by a response diagnostic."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     ref: ArtifactRef
@@ -1543,9 +1617,9 @@ class _ResponseReplay(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     theta: dict[str, float]
     seed: int
-    result: _ResponseIdentity
-    request: _ResponseIdentity
-    override: _ResponseIdentity
+    result: ExecuteResponseSourceIdentity
+    request: ExecuteResponseSourceIdentity
+    override: ExecuteResponseSourceIdentity
 
 
 class _ResponseBasis(BaseModel):
@@ -1554,11 +1628,15 @@ class _ResponseBasis(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     profile: Literal["execute_scalar_state_response_v1"] = "execute_scalar_state_response_v1"
     gate_eligible: Literal[False] = False
-    source_inputs: dict[str, _ResponseIdentity]
+    source_inputs: dict[str, ExecuteResponseSourceIdentity]
     parameter_names: tuple[str, ...]
     moment_names: tuple[str, ...]
     parameter_units: dict[str, dict[str, Any]]
+    parameter_unit_ids: dict[str, str]
+    parameter_spec_sha256: dict[str, str]
+    mechanism_registry_sha256: str
     moment_units: dict[str, dict[str, Any]]
+    moment_unit_ids: dict[str, str]
     response_slots: dict[str, str]
     state_paths: dict[str, str]
     center: dict[str, float]
@@ -1567,8 +1645,77 @@ class _ResponseBasis(BaseModel):
     replays: tuple[_ResponseReplay, ...] = ()
 
 
-def _response_identity(store: FileSystemCAS, ref: ArtifactRef) -> _ResponseIdentity:
-    return _ResponseIdentity(
+class ExecuteResponseBasisCandidate(BaseModel):
+    """Freshly revalidated local response; candidate evidence, never authority.
+
+    Instances are returned by :func:`load_execute_response_basis_candidate` after
+    the selected result, diagnostic, matrix, and replay states are reopened from
+    CAS. The model carries local numerical provenance only; it does not bind an
+    external measurement law, causal interpretation, or downstream eligibility.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    evidence_grade: Literal["candidate"] = "candidate"
+    gate_eligible: Literal[False] = False
+    selected_simulation_result_ref: SimulationResultRef
+    source_simulation_result_ref: SimulationResultRef
+    source_inputs: dict[str, ExecuteResponseSourceIdentity]
+    diagnostic_ref: IdentifiabilityDiagnosticRef
+    sensitivity_matrix_ref: ArtifactRef
+    diagnostic_status: IdentifiabilityDiagnosticStatus
+    parameter_names: tuple[str, ...] = Field(min_length=1)
+    moment_names: tuple[str, ...] = Field(min_length=1)
+    jacobian: tuple[tuple[float, ...], ...] = Field(min_length=1)
+    parameter_units: dict[str, dict[str, Any]]
+    parameter_unit_ids: dict[str, str]
+    parameter_spec_sha256: dict[str, str]
+    mechanism_registry_sha256: str
+    moment_units: dict[str, dict[str, Any]]
+    moment_unit_ids: dict[str, str]
+    response_slots: dict[str, str]
+    state_paths: dict[str, str]
+    parameter_center: dict[str, float]
+    fitted_moments: dict[str, float]
+
+    @model_validator(mode="after")
+    def validate_candidate_basis(self) -> ExecuteResponseBasisCandidate:
+        if len(set(self.parameter_names)) != len(self.parameter_names):
+            raise ValueError("candidate parameter axis must be unique")
+        if len(set(self.moment_names)) != len(self.moment_names):
+            raise ValueError("candidate moment axis must be unique")
+        if len(self.jacobian) != len(self.moment_names) or any(
+            len(row) != len(self.parameter_names) for row in self.jacobian
+        ):
+            raise ValueError("candidate Jacobian dimensions must match its ordered axes")
+        if any(not isfinite(value) for row in self.jacobian for value in row):
+            raise ValueError("candidate Jacobian must be finite")
+        if (
+            set(self.parameter_units) != set(self.parameter_names)
+            or set(self.parameter_unit_ids) != set(self.parameter_names)
+            or set(self.parameter_spec_sha256) != set(self.parameter_names)
+        ):
+            raise ValueError("candidate parameter units must cover the ordered parameter axis")
+        if set(self.parameter_center) != set(self.parameter_names):
+            raise ValueError("candidate center must cover the ordered parameter axis")
+        if set(self.moment_units) != set(self.moment_names) or set(self.moment_unit_ids) != set(
+            self.moment_names
+        ):
+            raise ValueError("candidate moment units must cover the ordered moment axis")
+        if set(self.response_slots) != set(self.moment_names) or set(self.state_paths) != set(
+            self.moment_names
+        ):
+            raise ValueError("candidate response slots must cover the ordered moment axis")
+        if len(set(self.response_slots.values())) != len(self.response_slots):
+            raise ValueError("candidate response slots must identify unique state subjects")
+        if set(self.fitted_moments) != set(self.moment_names):
+            raise ValueError("candidate fitted moments must cover the ordered moment axis")
+        return self
+
+
+def _response_identity(store: FileSystemCAS, ref: ArtifactRef) -> ExecuteResponseSourceIdentity:
+    return ExecuteResponseSourceIdentity(
         ref=ref,
         content_sha256="sha256:" + sha256(store.get_bytes(ref)).hexdigest(),
         manifest_sha256="sha256:" + sha256(store.get_manifest_bytes(ref)).hexdigest(),
@@ -1594,6 +1741,23 @@ def _response_input_ref(store: FileSystemCAS, item: InputRef) -> ArtifactRef:
     )
     store.get_manifest(ref)
     return ref
+
+
+def _legacy_parameter_override_ref(
+    store: FileSystemCAS, inputs: Sequence[InputRef]
+) -> ParameterOverrideBundleRef | None:
+    """Recover one exactly selected override input from a legacy result manifest."""
+    matches = [item for item in inputs if item.role == "parameter_override_bundle"]
+    if len(matches) > 1:
+        raise ValueError("legacy response source has duplicate parameter override inputs")
+    if not matches:
+        return None
+    if matches[0].manifest_profile_sha256 is None:
+        raise ValueError(
+            "legacy response source parameter override has no selected manifest profile"
+        )
+    ref = _response_input_ref(store, matches[0])
+    return ParameterOverrideBundleRef.model_validate(ref.model_dump(mode="python"))
 
 
 def _response_snapshot_inputs(store: FileSystemCAS, ref: ArtifactRef) -> dict[str, ArtifactRef]:
@@ -1687,14 +1851,18 @@ def _response_context(
                 _response_input_ref(store, feedback_edges[0]).model_dump(mode="python")
             )
         )
+        parameter_override_ref = _legacy_parameter_override_ref(store, manifest.inputs)
         legacy_bindings = _load_model(store, bindings_ref, FoundryInputBindings)
         base_request = ExecuteRequest(
             exec_plan_ref=source.exec_plan_ref,
             input_bindings_ref=bindings_ref,
             registry_bundle_ref=legacy_bindings.registry_bundle_ref,
             feedback_config_ref=feedback_ref,
+            parameter_override_bundle_ref=parameter_override_ref,
             return_selected_profile=False,
         )
+    if base_request.parameter_override_bundle_ref is not None:
+        _source_parameter_override_bundle(store, base_request.parameter_override_bundle_ref)
     bindings_ref = FoundryInputBindingsRef.model_validate(
         base_request.input_bindings_ref.model_dump(mode="python")
     )
@@ -1730,14 +1898,33 @@ def _response_context(
             refs[f"registry.{name}"] = value
     for item in manifest.inputs:
         refs[f"source.{item.role}"] = _response_input_ref(store, item)
+    source_override_identity = refs.get("source.parameter_override_bundle")
+    source_override_ref = base_request.parameter_override_bundle_ref
+    if source_override_ref is None:
+        if source_override_identity is not None:
+            raise ValueError("response source has an unrequested parameter override input")
+    else:
+        if source_override_identity is None or source_override_identity.model_dump(
+            mode="json"
+        ) != source_override_ref.model_dump(mode="json"):
+            raise ValueError(
+                "response source parameter override differs from its exact manifest edge"
+            )
+        _source_parameter_override_bundle(store, source_override_ref)
     if bindings.bound_state_snapshot_ref is None:
         raise ValueError("state response requires an explicit bound initial state")
     for role, ref in _response_snapshot_inputs(store, bindings.bound_state_snapshot_ref).items():
         refs[f"source_state.{role}"] = ref
     for node in program.nodes:
-        if node.params_ref is not None:
-            refs[f"params.{node.node_id}"] = node.params_ref
+        parameter_source: Any = node.params_ref
+        if node.node_kind == "op" and node.op is not None:
+            if node.op.op_kind == "apply_mechanism":
+                parameter_source = node.op.params.get("params_ref") or parameter_source
+        if isinstance(parameter_source, ArtifactRef):
+            refs[f"params.{node.node_id}"] = parameter_source
     parameter_units = {}
+    parameter_unit_ids = {}
+    parameter_spec_sha256 = {}
     nodes = {node.node_id: node for node in program.nodes}
     for key in center:
         node_id, separator, parameter = key.rpartition(".")
@@ -1754,8 +1941,11 @@ def _response_context(
         if spec is None or spec.unit_id not in registry.units_registry.units:
             raise ValueError(f"response parameter has no declared unit: {key}")
         parameter_units[key] = registry.units_registry.units[spec.unit_id].model_dump(mode="json")
+        parameter_unit_ids[key] = spec.unit_id
+        parameter_spec_sha256[key] = canonical_input_sha256(spec)
     paths = {}
     units = {}
+    unit_ids = {}
     for name, slot_id in slots.items():
         slot = registry.slot_registry.slots.get(slot_id)
         if slot is None or slot.scope.value != "global" or not slot.state_path or slot.unit is None:
@@ -1765,13 +1955,18 @@ def _response_context(
             raise ValueError(f"response slot has no declared unit: {slot_id}")
         paths[name] = slot.state_path
         units[name] = unit.model_dump(mode="json")
+        unit_ids[name] = slot.unit.unit_id
     return (
         _ResponseBasis(
             source_inputs={role: _response_identity(store, ref) for role, ref in refs.items()},
             parameter_names=tuple(center),
             moment_names=names,
             parameter_units=parameter_units,
+            parameter_unit_ids=parameter_unit_ids,
+            parameter_spec_sha256=parameter_spec_sha256,
+            mechanism_registry_sha256=canonical_input_sha256(registry.mechanism_registry),
             moment_units=units,
+            moment_unit_ids=unit_ids,
             response_slots=dict(slots),
             state_paths=paths,
             center=dict(center),
@@ -1866,7 +2061,10 @@ class _ExecuteResponseEvaluator:
 
         selected_source = self.source_mode == "single_step_basis"
         override = _persist_flat_parameter_overrides(
-            self.store, theta, return_selected_profile=selected_source
+            self.store,
+            theta,
+            base_parameter_override_bundle_ref=self.source_request.parameter_override_bundle_ref,
+            return_selected_profile=selected_source,
         )
         request = _execution_replay_request(
             self.source_request,
@@ -2031,9 +2229,58 @@ def _load_execute_response_matrix(
         )
         if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
             raise ValueError("response replay request/config differs from its declared basis")
+        source_override_ref = source_request.parameter_override_bundle_ref
+        source_override_identity = expected.source_inputs.get("source.parameter_override_bundle")
+        if source_override_ref is None:
+            if source_override_identity is not None:
+                raise ValueError("response basis has an unrequested source override edge")
+            source_override_bundle = None
+            expected_original_override_input: list[InputRef] = []
+        else:
+            if source_override_identity is None or source_override_identity.ref.model_dump(
+                mode="json"
+            ) != source_override_ref.model_dump(mode="json"):
+                raise ValueError("response basis source override differs from the admitted request")
+            source_override_bundle = _source_parameter_override_bundle(store, source_override_ref)
+            expected_original_override_input = [
+                input_ref_from_artifact_ref(
+                    source_override_ref,
+                    role="input.original_parameter_override_bundle_ref",
+                )
+            ]
         override = _load_model(store, record.override.ref, ParameterOverrideBundle)
-        if _flatten_parameter_overrides(override.overrides) != theta:
-            raise ValueError("response replay override differs from finite-difference point")
+        expected_overrides = _merge_parameter_override_maps(
+            {} if source_override_bundle is None else source_override_bundle.overrides,
+            _flat_theta_parameter_overrides(theta),
+        )
+        if override.overrides != expected_overrides:
+            raise ValueError(
+                "response replay override differs from the merged source/finite-difference map"
+            )
+        expected_sources = (
+            {}
+            if source_override_bundle is None
+            else {
+                node_id: list(values) for node_id, values in source_override_bundle.sources.items()
+            }
+        )
+        for node_id in (name.rpartition(".")[0] for name in theta):
+            node_sources = expected_sources.setdefault(node_id, [])
+            if "identifiability_diagnostic" not in node_sources:
+                node_sources.append("identifiability_diagnostic")
+        expected_notes = (
+            [] if source_override_bundle is None else list(source_override_bundle.notes)
+        )
+        expected_notes.append("aggregate_moment_identifiability_replay")
+        if override.sources != expected_sources or override.notes != expected_notes:
+            raise ValueError(
+                "response replay override provenance differs from the source/varied map"
+            )
+        override_manifest = store.get_manifest(record.override.ref)
+        if override_manifest.inputs != expected_original_override_input:
+            raise ValueError(
+                "response replay override lineage differs from its exact source override"
+            )
         manifest = store.get_manifest(record.result.ref)
         replay_context = _require_execution_replay_result(
             store,
@@ -2109,3 +2356,169 @@ def _load_execute_response_matrix(
     if not np.array_equal(np.asarray(typed_payload["jacobian"], dtype=float), jacobian):
         raise ValueError("response matrix differs from persisted-state finite differences")
     return typed_payload
+
+
+def _selected_response_input_ref(
+    store: FileSystemCAS,
+    *,
+    manifest: Any,
+    role: str,
+    expected_kind: str,
+    ref_type: type[ArtifactRef],
+) -> ArtifactRef:
+    """Resolve one exact selected-profile edge of a response-bearing artifact."""
+    matches = [item for item in manifest.inputs if item.role == role]
+    if len(matches) != 1:
+        raise ValueError(f"response lineage must bind exactly one {role} input")
+    item = matches[0]
+    if item.manifest_profile_sha256 is None:
+        raise ValueError(f"response lineage {role} input must select its manifest profile")
+    resolved = _response_input_ref(store, item)
+    if resolved.kind != expected_kind or resolved.media_type != "application/json":
+        raise ValueError(f"response lineage {role} input has the wrong artifact kind")
+    return ref_type.model_validate(resolved.model_dump(mode="python"))
+
+
+def load_execute_response_basis_candidate(
+    store: FileSystemCAS,
+    selected_simulation_result_ref: SimulationResultRef,
+) -> ExecuteResponseBasisCandidate:
+    """Load and revalidate a selected execute-backed response candidate.
+
+    Args:
+        store: CAS containing the selected simulation and diagnostic artifacts.
+        selected_simulation_result_ref: Exact selected SimulationResult view whose
+            diagnostic edge identifies the response to revalidate.
+
+    Returns:
+        A candidate-grade local response bound to its selected persisted states.
+
+    Raises:
+        ValueError: If a selected artifact, manifest edge, or replay does not
+            satisfy the response-basis contract.
+        ArtifactIntegrityError: If selected CAS content fails integrity checks.
+
+    The result deliberately does not establish an external measurement law,
+    causal interpretation, or downstream eligibility. Output-to-moment selection
+    and external parameter/unit relationships remain consumer declarations.
+    """
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    selected_ref = _selected_simulation_result_ref(store, selected_simulation_result_ref)
+    if selected_ref.manifest_profile_sha256 is None:
+        raise ValueError("response-bearing simulation result must select its manifest profile")
+    selected_result = _load_model(store, selected_ref, SimulationResult)
+    diagnostic_payload_ref = selected_result.identifiability_diagnostic_ref
+    if diagnostic_payload_ref is None:
+        raise ValueError("selected simulation result has no identifiability diagnostic")
+
+    selected_manifest = store.get_manifest(selected_ref)
+    source_ref = _selected_response_input_ref(
+        store,
+        manifest=selected_manifest,
+        role="artifact.simulation_result_ref",
+        expected_kind=SimulationResult.ARTIFACT_KIND,
+        ref_type=SimulationResultRef,
+    )
+    diagnostic_ref = _selected_response_input_ref(
+        store,
+        manifest=selected_manifest,
+        role="artifact.identifiability_diagnostic_ref",
+        expected_kind=IdentifiabilityDiagnosticResult.ARTIFACT_KIND,
+        ref_type=IdentifiabilityDiagnosticRef,
+    )
+    if (
+        diagnostic_payload_ref.artifact_id != diagnostic_ref.artifact_id
+        or diagnostic_payload_ref.manifest_profile_sha256 != diagnostic_ref.manifest_profile_sha256
+    ):
+        raise ValueError("selected result diagnostic payload differs from its exact input edge")
+
+    diagnostic = _require_diagnostic_simulation_lineage(
+        store,
+        diagnostic_ref=diagnostic_ref,
+        simulation_result_ref=source_ref,
+    )
+    selected_diagnostic_ref = diagnostic.diagnostic_ref
+    if selected_diagnostic_ref is None or diagnostic.sensitivity_matrix_ref is None:
+        raise ValueError("selected diagnostic has no persisted sensitivity matrix")
+    diagnostic_manifest = store.get_manifest(selected_diagnostic_ref)
+    matrix_ref = _selected_response_input_ref(
+        store,
+        manifest=diagnostic_manifest,
+        role="artifact.sensitivity_matrix_ref",
+        expected_kind="foundry.identifiability_sensitivity_matrix",
+        ref_type=ArtifactRef,
+    )
+    matrix_payload_ref = diagnostic.sensitivity_matrix_ref
+    if (
+        matrix_payload_ref.artifact_id != matrix_ref.artifact_id
+        or matrix_payload_ref.manifest_profile_sha256 != matrix_ref.manifest_profile_sha256
+    ):
+        raise ValueError("diagnostic matrix payload differs from its exact input edge")
+    matrix_manifest = store.get_manifest(matrix_ref)
+    if matrix_manifest.artifact_schema != SchemaInfo(
+        name="polisyos.core.IdentifiabilitySensitivityMatrix",
+        version="1.0",
+    ):
+        raise ValueError("selected sensitivity matrix has an unsupported schema")
+    matrix_payload = load_core_json_artifact(store, matrix_ref)
+    if not isinstance(matrix_payload, dict) or matrix_payload.get("schema_version") != "1.0":
+        raise ValueError("selected sensitivity matrix payload is invalid")
+    response_basis = _ResponseBasis.model_validate(matrix_payload.get("response_basis"))
+
+    verified_payload = _load_execute_response_matrix(
+        store,
+        matrix_ref,
+        source_ref=source_ref,
+        response_slots={
+            name: response_basis.response_slots[name] for name in response_basis.moment_names
+        },
+        parameter_center={
+            name: response_basis.center[name] for name in response_basis.parameter_names
+        },
+        config=response_basis.config,
+    )
+    if diagnostic.parameter_names != response_basis.parameter_names:
+        raise ValueError("diagnostic parameter axis differs from its execute response basis")
+
+    seeds = _replicate_seeds(response_basis.config)
+    center_replays = response_basis.replays[: len(seeds)]
+    if len(center_replays) != len(seeds):
+        raise ValueError("execute response basis has no complete center replay")
+    center_rows: list[list[float]] = []
+    for replay, seed in zip(center_replays, seeds, strict=True):
+        if replay.theta != response_basis.center or replay.seed != seed:
+            raise ValueError("execute response basis center replay roster is invalid")
+        replay_result = _response_replay(store, replay.result.ref)
+        values = _response_state_values(store, replay_result, response_basis.state_paths)
+        center_rows.append([values[name] for name in response_basis.moment_names])
+    actual_fitted_moments = _vector_to_mapping(
+        response_basis.moment_names,
+        np.mean(np.asarray(center_rows, dtype=float), axis=0),
+    )
+    if diagnostic.fitted_moments != actual_fitted_moments:
+        raise ValueError("diagnostic fitted moments differ from its persisted center replays")
+
+    return ExecuteResponseBasisCandidate(
+        selected_simulation_result_ref=selected_ref,
+        source_simulation_result_ref=source_ref,
+        source_inputs=response_basis.source_inputs,
+        diagnostic_ref=selected_diagnostic_ref,
+        sensitivity_matrix_ref=matrix_ref,
+        diagnostic_status=diagnostic.status,
+        parameter_names=response_basis.parameter_names,
+        moment_names=response_basis.moment_names,
+        jacobian=tuple(
+            tuple(float(value) for value in row) for row in verified_payload["jacobian"]
+        ),
+        parameter_units=response_basis.parameter_units,
+        parameter_unit_ids=response_basis.parameter_unit_ids,
+        parameter_spec_sha256=response_basis.parameter_spec_sha256,
+        mechanism_registry_sha256=response_basis.mechanism_registry_sha256,
+        moment_units=response_basis.moment_units,
+        moment_unit_ids=response_basis.moment_unit_ids,
+        response_slots=response_basis.response_slots,
+        state_paths=response_basis.state_paths,
+        parameter_center=response_basis.center,
+        fitted_moments=actual_fitted_moments,
+    )

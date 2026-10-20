@@ -1,0 +1,32 @@
+id = "2026-10-20-e02-b190-execute-response-cas-bridge"
+title = "Project execute-backed uncertainty to selected state slots"
+type = "added"
+component = "scientist"
+owner = "team-policyos-runtime"
+summary = "Connect a freshly recomputed Foundry execute-response matrix and a selected calibration report/basis to candidate-only state-slot uncertainty outputs. Preserve each selected source override across differentiated replays, and persist/fresh-read the complete response-context roster with byte/profile binding; existing metric uncertainty admission remains unchanged."
+evidence = [
+  "src/polisyos/foundry/calibration/__init__.py",
+  "src/polisyos/foundry/calibration/README.md",
+  "src/polisyos/foundry/calibration/calibrator.py",
+  "src/polisyos/foundry/calibration/execution_basis.py",
+  "src/polisyos/foundry/calibration/identifiability.py",
+  "src/polisyos/foundry/calibration/report.py",
+  "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+  "src/polisyos/scientist/nodes/README.md",
+  "src/polisyos/ir/analytics/uncertainty.py",
+  "src/polisyos/ir/__init__.py",
+  "src/polisyos/ir/README.md",
+  "tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+  "tests/unit/ir/test_uncertainty_subject_projection.py",
+  "release-fragments/unreleased/2026-10-20-e02-calibration-execution-input-identity.toml",
+]
+compatibility = "The new state-slot response path is opt-in through a typed propagation_response_basis selector. Existing metric propagation and metric uncertainty admission retain their previous behavior. Selected profile identity is required for every calibration and simulation source used by the new path."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.foundry.calibration.ExecuteResponseBasisCandidate, polisyos.foundry.calibration.ExecuteResponseSourceIdentity, polisyos.foundry.calibration.load_execute_response_basis_candidate, polisyos.ir.load_simulation_result_subject_uncertainty_projection; internal: PropagateUncertaintyNode execute-response consumer"
+migration = "No migration is required for existing artifacts or metric consumers. State-slot consumers may call the new reader and must retain its candidate-only and gate-ineligible result labels."
+api = "polisyos.foundry.calibration.load_execute_response_basis_candidate(store, selected_simulation_result_ref) reopens a selected simulation result, diagnostic, matrix, and execute replay states before returning a gate-ineligible candidate. polisyos.ir.load_simulation_result_subject_uncertainty_projection(store, simulation_result_ref, subject_kind, subject_id) freshly resolves one metric or state-slot envelope. The state-slot path reconciles the complete response_context.* roster against selected refs and actual CAS blob/manifest bytes before returning a candidate projection."
+limitations = "The reader does not recompute the Foundry response matrix or verify draw-success identities. Calibration target source attestation, uncertainty law, external parameter-unit authority, and downstream decision eligibility remain not established; the new path never returns gate-eligible evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

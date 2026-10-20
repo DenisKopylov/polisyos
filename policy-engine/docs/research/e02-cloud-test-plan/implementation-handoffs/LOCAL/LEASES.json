@@ -28828,5 +28828,183 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b190-execute-response-cas-bridge-r8-source-override-adoption-20261020": {
+    "slice_base": "2d66875aa5d27d1ff52650997aa62ea37d815d65",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-b190-execute-response-cas-bridge.toml": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-b190-execute-response-cas-bridge.toml",
+        "postimage_sha256": "05419790c38ec87c9cb6f703c6f7e0843292afed0806d3343f261feedf993b90"
+      },
+      "policy-engine/src/polisyos/foundry/calibration/README.md": {
+        "operation": "write",
+        "preimage_sha256": "055f4c912d411f1399b1c09f4c43bf500ed0de2878031cea3f8ff92d8f3f0159",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/foundry/calibration/README.md",
+        "postimage_sha256": "8670248c6fa5ce50c110e3a8f99fa3640f987cf8d7c57cc4fb1c813738c3068b"
+      },
+      "policy-engine/src/polisyos/foundry/calibration/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "dd5371fe585b24b1f45e6f2f878662f66581974132605340e56d89d24e6dc462",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/foundry/calibration/__init__.py",
+        "postimage_sha256": "d35b47884de786ff5865c73820c299dcbabc3dc050fa0fbd0fedc9e8c3f73fc4"
+      },
+      "policy-engine/src/polisyos/foundry/calibration/identifiability.py": {
+        "operation": "write",
+        "preimage_sha256": "dd491cc44db543b588a75d1b20c0f9a8964e111f7ffffc8872735d69b307589d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "postimage_sha256": "8fedf0bd9258fb6309db9cfb839c6c7d0d406ec1f22d66db4f2c918390fd8d24"
+      },
+      "policy-engine/src/polisyos/ir/README.md": {
+        "operation": "write",
+        "preimage_sha256": "1db89a9c46ff3e749aa6e667ed4c12f36f3ca95a985225dc586e574f80c68ca6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/ir/README.md",
+        "postimage_sha256": "b9c981bf5f63d02e215cae929cad3c010f649a9fa11bdd6163cabba124442401"
+      },
+      "policy-engine/src/polisyos/ir/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/ir/__init__.py",
+        "postimage_sha256": "b2f85373ee23c25093b1007f883234eb002bb6c5b03075a637fd22897b0af806"
+      },
+      "policy-engine/src/polisyos/ir/analytics/uncertainty.py": {
+        "operation": "write",
+        "preimage_sha256": "9f49a399731217036a1908c3ae4f1e1cc1eed2e62404fc954872ef979497600c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "postimage_sha256": "cfd20d5d09fab4c3d5b3696e76a6b9f72cb8f57dd5dee0cd746bbbbca79fcffd"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/README.md": {
+        "operation": "write",
+        "preimage_sha256": "2db23f1b300af58bf222a517d8336b8b291c7a3d507a6d9febad4ed91982d199",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/scientist/nodes/README.md",
+        "postimage_sha256": "23ac5da1094b2b146aa8a1d6e11244e2be84cef37cdfc79148ddd577570a1d83"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+        "operation": "write",
+        "preimage_sha256": "9447bbf133d00600ab5a52f61c4796db64ed3ff1a7d7cc3cbdc37e69c9a464a0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "postimage_sha256": "a5b33dad3d50ff3cb575f85645e12509092fd6aa7b380461b3295b45099dd2e0"
+      },
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py": {
+        "operation": "write",
+        "preimage_sha256": "6d947b84dbc587867421946da0c012e7752cf340b7c2b2c3c70def973f6615e3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+        "postimage_sha256": "8a2db8ffa8c7bd2712f1e7d18e7122d285c5e85702994ee9d9346dc849bd331d"
+      },
+      "policy-engine/tests/unit/ir/test_uncertainty_subject_projection.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/postimages/policy-engine/tests/unit/ir/test_uncertainty_subject_projection.py",
+        "postimage_sha256": "27202ac7ebdeb82cbf901f850f5462324a22f5002099484956764708b144bc84"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b190-execute-response-cas-bridge-r8-adoption-20261020/source-application.json",
+      "sha256": "b92b76a3d4f75c5167a13d27c911bef10848ca4a17f302af11a5dcfd76051772"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b190-execute-response-cas-bridge-r8-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/manifest.json",
+        "sha256": "6967343be47382ede1dbf1cb34753765b5c31df05ddd55c044cbb146c7fcfc1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/composition_base.json",
+        "sha256": "30bbde8ea8908e0077b8e409530cfcffa9bd93fb1b70d958a236f5064616d013"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/patch.diff",
+        "sha256": "e342fe2bb4649fc1ee1bd6e9a2ea616e30abe577a991a483012c6733270fcc2b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/verification/workspace-root-ruff-current-515f-r1/static-checks.json",
+        "sha256": "81bd9f9e0f8c0a8ada5fc2a97fe08dcf27b01a755493a9d3a084271defb41762"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-author-20261020/r8-source-override-preserving/verification/patch-apply-current-515f-r1/patch-apply.json",
+        "sha256": "663a3d27ac7e619440b994243e8d630655f241ba90723bc0557cc8762fcc580f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b197-s2-execution-input-basis-20261020-r6-runtime-roster-final/manifest.json",
+        "sha256": "71125600a20f2686e15ea67f7c67c2b94a2c8edd57cfdc9f518367f51bba6e0d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execute-response-cas-bridge-independent-review-r8-20261020.json",
+        "sha256": "a815639ddc228e9489c5a29b1c919b591e882535bb11b2793159c05a39f1e516"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-source-frame-journal-20261019/frames.jsonl",
+        "sha256": "3c851a5a9749b7f95fd0d27335ebe184845189cfaded41b2219e6089da5f3a4a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b164-known-applied-complete-provenance-commit-r5-20261020/implementation-readback-preservation-r2.json",
+        "sha256": "795414bb41727db70a09242a17feb4652ac94dc046e455c83fd0640bebd3d365"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME execution-context/replay-binding class as R7, widened to the complete source override map and request. One shared persistence mechanism merges varied theta over all existing source entries, retains exact source provenance/ref, and the fresh reader recomputes the entire merged map and source-edge list. The legacy profileless request-context gap is a bounded residual, not a per-parameter exception.",
+    "bounded_proof": "Independent R8 source review GO for selected-basis override preservation only; all 11 R8 postimages and current exact target preimages were read back. The source base is the journaled B164 tip 2d66875aa5d27d1ff52650997aa62ea37d815d65 (tree c732fe31cd2f3349ca459ed6be270aff650809d3, parent be09be99df14d93dd4d22a140696ea06e26c5c8d); B164 changed only the lease/index metadata and its two decision docs, disjoint from B190 source rows. Author Ruff check+format and patch-apply receipts are pinned; physical full-composition recheck remains required before adoption. Runtime on adopted source remains UNRUN.",
+    "limitations": [
+      "Legacy profileless SimulationResult does not persist the original ExecuteRequest/FoundryExecConfig. Its reconstructed defaults are not source-request evidence; record source request context as not_established and keep the row gate-ineligible. Do not claim exact full request-context preservation for legacy_profileless rows.",
+      "Selected local source, CAS content and replay identity do not establish external authenticity, issuer permission, production currentness, physical units authority, measurement/noise law, causal validity or recommendation/publish authority.",
+      "The controlled response-basis fixture demonstrates implemented bridge behavior only; runtime on the adopted candidate and composed sibling consumers remains UNRUN.",
+      "The 11 authored source paths require two automatic root-managed metadata append companions (LEASES.json and candidate-component-delivery-index-20261015.json), for 13 total changed paths. The lease/index updates are owned by the root adopter and are not manual source rows or mechanism-path budget entries.",
+      "The two known-owned dirty test overlays are preserved byte-for-byte; no unrelated source is included.",
+      "No G acceptance, formal finding closure, source freeze or global native-green claim is made."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Re-read exact branch, HEAD/tree and all 11 source preimages immediately before adoption; if a new disjoint commit advances the root, journal it and rebind this plan to that exact base. Root adopter appends the LEASES/index companions, then runs physical canonical workspace Ruff check+format and source-bound tests with complete outputs. Keep legacy profileless request context explicitly not_established/gate-ineligible; runtime and formal proposals remain open pending composed replay, consumer readback and removal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

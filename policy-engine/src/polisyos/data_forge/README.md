@@ -143,3 +143,9 @@ provenance manifest identity or transform lineage is absent.
 
 - Active implementation plan:
   [`docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md`](/Users/deniskopylov/polisyos/policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md)
+
+### Finite read API routes
+
+`read_api/surface_routes.py` owns the finite module routes and summaries used by both the lazy
+`read_api` facade and its surface helpers. The authority source-closure reader follows those same
+literal routes and distinguishes module-valued lazy exports from symbol re-exports.

@@ -5841,6 +5841,7 @@ class _LiteralModuleGetattrProviderIndex:
     provider_symbols_by_export: Mapping[str, frozenset[str]] | None = None
     generated_mapping_dispatch: bool = False
     mapping_names: frozenset[str] = frozenset()
+    module_providers_by_export: Mapping[str, frozenset[str]] | None = None
 
 
 @dataclass(slots=True)
@@ -5888,6 +5889,55 @@ def _resolve_authority_import_closure(
             module_name,
             directory_entries=directory_entries,
         )
+
+    def discover_route_chain(
+        base: str,
+        export_name: str,
+        route: tuple[str, str, str | None],
+        discovered: set[str],
+    ) -> None:
+        """Include every finite symbol owner reached by nested lazy maps."""
+
+        route_kind, target_module, target_symbol = route
+        if route_kind == "symbol" and (target_module, target_symbol) == (base, export_name):
+            discovered.add(target_module)
+            return
+        visited_routes: frozenset[tuple[str, str]] = frozenset({(base, export_name)})
+        while (
+            route_kind in {"module", "symbol"}
+            and _repository_module_root(target_module) in allowed_roots
+        ):
+            if resolve_source(target_module) is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"unresolved repository import: {target_module}",
+                )
+            discovered.add(target_module)
+            if route_kind != "symbol" or target_symbol is None:
+                return
+            current = (target_module, target_symbol)
+            if current in visited_routes:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"cyclic source import route: {target_module}.{target_symbol}",
+                )
+            next_route = _source_module_import_route(
+                repo_root,
+                target_module,
+                target_symbol,
+                directory_entries=directory_entries,
+                source_index=source_index,
+                visited=visited_routes,
+            )
+            if next_route is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"unresolved source symbol route: {target_module}.{target_symbol}",
+                )
+            visited_routes = visited_routes | {current}
+            if next_route == ("symbol", target_module, target_symbol):
+                return
+            route_kind, target_module, target_symbol = next_route
 
     while pending:
         module_name = min(pending)
@@ -5944,17 +5994,7 @@ def _resolve_authority_import_closure(
                     )
                     if route is None:
                         continue
-                    route_kind, target_module, _target_symbol = route
-                    if (
-                        route_kind in {"module", "symbol"}
-                        and _repository_module_root(target_module) in allowed_roots
-                    ):
-                        if resolve_source(target_module) is None:
-                            raise ConfidenceLedgerError(
-                                "canonical_loaded_runtime_mismatch",
-                                f"unresolved repository import: {target_module}",
-                            )
-                        discovered.add(target_module)
+                    discover_route_chain(base, alias.name, route, discovered)
             elif isinstance(node, ast.Call):
                 dynamic_ref = _literal_dynamic_import_ref(node)
                 if (
@@ -6019,20 +6059,42 @@ def _literal_module_getattr_provider(
             "canonical_loaded_runtime_mismatch",
             relative.as_posix(),
         ) from exc
-    provider_index = source_index.providers_by_content.get(source_bytes)
-    if provider_index is None:
-        provider_index = _literal_module_getattr_provider_index(tree)
-        source_index.providers_by_content[source_bytes] = provider_index
+    provider_index = _source_module_provider_index(
+        repo_root,
+        module_name,
+        tree,
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
 
     mapped_targets: set[tuple[str, str]] = set()
+    mapped_module_targets: set[str] = set()
     if provider_index.mapping_names:
+        external_mappings, _invalid_imports = _source_imported_facade_mappings(
+            repo_root,
+            module_name,
+            tree,
+            provider_index.mapping_names,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
         source_maps, _invalid_maps = _static_facade_mapping_values(
             tree,
             provider_index.mapping_names,
+            external_mappings=external_mappings,
         )
+        module_exports = provider_index.module_providers_by_export or {}
         for source_map in source_maps.values():
             raw_target = source_map.get(export_name, _STATIC_FACADE_UNKNOWN)
             if raw_target is _STATIC_FACADE_UNKNOWN:
+                continue
+            if export_name in module_exports:
+                if type(raw_target) is not str or not raw_target:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"invalid module-valued source facade target: {module_name}.{export_name}",
+                    )
+                mapped_module_targets.add(raw_target)
                 continue
             target = _literal_facade_provider_target(export_name, raw_target)
             if target is None:
@@ -6058,7 +6120,22 @@ def _literal_module_getattr_provider(
             mapped_targets.add((target_module, target_symbol))
 
     mapped_symbol: str | None = None
-    if mapped_targets:
+    module_providers = provider_index.module_providers_by_export or {}
+    if mapped_module_targets:
+        if len(mapped_module_targets) != 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"ambiguous module facade map target: {module_name}.{export_name}",
+            )
+        provider = next(iter(mapped_module_targets))
+        indexed = module_providers.get(export_name, frozenset())
+        if len(indexed) != 1 or provider not in indexed:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"source facade map differs from getter: {module_name}.{export_name}",
+            )
+        mapped_symbol = None
+    elif mapped_targets:
         if len(mapped_targets) != 1:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -6095,13 +6172,23 @@ def _literal_module_getattr_provider(
                 "canonical_loaded_runtime_mismatch",
                 f"non-literal repository re-export: {module_name}.{export_name}",
             )
+        direct_module_providers = module_providers.get(export_name, frozenset())
+        if len(direct_module_providers) > 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"ambiguous module repository re-export: {module_name}.{export_name}",
+            )
+        if direct_module_providers:
+            provider = next(iter(direct_module_providers))
+            mapped_symbol = None
         providers = provider_index.providers_by_export.get(export_name, frozenset())
-        if len(providers) > 1:
+        if provider is None and len(providers) > 1:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"ambiguous repository re-export: {module_name}.{export_name}",
             )
-        provider = next(iter(providers), None)
+        if provider is None:
+            provider = next(iter(providers), None)
         if provider is None and provider_index.generated_mapping_dispatch:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -6120,7 +6207,11 @@ def _literal_module_getattr_provider(
                 "canonical_loaded_runtime_mismatch",
                 f"ambiguous relative repository re-export: {module_name}.{export_name}",
             ) from exc
-    if provider is not None and _repository_module_root(provider) in {"polisyos", "tools"}:
+    if (
+        provider is not None
+        and provider not in module_providers.get(export_name, frozenset())
+        and _repository_module_root(provider) in {"polisyos", "tools"}
+    ):
         provider_symbols = provider_index.provider_symbols_by_export or {}
         symbols = (
             frozenset({mapped_symbol})
@@ -6387,10 +6478,11 @@ def _literal_source_expression(
 
     if depth > 80:
         return _UNKNOWN_SOURCE_LITERAL
-    try:
-        return ast.literal_eval(node)
-    except (ValueError, TypeError, SyntaxError, MemoryError):
-        pass
+    if not any(isinstance(child, ast.Dict) for child in ast.walk(node)):
+        try:
+            return ast.literal_eval(node)
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            pass
     if isinstance(node, ast.Name):
         return values.get(node.id, _UNKNOWN_SOURCE_LITERAL)
     if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
@@ -6423,7 +6515,11 @@ def _literal_source_expression(
             if value is _UNKNOWN_SOURCE_LITERAL:
                 return _UNKNOWN_SOURCE_LITERAL
             if key_node is None:
-                if type(value) is not dict or len(result) + len(value) > 10000:
+                if (
+                    type(value) is not dict
+                    or len(result) + len(value) > 10000
+                    or any(key in result for key in value)
+                ):
                     return _UNKNOWN_SOURCE_LITERAL
                 result.update(value)
                 continue
@@ -6431,6 +6527,8 @@ def _literal_source_expression(
             if key is _UNKNOWN_SOURCE_LITERAL:
                 return _UNKNOWN_SOURCE_LITERAL
             try:
+                if key in result:
+                    return _UNKNOWN_SOURCE_LITERAL
                 result[key] = value
             except (TypeError, ValueError):
                 return _UNKNOWN_SOURCE_LITERAL
@@ -6604,6 +6702,8 @@ def _source_target_names(target: ast.AST) -> tuple[str, ...]:
 def _static_facade_mapping_values(
     tree: ast.Module,
     mapping_names: frozenset[str],
+    *,
+    external_mappings: Mapping[str, dict[str, object]] | None = None,
 ) -> tuple[dict[str, dict[str, object]], frozenset[str]]:
     """Recompute bounded module-scope literal maps with expression-effect transfer."""
 
@@ -7018,7 +7118,14 @@ def _static_facade_mapping_values(
                     type_checking_names.add(bound)
                     values[bound] = False
                 else:
-                    values[bound] = _UNKNOWN_SOURCE_LITERAL
+                    imported_mapping = (external_mappings or {}).get(bound)
+                    values[bound] = (
+                        dict(imported_mapping)
+                        if isinstance(statement, ast.ImportFrom)
+                        and type(imported_mapping) is dict
+                        and alias.name != "*"
+                        else _UNKNOWN_SOURCE_LITERAL
+                    )
 
     def execute(statements: Iterable[ast.stmt]) -> None:
         for statement in statements:
@@ -7168,6 +7275,119 @@ def _static_facade_mapping_values(
     return result, frozenset(invalid)
 
 
+def _source_imported_facade_mappings(
+    repo_root: Path,
+    module_name: str,
+    tree: ast.Module,
+    mapping_names: frozenset[str],
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+) -> tuple[dict[str, dict[str, object]], frozenset[str]]:
+    """Resolve only unique direct imports of finite maps owned by repository source."""
+
+    relative = _repository_module_source(
+        repo_root, module_name, directory_entries=directory_entries
+    )
+    if relative is None:
+        return {}, frozenset(mapping_names)
+    package = module_name if relative.name == "__init__.py" else module_name.rpartition(".")[0]
+    imported: dict[str, dict[str, object]] = {}
+    invalid: set[str] = set()
+    for local_name in mapping_names:
+        sites = _module_scope_direct_binding_sites(tree, local_name)
+        if not sites:
+            continue
+        if len(sites) != 1:
+            invalid.add(local_name)
+            continue
+        binding_kind, statement, alias = sites[0]
+        if (
+            binding_kind != "import_from"
+            or not isinstance(statement, ast.ImportFrom)
+            or alias is None
+            or alias.name == "*"
+        ):
+            continue
+        base = _resolve_import_from_base(statement, package)
+        if base is None:
+            invalid.add(local_name)
+            continue
+        provider_path = _repository_module_source(
+            repo_root, base, directory_entries=directory_entries
+        )
+        if provider_path is None:
+            invalid.add(local_name)
+            continue
+        try:
+            analysis = _active_integrity_analysis()
+            provider_bytes = (
+                analysis.source_bytes(repo_root / provider_path)
+                if analysis is not None
+                else (repo_root / provider_path).read_bytes()
+            )
+            provider_tree = source_index.parse(provider_bytes, filename=provider_path.as_posix())
+        except (OSError, SyntaxError, ValueError):
+            invalid.add(local_name)
+            continue
+        provider_sites = _module_scope_direct_binding_sites(provider_tree, alias.name)
+        if len(provider_sites) != 1 or provider_sites[0][0] != "assignment":
+            invalid.add(local_name)
+            continue
+        maps, invalid_maps = _static_facade_mapping_values(provider_tree, frozenset({alias.name}))
+        provider_map = maps.get(alias.name)
+        if alias.name in invalid_maps or type(provider_map) is not dict:
+            invalid.add(local_name)
+            continue
+        try:
+            _literal_facade_value_projection(provider_map)
+        except (ConfidenceLedgerError, TypeError, ValueError):
+            invalid.add(local_name)
+            continue
+        imported[local_name] = provider_map
+    return imported, frozenset(invalid)
+
+
+def _literal_module_getattr_mapping_names(tree: ast.Module) -> frozenset[str]:
+    """Return module tables indexed by a top-level literal ``__getattr__`` hook."""
+
+    names: set[str] = set()
+    for statement in tree.body:
+        if not (
+            isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == "__getattr__"
+        ):
+            continue
+        for node in _source_scope_nodes(statement.body):
+            if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name):
+                names.add(node.value.id)
+    return frozenset(names)
+
+
+def _source_module_provider_index(
+    repo_root: Path,
+    module_name: str,
+    tree: ast.Module,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+) -> _LiteralModuleGetattrProviderIndex:
+    """Index a facade using exact source-owned finite maps, including direct imports."""
+
+    mapping_names = _literal_module_getattr_mapping_names(tree)
+    external_mappings: dict[str, dict[str, object]] = {}
+    if mapping_names:
+        external_mappings, _invalid_imports = _source_imported_facade_mappings(
+            repo_root,
+            module_name,
+            tree,
+            mapping_names,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+    return _literal_module_getattr_provider_index(tree, external_mappings=external_mappings)
+
+
 def _literal_mapping_import_call(
     call: ast.Call,
     mapping_names: frozenset[str],
@@ -7208,7 +7428,8 @@ def _literal_module_getattr_mapping_providers(
     mapping_names: frozenset[str],
     imported_functions: frozenset[str],
     imported_modules: frozenset[str],
-) -> tuple[dict[str, set[str]], dict[str, set[str]], set[str], set[int]]:
+    external_mappings: Mapping[str, dict[str, object]] | None = None,
+) -> tuple[dict[str, set[str]], dict[str, set[str]], dict[str, set[str]], set[str], set[int]]:
     """Bind source-map exports through bounded, provenance-preserving getter flow."""
 
     scope = tuple(_source_scope_nodes(function.body))
@@ -7244,7 +7465,9 @@ def _literal_module_getattr_mapping_providers(
     # the implicit package namespace used by a relative import.
     namespace_effect_guard = "__polisyos_static_namespace_effect_guard__"
     watched_names = mapping_names | {namespace_effect_guard, "__name__", "__package__"}
-    values_by_map, invalid_maps = _static_facade_mapping_values(tree, watched_names)
+    values_by_map, invalid_maps = _static_facade_mapping_values(
+        tree, watched_names, external_mappings=external_mappings
+    )
     namespace_effect_unknown = namespace_effect_guard in invalid_maps
     tables: dict[str, dict[str, object]] = {}
     invalid: set[str] = set()
@@ -7318,6 +7541,7 @@ def _literal_module_getattr_mapping_providers(
     attribute_tag = object()
     providers: dict[str, set[str]] = {}
     members: dict[str, set[str]] = {}
+    module_providers: dict[str, set[str]] = {}
     handled_getattrs: set[int] = set()
     handled_imports: set[int] = set()
 
@@ -7671,16 +7895,16 @@ def _literal_module_getattr_mapping_providers(
                             next_states.append((dict(environment), "", _UNKNOWN_SOURCE_LITERAL))
                     continue
                 if isinstance(statement, ast.Return):
-                    if statement.value is not None and expression_has_unmodeled_effect(
-                        statement.value, environment, export_name
-                    ):
-                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
-                        continue
                     value = (
                         None
                         if statement.value is None
                         else evaluate_expression(statement.value, environment, export_name)
                     )
+                    if statement.value is not None and expression_has_unmodeled_effect(
+                        statement.value, environment, export_name
+                    ):
+                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+                        continue
                     next_states.append((environment, "return", value))
                     continue
                 if isinstance(statement, ast.Raise):
@@ -7718,7 +7942,10 @@ def _literal_module_getattr_mapping_providers(
                     if bind_target(target, value, updated):
                         next_states.append((updated, "", _UNKNOWN_SOURCE_LITERAL))
                     elif is_name_global_write(target):
-                        if not (is_tagged(value, attribute_tag, 5) and value[2] == export_name):
+                        if not (
+                            (is_tagged(value, attribute_tag, 5) or is_tagged(value, module_tag, 5))
+                            and value[2] == export_name
+                        ):
                             next_states.append(
                                 (environment, "unsupported", _UNKNOWN_SOURCE_LITERAL)
                             )
@@ -7746,7 +7973,7 @@ def _literal_module_getattr_mapping_providers(
                 _literal_getattr_dispatch_names(statement.test, parameter_name)
             )
     if not tables and not candidate_exports:
-        return {}, {}, invalid, set()
+        return {}, {}, {}, invalid, set()
     if invalid:
         # Keep valid rows available for diagnostics, but a malformed candidate
         # map blocks the facade projection as a whole through the wildcard.
@@ -7759,6 +7986,7 @@ def _literal_module_getattr_mapping_providers(
             export_name,
         )
         targets: set[tuple[str, str]] = set()
+        module_targets: set[str] = set()
         accepted_return = False
         unsupported = False
         for _environment, terminal, result in states:
@@ -7768,6 +7996,15 @@ def _literal_module_getattr_mapping_providers(
                 unsupported = True
                 continue
             if (
+                is_tagged(result, module_tag, 5)
+                and result[2] == export_name
+                and (result[1] is None or result[1] in tables)
+                and type(result[3]) is str
+                and bool(result[3])
+            ):
+                accepted_return = True
+                module_targets.add(result[3])
+            elif (
                 is_tagged(result, attribute_tag, 5)
                 and result[2] == export_name
                 and (result[1] is None or result[1] in tables)
@@ -7778,20 +8015,33 @@ def _literal_module_getattr_mapping_providers(
                 targets.add((result[3], result[4]))
             else:
                 unsupported = True
-        if not accepted_return or unsupported or len(targets) != 1:
+        if (not accepted_return or unsupported) or (bool(targets) == bool(module_targets)):
             invalid.add(export_name)
             continue
-        module_name, symbol_name = next(iter(targets))
-        providers.setdefault(export_name, set()).add(module_name)
+        if module_targets:
+            if len(module_targets) != 1:
+                invalid.add(export_name)
+                continue
+            module_providers.setdefault(export_name, set()).update(module_targets)
+            continue
+        if len(targets) != 1:
+            invalid.add(export_name)
+            continue
+        provider_name, symbol_name = next(iter(targets))
+        providers.setdefault(export_name, set()).add(provider_name)
         members.setdefault(export_name, set()).add(symbol_name)
 
     if not builtin_getattr_unshadowed:
         invalid.add("*")
 
-    return providers, members, invalid, handled_getattrs
+    return providers, members, module_providers, invalid, handled_getattrs
 
 
-def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGetattrProviderIndex:
+def _literal_module_getattr_provider_index(
+    tree: ast.Module,
+    *,
+    external_mappings: Mapping[str, dict[str, object]] | None = None,
+) -> _LiteralModuleGetattrProviderIndex:
     """Index PEP 562 providers through one bounded source-value transfer."""
 
     mapping_names: set[str] = set()
@@ -7810,6 +8060,7 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
 
     providers: dict[str, set[str]] = {}
     provider_symbols: dict[str, set[str]] = {}
+    module_providers: dict[str, set[str]] = {}
     invalid: set[str] = set()
     handled_getattrs: set[int] = set()
     # A PEP 562 function is a dispatch surface even when it has no source map.
@@ -7830,7 +8081,7 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
             continue
         parameter = parameters[0].arg
         imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
-        mapped_providers, mapped_symbols, mapped_invalid, mapped_getattrs = (
+        mapped_providers, mapped_symbols, mapped_modules, mapped_invalid, mapped_getattrs = (
             _literal_module_getattr_mapping_providers(
                 tree,
                 function,
@@ -7838,12 +8089,15 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
                 frozenset(mapping_names),
                 imported_functions,
                 imported_modules,
+                external_mappings,
             )
         )
         for export_name, modules in mapped_providers.items():
             providers.setdefault(export_name, set()).update(modules)
         for export_name, symbols in mapped_symbols.items():
             provider_symbols.setdefault(export_name, set()).update(symbols)
+        for export_name, modules in mapped_modules.items():
+            module_providers.setdefault(export_name, set()).update(modules)
         invalid.update(mapped_invalid)
         handled_getattrs.update(mapped_getattrs)
 
@@ -7865,6 +8119,9 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
         ),
         generated_mapping_dispatch=generated_mapping_dispatch,
         mapping_names=frozenset(mapping_names),
+        module_providers_by_export=types.MappingProxyType(
+            {name: frozenset(modules) for name, modules in module_providers.items()}
+        ),
     )
 
 
@@ -7977,14 +8234,27 @@ def _source_facade_runtime_projection(
                     "canonical_loaded_runtime_mismatch",
                     relative_path,
                 ) from exc
-            provider_index = source_index.providers_by_content.get(source_bytes)
-            if provider_index is None:
-                provider_index = _literal_module_getattr_provider_index(tree)
-                source_index.providers_by_content[source_bytes] = provider_index
+            provider_index = _source_module_provider_index(
+                repo_root,
+                module_name,
+                tree,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            )
             mapping_names = provider_index.mapping_names
             maps: dict[str, dict[str, object]] = {}
             if mapping_names:
-                maps, invalid_maps = _static_facade_mapping_values(tree, mapping_names)
+                external_mappings, _invalid_imports = _source_imported_facade_mappings(
+                    repo_root,
+                    module_name,
+                    tree,
+                    mapping_names,
+                    directory_entries=directory_entries,
+                    source_index=source_index,
+                )
+                maps, invalid_maps = _static_facade_mapping_values(
+                    tree, mapping_names, external_mappings=external_mappings
+                )
                 if len(maps) != len(mapping_names):
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
@@ -8017,6 +8287,14 @@ def _source_facade_runtime_projection(
                             export,
                             raw_target,
                         )
+                        module_exports = provider_index.module_providers_by_export or {}
+                        if export in module_exports:
+                            if type(raw_target) is not str:
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    f"invalid module facade target: {module_name}.{export}",
+                                )
+                            target_module, target_symbol = raw_target, None
                         providers = provider_index.providers_by_export.get(
                             export,
                             frozenset(),
@@ -8055,12 +8333,15 @@ def _source_facade_runtime_projection(
                         )
                         owner_verified = bool(
                             provider_path is not None
-                            and _repository_module_exports_symbol(
-                                repo_root,
-                                target_module,
-                                target_symbol,
-                                directory_entries=directory_entries,
-                                source_index=source_index,
+                            and (
+                                target_symbol is None
+                                or _repository_module_exports_symbol(
+                                    repo_root,
+                                    target_module,
+                                    target_symbol,
+                                    directory_entries=directory_entries,
+                                    source_index=source_index,
+                                )
                             )
                         )
                         map_owners.append(
@@ -8116,7 +8397,7 @@ def _source_facade_runtime_projection(
 
         bindings_to_check: dict[tuple[str, str], tuple[str, str, bool]] = {}
         selected_importers: dict[tuple[str, str], set[tuple[str, str, str, str, str]]] = {}
-        for module_name, (_tree, _provider_index, maps) in source_rows.items():
+        for module_name, (_tree, provider_index, maps) in source_rows.items():
             if not maps:
                 continue
             facade_module = sys.modules.get(module_name)
@@ -8125,7 +8406,34 @@ def _source_facade_runtime_projection(
             namespace = vars(facade_module)
             for mapping in maps.values():
                 for export, raw_target in mapping.items():
+                    module_targets = (provider_index.module_providers_by_export or {}).get(
+                        export, frozenset()
+                    )
                     if export not in namespace:
+                        continue
+                    if module_targets:
+                        if len(module_targets) != 1 or type(raw_target) is not str:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"ambiguous cached module facade binding: {module_name}.{export}",
+                            )
+                        target_module = next(iter(module_targets))
+                        target_path = _repository_module_source(
+                            repo_root,
+                            target_module,
+                            directory_entries=directory_entries,
+                        )
+                        loaded_target = sys.modules.get(target_module)
+                        if (
+                            target_path is None
+                            or raw_target != target_module
+                            or loaded_target is None
+                            or namespace.get(export) is not loaded_target
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"cached module facade binding differs: {module_name}.{export}",
+                            )
                         continue
                     target = resolve_source_target(module_name, export, raw_target)
                     bindings_to_check[(module_name, export)] = (*target, False)
@@ -8691,7 +8999,7 @@ def _source_facade_runtime_projection(
                     "canonical_loaded_runtime_mismatch",
                     f"source module origin is invalid: {target_name}",
                 ) from exc
-            if loaded_module_path != target_path.resolve():
+            if loaded_module_path != (repo_root / target_path).resolve():
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch",
                     f"source module origin differs: {target_name}",
@@ -9595,10 +9903,22 @@ def _source_module_import_route(
                 "canonical_loaded_runtime_mismatch",
                 relative.as_posix(),
             ) from exc
-        provider_index = source_index.providers_by_content.get(source_bytes)
-        if provider_index is None:
-            provider_index = _literal_module_getattr_provider_index(tree)
-            source_index.providers_by_content[source_bytes] = provider_index
+        provider_index = _source_module_provider_index(
+            repo_root,
+            module_name,
+            tree,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+        module_providers = provider_index.module_providers_by_export or {}
+        module_targets = module_providers.get(export_name, frozenset())
+        if module_targets:
+            if len(module_targets) != 1 or next(iter(module_targets)) != provider:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"ambiguous module facade binding: {module_name}.{export_name}",
+                )
+            return "module", provider, None
         symbols = (provider_index.provider_symbols_by_export or {}).get(
             export_name,
             frozenset({export_name}),
@@ -9704,6 +10024,35 @@ def _source_module_direct_binding_route(
                 "canonical_loaded_runtime_mismatch",
                 f"direct source provider is unavailable: {module_name}.{export_name}",
             )
+        if base == module_name and alias.name == export_name:
+            child_module = f"{module_name}.{export_name}"
+            getter_sites = _module_scope_direct_binding_sites(tree, "__getattr__")
+            import_position = (statement.lineno, statement.col_offset)
+            getter_precedes_import = any(
+                (
+                    getattr(getter_statement, "lineno", -1),
+                    getattr(getter_statement, "col_offset", -1),
+                )
+                < import_position
+                for _kind, getter_statement, _getter_alias in getter_sites
+            )
+            if not getter_precedes_import:
+                # A package self-import runs before any later __getattr__ binding. Python
+                # can then load only the actual child module; a missing child fails before
+                # the later map-backed hook exists and cannot be repaired by that hook.
+                if (
+                    _repository_module_source(
+                        repo_root, child_module, directory_entries=directory_entries
+                    )
+                    is not None
+                ):
+                    return "module", child_module, None
+                if getter_sites:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"self-import precedes __getattr__ without child: "
+                        f"{module_name}.{export_name}",
+                    )
         target = _source_module_import_route(
             repo_root,
             base,
@@ -9820,10 +10169,16 @@ def _repository_module_exports_symbol(
         return False
     if symbol in _module_scope_definite_bindings(tree):
         return True
-    provider_index = source_index.providers_by_content.get(source_bytes)
-    if provider_index is None:
-        provider_index = _literal_module_getattr_provider_index(tree)
-        source_index.providers_by_content[source_bytes] = provider_index
+    # Imported map identity depends on the importing package as well as this file's
+    # bytes. Recompute through the shared source-owner resolver instead of the
+    # content-only literal-index cache, which cannot distinguish relative-map owners.
+    provider_index = _source_module_provider_index(
+        repo_root,
+        module_name,
+        tree,
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
     if symbol in provider_index.invalid_exports or "*" in provider_index.invalid_exports:
         return False
     providers = provider_index.providers_by_export.get(symbol, frozenset())

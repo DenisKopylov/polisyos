@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 from typing import TYPE_CHECKING
 
 from . import surfaces
+from .surface_routes import READ_API_SURFACE_MODULES as _READ_API_SURFACE_MODULES
 from .surfaces import (
     READ_API_SURFACES,
     ReadApiSurface,
@@ -33,7 +35,6 @@ if TYPE_CHECKING:
         OfficialSnapshotAnswer as OfficialSnapshotAnswer,
     )
 
-_SURFACE_NAMES = frozenset(available_surfaces())
 _EXPORTS = {
     "OfficialSnapshotAnswer": (
         "polisyos.data_forge.read_api.provenance",
@@ -65,15 +66,13 @@ _EXPORTS = {
 
 def __getattr__(name: str) -> object:
     """Lazily import the selected public implementation only when requested."""
-    if name in _SURFACE_NAMES:
-        module = load_surface(name)
+    if name in _READ_API_SURFACE_MODULES:
+        module = import_module(_READ_API_SURFACE_MODULES[name])
         globals()[name] = module
         return module
     target = _EXPORTS.get(name)
     if target is not None:
         module_name, attribute_name = target
-        from importlib import import_module
-
         value = getattr(import_module(module_name), attribute_name)
         globals()[name] = value
         return value
@@ -82,7 +81,7 @@ def __getattr__(name: str) -> object:
 
 def __dir__() -> list[str]:
     """Return public read_api names without importing domain modules."""
-    return sorted({*globals(), *_SURFACE_NAMES, *_EXPORTS})
+    return sorted({*globals(), *_READ_API_SURFACE_MODULES, *_EXPORTS})
 
 
 def pipeline_binding_surface(pipeline: str) -> tuple[str, str] | None:

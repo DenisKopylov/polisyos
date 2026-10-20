@@ -29543,5 +29543,242 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "n11-finite-facade-closure-r4-portable-tests-known-readme-preservation-20261020-r1": {
+    "slice_base": "d3008898be4f075dd6be66265b8fd933193ff9d1",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "postimage_sha256": "5b150fb810d452395a2fcc22ed4020886ec0cd00f47742239f7b4677913515f8",
+        "preimage_sha256": "a91b96edfa73df0d99dc898341ae7b68bd24ee80b0e14bcec7399993cbbddafc"
+      },
+      "policy-engine/src/polisyos/runtime/quality/README.md": {
+        "git_base_preimage_sha256": "f294d4e076d4e553708a1c0216c23266561431bce4bc53cec2d41c91b7002b25",
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/runtime/quality/README.md",
+        "postimage_sha256": "988904a5856fdff72dfd6cdb11c0be4abec21dc6732de8148621ec9b034477e0",
+        "preimage_sha256": "988904a5856fdff72dfd6cdb11c0be4abec21dc6732de8148621ec9b034477e0"
+      },
+      "policy-engine/src/polisyos/data_forge/read_api/__init__.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+        "postimage_sha256": "663b16941e870aaf1b2d2756fe227c580b65b7da10a64d4b60d824fdcec3bc27",
+        "preimage_sha256": "8164190a92e5956e8962910410d239e9802538477b51dc3b6b5404cc121085a9"
+      },
+      "policy-engine/src/polisyos/data_forge/read_api/surfaces.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/data_forge/read_api/surfaces.py",
+        "postimage_sha256": "d1e1824563de3811ac617def946ae569e95451bb94e75986f04f24fefaf46588",
+        "preimage_sha256": "91f36c51abc9db63546785d511a8fc757720938ab873d30d14302345a6ef4bd1"
+      },
+      "policy-engine/src/polisyos/data_forge/read_api/surface_routes.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/data_forge/read_api/surface_routes.py",
+        "postimage_sha256": "ab55d4df959fda4273c4cd13e5da4764bdf0930bb3a209b8e0ad6e4d1c931b06",
+        "preimage_sha256": null
+      },
+      "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+        "postimage_sha256": "fe8dcb499bebcddf672efa9d9bd37d2c73e9ce6e6bceb4ee087f788fe30ee80a",
+        "preimage_sha256": null
+      },
+      "policy-engine/src/polisyos/data_forge/README.md": {
+        "operation": "write",
+        "preimage_sha256": "0a3b2faa510e4c6cb26cdd92cdf6f37b2da2db911267e45673a06c086757a123",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-finite-facade-r4-complete-adoption-20261020-r1/data-forge-README.postimage.md",
+        "postimage_sha256": "8a43b8faef736bcfca947fab3c400c176cebe7f21d3e64a4a7b87a4b6f7e6e17"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-finite-facade-r4-complete-adoption-20261020-r1/source-application.json",
+      "sha256": "2c0cee79ba4a53dae19effdef3f6b426cd6bb222f014b96fab24e37e60051393"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-finite-facade-r4-complete-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/runtime-quality-readme-unowned-20261020-r1/capture.json",
+        "sha256": "fd2fa1f412d2c3417dcce65ac1405c90a051c03f2c313e810e3d352797c7f682"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/runtime-quality-readme-unowned-20261020-r1/observed-diff.patch",
+        "sha256": "6eb1fb340c9eb2097473a3e3d6db25882ff2624ce6bf8af8b2cc3dee7b86c2a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/runtime-quality-readme-unowned-20261020-r1/observed-readme.md",
+        "sha256": "988904a5856fdff72dfd6cdb11c0be4abec21dc6732de8148621ec9b034477e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r2/manifest-r2.json",
+        "sha256": "35cf52630194266efd7e849350344e81d2c78c60e07ede4e2bdaa9c7bfc4db8a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r2/patch-r2.diff",
+        "sha256": "659f20a287b6e4b50273458d10e8c0324f119e5c4486fdba042f7dbb91cd58d6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-independent-review-r1-20261020/review-r1.json",
+        "sha256": "a6908227262360d47a74a87cc2703d58d332ab07a11beb6408f6fb2b9aaa718b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r3/manifest-r3.json",
+        "sha256": "661e64b19bb99b2c5064fc595f05db2086cefbccd8ea1fbc91516c07bdbe4dcf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r3/patch-r3.diff",
+        "sha256": "7eda05676a0ef3ddd714f9eb497818dfc00c973ad1324777220670951de5b1b9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-independent-review-r3-20261020/review-r3.json",
+        "sha256": "f66b59e73ae6eb4c508aaf9ee0656fafba397af12af055e6543c2e9d9701e461"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/manifest-r4.json",
+        "sha256": "5a4f46072e2694d7647e00a62bfbb1f430faeadec732896d21e46bc0639f98be"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/patch-r4.diff",
+        "sha256": "b9c9538c70a24737ef617ca184c2b7067a7075df73e4796056f503ce3b2899b1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/candidate-scope-r4.md",
+        "sha256": "eb9a0f00ff2d6ea02a12a216461ad7f9336a8480942ca0ba8f44d8a8fcd22c51"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "sha256": "5b150fb810d452395a2fcc22ed4020886ec0cd00f47742239f7b4677913515f8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/runtime/quality/README.md",
+        "sha256": "988904a5856fdff72dfd6cdb11c0be4abec21dc6732de8148621ec9b034477e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+        "sha256": "663b16941e870aaf1b2d2756fe227c580b65b7da10a64d4b60d824fdcec3bc27"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/data_forge/read_api/surfaces.py",
+        "sha256": "d1e1824563de3811ac617def946ae569e95451bb94e75986f04f24fefaf46588"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/postimages/policy-engine/src/polisyos/data_forge/read_api/surface_routes.py",
+        "sha256": "ab55d4df959fda4273c4cd13e5da4764bdf0930bb3a209b8e0ad6e4d1c931b06"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+        "sha256": "fe8dcb499bebcddf672efa9d9bd37d2c73e9ce6e6bceb4ee087f788fe30ee80a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/verification/r3-standard-invocation-red.stdout.txt",
+        "sha256": "fca4f4594136c068e7fdeea3a519cb15e887024469451f5d165c91c5910a501c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/verification/r3-standard-invocation-red.json",
+        "sha256": "7496590eaf615d1cb55d5bfeaa2c97d6b5ca1a3fbd5c926c2d5c023296524abd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/verification/pytest-cwd-portability.json",
+        "sha256": "9e55125d5e4b9128480bd96628b99c495e0024f757af8231a6c362407fcee650"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/verification/canonical-fallback-probe.json",
+        "sha256": "b0679cb17f583d58466ba13c39f58922b9ad0f484f34250775ecfce427567d1d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/verification/semantic-test-body-identity.json",
+        "sha256": "96d5e5b28268d1d3af5fad7ea89316fb092a0bef39f6f467bf5f90a439612688"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/verification/ruff-portability-canonical.json",
+        "sha256": "6f32b8077287c72ea1d786db3b9d0ef2a3c785c6954e95b2f5e28d5a7c87fd08"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-closure-20261020-r4-portable-tests/patch-apply-proof.json",
+        "sha256": "62924601a7f55540ca0192cdc45e4ece473174e95a1ec02d5a88145d901e2dcb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-finite-facade-r7-r4-adoption-plan-r4-20261020/plan-r4.json",
+        "sha256": "1a2245aa13315016d275c90696b1d584ee931d0ffc63bb00c8ef98a2cf39b58d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-finite-facade-independent-review-r4-20261020/review-r4.json",
+        "sha256": "fbd27b647b4bcfdb49596a58ef74ee9210a580d0f2ec6dc6cba86a3e1bf2f27b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-finite-facade-r4-complete-adoption-20261020-r1/data-forge-README.postimage.md",
+        "sha256": "8a43b8faef736bcfca947fab3c400c176cebe7f21d3e64a4a7b87a4b6f7e6e17"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/runtime-quality-readme-unowned-20261020-r1/capture.json",
+      "sha256": "fd2fa1f412d2c3417dcce65ac1405c90a051c03f2c313e810e3d352797c7f682"
+    },
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same finite-facade source/runtime binding class after the independent R2 HOLD. R3 widened chronology and nested symbol-map resolution generically; R4 fixes the separate test-harness portability HOLD without changing resolver semantics or any of the 13 semantic test bodies.",
+    "bounded_proof": "R4 candidate-only focused suite: the same 15 tests pass from the product root and workspace root with POLICYOS_RAW_ROOT unset; the canonical-file-location probe resolves the actual product source; AST bodies of all 13 semantic test functions are identical to R3; canonical workspace_root Ruff check and format pass on all five Python files; exact cumulative d300 patch passes temporary-index check and reconstructs candidate tree a35031464b64b92a22dba38546e9d978f9906057. These checks do not establish full N11 owner closure, installed consumer behavior, or formal acceptance.",
+    "limitations": [
+      "Application remains REVIEW_PENDING_NOT_APPLIED until independent R4 delta review issues exact GO; no G acceptance or formal closure is claimed.",
+      "The README bytes are already present as a captured six-line owned edit; preserve 988904... unchanged. The Git base preimage is f294d4...; capture and exact ownership chronology are pinned.",
+      "The two other known-owned tracked test files are preserved byte-identically and remain outside this mechanism.",
+      "No full N11 owner closure/regeneration, complete facade denominator, validators --check/corrupt-field drift, exact wheel/rebuilt-sdist consumer, or expensive native suite is established.",
+      "No source freeze, owner regeneration receipt, live production provenance claim, or formal G adjudication."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After independent R4 GO, root-only adoption must revalidate branch/base, reviewed inputs, exact postimage hashes and all three known dirty pins; preserve the already-applied README bytes and keep the two unrelated owned test rows out of the source patch. Then run the canonical tests with the postimages adopted, complete full N11 owner bundle regeneration twice, validators --check plus corrupt-field drift, exact wheel/rebuilt-sdist consumer and complete output-denominator verification. Do not predict a commit SHA.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

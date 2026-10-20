@@ -1087,3 +1087,9 @@ Readers never synthesize selectors or restamp manifests. CAS enumeration exposes
 view; a non-default view is consumed only when its selector is already carried by the owner-produced
 ref. Core CanonInfo checks serialization only; it does not apply an IR law.
 
+The authority import-closure resolver follows finite facade maps only when the map is
+source-owned or is a unique direct import of a source-owned literal map. It distinguishes
+module-valued lazy exports from symbol re-exports, binds the getter result back to the
+selected map row, and reconciles loaded map/module objects against the source projection.
+Ambiguous, dynamic, duplicate-key, missing-provider, and map/getter-disagreement cases
+remain unresolved; a same-named child module cannot replace a declared provider.

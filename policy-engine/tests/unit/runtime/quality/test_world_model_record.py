@@ -939,6 +939,127 @@ def test_wmr_default_persistence_records_derived_lineage(tmp_path: Path) -> None
         load_world_model_record(store, explicitly_empty_ref)
 
 
+def test_wmr_fresh_intake_rechecks_fabric_bridge_snapshot_owner_edges(tmp_path: Path) -> None:
+    """A selected WMR cannot turn a broken legacy owner edge into a fresh intake."""
+    from datetime import UTC, datetime
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.contracts.fabric import DataSnapshot, DataViewRequestRef
+    from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
+    from polisyos.ir.model_layer.queries import DataViewRequest as QueryDataViewRequest
+    from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
+
+    now = datetime(2026, 5, 24, tzinfo=UTC)
+
+    def build_owner_snapshot(store: FileSystemCAS):
+        request = QueryDataViewRequest(
+            schema_version="1.0",
+            request_id="wmr_owner_snapshot_request",
+            view_type="table",
+            metrics=["social_trust"],
+        )
+        request_ref = store.put_json(
+            request,
+            ArtifactWriteOptions(
+                kind="ir.data_view_request",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+
+        def fetch_data(**_kwargs: object) -> FetchResult[object]:
+            return FetchResult(
+                data=[{"country_code": "UA", "value": 0.61}],
+                row_count=1,
+                schema_id="social_trust",
+                schema_version="1.0",
+                version=DataVersion(
+                    strategy=VersionStrategy.TIMESTAMP,
+                    value=now.isoformat(),
+                    timestamp=now,
+                ),
+                fetched_at=now,
+                source_updated_at=now,
+                completeness=1.0,
+                quality_tier=QualityTier.GOLD,
+                quality_flags=frozenset(),
+                bytes_transferred=128,
+            )
+
+        produced_ref = DefaultFabricPort(fetch_data=fetch_data).snapshot(
+            store,
+            DataViewRequestRef.model_validate(request_ref.model_dump(mode="python")),
+        )
+        produced = DataSnapshot.model_validate(load_core_json_artifact(store, produced_ref))
+        snapshot = produced.model_copy(
+            update={"stats": {**produced.stats, "snapshot_id": SNAPSHOT_ID}}
+        )
+        produced_manifest = store.get_manifest(produced_ref)
+        return store.put_json(
+            snapshot,
+            ArtifactWriteOptions(
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                ),
+                inputs=list(produced_manifest.inputs),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+
+    store, built, _model_spec, _registry_ref = _build_record(
+        tmp_path,
+        data_snapshot_factory=build_owner_snapshot,
+    )
+    assert load_world_model_record(store, built.record_ref) == built.record
+
+    assert built.record.artifact_views is not None
+    valid_snapshot_ref = built.record.artifact_views.data_snapshot_ref
+    valid_manifest = store.get_manifest(valid_snapshot_ref)
+    valid_snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, valid_snapshot_ref))
+    bad_snapshot_ref = store.put_json(
+        valid_snapshot,
+        ArtifactWriteOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[edge for edge in valid_manifest.inputs if edge.role != "data_view_request_ref"],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    changed_views = built.record.artifact_views.model_copy(
+        update={"data_snapshot_ref": bad_snapshot_ref}
+    )
+    draft = built.record.model_copy(
+        update={
+            "artifact_views": changed_views,
+            "world_model_record_id": "world_model_record_0000000000000000",
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    content_hash = world_model_record_content_hash(draft)
+    forged = WorldModelRecord.model_validate(
+        {
+            **built.record.model_dump(mode="json"),
+            "artifact_views": changed_views.model_dump(mode="json"),
+            "world_model_record_id": f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": content_hash,
+        }
+    )
+    forged_ref = persist_world_model_record(store, forged)
+    with pytest.raises(WorldModelRecordError, match="data_snapshot_owner"):
+        load_world_model_record(store, forged_ref)
+
+
 def test_world_model_record_rejects_non_cas_registry_ref(tmp_path: Path) -> None:
     with pytest.raises(WorldModelRecordError, match="substrate_registry_artifact_ref_invalid"):
         _build_record_with_substrate_registry_ref(

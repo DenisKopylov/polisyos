@@ -1104,3 +1104,42 @@ content, scenario, and requirement join. These exports add no namespace-package
 behavior and do not change persisted schemas. A verified candidate report is
 not external custody or authority; the generated public-surface inventory and
 independent G acceptance remain pending for this source candidate.
+
+## DataSnapshot owner-family admission
+
+`data_snapshot_lineage.py` is the Runtime verifier for the three supported
+owner families across both DataSnapshot schemas. It classifies from the selected
+payload's actual kind/schema and, for acquired overlays, its typed owner marker;
+the DataSnapshot version alone never selects the proof path. Schema 0.3 carries
+owner refs directly. For legacy 0.2, Runtime recovers measurement-root refs from
+the parent roles and checks them against the persisted root, receipt, payload,
+and catalog bytes; it recovers the FabricBridge request from the selected
+tabular payload manifest; and it recovers acquired-overlay refs from the typed
+`_policyos_acquisition` payload record. Each recovered ref is profile-resolved,
+then compared with the exact parent edge set and verified owner bytes. Acquired
+base snapshots are recursively revalidated before admission.
+
+Ordinary 0.2 snapshots retain the Core DTO's exact typed-field/role closure.
+A 0.2 owner with the same independently verified proof may remain readable;
+missing, malformed, or stripped owner proof and a lineage field carried under
+0.2 are refused. Readers do not restamp historical manifests. Measurement-root
+snapshots still match the persisted fetch receipt, replayed root, fetched
+payload, and catalog binding. FabricBridge snapshots retain the request edge in
+both the tabular payload and DataSnapshot manifests. Acquired-overlay snapshots
+match the persisted base snapshot, activated receipt, passport, actual content
+hashes, and the Data Forge binding's ordered lineage refs at WMR construction.
+These relations do not certify source truth, causal adequacy, or publication
+authority. The ordinary NL control intake still requires a selected Core
+`DataSnapshot` profile and rejects the former unrelated
+`fabric.data_snapshot.v1@1.0` schema.
+
+The generic compatibility path for `fabric.production_data_state_payload` is
+limited to the exact ordinary schema emitted by
+`materialize_l4_data_state_snapshot` (`polisyos.runtime.quality.DataStatePayload`
+at `policyos.runtime.data_state_substrate.v1`). An acquired-overlay schema or
+typed acquisition marker selects the acquired-owner verifier; an absent or
+unknown source schema is refused. The ordinary schema path proves only the
+DataSnapshot's typed fields and direct manifest roles. It does not prove that
+an acquisition marker was never stripped or that the bytes came from the
+ordinary producer, so a protected `bound` result on that path is not an
+acquired-overlay custody claim.

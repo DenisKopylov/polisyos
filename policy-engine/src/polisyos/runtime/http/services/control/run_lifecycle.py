@@ -4653,8 +4653,7 @@ class ControlPlaneService(
 
     def _validate_control_nl_data_snapshot(self, reference: DataSnapshotRef) -> DataSnapshot:
         """Resolve and type-check one exact DataSnapshot profile view."""
-        from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.ir import get_json_artifact
+        from polisyos.core.artifacts import validate_core_model_json_artifact
         from polisyos.runtime.http.services.predictive_calibration import _require_selected_ref
 
         if type(reference) is not DataSnapshotRef:
@@ -4668,14 +4667,29 @@ class ControlPlaneService(
         )
         manifest = self._artifact_store.get_manifest(reference)
         schema = getattr(manifest, "artifact_schema", None)
-        if schema is None or schema.name != "fabric.data_snapshot.v1" or schema.version != "1.0":
+        if (
+            schema is None
+            or schema.name != DataSnapshot.ARTIFACT_SCHEMA_NAME
+            or schema.version not in DataSnapshot.ARTIFACT_SCHEMA_VERSIONS
+        ):
             raise ValueError("control_nl_data_snapshot_schema_mismatch")
-        snapshot = DataSnapshot.model_validate(
-            get_json_artifact(ensure_ir_artifact_store(self._artifact_store), reference)
+        snapshot = validate_core_model_json_artifact(
+            DataSnapshot,
+            self._artifact_store,
+            reference,
         )
         if snapshot.data_ref.manifest_profile_sha256 is None:
             raise ValueError("control_nl_data_snapshot_data_profile_missing")
         _require_selected_ref(self._artifact_store, snapshot.data_ref, expected_kind=None)
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        validate_data_snapshot_owner_lineage(
+            self._artifact_store,
+            reference,
+            snapshot,
+        )
         return snapshot
 
     def _validate_control_nl_predictive_basis(

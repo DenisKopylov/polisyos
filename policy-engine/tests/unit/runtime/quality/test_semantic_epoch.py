@@ -1709,35 +1709,47 @@ def test_semantic_facet_source_uses_registered_reader_profile_contract(
         return_selected_profile=True,
     )
     malformed_options = (
-        PutOptions(
-            kind="epoch.semantic_facet_source.v1",
-            media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
-            inputs=[
-                epoch.artifacts.input_ref_from_artifact_ref(
-                    dependency_ref, role="unexpected_dependency"
-                )
-            ],
+        (
+            PutOptions(
+                kind="epoch.semantic_facet_source.v1",
+                media_type="application/vnd.polisyos.epoch+json",
+                canon=epoch_contract.epoch_canon_info(),
+                inputs=[
+                    epoch.artifacts.input_ref_from_artifact_ref(
+                        dependency_ref, role="unexpected_dependency"
+                    )
+                ],
+            ),
+            "canon_profile_typed_artifact_profile_mismatch",
         ),
-        PutOptions(
-            kind="epoch.semantic_facet_source.v1",
-            media_type="application/vnd.polisyos.epoch+json",
+        (
+            PutOptions(
+                kind="epoch.semantic_facet_source.v1",
+                media_type="application/vnd.polisyos.epoch+json",
+            ),
+            "canon_profile_absent",
         ),
-        PutOptions(
-            kind="epoch.semantic_facet_source.v1",
-            media_type="application/vnd.polisyos.epoch+json",
-            canon=CanonInfo(name="polisyos.canon.future"),
+        (
+            PutOptions(
+                kind="epoch.semantic_facet_source.v1",
+                media_type="application/vnd.polisyos.epoch+json",
+                canon=CanonInfo(name="polisyos.canon.future"),
+            ),
+            "canon_profile_typed_artifact_profile_mismatch",
         ),
-        PutOptions(
-            kind="epoch.semantic_facet_source.v1",
-            media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
-            schema=SchemaInfo(name="polisyos.epoch.SemanticFacetSource", version="1"),
+        (
+            PutOptions(
+                kind="epoch.semantic_facet_source.v1",
+                media_type="application/vnd.polisyos.epoch+json",
+                canon=epoch_contract.epoch_canon_info(),
+                schema=SchemaInfo(name="polisyos.epoch.SemanticFacetSource", version="1"),
+            ),
+            "canon_profile_typed_artifact_profile_mismatch",
         ),
     )
     malformed_refs = tuple(
-        store.put_bytes(raw, malformed, return_selected_profile=True)
-        for malformed in malformed_options
+        (store.put_bytes(raw, malformed, return_selected_profile=True), refusal)
+        for malformed, refusal in malformed_options
     )
     payload_reads: list[str] = []
     original_verify = type(store).verify
@@ -1753,8 +1765,8 @@ def test_semantic_facet_source_uses_registered_reader_profile_contract(
 
     monkeypatch.setattr(type(store), "verify", record_verify)
     monkeypatch.setattr(type(store), "get_bytes", record_get_bytes)
-    for malformed_ref in malformed_refs:
-        with pytest.raises(ValueError, match="canon_profile_typed_artifact_profile_mismatch"):
+    for malformed_ref, refusal in malformed_refs:
+        with pytest.raises(ValueError, match=refusal):
             epoch._load_selected_acquisition_mapping(
                 store, malformed_ref, expected_kind=malformed_ref.kind
             )
@@ -1990,7 +2002,10 @@ def _assert_l5_owner_rows_and_registry_files_round_trip_through_cas(
         with monkeypatch.context() as context:
             context.setattr(type(store), "verify", record_verify)
             context.setattr(type(store), "get_bytes", record_get_bytes)
-            with pytest.raises(ValueError, match="manifest schema differs"):
+            with pytest.raises(
+                ValueError,
+                match="selected acquisition artifact manifest profile differs",
+            ):
                 epoch._load_selected_acquisition_mapping(
                     store, wrong_schema_ref, expected_kind=selected.kind
                 )
@@ -2216,6 +2231,7 @@ def test_orchestrated_retrieval_summary_resolves_as_selected_snapshot_graph(
     assert summary_ref.kind == RetrievalSummary.ARTIFACT_KIND
     assert summary_ref.manifest_profile_sha256 is not None
 
+    snapshot_manifest = store.get_manifest(snapshot_ref)
     summary_manifest = store.get_manifest(summary_ref)
     assert summary_manifest.kind == RetrievalSummary.ARTIFACT_KIND
     assert summary_manifest.media_type == RetrievalSummary.ARTIFACT_MEDIA_TYPE
@@ -2280,19 +2296,81 @@ def test_orchestrated_retrieval_summary_resolves_as_selected_snapshot_graph(
     assert strict_issue["severity"] == "blocker"
     assert strict_outcome.state.params["data_plane_gate_blocked"] is True
 
-    def _persist_variant(ref: ArtifactRef) -> DataSnapshotRef:
+    def _persist_variant(
+        ref: ArtifactRef,
+        *,
+        manifest_inputs: list[object] | None = None,
+    ) -> DataSnapshotRef:
+        from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+        from polisyos.core.contracts import (
+            data_snapshot_reference_fields,
+            data_snapshot_reference_input_roles,
+        )
+
         changed = snapshot.model_copy(update={"quality_report_ref": ref})
+        if manifest_inputs is None:
+            manifest_inputs = []
+            original_inputs = list(snapshot_manifest.inputs)
+            for field_name in data_snapshot_reference_fields():
+                owner_ref = getattr(changed, field_name)
+                if owner_ref is None:
+                    continue
+                prior_ref = getattr(snapshot, field_name)
+                roles = data_snapshot_reference_input_roles(field_name)
+                matching = [
+                    edge
+                    for edge in original_inputs
+                    if prior_ref is not None
+                    and edge.artifact_id == prior_ref.artifact_id
+                    and edge.manifest_profile_sha256 == prior_ref.manifest_profile_sha256
+                    and edge.role in roles
+                ]
+                if len(matching) != 1:
+                    raise AssertionError(f"expected one original edge for {field_name}")
+                edge = matching[0]
+                original_inputs.remove(edge)
+                manifest_inputs.append(input_ref_from_artifact_ref(owner_ref, role=edge.role))
+            if original_inputs:
+                raise AssertionError("snapshot has unmodeled input edges")
         selected = store.put_json(
             changed,
             PutOptions(
                 kind="fabric.data_snapshot",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+                inputs=manifest_inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
             return_selected_profile=True,
         )
         return DataSnapshotRef.model_validate(selected.model_dump(mode="python"))
+
+    nonempty_summary_ref = store.put_json(
+        summary,
+        PutOptions(
+            kind=RetrievalSummary.ARTIFACT_KIND,
+            media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                epoch.artifacts.input_ref_from_artifact_ref(
+                    source_ref,
+                    role="unexpected_dependency",
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            store,
+            _persist_variant(nonempty_summary_ref),
+        )
+        is None
+    )
 
     wrong_kind = ArtifactRef.model_validate(
         summary_ref.model_dump(mode="json") | {"kind": "fabric.data_snapshot"}
@@ -2321,6 +2399,24 @@ def test_orchestrated_retrieval_summary_resolves_as_selected_snapshot_graph(
         summary_ref.model_dump(mode="json") | {"manifest_profile_sha256": f"sha256:{'0' * 64}"}
     )
     assert epoch._resolve_selected_reference_graph(store, _persist_variant(wrong_profile)) is None
+
+    wrong_edges = list(snapshot_manifest.inputs)
+    data_edge_index = next(
+        index
+        for index, edge in enumerate(wrong_edges)
+        if edge.artifact_id == snapshot.data_ref.artifact_id
+        and edge.role in {"data_ref", "retrieval_payload", "production_data_payload"}
+    )
+    wrong_edges[data_edge_index] = wrong_edges[data_edge_index].model_copy(
+        update={"role": "unregistered_data_role"}
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            store,
+            _persist_variant(summary_ref, manifest_inputs=wrong_edges),
+        )
+        is None
+    )
 
 
 def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(

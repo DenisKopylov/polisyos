@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 
 import duckdb
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -59,10 +60,16 @@ FABRIC_PAYLOAD = {
 }
 
 
-def _build_record(tmp_path: Path):
+def _build_record(
+    tmp_path: Path,
+    *,
+    data_snapshot_factory: Callable[[FileSystemCAS], ArtifactRef] | None = None,
+):
     store = FileSystemCAS(tmp_path / "cas")
     _write_fabric_world_snapshot(tmp_path)
-    data_snapshot_ref = _data_snapshot_ref(store)
+    data_snapshot_ref = (
+        _data_snapshot_ref(store) if data_snapshot_factory is None else data_snapshot_factory(store)
+    )
     registry_bundle = build_default_registry_bundle(store)
     model_spec = _model_spec(data_snapshot_ref, registry_bundle.bundle_ref)
     result = build_world_model_record(

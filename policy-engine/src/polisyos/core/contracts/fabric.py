@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from decimal import Decimal
-from typing import Any, ClassVar, Literal, get_args
+from typing import Annotated, Any, ClassVar, Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 
-from ..artifacts.manifest import ArtifactRef, WarningRecord
+from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord
 from .uncertainty import UncertaintyEnvelopeRef
 
 
@@ -158,11 +159,69 @@ class FabricResult(BaseModel):
     stats: dict[str, int | str] = Field(default_factory=dict)
 
 
+class _DataSnapshotOwnerLineage(BaseModel):
+    """Strict base for owner-specific direct-input witnesses."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.core.DataSnapshotOwnerLineage.v1"] = (
+        "polisyos.core.DataSnapshotOwnerLineage.v1"
+    )
+
+
+class MeasurementRootDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Typed references emitted by the replay-verified measurement-root owner."""
+
+    owner: Literal["measurement_root"] = "measurement_root"
+    measurement_root_ref: ArtifactRef
+    fetch_receipt_ref: ArtifactRef
+    catalog_binding_ref: ArtifactRef
+
+
+class FabricBridgeDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Typed request relation emitted by DefaultFabricPort."""
+
+    owner: Literal["fabric_bridge"] = "fabric_bridge"
+    data_view_request_ref: DataViewRequestRef
+
+
+class AcquiredObservationDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Typed source refs emitted by the activated-observation overlay owner."""
+
+    owner: Literal["acquired_observation_overlay"] = "acquired_observation_overlay"
+    base_data_snapshot_ref: ArtifactRef
+    overlay_admission_receipt_ref: ArtifactRef
+    passport_ref: ArtifactRef
+
+
+DataSnapshotOwnerLineage = Annotated[
+    MeasurementRootDataSnapshotLineage
+    | FabricBridgeDataSnapshotLineage
+    | AcquiredObservationDataSnapshotLineage,
+    Field(discriminator="owner"),
+]
+
+
+DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION = "0.3.0"
+
+
 class DataSnapshot(BaseModel):
-    """Snapshot of retrieved data plus the artifact references needed to audit its quality."""
+    """Snapshot of retrieved data plus typed references needed to audit its quality.
+
+    Version 0.2.0 remains readable with its exact typed-field/role contract.
+    Recognized owner families must pass the same fresh producer verification
+    under either schema; version 0.3.0 carries those owner refs explicitly.
+    """
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.DataSnapshot"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "0.2.0"
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (
+        "0.2.0",
+        DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+    )
+    ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
+        DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
+    }
     ARTIFACT_KIND: ClassVar[Literal["fabric.data_snapshot"]] = "fabric.data_snapshot"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
@@ -176,9 +235,22 @@ class DataSnapshot(BaseModel):
     uncertainty_envelope_ref: UncertaintyEnvelopeRef | None = None
     warnings_ref: WarningsRef | None = None
     input_bindings_ref: ArtifactRef | None = None
+    source_lineage: DataSnapshotOwnerLineage | None = None
     pii_scan_summary: dict[str, Any] | None = None
     stats: dict[str, int | str] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
+
+class DataSnapshotOwnerBound(DataSnapshot):
+    """Schema 0.3.0 writer DTO requiring a typed owner-lineage variant."""
+
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,)
+    ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
+        DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
+    }
+
+    source_lineage: DataSnapshotOwnerLineage
 
 
 _DATA_SNAPSHOT_REFERENCE_INPUT_ROLES: dict[str, frozenset[str]] = {
@@ -236,6 +308,157 @@ def data_snapshot_reference_input_roles(field_name: str) -> frozenset[str]:
     if field_name not in _DATA_SNAPSHOT_REFERENCE_INPUT_ROLES:
         raise ValueError(f"unknown DataSnapshot artifact-reference field: {field_name}")
     return _DATA_SNAPSHOT_REFERENCE_INPUT_ROLES[field_name]
+
+
+def data_snapshot_owner_input_requirements(
+    snapshot: DataSnapshot,
+) -> tuple[tuple[ArtifactRef, str], ...]:
+    """Derive exact direct refs and roles for a schema-0.3 owner snapshot.
+
+    This is a typed transport contract, not by itself proof of completeness.
+    Runtime consumers must reconcile these refs with the owning source artifact
+    or its persisted owner binding before using them for a protected claim.
+    """
+    lineage = snapshot.source_lineage
+    if lineage is None:
+        raise ValueError("data_snapshot_owner_lineage_missing")
+
+    field_roles: dict[str, str]
+    extra_refs: tuple[tuple[ArtifactRef, str], ...]
+    if isinstance(lineage, MeasurementRootDataSnapshotLineage):
+        field_roles = {"data_ref": "fetched_payload"}
+        extra_refs = (
+            (lineage.measurement_root_ref, "measurement_root"),
+            (lineage.fetch_receipt_ref, "fabric_fetch"),
+            (lineage.catalog_binding_ref, "catalog_binding"),
+        )
+    elif isinstance(lineage, FabricBridgeDataSnapshotLineage):
+        field_roles = {
+            "data_ref": "data_ref",
+            "data_schema_ref": "data_schema_ref",
+            "evidence_ref": "evidence_ref",
+            "quality_report_ref": "quality_report_ref",
+            "warnings_ref": "warnings_ref",
+        }
+        extra_refs = ((lineage.data_view_request_ref, "data_view_request_ref"),)
+    elif isinstance(lineage, AcquiredObservationDataSnapshotLineage):
+        field_roles = {"data_ref": "payload.acquired_observation_candidate"}
+        extra_refs = (
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.overlay_admission_receipt_ref, "evidence.overlay_admission_receipt"),
+            (lineage.passport_ref, "evidence.acquisition_passport"),
+        )
+    else:  # pragma: no cover - Pydantic's discriminated union owns this boundary.
+        raise ValueError("data_snapshot_owner_lineage_unsupported")
+
+    expected_fields = set(field_roles)
+    actual_refs = {
+        name: getattr(snapshot, name)
+        for name in data_snapshot_reference_fields()
+        if getattr(snapshot, name) is not None
+    }
+    if set(actual_refs) != expected_fields:
+        raise ValueError("data_snapshot_owner_fields_do_not_match_lineage")
+    requirements = [(ref, field_roles[field_name]) for field_name, ref in actual_refs.items()]
+    requirements.extend(extra_refs)
+    identities = [(ref.artifact_id, role) for ref, role in requirements]
+    if len(identities) != len(set(identities)):
+        raise ValueError("data_snapshot_owner_inputs_not_unique")
+    return tuple(requirements)
+
+
+def data_snapshot_manifest_inputs_match(
+    snapshot: DataSnapshot,
+    manifest_inputs: object,
+    *,
+    schema_version: str | None,
+) -> bool:
+    """Reconcile selected DataSnapshot parent edges to its typed source fields.
+
+    Schema 0.2 uses the established field-to-role contract. Schema 0.3 uses
+    the owner-specific typed edge set. The runtime owner verifier must still
+    bind an owner-family snapshot to its producer payload; this predicate only
+    checks the manifest's direct edges against the declared typed transport.
+    """
+    if not isinstance(manifest_inputs, list):
+        return False
+    if schema_version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
+        if snapshot.source_lineage is None:
+            return False
+        try:
+            requirements = data_snapshot_owner_input_requirements(snapshot)
+        except (TypeError, ValueError):
+            return False
+        expected = [
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for ref, role in requirements
+        ]
+        try:
+            actual_keys = Counter(
+                (row.role, str(row.artifact_id), row.manifest_profile_sha256)
+                for row in manifest_inputs
+            )
+            expected_keys = Counter(
+                (row.role, str(row.artifact_id), row.manifest_profile_sha256) for row in expected
+            )
+            return actual_keys == expected_keys
+        except AttributeError:
+            return False
+    if (
+        schema_version != DataSnapshot.ARTIFACT_SCHEMA_VERSION
+        or snapshot.source_lineage is not None
+    ):
+        return False
+
+    expected_fields = [
+        (field_name, getattr(snapshot, field_name))
+        for field_name in data_snapshot_reference_fields()
+        if getattr(snapshot, field_name) is not None
+    ]
+    if len(manifest_inputs) != len(expected_fields):
+        return False
+    unmatched = set(range(len(manifest_inputs)))
+    for field_name, ref in expected_fields:
+        roles = data_snapshot_reference_input_roles(field_name)
+        if not roles:
+            return False
+        matches = [
+            index
+            for index in unmatched
+            if getattr(manifest_inputs[index], "artifact_id", None) == ref.artifact_id
+            and getattr(manifest_inputs[index], "manifest_profile_sha256", None)
+            == ref.manifest_profile_sha256
+            and getattr(manifest_inputs[index], "role", None) in roles
+        ]
+        if len(matches) != 1:
+            return False
+        unmatched.remove(matches[0])
+
+    # Historical 0.2 owner snapshots place some independently verifiable owner
+    # edges directly in the manifest because the DTO did not yet carry a lineage
+    # field. Recognize only those producer-declared role sets here; the Runtime
+    # owner verifier must recover the refs from owner bytes and bind their IDs.
+    extra_roles_by_payload_kind = {
+        "fabric.fetch_payload": {"measurement_root", "fabric_fetch", "catalog_binding"},
+        "fabric.tabular_payload": {"data_view_request_ref"},
+        "fabric.production_data_state_payload": {
+            "input.base_data_snapshot",
+            "evidence.overlay_admission_receipt",
+            "evidence.acquisition_passport",
+        },
+    }
+    actual_extra_roles = [getattr(manifest_inputs[index], "role", None) for index in unmatched]
+    expected_extra_roles = extra_roles_by_payload_kind.get(snapshot.data_ref.kind, set())
+    if snapshot.data_ref.kind == "fabric.production_data_state_payload" and not actual_extra_roles:
+        # The same artifact kind also serves ordinary L4 DataState payloads.
+        # An acquired-overlay payload proves that owner family from its content;
+        # the Runtime verifier refuses a marker-bearing payload with stripped edges.
+        expected_extra_roles = set()
+    return sorted(actual_extra_roles) == sorted(expected_extra_roles)
 
 
 class RetrievalSummary(BaseModel):

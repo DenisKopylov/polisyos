@@ -1949,7 +1949,11 @@ def persist_measurement_root_data_snapshot(
         execution_scope_binding=execution_scope_binding,
     )
 
-    from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
+    from polisyos.core.contracts import (
+        DataSnapshotOwnerBound,
+        DataSnapshotRef,
+        MeasurementRootDataSnapshotLineage,
+    )
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt
 
     payload_ref = evidence.payload.payload_ref
@@ -2055,8 +2059,13 @@ def persist_measurement_root_data_snapshot(
         ),
     )
 
-    snapshot = DataSnapshot(
+    snapshot = DataSnapshotOwnerBound(
         data_ref=payload_ref,
+        source_lineage=MeasurementRootDataSnapshotLineage(
+            measurement_root_ref=evidence.measurement_root_ref,
+            fetch_receipt_ref=fetch_receipt_ref,
+            catalog_binding_ref=catalog_binding_ref,
+        ),
         stats={
             "snapshot_id": str(payload_ref.artifact_id),
             "observed_row_count": evidence.payload.observed_row_count,
@@ -2070,7 +2079,7 @@ def persist_measurement_root_data_snapshot(
             media_type="application/json",
             schema=artifacts.SchemaInfo(
                 name="polisyos.core.DataSnapshot",
-                version="0.2.0",
+                version="0.3.0",
             ),
             inputs=[
                 artifacts.input_ref_from_artifact_ref(payload_ref, role="fetched_payload"),
@@ -2082,6 +2091,7 @@ def persist_measurement_root_data_snapshot(
             ],
         ),
         canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 

@@ -9594,13 +9594,30 @@ class GenerationCycleController:
                     role="catalog_binding",
                 ),
             ]
+            snapshot_schema = snapshot_manifest.artifact_schema
             if (
                 not store.verify(data_snapshot_ref).ok
                 or snapshot_manifest.kind != "fabric.data_snapshot"
                 or snapshot_manifest.media_type != "application/json"
-                or snapshot_manifest.artifact_schema
-                != artifacts.SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0")
-                or snapshot_manifest.inputs != expected_snapshot_inputs
+                or snapshot_schema is None
+                or snapshot_schema.name != "polisyos.core.DataSnapshot"
+                or snapshot_schema.version not in {"0.2.0", "0.3.0"}
+            ):
+                raise ValueError("DataSnapshot lineage is incomplete")
+            if data_snapshot_ref.manifest_profile_sha256 is None:
+                raise ValueError("owner-bound DataSnapshot selected profile is missing")
+            from polisyos.runtime.quality.data_snapshot_lineage import (
+                validate_data_snapshot_owner_lineage,
+            )
+
+            validate_data_snapshot_owner_lineage(
+                store,
+                data_snapshot_ref,
+                snapshot,
+            )
+            if (
+                snapshot_schema.version == "0.2.0"
+                and snapshot_manifest.inputs != expected_snapshot_inputs
             ):
                 raise ValueError("DataSnapshot lineage is incomplete")
 

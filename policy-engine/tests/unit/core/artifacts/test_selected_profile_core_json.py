@@ -1274,3 +1274,70 @@ def test_units_registry_discriminator_refuses_unknown_present_kind(tmp_path) -> 
         validate_core_model_json_artifact(
             _UnitsRegistryEnvelope, FileSystemCAS(store_root), selected_ref
         )
+
+
+def test_data_snapshot_schema_030_requires_owner_lineage(tmp_path) -> None:
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.core.contracts.fabric import (
+        DataSnapshot,
+        DataSnapshotOwnerBound,
+        FabricBridgeDataSnapshotLineage,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    data_ref = store.put_json(
+        {"rows": []},
+        PutOptions(
+            kind="fabric.tabular_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.fabric.TabularPayload", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    request_ref = store.put_json(
+        {"schema_version": "1.0"},
+        PutOptions(
+            kind="ir.data_view_request",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    schema = SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0")
+    complete_ref = store.put_json(
+        DataSnapshotOwnerBound(
+            data_ref=data_ref,
+            source_lineage=FabricBridgeDataSnapshotLineage(
+                data_view_request_ref=request_ref,
+            ),
+        ),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=schema,
+            inputs=[
+                input_ref_from_artifact_ref(request_ref, role="data_view_request_ref"),
+                input_ref_from_artifact_ref(data_ref, role="data_ref"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    restored = validate_core_model_json_artifact(DataSnapshot, store, complete_ref)
+    assert restored.source_lineage is not None
+
+    incomplete_ref = store.put_json(
+        DataSnapshot(data_ref=data_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=schema,
+            inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(CanonicalProfileRefusalError, match="required_field_missing"):
+        validate_core_model_json_artifact(DataSnapshot, store, incomplete_ref)

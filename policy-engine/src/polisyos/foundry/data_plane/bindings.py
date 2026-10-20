@@ -23,6 +23,7 @@ from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts import (
     ArtifactStore,
     CoreJSONArtifactStore,
+    artifact_manifest_profile_sha256,
     resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts.manifest import (
@@ -36,10 +37,15 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     ValueOuterSet,
+    data_snapshot_owner_input_requirements,
     data_snapshot_reference_fields,
     data_snapshot_reference_input_roles,
 )
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts.fabric import (
+    DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+    DataSnapshot,
+    DataSnapshotRef,
+)
 from polisyos.core.contracts.foundry import (
     FeedbackConfig,
     FeedbackStateSnapshot,
@@ -987,6 +993,13 @@ def _load_data_snapshot(
     if selected_parent_manifest is None:
         return snapshot
 
+    if (
+        selected_parent_manifest.artifact_schema is not None
+        and selected_parent_manifest.artifact_schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+    ):
+        _verify_data_snapshot_owner_inputs(store, selected_parent_manifest, snapshot)
+        return snapshot
+
     selected_nested_refs: dict[str, BaseModel] = {}
     for field_name in data_snapshot_reference_fields():
         nested_ref = getattr(snapshot, field_name)
@@ -1054,24 +1067,100 @@ def _verify_selected_data_snapshot_schema(
     store: CoreJSONArtifactStore,
     ref: ArtifactRef,
 ) -> ArtifactManifest | None:
-    """Require an exact owner schema only when a selected DataSnapshot view is supplied."""
+    """Resolve supported owner schemas, including the actual default view."""
     if ref.manifest_profile_sha256 is None:
-        return None
-    try:
-        manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
-    except (FileNotFoundError, ValueError) as exc:
-        raise ValueError("DataSnapshot selected manifest profile does not resolve") from exc
+        manifest = store.get_manifest(ref)
+        if not store.verify(ref).ok:
+            raise ValueError("DataSnapshot default profile integrity failure")
+        if (
+            manifest.kind != ref.kind
+            or manifest.media_type != ref.media_type
+            or manifest.kind != DataSnapshot.ARTIFACT_KIND
+            or manifest.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
+        ):
+            raise ValueError("DataSnapshot default profile differs from its artifact contract")
+        if (
+            manifest.artifact_schema is None
+            or manifest.artifact_schema.version != DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+        ):
+            return None
+    else:
+        try:
+            manifest = resolve_manifest_by_profile(
+                store,
+                ref.artifact_id,
+                ref.manifest_profile_sha256,
+            )
+        except (FileNotFoundError, ValueError) as exc:
+            raise ValueError("DataSnapshot selected manifest profile does not resolve") from exc
     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
         raise ValueError("DataSnapshot selected profile differs from its artifact contract")
     if not store.verify(ref).ok:
         raise ValueError("DataSnapshot selected profile integrity failure")
-    expected_schema = SchemaInfo(
-        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
-        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
-    )
-    if manifest.artifact_schema != expected_schema:
+    if (
+        manifest.artifact_schema is None
+        or manifest.artifact_schema.name != DataSnapshot.ARTIFACT_SCHEMA_NAME
+        or manifest.artifact_schema.version not in DataSnapshot.ARTIFACT_SCHEMA_VERSIONS
+    ):
         raise ValueError("DataSnapshot selected manifest schema differs from its model owner")
     return manifest
+
+
+def _verify_data_snapshot_owner_inputs(
+    store: CoreJSONArtifactStore,
+    manifest: ArtifactManifest,
+    snapshot: DataSnapshot,
+) -> None:
+    """Reconcile schema-0.3 parent edges without changing child selectors."""
+    try:
+        expected = data_snapshot_owner_input_requirements(snapshot)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("DataSnapshot owner-lineage contract is invalid") from exc
+    if len(manifest.inputs) != len(expected):
+        raise ValueError("DataSnapshot owner-lineage input denominator differs")
+    unmatched = set(range(len(manifest.inputs)))
+    for ref, role in expected:
+        matches = [
+            index
+            for index in unmatched
+            if manifest.inputs[index].artifact_id == ref.artifact_id
+            and manifest.inputs[index].role == role
+        ]
+        if len(matches) != 1:
+            raise ValueError("DataSnapshot owner-lineage input edge differs")
+        edge = manifest.inputs[matches[0]]
+        unmatched.remove(matches[0])
+        try:
+            default_ref = ArtifactRef.model_validate(
+                ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
+            )
+            default_manifest = store.get_manifest(default_ref)
+            default_profile = artifact_manifest_profile_sha256(default_manifest)
+            selected_profile = edge.manifest_profile_sha256 or default_profile
+            ref_profile = ref.manifest_profile_sha256 or default_profile
+            if (
+                not selected_profile
+                or selected_profile != ref_profile
+                or default_manifest.kind != ref.kind
+                or default_manifest.media_type != ref.media_type
+            ):
+                raise ValueError("DataSnapshot owner-lineage child profile differs")
+            selected_ref = ref.model_copy(update={"manifest_profile_sha256": selected_profile})
+            child_manifest = resolve_manifest_by_profile(
+                store,
+                selected_ref.artifact_id,
+                selected_profile,
+            )
+            if (
+                child_manifest.kind != ref.kind
+                or child_manifest.media_type != ref.media_type
+                or not store.verify(selected_ref).ok
+            ):
+                raise ValueError("DataSnapshot owner-lineage child ref differs")
+        except (FileNotFoundError, TypeError, ValueError) as exc:
+            raise ValueError("DataSnapshot owner-lineage child ref is unverified") from exc
+    if unmatched:
+        raise ValueError("DataSnapshot has undeclared owner-lineage input edges")
 
 
 def _snapshot_binding_notes(snapshot: DataSnapshot) -> list[str]:

@@ -507,7 +507,19 @@ def _load_selected_acquisition_mapping(
             raise ValueError("selected producer JSON differs from its declared canonical bytes")
     elif codec.payload_format not in {"canonical_json", "raw_json"}:
         raise ValueError("selected acquisition payload format is unsupported")
-    return {str(key): value for key, value in mapping.items()}
+    result = {str(key): value for key, value in mapping.items()}
+    if expected_kind == "fabric.data_snapshot":
+        epoch_contract._verify_decoded_data_snapshot_manifest_inputs(
+            manifest=manifest,
+            decoded=result,
+        )
+        snapshot = contracts.DataSnapshot.model_validate(result)
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        validate_data_snapshot_owner_lineage(store, ref, snapshot)
+    return result
 
 
 def _load_owner_projection_mapping(
@@ -567,12 +579,7 @@ def _data_snapshot_manifest_inputs_match(
     selected_snapshot_ref: ArtifactRef,
     snapshot: contracts.DataSnapshot,
 ) -> bool:
-    """Reconcile every selected parent edge with its typed DataSnapshot field."""
-    from polisyos.core.contracts import (
-        data_snapshot_reference_fields,
-        data_snapshot_reference_input_roles,
-    )
-
+    """Reconcile typed snapshot edges and actual owner-family evidence."""
     if selected_snapshot_ref.manifest_profile_sha256 is None:
         return False
     manifest = store.get_manifest(selected_snapshot_ref)
@@ -582,36 +589,26 @@ def _data_snapshot_manifest_inputs_match(
         != selected_snapshot_ref.manifest_profile_sha256
     ):
         return False
-    expected_edges: list[tuple[ArtifactRef, frozenset[str]]] = []
-    for field_name in data_snapshot_reference_fields():
-        owner_ref = getattr(snapshot, field_name)
-        if owner_ref is None:
-            continue
-        if owner_ref.manifest_profile_sha256 is None:
-            return False
-        allowed_roles = data_snapshot_reference_input_roles(field_name)
-        if not allowed_roles:
-            return False
-        expected_edges.append((owner_ref, allowed_roles))
-
-    if len(manifest.inputs) != len(expected_edges):
+    schema = getattr(manifest, "artifact_schema", None)
+    if schema is None or schema.name != contracts.DataSnapshot.ARTIFACT_SCHEMA_NAME:
         return False
-    if any(input_ref.manifest_profile_sha256 is None for input_ref in manifest.inputs):
-        return False
+    try:
+        from polisyos.core.contracts.fabric import data_snapshot_manifest_inputs_match
 
-    unmatched_input_indexes = set(range(len(manifest.inputs)))
-    for owner_ref, allowed_roles in expected_edges:
-        matching_indexes = [
-            index
-            for index in unmatched_input_indexes
-            if manifest.inputs[index].artifact_id == owner_ref.artifact_id
-            and manifest.inputs[index].manifest_profile_sha256 == owner_ref.manifest_profile_sha256
-            and manifest.inputs[index].role in allowed_roles
-        ]
-        if len(matching_indexes) != 1:
+        if not data_snapshot_manifest_inputs_match(
+            snapshot,
+            manifest.inputs,
+            schema_version=schema.version,
+        ):
             return False
-        unmatched_input_indexes.remove(matching_indexes[0])
-    return not unmatched_input_indexes
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        validate_data_snapshot_owner_lineage(store, selected_snapshot_ref, snapshot)
+    except (OSError, TypeError, ValueError, RuntimeError):
+        return False
+    return True
 
 
 def _walk_verified_reference_graph(

@@ -1514,6 +1514,141 @@ class TestLaunchNlRun:
         body = resp.json()
         assert body["code"] == "llm_model_unconfigured"
 
+    def test_launch_nl_run_accepts_real_core_data_snapshot_and_refuses_wrong_schema(
+        self, runtime_api_env
+    ) -> None:
+        """Ordinary NL admission consumes the selected schema emitted by Fabric."""
+        from datetime import UTC, datetime
+
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+        from polisyos.core.canon import CanonSpec, from_canonical_bytes
+        from polisyos.core.contracts.fabric import (
+            DataSnapshot,
+            DataViewRequestRef,
+        )
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.ir.connectors import (
+            DataVersion,
+            FetchResult,
+            QualityTier,
+            VersionStrategy,
+        )
+        from polisyos.ir.model_layer.queries import DataViewRequest
+        from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
+
+        client = runtime_api_env["client"]
+        service = runtime_api_env["app"].state._control_service
+        store = service._artifact_store
+        now = datetime.now(UTC)
+
+        def fetch_data(*, dataset_id, connector_id=None, constraints=None, registry=None):
+            del connector_id, constraints, registry
+            assert dataset_id == "policy_inputs"
+            return FetchResult(
+                data=[{"value": 1.0}],
+                row_count=1,
+                schema_id="policy_inputs",
+                schema_version="1.0",
+                version=DataVersion(
+                    strategy=VersionStrategy.TIMESTAMP,
+                    value=now.isoformat(),
+                    timestamp=now,
+                ),
+                fetched_at=now,
+                source_updated_at=now,
+                completeness=1.0,
+                quality_tier=QualityTier.SILVER,
+                quality_flags=frozenset(),
+                bytes_transferred=16,
+            )
+
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ):
+            request_ref = store.put_json(
+                DataViewRequest(
+                    schema_version="1.0",
+                    request_id="nl-core-data-snapshot-actual",
+                    view_type="table",
+                    metrics=["policy_inputs"],
+                ),
+                ArtifactWriteOptions(
+                    kind="ir.data_view_request",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            snapshot_ref = DefaultFabricPort(fetch_data=fetch_data).snapshot(
+                store,
+                DataViewRequestRef.model_validate(request_ref.model_dump(mode="python")),
+            )
+            snapshot = DataSnapshot.model_validate(
+                from_canonical_bytes(store.get_bytes(snapshot_ref))
+            )
+            snapshot_manifest = store.get_manifest(snapshot_ref)
+            assert snapshot_manifest.artifact_schema == SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version="0.3.0",
+            )
+
+            wrong_schema_ref = store.put_json(
+                snapshot,
+                ArtifactWriteOptions(
+                    kind="fabric.data_snapshot",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="fabric.data_snapshot.v1", version="1.0"),
+                    inputs=list(snapshot_manifest.inputs),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+
+        service._worker.stop()
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "nl-core-data-snapshot-actual"},
+            json={
+                "request": "Review the supplied policy evidence.",
+                "llm_model": "simulated-qwen",
+                "data_source": {"data_snapshot_ref": snapshot_ref.model_dump(mode="json")},
+            },
+        )
+        assert response.status_code == 200, response.text
+        job_id = response.json()["job_id"]
+        assert client.get(f"/api/v1/control/jobs/{job_id}").status_code == 200
+
+        refused = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "nl-core-data-snapshot-wrong-schema"},
+            json={
+                "request": "Review the supplied policy evidence.",
+                "llm_model": "simulated-qwen",
+                "data_source": {"data_snapshot_ref": wrong_schema_ref.model_dump(mode="json")},
+            },
+        )
+        assert refused.status_code == 422
+        assert refused.json()["code"] == "nl_data_snapshot_not_admitted"
+
+        malformed_profile_ref = snapshot_ref.model_copy(
+            update={"manifest_profile_sha256": "0" * 64}
+        )
+        malformed_profile = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "nl-core-data-snapshot-malformed-profile"},
+            json={
+                "request": "Review the supplied policy evidence.",
+                "llm_model": "simulated-qwen",
+                "data_source": {"data_snapshot_ref": malformed_profile_ref.model_dump(mode="json")},
+            },
+        )
+        assert malformed_profile.status_code == 422
+        assert malformed_profile.json()["code"] == "nl_data_snapshot_not_admitted"
+
     def test_launch_nl_run_with_llm_model(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(

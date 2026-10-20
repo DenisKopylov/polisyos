@@ -1650,6 +1650,15 @@ def _build_selected_profile_member(
             _as_ir_artifact_ref(request.observed_source_ref),
         )
         snapshot = DataSnapshot.model_validate(snapshot_payload)
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        validate_data_snapshot_owner_lineage(
+            store,
+            request.observed_source_ref,
+            snapshot,
+        )
         observed_data_ref = ArtifactRef.model_validate(snapshot.data_ref.model_dump(mode="json"))
         _require_selected_ref(store, observed_data_ref, expected_kind=None)
         observed_payload = get_json_artifact(
@@ -1715,6 +1724,15 @@ def _revalidate_profile_member_binding(
             _as_ir_artifact_ref(association.observed_source_ref),
         )
         snapshot = DataSnapshot.model_validate(snapshot_payload)
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        validate_data_snapshot_owner_lineage(
+            store,
+            association.observed_source_ref,
+            snapshot,
+        )
         snapshot_data_ref = ArtifactRefModel.model_validate(
             snapshot.data_ref.model_dump(mode="json")
         )

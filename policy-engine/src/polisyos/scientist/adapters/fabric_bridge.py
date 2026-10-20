@@ -16,10 +16,11 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import (
-    DataSnapshot,
+    DataSnapshotOwnerBound,
     DataSnapshotRef,
     DataViewRequestRef,
     EvidenceBundleRef,
+    FabricBridgeDataSnapshotLineage,
     WarningsBundle,
     WarningsRef,
 )
@@ -208,13 +209,16 @@ class DefaultFabricPort:
         snapshot_stats.update(semantic_stats)
         snapshot_notes.extend(semantic_notes)
 
-        snapshot = DataSnapshot(
+        snapshot = DataSnapshotOwnerBound(
             data_ref=data_ref,
             data_schema_ref=schema_ref,
             evidence_ref=evidence_ref,
             quality_report_ref=quality_report_ref,
             warnings_ref=warnings_ref,
             pii_scan_summary=pii_scan_summary,
+            source_lineage=FabricBridgeDataSnapshotLineage(
+                data_view_request_ref=request_ref,
+            ),
             stats=snapshot_stats,
             notes=snapshot_notes,
         )
@@ -223,10 +227,11 @@ class DefaultFabricPort:
             ArtifactWriteOptions(
                 kind="fabric.data_snapshot",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
                 inputs=snapshot_inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
         snapshot_ref = profile_bound_ref(store, snapshot_ref)
         return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))

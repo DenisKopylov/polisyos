@@ -790,12 +790,23 @@ def _validate_model_artifact_manifest(model: type[BaseModel], manifest: Artifact
             raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
         if schema is None:
             raise CanonicalProfileRefusalError("canon_profile_typed_artifact_schema_missing")
-        supported_versions = {expected_schema_version}
-        legacy_version = getattr(model, "LEGACY_ARTIFACT_SCHEMA_VERSION", None)
-        if legacy_version is not None:
-            if not isinstance(legacy_version, str) or not legacy_version:
+        declared_versions = getattr(model, "ARTIFACT_SCHEMA_VERSIONS", None)
+        if declared_versions is None:
+            supported_versions = {expected_schema_version}
+            legacy_version = getattr(model, "LEGACY_ARTIFACT_SCHEMA_VERSION", None)
+            if legacy_version is not None:
+                if not isinstance(legacy_version, str) or not legacy_version:
+                    raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+                supported_versions.add(legacy_version)
+        else:
+            if (
+                not isinstance(declared_versions, (tuple, list, set, frozenset))
+                or not declared_versions
+                or any(not isinstance(value, str) or not value for value in declared_versions)
+                or expected_schema_version not in declared_versions
+            ):
                 raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
-            supported_versions.add(legacy_version)
+            supported_versions = set(declared_versions)
         if schema.version not in supported_versions:
             raise CanonicalProfileRefusalError(
                 "canon_profile_typed_artifact_schema_version_unsupported"
@@ -808,6 +819,26 @@ def _validate_model_payload_schema_version(
     manifest: ArtifactManifest,
 ) -> None:
     """Require payload and selected schema versions to follow the owner's exact relation."""
+    schema = manifest.artifact_schema
+    required_by_version = getattr(model, "ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION", {})
+    if not isinstance(required_by_version, Mapping):
+        raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+    for manifest_version, required_fields in required_by_version.items():
+        if not isinstance(manifest_version, str) or not manifest_version:
+            raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+        if not isinstance(required_fields, (tuple, list, set, frozenset)) or any(
+            not isinstance(field_name, str) or not field_name for field_name in required_fields
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+    if schema is not None and schema.version in required_by_version:
+        for field_name in required_by_version[schema.version]:
+            if (
+                field_name not in model.model_fields
+                or getattr(typed_model, field_name, None) is None
+            ):
+                raise CanonicalProfileRefusalError(
+                    "canon_profile_typed_artifact_required_field_missing"
+                )
     if "schema_version" not in model.model_fields:
         return
     current_version = getattr(model, "ARTIFACT_SCHEMA_VERSION", None)
@@ -818,10 +849,21 @@ def _validate_model_payload_schema_version(
     schema = manifest.artifact_schema
     if schema is None:
         raise CanonicalProfileRefusalError("canon_profile_typed_artifact_schema_version_mismatch")
-    supported_manifest_versions = {current_version}
-    legacy_version = getattr(model, "LEGACY_ARTIFACT_SCHEMA_VERSION", None)
-    if legacy_version is not None:
-        supported_manifest_versions.add(legacy_version)
+    declared_versions = getattr(model, "ARTIFACT_SCHEMA_VERSIONS", None)
+    if declared_versions is None:
+        supported_manifest_versions = {current_version}
+        legacy_version = getattr(model, "LEGACY_ARTIFACT_SCHEMA_VERSION", None)
+        if legacy_version is not None:
+            supported_manifest_versions.add(legacy_version)
+    else:
+        if (
+            not isinstance(declared_versions, (tuple, list, set, frozenset))
+            or not declared_versions
+            or any(not isinstance(value, str) or not value for value in declared_versions)
+            or current_version not in declared_versions
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_typed_artifact_owner_invalid")
+        supported_manifest_versions = set(declared_versions)
     if schema.version not in supported_manifest_versions:
         raise CanonicalProfileRefusalError(
             "canon_profile_typed_artifact_schema_version_unsupported"

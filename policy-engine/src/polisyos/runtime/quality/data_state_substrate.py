@@ -76,7 +76,7 @@ ScopedSchemaRegimeProjection = core_contracts.ScopedSchemaRegimeProjection
 canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
-ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v1"
+ACQUIRED_DATA_STATE_SCHEMA_VERSION = "policyos.runtime.acquisition_data_state.v2"
 _DATA_FORGE_SNAPSHOT_PIPELINE = "ukraine"
 ACQUIRED_DATA_STATE_LIMITATION_CODES = (
     "source_time_not_established",
@@ -805,6 +805,20 @@ def materialize_acquired_observation_snapshot(
         base_snapshot = DataSnapshot.model_validate(
             load_core_json_artifact(store, base_data_snapshot_ref)
         )
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        try:
+            validate_data_snapshot_owner_lineage(
+                store,
+                base_data_snapshot_ref,
+                base_snapshot,
+            )
+        except (OSError, TypeError, ValueError, RuntimeError) as exc:
+            raise DataStateSubstrateError(
+                "acquisition_base_snapshot_owner_lineage_invalid", str(exc)
+            ) from exc
         snapshot_stats = base_snapshot.stats
         base_snapshot_id = (
             str(snapshot_stats.get("snapshot_id") or snapshot_stats.get("version_id") or "")
@@ -872,6 +886,7 @@ def materialize_acquired_observation_snapshot(
     payload["_policyos_acquisition"] = {
         "schema_version": ACQUIRED_DATA_STATE_SCHEMA_VERSION,
         "base_data_snapshot_id": base_snapshot_id,
+        "base_data_snapshot_ref": base_data_snapshot_ref.model_dump(mode="json"),
         "source_time_status": "not_established",
         "selected_observation_id": observation.observation_id,
         "selected_dataset_id": observation.dataset_id,
@@ -914,8 +929,13 @@ def materialize_acquired_observation_snapshot(
     )
     payload_content_hash = str(payload_ref.artifact_id)
     snapshot_id = "gy-s1-acquisition-overlay-" + payload_content_hash.removeprefix("sha256:")[:20]
-    data_snapshot = DataSnapshot(
+    data_snapshot = core_contracts.DataSnapshotOwnerBound(
         data_ref=payload_ref,
+        source_lineage=core_contracts.AcquiredObservationDataSnapshotLineage(
+            base_data_snapshot_ref=base_data_snapshot_ref,
+            overlay_admission_receipt_ref=selected_projection.receipt_ref,
+            passport_ref=selected_projection.passport_ref,
+        ),
         stats={
             "snapshot_id": snapshot_id,
             "source_mode": "candidate_acquisition_overlay",
@@ -941,7 +961,7 @@ def materialize_acquired_observation_snapshot(
         PutOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
             inputs=[
                 input_ref_from_artifact_ref(
                     payload_ref,
@@ -951,6 +971,7 @@ def materialize_acquired_observation_snapshot(
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     binding_path = _write_data_forge_snapshot_binding(
         workspace_dir=workspace_dir,

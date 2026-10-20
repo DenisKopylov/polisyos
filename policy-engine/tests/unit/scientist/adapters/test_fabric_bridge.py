@@ -6,18 +6,24 @@ from datetime import UTC, datetime
 
 import pytest
 
-from polisyos.core.artifacts import artifact_manifest_profile_sha256
+from polisyos.core.artifacts import artifact_manifest_profile_sha256, input_ref_from_artifact_ref
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot, DataViewRequestRef
+from polisyos.core.contracts.fabric import (
+    DataSnapshot,
+    DataSnapshotRef,
+    DataViewRequestRef,
+    data_snapshot_owner_input_requirements,
+)
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
 from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
 from polisyos.ir.model_layer.queries import DataViewRequest
 from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort, ExecutionTierViolation
+from tests._helpers.runtime_http import _build_control_service
 
 
 class _DatasetRecord:
@@ -259,6 +265,131 @@ def test_default_fabric_port_persists_real_sql_dataframe_and_selected_lineage(tm
     assert request_edge.manifest_profile_sha256 == artifact_manifest_profile_sha256(
         store.get_manifest(request_ref)
     )
+
+    control_service = _build_control_service(tmp_path / "control", artifact_store=store)
+    try:
+        admitted = control_service._validate_control_nl_data_snapshot(
+            DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
+        )
+        assert admitted == snapshot
+        assert snapshot_manifest.artifact_schema == SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version="0.3.0",
+        )
+
+        wrong_schema_ref = store.put_json(
+            snapshot,
+            ArtifactWriteOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="fabric.data_snapshot.v1", version="1.0"),
+                inputs=list(snapshot_manifest.inputs),
+            ),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError, match="control_nl_data_snapshot_schema_mismatch"):
+            control_service._validate_control_nl_data_snapshot(
+                DataSnapshotRef.model_validate(wrong_schema_ref.model_dump(mode="python"))
+            )
+    finally:
+        control_service.close()
+
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotLineageError,
+        validate_data_snapshot_owner_lineage,
+    )
+
+    legacy_payload = snapshot.model_dump(mode="json")
+    legacy_payload.pop("source_lineage")
+    legacy_snapshot = DataSnapshot.model_validate(legacy_payload)
+    legacy_snapshot_ref = store.put_json(
+        legacy_snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=list(snapshot_manifest.inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    validate_data_snapshot_owner_lineage(store, legacy_snapshot_ref, legacy_snapshot)
+    legacy_missing_request_ref = store.put_json(
+        legacy_snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[
+                edge for edge in snapshot_manifest.inputs if edge.role != "data_view_request_ref"
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="manifest_inputs_mismatch"):
+        validate_data_snapshot_owner_lineage(
+            store,
+            legacy_missing_request_ref,
+            legacy_snapshot,
+        )
+
+    missing_request_edge_ref = store.put_json(
+        snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
+            inputs=[
+                edge for edge in snapshot_manifest.inputs if edge.role != "data_view_request_ref"
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="parent_inputs_mismatch"):
+        validate_data_snapshot_owner_lineage(store, missing_request_edge_ref, snapshot)
+
+    alternate_request_ref = store.put_json(
+        DataViewRequest(
+            schema_version="1.0",
+            request_id="req_sql_inputs_alt",
+            view_type="table",
+            metrics=["policy_inputs"],
+        ),
+        ArtifactWriteOptions(
+            kind="ir.data_view_request",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    alternate_request = DataViewRequestRef.model_validate(
+        alternate_request_ref.model_dump(mode="python")
+    )
+    assert snapshot.source_lineage is not None
+    forged_lineage = snapshot.source_lineage.model_copy(
+        update={"data_view_request_ref": alternate_request}
+    )
+    forged_snapshot = snapshot.model_copy(update={"source_lineage": forged_lineage})
+    forged_inputs = [
+        input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in data_snapshot_owner_input_requirements(forged_snapshot)
+    ]
+    forged_snapshot_ref = store.put_json(
+        forged_snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
+            inputs=forged_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="source_edges_mismatch"):
+        validate_data_snapshot_owner_lineage(store, forged_snapshot_ref, forged_snapshot)
 
 
 def test_columnar_payload_preserves_nonfinite_as_nonfinite_and_refuses_duplicate_columns(

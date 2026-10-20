@@ -53,6 +53,16 @@ It also exposes `acquisition_native_coordinate_role(kind)` through the stable la
 typed role is derived from the existing epoch codec registry; `AcquisitionArtifactCodec` retains
 its existing six-field tuple shape and constructor behavior.
 
+`DataSnapshot` retains schema 0.2.0 for existing producers and accepts schema 0.3.0 for the
+measurement-root, Scientist FabricBridge, and activated acquisition-overlay writers. The 0.3 DTO
+carries a strict, discriminated `source_lineage`; Runtime resolves its refs against owner bytes and
+manifests. Recognized owner families receive the same verification under 0.2 and 0.3: 0.2 owner
+refs are recovered from existing child payloads and reconciled against the exact direct input set,
+while ordinary 0.2 snapshots retain their exact typed-field/role contract. A 0.2 lineage field,
+missing owner evidence, or malformed supplied owner schema is refused. Readers do not upgrade,
+restamp, or rewrite historical bytes. This contract adds no scientific, legal, or publication
+authority.
+
 `polisyos.core.contracts.__all__` expands the chronology export tuple and every
 declared symbol resolves through the defining contract module. Wildcard imports
 retain the same class objects as explicit imports, including CausalFrontier and
@@ -110,7 +120,7 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 
 ## Owned artifact-schema descriptors for source-bound Foundry inputs
 
-The typed source reader compares each selected manifest's `artifact_schema` with the exact descriptor owned by the model producer. The descriptor travels as `ARTIFACT_SCHEMA_NAME` and `ARTIFACT_SCHEMA_VERSION` on these existing model owners; it is not a new central schema registry. The current source-bound quantity uses: `DataSnapshot` 0.2.0; `ProgramGraph` and `ExecPlan` 0.2.0; `FoundryExecutionInputBasis` 1.0; `SimulationResult` 1.4 for a captured single-step basis (legacy 1.3 remains distinct); `FoundryInputBindings`, `FeedbackConfig`, and `ParameterOverrideBundle` 1.0; `StateDelta` and `Metrics` 0.1.0; `TrinityBundle` 1.0; and `PolicyCandidateSchema` 1.0.
+The typed source reader compares each selected manifest's `artifact_schema` with the exact descriptor owned by the model producer. The descriptor travels as `ARTIFACT_SCHEMA_NAME` and `ARTIFACT_SCHEMA_VERSION` on these existing model owners; it is not a new central schema registry. The current source-bound quantity uses: `DataSnapshot` 0.2.0 or owner-bound 0.3.0; `ProgramGraph` and `ExecPlan` 0.2.0; `FoundryExecutionInputBasis` 1.0; `SimulationResult` 1.4 for a captured single-step basis (legacy 1.3 remains distinct); `FoundryInputBindings`, `FeedbackConfig`, and `ParameterOverrideBundle` 1.0; `StateDelta` and `Metrics` 0.1.0; `TrinityBundle` 1.0; and `PolicyCandidateSchema` 1.0.
 
 These values identify serialization contracts. They do not establish risk meaning, units, a refinement relation, valid time/currentness, issuer authority, or historical supersession. Missing schema on a legacy ID-only reference remains unqualified; no old profile is inferred or backfilled. `ProgramGraph.schema_version` (0.2) is its model field and remains distinct from the artifact-manifest version (0.2.0).
 

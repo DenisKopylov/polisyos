@@ -4521,8 +4521,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 ir_store,
                 observed_snapshot.model_dump(mode="json"),
                 kind="fabric.data_snapshot",
-                schema_name="fabric.data_snapshot.v1",
-                schema_version="1.0",
+                schema_name="polisyos.core.DataSnapshot",
+                schema_version="0.2.0",
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
             )
@@ -4666,8 +4666,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 local_ir_store,
                 local_observed_snapshot.model_dump(mode="json"),
                 kind="fabric.data_snapshot",
-                schema_name="fabric.data_snapshot.v1",
-                schema_version="1.0",
+                schema_name="polisyos.core.DataSnapshot",
+                schema_version="0.2.0",
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
             )

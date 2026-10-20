@@ -1511,6 +1511,18 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                     snapshot = DataSnapshot.model_validate(payload)
                 except (TypeError, ValueError) as exc:
                     raise ValueError("workspace_loop_data_snapshot_invalid") from exc
+                from polisyos.runtime.quality.data_snapshot_lineage import (
+                    validate_data_snapshot_owner_lineage,
+                )
+
+                try:
+                    validate_data_snapshot_owner_lineage(
+                        self._artifact_store,
+                        artifact_ref,
+                        snapshot,
+                    )
+                except (OSError, TypeError, ValueError, RuntimeError) as exc:
+                    raise ValueError("workspace_loop_data_snapshot_owner_lineage_invalid") from exc
                 source_ref = snapshot.data_ref
                 source_manifest = self._artifact_store.get_manifest(source_ref)
                 if (
@@ -1547,10 +1559,14 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         schema = manifest.artifact_schema
         if schema is None or not schema.name or not schema.version:
             raise ValueError("workspace_loop_input_schema_missing")
-        if slot == "data_snapshot_ref" and (
-            schema.name != "polisyos.core.DataSnapshot" or schema.version != "0.2.0"
-        ):
-            raise ValueError("workspace_loop_input_schema_mismatch")
+        if slot == "data_snapshot_ref":
+            from polisyos.core.contracts.fabric import DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+
+            if schema.name != "polisyos.core.DataSnapshot" or schema.version not in {
+                "0.2.0",
+                DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+            }:
+                raise ValueError("workspace_loop_input_schema_mismatch")
         verification = self._artifact_store.verify(artifact_ref)
         if not verification.ok:
             raise ValueError("workspace_loop_input_integrity_failed")

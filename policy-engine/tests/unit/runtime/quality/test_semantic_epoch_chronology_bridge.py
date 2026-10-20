@@ -410,7 +410,7 @@ def test_native_query_context_default_writer_profile_has_no_manifest_inputs(
         ),
         return_selected_profile=True,
     )
-    with pytest.raises(ValueError, match="selector is not established"):
+    with pytest.raises(ValueError, match="no registered content resolver"):
         epoch._load_owner_projection_mapping(case.store, wrong_media_ref)
     assert payload_reads == []
 

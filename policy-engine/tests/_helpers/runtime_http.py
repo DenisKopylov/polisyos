@@ -695,6 +695,7 @@ def submit_ordinary_nl_post(
     request: str = "Analyze a small-business liquidity support policy.",
     llm_model: str = "simulated-qwen",
     max_iterations: int = 1,
+    data_snapshot_ref: ArtifactRef | None = None,
     before_run_index_refresh: Callable[[Any, Any, str], None] | None = None,
 ) -> dict[str, object]:
     """Create and execute a real NL control job, returning its persisted owner."""
@@ -711,14 +712,19 @@ def submit_ordinary_nl_post(
     if worker is not None:
         worker.stop()
 
+    request_payload: dict[str, object] = {
+        "request": request,
+        "llm_model": llm_model,
+        "max_iterations": max_iterations,
+    }
+    if data_snapshot_ref is not None:
+        request_payload["data_source"] = {
+            "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json")
+        }
     launch_response = client.post(
         "/api/v1/control/runs/nl",
         headers={"Idempotency-Key": uuid.uuid4().hex},
-        json={
-            "request": request,
-            "llm_model": llm_model,
-            "max_iterations": max_iterations,
-        },
+        json=request_payload,
     )
     if launch_response.status_code != 200:
         raise AssertionError(

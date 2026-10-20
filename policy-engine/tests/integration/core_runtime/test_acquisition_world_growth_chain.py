@@ -90,6 +90,77 @@ def _executor_probe_port(case):
     return port, attempted_constraints
 
 
+def test_ordinary_l4_data_state_writer_keeps_legacy_snapshot_valid(tmp_path, monkeypatch):
+    """The ordinary producer schema remains readable under its registered contract."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.runtime.quality import data_state_substrate
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        validate_data_snapshot_owner_lineage,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source_paths = data_state_substrate._DataStatePaths(
+        l1_dcat_path=tmp_path / "l1.parquet",
+        agent_registry_full=tmp_path / "agent-registry.parquet",
+        firm_fundamentals_annual=tmp_path / "firm-fundamentals.parquet",
+        budget_flows_monthly_sparse=tmp_path / "budget-flows.parquet",
+        corrected_firm_panels=tmp_path / "corrected-firm-panels.parquet",
+        calibrated_household_cells=tmp_path / "calibrated-household-cells.parquet",
+    )
+    monkeypatch.setattr(
+        data_state_substrate,
+        "_default_data_state_paths",
+        lambda *_args, **_kwargs: source_paths,
+    )
+    monkeypatch.setattr(data_state_substrate, "_require_paths", lambda *_a, **_k: None)
+    monkeypatch.setattr(
+        data_state_substrate,
+        "build_l5_family_binding_profile",
+        lambda *_a, **_k: SimpleNamespace(
+            schema_regime_status="single_regime",
+            model_dump=lambda **_kwargs: {"schema_version": "controlled-test"},
+        ),
+    )
+    monkeypatch.setattr(
+        data_state_substrate,
+        "_project_real_l4_payload",
+        lambda *_a, **_k: (
+            {"agents": {"income": [1200.0]}},
+            {
+                "bound_agent_count": 1,
+                "l4_total_rows": {
+                    "agent_registry_full": 1,
+                    "budget_flows_monthly_sparse": 0,
+                },
+            },
+        ),
+    )
+
+    result = data_state_substrate.materialize_l4_data_state_snapshot(
+        store,
+        repo_root=tmp_path,
+        workspace_dir=tmp_path / "workspace",
+        agent_limit=1,
+        required_l1_variables=(),
+        families=("firm_fundamentals",),
+        substrate_registry=SimpleNamespace(substrate_version_id="controlled-test"),
+        period_start="2026-01",
+        period_end="2026-02",
+    )
+    snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(store.get_bytes(result.data_snapshot_ref))
+    )
+    payload_manifest = store.get_manifest(snapshot.data_ref)
+    assert payload_manifest.artifact_schema.name == "polisyos.runtime.quality.DataStatePayload"
+    assert payload_manifest.artifact_schema.version == (
+        data_state_substrate.DATA_STATE_SUBSTRATE_SCHEMA_VERSION
+    )
+    assert snapshot.source_lineage is None
+    validate_data_snapshot_owner_lineage(store, result.data_snapshot_ref, snapshot)
+
+
 def _assert_exact_native_appointment_repeat(case, store):
     """Prove a repeated exact appointment reuses its custodian and envelope."""
     first_appointment = case.appoint_native_policy()
@@ -1036,14 +1107,20 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
     tmp_path, monkeypatch, request
 ):
     """Owner-read-back WDI data reaches Foundry without inventing source time or SKG."""
+    from copy import deepcopy
     from dataclasses import replace
     from datetime import UTC, datetime
 
     import numpy as np
 
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.core.contracts import epoch as epoch_contract
-    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.contracts.fabric import (
+        DataSnapshot,
+        data_snapshot_owner_input_requirements,
+    )
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         CatalogAcquisitionOverlay,
@@ -1051,6 +1128,10 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
     )
     from polisyos.runtime.http.resilience import guard_runtime_cas
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotLineageError,
+        validate_data_snapshot_owner_lineage,
+    )
     from polisyos.runtime.quality.data_state_substrate import (
         ACQUIRED_DATA_STATE_LIMITATION_CODES,
         ControlledAcquisitionSlotBinding,
@@ -1179,6 +1260,101 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             from_canonical_bytes(store.get_bytes(materialized.data_snapshot_ref))
         )
         payload = from_canonical_bytes(store.get_bytes(snapshot.data_ref))
+        assert snapshot.source_lineage is not None
+        assert snapshot.source_lineage.owner == "acquired_observation_overlay"
+        assert snapshot.source_lineage.base_data_snapshot_ref == base_snapshot_ref
+        validate_data_snapshot_owner_lineage(store, materialized.data_snapshot_ref, snapshot)
+
+        legacy_payload = snapshot.model_dump(mode="json")
+        legacy_payload.pop("source_lineage")
+        legacy_snapshot = DataSnapshot.model_validate(legacy_payload)
+        current_manifest = store.get_manifest(materialized.data_snapshot_ref)
+        legacy_snapshot_ref = store.put_json(
+            legacy_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.2.0",
+                ),
+                inputs=list(current_manifest.inputs),
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        validate_data_snapshot_owner_lineage(store, legacy_snapshot_ref, legacy_snapshot)
+
+        unmarked_owner_payload = deepcopy(payload)
+        unmarked_owner_payload.pop("_policyos_acquisition")
+        malformed_owner_payload_ref = store.put_json(
+            unmarked_owner_payload,
+            wmr_fixture.PutOptions(
+                kind="fabric.production_data_state_payload",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.runtime.quality.UnknownPayload",
+                    version="1.0",
+                ),
+                inputs=(),
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        malformed_owner_snapshot = legacy_snapshot.model_copy(
+            update={"data_ref": malformed_owner_payload_ref}
+        )
+        malformed_owner_snapshot_ref = store.put_json(
+            malformed_owner_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.2.0",
+                ),
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        malformed_owner_payload_ref,
+                        role="data_ref",
+                    )
+                ],
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(DataSnapshotLineageError, match="owner_source_schema_invalid"):
+            validate_data_snapshot_owner_lineage(
+                store,
+                malformed_owner_snapshot_ref,
+                malformed_owner_snapshot,
+            )
+
+        legacy_missing_passport_ref = store.put_json(
+            legacy_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.2.0",
+                ),
+                inputs=[
+                    edge
+                    for edge in current_manifest.inputs
+                    if edge.role != "evidence.acquisition_passport"
+                ],
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError, match="manifest_inputs_mismatch"):
+            validate_data_snapshot_owner_lineage(
+                store,
+                legacy_missing_passport_ref,
+                legacy_snapshot,
+            )
+
         persisted_selected = payload["acquisition"]["selected"]
         assert persisted_selected["value"] == selected.observation.value
         assert persisted_selected["observation_id"] == selected.observation.observation_id
@@ -1196,6 +1372,126 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
             == (admitted.projection.passport_content_sha256)
             == content_sha256(passport_payload)
         )
+
+        payload_manifest = store.get_manifest(snapshot.data_ref)
+        assert payload_manifest.artifact_schema == wmr_fixture.SchemaInfo(
+            name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+            version="policyos.runtime.acquisition_data_state.v2",
+        )
+        omitted_owner_payload = deepcopy(payload)
+        omitted_owner_payload["_policyos_acquisition"].pop("base_data_snapshot_ref")
+        omitted_payload_ref = store.put_json(
+            omitted_owner_payload,
+            wmr_fixture.PutOptions(
+                kind="fabric.production_data_state_payload",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+                    version="policyos.runtime.acquisition_data_state.v2",
+                ),
+                inputs=[
+                    edge
+                    for edge in payload_manifest.inputs
+                    if edge.role != "input.base_data_snapshot"
+                ],
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        omitted_owner_snapshot = snapshot.model_copy(update={"data_ref": omitted_payload_ref})
+        omitted_parent_inputs = [
+            input_ref_from_artifact_ref(ref, role=role)
+            for ref, role in data_snapshot_owner_input_requirements(omitted_owner_snapshot)
+        ]
+        omitted_owner_snapshot_ref = store.put_json(
+            omitted_owner_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.3.0",
+                ),
+                inputs=omitted_parent_inputs,
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(DataSnapshotLineageError, match="owner_refs_invalid"):
+            validate_data_snapshot_owner_lineage(
+                store,
+                omitted_owner_snapshot_ref,
+                omitted_owner_snapshot,
+            )
+
+        missing_base_ref = ArtifactRef.model_validate(
+            base_snapshot_ref.model_dump(mode="json") | {"artifact_id": "sha256:" + "f" * 64}
+        )
+        missing_base_lineage = snapshot.source_lineage.model_copy(
+            update={"base_data_snapshot_ref": missing_base_ref}
+        )
+        missing_base_payload = deepcopy(payload)
+        missing_base_payload["_policyos_acquisition"]["base_data_snapshot_ref"] = (
+            missing_base_ref.model_dump(mode="json")
+        )
+        missing_base_payload["_policyos_acquisition"]["base_data_snapshot_id"] = str(
+            missing_base_ref.artifact_id
+        )
+        missing_base_payload_inputs = [
+            input_ref_from_artifact_ref(
+                missing_base_ref,
+                role="input.base_data_snapshot",
+            ),
+            *(edge for edge in payload_manifest.inputs if edge.role != "input.base_data_snapshot"),
+        ]
+        missing_base_payload_ref = store.put_json(
+            missing_base_payload,
+            wmr_fixture.PutOptions(
+                kind="fabric.production_data_state_payload",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.runtime.quality.AcquisitionDataStatePayload",
+                    version="policyos.runtime.acquisition_data_state.v2",
+                ),
+                inputs=missing_base_payload_inputs,
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        missing_base_snapshot = snapshot.model_copy(
+            update={
+                "data_ref": missing_base_payload_ref,
+                "source_lineage": missing_base_lineage,
+            }
+        )
+        missing_base_snapshot_inputs = [
+            input_ref_from_artifact_ref(ref, role=role)
+            for ref, role in data_snapshot_owner_input_requirements(missing_base_snapshot)
+        ]
+        missing_base_snapshot_ref = store.put_json(
+            missing_base_snapshot,
+            wmr_fixture.PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=wmr_fixture.SchemaInfo(
+                    name="polisyos.core.DataSnapshot",
+                    version="0.3.0",
+                ),
+                inputs=missing_base_snapshot_inputs,
+            ),
+            canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(
+            DataSnapshotLineageError,
+            match="acquired_observation_base_snapshot_unavailable",
+        ):
+            validate_data_snapshot_owner_lineage(
+                store,
+                missing_base_snapshot_ref,
+                missing_base_snapshot,
+            )
+
         payload["acquisition"]["selected"].pop("value")
         removed_payload_ref = store.put_json(
             payload,
@@ -1204,7 +1500,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
                 media_type="application/json",
                 schema=wmr_fixture.SchemaInfo(
                     name="polisyos.runtime.quality.AcquisitionDataStatePayload",
-                    version="policyos.runtime.acquisition_data_state.v1",
+                    version="policyos.runtime.acquisition_data_state.v2",
                 ),
             ),
             canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),
@@ -1217,7 +1513,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
                 media_type="application/json",
                 schema=wmr_fixture.SchemaInfo(
                     name="polisyos.core.DataSnapshot",
-                    version="0.2.0",
+                    version="0.3.0",
                 ),
             ),
             canon_spec=wmr_fixture.CanonSpec(forbid_floats=False),

@@ -110,6 +110,18 @@ deep-importing ad hoc internals.
 The former private `polisyos.foundry._registry` module is removed; mechanism
 runtime descriptors belong to the catalog owner linked above.
 
+## DataSnapshot input binding
+
+Foundry's DataSnapshot loader reconciles the snapshot's typed refs with the
+selected CAS parent edges. For schema 0.3, it also reconciles the declared
+lineage refs with those edges. This is candidate input-binding consistency; it
+does not independently verify the source owner's basis or admit an owner
+family. Protected Runtime consumers perform the fresh owner-family readback
+before emitting a bound World Model Record. Direct Foundry binding and execution
+remain operational candidate paths and do not grant promotion or publication
+authority. External institution signatures and source truth remain outside this
+contract.
+
 ## Execution-source admission
 
 `polisyos.foundry.execute.admit_execution_source()` reopens the selected

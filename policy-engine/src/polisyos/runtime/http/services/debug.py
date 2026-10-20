@@ -1672,6 +1672,15 @@ class DebugService:
                     self._store,
                     data_snapshot_ref,
                 )
+                from polisyos.runtime.quality.data_snapshot_lineage import (
+                    validate_data_snapshot_owner_lineage,
+                )
+
+                validate_data_snapshot_owner_lineage(
+                    self._store,
+                    data_snapshot_ref,
+                    selected_snapshot,
+                )
             except (
                 AttributeError,
                 CanonicalProfileRefusalError,

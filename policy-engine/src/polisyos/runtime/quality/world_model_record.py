@@ -556,6 +556,22 @@ def build_world_model_record(
         data_forge_snapshot_binding_path,
         role=data_forge_role,
     )
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        validate_data_snapshot_owner_lineage,
+    )
+
+    try:
+        validate_data_snapshot_owner_lineage(
+            store,
+            data_snapshot_ref,
+            data_snapshot,
+            binding_lineage_refs=data_forge_binding_ref.lineage_refs,
+        )
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise WorldModelRecordError(
+            "data_snapshot_owner_lineage_invalid",
+            str(exc),
+        ) from exc
     resolved_fabric_world_ref = _resolve_fabric_world_ref(fabric_world_ref)
     _resolve_skg_causal_prior_ref(skg_causal_prior_ref)
     substrate_registry_input_ref = (
@@ -973,6 +989,13 @@ def load_world_model_record(
             if not store.verify(view_ref).ok:
                 raise ValueError("world model selected input verification failed")
             store.get_manifest(view_ref)
+        views = world_model_artifact_views(record)
+        snapshot = _load_data_snapshot(store, views.data_snapshot_ref)
+        from polisyos.runtime.quality.data_snapshot_lineage import (
+            validate_data_snapshot_owner_lineage,
+        )
+
+        validate_data_snapshot_owner_lineage(store, views.data_snapshot_ref, snapshot)
         return record
     except WorldModelRecordError:
         raise

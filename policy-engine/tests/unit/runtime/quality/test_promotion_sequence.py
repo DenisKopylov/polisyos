@@ -3929,7 +3929,11 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
 ) -> None:
     """Project resolved measurement custody into a DataSnapshot without replay."""
 
-    from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+    from polisyos.core.contracts.fabric import (
+        DataSnapshot,
+        DataSnapshotRef,
+        data_snapshot_owner_input_requirements,
+    )
     from polisyos.fabric.retrieval import custody as retrieval_custody
     from polisyos.runtime.quality import data_forge_binding as binding_owner
 
@@ -3988,6 +3992,11 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert str(snapshot.data_ref.artifact_id) == expected_payload_artifact_id
     assert snapshot.stats["snapshot_id"] == expected_payload_artifact_id
     assert snapshot.stats["observed_row_count"] == evidence.payload.observed_row_count
+    assert snapshot.source_lineage is not None
+    assert snapshot.source_lineage.owner == "measurement_root"
+    assert snapshot.source_lineage.measurement_root_ref == evidence.measurement_root_ref
+    assert snapshot.source_lineage.fetch_receipt_ref == evidence.fetch_receipt_ref
+    assert snapshot.source_lineage.catalog_binding_ref == evidence.catalog_binding_ref
 
     manifest = owner.store.get_manifest(snapshot_ref)
     assert snapshot_ref.manifest_profile_sha256 == core_artifacts.artifact_manifest_profile_sha256(
@@ -3997,7 +4006,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert manifest.media_type == "application/json"
     assert manifest.artifact_schema == core_artifacts.SchemaInfo(
         name="polisyos.core.DataSnapshot",
-        version="0.2.0",
+        version="0.3.0",
     )
     assert [(input_ref.role, str(input_ref.artifact_id)) for input_ref in manifest.inputs] == [
         ("fetched_payload", expected_payload_artifact_id),
@@ -4005,6 +4014,107 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
         ("fabric_fetch", str(evidence.fetch_receipt_ref.artifact_id)),
         ("catalog_binding", str(evidence.catalog_binding_ref.artifact_id)),
     ]
+
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotLineageError,
+        validate_data_snapshot_owner_lineage,
+    )
+
+    validate_data_snapshot_owner_lineage(owner.store, snapshot_ref, snapshot)
+
+    legacy_payload = snapshot.model_dump(mode="json")
+    legacy_payload.pop("source_lineage")
+    legacy_snapshot = DataSnapshot.model_validate(legacy_payload)
+    legacy_ref = owner.store.put_json(
+        legacy_snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+            inputs=list(manifest.inputs),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    validate_data_snapshot_owner_lineage(owner.store, legacy_ref, legacy_snapshot)
+    legacy_missing_root_edge = owner.store.put_json(
+        legacy_snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+            inputs=[edge for edge in manifest.inputs if edge.role != "measurement_root"],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="manifest_inputs_mismatch"):
+        validate_data_snapshot_owner_lineage(owner.store, legacy_missing_root_edge, legacy_snapshot)
+
+    legacy_with_lineage_ref = owner.store.put_json(
+        snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+            inputs=list(manifest.inputs),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="legacy_lineage_field_unbound"):
+        validate_data_snapshot_owner_lineage(owner.store, legacy_with_lineage_ref, snapshot)
+
+    missing_catalog_ref = owner.store.put_json(
+        snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.3.0",
+            ),
+            inputs=manifest.inputs[:-1],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="parent_inputs_mismatch"):
+        validate_data_snapshot_owner_lineage(owner.store, missing_catalog_ref, snapshot)
+
+    forged_lineage = snapshot.source_lineage.model_copy(
+        update={"catalog_binding_ref": evidence.measurement_root_ref}
+    )
+    forged_snapshot = snapshot.model_copy(update={"source_lineage": forged_lineage})
+    forged_inputs = [
+        core_artifacts.input_ref_from_artifact_ref(ref, role=role)
+        for ref, role in data_snapshot_owner_input_requirements(forged_snapshot)
+    ]
+    forged_catalog_ref = owner.store.put_json(
+        forged_snapshot,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.3.0",
+            ),
+            inputs=forged_inputs,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(DataSnapshotLineageError, match="measurement_root_owner_payload_mismatch"):
+        validate_data_snapshot_owner_lineage(owner.store, forged_catalog_ref, forged_snapshot)
 
 
 def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_write(

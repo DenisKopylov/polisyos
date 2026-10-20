@@ -169,17 +169,20 @@ def _seed_staged_data_snapshot_closure(
         "staged_data_snapshot_source",
         require_profiled_json=True,
     )
-    expected_schema = SchemaInfo(
-        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
-        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
-    )
     if (
         source_manifest.kind != DataSnapshot.ARTIFACT_KIND
         or source_manifest.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
-        or source_manifest.artifact_schema != expected_schema
+        or source_manifest.artifact_schema is None
+        or source_manifest.artifact_schema.name != DataSnapshot.ARTIFACT_SCHEMA_NAME
+        or source_manifest.artifact_schema.version not in DataSnapshot.ARTIFACT_SCHEMA_VERSIONS
     ):
         raise ValueError("foundry_staged_intake_source_data_snapshot_identity_mismatch")
-    DataSnapshot.model_validate_json(source_raw)
+    snapshot = DataSnapshot.model_validate_json(source_raw)
+    from polisyos.runtime.quality.data_snapshot_lineage import (
+        validate_data_snapshot_owner_lineage,
+    )
+
+    validate_data_snapshot_owner_lineage(source_store, source_ref, snapshot)
 
     source_closure = _reference_closure(source_store, source_ref, "staged_data_snapshot_source")
     source_by_view: dict[tuple[str, str, str, str | None], AdapterArtifactByteBinding] = {}

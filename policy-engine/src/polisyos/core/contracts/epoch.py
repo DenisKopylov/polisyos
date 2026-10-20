@@ -182,6 +182,12 @@ class _UnownedManifestInputClosure(NamedTuple):
     scope: str
 
 
+class _DataSnapshotManifestInputClosure(NamedTuple):
+    """DataSnapshot edges recomputed from its Core Fabric DTO after byte decode."""
+
+    owner: Literal["core.contracts.fabric.DataSnapshot"] = "core.contracts.fabric.DataSnapshot"
+
+
 _ManifestSchemaExpectation = (
     SchemaInfo | tuple[SchemaInfo | None, ...] | None | _UnownedManifestSchemaExpectation
 )
@@ -191,6 +197,7 @@ _ManifestInputExpectation = (
     | _PayloadDerivedManifestInputClosure
     | _RequiredManifestInputViewSubset
     | _UnownedManifestInputClosure
+    | _DataSnapshotManifestInputClosure
 )
 
 
@@ -288,7 +295,9 @@ def _preflight_core_manifest_profile(
         input_contract_matches = required_views.issubset(input_views)
     elif isinstance(
         expected_inputs,
-        _PayloadDerivedManifestInputClosure | _UnownedManifestInputClosure,
+        _PayloadDerivedManifestInputClosure
+        | _UnownedManifestInputClosure
+        | _DataSnapshotManifestInputClosure,
     ):
         input_contract_matches = True
     else:
@@ -584,6 +593,8 @@ def load_verified_epoch_statement(
             decoded_inputs=expected_inputs,
             failure_message="epoch statement manifest input closure differs",
         )
+    elif isinstance(input_expectation, _DataSnapshotManifestInputClosure):
+        _verify_decoded_data_snapshot_manifest_inputs(manifest=manifest, decoded=decoded)
     return {str(key): value for key, value in decoded.items()}
 
 
@@ -1448,6 +1459,11 @@ def _known_epoch_statement_manifest_schema(
     registry source writers. Other registered source codecs with no schema
     declaration retain an explicitly bounded unowned expectation.
     """
+    if expected_kind == "fabric.data_snapshot":
+        return (
+            SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
+        )
     if codec.schema_name is not None:
         return SchemaInfo(name=codec.schema_name, version=codec.schema_version or "")
     if (
@@ -1478,6 +1494,14 @@ def _known_epoch_statement_manifest_inputs(expected_kind: str) -> _ManifestInput
         return _PayloadDerivedManifestInputClosure("epoch.prepared", "multiset")
     if expected_kind == "epoch.production_receipt":
         return _PayloadDerivedManifestInputClosure("epoch.production_receipt", "multiset")
+    if expected_kind == "fabric.data_snapshot":
+        return _DataSnapshotManifestInputClosure()
+    if expected_kind in {
+        "fabric.evidence_bundle",
+        "fabric.quality_report",
+        "fabric.retrieval_summary",
+    }:
+        return _ExactManifestInputClosure(())
     if expected_kind in {"epoch.semantic_facet_source.v1", "epoch.chronology_query_context"}:
         return _ExactManifestInputClosure(())
     if expected_kind == "core.chronology.full_prefix.verification_result":
@@ -1549,6 +1573,34 @@ def _epoch_owner_input_keys(
             for value in values
         )
     )
+
+
+def _verify_decoded_data_snapshot_manifest_inputs(
+    *,
+    manifest: ArtifactManifest,
+    decoded: dict[str, Any],
+) -> None:
+    """Check DataSnapshot parent edges against the typed Core Fabric contract."""
+    from polisyos.core.contracts.fabric import (
+        DataSnapshot,
+        data_snapshot_manifest_inputs_match,
+    )
+
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != DataSnapshot.ARTIFACT_KIND
+        or manifest.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
+        or schema is None
+        or schema.name != DataSnapshot.ARTIFACT_SCHEMA_NAME
+    ):
+        raise ValueError("DataSnapshot selected manifest schema differs")
+    snapshot = DataSnapshot.model_validate(decoded)
+    if not data_snapshot_manifest_inputs_match(
+        snapshot,
+        manifest.inputs,
+        schema_version=schema.version,
+    ):
+        raise ValueError("DataSnapshot manifest input closure differs")
 
 
 def _verify_decoded_manifest_input_closure(

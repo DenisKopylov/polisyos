@@ -42325,5 +42325,88 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-c12-explicit-candidate-intent-q1-owner-census-companions-20261020-r1": {
+    "slice_base": "76ea932f6c2188980ae506f6855e14e77005dd0f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py": {
+        "operation": "update",
+        "preimage_sha256": "06467bf2a0820032a60beaa6c6de8e8337e328a3ac2a8a6135401bea350e33f6",
+        "postimage_sha256": "24ee8758d9d431da946b27f6aacdb4aa515a8ac8cbb681c5f3cb6475863dfa03",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q1-three-owner-keywords-exact-postimage-20261020-r1/postimages/policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/remediation/test_emb_03.py": {
+        "operation": "update",
+        "preimage_sha256": "fcc799a46c7b026b08500d95068eb6f63a1e66209953a26a022b34e5d08bf4ef",
+        "postimage_sha256": "d29fbc8b843ce684bd8a5f8cb1f327b89f7102e7deccfc20a9d8b319c0918d75",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-search-candidate-intent-r2-20261020/postimages/policy-engine/tests/unit/remediation/test_emb_03.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-explicit-candidate-intent-q1-owner-census-companions-20261020-r1/source-application.json",
+      "sha256": "5aeb2864e1ba488da0c27239682e55935232b8dbb1e4c99a3506c22972ec4a9c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-explicit-candidate-intent-q1-owner-census-companions-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-census-constructor-set-delta-20261020-r1/manifest.json",
+        "sha256": "c3704122bf651d0cfe4fc4fc94118dd481b1d492fc5622dd5347c7b43aaf5e40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-census-constructor-set-delta-20261020-r1/candidate.patch",
+        "sha256": "5fbc6de57b7772c68160974d5351afec04514b01dd522cbec0525550ef1401de"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-census-constructor-set-delta-independent-review-20261020-r2/review.json",
+        "sha256": "23839276767e07d3c996aca49756c030d46a874922d1f4f3219cce78216e9d61"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-search-candidate-intent-r2-20261020/manifest.json",
+        "sha256": "50a0d02dc07d2bb1e2299de59563f97160ece2037e43ad1e54ba2099dbd6478e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-search-candidate-intent-r2-20261020/candidate.patch",
+        "sha256": "d0c66019b540667c1fbb46e0fb7145d4358f501dc677aecf942c2da205a596ce"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-search-candidate-intent-independent-review-20261020-r1/review.json",
+        "sha256": "3d81aa70934c228643f8694cceec7ce439c1a331d9232d1889d01b0d6e0d8a62"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-census-accidental-wrapper-native-trash-20261020-r1/receipt.json",
+        "sha256": "112fa2dbe6e8df18b4fc0140f75fc94fd5490bf7dd21905613290ebaec680181"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "C12": "SAME fixture/consumerintentclassdeeper SECOND: whole9helpercallset plusdirectremoval bound once, notperlinepatches.",
+      "Q1": "Mandatorycensuscompanion staleafterownerhandshakes; realcapability/reissuebehaviorremainsseparate."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No productioncodechanges; previousactualC12realmodel190s reachedAPIpositive+weightmutations thenambiguousfixtureFAIL; post-boundaryUNRUN.",
+      "Q1pathequality+unknownfamilyguardPASSafterrecoverableTrash; remainingoldexacttupleFAIL isnotbypassproof.",
+      "VOIR4HOLDinvocationpresence, sourcejoin2FAILandTMLEworker3FAILremainseparate; noGclosures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole C12module usingexactcachedrealencoder5GiB SOLO; original3 Q1census plusactualrecursiveacquired-world reissue andrefusalcontrols.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -16,7 +16,7 @@ import types
 from collections.abc import Callable, Sequence
 from importlib import metadata as importlib_metadata
 from pathlib import Path
-from typing import ClassVar, cast
+from typing import ClassVar, Literal, cast
 
 import duckdb
 import numpy as np
@@ -336,11 +336,21 @@ def _request_generation_intent(output_dir: Path) -> tuple[LegalQueryGenerationIn
     )
 
 
-def _search_legal_table(graph: LegalKnowledgeGraph, table: str) -> list[object]:
+def _search_legal_table(
+    graph: LegalKnowledgeGraph,
+    table: str,
+    *,
+    fact_trust_tier: Literal["search_candidate"],
+) -> list[object]:
     if table == "entities":
         return graph.search_entities("target", top_k=1, min_similarity=0.0)
     if table == "facts":
-        return graph.search_facts("budget", top_k=1, min_similarity=0.0, trust_tier=None)
+        return graph.search_facts(
+            "budget",
+            top_k=1,
+            min_similarity=0.0,
+            trust_tier=fact_trust_tier,
+        )
     if table == "provisions":
         return graph.search_provisions("budget", top_k=1, min_similarity=0.0)
     raise AssertionError(f"unexpected legal table: {table}")
@@ -691,7 +701,7 @@ def test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode(
     try:
         for table in ("entities", "facts", "provisions"):
             with pytest.raises(LegalQueryProfileError) as caught:
-                _search_legal_table(missing, table)
+                _search_legal_table(missing, table, fact_trust_tier="search_candidate")
             assert caught.value.code == "query_profile_unavailable"
             assert missing.query_profile_error is caught.value
         assert missing_encoder.encoded_texts == []
@@ -729,7 +739,7 @@ def test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode(
         )
         try:
             with pytest.raises(LegalQueryProfileError) as caught:
-                _search_legal_table(graph, requested_table)
+                _search_legal_table(graph, requested_table, fact_trust_tier="search_candidate")
             assert caught.value.code == "query_profile_stale_or_mismatched"
             assert graph.query_profile_error is caught.value
         finally:
@@ -748,7 +758,7 @@ def test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode(
     try:
         for table in ("entities", "facts", "provisions"):
             with pytest.raises(LegalQueryProfileError) as caught:
-                _search_legal_table(current, table)
+                _search_legal_table(current, table, fact_trust_tier="search_candidate")
             assert caught.value.code == "query_encoder_runtime_material_not_established"
             assert current.query_profile_error is caught.value
         assert current_encoder.encoded_texts == []
@@ -1272,7 +1282,7 @@ def test_owned_runtime_resolution_waits_for_fresh_intent_and_members(
     try:
         for table in tables:
             with pytest.raises(LegalQueryProfileError) as stale:
-                _search_legal_table(stale_graph, table)
+                _search_legal_table(stale_graph, table, fact_trust_tier="search_candidate")
             assert stale.value.code == "query_profile_stale_or_mismatched"
     finally:
         stale_graph.close()
@@ -1289,7 +1299,7 @@ def test_owned_runtime_resolution_waits_for_fresh_intent_and_members(
     try:
         for table in tables:
             with pytest.raises(LegalQueryProfileError) as wrong_model:
-                _search_legal_table(wrong_model_graph, table)
+                _search_legal_table(wrong_model_graph, table, fact_trust_tier="search_candidate")
             assert wrong_model.value.code == "encoder_identity_mismatch"
     finally:
         wrong_model_graph.close()
@@ -1320,7 +1330,7 @@ def test_owned_runtime_resolution_waits_for_fresh_intent_and_members(
     try:
         for table in tables:
             with pytest.raises(LegalQueryProfileError) as unbound:
-                _search_legal_table(unbound_graph, table)
+                _search_legal_table(unbound_graph, table, fact_trust_tier="search_candidate")
             assert unbound.value.code == "query_encoder_runtime_material_not_established"
     finally:
         unbound_graph.close()
@@ -1352,7 +1362,7 @@ def test_owned_runtime_resolution_waits_for_fresh_intent_and_members(
     try:
         for table in tables:
             with pytest.raises(LegalQueryProfileError) as changed_member:
-                _search_legal_table(member_graph, table)
+                _search_legal_table(member_graph, table, fact_trust_tier="search_candidate")
             assert changed_member.value.code == "selected_generation_membership_mismatch"
     finally:
         member_graph.close()
@@ -1968,7 +1978,7 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         try:
             for table in ("entities", "facts", "provisions"):
                 knn_calls_before_direct_search = _total_knn_calls()
-                assert _search_legal_table(direct_graph, table)
+                assert _search_legal_table(direct_graph, table, fact_trust_tier="search_candidate")
                 assert _total_knn_calls() - knn_calls_before_direct_search == 1
         finally:
             direct_graph.close()
@@ -2069,7 +2079,7 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
             for table in ("entities", "facts", "provisions"):
                 knn_calls_before_direct_refusal = _total_knn_calls()
                 with pytest.raises(LegalQueryProfileError) as refusal:
-                    _search_legal_table(direct_graph, table)
+                    _search_legal_table(direct_graph, table, fact_trust_tier="search_candidate")
                 assert refusal.value.code == "query_encoder_runtime_material_changed"
                 assert _total_knn_calls() == knn_calls_before_direct_refusal
         finally:
@@ -2099,7 +2109,7 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
                     query,
                     top_k=1,
                     min_similarity=0.0,
-                    trust_tier=None,
+                    trust_tier="search_candidate",
                 )
             finally:
                 removal_graph.close()

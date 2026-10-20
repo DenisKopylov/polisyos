@@ -3634,6 +3634,84 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
         return self
 
 
+RunN6CycleSearchTerminalKind = Literal[
+    "a_spec_gap",
+    "tool_failure",
+    "composition_invalid",
+    "recursive_blocked",
+    "search_ceiling_repair_required",
+    "human_decision_required",
+    "acquisition_required",
+    "budget_exhausted",
+    "frontier_stable",
+    "grounded_admissible",
+    "grounded_partial_admissible",
+    "grounded_abstention",
+]
+RunN6CycleRefinementDecision = Literal[
+    "refine",
+    "acquire",
+    "reframe",
+    "decompose",
+    "human_decision",
+    "abstain",
+    "block_candidate",
+    "stop",
+]
+RunN6CycleSearchIterationStatus = Literal[
+    "blocked",
+    "blocked_no_retry",
+    "governance_required",
+    "acquisition_required",
+    "abstained",
+    "stopped",
+    "refined_shadow",
+]
+RunN6CycleGroundingStatus = Literal[
+    "current_valid",
+    "grounded_shadow",
+    "grounding_gap",
+    "grounding_failed",
+    "grounding_unavailable",
+]
+RunN6CycleValueStatus = Literal[
+    "value_pending_n8",
+    "value_ready",
+    "value_conditional",
+    "value_blocked",
+]
+RunN6CycleValueDecisionGrade = Literal["blocked", "low", "medium", "high"]
+RunN6CycleVoiAction = Literal["advance", "stop", "escalate", "blocked"]
+RunN6CycleRunTerminalStatus = Literal["completed", "blocked"]
+
+
+class RunGenericCycleSimulationN6CycleHistoryEntry(BaseModel):
+    """One exact N6 cycle state carried by the persisted candidate projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_ref: str = Field(min_length=1)
+    cycle_index: int = Field(ge=0)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_basis_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    selected_candidate_ref: str = Field(min_length=1)
+    selected_candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    generation_cycle_run_terminal_status: RunN6CycleRunTerminalStatus
+    terminal_kind: RunN6CycleSearchTerminalKind
+    refinement_decision: RunN6CycleRefinementDecision
+    search_iteration_status: RunN6CycleSearchIterationStatus
+    grounding_status: RunN6CycleGroundingStatus
+    grounding_current_valid: bool
+    value_status: RunN6CycleValueStatus
+    value_decision_grade: RunN6CycleValueDecisionGrade | None = None
+    value_authority_blockers: tuple[str, ...] = ()
+    value_ref: str | None = None
+    voi_next_action: RunN6CycleVoiAction
+
+
 class RunGenericCycleSimulationProjection(BaseModel):
     """Persisted generic simulation lineage exposed as candidate-only history."""
 
@@ -3642,6 +3720,8 @@ class RunGenericCycleSimulationProjection(BaseModel):
     schema_version: Literal[
         "policyos.runtime.run_generic_cycle_simulation_projection.v1",
         "policyos.runtime.run_generic_cycle_simulation_projection.v2",
+        "policyos.runtime.run_generic_cycle_simulation_projection.v3",
+        "policyos.runtime.run_generic_cycle_simulation_projection.v4",
     ] = "policyos.runtime.run_generic_cycle_simulation_projection.v1"
     run_id: str = Field(min_length=1)
     artifact_status: Literal["resolved", "not_established"]
@@ -3673,6 +3753,9 @@ class RunGenericCycleSimulationProjection(BaseModel):
     n5_observations: tuple[RunGenericCycleSimulationN5Observation, ...] = ()
     n5_limitation_code: str | None = Field(default=None, min_length=1)
     recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
+    n6_cycle_history_status: Literal["resolved", "not_established"] | None = None
+    n6_cycle_history_limitation_code: Literal["n6_cycle_history_not_emitted"] | None = None
+    n6_cycle_history: tuple[RunGenericCycleSimulationN6CycleHistoryEntry, ...] = ()
     limitation_code: str | None = Field(default=None, min_length=1)
 
     @model_validator(mode="after")
@@ -3682,9 +3765,33 @@ class RunGenericCycleSimulationProjection(BaseModel):
             or self.credal_source_status is not None
             or self.credal_source_limitation_code is not None
         )
+        has_n6_cycle_history_extension = (
+            self.n6_cycle_history_status is not None
+            or self.n6_cycle_history_limitation_code is not None
+            or bool(self.n6_cycle_history)
+        )
+        if self.n6_cycle_history_status == "resolved":
+            if not self.n6_cycle_history or self.n6_cycle_history_limitation_code is not None:
+                raise ValueError("run_generic_projection_n6_history_resolved_without_rows")
+            history_keys = tuple((row.node_ref, row.cycle_index) for row in self.n6_cycle_history)
+            if len(history_keys) != len(set(history_keys)):
+                raise ValueError("run_generic_projection_n6_history_duplicate_cycle")
+        elif self.n6_cycle_history_status == "not_established":
+            if self.n6_cycle_history or self.n6_cycle_history_limitation_code != (
+                "n6_cycle_history_not_emitted"
+            ):
+                raise ValueError("run_generic_projection_n6_history_refusal_not_fail_closed")
+        elif self.n6_cycle_history or self.n6_cycle_history_limitation_code is not None:
+            raise ValueError("run_generic_projection_n6_history_status_missing")
+
         if has_credal_attempt_projection:
+            expected_schema = (
+                "policyos.runtime.run_generic_cycle_simulation_projection.v4"
+                if has_n6_cycle_history_extension
+                else "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+            )
             if (
-                self.schema_version != "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+                self.schema_version != expected_schema
                 or self.credal_source_status != "not_established"
                 or self.credal_source_limitation_code is None
                 or self.child_profile_status != "not_established"
@@ -3699,8 +3806,14 @@ class RunGenericCycleSimulationProjection(BaseModel):
                 )
             ):
                 raise ValueError("run_generic_projection_credal_source_attempt_invalid")
-        elif self.schema_version != "policyos.runtime.run_generic_cycle_simulation_projection.v1":
-            raise ValueError("run_generic_projection_schema_extension_without_attempt")
+        else:
+            expected_schema = (
+                "policyos.runtime.run_generic_cycle_simulation_projection.v3"
+                if has_n6_cycle_history_extension
+                else "policyos.runtime.run_generic_cycle_simulation_projection.v1"
+            )
+            if self.schema_version != expected_schema:
+                raise ValueError("run_generic_projection_schema_extension_invalid")
         if self.artifact_status == "resolved":
             if self.source_ref is None or self.source_content_hash is None:
                 raise ValueError("run_generic_projection_compiled_source_missing")
@@ -3733,6 +3846,9 @@ class RunGenericCycleSimulationProjection(BaseModel):
             or self.n4_source_status is not None
             or self.child_profile_bindings
             or self.n5_observations
+            or self.n6_cycle_history_status is not None
+            or self.n6_cycle_history_limitation_code is not None
+            or self.n6_cycle_history
             or self.limitation_code is None
         ):
             raise ValueError("run_generic_projection_refusal_shape_invalid")

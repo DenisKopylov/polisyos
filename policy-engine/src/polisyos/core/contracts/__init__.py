@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from pkgutil import extend_path
+
+__path__ = extend_path(__path__, __name__)
+
 import importlib
 from typing import TYPE_CHECKING, Any
 
@@ -534,6 +538,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "RunGenericCycleSimulationN5ResultBody",
         "RunGenericCycleSimulationN5Trajectory",
         "RunGenericCycleSimulationN5TrajectoryPoint",
+        "RunGenericCycleSimulationN6CycleHistoryEntry",
         "RunRecursiveCycleBranchFailure",
         "RunRecursiveCycleCheckpoint",
         "RunRecordV1",
@@ -1321,6 +1326,7 @@ if TYPE_CHECKING:
         RunGenericCycleSimulationN5ResultBody,
         RunGenericCycleSimulationN5Trajectory,
         RunGenericCycleSimulationN5TrajectoryPoint,
+        RunGenericCycleSimulationN6CycleHistoryEntry,
         RunLineageResponse,
         RunNodeRecord,
         RunNodesResponse,
@@ -1950,6 +1956,7 @@ __all__ = [
     "RunGenericCycleSimulationN5ResultBody",
     "RunGenericCycleSimulationN5Trajectory",
     "RunGenericCycleSimulationN5TrajectoryPoint",
+    "RunGenericCycleSimulationN6CycleHistoryEntry",
     "RunRecursiveCycleBranchFailure",
     "RunRecursiveCycleCheckpoint",
     "RunSummary",

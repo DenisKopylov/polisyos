@@ -1,0 +1,23 @@
+id = "2026-10-20-e02-n6-served-cycle-history"
+title = "Expose source-bound N6 cycle status in fresh run details"
+type = "changed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "The generic N4 run-details reader now projects every persisted N6 cycle's exact terminal, refinement, search-iteration, grounding, value-port, and VOI statuses beside the existing recursive checkpoint, keeping completed, partial, budget-stopped, limited, and abstained outcomes distinguishable."
+evidence = [
+  "src/polisyos/core/contracts/runtime.py",
+  "src/polisyos/core/contracts/__init__.py",
+  "src/polisyos/runtime/http/routes/runs.py",
+  "tests/unit/runtime/http/test_n6_cycle_history_contract.py",
+  "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+]
+compatibility = "The strict generic cycle projection advances to v3 when N6 history fields are present; existing credal-source v2 remains readable and v4 represents both extensions. Strict generated clients must be regenerated before accepting the new response fields."
+change_class = "schema-openapi-abi"
+surface_classification = "Public run-details API v1: generic_cycle_simulation N6 history; generated OpenAPI/client and consuming run surfaces."
+migration = "Regenerate strict API clients and validate that run consumers preserve the exact terminal_kind, refinement_decision, search_iteration_status, and existing recursive checkpoint fields."
+api = "GET /api/v1/runs/{run_id} projects source-bound N6 cycle rows from the verified compiled recursive-cycle artifact. Missing rows are explicitly not_established; no status is mapped to authority or publication permission."
+limitations = "The projection establishes byte-bound persisted local history only. It does not establish external custody, issuer authenticity, currentness, causal validity, or publication authority. Generated schemas/clients and browser/dashboard consumption remain pending root integration."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/n6-cycle-history.md"]
+runbook_docs = []

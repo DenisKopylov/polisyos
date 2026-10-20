@@ -29,6 +29,39 @@ from tests._helpers.generic_n4_served_replay import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
+def _n6_history_rows_from_compiled(compiled: Any) -> list[dict[str, Any]]:
+    """Read the complete executed-cycle denominator from persisted compiled bytes."""
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
+
+    rows: list[dict[str, Any]] = []
+    for node in compiled.recursive_run.nodes:
+        if not isinstance(node, RecursiveCycleNode) or node.cycle_run is None:
+            continue
+        for cycle in node.cycle_run.cycles:
+            rows.append(
+                {
+                    "node_ref": node.node_ref,
+                    "cycle_index": cycle.cycle_index,
+                    "design_problem_ref": cycle.design_problem_ref,
+                    "design_problem_basis_ref": cycle.design_problem_basis_ref,
+                    "selected_candidate_ref": cycle.selected_candidate_ref,
+                    "selected_candidate_content_hash": cycle.selected_candidate_content_hash,
+                    "generation_cycle_run_terminal_status": node.cycle_run.terminal_status,
+                    "terminal_kind": cycle.terminal_kind,
+                    "refinement_decision": cycle.refinement_decision.decision,
+                    "search_iteration_status": cycle.search_iteration.status,
+                    "grounding_status": cycle.grounding.status,
+                    "grounding_current_valid": cycle.grounding.current_valid,
+                    "value_status": cycle.value_port.status,
+                    "value_decision_grade": cycle.value_port.decision_grade,
+                    "value_authority_blockers": list(cycle.value_port.authority_blockers),
+                    "value_ref": cycle.value_port.value_ref,
+                    "voi_next_action": cycle.voi_decision.next_action,
+                }
+            )
+    return rows
+
+
 @pytest.fixture
 def controlled_candidate_gateway(monkeypatch: pytest.MonkeyPatch):
     """Route the served compiler and N4 calls through the local recording gateway."""
@@ -904,6 +937,9 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         assert projection["recursive_cycle_checkpoint"] is None
         recursive_run = compiled.recursive_run
         assert isinstance(recursive_run, RecursiveGenerationCycleRun)
+        assert projection["n6_cycle_history_status"] == "resolved"
+        assert projection["n6_cycle_history_limitation_code"] is None
+        assert projection["n6_cycle_history"] == _n6_history_rows_from_compiled(compiled)
         assert recursive_run.root_design_problem_ref == prepared_problem_ref
         assert set(recursive_run.recursive_graph.node_refs) == {
             recursive_run.root_node_ref,
@@ -2932,9 +2968,12 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
     pytest.importorskip("httpx")
     pytest.importorskip("uvicorn")
 
+    from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.routes import runs as run_routes
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
     )
@@ -2957,6 +2996,25 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
         child_count=2,
     )
     prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+
+    def persisted_n6_rows(run_id: str) -> list[dict[str, Any]]:
+        indexed = prepared.runtime_api_context.run_index.get_run(run_id)
+        assert indexed is not None
+        refs = tuple(
+            ref
+            for ref in indexed.details.root_artifacts
+            if ref.kind == "runtime.compiled_recursive_generation_cycle"
+        )
+        assert len(refs) == 1
+        store = prepared.runtime_api_context.store
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            assert store.verify(refs[0]).ok
+            payload = read_core_json_artifact(store, refs[0]).value
+        compiled = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            payload
+        )
+        return _n6_history_rows_from_compiled(compiled)
+
     assert prepared.source_recording_id == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
     assert prepared.source_recording_content_hash == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
     assert len(prepared.children) == 2
@@ -3000,6 +3058,10 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
 
     first_run = receipt.get_payload
     first_projection = receipt.projection
+    first_source_n6_rows = persisted_n6_rows(receipt.run_id)
+    assert first_projection["n6_cycle_history_status"] == "resolved"
+    assert first_projection["n6_cycle_history_limitation_code"] is None
+    assert first_projection["n6_cycle_history"] == first_source_n6_rows
     assert receipt.accepted_payload["status"] == "accepted"
     assert receipt.job_state == "completed"
     assert first_run["status"] == "fail"
@@ -3067,6 +3129,10 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
 
     budget_first_run = budget_receipt.get_payload["run"]
     budget_projection = budget_receipt.projection
+    budget_source_n6_rows = persisted_n6_rows(budget_receipt.run_id)
+    assert budget_projection["n6_cycle_history_status"] == "resolved"
+    assert budget_projection["n6_cycle_history_limitation_code"] is None
+    assert budget_projection["n6_cycle_history"] == budget_source_n6_rows
     assert budget_receipt.accepted_payload["status"] == "accepted"
     assert budget_receipt.job_state == "completed"
     assert budget_first_run["finished_at"] is not None
@@ -3105,6 +3171,9 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
     assert completed_budget_child_refs.isdisjoint(pending_budget_child_refs)
     assert set(budget_checkpoint["pending_frontier"]) == (budget_child_refs - {budget_stop_ref})
     assert budget_checkpoint["leaf_terminal_kinds"][budget_stop_ref] == "budget_exhausted"
+    budget_history_node_refs = {row["node_ref"] for row in budget_projection["n6_cycle_history"]}
+    assert budget_stop_ref in budget_history_node_refs
+    assert pending_budget_child_refs.isdisjoint(budget_history_node_refs)
 
     reopened_context = build_runtime_api_context(
         cas_root=prepared.cas_root,
@@ -3140,6 +3209,18 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
             for row in budget_summary_response.json()["runs"]
             if row["run_id"] == budget_receipt.run_id
         ]
+        with monkeypatch.context() as removal:
+            removal.setattr(
+                run_routes,
+                "_generic_n6_cycle_history_fields",
+                lambda _recursive_run: {
+                    "n6_cycle_history_status": "resolved",
+                    "n6_cycle_history_limitation_code": None,
+                    "n6_cycle_history": (),
+                },
+            )
+            removed_history_response = reopened_client.get(f"/api/v1/runs/{receipt.run_id}")
+            assert removed_history_response.status_code >= 400
 
     assert reopened_run["status"] == first_run["status"]
     assert reopened_run["finished_at"] == first_run["finished_at"]
@@ -3147,6 +3228,8 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
     assert reopened_projection["child_profile_bindings"] == child_bindings
     assert reopened_projection["n5_observations"] == first_projection["n5_observations"]
     assert reopened_projection["recursive_cycle_checkpoint"] == checkpoint
+    assert reopened_projection["n6_cycle_history_status"] == "resolved"
+    assert reopened_projection["n6_cycle_history"] == first_source_n6_rows
     assert len(matching_summaries) == 1
     assert matching_summaries[0]["status"] == "fail"
     assert matching_summaries[0]["run_terminality"] == "terminal"
@@ -3158,6 +3241,8 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
         == budget_projection["child_profile_bindings"]
     )
     assert reopened_budget_projection["recursive_cycle_checkpoint"] == budget_checkpoint
+    assert reopened_budget_projection["n6_cycle_history_status"] == "resolved"
+    assert reopened_budget_projection["n6_cycle_history"] == budget_source_n6_rows
     assert len(matching_budget_summaries) == 1
     assert matching_budget_summaries[0]["status"] == budget_first_run["status"]
     assert matching_budget_summaries[0]["run_terminality"] == "terminal"

@@ -45,6 +45,7 @@ from polisyos.core.contracts.runtime import (
     RunGenericCycleSimulationChildProfileBinding,
     RunGenericCycleSimulationN5Observation,
     RunGenericCycleSimulationN5ResultBody,
+    RunGenericCycleSimulationN6CycleHistoryEntry,
     RunGenericCycleSimulationProjection,
     RunLineageResponse,
     RunNodesResponse,
@@ -159,6 +160,11 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationN5InputV5,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveGenerationCyclePartialRunV2,
+        RecursiveGenerationCyclePartialRunV3,
+        RecursiveGenerationCycleRun,
     )
 else:
     try:  # pragma: no cover - optional runtime dependency
@@ -2423,6 +2429,47 @@ def _generic_cycle_simulation_refusal(
     )
 
 
+def _generic_n6_cycle_history_fields(
+    recursive_run: (
+        RecursiveGenerationCycleRun
+        | RecursiveGenerationCyclePartialRunV2
+        | RecursiveGenerationCyclePartialRunV3
+    ),
+) -> dict[str, Any]:
+    """Copy persisted N6 cycle outcomes without mapping or promoting their meaning."""
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
+
+    history = tuple(
+        RunGenericCycleSimulationN6CycleHistoryEntry(
+            node_ref=node.node_ref,
+            cycle_index=cycle.cycle_index,
+            design_problem_ref=cycle.design_problem_ref,
+            design_problem_basis_ref=cycle.design_problem_basis_ref,
+            selected_candidate_ref=cycle.selected_candidate_ref,
+            selected_candidate_content_hash=cycle.selected_candidate_content_hash,
+            generation_cycle_run_terminal_status=node.cycle_run.terminal_status,
+            terminal_kind=cycle.terminal_kind,
+            refinement_decision=cycle.refinement_decision.decision,
+            search_iteration_status=cycle.search_iteration.status,
+            grounding_status=cycle.grounding.status,
+            grounding_current_valid=cycle.grounding.current_valid,
+            value_status=cycle.value_port.status,
+            value_decision_grade=cycle.value_port.decision_grade,
+            value_authority_blockers=cycle.value_port.authority_blockers,
+            value_ref=cycle.value_port.value_ref,
+            voi_next_action=cycle.voi_decision.next_action,
+        )
+        for node in recursive_run.nodes
+        if isinstance(node, RecursiveCycleNode) and node.cycle_run is not None
+        for cycle in node.cycle_run.cycles
+    )
+    return {
+        "n6_cycle_history_status": "resolved" if history else "not_established",
+        "n6_cycle_history_limitation_code": (None if history else "n6_cycle_history_not_emitted"),
+        "n6_cycle_history": history,
+    }
+
+
 def _generic_cycle_simulation_projection(
     *,
     run_id: str,
@@ -2526,6 +2573,7 @@ def _generic_cycle_simulation_projection(
     if not has_generic_projection:
         return None
     checkpoint = _candidate_simulation_checkpoint(compiled.recursive_run)
+    n6_history_fields = _generic_n6_cycle_history_fields(compiled.recursive_run)
     if compiled.generic_n4_child_profile_status != "resolved":
         if compiled.n4_credal_source_attempt_ref is not None:
             attempt_ref = compiled.n4_credal_source_attempt_ref
@@ -2604,7 +2652,7 @@ def _generic_cycle_simulation_projection(
                             "candidate_credal_source_attempt_compiled_binding_mismatch"
                         )
                     return RunGenericCycleSimulationProjection(
-                        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v2",
+                        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v4",
                         run_id=run_id,
                         artifact_status="resolved",
                         source_ref=ref,
@@ -2626,12 +2674,13 @@ def _generic_cycle_simulation_projection(
                         n5_limitation_code="generic_n4_source_generation_not_complete",
                         recursive_cycle_checkpoint=checkpoint,
                         limitation_code=attempt.limitation_code,
+                        **n6_history_fields,
                     )
                 except CanonicalProfileRefusalError:
                     raise
                 except Exception:
                     return RunGenericCycleSimulationProjection(
-                        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v2",
+                        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v4",
                         run_id=run_id,
                         artifact_status="resolved",
                         source_ref=ref,
@@ -2653,12 +2702,14 @@ def _generic_cycle_simulation_projection(
                         n5_limitation_code="candidate_source_attempt_replay_not_established",
                         recursive_cycle_checkpoint=checkpoint,
                         limitation_code="candidate_source_attempt_replay_not_established",
+                        **n6_history_fields,
                     )
         limitation = (
             compiled.generic_n4_child_profile_limitation_code
             or "generic_n4_child_profile_set_not_established"
         )
         return RunGenericCycleSimulationProjection(
+            schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
             artifact_status="resolved",
             source_ref=ref,
@@ -2698,6 +2749,7 @@ def _generic_cycle_simulation_projection(
             n5_limitation_code="generic_n4_child_profile_set_not_established",
             recursive_cycle_checkpoint=checkpoint,
             limitation_code=limitation,
+            **n6_history_fields,
         )
 
     parent_handoff = compiled.generic_cycle_simulation_handoff
@@ -2718,6 +2770,7 @@ def _generic_cycle_simulation_projection(
         or compiled.n4_child_profile_status != "not_attempted"
     ):
         return RunGenericCycleSimulationProjection(
+            schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
             artifact_status="resolved",
             source_ref=ref,
@@ -2737,6 +2790,7 @@ def _generic_cycle_simulation_projection(
             n5_limitation_code="generic_n4_source_compiled_binding_mismatch",
             recursive_cycle_checkpoint=checkpoint,
             limitation_code="generic_n4_source_compiled_binding_mismatch",
+            **n6_history_fields,
         )
 
     generic_owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
@@ -2844,6 +2898,7 @@ def _generic_cycle_simulation_projection(
         raise
     except Exception:
         return RunGenericCycleSimulationProjection(
+            schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
             artifact_status="resolved",
             source_ref=ref,
@@ -2861,6 +2916,7 @@ def _generic_cycle_simulation_projection(
             n5_limitation_code="generic_n4_child_profile_set_reference_not_established",
             recursive_cycle_checkpoint=checkpoint,
             limitation_code="generic_n4_child_profile_set_reference_not_established",
+            **n6_history_fields,
         )
 
     observations: list[RunGenericCycleSimulationN5Observation] = []
@@ -3266,6 +3322,7 @@ def _generic_cycle_simulation_projection(
             continue
 
     return RunGenericCycleSimulationProjection(
+        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
         run_id=run_id,
         artifact_status="resolved",
         source_ref=ref,
@@ -3285,6 +3342,7 @@ def _generic_cycle_simulation_projection(
         ),
         recursive_cycle_checkpoint=checkpoint,
         limitation_code=n5_limitation,
+        **n6_history_fields,
     )
 
 

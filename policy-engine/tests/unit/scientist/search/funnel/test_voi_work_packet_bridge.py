@@ -478,7 +478,7 @@ def test_restore_requires_candidate_namespace_and_packet_hash_joins(
     )
     assert original_restored.work_packet_claim == claim
 
-    alternate_candidate = _candidate(f"candidate-identity-join-{tamper}")
+    alternate_candidate = _candidate(f"candidate-identity-join-alternate-{tamper}")
     alternate_candidate_ref = persist_policy_candidate_schema(
         store, alternate_candidate, return_selected_profile=True
     )
@@ -600,10 +600,8 @@ def test_live_work_packet_intake_rejects_absent_invocation_keys_that_match_nulls
     assert result.feedback["policy_runtime_work_packet_rejection_reason"] == (
         "work_packet_binding_mismatch"
     )
-    assert len(snapshot.observations) == 1
-    assert snapshot.observations[0].score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
-    assert snapshot.observations[0].actual_objective_value is None
-    assert snapshot.observations[0].work_packet_claim is None
+    # Refused packets contribute no admitted learner observation.
+    assert snapshot.observations == []
 
 
 @pytest.mark.parametrize(

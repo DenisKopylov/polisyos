@@ -44659,5 +44659,77 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-voi-r4-test-oracle-reviewed-source-adoption-20261021-r1": {
+    "slice_base": "c1bdda3576d81bb9b5ccd55e7e2df0a1a4738a83",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "87cb943dca61aaadaa9cd4fd68f0ba054ac3a5647de9492b2bfe7fe641cac4a7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-work-packet-test-oracles-20261021-r4/postimages/policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "postimage_sha256": "aa4c88cf25c3cf07a4fe48bd8478bf3b9bf2acaaadbf7369507aca0ec561f931",
+        "bytes": 43235
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-r4-test-oracle-reviewed-source-adoption-20261021-r1/source-application.json",
+      "sha256": "cc09c83207ac0f0f59fb690aa17c0972af3251032e86193aa60955b6c35b8bcf"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-r4-test-oracle-reviewed-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-work-packet-test-oracles-20261021-r4/manifest.json",
+        "sha256": "430587f0a1fbcfaaa07530a2bf9ecfd0f74c48a166a1787ecc1356877e04d084"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-work-packet-test-oracles-20261021-r4/unapplied.patch",
+        "sha256": "d86afb49aa81c9470a536b69f856402506ea897efe4eee00343935ec14626d5b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-work-packet-test-oracles-20261021-r4/whole-replay-partition.json",
+        "sha256": "b1736acb23be7a4fc33f796b3fd52c66a7fca2cefd9ff981b32840e53cb73acb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-restore-r3-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "0ef60f4ed225a46f8e081e2322cbc3386fe2dcb75d2b5cc0cc9403fa3ac58ae9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-voi-r4-test-oracle-review-20261021-r1/review.json",
+        "sha256": "666b76e54715a92bc9a9a685865a530bfc4c345a45d6aaa00f26845befdfc32e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-r4-test-oracle-native-validation-20261021-r1/canonical-context-preflight.json",
+        "sha256": "0d98a40e4dad9098385c07b72601191f0078b5cf1d70d632cea5c26f252f5ab4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-terminal-voi-thirteen-reconciliation-review-20261021-r1/review.json",
+        "sha256": "8f2308fb5ddb9a72922923887576756365301a6adb7793c74e58a8dcd4501b40"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same two existing oracle/fixture classes, complete7+12 actual failure quantity; no product guard changes.",
+      "falsifier": "Distinct alternate persisted candidate must get past test precondition and exercise each of all seven selected identity tampers; absent invocation keys must keep typed rejection/no score and no admitted learner record."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Original real restore regressions and Core/terminal cases passed at c1; whole13 has19failedtests until this test-only candidate is actually executed.",
+      "No external science, production currentness, hostile writer authenticity or G formal closure established."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Independent delta review plus root actual whole13 replay, including all328cases and fullphase/sourceoriginreconciliation.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

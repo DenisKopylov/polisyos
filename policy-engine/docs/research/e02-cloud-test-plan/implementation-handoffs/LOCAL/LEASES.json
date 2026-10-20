@@ -31501,5 +31501,165 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "six-reviewed-source-handoff-proposal-records-20261020-r1": {
+    "slice_base": "5d0397d2e5085b4c68e2f786b40e7bbd96bac4f1",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-n11-r5-unbound-provider-init-and-real-runtime-import-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": "37d07977bfb86fe31aceb55d47333742f76f8df1da346697bcf3c8d88a706b36",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-n11-r5-unbound-provider-init-and-real-runtime-import-20261020.json",
+        "postimage_sha256": "37d07977bfb86fe31aceb55d47333742f76f8df1da346697bcf3c8d88a706b36"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-b199-b200-core-ir-manifest-input-normalization-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": "40b134a5acb9824676b8583f0c948a5ce5943beef306b3b42ddad9a5a90d8ec8",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-b199-b200-core-ir-manifest-input-normalization-20261020.json",
+        "postimage_sha256": "40b134a5acb9824676b8583f0c948a5ce5943beef306b3b42ddad9a5a90d8ec8"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-i4-b29-served-n6-status-r3-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": "072cf68fd3d409ee377c894e0e6691b69e285579512616d4c268862958f61837",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-i4-b29-served-n6-status-r3-20261020.json",
+        "postimage_sha256": "072cf68fd3d409ee377c894e0e6691b69e285579512616d4c268862958f61837"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-can-r7-core-epoch-input-closure-admission-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": "5e7cca9f2eaec5a593ccecaffc996331657132f1056b98b2cfcf6f418178a81c",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-can-r7-core-epoch-input-closure-admission-20261020.json",
+        "postimage_sha256": "5e7cca9f2eaec5a593ccecaffc996331657132f1056b98b2cfcf6f418178a81c"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-i2-la006-r2-positive-simulator-and-linux-byte-witness-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": "19ab75d29a530d81b8d815b0714c75d299a68cc8b20aa23ef9a6c3d70dd91906",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-i2-la006-r2-positive-simulator-and-linux-byte-witness-20261020.json",
+        "postimage_sha256": "19ab75d29a530d81b8d815b0714c75d299a68cc8b20aa23ef9a6c3d70dd91906"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-e02-t1t2-native28-reviewed-decision-records-20261020-r1-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": "707c722ee83e4aa44d4b0fac1230e4a2cbbef126cf32843331e897899ef02574",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-e02-t1t2-native28-reviewed-decision-records-20261020-r1-20261020.json",
+        "postimage_sha256": "707c722ee83e4aa44d4b0fac1230e4a2cbbef126cf32843331e897899ef02574"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-six-reviewed-source-handoffs-receipt-adoption-20261020-r1/source-application.json",
+      "sha256": "7d30dccd8e08bbf50d209eee41b76688f949c58a40d1a198c64359c2e7674250"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-six-reviewed-source-handoffs-receipt-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/owned-handoff-proposal-readback-20261020-r1/manifest.json",
+        "sha256": "1fdb80dba9f24edcddeeadbb26aae52b81249e81a2c52fc5220060d2aabc2251"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-six-source-handoff-proposal-qa-20261020-r1/review.json",
+        "sha256": "a890a951934975829a9181d34564db8dd60a01a84b6155fad768a467223bfc23"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-six-reviewed-source-handoffs-receipt-adoption-20261020-r1/owned-untracked-observation.json",
+        "sha256": "f207461961ac16217c08af0c66730b4a5869696572be9866f90d2d374575c8f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-n11-r5-unbound-provider-init-and-real-runtime-import-20261020.json",
+        "sha256": "37d07977bfb86fe31aceb55d47333742f76f8df1da346697bcf3c8d88a706b36"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-b199-b200-core-ir-manifest-input-normalization-20261020.json",
+        "sha256": "40b134a5acb9824676b8583f0c948a5ce5943beef306b3b42ddad9a5a90d8ec8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-i4-b29-served-n6-status-r3-20261020.json",
+        "sha256": "072cf68fd3d409ee377c894e0e6691b69e285579512616d4c268862958f61837"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-can-r7-core-epoch-input-closure-admission-20261020.json",
+        "sha256": "5e7cca9f2eaec5a593ccecaffc996331657132f1056b98b2cfcf6f418178a81c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-i2-la006-r2-positive-simulator-and-linux-byte-witness-20261020.json",
+        "sha256": "19ab75d29a530d81b8d815b0714c75d299a68cc8b20aa23ef9a6c3d70dd91906"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-e02-t1t2-native28-reviewed-decision-records-20261020-r1-20261020.json",
+        "sha256": "707c722ee83e4aa44d4b0fac1230e4a2cbbef126cf32843331e897899ef02574"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-six-reviewed-source-handoffs-receipt-adoption-20261020-r1/owned-untracked-observation.json",
+      "sha256": "f207461961ac16217c08af0c66730b4a5869696572be9866f90d2d374575c8f1"
+    },
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Record truthfulness and exact source/evidence ownership. Known author-created untracked receipt bytes are preserved and committed only after independent QA; no reconstruction of source or formal acceptance by declaration.",
+    "bounded_proof": "Independent QA verifies all six exact JSON hashes, six source commit identities, complete49 commit-path occurrences, all Git pre/post bytes and134 evidence objects;42 deciding outputs/10 independent reviews locally available under absolute OWN paths.",
+    "limitations": [
+      "This is a separate receipt commit for six earlier source implementations; it does not attest the later source delta or a global source/input/backend freeze.",
+      "B199/B200 receipt preserves historical qualified59-case58P1F ated5. The subsequent numerical test-only repair5d0397 is separate and requires a fresh full replay.",
+      "N11 full owner closure is held; CAN/B29/current native13/Linux/installed consumers remain bounded or UNRUN as stated per receipt.",
+      "G RAW access remains not_established until independent readback; no formal finding closures, integration publication, external authority, or production-currentness facts are asserted.",
+      "Delivery-index completeness/additions are pending final root reconciliation; helper only updates its existing LEASE digest."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After selected source/input/backend freeze, complete composed replay and authentic consumers, append fresh runtime receipts, reconcile full delivery index and282-ID291-occurrence proposals, publish own candidate topic with exact remote SHA/tree verification for independentG.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

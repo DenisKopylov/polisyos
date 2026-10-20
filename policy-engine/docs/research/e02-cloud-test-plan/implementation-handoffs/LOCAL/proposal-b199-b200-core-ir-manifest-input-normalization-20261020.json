@@ -1,0 +1,699 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal finding closure",
+      "external law/issuer/permission/custody/currentness",
+      "production source currentness",
+      "global E02 closeout"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514",
+  "candidate_tree_sha": "4046329115304f1e0db1b397e7430b6d86bd26bb",
+  "capability_state_or_finding_state": {
+    "authority": "not_established unless separately supplied and verified; this source slice grants none.",
+    "capability_label": "verification_missing",
+    "source_mechanism_state": "actual qualified replay: 58 PASS / 1 FAIL / 0 SKIP / 0 ERROR of 59 collected and executed cases; failure is exact float equality in fresh aggregate integration output. R8/R10 selection/source qualification is true; semantic whole-property remains unresolved pending numerical-oracle review."
+  },
+  "checks": [
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/foundry/uncertainty/aggregator.py policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py"
+      ],
+      "name": "native Ruff check",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/check-native-role-0.stdout.txt",
+          "role": "native Ruff check stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/check-native-role-0.stderr.txt",
+          "role": "native Ruff check stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/foundry/uncertainty/aggregator.py policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+        "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py"
+      ],
+      "name": "native Ruff format",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/format-native-role-0.stdout.txt",
+          "role": "native Ruff format stdout",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/format-native-role-0.stderr.txt",
+          "role": "native Ruff format stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514"
+    },
+    {
+      "command": "See `prepared_invocation.argv` in result.json; ordinary pytest with the R8 capture and R10 candidate plugins, no selectors/filters, four complete modules.",
+      "environment": "Existing local .venv, Python 3.14.3/pytest 9.0.2; source HEAD ed5b52bc3db64ca477929a605f148d2140fe3955 tree 0ce131a0928a23e7d2c003277b9766729bf3c691; R8 source/consumer origins and exact third-party requested capture profile validated; R10 capture qualification true.",
+      "input_closure": "59 collected=59 executed, exact four whole modules; 24 UQS cases, 12 aggregation-strategy cases, 22 unit artifact-aware cases, 1 integration artifact-aware case. Full source and profile are frozen in result/launch-context.",
+      "interpretation": "58 passed / 1 failed / 0 skipped / 0 errors of 59 complete cases; exact float interval assertion failed. R8/R10 provenance qualification passed; whole semantic property not established.",
+      "name": "composed four-module R8/R10 replay",
+      "outcome": "FAIL",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/result.json",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "58d6f9546b463c7f67fce6e80cb1dc3653e3c589aeb9b7764b34c6c33f955a7b"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest.stdout.txt",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "1dfe71c7407a5dce12b8ab6c1aa2a099169f26bbcd136e7af39d103816344204"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest.xml",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "37793fcde90473fe25e93af715762e23e4b2be6fa001452bf8b56912de32f77e"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest-case-reports.jsonl",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "f1b60eb6d57c8a388b306ca15d406ff202a424ba2c55435d596cc204be9b8768"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest-collection-basis.json",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "3ee4c93c09c7eaa7b7042de3bc2cba37d603b4d3d948b849b5e96985942e030f"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/runtime-module-origins.json",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "a249752040086e5ee82e74cd8067d43ef0dc638321f2a93140f8181c1543fc1f"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/source-before.json",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "9df84469cd40ae1637b5c1e08312c44c5b5e7c7f7b040727beaa4a64158abdb7"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/source-after.json",
+          "role": "composed four-module R8/R10 replay",
+          "sha256": "9df84469cd40ae1637b5c1e08312c44c5b5e7c7f7b040727beaa4a64158abdb7"
+        }
+      ],
+      "target_sha": "ed5b52bc3db64ca477929a605f148d2140fe3955"
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/check-native-role-0.stdout.txt",
+      "role": "native Ruff check stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/check-native-role-0.stderr.txt",
+      "role": "native Ruff check stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/format-native-role-0.stdout.txt",
+      "role": "native Ruff format stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/format-native-role-0.stderr.txt",
+      "role": "native Ruff format stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/result.json",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "58d6f9546b463c7f67fce6e80cb1dc3653e3c589aeb9b7764b34c6c33f955a7b"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest.stdout.txt",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "1dfe71c7407a5dce12b8ab6c1aa2a099169f26bbcd136e7af39d103816344204"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest.xml",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "37793fcde90473fe25e93af715762e23e4b2be6fa001452bf8b56912de32f77e"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest-case-reports.jsonl",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "f1b60eb6d57c8a388b306ca15d406ff202a424ba2c55435d596cc204be9b8768"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/pytest-collection-basis.json",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "3ee4c93c09c7eaa7b7042de3bc2cba37d603b4d3d948b849b5e96985942e030f"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/runtime-module-origins.json",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "a249752040086e5ee82e74cd8067d43ef0dc638321f2a93140f8181c1543fc1f"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/source-before.json",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "9df84469cd40ae1637b5c1e08312c44c5b5e7c7f7b040727beaa4a64158abdb7"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/actual-run/source-after.json",
+      "role": "composed four-module R8/R10 replay",
+      "sha256": "9df84469cd40ae1637b5c1e08312c44c5b5e7c7f7b040727beaa4a64158abdb7"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-core-ir-lineage-source-review-20261020-r1/review.json",
+      "role": "independent source/review packet",
+      "sha256": "6d37d9a6d501ad598416384f4b28ee50c8266ecbf121e9a93b992ae137ff3dc3"
+    }
+  ],
+  "commit_subject": "fix(foundry): normalize core manifest refs at IR aggregation boundary",
+  "current_composed_readback": {
+    "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+    "note": "Observed when this proposal was authored; this is not a source freeze and does not make later G deltas accepted.",
+    "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+  },
+  "denominator": {
+    "commit_path_count": 4,
+    "documentation_path_count": 0,
+    "generated_metadata_companion_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "mechanism_path_count_excluding_record_companions": 2,
+    "production_source_path_count": 1,
+    "scope_note": "Counts derive from the exact candidate-parent Git tree diff; metadata companions are listed separately and do not inflate the mechanism-row budget.",
+    "test_path_count": 1
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": [
+    {
+      "base_git_blob_oid": "6e2c271b77c0dd95b7dabfdc5fa18d362e3ee011",
+      "base_sha256": "0d313c16adf3ae183190f1bd23dfc080025b8b74660ed6fd1d68727a3fa5264e",
+      "candidate_git_blob_oid": "213fa785df964e8f4949a4bb33c066de77089b27",
+      "candidate_sha256": "bc68625016f83dde868a840f61a83b84e9c5a297cd0b073d0e93181154957ba5",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "b198edacc8ad14ec126ea62a0e6afac6b5f47e86",
+      "base_sha256": "84a6650d5eda454293b9fb9f335c28a62df54ddb1d16b50faf73669e5c05c8fb",
+      "candidate_git_blob_oid": "1a61d71dc658db124bcbf9d97fbfb1c2cd42b5b3",
+      "candidate_sha256": "2e7919325071c3acafc0acceb43bca9c226634b8e7d2cf81ca1b021c207d350d",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "b8bf3c2d110e289b7c01707ae9ff1bfc236cdb5e",
+      "base_sha256": "32208474530f673b007f328055b9d492416488fb927e2a4e7a4e87231a2f2b4a",
+      "candidate_git_blob_oid": "1b4b42edcc61d5f5ec9c88577e913464dea7a817",
+      "candidate_sha256": "417d888e7d4a23b0633a5302ae82e31927b5837cb6cf2725d9bdea1ced0899e3",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "3c28f4480b3b9ceebda518a48c5c3970bc2785a3",
+      "base_sha256": "cdd222cf456d00dcfeed21ba85ed896c5224b2f9e47a9d2c7802f2df68d4b5a8",
+      "candidate_git_blob_oid": "211743de339aa7755487a64888ec718ffe6b9dff",
+      "candidate_sha256": "b6132abe33c407bcf48e20e7d014bfa29138238823879248fdeae5e3e571090f",
+      "change": "M",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+      "role": "test"
+    }
+  ],
+  "identity": "b199-b200-core-ir-manifest-input-normalization",
+  "implementation_commits": [
+    "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514"
+  ],
+  "independent_review_refs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-core-ir-lineage-source-review-20261020-r1/review.json",
+      "role": "independent source/review packet",
+      "sha256": "6d37d9a6d501ad598416384f4b28ee50c8266ecbf121e9a93b992ae137ff3dc3"
+    }
+  ],
+  "integration_publication": false,
+  "limitations_and_next_owner": [
+    "Resolve the one failing exact interval assertion under independent P40 numerical-oracle review; preserve the actual 59-case result as the deciding baseline and keep lineage/refusal semantics unchanged.",
+    "After a separately reviewed source/test update, rebind to its exact new source frame and rerun the same four complete modules under qualified R8/R10.",
+    "Keep the 2,792-file AST census bounded to its pinned predicate; the other 40 direct input-comparison occurrences remain unclassified.",
+    "Continue S2 genuine law/draw/calibration/relationship inputs; do not infer external relations, authority, currentness or production facts from these tests.",
+    "Actual candidate-composed replay has one unresolved exact floating-point interval assertion (8.040000034319/11.959999965681 vs 8.04/11.96); it is under P40 numerical-oracle review and is neither waived nor yet adjudicated as product-vs-test defect.",
+    "The AST census is limited to its stated predicate and 2,792-file denominator; 40 other direct comparison occurrences have no owner classification here.",
+    "No external relation, causal calibration, production currentness, policy authority, formal closure or G acceptance is established.",
+    "The two known dirty owned test edits are outside the commit and remain preserved."
+  ],
+  "next_check": [
+    "Resolve the one failing exact interval assertion under independent P40 numerical-oracle review; preserve the actual 59-case result as the deciding baseline and keep the lineage/refusal semantics unchanged.",
+    "After reviewed source/test change, issue a new source frame and R8/R10 request and replay the same four complete modules.",
+    "The 2,792-file AST census is complete only for its specified predicate; 40 other direct input-comparison occurrences remain unclassified.",
+    "Continue S2 genuine law/draw/calibration/relationship inputs; do not infer an external relation, authority, currentness, or production fact from these tests."
+  ],
+  "original_criteria_proposal": {
+    "binding_status": "B199/B200 are named by the immutable source-plan identity; S2 names B200 and Q0 carries both; no occurrence is closed here.",
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [
+      {
+        "bundle": "UQS-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "UQS-01",
+            "criterion_id": "B199",
+            "document": "B_r19",
+            "lines": [
+              4950,
+              4963
+            ],
+            "sha256": "ef72002be021501dcd6755c48233dc54679f66a89fd8e363e08f5b506b018952"
+          }
+        ],
+        "finding_id": "B199",
+        "historical_ledger_status": "partial",
+        "unit": "E"
+      },
+      {
+        "bundle": "UQS-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "UQS-01",
+            "criterion_id": "B200",
+            "document": "B_r19",
+            "lines": [
+              4964,
+              4977
+            ],
+            "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d"
+          }
+        ],
+        "finding_id": "B200",
+        "historical_ledger_status": "partial",
+        "unit": "E"
+      }
+    ],
+    "finding_ids": [
+      "B199",
+      "B200"
+    ],
+    "occurrence_disposition": "B199 and B200 each retain their distinct original B_r19 criterion spans and current non-adjudicated history from coverage.json. This slice proposes no occurrence closure; S2 shared route is not another occurrence.",
+    "task_routes": [
+      {
+        "finding_ids": [
+          "B06",
+          "B11",
+          "B18",
+          "B23",
+          "B25",
+          "B26",
+          "LA-045",
+          "B14",
+          "B24",
+          "B37",
+          "B38",
+          "B39",
+          "B40",
+          "B42",
+          "B43",
+          "B44",
+          "B45",
+          "B46",
+          "B47",
+          "B48",
+          "B49",
+          "B50",
+          "B51",
+          "B52",
+          "B53",
+          "B55",
+          "B57",
+          "LA-057",
+          "B58",
+          "B60",
+          "B62",
+          "B63",
+          "B64",
+          "B65",
+          "B69",
+          "B70",
+          "B71",
+          "B72",
+          "B73",
+          "B75",
+          "B76",
+          "B77",
+          "B78",
+          "B90",
+          "B91",
+          "B92",
+          "B93",
+          "B94",
+          "B95",
+          "B96",
+          "B149",
+          "B150",
+          "B151",
+          "B152",
+          "B153",
+          "B155",
+          "LA-008",
+          "LA-009",
+          "LA-010",
+          "LA-011",
+          "LA-012",
+          "LA-013",
+          "B17",
+          "LA-022",
+          "LA-029",
+          "LA-030",
+          "LA-031",
+          "LA-034",
+          "LA-038",
+          "LA-039",
+          "LA-043",
+          "LA-044",
+          "LA-047",
+          "LA-048",
+          "LA-049",
+          "B81",
+          "B82",
+          "B84",
+          "B85",
+          "B86",
+          "B88",
+          "B138",
+          "B139",
+          "B140",
+          "B141",
+          "B142",
+          "B143",
+          "B144",
+          "B145",
+          "B146",
+          "B147",
+          "LA-014",
+          "LA-015",
+          "B41",
+          "B106",
+          "B107",
+          "B109",
+          "B110",
+          "B111",
+          "B112",
+          "B113",
+          "B114",
+          "B115",
+          "B116",
+          "B117",
+          "B118",
+          "B119",
+          "B120",
+          "B121",
+          "B122",
+          "B123",
+          "B124",
+          "B125",
+          "B126",
+          "B127",
+          "B128",
+          "B129",
+          "B130",
+          "B132",
+          "B133",
+          "B134",
+          "B135",
+          "B136",
+          "B156",
+          "B158",
+          "B159",
+          "B160",
+          "B162",
+          "B163",
+          "B165",
+          "LA-052",
+          "LA-056",
+          "B97",
+          "B98",
+          "B99",
+          "B100",
+          "B101",
+          "B102",
+          "B103",
+          "B104",
+          "B105",
+          "B166",
+          "B167",
+          "B168",
+          "B169",
+          "B170",
+          "B171",
+          "B174",
+          "B175",
+          "B176",
+          "B177",
+          "B178",
+          "B179",
+          "B180",
+          "B181",
+          "B182",
+          "B183",
+          "B184",
+          "B185",
+          "B186",
+          "B187",
+          "B188",
+          "B189",
+          "B191",
+          "B192",
+          "B193",
+          "B195",
+          "B196",
+          "B198",
+          "B199",
+          "B201",
+          "B202",
+          "B203",
+          "LA-001",
+          "LA-002",
+          "LA-003",
+          "LA-004",
+          "LA-007",
+          "LA-016",
+          "LA-017",
+          "LA-019",
+          "LA-020",
+          "LA-035",
+          "LA-037",
+          "B54",
+          "B204",
+          "B205",
+          "B206",
+          "B207",
+          "B208",
+          "B209",
+          "B210",
+          "B211",
+          "B212",
+          "B213",
+          "B215",
+          "B216",
+          "B217",
+          "B218",
+          "B219",
+          "B220",
+          "B221",
+          "B222",
+          "B223",
+          "B224",
+          "B225"
+        ],
+        "original_exit": "exact original occurrence vs candidate-bound property/consumer/negative; no stronger invented scope; G decision separate from source merge",
+        "task_id": "Q0",
+        "title": "Original criterion evaluation and closure proposals for G"
+      },
+      {
+        "finding_ids": [
+          "LA-036",
+          "B157",
+          "B190",
+          "B194",
+          "B197",
+          "B200"
+        ],
+        "original_exit": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+        "task_id": "S2",
+        "title": "Actual law/draw/calibration/relationship intake"
+      }
+    ]
+  },
+  "parents": [
+    "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+  ],
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "The actual composed 59-case R8/R10 suite validates selection/provenance and 58 cases pass; the numerical interval oracle is unresolved after one exact float assertion failure. External relation/calibration predicates are not supplied by these tests.",
+  "preservation": {
+    "candidate_source_frame_is_commit_tree_not_current_dirty_worktree": "true",
+    "no_whole_worktree_clean_claim": true,
+    "two_known_owned_dirty_test_paths_not_in_these_commits": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      }
+    ]
+  },
+  "property": {
+    "negative_controls": [
+      "Preserve duplicate/reference order, artifact ID, role, and profile digest through Core-to-IR conversion.",
+      "Reject mismatched/reordered/missing reference semantics rather than weakening equality or turning comparison into set equality.",
+      "Retain the actual numeric boundary failure for an independently reviewed oracle decision; do not call it a lineage pass or automatic source failure."
+    ],
+    "proxy_divergence": "An all-green subset or a declaration of normalization is insufficient. R8/R10 qualified the actual four-module selected chain (59 cases) but one exact floating-point interval assertion failed: actual 8.040000034319/11.959999965681 vs expected 8.04/11.96.",
+    "runtime_path": [
+      "Core source/dispatcher producer",
+      "persisted Core CAS manifest and source/aggregate artifacts",
+      "existing Core-to-IR input-ref normalization boundary",
+      "Foundry uncertainty aggregator and fresh aggregate reader",
+      "four complete B199/B200 pytest modules"
+    ],
+    "statement": "Before exact ordered comparison, normalize the persisted Core CAS manifest input-reference sequence through the existing IR normalizer, preserving duplicate edges, artifact IDs, roles and selected-profile digests.",
+    "surface": "See the source/property-specific consumer surface and pending checks in proposal_fields."
+  },
+  "proposal_fields": {
+    "author_proposal_only": "limited mechanism proposal on B199/B200; actual one-failure replay prevents any closure proposal.",
+    "evidence_status": "source code and checks are source-qualified to candidate_sha; later runtime/source deltas require rebind/replay.",
+    "formal_adjudication": "G independent; no formal closures proposed by this author receipt.",
+    "independent_reviews": [
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-core-ir-lineage-source-review-20261020-r1/review.json",
+        "role": "independent source/review packet",
+        "sha256": "6d37d9a6d501ad598416384f4b28ee50c8266ecbf121e9a93b992ae137ff3dc3"
+      }
+    ],
+    "occurrence_level_decision": "Proposal only; exact occurrence status, evidence, boundary and next check remain individually represented in the cited source packet/global occurrence ledger. Shared task routes are not additional closures.",
+    "pattern_pass": {
+      "acceptance": "preserve ordered references and selected profile; negatives refuse; fresh producer-to-CAS-to-reader suite passes with oracle independently justified",
+      "anti_pattern": "no set equality, shortcut, producer self-label, or float-assertion waiver",
+      "class": "same Core-to-IR value-boundary mismatch; numerical exactness failure is an additional P40 oracle class under review",
+      "relevant": [
+        "P01",
+        "P02",
+        "P07",
+        "P08",
+        "P10",
+        "P14",
+        "P29",
+        "P32",
+        "P33",
+        "P35",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ]
+    },
+    "source_plan_assertions_superseded": [
+      "The source-application statement that the candidate product replay was UNRUN is superseded by the later qualified 59-case R8/R10 replay at ed5b52bc3db64ca477929a605f148d2140fe3955.",
+      "The prior 57-case 54-pass/3-fail run is historical diagnostic only; the deciding current result is 59 cases, 58 pass, 1 fail."
+    ],
+    "task_family": "B199/B200"
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "backend": "Local macOS arm64; ARROW/BLIS/MKL numerical thread caps 1; RSS cap 4 GiB; one pytest worker.",
+    "environment": "Existing local policy-engine/.venv, Python 3.14.3, pytest 9.0.2; ordinary pytest config/plugin autoload; no install, model substitution or source overlay.",
+    "input": "Actual composed source/aggregate CAS path and selected Core views, across the four complete modules named in the R10 run."
+  },
+  "slice": "B199/B200 Core CAS manifest to IR ordered input normalization",
+  "slice_base_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0",
+  "slice_base_tree_sha": "43c696bc04b969f27b17ee0c6398cdd70844ed3d",
+  "source_freeze": false,
+  "source_provenance": {
+    "immutable_implementation_readback": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/implementation-readback-preservation-r2.json",
+      "role": "actual commit/tree/parents and complete committed paths",
+      "sha256": "8134a00cc84937c0b159d704e0a7c7b885a21bc8fe2663228d4299598ddd5b9f"
+    },
+    "local_raw_availability": "All raw deciding outputs are retained on the shared local host, not committed. If G cannot read a named raw path, that dependent evidence is not_established pending exact output fetch/replay.",
+    "source_application": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/source-application.json",
+      "role": "target pre/post pins and root-owned generated companion application",
+      "sha256": "df0cc79dcb00b8eecded10270861ddd2e0d6ee408d925a4bb9f4f81a2159e1a5"
+    },
+    "source_plan": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/plan.json",
+      "role": "candidate property, limits, P40 bucket, and next-check plan",
+      "sha256": "570c9d1582d8c7ae20eb3d56c839faa9856ab6919733f9d5809b996718e951e5"
+    }
+  },
+  "time_and_version_semantics": {
+    "rule_or_schema_version": "Use only versions recorded by the cited source/test/runtime artifacts; no schema or rule authority is inferred by this proposal.",
+    "source_version": "Exact candidate commit/tree and parent are recorded; later source changes require a fresh rebind.",
+    "verification_time": "Only the timestamps and environment captured in cited raw outputs apply; no receipt implies live production currentness."
+  },
+  "unit": "LOCAL",
+  "verification_status": "actual qualified composed replay, FAIL on one numerical assertion; no formal closure proposal."
+}

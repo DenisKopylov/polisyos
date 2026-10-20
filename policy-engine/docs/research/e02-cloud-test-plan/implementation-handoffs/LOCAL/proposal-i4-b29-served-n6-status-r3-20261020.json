@@ -1,0 +1,437 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal finding closure",
+      "external law/issuer/permission/custody/currentness",
+      "production source currentness",
+      "global E02 closeout"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "d64342783124988af49aa1e7457526b655fbc5eb",
+  "candidate_tree_sha": "0e2653d6cc24dd0e13e3175b38cf8be5f7ec44fc",
+  "capability_state_or_finding_state": {
+    "authority": "not_established unless separately supplied and verified; this source slice grants none.",
+    "capability_label": "verification_missing",
+    "source_mechanism_state": "source review GO and native Ruff check/format PASS; ordinary POST/fresh GET, TCP fresh GET, product tests and generated client consumers UNRUN on adopted source."
+  },
+  "checks": [
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/core/contracts/runtime.py policy-engine/src/polisyos/core/contracts/__init__.py policy-engine/src/polisyos/runtime/http/routes/runs.py policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py policy-engine/tests/unit/runtime/http/test_n6_cycle_history_contract.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "policy-engine/tests/unit/runtime/http/test_n6_cycle_history_contract.py"
+      ],
+      "name": "native Ruff check",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/check-native-role-0.stdout.txt",
+          "role": "native Ruff check stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/check-native-role-0.stderr.txt",
+          "role": "native Ruff check stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "d64342783124988af49aa1e7457526b655fbc5eb"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/core/contracts/runtime.py policy-engine/src/polisyos/core/contracts/__init__.py policy-engine/src/polisyos/runtime/http/routes/runs.py policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py policy-engine/tests/unit/runtime/http/test_n6_cycle_history_contract.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/core/contracts/__init__.py",
+        "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "policy-engine/tests/unit/runtime/http/test_n6_cycle_history_contract.py"
+      ],
+      "name": "native Ruff format",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/format-native-role-0.stdout.txt",
+          "role": "native Ruff format stdout",
+          "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/format-native-role-0.stderr.txt",
+          "role": "native Ruff format stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "d64342783124988af49aa1e7457526b655fbc5eb"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -B -m pytest -q -o addopts= tests/unit/runtime/http/test_n6_cycle_history_contract.py tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_serves_two_meaningful_children_through_fresh_get tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure",
+      "environment": "Existing policy-engine test environment; execute only on a freshly read-back source frame and preserve full deciding output.",
+      "input_closure": "One unit module plus the exact two producer/served integration nodes; prepared plan defines two-child source recording, ordinary route and TCP reopen route.",
+      "interpretation": "Prepared only; no adopted-source runtime output exists.",
+      "name": "prepared post-adoption unit and served integration replay",
+      "outcome": "UNRUN",
+      "outputs": [],
+      "target_sha": "d64342783124988af49aa1e7457526b655fbc5eb"
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/check-native-role-0.stdout.txt",
+      "role": "native Ruff check stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/check-native-role-0.stderr.txt",
+      "role": "native Ruff check stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/format-native-role-0.stdout.txt",
+      "role": "native Ruff format stdout",
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/format-native-role-0.stderr.txt",
+      "role": "native Ruff format stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b29-served-n6-status-r3-independent-review-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "22a84e7c682686daca65a28897605875b31a2959ed151bfa34f24b29c64b1a2a"
+    }
+  ],
+  "commit_subject": "feat(runtime): expose persisted N6 cycle history in run details",
+  "current_composed_readback": {
+    "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+    "note": "Observed when this proposal was authored; this is not a source freeze and does not make later G deltas accepted.",
+    "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+  },
+  "denominator": {
+    "commit_path_count": 9,
+    "documentation_path_count": 1,
+    "generated_metadata_companion_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "mechanism_path_count_excluding_record_companions": 7,
+    "production_source_path_count": 3,
+    "scope_note": "Counts derive from the exact candidate-parent Git tree diff; metadata companions are listed separately and do not inflate the mechanism-row budget.",
+    "test_path_count": 2
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": [
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "b16f5a81d2d59294be9d57be05d7fb332abf9456",
+      "candidate_sha256": "d20dd388cb9c4fb5703ab28e379f5706b330b76c97acf5c8b9654a8a44795879",
+      "change": "A",
+      "path": "policy-engine/docs/reference/api/n6-cycle-history.md",
+      "role": "documentation or decision record"
+    },
+    {
+      "base_git_blob_oid": "213fa785df964e8f4949a4bb33c066de77089b27",
+      "base_sha256": "bc68625016f83dde868a840f61a83b84e9c5a297cd0b073d0e93181154957ba5",
+      "candidate_git_blob_oid": "de04a8ec0805404de78b12956a73851b3310097b",
+      "candidate_sha256": "2f13e885efe33add83e785b2074715bf8b8adb3a720cecd8ae99588439b57c0f",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "1a61d71dc658db124bcbf9d97fbfb1c2cd42b5b3",
+      "base_sha256": "2e7919325071c3acafc0acceb43bca9c226634b8e7d2cf81ca1b021c207d350d",
+      "candidate_git_blob_oid": "cb443acd11363a18678ea585a3f271b0b41dbcba",
+      "candidate_sha256": "955b438451c8375b6859dfd045bae98cc7558de41fa1cd461292e2abf0188189",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "3de8c906cf36a88aee3fe9377d25209cd14d7749",
+      "candidate_sha256": "8182d6b0836b10e3d6440037e21534b7c745ff9b8b45d95f8eac023d007d23e9",
+      "change": "A",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-n6-served-cycle-history.toml",
+      "role": "release fragment"
+    },
+    {
+      "base_git_blob_oid": "1e66c9c9746100a37e468057aa14d24d4dcc4bd4",
+      "base_sha256": "01a4dce74563e84220929fe49c5a6627f810cf5de8ea5137cfca3b360f6432eb",
+      "candidate_git_blob_oid": "4620bec1eb8dac8b7d70a182a174cecbab2b92a0",
+      "candidate_sha256": "ea637dbcd1988efd8a0180c1c55e9127cdaac1161e523c324e17fff38ad829ac",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "32252ebfa8dddbe36a225d9e355e16c8956be2f8",
+      "base_sha256": "fe246527306441af66e477cfb25bac17a57093e3cc1923de9cc39c2495b79512",
+      "candidate_git_blob_oid": "6626a21c5c961303d3118e387cbb5c6311c2102e",
+      "candidate_sha256": "8c742f889e5dd1c28153e3418baf889a464851b4696653bb370e924e2f6b1c76",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "bcc9679747e77b3080a4153d04c806db7ff64170",
+      "base_sha256": "3df4bd62de10e89b338638d897c535e5d3d544d1498146da338f573faaf9e7c2",
+      "candidate_git_blob_oid": "e09ad659e1b55f4d4edcad12f9dc2b069ede160d",
+      "candidate_sha256": "49651b137ce197ddf3bac6c110135677c81cd72ebbf03b0205e347933b2ac9cb",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "922d5efc7906773e02a1a599b42cb348cbabd665",
+      "base_sha256": "ab05ae07e0ba2bd127e934129392ac702e456ff7269d34db2f163928fc0d7d21",
+      "candidate_git_blob_oid": "c173f5e8a4e333b50ceb268ffa83331c144290c3",
+      "candidate_sha256": "e3058c8acc896a146667c48c1e45a4468ff93a31f2e0e3fcde500479a2d2131a",
+      "change": "M",
+      "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "5622b5bec452744de3b32d4c8640db9df81e8a38",
+      "candidate_sha256": "2ef4ec7b81a4dd9ebe4bb75ea7331eec0e1640012541e0bf6e4b317f75d621d6",
+      "change": "A",
+      "path": "policy-engine/tests/unit/runtime/http/test_n6_cycle_history_contract.py",
+      "role": "test"
+    }
+  ],
+  "identity": "i4-b29-served-n6-status-r3",
+  "implementation_commits": [
+    "d64342783124988af49aa1e7457526b655fbc5eb"
+  ],
+  "independent_review_refs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b29-served-n6-status-r3-independent-review-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "22a84e7c682686daca65a28897605875b31a2959ed151bfa34f24b29c64b1a2a"
+    }
+  ],
+  "integration_publication": false,
+  "limitations_and_next_owner": [
+    "Run the exact post-adoption unit plus two served integration nodes on current source; retain complete POST→CAS→fresh GET and TCP reopen evidence.",
+    "Regenerate and validate OpenAPI/schema/client artifacts and run Q2 declared installed consumers.",
+    "Reconcile the source frame with any later N7/shared GET changes before replay; do not apply an older whole-file postimage over newer source.",
+    "Keep law/custody/currentness/publication/issuer and formal G closure not_established.",
+    "Ordinary served POST, fresh run-details GET and TCP reopen/fresh GET are UNRUN on the adopted commit.",
+    "Generated OpenAPI/schema/client/browser/dashboard consumers have not been regenerated or tested.",
+    "No currentness, external custody, law, issuer, causal calibration, publication permission, authority promotion or formal G closure is claimed."
+  ],
+  "next_check": [
+    "Run the exact post-adoption unit plus two served integration nodes on current source; retain complete POST→CAS→fresh GET and TCP reopen evidence.",
+    "Regenerate and validate OpenAPI/schema/client artifacts and run Q2 declared installed consumers.",
+    "Reconcile the source frame with any later N7 or shared GET changes; do not reapply an older full-file postimage.",
+    "Keep law/custody/currentness/publication/issuer and formal G closure not_established."
+  ],
+  "original_criteria_proposal": {
+    "binding_status": "B29 is the exact source-plan proposal ID and is routed through V2/Q2; B15 is not proposed by this slice.",
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [
+      {
+        "bundle": "CYC-05",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "CYC-05",
+            "criterion_id": "B29",
+            "document": "B_r19",
+            "lines": [
+              565,
+              578
+            ],
+            "sha256": "b8e65549bab11a9d52bdc33a78faf071a96c241730ecb10dfdfe237cf494d8f4"
+          }
+        ],
+        "finding_id": "B29",
+        "historical_ledger_status": "partial",
+        "unit": "A"
+      }
+    ],
+    "finding_ids": [
+      "B29"
+    ],
+    "occurrence_disposition": "The source plan proposes B29 only. V2 also routes B15, but this implementation handoff does not create a B15 closure or collapse its repeated source occurrences.",
+    "task_routes": [
+      {
+        "finding_ids": [
+          "B15",
+          "B29"
+        ],
+        "original_exit": "actual N4 two meaningful children->N6 frontier/history->freshGET/client; manual supplied graph not producer",
+        "task_id": "V2",
+        "title": "N4 meaningful-child producer and actual recursive reader"
+      },
+      {
+        "finding_ids": [
+          "B04",
+          "B11",
+          "B29",
+          "B30",
+          "LA-033",
+          "B34",
+          "B35",
+          "B36",
+          "LA-045",
+          "LA-005",
+          "LA-006",
+          "LA-021",
+          "LA-023",
+          "LA-026",
+          "LA-027",
+          "LA-042",
+          "LA-050",
+          "LA-053",
+          "B201",
+          "B202",
+          "B212"
+        ],
+        "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+        "task_id": "Q2",
+        "title": "Canonical generated and declared installed consumers"
+      }
+    ]
+  },
+  "parents": [
+    "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514"
+  ],
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "Source review and Ruff do not recompute persisted N6 rows through ordinary POST/CAS/fresh GET or TCP reopen; those runtime predicates remain unrun.",
+  "preservation": {
+    "candidate_source_frame_is_commit_tree_not_current_dirty_worktree": "true",
+    "no_whole_worktree_clean_claim": true,
+    "two_known_owned_dirty_test_paths_not_in_these_commits": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      }
+    ]
+  },
+  "property": {
+    "negative_controls": [
+      "Remove history rows while preserving resolved markers; strict DTO/fresh GET refuses.",
+      "Use the ordinary served second-capture path with two meaningful children and compare all GET rows to persisted compiled bytes.",
+      "Use the real loopback HTTP/TCP case where a sibling failure/budget stop persists typed partial N5, then open a fresh request context and GET."
+    ],
+    "proxy_divergence": "A DTO constructor or marker-only contract test does not prove persisted rows survive the actual POST→CAS→fresh GET path; a resolved marker with deleted history must still be refused.",
+    "runtime_path": [
+      "N4 meaningful-child producer / compiled recursive-cycle artifact",
+      "persisted N6 status/binding rows in CAS/history",
+      "strict run-details DTO and GET bridge",
+      "fresh parsed GET and TCP-reopened GET",
+      "API documentation and generated/client consumers (pending)"
+    ],
+    "statement": "Every served compiled recursive-cycle artifact retains the complete persisted N6 cycle status/binding rows in GET and refuses a resolved marker when source history is absent, without promoting candidate state to authority or currentness.",
+    "surface": "See the source/property-specific consumer surface and pending checks in proposal_fields."
+  },
+  "proposal_fields": {
+    "author_proposal_only": "limited B29 repair proposal; no closure until served producer→artifact→GET and generated consumer replay.",
+    "evidence_status": "source code and checks are source-qualified to candidate_sha; later runtime/source deltas require rebind/replay.",
+    "formal_adjudication": "G independent; no formal closures proposed by this author receipt.",
+    "independent_reviews": [
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-b29-served-n6-status-r3-independent-review-20261020/review.json",
+        "role": "independent source/review packet",
+        "sha256": "22a84e7c682686daca65a28897605875b31a2959ed151bfa34f24b29c64b1a2a"
+      }
+    ],
+    "occurrence_level_decision": "Proposal only; exact occurrence status, evidence, boundary and next check remain individually represented in the cited source packet/global occurrence ledger. Shared task routes are not additional closures.",
+    "pattern_pass": {
+      "acceptance": "real producer persisted rows equal a fresh ordinary and TCP GET; missing rows refuse; generated client conforms",
+      "anti_pattern": "no marker-only or constructor-only proof, no promotion of candidate to authority/currentness",
+      "class": "same N6 projection completeness class; source-ordered shared GET and future producer compositions must rebind",
+      "relevant": [
+        "P01",
+        "P02",
+        "P04",
+        "P05",
+        "P10",
+        "P29",
+        "P32",
+        "P33",
+        "P38",
+        "P40",
+        "P41"
+      ]
+    },
+    "source_plan_assertions_superseded": [],
+    "task_family": "B29"
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "backend": "Local FastAPI/Uvicorn/httpx served test profile; not executed after adoption.",
+    "environment": "Candidate source has local synthetic/controlled gateway only (retry 0, cache TTL/max 0, prompt sanitizer false); this is a test fixture contract, not an external model or live authority.",
+    "input": "Canonical original-second-capture recording; 2 children; request max iterations 1."
+  },
+  "slice": "B29 served N6 recursive-cycle history in run-details GET",
+  "slice_base_sha": "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514",
+  "slice_base_tree_sha": "4046329115304f1e0db1b397e7430b6d86bd26bb",
+  "source_freeze": false,
+  "source_provenance": {
+    "immutable_implementation_readback": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/implementation-readback-preservation-r2.json",
+      "role": "actual commit/tree/parents and complete committed paths",
+      "sha256": "38ddbfb93fd373820e759dcec7b64646205d31f387f776d4b0cf85c45af689a1"
+    },
+    "local_raw_availability": "All raw deciding outputs are retained on the shared local host, not committed. If G cannot read a named raw path, that dependent evidence is not_established pending exact output fetch/replay.",
+    "source_application": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/source-application.json",
+      "role": "target pre/post pins and root-owned generated companion application",
+      "sha256": "8e9794510c7625ab839f195101374f0fd67ae6f48dc79ce1034b6a88c510cda7"
+    },
+    "source_plan": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b29-served-cycle-history-20261020-r1/plan.json",
+      "role": "candidate property, limits, P40 bucket, and next-check plan",
+      "sha256": "cf565651719ac8a29410807bb9930b191d52e1ffde5bbe6ac141f883941552e3"
+    }
+  },
+  "time_and_version_semantics": {
+    "rule_or_schema_version": "Use only versions recorded by the cited source/test/runtime artifacts; no schema or rule authority is inferred by this proposal.",
+    "source_version": "Exact candidate commit/tree and parent are recorded; later source changes require a fresh rebind.",
+    "verification_time": "Only the timestamps and environment captured in cited raw outputs apply; no receipt implies live production currentness."
+  },
+  "unit": "LOCAL",
+  "verification_status": "source review GO and focused native Ruff checks pass; behavioral/served replay and generated consumers UNRUN."
+}

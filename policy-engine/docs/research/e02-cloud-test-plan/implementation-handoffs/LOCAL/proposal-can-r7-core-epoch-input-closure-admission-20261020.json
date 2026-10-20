@@ -1,0 +1,535 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal finding closure",
+      "external law/issuer/permission/custody/currentness",
+      "production source currentness",
+      "global E02 closeout"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "c70186b41bf06d5f8f2ff17a5a6065f13291d2de",
+  "candidate_tree_sha": "6d71cc8dc9e8aaea044b2142cb8697f63b4825cf",
+  "capability_state_or_finding_state": {
+    "authority": "not_established unless separately supplied and verified; this source slice grants none.",
+    "capability_label": "verification_missing",
+    "source_mechanism_state": "Independent R7 source review GO; native Ruff check/format PASS; actual true-producer controls and seven whole affected modules UNRUN on adopted source; exact source overlap with generation_cycle.py requires N7 composition/rebind."
+  },
+  "checks": [
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/core/contracts/epoch.py policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py policy-engine/src/polisyos/runtime/quality/acquisition_executor.py policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py policy-engine/src/polisyos/runtime/quality/data_forge_binding.py policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py policy-engine/src/polisyos/runtime/quality/generation_cycle.py policy-engine/src/polisyos/runtime/quality/semantic_epoch.py policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py policy-engine/tests/unit/runtime/quality/test_open_world_risk.py policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+        "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+        "policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py",
+        "policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+      ],
+      "name": "native Ruff check",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/check-native-role-0.stdout.txt",
+          "role": "native Ruff check stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/check-native-role-0.stderr.txt",
+          "role": "native Ruff check stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "c70186b41bf06d5f8f2ff17a5a6065f13291d2de"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/core/contracts/epoch.py policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py policy-engine/src/polisyos/runtime/quality/acquisition_executor.py policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py policy-engine/src/polisyos/runtime/quality/data_forge_binding.py policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py policy-engine/src/polisyos/runtime/quality/generation_cycle.py policy-engine/src/polisyos/runtime/quality/semantic_epoch.py policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py policy-engine/tests/unit/runtime/quality/test_open_world_risk.py policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+        "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py",
+        "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+        "policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py",
+        "policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py",
+        "policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py",
+        "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+        "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py"
+      ],
+      "name": "native Ruff format",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/format-native-role-0.stdout.txt",
+          "role": "native Ruff format stdout",
+          "sha256": "c4fd3f494556e5e7cf4355131a1080dbdcf0bbf09664638af9984db197ad88c0"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/format-native-role-0.stderr.txt",
+          "role": "native Ruff format stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "c70186b41bf06d5f8f2ff17a5a6065f13291d2de"
+    },
+    {
+      "command": "See source plan runtime_tests.focused_true_producer_controls.shell; five concrete cases across four node IDs using ordinary pytest config/plugin profile.",
+      "environment": "Existing local test environment; normal pytest.ini/profile, no selector override or source overlay.",
+      "input_closure": "Prepared controls cover true prepared writer schema absence, history wrong-valid and absent Core CanonInfo, real L5 owner CAS rows with wrong-valid schema, and profileless selected snapshot.",
+      "interpretation": "Prepared true-producer controls, not executed after adoption.",
+      "name": "focused real-producer schema/profile controls",
+      "outcome": "UNRUN",
+      "outputs": [],
+      "target_sha": "c70186b41bf06d5f8f2ff17a5a6065f13291d2de"
+    },
+    {
+      "command": "After reconciling generation_cycle.py with N7, rerun the complete affected module set on a new re-bound source frame; exact command remains root-owned.",
+      "environment": "Current canonical source and real selected producer/profile consumers; not run on this packet.",
+      "input_closure": "Full R7 owner/module set after N7 composition and profile companions; not the 5 focused cases alone.",
+      "interpretation": "Needs source-frame rebind after composing the generation_cycle.py overlap with N7.",
+      "name": "seven-module composed R7/N7 consumer replay",
+      "outcome": "UNRUN",
+      "outputs": [],
+      "target_sha": null
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/check-native-role-0.stdout.txt",
+      "role": "native Ruff check stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/check-native-role-0.stderr.txt",
+      "role": "native Ruff check stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/format-native-role-0.stdout.txt",
+      "role": "native Ruff format stdout",
+      "sha256": "c4fd3f494556e5e7cf4355131a1080dbdcf0bbf09664638af9984db197ad88c0"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/format-native-role-0.stderr.txt",
+      "role": "native Ruff format stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-independent-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "65004579861e97e67fc389cbd22ce93309ae8e7ba5325cd6a58c0abde2bb718a"
+    }
+  ],
+  "commit_subject": "fix(core): enforce selected schema and profile before artifact reads",
+  "current_composed_readback": {
+    "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+    "note": "Observed when this proposal was authored; this is not a source freeze and does not make later G deltas accepted.",
+    "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+  },
+  "denominator": {
+    "commit_path_count": 22,
+    "documentation_path_count": 0,
+    "generated_metadata_companion_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "mechanism_path_count_excluding_record_companions": 20,
+    "production_source_path_count": 12,
+    "scope_note": "Counts derive from the exact candidate-parent Git tree diff; metadata companions are listed separately and do not inflate the mechanism-row budget.",
+    "test_path_count": 7
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": [
+    {
+      "base_git_blob_oid": "de04a8ec0805404de78b12956a73851b3310097b",
+      "base_sha256": "2f13e885efe33add83e785b2074715bf8b8adb3a720cecd8ae99588439b57c0f",
+      "candidate_git_blob_oid": "57dd83d43bc03eefe7dcfdbbdc054f6d3c35b943",
+      "candidate_sha256": "e7f8ad051b056cbe22c31f87ee95160dd5f1f6342c02a28fcc74ca550ba152fa",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "cb443acd11363a18678ea585a3f271b0b41dbcba",
+      "base_sha256": "955b438451c8375b6859dfd045bae98cc7558de41fa1cd461292e2abf0188189",
+      "candidate_git_blob_oid": "609739795cad9569c1d16ddc88cae2bf4a88f9ac",
+      "candidate_sha256": "f2aefbe74016539c53058c9c26e4727e5ebf3fa066810dce1b86bb25ead14f5c",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "313bec0b469521cb20d68308cea2071d8b98ef18",
+      "candidate_sha256": "05bb723d8364d6a6bdf73370402f182348aae817fc1347298a6a8cd978dd5be1",
+      "change": "A",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-core-epoch-input-closure-admission.toml",
+      "role": "release fragment"
+    },
+    {
+      "base_git_blob_oid": "717c898579047891b7864ee52699e53a7e95f883",
+      "base_sha256": "9eeea941c4a37c47ab564d173fd328da75d86a7b704ab3e7e1116be09fb91f94",
+      "candidate_git_blob_oid": "3085d14bdd768871ece2f7f68e9ab08353949859",
+      "candidate_sha256": "4ba194d007b9cb514bbf19e45d2ffc118a7938ca2977931a8e404a4a5ba905a2",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/README.md",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "0e8d1772cabb26d7a14e8cc47b12b3c68e6a8fe2",
+      "base_sha256": "6448347899f1306e2b35f7f50050aa636235b1bfbaa25aaa488f0bde958146b1",
+      "candidate_git_blob_oid": "33d66b0f4bd87ef2ec98c094cc899c983e821dd4",
+      "candidate_sha256": "36fa94bf08638dd91dbc1abe56d25a7d3e86711c65cde354f32999487eed3623",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "6fe8481f407214ac27a2c9a842a91844f2ddde13",
+      "base_sha256": "c8b2aa454084e8d889a27b70eaa508568aa7a9a0298e9771d0de0b8ab5d2b451",
+      "candidate_git_blob_oid": "af990a6d9ef26e3d620af5c5bc165a6b515c2956",
+      "candidate_sha256": "d6a5afe3b11388eb540cd9aa70f865e3c841559040d689537f87278bb638230c",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "044cc0f76e60dea152513e3ff6ccce625a90a413",
+      "base_sha256": "a7b0f249bfd947faf766aebba1e6bc36bcab0b94d4209b39fa906adcfd5bf75d",
+      "candidate_git_blob_oid": "a1f93b045ec4b091ab7f16a636e11447856173a5",
+      "candidate_sha256": "1cbb8686682a46af250ea60a56679c17b946a7060ea545fee7c54bdd86d592ff",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "f45dcd3ba53d0ea9e09f210534217227a0786b16",
+      "base_sha256": "a0b8525e27d830cfd91cb7c100b05b6955b13ffca4ebc9de490aea3d87854397",
+      "candidate_git_blob_oid": "33227f4452ba059cea29d3c82fbee2e6d339bed3",
+      "candidate_sha256": "d2d2a783313a3399d01c12973872f48f60f791fa99b75792258a7aa8ca1255f8",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "fcf1bdfd0d4e40f9fa04d1b1f5b56e1d7f45fda8",
+      "base_sha256": "a68869e5025e933c35d9780af6b6a1dfa77d4e8b0dbb60ed280d0c2a5b5271d1",
+      "candidate_git_blob_oid": "33f14e339f1e49c4502856f1340c4d2f95b7da80",
+      "candidate_sha256": "5e6103cb8653e17ca50685aed0d9b8e1d34e14cf86ceb43fbb3a732a36cb6aa6",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "6993b4f3aa23c42baface9066f53ccf66a3cc65c",
+      "base_sha256": "0e35cbe46167882b0de7fe1852eb3c7967009b742acd2007c89fe66c5f7fbbf9",
+      "candidate_git_blob_oid": "b5ac69212bf2e672a48ecc56d347cf3aa9d322b7",
+      "candidate_sha256": "ce755528f8af56eedbc7e825241fb8758a93fd64c356069f7dc85307b0c43d4a",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/epoch_certificate_issuance.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "284af815d46fc5cdb862b3079b90a84c91ac9e44",
+      "base_sha256": "5719e3d093af7db6d8afaf0fef61a66a5e64c6dc73bc0b75aecac101999dff6e",
+      "candidate_git_blob_oid": "3a90c8075ec1a71dbe638c72d7b5e7db81cb1829",
+      "candidate_sha256": "b5a74f854344bdba0190e8ed5b16f8b53159554e915b88f4de26f02812bb0946",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/epoch_denominator_reconciliation.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "c75651867d227130706bd76acbf93489a8a3e17e",
+      "base_sha256": "2d468a397b3c4d8a0a0ae1d7d98e130defd33d36d6c5022917a1bbf81028170a",
+      "candidate_git_blob_oid": "abcad0786a039e590d19922dfb3b9b784f5ce038",
+      "candidate_sha256": "1d7dc7635b59d8b05728d5b8fca66e82143b039a753bc4285d238b5db8781da5",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/epoch_validity_cascade.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "eca72cf7a83acad8c7a84a45fc0c54612185f50c",
+      "base_sha256": "fa81816f2c025d1899fac91e19a497fe97d077a71ead55a1ebf31671bc64b8c8",
+      "candidate_git_blob_oid": "02d77ee214876eed03a95c1980330c6affc5d779",
+      "candidate_sha256": "c9dbf0caad4cf7322b2786f6290f09c6fba6c383147c34c99f56a187a89975af",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "b2a178e150889ae23d2ccca6820c85783210e59e",
+      "base_sha256": "a09f2b9f17ed7923a7313a23ec6d3df141036790a466a51d67f7123b7f6bc0d7",
+      "candidate_git_blob_oid": "8b1b225e5476270b774be9976c86ab9a973ab1bb",
+      "candidate_sha256": "a8a878fdffed0084f5b07e23cc405fa0fad553d0478eafb3bc4f6740f750e4f1",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "45e38ff5b7ed0fdbf1d286c0bf8cf445acf266d6",
+      "base_sha256": "e73fd31facfa750d1b8ea5164a465340fbee2b45f80bb41a652028e0c34b85f8",
+      "candidate_git_blob_oid": "64682ae3c317d16e1a9d132931bef91a5fed44ab",
+      "candidate_sha256": "9ffed576ee739dcd01834b766b6b790e4556103a14eef43e5f127c0b141ac7db",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch_qualification.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "e6e670601ba69925189f247c8d95e4f34352d17c",
+      "base_sha256": "6252a32ed8e410b9cae0ca914b9222b30aa3ccc2d26146eeea985e8e7e86a958",
+      "candidate_git_blob_oid": "3ef85aa885630ffdbf9eecf698aedf4e097cc753",
+      "candidate_sha256": "b18015092b8bc6c5dfe0b8a008e704bb27f8fff927e44918f3030f0b65150b47",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_world_growth.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": "9fffabaac09e5401def19b076114af1fab98a3e7",
+      "base_sha256": "c29fddf554ade29aca642a17771c91a8f298b77b272905a404756127542140bc",
+      "candidate_git_blob_oid": "ef593f7c2a9e55832b0bce8c27c4c8529df08541",
+      "candidate_sha256": "b7846654e8718281894586c00d01697003934fb264a6808b8496d13ba86bd459",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_data_forge_binding.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": "41ac8cc41db85b6cc4f864b3238eef4c9af71c9c",
+      "base_sha256": "4dba5feaf26f5579a8ff532c24fdf9e7b6a6ecfb14fe777661e6187de6a28f99",
+      "candidate_git_blob_oid": "c898cc717351745d5e940eb309302fd35a79f80d",
+      "candidate_sha256": "1f5d75eaf7c0281be9f2e017e9210fd9674e83d035cd4dfb551767c9252cad2f",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_epoch_certificate_issuance.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": "ecf7af3233f3a478304cdb0944d81c67c57ec207",
+      "base_sha256": "6576334a089a2fe7c5f1512ec205a7d87d5bf60a2628e0ce7422f1a71f939c8b",
+      "candidate_git_blob_oid": "f8b241fd88805e7c157fe9028c8009f29c9dcc1e",
+      "candidate_sha256": "ac57dee57f4369b4f894f18640719a2c06b4cef379bc5faddd7a2cf7a4140f0e",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_open_world_risk.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": "56f17e1773598f6d38d2349086cf15fea5424b98",
+      "base_sha256": "874bde576f4047a396e7e70ec1290c123c8df02ab3e86d9dc416d71c05e275eb",
+      "candidate_git_blob_oid": "b7f13b01ce67c8ecd81e4340f67cb1301a50ff74",
+      "candidate_sha256": "c7bcd3589fefe1837f4429d80184fcaff65fae6bae47218557be4041b2e96476",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": "88b9d044b752b39f6c13f89e01e397421063fb8c",
+      "base_sha256": "c1f2e8d11624f8075d647d3aa3e184c22c9b84e207a7b2a6edc3d11995d3e8d0",
+      "candidate_git_blob_oid": "747613084bf6ec7e5a4717af7b6e7bb0f4254b51",
+      "candidate_sha256": "64b8ce68dbbb4bcee34d15486a963c91af590bf4dd72cefd8731846a8501af59",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+      "role": "test"
+    },
+    {
+      "base_git_blob_oid": "2a279d248f00b0cf04c4be6683bc567f4c8d5395",
+      "base_sha256": "66ed143872e0463b3a7beb42491b88c5d19bbf855ccc8c678174215d94b4346d",
+      "candidate_git_blob_oid": "c97ccb921ea8e99d7eae7fc77eeaca88064d48e5",
+      "candidate_sha256": "8c2741ffac99415baf7efcc2f20b5e65124249409bec785cc159208e104b19c8",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_receipt_compatibility.py",
+      "role": "test"
+    }
+  ],
+  "identity": "can-r7-core-epoch-input-closure-admission",
+  "implementation_commits": [
+    "c70186b41bf06d5f8f2ff17a5a6065f13291d2de"
+  ],
+  "independent_review_refs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-independent-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "65004579861e97e67fc389cbd22ce93309ae8e7ba5325cd6a58c0abde2bb718a"
+    }
+  ],
+  "integration_publication": false,
+  "limitations_and_next_owner": [
+    "Compose the generation_cycle.py overlap against the real N7 candidate and independently review any cumulative change before running.",
+    "Execute all focused true-producer controls and seven whole affected modules with normal profile and source-origin checks.",
+    "Regenerate/validate canonical public schema/client companions and run actual served/installed consumers.",
+    "Keep default producer C4 selected=False and raw unowned views limited; no production custody/currentness/authority is inferred.",
+    "Actual true-producer controls and seven whole affected modules are UNRUN on the adopted source.",
+    "generation_cycle.py has an explicit N7 overlap that must be composed and re-reviewed before the cumulative behavior can be qualified.",
+    "External raw unowned views remain bounded/limited; no production custody or authority facts are invented.",
+    "No G acceptance or formal closures are proposed."
+  ],
+  "next_check": [
+    "Compose the generation_cycle.py overlap against the real N7 candidate and independently review any cumulative change before running.",
+    "Execute all focused true-producer controls and seven whole affected modules with normal profile and source-origin checks.",
+    "Regenerate/validate canonical public schema/client companions and run actual served/installed consumers.",
+    "Keep default-producer C4 selected=False and raw unowned views candidate/limited; no production custody/currentness/authority is inferred."
+  ],
+  "original_criteria_proposal": {
+    "binding_status": "not_established in this source packet; do not infer E02 original IDs from code-path intersections. The proposal is a mechanism/source slice, not a row-level closure.",
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [],
+    "finding_ids": [],
+    "occurrence_disposition": "No original finding ID or occurrence is bound by the CAN R7 source packet. Keep this as a source mechanism proposal; do not infer a closure ID from impacted module names.",
+    "task_routes": []
+  },
+  "parents": [
+    "d64342783124988af49aa1e7457526b655fbc5eb"
+  ],
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "Exact producer schema/profile identity must be recomputed before artifact reads, but true-producer controls and complete composed modules remain unrun.",
+  "preservation": {
+    "candidate_source_frame_is_commit_tree_not_current_dirty_worktree": "true",
+    "no_whole_worktree_clean_claim": true,
+    "two_known_owned_dirty_test_paths_not_in_these_commits": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      }
+    ]
+  },
+  "property": {
+    "negative_controls": [
+      "Real producer wrong-valid schema on same bytes and artifact identity but different selected-profile digest refuses before verify/get_bytes.",
+      "Exact absence for a producer whose contract is schema-less is distinguished from wrong present schema.",
+      "Raw None/profileless selected snapshot refuses before payload or integrity reads.",
+      "After N7 overlap is composed, rerun all affected owner modules; do not use the pre-N7 frozen whole-file generation_cycle postimage."
+    ],
+    "proxy_divergence": "Checking a schema string/field after payload read, trusting producer-only metadata, or passing a wrong-valid schema with matching bytes does not establish the selected artifact/profile boundary.",
+    "runtime_path": [
+      "actual Core artifact producers and profile selection",
+      "persisted artifact reference/schema/profile identity",
+      "shared typed schema/profile preflight before CAS verify/read",
+      "epoch, history, acquisition and admission consumers",
+      "strict refusal controls (pending)"
+    ],
+    "statement": "For selected Core artifact/profile readers, validate the exact typed schema contract, including exact absence, before verify/get_bytes or any payload read; a wrong-but-valid schema/profile cannot reach a named epoch/history/admission consumer.",
+    "surface": "See the source/property-specific consumer surface and pending checks in proposal_fields."
+  },
+  "proposal_fields": {
+    "author_proposal_only": "limited Core reader mechanism proposal only; no formal closure or source freeze.",
+    "evidence_status": "source code and checks are source-qualified to candidate_sha; later runtime/source deltas require rebind/replay.",
+    "formal_adjudication": "G independent; no formal closures proposed by this author receipt.",
+    "independent_reviews": [
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-readonly-cas-r7-independent-20261020/review.json",
+        "role": "independent source/review packet",
+        "sha256": "65004579861e97e67fc389cbd22ce93309ae8e7ba5325cd6a58c0abde2bb718a"
+      }
+    ],
+    "occurrence_level_decision": "Proposal only; exact occurrence status, evidence, boundary and next check remain individually represented in the cited source packet/global occurrence ledger. Shared task routes are not additional closures.",
+    "pattern_pass": {
+      "acceptance": "true producer identity and exact schema/profile validated before reads; wrong-valid and absent controls refuse on real consumers",
+      "anti_pattern": "no reader-side inferred authority/profile and no byte/marker-only schema match",
+      "class": "same selected artifact/profile preflight class widened to current census; shared generation_cycle overlap needs composed-source rebind",
+      "relevant": [
+        "P01",
+        "P02",
+        "P05",
+        "P07",
+        "P08",
+        "P10",
+        "P12",
+        "P29",
+        "P32",
+        "P33",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ]
+    },
+    "source_plan_assertions_superseded": [],
+    "task_family": "CAN R7"
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "backend": "Core CAS reader and local tests; actual runtime tests pending.",
+    "environment": "Candidate source selected Core artifacts through the existing Core CAS API and source-selected profile; no external raw production facts claimed.",
+    "input": "28 profile preflights / 39 loader/source calls per the R7 plan source census; exact selected contract per consumer, no fabricated schema or profile."
+  },
+  "slice": "CAN R7 selected schema/profile preflight before Core artifact reads",
+  "slice_base_sha": "d64342783124988af49aa1e7457526b655fbc5eb",
+  "slice_base_tree_sha": "0e2653d6cc24dd0e13e3175b38cf8be5f7ec44fc",
+  "source_freeze": false,
+  "source_provenance": {
+    "immutable_implementation_readback": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/implementation-readback-preservation-r2.json",
+      "role": "actual commit/tree/parents and complete committed paths",
+      "sha256": "cd7b2f908ff9b88459787e4085e658a09186cf17a4f0e47884e4fb74848174b0"
+    },
+    "local_raw_availability": "All raw deciding outputs are retained on the shared local host, not committed. If G cannot read a named raw path, that dependent evidence is not_established pending exact output fetch/replay.",
+    "source_application": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/source-application.json",
+      "role": "target pre/post pins and root-owned generated companion application",
+      "sha256": "f7a66f229594757a8b5d69eabfbe1c1569d65d2239c9526921fbc1b2a7ba92d2"
+    },
+    "source_plan": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-can-r7-schema-profile-guards-20261020-r2/plan.json",
+      "role": "candidate property, limits, P40 bucket, and next-check plan",
+      "sha256": "5c05b45334f3412975bab3725301fb8f9a4d5ae6c072949fae71726283434163"
+    }
+  },
+  "time_and_version_semantics": {
+    "rule_or_schema_version": "Use only versions recorded by the cited source/test/runtime artifacts; no schema or rule authority is inferred by this proposal.",
+    "source_version": "Exact candidate commit/tree and parent are recorded; later source changes require a fresh rebind.",
+    "verification_time": "Only the timestamps and environment captured in cited raw outputs apply; no receipt implies live production currentness."
+  },
+  "unit": "LOCAL",
+  "verification_status": "source-reviewed GO; focused runtime and composed consumer replay UNRUN."
+}

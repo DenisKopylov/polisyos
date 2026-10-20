@@ -1,0 +1,421 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal finding closure",
+      "external law/issuer/permission/custody/currentness",
+      "production source currentness",
+      "global E02 closeout"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0",
+  "candidate_tree_sha": "43c696bc04b969f27b17ee0c6398cdd70844ed3d",
+  "capability_state_or_finding_state": {
+    "authority": "not_established unless separately supplied and verified; this source slice grants none.",
+    "capability_label": "verification_missing",
+    "source_mechanism_state": "bounded runtime mechanism verified: adopted 16-case module is 16 passed with one pytest config warning; direct import exits 0. Whole finite-facade authority closure is not established."
+  },
+  "checks": [
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/runtime/quality/confidence_ledger.py policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py"
+      ],
+      "name": "native Ruff check",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/check-native-role-0.stdout.txt",
+          "role": "native Ruff check stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/check-native-role-0.stderr.txt",
+          "role": "native Ruff check stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/runtime/quality/confidence_ledger.py policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py"
+      ],
+      "name": "native Ruff format",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/format-native-role-0.stdout.txt",
+          "role": "native Ruff format stdout",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/format-native-role-0.stderr.txt",
+          "role": "native Ruff format stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+    },
+    {
+      "command": "cd policy-engine && .venv/bin/python -m pytest -vv -s -p no:cacheprovider tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+      "environment": "Existing local .venv; ordinary plugin configuration except the recorded cacheprovider disable; the exact warning is retained.",
+      "input_closure": "16 cases in the single named module; source frame 75ab2c8bd4ed8c8c438507e168e6698517ffdfe0",
+      "interpretation": "16 passed; a PytestConfigWarning about cache_dir is recorded and is not hidden.",
+      "name": "adopted 16-case test module",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-16-case.stdout.txt",
+          "role": "adopted 16-case test module",
+          "sha256": "5e4a93151688750b74a05acb54e27c6fc2e34415325eefd5c594af092fb0e65a"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-16-case-junit.xml",
+          "role": "adopted 16-case test module",
+          "sha256": "6309a99809cb5c2f814eb6a9a0b6043471b8771e7cb5a03c1d6695b3b6f4c90f"
+        }
+      ],
+      "target_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -c \"import polisyos.runtime.quality.generation_cycle; import polisyos.runtime.quality.confidence_ledger; capture_loaded_deployment_identity()\"",
+      "environment": "Existing local policy-engine/.venv; source commit 75ab2c8bd4ed8c8c438507e168e6698517ffdfe0",
+      "input_closure": "Fresh process import of two canonical runtime modules. Direct import exit 0, but identity capture reported canonical_loaded_runtime_mismatch and missing repository binding polisyos.common.serialization; loaded_code_consistent=false.",
+      "interpretation": "Process exited 0; captured deployment identity remains not_established (canonical_loaded_runtime_mismatch; loaded_code_consistent=false).",
+      "name": "fresh direct import",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/fresh-direct-import.json",
+          "role": "fresh direct import",
+          "sha256": "a5b67df7bf68c11bfb8add1a2f590c6ff9e5beeebd20873964c0e4c5d376eaaa"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/fresh-direct-import.stdout.txt",
+          "role": "fresh direct import",
+          "sha256": "1cf0944fe407a1e5364677dbaa44d6df367e3e64d632be7c1d69b9207c73c1ca"
+        }
+      ],
+      "target_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+    },
+    {
+      "command": "See the capped continuation described in the adopted-runtime census addendum; no reusable result was emitted.",
+      "environment": "Local bounded probe; process reached approximately 2.5 GiB RSS against a 2 GiB cap and was terminated; no OOM inference.",
+      "input_closure": "Two recognized finite module routes; addendum says getter proof incomplete and recommends one generic fail-closed route proof.",
+      "interpretation": "Explicit bounded probe terminated above its 2 GiB RSS cap at approximately 2.5 GiB; no result artifact. This is not an OOM finding or product PASS/FAIL.",
+      "name": "whole facade getter/authority closure continuation",
+      "outcome": "ERROR",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-runtime-census-addendum.json",
+          "role": "whole facade getter/authority closure continuation",
+          "sha256": "3ba315a8670582a6c8c8135d19e5c72c4b570659ee9f0dca5e546fac648dbaef"
+        }
+      ],
+      "target_sha": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/check-native-role-0.stdout.txt",
+      "role": "native Ruff check stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/check-native-role-0.stderr.txt",
+      "role": "native Ruff check stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/format-native-role-0.stdout.txt",
+      "role": "native Ruff format stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/format-native-role-0.stderr.txt",
+      "role": "native Ruff format stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-16-case.stdout.txt",
+      "role": "adopted 16-case test module",
+      "sha256": "5e4a93151688750b74a05acb54e27c6fc2e34415325eefd5c594af092fb0e65a"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-16-case-junit.xml",
+      "role": "adopted 16-case test module",
+      "sha256": "6309a99809cb5c2f814eb6a9a0b6043471b8771e7cb5a03c1d6695b3b6f4c90f"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/fresh-direct-import.json",
+      "role": "fresh direct import",
+      "sha256": "a5b67df7bf68c11bfb8add1a2f590c6ff9e5beeebd20873964c0e4c5d376eaaa"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/fresh-direct-import.stdout.txt",
+      "role": "fresh direct import",
+      "sha256": "1cf0944fe407a1e5364677dbaa44d6df367e3e64d632be7c1d69b9207c73c1ca"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-runtime-census-addendum.json",
+      "role": "whole facade getter/authority closure continuation",
+      "sha256": "3ba315a8670582a6c8c8135d19e5c72c4b570659ee9f0dca5e546fac648dbaef"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "2340dee67adbdb4f4840078308973689997f3e3ccae85d1b5333da44bc0175ab"
+    }
+  ],
+  "commit_subject": "fix(e02): initialize facade provider before runtime import resolution",
+  "current_composed_readback": {
+    "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+    "note": "Observed when this proposal was authored; this is not a source freeze and does not make later G deltas accepted.",
+    "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+  },
+  "denominator": {
+    "commit_path_count": 4,
+    "documentation_path_count": 0,
+    "generated_metadata_companion_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "mechanism_path_count_excluding_record_companions": 2,
+    "production_source_path_count": 1,
+    "scope_note": "Counts derive from the exact candidate-parent Git tree diff; metadata companions are listed separately and do not inflate the mechanism-row budget.",
+    "test_path_count": 1
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": [
+    {
+      "base_git_blob_oid": "e4049a8b60f055e0738b7da726c710f3490d3fe9",
+      "base_sha256": "a9a1b50fd0b169d08e9926dd341ffd6a9c43907e4b7059e9e5b07039112fe3e4",
+      "candidate_git_blob_oid": "6e2c271b77c0dd95b7dabfdc5fa18d362e3ee011",
+      "candidate_sha256": "0d313c16adf3ae183190f1bd23dfc080025b8b74660ed6fd1d68727a3fa5264e",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "7fa01e1905c83d67fd71a47c9d9fb12f140eb7b5",
+      "base_sha256": "3547056ce79f36bf92138b2bda9cf3949e3a57b60bca30930f0f935b7ae02ad8",
+      "candidate_git_blob_oid": "b198edacc8ad14ec126ea62a0e6afac6b5f47e86",
+      "candidate_sha256": "84a6650d5eda454293b9fb9f335c28a62df54ddb1d16b50faf73669e5c05c8fb",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "38f657b9861a21548e7250478a54e006fa72164a",
+      "base_sha256": "5b150fb810d452395a2fcc22ed4020886ec0cd00f47742239f7b4677913515f8",
+      "candidate_git_blob_oid": "1371d4945dd295a8f3f36829f1d67c7239a5740f",
+      "candidate_sha256": "ffcdc8f45f49d07a51de6f8555292b05eed1b7db92127aae0502c925649159fe",
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "role": "production source"
+    },
+    {
+      "base_git_blob_oid": "c3a1d2b2bebcd3f8bd6e651a220061cd3539026e",
+      "base_sha256": "fe8dcb499bebcddf672efa9d9bd37d2c73e9ce6e6bceb4ee087f788fe30ee80a",
+      "candidate_git_blob_oid": "b51b7e2eb7a007e2a4579e5360a5437d30c35f75",
+      "candidate_sha256": "2aa885d8fcad162d1d6aed6bdb49c4cfcdc35a5e99055b8ce51b7ad82f34bc80",
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_authority_finite_facade_helper_routes.py",
+      "role": "test"
+    }
+  ],
+  "identity": "n11-r5-unbound-provider-init-and-real-runtime-import",
+  "implementation_commits": [
+    "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+  ],
+  "independent_review_refs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "2340dee67adbdb4f4840078308973689997f3e3ccae85d1b5333da44bc0175ab"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-runtime-census-addendum.json",
+      "role": "independent source/review packet",
+      "sha256": "3ba315a8670582a6c8c8135d19e5c72c4b570659ee9f0dca5e546fac648dbaef"
+    }
+  ],
+  "integration_publication": false,
+  "limitations_and_next_owner": [
+    "Implement the generic fail-closed finite member-to-module route proof for literal-name-set source getters and exact dynamic imports, retaining separate symbol maps and unknown/dynamic routes.",
+    "Add missing-child, dynamic/rebound collection, wrong-prefix, duplicate/conflicting export controls.",
+    "Rerun the two exact owner-closure entries; keep typed repository bindings not_established until proved.",
+    "Run native owner regeneration and declared installed consumers after the resolver proof; no whole-source closure from 16 passing cases.",
+    "The complete finite-facade owner closure, native owner regeneration, installed consumers and composed replay remain unqualified.",
+    "The fresh import identity capture reports canonical_loaded_runtime_mismatch and the missing repository binding polisyos.common.serialization; this does not negate the direct import outcome but blocks an authority identity claim.",
+    "The probe was bounded by the stated 2 GiB RSS cap and produced no closure result; do not repeat without a discriminating, source-bounded method.",
+    "The two known dirty test edits are preserved byte-identically and outside this mechanism commit."
+  ],
+  "next_check": [
+    "Implement the generic fail-closed finite member-to-module route proof for literal-name-set source getters and exact dynamic imports, retaining separate symbol maps and unknown/dynamic routes.",
+    "Add missing-child, dynamic/rebound collection, wrong-prefix, duplicate/conflicting export controls.",
+    "Rerun the two exact owner-closure entries; keep polisyos.core.components and serialization binding issues typed and unresolved until proved.",
+    "Run native owner regeneration and declared installed consumers after the resolver proof; no whole-source closure from 16 passing cases."
+  ],
+  "original_criteria_proposal": {
+    "binding_status": "not_established; this slice packet does not bind the mechanism to an original finding ID or canonical occurrence",
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [],
+    "finding_ids": [],
+    "occurrence_disposition": "No original finding or occurrence binding is present in the N11 source packet; this remains explicitly unbound. Preserve it as a standalone source mechanism proposal and do not assign a canonical ID by file/path adjacency.",
+    "task_routes": []
+  },
+  "parents": [
+    "6dad99365eda4907b7128a24b1ab5c85ccc72d44"
+  ],
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "The bounded fallback/import path is exercised by the 16-case runtime test and direct import. Complete finite member-to-module ownership and captured runtime identity remain not_established.",
+  "preservation": {
+    "candidate_source_frame_is_commit_tree_not_current_dirty_worktree": "true",
+    "no_whole_worktree_clean_claim": true,
+    "two_known_owned_dirty_test_paths_not_in_these_commits": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      }
+    ]
+  },
+  "property": {
+    "negative_controls": [
+      "Remove initialization while preserving resolver markers; the baseline control raises UnboundLocalError.",
+      "Exercise no-provider lookup and the fresh process import."
+    ],
+    "proxy_divergence": "A successful import exit code alone does not establish loaded runtime identity or authority: the direct import exited 0 while the captured deployment identity remained not_established.",
+    "runtime_path": [
+      "source-owned module facade",
+      "finite provider resolver",
+      "Python module import/export lookup",
+      "fresh process consumer import"
+    ],
+    "statement": "For a source-owned module facade with no applicable provider for a queried export, provider resolution returns the typed no-provider outcome rather than reading an uninitialized local.",
+    "surface": "See the source/property-specific consumer surface and pending checks in proposal_fields."
+  },
+  "proposal_fields": {
+    "author_proposal_only": "limited R5 source fix only; no original-finding proposal/closure because canonical ID binding is not established in this slice.",
+    "evidence_status": "source code and checks are source-qualified to candidate_sha; later runtime/source deltas require rebind/replay.",
+    "formal_adjudication": "G independent; no formal closures proposed by this author receipt.",
+    "independent_reviews": [
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/review.json",
+        "role": "independent source/review packet",
+        "sha256": "2340dee67adbdb4f4840078308973689997f3e3ccae85d1b5333da44bc0175ab"
+      },
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r5-unbound-provider-independent-review-20261020/adopted-runtime-census-addendum.json",
+        "role": "independent source/review packet",
+        "sha256": "3ba315a8670582a6c8c8135d19e5c72c4b570659ee9f0dca5e546fac648dbaef"
+      }
+    ],
+    "occurrence_level_decision": "Proposal only; exact occurrence status, evidence, boundary and next check remain individually represented in the cited source packet/global occurrence ledger. Shared task routes are not additional closures.",
+    "pattern_pass": {
+      "acceptance": "generic route proof, exact owner closure, fresh consumer import, missing/wrong/dynamic route refusal",
+      "anti_pattern": "do not equate import success/loaded module count with resolved owner binding or authority",
+      "class": "same finite-facade resolver control-flow class; whole-owner proof is a separate larger quantity",
+      "relevant": [
+        "P01",
+        "P02",
+        "P05",
+        "P29",
+        "P32",
+        "P33",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ]
+    },
+    "source_plan_assertions_superseded": [
+      "The source-application runtime field said UNRUN before the independent adopted-source R5 addendum; the addendum is the later exact 75ab runtime evidence."
+    ],
+    "task_family": "N11"
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "backend": "local Python runtime; no external data or authority",
+    "environment": "existing local policy-engine/.venv; canonical source tree; Python import in a fresh process",
+    "input": "module facade lookup / fresh generation_cycle and confidence_ledger imports"
+  },
+  "slice": "N11 R5 finite-facade provider initialization (bounded source mechanism)",
+  "slice_base_sha": "6dad99365eda4907b7128a24b1ab5c85ccc72d44",
+  "slice_base_tree_sha": "8dc7412484fa26c1b6211ae95477e7e5ca49959c",
+  "source_freeze": false,
+  "source_provenance": {
+    "immutable_implementation_readback": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/implementation-readback-preservation-r2.json",
+      "role": "actual commit/tree/parents and complete committed paths",
+      "sha256": "e4f6e8abf64ed78c4b9df8f14d68286d330f8c836d26513ccea11b72ce42009c"
+    },
+    "local_raw_availability": "All raw deciding outputs are retained on the shared local host, not committed. If G cannot read a named raw path, that dependent evidence is not_established pending exact output fetch/replay.",
+    "source_application": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/source-application.json",
+      "role": "target pre/post pins and root-owned generated companion application",
+      "sha256": "44559889e4a043e42db05fdf118c6a21752452fb05543bc7ece300c6ed6e53f0"
+    },
+    "source_plan": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/plan.json",
+      "role": "candidate property, limits, P40 bucket, and next-check plan",
+      "sha256": "a31851f426fe74cbc2295eeca0096394a66f3927dcf675a0ab9c40958200c7ee"
+    }
+  },
+  "time_and_version_semantics": {
+    "rule_or_schema_version": "Use only versions recorded by the cited source/test/runtime artifacts; no schema or rule authority is inferred by this proposal.",
+    "source_version": "Exact candidate commit/tree and parent are recorded; later source changes require a fresh rebind.",
+    "verification_time": "Only the timestamps and environment captured in cited raw outputs apply; no receipt implies live production currentness."
+  },
+  "unit": "LOCAL",
+  "verification_status": "bounded source fix and 16-case runtime module verified; authority/whole-owner closure not_established."
+}

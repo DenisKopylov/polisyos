@@ -1,0 +1,721 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal finding closure",
+      "external law/issuer/permission/custody/currentness",
+      "production source currentness",
+      "global E02 closeout"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+  "candidate_tree_sha": "0ce131a0928a23e7d2c003277b9766729bf3c691",
+  "capability_state_or_finding_state": {
+    "authority": "not_established unless separately supplied and verified; this source slice grants none.",
+    "capability_label": "surface_out_of_scope (this slice is document-only and makes no product capability claim)",
+    "source_mechanism_state": "Independent packet QA GO_TRACKING_RECORDS_ONLY; five decision files and two generated metadata companions are committed and read back. No runtime checks or formal G decision are made."
+  },
+  "checks": [
+    {
+      "command": "Read-only QA of exact source packets, assigned-ID/criterion joins and global denominator; no product runtime command.",
+      "environment": "Local RAW evidence package; source frame d3008898be4f075dd6be66265b8fd933193ff9d1 is historical and source_freeze=false.",
+      "input_closure": "18 assigned T1/T2 IDs, 282 findings, 291 occurrences, 127 bundles; 28 exception rows and 13 native gates; A94 ancestor-frame classification.",
+      "interpretation": "QA verdict is GO_TRACKING_RECORDS_ONLY; it validates tracking/row bindings, not product capability or G adjudication.",
+      "name": "independent packet QA",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-native28-two-packet-independent-qa-20261020/review.json",
+          "role": "independent packet QA",
+          "sha256": "b34da3b308b4bfb01902b57dbea92ec86f67037ffaf826422d0bb46b4903d48d"
+        }
+      ],
+      "target_sha": "ed5b52bc3db64ca477929a605f148d2140fe3955"
+    },
+    {
+      "command": "Run the exact full 13-gate native wave against the then-current source frame and actual native input profile; the historical d300 preflight does not qualify the current source.",
+      "environment": "Native owner-derived profile; current complete denominator required.",
+      "input_closure": "All 13 registered gates; prior handoff records six not_run and seven preflight_only_not_full_gate.",
+      "interpretation": "No deciding runtime output exists.",
+      "name": "current native gate wave",
+      "outcome": "UNRUN",
+      "outputs": [],
+      "target_sha": "ed5b52bc3db64ca477929a605f148d2140fe3955"
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-native28-two-packet-independent-qa-20261020/review.json",
+      "role": "independent packet QA",
+      "sha256": "b34da3b308b4bfb01902b57dbea92ec86f67037ffaf826422d0bb46b4903d48d"
+    },
+    {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.json",
+      "role": "independent source/review packet",
+      "sha256": "5f60de626d9d73f1a8b3c76632dd3fe8795c58430613d34744beca15c67759f7"
+    },
+    {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.json",
+      "role": "independent source/review packet",
+      "sha256": "aff8a972c317edb6286615ee439bc21631efc67177a748b5f05fd689b2a34ee9"
+    }
+  ],
+  "commit_subject": "docs(e02): track reviewed T1/T2 and native28 decision proposals",
+  "current_composed_readback": {
+    "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+    "note": "Observed when this proposal was authored; this is not a source freeze and does not make later G deltas accepted.",
+    "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+  },
+  "denominator": {
+    "commit_path_count": 7,
+    "documentation_path_count": 5,
+    "generated_metadata_companion_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "mechanism_path_count_excluding_record_companions": 5,
+    "production_source_path_count": 0,
+    "scope_note": "Counts derive from the exact candidate-parent Git tree diff; metadata companions are listed separately and do not inflate the mechanism-row budget.",
+    "test_path_count": 0
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": [
+    {
+      "base_git_blob_oid": "9f800ad46b9c2653f8cad2b619ec3d0848c258bd",
+      "base_sha256": "b3d1bffe7365ede892b001980932030fb8d5a86bc68c279e6a49bb1fc50b01e4",
+      "candidate_git_blob_oid": "99270ad13317bed10ec534180ee9b4bad7687bc0",
+      "candidate_sha256": "7d5045acc568da85b57fd7655da6090dccec528bbcfa244301f1497fe065fe97",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "8d3385ffa2499dcf8bb1c82c5bbdbdc224396f72",
+      "base_sha256": "b0ec056cbff91c9377235ee7183379b36f0eff0b2f643030be5e39e22710d501",
+      "candidate_git_blob_oid": "4c972295d8b23ad86e21a285b692e3e2c3ed67a9",
+      "candidate_sha256": "31044dd25eb8aa04c29ed28e1894e0df8ba97f65e1e3c8f3edb0f4807e6dd3c7",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "d3be054a44542488d0052454a49abab4ac14a922",
+      "candidate_sha256": "854eff09b71eef3eb91da54fc4b063591ddc8a8d547ae018d9d6d9abb606da14",
+      "change": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-a94-evidence-corrigendum-20261020.json",
+      "role": "documentation or decision record"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "6f0cba89e61a37022ecf554eb6a6d08f5d870b25",
+      "candidate_sha256": "aff8a972c317edb6286615ee439bc21631efc67177a748b5f05fd689b2a34ee9",
+      "change": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.json",
+      "role": "documentation or decision record"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "fc537b4ae906d6a3d933e015011065f0efa5d2a8",
+      "candidate_sha256": "db36c1df4cd2e4332cc2a22d4d79b0aba71a5586f644a3340059ebf1bcbc86af",
+      "change": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.md",
+      "role": "documentation or decision record"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "da94244685e554546207f3bc2e6e8bf476a9654a",
+      "candidate_sha256": "5f60de626d9d73f1a8b3c76632dd3fe8795c58430613d34744beca15c67759f7",
+      "change": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.json",
+      "role": "documentation or decision record"
+    },
+    {
+      "base_git_blob_oid": null,
+      "base_sha256": null,
+      "candidate_git_blob_oid": "87f6637b9439f7d0511a60d7c30cc8682a8c1e6a",
+      "candidate_sha256": "bbd67ed4a5ba9f2e51dcc8a7cd9f7a04861626fe08ff0a669bc6002ebad7c415",
+      "change": "A",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.md",
+      "role": "documentation or decision record"
+    }
+  ],
+  "identity": "e02-t1t2-native28-reviewed-decision-records-20261020-r1",
+  "implementation_commits": [
+    "ed5b52bc3db64ca477929a605f148d2140fe3955"
+  ],
+  "independent_review_refs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-native28-two-packet-independent-qa-20261020/review.json",
+      "role": "independent source/review packet",
+      "sha256": "b34da3b308b4bfb01902b57dbea92ec86f67037ffaf826422d0bb46b4903d48d"
+    },
+    {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.json",
+      "role": "independent source/review packet",
+      "sha256": "5f60de626d9d73f1a8b3c76632dd3fe8795c58430613d34744beca15c67759f7"
+    },
+    {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.json",
+      "role": "independent source/review packet",
+      "sha256": "aff8a972c317edb6286615ee439bc21631efc67177a748b5f05fd689b2a34ee9"
+    }
+  ],
+  "integration_publication": false,
+  "limitations_and_next_owner": [
+    "G independently decides exact missing external inputs/owner actions and per-ID proposals; document tracking is not closure.",
+    "Acquire genuine source custody/profile/context/currentness and authorized response only through named owners; no law/issuer/rights/currentness is inferred.",
+    "Run the full current 13-gate native wave at the actual complete source denominator; classify each exception/gate row on current source and retain deciding outputs.",
+    "Keep historical B198 and the d300 source frame unchanged; no status roll-forward is implied.",
+    "The historical bundle is not a coherent positive: one of five required members mismatches.",
+    "Named private locators were exact bounded observations; no global absence, authenticity or currentness conclusion follows.",
+    "The local API request was not sent; verified serving instance/profile/context are not established.",
+    "Native28 contains 28 exception occurrences and 13 gate rows; current full gate wave remains UNRUN (six not_run and seven preflight_only_not_full_gate in its historical packet). A94 was ERROR_resource_limit_abort on its ancestor frame, not a semantic FAIL/PASS or OOM conclusion.",
+    "No external issuer/owner facts, exception expiry extension, native waiver, formal G decision or closure is claimed."
+  ],
+  "next_check": [
+    "G independently decides the exact missing external inputs/owner actions and per-ID proposals; do not convert packet tracking into closure.",
+    "Acquire genuine source custody/profile/context/currentness and authorized response only through named owners; no law/issuer/rights/currentness is inferred.",
+    "Run the full current 13-gate native wave at the actual complete source denominator; classify each exception/gate row on current source and preserve all raw deciding outputs.",
+    "Keep historical B198 and the d300 source frame unchanged; no status roll-forward is implied."
+  ],
+  "original_criteria_proposal": {
+    "binding_status": "exact 18 assigned IDs and one occurrence per assigned ID are bound in the committed T1/T2 packet; repeated occurrences outside this scope remain distinct and the overall denominator remains 282 findings / 291 canonical occurrences / 127 bundles.",
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [
+      {
+        "bundle": "CYC-05",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "CYC-05",
+            "criterion_id": "B30",
+            "document": "B_r19",
+            "lines": [
+              579,
+              592
+            ],
+            "sha256": "251d77ebefef25cd01ccd9bf1bcf331725906815dddf47212336198586f99104"
+          }
+        ],
+        "finding_id": "B30",
+        "historical_ledger_status": "partial",
+        "unit": "A"
+      },
+      {
+        "bundle": "LLM-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "LLM-02",
+            "criterion_id": "B67",
+            "document": "B_r19",
+            "lines": [
+              1709,
+              1728
+            ],
+            "sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278"
+          }
+        ],
+        "finding_id": "B67",
+        "historical_ledger_status": "partial",
+        "unit": "B"
+      },
+      {
+        "bundle": "CAS-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "CAS-02",
+            "criterion_id": "B148",
+            "document": "B_r19",
+            "lines": [
+              3917,
+              3928
+            ],
+            "sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a"
+          }
+        ],
+        "finding_id": "B148",
+        "historical_ledger_status": "partial",
+        "unit": "B"
+      },
+      {
+        "bundle": "DFK-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "DFK-01",
+            "criterion_id": "LA-027",
+            "document": "LA_r09",
+            "lines": [
+              1418,
+              1465
+            ],
+            "sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce"
+          }
+        ],
+        "finding_id": "LA-027",
+        "historical_ledger_status": "held",
+        "unit": "C"
+      },
+      {
+        "bundle": "MIG-04",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "MIG-04",
+            "criterion_id": "LA-050",
+            "document": "LA_r09",
+            "lines": [
+              3397,
+              3431
+            ],
+            "sha256": "929111170bede523485d77e9bd1ae74702f9a8dfbbc4422d8c6cdc85252bac05"
+          }
+        ],
+        "finding_id": "LA-050",
+        "historical_ledger_status": "partial",
+        "unit": "C"
+      },
+      {
+        "bundle": "OPT-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "OPT-01",
+            "criterion_id": "B108",
+            "document": "B_r19",
+            "lines": [
+              2897,
+              2910
+            ],
+            "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+          }
+        ],
+        "finding_id": "B108",
+        "historical_ledger_status": "partial",
+        "unit": "D"
+      },
+      {
+        "bundle": "PCL-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "PCL-01",
+            "criterion_id": "LA-053",
+            "document": "LA_r09",
+            "lines": [
+              3793,
+              3815
+            ],
+            "sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4"
+          }
+        ],
+        "finding_id": "LA-053",
+        "historical_ledger_status": "partial",
+        "unit": "E"
+      },
+      {
+        "bundle": "CYC-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "CYC-02",
+            "criterion_id": "B05",
+            "document": "B_r19",
+            "lines": [
+              253,
+              264
+            ],
+            "sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970"
+          }
+        ],
+        "finding_id": "B05",
+        "historical_ledger_status": "partial",
+        "unit": "A"
+      },
+      {
+        "bundle": "CYC-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "CYC-02",
+            "criterion_id": "B08",
+            "document": "B_r19",
+            "lines": [
+              289,
+              300
+            ],
+            "sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9"
+          }
+        ],
+        "finding_id": "B08",
+        "historical_ledger_status": "partial",
+        "unit": "A"
+      },
+      {
+        "bundle": "CAS-03",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "CAS-03",
+            "criterion_id": "B154",
+            "document": "B_r19",
+            "lines": [
+              3989,
+              4000
+            ],
+            "sha256": "5e25ba12544423bc8a7de3338e8d104bb6c6ef4619bcdf95639c05652cd8c1c5"
+          }
+        ],
+        "finding_id": "B154",
+        "historical_ledger_status": "partial",
+        "unit": "B"
+      },
+      {
+        "bundle": "HYG-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "HYG-02",
+            "criterion_id": "LA-018",
+            "document": "LA_r09",
+            "lines": [
+              571,
+              597
+            ],
+            "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421"
+          }
+        ],
+        "finding_id": "LA-018",
+        "historical_ledger_status": "partial",
+        "unit": "C"
+      },
+      {
+        "bundle": "SCL-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "SCL-01",
+            "criterion_id": "LA-024",
+            "document": "LA_r09",
+            "lines": [
+              1084,
+              1113
+            ],
+            "sha256": "ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67"
+          }
+        ],
+        "finding_id": "LA-024",
+        "historical_ledger_status": "partial",
+        "unit": "C"
+      },
+      {
+        "bundle": "SCL-03",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "SCL-03",
+            "criterion_id": "LA-025",
+            "document": "LA_r09",
+            "lines": [
+              1114,
+              1149
+            ],
+            "sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4"
+          }
+        ],
+        "finding_id": "LA-025",
+        "historical_ledger_status": "partial",
+        "unit": "C"
+      },
+      {
+        "bundle": "TRN-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "TRN-01",
+            "criterion_id": "B131",
+            "document": "B_r19",
+            "lines": [
+              3459,
+              3472
+            ],
+            "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+          }
+        ],
+        "finding_id": "B131",
+        "historical_ledger_status": "partial",
+        "unit": "D"
+      },
+      {
+        "bundle": "TRN-03",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "TRN-03",
+            "criterion_id": "B137",
+            "document": "B_r19",
+            "lines": [
+              3543,
+              3556
+            ],
+            "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+          }
+        ],
+        "finding_id": "B137",
+        "historical_ledger_status": "partial",
+        "unit": "D"
+      },
+      {
+        "bundle": "FUN-03",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "FUN-03",
+            "criterion_id": "B164",
+            "document": "B_r19",
+            "lines": [
+              4201,
+              4212
+            ],
+            "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+          }
+        ],
+        "finding_id": "B164",
+        "historical_ledger_status": "partial",
+        "unit": "D"
+      },
+      {
+        "bundle": "DDM-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "DDM-02",
+            "criterion_id": "LA-054",
+            "document": "LA_r09",
+            "lines": [
+              4053,
+              4107
+            ],
+            "sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425"
+          }
+        ],
+        "finding_id": "LA-054",
+        "historical_ledger_status": "partial",
+        "unit": "E"
+      },
+      {
+        "bundle": "DDM-02",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "DDM-02",
+            "criterion_id": "LA-055",
+            "document": "LA_r09",
+            "lines": [
+              4108,
+              4140
+            ],
+            "sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f"
+          }
+        ],
+        "finding_id": "LA-055",
+        "historical_ledger_status": "partial",
+        "unit": "E"
+      }
+    ],
+    "finding_ids": [
+      "B30",
+      "B67",
+      "B148",
+      "LA-027",
+      "LA-050",
+      "B108",
+      "LA-053",
+      "B05",
+      "B08",
+      "B154",
+      "LA-018",
+      "LA-024",
+      "LA-025",
+      "B131",
+      "B137",
+      "B164",
+      "LA-054",
+      "LA-055"
+    ],
+    "occurrence_disposition": "The T1/T2 packet has one joined original criterion occurrence for each of its 18 assigned IDs; repeated IDs outside those assignments remain separate in the 291-occurrence ledger. Native28 rows are gate/exemption records, not added original-finding occurrences.",
+    "task_routes": [
+      {
+        "finding_ids": [
+          "B30",
+          "B67",
+          "B148",
+          "LA-027",
+          "LA-050",
+          "B108",
+          "LA-053"
+        ],
+        "original_exit": "internal configured owner vs external facts; actual source/ref/issuer/verifier/consumer; no stale null-owner demand",
+        "task_id": "T1",
+        "title": "Latest owner input/API and authority-plane inventory"
+      },
+      {
+        "finding_ids": [
+          "B05",
+          "B08",
+          "B154",
+          "LA-018",
+          "LA-024",
+          "LA-025",
+          "B131",
+          "B137",
+          "B164",
+          "LA-054",
+          "LA-055"
+        ],
+        "original_exit": "valid positive + fake/foreign/stale/revoked zero effects including commit-time check",
+        "task_id": "T2",
+        "title": "Protected positive and revalidation consumer"
+      }
+    ]
+  },
+  "parents": [
+    "70f901afd7554b4eb7b86b78315bc2af3e6918a0"
+  ],
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "The packet joins were independently reconciled, but custody/currentness/rights/issuer/live-serving facts and the current 13-gate execution are not established.",
+  "preservation": {
+    "candidate_source_frame_is_commit_tree_not_current_dirty_worktree": "true",
+    "no_whole_worktree_clean_claim": true,
+    "two_known_owned_dirty_test_paths_not_in_these_commits": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      }
+    ]
+  },
+  "property": {
+    "negative_controls": [
+      "The historical selected bundle has one mismatch in a required five-member bundle and is not a coherent positive.",
+      "Private roots and named receipts were only bounded exact-locator observations; they do not prove global absence/currentness.",
+      "A94 is an ancestor-frame ERROR_resource_limit_abort; it is neither semantic FAIL nor PASS, and no OOM cause is claimed."
+    ],
+    "proxy_divergence": "A tracked proposal or packet QA is not a custody/currentness positive, not live-service/API evidence, not a green native-gate wave, and not G adjudication.",
+    "runtime_path": [],
+    "statement": "Carry the independently reviewed T1/T2 concrete-input proposal and native 28-row/13-gate handoff into the shared LOCAL G-review surface as exact byte-identical records. This is document discoverability/adoption only; it does not change the historical d300 source frame, evidence, gate state, authority or closure.",
+    "surface": "no product surface claimed; this commit transfers review records to G"
+  },
+  "proposal_fields": {
+    "author_proposal_only": "author-proposed limited/open/held records only; all 18 finding IDs and all 28 native rows remain for independent G row-by-row adjudication; no formal closure.",
+    "evidence_status": "source code and checks are source-qualified to candidate_sha; later runtime/source deltas require rebind/replay.",
+    "formal_adjudication": "G independent; no formal closures proposed by this author receipt.",
+    "independent_reviews": [
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/t1t2-native28-two-packet-independent-qa-20261020/review.json",
+        "role": "independent source/review packet",
+        "sha256": "b34da3b308b4bfb01902b57dbea92ec86f67037ffaf826422d0bb46b4903d48d"
+      },
+      {
+        "availability": "candidate_git_tree",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/t1t2-concrete-input-g-decision-20261020.json",
+        "role": "independent source/review packet",
+        "sha256": "5f60de626d9d73f1a8b3c76632dd3fe8795c58430613d34744beca15c67759f7"
+      },
+      {
+        "availability": "candidate_git_tree",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native28-gdecision-handoff-20261020.json",
+        "role": "independent source/review packet",
+        "sha256": "aff8a972c317edb6286615ee439bc21631efc67177a748b5f05fd689b2a34ee9"
+      }
+    ],
+    "occurrence_level_decision": "Proposal only; exact occurrence status, evidence, boundary and next check remain individually represented in the cited source packet/global occurrence ledger. Shared task routes are not additional closures.",
+    "pattern_pass": {
+      "acceptance": "G receives exact immutable rows; each occurrence has its own evidence/state/next check; current native wave is separately executed",
+      "anti_pattern": "do not treat adjacency of an authored packet, unavailable path, or old native receipt as authority or current positive",
+      "class": "record-transfer only; external custody/currentness and native gate evidence are independent predicates",
+      "relevant": [
+        "P05",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P14",
+        "P35",
+        "P36",
+        "P37",
+        "P38",
+        "P41"
+      ]
+    },
+    "source_plan_assertions_superseded": [],
+    "task_family": "T1/T2/native28"
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "backend": "No product backend executed. Historical d300 source frame is preserved in the record; current native wave is not run.",
+    "environment": "Documentation-only transfer of the exact local review packets; no runtime/environment/profile selected for a product claim.",
+    "input": "T1/T2 pinned input packets: 18 assigned original occurrences; native handoff: 28 exception rows and 13 native gate rows."
+  },
+  "slice": "T1/T2 concrete-input and native28 proposal-record adoption",
+  "slice_base_sha": "70f901afd7554b4eb7b86b78315bc2af3e6918a0",
+  "slice_base_tree_sha": "d9dcfa12fb967bd4bb6da866fb35b58550b2fd69",
+  "source_freeze": false,
+  "source_provenance": {
+    "immutable_implementation_readback": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-t1t2-native28-review-records-20261020-r1/implementation-readback-preservation-r2.json",
+      "role": "actual commit/tree/parents and complete committed paths",
+      "sha256": "17d9473aaa67c644d668a29f20cee2145a9bdb3c3086a0e7a6774823a28a85b2"
+    },
+    "local_raw_availability": "All raw deciding outputs are retained on the shared local host, not committed. If G cannot read a named raw path, that dependent evidence is not_established pending exact output fetch/replay.",
+    "source_application": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-t1t2-native28-review-records-20261020-r1/source-application.json",
+      "role": "target pre/post pins and root-owned generated companion application",
+      "sha256": "0315ffa92c53c1f3edff81c8938a57c8bbce0a47284e3b1a5f3284b6cfe3ec73"
+    },
+    "source_plan": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-t1t2-native28-review-records-20261020-r1/plan.json",
+      "role": "candidate property, limits, P40 bucket, and next-check plan",
+      "sha256": "220de2af2710d1056a1839fcce8c932e0f5e02477a332b5f7a1d6f4be09484cc"
+    }
+  },
+  "time_and_version_semantics": {
+    "rule_or_schema_version": "Use only versions recorded by the cited source/test/runtime artifacts; no schema or rule authority is inferred by this proposal.",
+    "source_version": "Exact candidate commit/tree and parent are recorded; later source changes require a fresh rebind.",
+    "verification_time": "Only the timestamps and environment captured in cited raw outputs apply; no receipt implies live production currentness."
+  },
+  "unit": "LOCAL",
+  "verification_status": "document-only implementation readback; independent packet QA GO_TRACKING_RECORDS_ONLY; native gates and external authority inputs remain unadjudicated."
+}

@@ -1,0 +1,425 @@
+{
+  "G_acceptance": false,
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal finding closure",
+      "external law/issuer/permission/custody/currentness",
+      "production source currentness",
+      "global E02 closeout"
+    ]
+  },
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "70f901afd7554b4eb7b86b78315bc2af3e6918a0",
+  "candidate_tree_sha": "d9dcfa12fb967bd4bb6da866fb35b58550b2fd69",
+  "capability_state_or_finding_state": {
+    "authority": "not_established unless separately supplied and verified; this source slice grants none.",
+    "capability_label": "verification_missing",
+    "source_mechanism_state": "Source review GO_bounded_R2_test_candidate, candidate positive and property-removal control evidence retained; after adoption current full module and native Linux invalid-byte behavior are UNRUN."
+  },
+  "checks": [
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py"
+      ],
+      "name": "native Ruff check",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/check-native-role-0.stdout.txt",
+          "role": "native Ruff check stdout",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/check-native-role-0.stderr.txt",
+          "role": "native Ruff check stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "70f901afd7554b4eb7b86b78315bc2af3e6918a0"
+    },
+    {
+      "command": "policy-engine/.venv/bin/python -B -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "environment": "Existing policy-engine/.venv Python module invocation; workspace_root.toml; no cache; exact changed Python files in command.",
+      "exit_code": 0,
+      "input_closure": [
+        "policy-engine/tests/unit/remediation/test_dfk_01.py"
+      ],
+      "name": "native Ruff format",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/format-native-role-0.stdout.txt",
+          "role": "native Ruff format stdout",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/format-native-role-0.stderr.txt",
+          "role": "native Ruff format stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "target_sha": "70f901afd7554b4eb7b86b78315bc2af3e6918a0"
+    },
+    {
+      "command": "See pinned candidate author/reviewer outputs in the source plan; not reclassified as an adopted-source runtime receipt.",
+      "environment": "Candidate source frame at review; bounded local test profile.",
+      "input_closure": "Five mechanisms plus real CompositeExecutor wealth effect; marker-preserving removal returns 1000 instead of 990.",
+      "interpretation": "Bounded candidate-overlay evidence, not an adopted canonical runtime receipt; exact test postimage is separately pinned.",
+      "name": "candidate positive and removal control",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/review-v1.md",
+          "role": "candidate positive and removal control",
+          "sha256": "491072d1a5445d7935988e6531a4805277b73e604fb6c38cbc3bc04fd883c84f"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/manifest-v1.json",
+          "role": "candidate positive and removal control",
+          "sha256": "750380eb767fa4e9e9a60f9ea8b0f9e6d5459107102312dc41a775b2915162b9"
+        }
+      ],
+      "target_sha": null
+    },
+    {
+      "command": "Complete tests/unit/remediation/test_dfk_01.py on adopted source using supported ordinary profile.",
+      "environment": "Current local Darwin, existing supported test environment.",
+      "input_closure": "Whole module, not only the focused candidate node.",
+      "interpretation": "No deciding runtime output exists.",
+      "name": "adopted full Darwin module",
+      "outcome": "UNRUN",
+      "outputs": [],
+      "target_sha": "70f901afd7554b4eb7b86b78315bc2af3e6918a0"
+    },
+    {
+      "command": "Run the exact native Linux selector from the pinned R2 author plan on a supported isolated Linux worker; preserve raw path bytes and Git result.",
+      "environment": "Supported local container/VM/isolated Linux worker; no platform guard removal.",
+      "input_closure": "Raw invalid-byte filename through filesystem and Git boundary.",
+      "interpretation": "No deciding runtime output exists.",
+      "name": "native Linux invalid-byte boundary",
+      "outcome": "UNRUN",
+      "outputs": [],
+      "target_sha": "70f901afd7554b4eb7b86b78315bc2af3e6918a0"
+    }
+  ],
+  "closure_ids": [],
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/check-native-role-0.stdout.txt",
+      "role": "native Ruff check stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/check-native-role-0.stderr.txt",
+      "role": "native Ruff check stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/format-native-role-0.stdout.txt",
+      "role": "native Ruff format stdout",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/format-native-role-0.stderr.txt",
+      "role": "native Ruff format stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/review-v1.md",
+      "role": "candidate positive and removal control",
+      "sha256": "491072d1a5445d7935988e6531a4805277b73e604fb6c38cbc3bc04fd883c84f"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/manifest-v1.json",
+      "role": "candidate positive and removal control",
+      "sha256": "750380eb767fa4e9e9a60f9ea8b0f9e6d5459107102312dc41a775b2915162b9"
+    }
+  ],
+  "commit_subject": "test(e02): assert DFK-01 simulator effect and Linux byte census",
+  "current_composed_readback": {
+    "head": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+    "note": "Observed when this proposal was authored; this is not a source freeze and does not make later G deltas accepted.",
+    "tree": "0ce131a0928a23e7d2c003277b9766729bf3c691"
+  },
+  "denominator": {
+    "commit_path_count": 3,
+    "documentation_path_count": 0,
+    "generated_metadata_companion_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "mechanism_path_count_excluding_record_companions": 1,
+    "production_source_path_count": 0,
+    "scope_note": "Counts derive from the exact candidate-parent Git tree diff; metadata companions are listed separately and do not inflate the mechanism-row budget.",
+    "test_path_count": 1
+  },
+  "formal_G_closure_ids": [],
+  "full_code_test_config_companion_footprint": [
+    {
+      "base_git_blob_oid": "57dd83d43bc03eefe7dcfdbbdc054f6d3c35b943",
+      "base_sha256": "e7f8ad051b056cbe22c31f87ee95160dd5f1f6342c02a28fcc74ca550ba152fa",
+      "candidate_git_blob_oid": "9f800ad46b9c2653f8cad2b619ec3d0848c258bd",
+      "candidate_sha256": "b3d1bffe7365ede892b001980932030fb8d5a86bc68c279e6a49bb1fc50b01e4",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "609739795cad9569c1d16ddc88cae2bf4a88f9ac",
+      "base_sha256": "f2aefbe74016539c53058c9c26e4727e5ebf3fa066810dce1b86bb25ead14f5c",
+      "candidate_git_blob_oid": "8d3385ffa2499dcf8bb1c82c5bbdbdc224396f72",
+      "candidate_sha256": "b0ec056cbff91c9377235ee7183379b36f0eff0b2f643030be5e39e22710d501",
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "role": "generated lease/delivery-index companion"
+    },
+    {
+      "base_git_blob_oid": "105c207cb83ccc1aec486248bd76519719fc6bab",
+      "base_sha256": "5214f47cb57b3c1a8e6ab20966897baeb10af6b31ce53a5b22af1ee500093f12",
+      "candidate_git_blob_oid": "1148ccda5ee8188639a5e6411beab3112a380ecf",
+      "candidate_sha256": "7dbe0afc7a53521c7919376c80820b2677e1f9aad70d1c42e2ddd4228b0b5031",
+      "change": "M",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "role": "test"
+    }
+  ],
+  "identity": "i2-la006-r2-positive-simulator-and-linux-byte-witness",
+  "implementation_commits": [
+    "70f901afd7554b4eb7b86b78315bc2af3e6918a0"
+  ],
+  "independent_review_refs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/review-v1.md",
+      "role": "independent source/review packet",
+      "sha256": "491072d1a5445d7935988e6531a4805277b73e604fb6c38cbc3bc04fd883c84f"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/manifest-v1.json",
+      "role": "independent source/review packet",
+      "sha256": "750380eb767fa4e9e9a60f9ea8b0f9e6d5459107102312dc41a775b2915162b9"
+    }
+  ],
+  "integration_publication": false,
+  "limitations_and_next_owner": [
+    "Run the full adopted test module on Darwin and actual native Linux invalid-byte selector under a supported worker.",
+    "Capture test source frame, exact selector/profile, Git result, complete outputs and removal control on the same candidate.",
+    "Keep LA-006#0 bounded: broader source/archive and installed consumer requirements remain outside this witness; no whole-property closure is proposed.",
+    "Native Linux invalid-byte behavior is UNRUN; Darwin skip is not a Linux receipt.",
+    "The complete Darwin test module is UNRUN on adopted source.",
+    "Exactly one test mechanism row is proposed; this is not LA-006 full-property closure, source freeze, inherited status or formal closure."
+  ],
+  "next_check": [
+    "Run the full adopted test module on Darwin and actual native Linux invalid-byte selector under a supported worker.",
+    "Capture test source frame, exact selector/profile, Git result, complete outputs, and removal control on the same candidate.",
+    "Keep LA-006#0 bounded: the overall LA-006 original criterion also includes broader source/archive and installed consumer requirements; no whole-property closure is proposed."
+  ],
+  "original_criteria_proposal": {
+    "binding_status": "exact bounded proposal for the LA-006#0 / DFK-01 witness only; not a whole LA-006 closure.",
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [
+      {
+        "bundle": "DFK-01",
+        "closure_now": "not_adjudicated",
+        "criterion_refs": [
+          {
+            "card": "DFK-01",
+            "criterion_id": "LA-006",
+            "document": "LA_r09",
+            "lines": [
+              225,
+              253
+            ],
+            "sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe"
+          }
+        ],
+        "finding_id": "LA-006",
+        "historical_ledger_status": "partial",
+        "unit": "C"
+      }
+    ],
+    "finding_ids": [
+      "LA-006"
+    ],
+    "occurrence_disposition": "Only LA-006#0 / DFK-01 bounded witness is proposed. The full LA-006 source criterion remains separate and not closed.",
+    "task_routes": [
+      {
+        "finding_ids": [
+          "LA-005",
+          "LA-006",
+          "LA-026"
+        ],
+        "original_exit": "two staged/two unstaged/rename/clean real records",
+        "task_id": "I2",
+        "title": "DFK two-path census companion"
+      },
+      {
+        "finding_ids": [
+          "B04",
+          "B11",
+          "B29",
+          "B30",
+          "LA-033",
+          "B34",
+          "B35",
+          "B36",
+          "LA-045",
+          "LA-005",
+          "LA-006",
+          "LA-021",
+          "LA-023",
+          "LA-026",
+          "LA-027",
+          "LA-042",
+          "LA-050",
+          "LA-053",
+          "B201",
+          "B202",
+          "B212"
+        ],
+        "original_exit": "frozen contracts->canonicalfamily->typedclient/defaultinstalled reader; declared supported profiles only",
+        "task_id": "Q2",
+        "title": "Canonical generated and declared installed consumers"
+      }
+    ]
+  },
+  "parents": [
+    "c70186b41bf06d5f8f2ff17a5a6065f13291d2de"
+  ],
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "Candidate controlled wealth effect was exercised on candidate overlay; adopted-source full module and native Linux raw-byte path have not run.",
+  "preservation": {
+    "candidate_source_frame_is_commit_tree_not_current_dirty_worktree": "true",
+    "no_whole_worktree_clean_claim": true,
+    "two_known_owned_dirty_test_paths_not_in_these_commits": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+      }
+    ]
+  },
+  "property": {
+    "negative_controls": [
+      "Remove the mechanism loop but preserve registry/time markers; the wealth effect assertion must fail.",
+      "Run actual Linux raw invalid-byte filename through filesystem and Git boundary; do not count Darwin skip as Linux evidence.",
+      "Compare registered mechanism IDs/FQNs to the independent fixture registry."
+    ],
+    "proxy_divergence": "Registry ID/FQN presence and a time marker stay green if the mechanism loop is removed; the candidate matched removal control observes wealth 1000 instead of expected 990 and fails. A Darwin import/skip cannot prove Linux byte behavior.",
+    "runtime_path": [
+      "canonical five-mechanism registry",
+      "real CompositeExecutor.step",
+      "controlled domain-state wealth vector",
+      "candidate test assertions / Linux filesystem+Git byte path"
+    ],
+    "statement": "The canonical simulator registry resolves five independently enumerated mechanism IDs/FQNs and the real CompositeExecutor.step taxation path changes a controlled wealth vector by the independently expected amount; the native Linux selector exercises a filename with raw invalid bytes through filesystem and Git boundaries.",
+    "surface": "See the source/property-specific consumer surface and pending checks in proposal_fields."
+  },
+  "proposal_fields": {
+    "author_proposal_only": "limited test-evidence proposal for LA-006#0 only; no LA-006 closure.",
+    "evidence_status": "source code and checks are source-qualified to candidate_sha; later runtime/source deltas require rebind/replay.",
+    "formal_adjudication": "G independent; no formal closures proposed by this author receipt.",
+    "independent_reviews": [
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/review-v1.md",
+        "role": "independent source/review packet",
+        "sha256": "491072d1a5445d7935988e6531a4805277b73e604fb6c38cbc3bc04fd883c84f"
+      },
+      {
+        "availability": "shared_local_host_raw; not committed",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i2-la006-r2-independent-review-20261020/manifest-v1.json",
+        "role": "independent source/review packet",
+        "sha256": "750380eb767fa4e9e9a60f9ea8b0f9e6d5459107102312dc41a775b2915162b9"
+      }
+    ],
+    "occurrence_level_decision": "Proposal only; exact occurrence status, evidence, boundary and next check remain individually represented in the cited source packet/global occurrence ledger. Shared task routes are not additional closures.",
+    "pattern_pass": {
+      "acceptance": "true step changes state; matched removal is red; native Linux byte operation passes",
+      "anti_pattern": "no marker-only/constructor-only proof and no platform-guard removal",
+      "class": "same registry-observation class widened to an actual domain-state effect; Linux raw-byte behavior remains a distinct platform acceptance check",
+      "relevant": [
+        "P01",
+        "P02",
+        "P10",
+        "P29",
+        "P32",
+        "P33",
+        "P35",
+        "P38",
+        "P40",
+        "P41"
+      ]
+    },
+    "source_plan_assertions_superseded": [
+      "The source plan says focused candidate positive/removal control exists; this proposal explicitly binds it to the R2 candidate review overlay and does not treat it as a post-adoption receipt."
+    ],
+    "task_family": "I2 / LA-006#0"
+  },
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "selected_input_profile_backend": {
+    "backend": "Local Darwin for focused prototype only; native Linux worker required and currently UNRUN.",
+    "environment": "Candidate test patch was reviewed against exact source/test pins; current adopted-source runtime remains unrun.",
+    "input": "Controlled synthetic wealth state and independently enumerated five mechanism names; invalid-byte fixture must be created/consumed on Linux."
+  },
+  "slice": "I2 DFK-01 mechanism effect and native invalid-byte witness test companion",
+  "slice_base_sha": "c70186b41bf06d5f8f2ff17a5a6065f13291d2de",
+  "slice_base_tree_sha": "6d71cc8dc9e8aaea044b2142cb8697f63b4825cf",
+  "source_freeze": false,
+  "source_provenance": {
+    "immutable_implementation_readback": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/implementation-readback-preservation-r2.json",
+      "role": "actual commit/tree/parents and complete committed paths",
+      "sha256": "62e7acafd692436c6722b73c8dcb5477c012f2aa2ec4848983a277e37efba916"
+    },
+    "local_raw_availability": "All raw deciding outputs are retained on the shared local host, not committed. If G cannot read a named raw path, that dependent evidence is not_established pending exact output fetch/replay.",
+    "source_application": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/source-application.json",
+      "role": "target pre/post pins and root-owned generated companion application",
+      "sha256": "3695dcd84e416c4de189efd8f7e696aee3bc40ca06cfa622b6ade4c2e01f553e"
+    },
+    "source_plan": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-i2-la006-plugin-effect-linux-byte-20261020-r1/plan.json",
+      "role": "candidate property, limits, P40 bucket, and next-check plan",
+      "sha256": "a1343fcfb16a7d34213d3ee449db2a7231ee1020ae395a7ade4fbc6e05d26c6b"
+    }
+  },
+  "time_and_version_semantics": {
+    "rule_or_schema_version": "Use only versions recorded by the cited source/test/runtime artifacts; no schema or rule authority is inferred by this proposal.",
+    "source_version": "Exact candidate commit/tree and parent are recorded; later source changes require a fresh rebind.",
+    "verification_time": "Only the timestamps and environment captured in cited raw outputs apply; no receipt implies live production currentness."
+  },
+  "unit": "LOCAL",
+  "verification_status": "candidate source-only review and prototype positive/removal control PASS; adopted canonical Darwin/Linux verification UNRUN."
+}

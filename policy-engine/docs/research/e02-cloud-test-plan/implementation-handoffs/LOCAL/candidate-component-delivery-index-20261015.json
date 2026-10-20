@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "f485bec78e7655064751aedb82ae561737f6f86797567ea6694a15f50d3a6b4b",
+      "sha256": "1ca68ab0d7e6cd1fe68222f6903fe209010e238922804e8aac404f15779d86f4",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1603,7 +1603,9 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification/n13-seven-76304aa-20261020.json",
       "sha256": "adec2e7661fc0564939763b1b96b0348d64a731e89556c2596f97b02dff88225"
-    }
+    },
+    {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.md","sha256":"9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304"},
+    {"path":"policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.json","sha256":"7a9e9a077767090a0661059ab7b758a39443246eb656018b1094b2040591dd26"}
   ],
   "canonical_denominator_recomputed": {
     "occurrences": 291,

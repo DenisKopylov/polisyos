@@ -28398,5 +28398,165 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "la021-can-profile-identity-and-history-rollout-g-decision-delivery-r2-20261020": {
+    "slice_base": "97cc3933d97f9124f27b262a8492261441619f08",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.md",
+        "postimage_sha256": "9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304",
+        "mutation": "Create exact byte-for-byte copy of independently reviewed decision markdown; preserve historical source/audit frame."
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.json",
+        "postimage_sha256": "7a9e9a077767090a0661059ab7b758a39443246eb656018b1094b2040591dd26",
+        "mutation": "Create tracked wrapper with independent current-contract verification sequence while G adjudicates; only new persisted identity/migration semantics wait for G."
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json": {
+        "operation": "write",
+        "preimage_sha256": "4fbfb9c430170aa1e738b7505c723308ec3a1c0c9434002cb3bfcf8162137d5e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "postimage_sha256": "4383caa6940be9bd5112843a7fc1419c745f5c245c944261aacb1ab988bbddbf",
+        "mutation": "Surgically append exactly two tracked refs to the current 388-row index. This hash pins the pre-helper intermediate only; root lease/index helper may rewrite the final bytes. Bind final index/LEASES hashes from actual post-application readback.",
+        "postimage_hash_stage": "planned_pre_lease_helper_intermediate"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can6-g-decision-complete-preservation-r3-20261020/source-application.json",
+      "sha256": "049c30466459d591e2cb81526893a3a357156854a12a8b170fbf5849a47b90cd"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can6-g-decision-complete-preservation-r3-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/manifest-v2.json",
+        "sha256": "96bc4e526df66acebdb5e0586b07528f4441ab94f0b3d3ef75ee06d39c248480",
+        "bytes": 3571
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/audit-v2.json",
+        "sha256": "8ae805478999638827ab8b9a755556e88a0f7dcdb69acfd53adbb0f551b976c6",
+        "bytes": 27528
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/source-evidence-pins-v1.json",
+        "sha256": "3bd5db09056d9ad96663151f923d8136537190d42f34fa2b1b6e9f0846851fdc",
+        "bytes": 4834
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/can21-module-pins-v1.json",
+        "sha256": "7dca4d8b20dfff68f45035536c01bebfe3e9e674caf59701b29f2852ab5244b5",
+        "bytes": 100638
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/focused-companion-pins-v1.json",
+        "sha256": "897f80c306a4ce2480cf8c1171e14825e9d81de4f70f0cdda183e10b26a24814",
+        "bytes": 22794
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r1/can6-review.json",
+        "sha256": "bd62b472c9da27b65c84dce399c3b6fbe486b0a598bede345e295ef807ca221b",
+        "bytes": 7031
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r1/manifest.json",
+        "sha256": "9903bf62b7d951fc04732bd93797b1bd4357e47d5cd19095efc1b35570a47fff",
+        "bytes": 826
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-actionable-g-decision-20261020/decision-packet-v1.md",
+        "sha256": "9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304",
+        "bytes": 14096
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-actionable-g-decision-20261020/manifest-v1.json",
+        "sha256": "628c089f09cd5c53b54204b9913036c761df8f54cf7e7338cf433b52eccc69e8",
+        "bytes": 13238
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r1/plan.json",
+        "sha256": "05181523a5272974e59664723f80331c6b9ad8cc224b238fb9ac6d23b186a60a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r1/candidate.patch",
+        "sha256": "3f4d1ebfe2dd6cdb6853656a136b86a5bfe4cb04a626907cac99cf0570223431"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r1/manifest.json",
+        "sha256": "c0ef51bdb06793235b89588a01655c3ddefc5548d96ac9573961cea01e2e66da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r1/verification.json",
+        "sha256": "ab3cf28b7473eebd2c9e8e1e2e9bd4dcee82f7c6c119c7e14a07058d70317fa7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same persisted canonical-profile/history compatibility class at two semantic axes. This documentation delivery creates no new product class or closure; preserve absent-vs-malformed, Core-vs-IR, and producer-vs-reader distinctions.",
+    "bounded_proof": "R2 is an additive metadata correction to the unapplied R1 delivery. It preserves the source markdown byte-for-byte, binds the exact same authorized 97cc base, updates the wrapper and its two index references, and passed patch apply-check. Current-contract whole-module/surface verification is explicitly independent of G; only changes to new persisted identity or migration semantics wait for G. No runtime, current census, source freeze, or formal finding closure is claimed.",
+    "limitations": [
+      "Markdown is copied byte-for-byte; ab222 frame and 2,787/3,113 counts remain historical.",
+      "Reviewer GO is packet-only; no runtime tests or code changes.",
+      "Producer attestation, issuer/source-owner authority, currentness and history population are not_established.",
+      "No G decision, source freeze, formal closure or LA-021 finding closure.",
+      "Root lease helper updates LEASES.json after the three plan rows; no manual lease postimage.",
+      "Preserve the two unrelated dirty test paths with exact hashes/provenance from the adoption template.",
+      "R2 stopped on a missing reviewed ownership-patch reference before canonical mutation; this plan adds the complete six immutable preservation refs. No source/decision semantics changed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After applying this delivery on the exact base, read back the MD/JSON/index and helper-managed LEASES.json; treat the planned index hash as pre-helper only and bind actual final index/lease bytes from readback. After the planned native R3 source-2 plus metadata-4 gate work, run the existing-contract 21 CAN whole modules, 9 focused companions, and dashboard consumer tests at the root-declared source/profile/input freeze now, in parallel with G deliberation. Do not wait for G to run these current-contract regressions. Wait for a G decision only before implementing/adjudicating a new persisted tag-family identity/schema or historical migration semantic. Record outputs and removal controls; no formal closure is proposed here.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

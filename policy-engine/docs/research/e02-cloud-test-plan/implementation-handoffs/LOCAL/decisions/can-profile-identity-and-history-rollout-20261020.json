@@ -1,0 +1,197 @@
+{
+  "schema": "polisyos.e02.la021_can6_tracked_decision_delivery.v1",
+  "delivery_id": "la021-can6-g-decision-delivery-20261020-r2",
+  "status": "tracked_decision_proposal_not_adjudicated",
+  "record": {
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.md",
+    "markdown_sha256": "9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304",
+    "tracked_wrapper_json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/can-profile-identity-and-history-rollout-20261020.json",
+    "raw_source_packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-actionable-g-decision-20261020/decision-packet-v1.md",
+    "raw_source_packet_sha256": "9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304",
+    "raw_source_packet_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-actionable-g-decision-20261020/manifest-v1.json",
+    "raw_source_packet_manifest_sha256": "628c089f09cd5c53b54204b9913036c761df8f54cf7e7338cf433b52eccc69e8",
+    "manifest_identity_note": "The RAW manifest-v1.json reference is the original packet manifest. This tracked JSON is a distinct delivery wrapper, not a replacement or ambiguous copy."
+  },
+  "frames": {
+    "historical_decision_and_audit_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "ab222d06f42a7bd97ac1dc92c92b91616206a462",
+      "tree": "18835f5445e1e10d02bb7a14a260404b53417f0a",
+      "source_freeze": false,
+      "g_acceptance": false,
+      "formal_closure_ids": [],
+      "meaning": "Historical decision/audit source frame; counts are not a current census."
+    },
+    "tracked_delivery_candidate_base": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "97cc3933d97f9124f27b262a8492261441619f08",
+      "tree": "beb3f17def160cd659721af6e5815b822109d682",
+      "parents": [
+        "12f950b62db95d81128f17df41917c1eae475974"
+      ],
+      "source_freeze": false,
+      "g_acceptance": false,
+      "meaning": "Exact current base for this unapplied documentation/index proposal; no source freeze or runtime proof."
+    },
+    "independent_packet_review_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "cbd061390e4867befa5ef85af83ccde6639fa57a",
+      "tree": "c902d76fbeeea6d1c39680558d39444e6bcfdbca"
+    }
+  },
+  "authority_and_status": {
+    "decision_authority": "G alone adjudicates these two persisted-profile/history semantics.",
+    "independent_packet_review_verdict": "GO",
+    "review_scope": "Packet integrity, alternatives, source citations, decision quality.",
+    "review_is_not": "G adjudication, code acceptance, runtime execution, source freeze, deployment/currentness proof, or finding closure.",
+    "g_adjudication": false,
+    "g_acceptance": false,
+    "source_freeze": false,
+    "la021_status": "execution_remaining",
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "deployment_status": "not_established",
+    "history_population": "not_established",
+    "producer_attestation": "not_established",
+    "issuer_origin": "not_established",
+    "currentness": "not_established"
+  },
+  "historical_source_audit": {
+    "source_frame_head": "ab222d06f42a7bd97ac1dc92c92b91616206a462",
+    "source_frame_tree": "18835f5445e1e10d02bb7a14a260404b53417f0a",
+    "denominators": {
+      "can21_ast_test_function_definitions": 693,
+      "can21_current_whole_modules": 21,
+      "direct_profile_api_test_or_helper_caller_files": 48,
+      "maintained_source_python_files_scanned": 2787,
+      "maintained_test_python_files_scanned": 3113
+    },
+    "interpretation": "Historical ab222 source-audit counts; not current source/test counts and not runtime evidence.",
+    "audit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/audit-v2.json",
+    "audit_sha256": "8ae805478999638827ab8b9a755556e88a0f7dcdb69acfd53adbb0f551b976c6",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/manifest-v2.json",
+    "manifest_sha256": "96bc4e526df66acebdb5e0586b07528f4441ab94f0b3d3ef75ee06d39c248480"
+  },
+  "proposed_g_decisions": [
+    {
+      "finding": "LA-021-1",
+      "question": "What does shared polisyos.canon.json@0.2.0 identity mean across Core and IR?",
+      "recommendation": "Shared canonical mechanics/settings only; retain contextual strict Core and IR tag allowlists. Matching name/version does not make every Core tag portable to IR.",
+      "alternatives": [
+        "Add a persisted tag-family selector only if G defines schema, identity/hash consequences, reader/writer compatibility, versioned migration and old-reference behavior.",
+        "Do not widen IR tags or change stored bytes by implication of the shared profile name."
+      ],
+      "discriminator": "Core FileSystemCAS writes a Core-only tagged value; a fresh Core reader accepts while IR refuses the same bytes. This is a control, not a claim about all producers."
+    },
+    {
+      "finding": "LA-021-2",
+      "question": "How to interpret historical JSON artifacts with no persisted profile?",
+      "recommendation": "Refuse semantic interpretation when profile identity is absent; preserve exact raw representation under existing tenant/integrity/surface checks and the scoped candidate-only Ukraine snapshot.",
+      "alternatives": [
+        "A legacy semantic path needs a named owner and actual versioned provenance/custody evidence: exact store/ref, bytes and manifest digests, historical encoding provenance, audience/use/status/time, custody/reissue basis. Do not infer from valid JSON, labels, hashes or reader defaults.",
+        "Keep absent, malformed-present, unknown/unsupported, declared and conformant distinct."
+      ],
+      "discriminator": "Absent and malformed-present controls remain distinct; raw bytes are exact while semantic interpretation refuses absent profile."
+    }
+  ],
+  "source_evidence_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/manifest-v2.json",
+      "sha256": "96bc4e526df66acebdb5e0586b07528f4441ab94f0b3d3ef75ee06d39c248480",
+      "bytes": 3571
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/audit-v2.json",
+      "sha256": "8ae805478999638827ab8b9a755556e88a0f7dcdb69acfd53adbb0f551b976c6",
+      "bytes": 27528
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/source-evidence-pins-v1.json",
+      "sha256": "3bd5db09056d9ad96663151f923d8136537190d42f34fa2b1b6e9f0846851fdc",
+      "bytes": 4834
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/can21-module-pins-v1.json",
+      "sha256": "7dca4d8b20dfff68f45035536c01bebfe3e9e674caf59701b29f2852ab5244b5",
+      "bytes": 100638
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/focused-companion-pins-v1.json",
+      "sha256": "897f80c306a4ce2480cf8c1171e14825e9d81de4f70f0cdda183e10b26a24814",
+      "bytes": 22794
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r1/can6-review.json",
+      "sha256": "bd62b472c9da27b65c84dce399c3b6fbe486b0a598bede345e295ef807ca221b",
+      "bytes": 7031
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b108-g-decision-packet-independent-review-20261020-r1/manifest.json",
+      "sha256": "9903bf62b7d951fc04732bd93797b1bd4357e47d5cd19095efc1b35570a47fff",
+      "bytes": 826
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-actionable-g-decision-20261020/decision-packet-v1.md",
+      "sha256": "9e02ba8bd5406b33cc614ee1fa4ed7678fac5d6c052108032048ddbccb974304",
+      "bytes": 14096
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-actionable-g-decision-20261020/manifest-v1.json",
+      "sha256": "628c089f09cd5c53b54204b9913036c761df8f54cf7e7338cf433b52eccc69e8",
+      "bytes": 13238
+    }
+  ],
+  "consumer_and_surface_scope": {
+    "producer_store": "Typed ArtifactWriteOptions Mapping adaptation, Core/IR profile-specific writer behavior, selected-manifest binding and exact selected-byte conformance as covered by pinned source audit.",
+    "bridge_reader": "GET selected-view profile resolution and /content raw-vs-semantic behavior; profile validation does not establish producer identity.",
+    "surface": "Inspector DTO reports reader_materialized and producer_attestation_status not_established; dashboard validates/presents status but does not establish attestation.",
+    "external_boundary": "External producer/issuer identity, deployment status, currentness and profileless-history population remain not_established."
+  },
+  "required_next_verification": {
+    "freeze_rule": "At the root-authorized explicit current source/profile/input freeze, run the existing-contract CAN 21-module cohort plus 9 focused companions and dashboard consumer regressions now, independently while G considers the choices. The current shared mechanics, strict profile/tag behavior and profileless-history refusal/raw-route behavior are executable without a new persisted identity or migration contract. Only implementation or adjudication that introduces a new persisted tag-family identity/schema or changes historical semantic migration depends on G selecting that new contract first. Rebind every source hash/profile/input/backend to that actual frozen frame; ab222 pins remain historical selectors only.",
+    "python_cohort": {
+      "historical_selector": "21 CAN whole modules plus 9 focused whole-module companions (30 unique); 693 AST test-function definitions in the 21 CAN modules, not pytest case count.",
+      "selector_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/can21-module-pins-v1.json",
+          "sha256": "7dca4d8b20dfff68f45035536c01bebfe3e9e674caf59701b29f2852ab5244b5",
+          "bytes": 100638
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can6-focused-source-audit-20261020/rebind-ab222-r2/focused-companion-pins-v1.json",
+          "sha256": "897f80c306a4ce2480cf8c1171e14825e9d81de4f70f0cdda183e10b26a24814",
+          "bytes": 22794
+        }
+      ],
+      "command_template": "cd policy-engine && .venv/bin/python -B -m pytest -c pytest.ini <all 21 CAN whole-module paths and all 9 focused companions, rebound to frozen source>",
+      "controls": "Typed Mapping options, raw/profile conformance, Core-only tags versus IR law, reader-materialized versus producer-attested profile, profileless versus malformed-present history, selected-view/content API behavior and semantic-removal controls."
+    },
+    "browser_consumers": [
+      {
+        "cwd": "policy-engine/apps/runtime-dashboard",
+        "command": "corepack pnpm exec vitest run src/api/validators.test.ts src/features/artifacts/routes/ArtifactInspectorPage.test.tsx",
+        "fresh_checkout": "Run corepack pnpm install --frozen-lockfile before scanner/browser proof."
+      }
+    ],
+    "interpretation": "The current-contract whole-module and surface regressions should proceed at the explicit root freeze without waiting for G. A G decision is a prerequisite only for changing persisted identity/migration semantics. A PASS does not close LA-021, establish production prevalence, external authority, or currentness.",
+    "execution_order": "After tracked documentation delivery and the planned native R3 source-2 plus metadata-4 gate work, run the full current-contract LA wave at the root-declared source/profile/input freeze while G decides in parallel; then run any G-dependent semantic migration implementation only after that decision."
+  },
+  "limitations": [
+    "Full bidirectional legacy compatibility is not established by historical ten-value characterization.",
+    "No production artifact census, history population, issuer/source-owner attestation, deployment status or currentness claim.",
+    "Reader-materialized profile validity is not producer attestation; content/profile equality is not authority or origin.",
+    "G decision and implementation/source acceptance remain separate."
+  ],
+  "canonical_finding_ids": [
+    "LA-021"
+  ],
+  "decision_request_ids": [
+    "LA-021-1",
+    "LA-021-2"
+  ],
+  "supersedes_delivery_revision": {
+    "delivery_id": "la021-can6-g-decision-delivery-20261020-r1",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can6-g-decision-delivery-20261020-r1/manifest.json",
+    "manifest_sha256": "c0ef51bdb06793235b89588a01655c3ddefc5548d96ac9573961cea01e2e66da"
+  }
+}

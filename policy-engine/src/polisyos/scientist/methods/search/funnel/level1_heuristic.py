@@ -29,6 +29,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEstimate,
     UncertaintyType,
 )
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
 logger = get_logger(__name__)
@@ -304,9 +305,11 @@ class Level1CheapHeuristic(FunnelStage):
             ),
         )
 
+        # Keep the heuristic proxy in CheapSignalVector; it is not an admitted objective.
         return FunnelStageResult(
             policy_candidate=candidate,
-            objective_value=expected_value_proxy,
+            objective_value=None,
+            score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
             is_promising=is_promising,
             stage_name=self.stage_name,
             duration_seconds=duration,

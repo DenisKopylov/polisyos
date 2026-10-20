@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
     UncertaintyType,
 )
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 
 logger = get_logger(__name__)
 
@@ -93,15 +94,18 @@ class Level0StaticValidator(FunnelStage):
                 sum(1 for c in cards if not c.is_blocker),
             )
 
+        # Static legality is a candidate-routing signal, not a selected policy objective.
         return FunnelStageResult(
             policy_candidate=candidate,
-            objective_value=0.0 if not has_blockers else 1.0,
+            objective_value=None,
+            score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
             is_promising=not has_blockers,
             stage_name=self.stage_name,
             duration_seconds=duration,
             uncertainty_envelope=UncertaintyEnvelope.deterministic(),
             failure_cards=cards,
             fidelity_level=self.fidelity_level,
+            feedback={"static_validation_penalty": 1.0 if has_blockers else 0.0},
         )
 
     # ------------------------------------------------------------------

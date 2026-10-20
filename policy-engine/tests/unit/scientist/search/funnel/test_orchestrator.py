@@ -26,6 +26,9 @@ from polisyos.scientist.methods.doe.designs import (
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
+from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
+from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
+from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
 from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
 from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
@@ -104,9 +107,9 @@ def _make_stage(
     is_promising: bool = True,
     has_blockers: bool = False,
     cheap_signal: CheapSignalVector | None = None,
-    objective_value: float = 0.0,
+    objective_value: float | None = None,
 ) -> FunnelStage:
-    """Create a mock FunnelStage."""
+    """Create a scoreless routing-stage mock by default."""
     stage = MagicMock(spec=FunnelStage)
     stage.fidelity_level = level
     stage.stage_name = name
@@ -127,6 +130,7 @@ def _make_stage(
         policy_candidate={},
         objective_value=objective_value,
         is_promising=is_promising,
+        score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
         stage_name=name,
         uncertainty_envelope=UncertaintyEnvelope.deterministic(),
         cheap_signal=cheap_signal,
@@ -134,6 +138,41 @@ def _make_stage(
         fidelity_level=level,
     )
     stage.evaluate.return_value = result
+    return stage
+
+
+def _make_available_score_stage(
+    level: int,
+    name: str,
+    objective_value: float = 0.0,
+    is_promising: bool = True,
+) -> FunnelStage:
+    """Create a mock stage with a source-recomputed selected-score basis."""
+    unit = "fixture-unit"
+    source = {
+        "gdp_change": objective_value,
+        "budget_deficit": 0.1,
+        "metric_units": {"gdp_change": unit, "budget_deficit": unit},
+    }
+    assessment = GDPGrowthObjective(expected_unit=unit).evaluate(source).score_assessment
+    assert assessment is not None
+
+    stage = MagicMock(spec=FunnelStage)
+    stage.fidelity_level = level
+    stage.stage_name = name
+    stage.estimated_cost_usd = 0.0
+    stage.evaluate.return_value = FunnelStageResult(
+        policy_candidate={},
+        objective_value=objective_value,
+        is_promising=is_promising,
+        stage_name=name,
+        score_status=ObjectiveScoreStatus.AVAILABLE,
+        score_assessment=assessment,
+        simulation_results=source,
+        feedback={"verdict": "APPROVE" if is_promising else "DEFER"},
+        uncertainty_envelope=UncertaintyEnvelope.deterministic(),
+        fidelity_level=level,
+    )
     return stage
 
 
@@ -413,6 +452,121 @@ class TestFunnelOrchestrator:
         assert outcome.stage_results[4].is_promising is expected_promising
         assert outcome.stage_results[6].score_status is expected_status
 
+    @pytest.mark.parametrize("remove_l4_assessment", [False, True])
+    def test_real_early_funnel_stages_continue_candidate_until_l4_source_score(
+        self, remove_l4_assessment
+    ):
+        candidate = {
+            "candidate_id": "real-early-stage-candidate",
+            "semantic": {
+                "interventions": [{"type": "tax_reform", "parameters": {"income_tax_rate": 0.25}}],
+                "objectives": [{"name": "gdp_growth", "variable": "gdp"}],
+            },
+        }
+
+        class _ControlledWorkflow:
+            def __init__(self, simulation_results):
+                self.simulation_results = simulation_results
+                self.calls = 0
+
+            def run(self, initial_state):
+                self.calls += 1
+                return {
+                    "simulation_results": dict(self.simulation_results),
+                    "feedback": {"verdict": "APPROVE"},
+                }
+
+        medium_workflow = _ControlledWorkflow({"gdp_change": 0.0, "budget_deficit": 0.1})
+        full_workflow = _ControlledWorkflow(
+            {
+                "gdp_change": 0.0,
+                "budget_deficit": 0.1,
+                "metric_units": {
+                    "gdp_change": "fixture-unit",
+                    "budget_deficit": "fixture-unit",
+                },
+            }
+        )
+        level4: FunnelStage = Level4FullFidelity(
+            workflow_engine=full_workflow,
+            expected_objective_unit="fixture-unit",
+        )
+        if remove_l4_assessment:
+            source_bound_level4 = level4
+
+            class _AssessmentRemovingLevel4(FunnelStage):
+                @property
+                def stage_name(self):
+                    return source_bound_level4.stage_name
+
+                @property
+                def fidelity_level(self):
+                    return source_bound_level4.fidelity_level
+
+                @property
+                def estimated_cost_usd(self):
+                    return source_bound_level4.estimated_cost_usd
+
+                def evaluate(self, candidate, context):
+                    result = source_bound_level4.evaluate(candidate, context)
+                    assert result.score_assessment is not None
+                    assert result.score_status is ObjectiveScoreStatus.AVAILABLE
+                    assert result.objective_value == 0.0
+                    assert result.feedback["verdict"] == "APPROVE"
+                    # A mutable result can lose its basis after construction. Keep the
+                    # self-reported score fields intact so the orchestrator must replay it.
+                    result.score_assessment = None
+                    assert result.score_status is ObjectiveScoreStatus.AVAILABLE
+                    assert result.objective_value == 0.0
+                    return result
+
+            level4 = _AssessmentRemovingLevel4()
+
+        stages = [
+            Level0StaticValidator(),
+            Level1CheapHeuristic(),
+            Level2CausalPlausibility(),
+            Level3MediumFidelity(medium_workflow, expected_objective_unit="fixture-unit"),
+            level4,
+        ]
+        orchestrator = FunnelOrchestrator(stages)
+        outcome = orchestrator.advance(orchestrator.submit(candidate, {}), policy="full")
+
+        assert set(range(5)).issubset(outcome.stage_results)
+        for level in range(3):
+            result = outcome.stage_results[level]
+            assert result.objective_value is None
+            assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+            assert result.score_assessment is None
+        assert outcome.stage_results[0].is_promising is True
+        assert outcome.stage_results[0].feedback["static_validation_penalty"] == 0.0
+        assert outcome.stage_results[1].cheap_signal is not None
+        assert "plausibility_rank" in outcome.stage_results[2].feedback
+
+        medium = outcome.stage_results[3]
+        assert medium.objective_value is None
+        assert medium.score_status is ObjectiveScoreStatus.UNAVAILABLE
+        assert medium.score_assessment is not None
+        assert medium.is_promising is False
+        assert medium.feedback["selected_objective_admission"] == "unavailable"
+
+        full = outcome.stage_results[4]
+        assert full.feedback["verdict"] == "APPROVE"
+        if remove_l4_assessment:
+            assert full.objective_value is None
+            assert full.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+            assert full.score_assessment is None
+            assert outcome.final_action == "reject"
+            assert outcome.final_action != "complete"
+        else:
+            assert full.score_status is ObjectiveScoreStatus.AVAILABLE
+            assert full.score_assessment is not None
+            assert full.objective_value == 0.0
+            assert outcome.final_action == "complete"
+
+        assert medium_workflow.calls == 1
+        assert full_workflow.calls == 1
+
     def test_stage_complete_action_cannot_bypass_unavailable_selected_score(self):
         source = {"gdp_change": 0.0, "metric_units": {}}
         assessment = (
@@ -536,12 +690,16 @@ class TestFunnelOrchestrator:
         stage = _make_stage(0, "L0")
 
         def evaluate(candidate, context):
-            dataset_scores = {"dataset-v1": 1.0, "dataset-v2": 2.0}
+            dataset_diagnostics = {"dataset-v1": 1.0, "dataset-v2": 2.0}
             return FunnelStageResult(
                 policy_candidate=dict(candidate),
-                objective_value=dataset_scores[context["dataset_version"]],
+                objective_value=None,
                 is_promising=True,
                 stage_name="L0",
+                score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                feedback={
+                    "dataset_score_diagnostic": dataset_diagnostics[context["dataset_version"]]
+                },
                 uncertainty_envelope=UncertaintyEnvelope.deterministic(),
                 fidelity_level=0,
             )
@@ -569,8 +727,12 @@ class TestFunnelOrchestrator:
         assert outcome_v2.ticket_id != outcome_v1.ticket_id
         assert outcome_v1.final_result is not None
         assert outcome_v2.final_result is not None
-        assert outcome_v1.final_result.objective_value == 1.0
-        assert outcome_v2.final_result.objective_value == 2.0
+        assert outcome_v1.final_result.objective_value is None
+        assert outcome_v2.final_result.objective_value is None
+        assert outcome_v1.final_result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert outcome_v2.final_result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert outcome_v1.final_result.feedback["dataset_score_diagnostic"] == 1.0
+        assert outcome_v2.final_result.feedback["dataset_score_diagnostic"] == 2.0
 
         cached_ticket = orch.submit(candidate, context_v1)
         assert cached_ticket is ticket_v1
@@ -711,9 +873,11 @@ class TestFunnelOrchestrator:
             is_context_a = context["dataset_version"] == "dataset-a"
             return FunnelStageResult(
                 policy_candidate=dict(candidate),
-                objective_value=1.0 if is_context_a else 2.0,
+                objective_value=None,
                 is_promising=True,
                 stage_name=f"{context['dataset_version']}-L{level}",
+                score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                feedback={"context_score_diagnostic": 1.0 if is_context_a else 2.0},
                 uncertainty_envelope=UncertaintyEnvelope.deterministic(),
                 compute_cost_usd=0.1 if is_context_a else 0.2,
                 compute_cost_origin="estimated",
@@ -743,7 +907,8 @@ class TestFunnelOrchestrator:
         ticket_b = orch.submit(candidate, context_b)
         outcome_b = orch.advance(ticket_b, policy="full")
         assert outcome_b.final_action == "defer"
-        assert ticket_b.stage_results[1].objective_value == 2.0
+        assert ticket_b.stage_results[1].objective_value is None
+        assert ticket_b.stage_results[1].feedback["context_score_diagnostic"] == 2.0
 
         budget.record_spend("run", Decimal("0.01"))
         successor_a = orch.submit(candidate, context_a)
@@ -753,7 +918,8 @@ class TestFunnelOrchestrator:
         assert successor_a.parent_ticket_id != ticket_b.ticket_id
         assert successor_a.lineage[:-1] == ticket_a.lineage
         assert successor_a.stage_results == prior_a_results
-        assert successor_a.stage_results[1].objective_value == 1.0
+        assert successor_a.stage_results[1].objective_value is None
+        assert successor_a.stage_results[1].feedback["context_score_diagnostic"] == 1.0
         assert successor_a.trace == prior_a_trace
         assert sum(step.compute_cost_usd or 0.0 for step in successor_a.trace) == prior_a_cost
 
@@ -799,7 +965,7 @@ class TestFunnelOrchestrator:
             _make_stage(0, "L0"),
             _make_stage(1, "L1"),
             _make_stage(2, "L2"),
-            _make_stage(4, "L4"),
+            _make_available_score_stage(4, "L4"),
         ]
         orch = FunnelOrchestrator(stages, lesson_registry=lesson_registry)
 
@@ -830,7 +996,7 @@ class TestFunnelOrchestrator:
                     expected_information_gain=0.4,
                 ),
             ),
-            _make_stage(4, "L4"),
+            _make_available_score_stage(4, "L4"),
         ]
         scheduler = PredictiveVOIScheduler()
         orch = FunnelOrchestrator(stages, voi_scheduler=scheduler)
@@ -875,7 +1041,7 @@ class TestFunnelOrchestrator:
         assert stress_report.score_status == "unbound"
         assert stress_report.score_profile == "finite_binary_scenario_v1"
         assert stress_report.robustness_score is None
-        assert stress_report.score_reason == "selected_objective_rule_not_recomputable"
+        assert stress_report.score_reason == "objective_rule_not_declared"
 
         selection = BenchmarkEvaluation(
             loop_id="loop",
@@ -927,7 +1093,7 @@ class TestFunnelOrchestrator:
                     expected_information_gain=0.3,
                 ),
             ),
-            _make_stage(4, "L4", objective_value=0.8),
+            _make_available_score_stage(4, "L4", objective_value=0.8),
             Level5RefutationGovernanceStage(require_hidden_holdout=True),
             Level6PromotionStage(
                 promotion_runner=lambda candidate, context: runner_calls.append(candidate)
@@ -1004,7 +1170,7 @@ class TestFunnelOrchestrator:
                     expected_information_gain=0.2,
                 ),
             ),
-            _make_stage(4, "L4", objective_value=0.7),
+            _make_available_score_stage(4, "L4", objective_value=0.7),
             Level5RefutationGovernanceStage(require_hidden_holdout=False),
             Level6PromotionStage(allow_noop_complete=True),
         ]
@@ -1026,7 +1192,7 @@ class TestFunnelOrchestrator:
             _make_stage(0, "L0"),
             _make_stage(1, "L1"),
             _make_stage(2, "L2"),
-            _make_stage(4, "L4", objective_value=0.6),
+            _make_available_score_stage(4, "L4", objective_value=0.6),
             Level5RefutationGovernanceStage(require_hidden_holdout=True),
         ]
         orch = FunnelOrchestrator(stages)

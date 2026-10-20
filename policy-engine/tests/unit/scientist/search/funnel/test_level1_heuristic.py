@@ -9,6 +9,7 @@ from polisyos.scientist.methods.search.funnel.level1_heuristic import (
 )
 from polisyos.scientist.methods.search.funnel.types import FunnelStageResult
 from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind, LessonRegistry
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
@@ -41,6 +42,9 @@ class TestLevel1CheapHeuristic:
     def test_valid_candidate_advances(self):
         result = self.stage.evaluate(_make_candidate(), {})
         assert result.is_promising is True
+        assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert result.score_assessment is None
+        assert result.objective_value is None
         assert result.cheap_signal is not None
         assert result.cheap_signal.routing_decision() in ("advance", "fast_track")
         assert result.compute_cost_usd is None
@@ -188,7 +192,7 @@ class TestLevel1CheapHeuristic:
         """If L0 result is in context, structural_validity reflects it."""
         l0_pass = FunnelStageResult(
             policy_candidate={},
-            objective_value=0.0,
+            objective_value=None,
             is_promising=True,
             stage_name="funnel_L0_static",
         )

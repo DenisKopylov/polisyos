@@ -1,21 +1,27 @@
 id = "2026-10-20-e02-stress-objective-source-evidence"
-title = "Bind adversarial stress outcomes to objective evidence"
+title = "Keep candidate routing separate from admitted objective evidence"
 type = "changed"
 component = "scientist"
 owner = "team-polisyos"
-summary = "Persist per-occurrence selected objective evidence for finite adversarial stress scores and replay its source, plan sample, pass/fail classification, and vulnerability severity before score admission."
+summary = "Keep L0-L2 static, heuristic, and causal signals in the candidate-routing band; persist and replay per-occurrence selected-objective evidence for finite adversarial stress scores before admission."
 evidence = [
   "tests/unit/scientist/search/test_adversarial.py",
+  "tests/unit/scientist/search/funnel/test_level0_static.py",
+  "tests/unit/scientist/search/funnel/test_level1_heuristic.py",
+  "tests/unit/scientist/search/funnel/test_level2_causal.py",
   "tests/unit/scientist/search/funnel/test_orchestrator.py",
   "src/polisyos/scientist/methods/search/adversarial.py",
+  "src/polisyos/scientist/methods/search/funnel/level0_static.py",
+  "src/polisyos/scientist/methods/search/funnel/level1_heuristic.py",
+  "src/polisyos/scientist/methods/search/funnel/level2_causal.py",
   "src/polisyos/scientist/methods/doe/stress_report.py",
 ]
-compatibility = "StressOutcomeBasis 1.1 adds typed per-occurrence objective-source evidence. Existing 1.0 artifacts remain readable, but adversarial finite scores without replayable evidence or an independently supplied selected-objective intent resolve as unbound. Phase D4 keeps its existing 1.0 benchmark-evaluation route."
+compatibility = "L0-L2 keep candidate routing separate from objective admission: their static penalty, heuristic proxy, and causal plausibility rank remain diagnostic signals, with no selected objective score. StressOutcomeBasis 1.1 adds typed per-occurrence objective-source evidence. Existing 1.0 artifacts remain readable, but adversarial finite scores without replayable evidence or independently supplied selected-objective intent resolve as unbound. Phase D4 keeps its existing 1.0 benchmark-evaluation route."
 change_class = "internal"
 surface_classification = "internal: scientist stress evidence and score resolution"
-migration = "New adversarial runs persist objective assessments and exact source artifacts. A fresh Level5 consumer still needs an independently selected objective-intent reference before admitting a protected binary score; no such request/run-state bridge exists in the inspected chain. Retain source-replayed outcomes as candidate diagnostics until that contract is resolved; do not infer selection from the same report or basis."
+migration = "New L0-L2 results expose candidate progress through routing and cheap-signal fields, not objective_value. New adversarial runs persist objective assessments and exact source artifacts. A fresh Level5 consumer still needs an independently selected objective-intent reference before admitting a protected binary score; no such request/run-state bridge exists in the inspected chain. Retain source-replayed outcomes as candidate diagnostics until that contract is resolved; do not infer selection from the same report or basis. The L4 positive is a controlled fixture with explicit fixture units, not evidence that the current production runtime supplies its selected objective unit."
 api = "No exported runtime API changes. The internal StressOutcomeBasis artifact advances additively to 1.1 for adversarial objective evidence."
-limitations = "Source replay, plan-threshold classification, and full typed vulnerability projection do not establish that the carried objective is the one selected for the policy run. The current Level5 route therefore keeps this score unbound. This mechanism does not establish causal adequacy, calibration, law, external authority, or production currentness. Runtime and composed consumer verification remain pending independent review."
+limitations = "Source replay, plan-threshold classification, and full typed vulnerability projection do not establish that the carried objective is the one selected for the policy run. The current Level5 route therefore keeps this score unbound. L0-L2 provide candidate-routing signals only; they do not authorize ranking or promotion. This mechanism does not establish causal adequacy, calibration, law, external authority, or production currentness. Runtime and composed consumer verification remain pending independent review."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = []

@@ -37,6 +37,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEstimate,
     UncertaintyType,
 )
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 
 if TYPE_CHECKING:
     from polisyos.foundry.methods.catalog.causal.query_validator import (
@@ -237,9 +238,11 @@ class Level2CausalPlausibility(FunnelStage):
             causal_feedback["data_readiness_report_ref"] = readiness_ref.model_dump(mode="json")
             audit_refs.append(readiness_ref)
 
+        # Keep this candidate-only rank in feedback, separate from selected scores.
         return FunnelStageResult(
             policy_candidate=candidate,
-            objective_value=plausibility_rank,
+            objective_value=None,
+            score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
             is_promising=is_promising,
             stage_name=self.stage_name,
             duration_seconds=duration,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 
 
 def _make_candidate(**overrides):
@@ -38,6 +39,10 @@ class TestLevel0StaticValidator:
     def test_valid_candidate_passes(self):
         result = self.stage.evaluate(_make_candidate(), {})
         assert result.is_promising is True
+        assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert result.score_assessment is None
+        assert result.objective_value is None
+        assert result.feedback["static_validation_penalty"] == 0.0
         assert not result.has_blockers
         assert result.compute_cost_usd is None
         assert result.compute_cost_origin == "unknown"

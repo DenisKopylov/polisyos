@@ -41172,5 +41172,136 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-funnel-candidate-only-stages-r4-20261020-r1": {
+    "slice_base": "048880bf854cf58bfa33171a94556ee91424d8e9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/level0_static.py": {
+        "operation": "update",
+        "preimage_sha256": "a8f4973123c9cbc7f7e9d8df4a8f32a6c7f68432caf10dced4b9101092ba1550",
+        "postimage_sha256": "aafb1fde74cf24385f7b031f8a2b07f7ba83ac9c5a7c84a72e131f072d7f1790",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/level0_static.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/level1_heuristic.py": {
+        "operation": "update",
+        "preimage_sha256": "3a960aa224cf4056d0a2d8a3642afd0bff5b5c11f02d385a63b16a2fc294bf93",
+        "postimage_sha256": "b99273e2550bb33a905e1f29d28e7631db0d97cad7250cdbe71ebdc8dae94cb6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/level1_heuristic.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py": {
+        "operation": "update",
+        "preimage_sha256": "367677637ccdc9867436e5f3b542da68113da3d35e4e7d83ff3828f41eb2eb06",
+        "postimage_sha256": "4f73bccf870ec150eab66156d5b99544809f4e0b6608b190a4e326a0aeb46a7e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/level2_causal.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_level0_static.py": {
+        "operation": "update",
+        "preimage_sha256": "201beb1c6ac1b938939334f410179c8ffcd9f4a7d112af088d77bcec78595bfb",
+        "postimage_sha256": "4da06bbd7497d2da994b8e0d0e851105fa575744ac3794d725ce3c4499c44b58",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/tests/unit/scientist/search/funnel/test_level0_static.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_level1_heuristic.py": {
+        "operation": "update",
+        "preimage_sha256": "3e2f39b0f02d427f4e3438e8784a9f07a81a448d04c2ce7c251eae64a2f1be7a",
+        "postimage_sha256": "b17afcf22432a0ac1f135e937bc52dcc5f45a4b6fd39540b78c5c5aa8c9b35c8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/tests/unit/scientist/search/funnel/test_level1_heuristic.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_level2_causal.py": {
+        "operation": "update",
+        "preimage_sha256": "f5d8e36c0d38d0d43c1fa1a8901d44ce42d3236697edec156630ed426b60d662",
+        "postimage_sha256": "1918b0bead8190e76d37362d9be6a67735706940f4de94148ef965f2b4fa622e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/tests/unit/scientist/search/funnel/test_level2_causal.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": {
+        "operation": "update",
+        "preimage_sha256": "557dcb99c6c74d9cac5f89e91b612e2cb257781bbc4116210e1659481aaa7ae2",
+        "postimage_sha256": "0fe0eb7fccbc4a5accf2f62233f3ca12ff60fe8fff9c4d61e26571f72da67893",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py": {
+        "operation": "update",
+        "preimage_sha256": "3414c6444a155a53ba6d05b9b7d903733e187711d774de7790c5b0c64cd0274c",
+        "postimage_sha256": "69dbea8b78702263b1cf54698b0b59ce310094178e9a003b43bf82543448b542",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-stress-objective-source-evidence.toml": {
+        "operation": "update",
+        "preimage_sha256": "d3446100d27f9e857f7bc8827744d5f055d964337d6db815736c3e39fbd168e3",
+        "postimage_sha256": "17c45748e62d971369f60c48ea5a1d74b18c6da39433f53568cbeee2b3878319",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-stress-objective-source-evidence.toml",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-funnel-candidate-only-stages-r4-20261020-r1/source-application.json",
+      "sha256": "f3270ddea4e4cfd88749b6a99e14de7619b7edd65f5b79ac48d597b11a17f747"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-funnel-candidate-only-stages-r4-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/manifest-r4.json",
+        "sha256": "53e6837ecf90c469c58c2cbaeb33ffa9285c7633cc97ae317f2e06b4705ac326"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/candidate-r4.patch",
+        "sha256": "4eefad2bec14cc1c094cc59d048c9915a594065044f6b3c3a8ef10d42001ae21"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/r4-static-verification.json",
+        "sha256": "9ac7907753bb53fca0f3ae5ae3e380e66abec907f5fa56b9b99868bfdbd2cee2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r4/failure-classification-r4.json",
+        "sha256": "611068b965852919a7818af619e928aa4bc85a127dbb2d957889b991c28dbfe1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/funnel-r4-independent-review-20261020-r1/review.json",
+        "sha256": "77a0bae071198fc81484aa036cd766b14dc1bdc190e1c11c78ca6034762cf0fc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-funnel-unknown-score-oracle-d28-20261020-r1/manifest.json",
+        "sha256": "9e2741183e25b6aa84b8caa23d9f92e86f50fe9aa3ca65460462352c2f3bb02d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same selected-score/source-status class: early-stage candidate diagnostics were treated as objective scores; close it through the source outputs plus realistic orchestrator consumer, not per-test AVAILABLE mocks.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "The original two-module cohort has not been rerun after this candidate change; independent review and a composed replay remain required.",
+      "The separate original L3 assessment-removal test still expects defer while the current path rejects; it is preserved unchanged and remains unresolved.",
+      "No production selected-unit positive is established; only the controlled L4 fixture has explicit fixture units.",
+      "No causal calibration, law, issuer permission, scientific adequacy, external custody/currentness, or G acceptance is claimed.",
+      "Earlier RAW r4 pins0a6042/0ddd63 were superseded in-place before root adoption; this plan and independent review bind only final immutable53e683/4eefad bytes."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Independent review of the frozen R4 patch and pathwise composition with adopted B108 source.",
+      "After composition, rerun the entire original adversarial and funnel orchestrator modules with no k-filter and retain full outputs and source pins.",
+      "Resolve the held L3 assessment-removal reject-vs-defer occurrence against the original criterion before proposing its closure."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

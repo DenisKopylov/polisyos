@@ -11,6 +11,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
 from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
+from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 
 
 def _make_candidate(**overrides):
@@ -60,7 +61,7 @@ class TestLevel2CausalPlausibility:
         )
         l1_result = FunnelStageResult(
             policy_candidate={},
-            objective_value=0.5,
+            objective_value=None,
             is_promising=True,
             stage_name="funnel_L1_heuristic",
             cheap_signal=l1_signal,
@@ -73,9 +74,12 @@ class TestLevel2CausalPlausibility:
         assert result.cheap_signal is not None
         assert result.cheap_signal.structural_validity == 0.9
 
-    def test_plausibility_rank_in_0_1(self):
+    def test_plausibility_rank_remains_candidate_diagnostic(self):
         result = self.stage.evaluate(_make_candidate(), {})
-        assert 0.0 <= result.objective_value <= 1.0
+        assert 0.0 <= result.feedback["plausibility_rank"] <= 1.0
+        assert result.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert result.score_assessment is None
+        assert result.objective_value is None
 
     def test_uncertainty_envelope_has_structural(self):
         result = self.stage.evaluate(_make_candidate(), {})

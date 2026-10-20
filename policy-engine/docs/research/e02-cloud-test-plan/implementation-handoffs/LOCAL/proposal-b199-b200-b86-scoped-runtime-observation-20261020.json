@@ -1,0 +1,748 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "identity": "b199-b200-b86-scoped-runtime-observation-20261020",
+  "record_type": "scoped_runtime_observation_receipt",
+  "unit": "LOCAL",
+  "slice": "B199/B200 composed producer-to-CAS-to-fresh-consumer selected runtime observation",
+  "status": "scoped_runtime_pass",
+  "commit_subject": "Record scoped B199/B200 B86 runtime evidence; no criterion closure proposed",
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_sha": "b86b87b9b0801c75297b688c1aa0f83cebe224a7",
+  "candidate_tree_sha": "7ba1b142be6d3d796391b44831adc3a50671b41b",
+  "parents": [
+    "98f91c74ad93a0b6f4ca3b0ec8e7aeb45de818f6"
+  ],
+  "slice_base_sha": "ed5b52bc3db64ca477929a605f148d2140fe3955",
+  "slice_base_tree_sha": "0ce131a0928a23e7d2c003277b9766729bf3c691",
+  "current_composed_readback": {
+    "head": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+    "tree": "7bdad7df3302c270b7d5485f13b0db0b24c90f91",
+    "parent": "ebbe5987e49b5964d67620faa824cd50668ed783",
+    "note": "Historical B86 run only. Current source is a later descendant; no current-frame replay, source freeze, or byte-parity qualification is claimed."
+  },
+  "original_criteria_proposal": {
+    "coverage_source": {
+      "availability": "candidate_git_tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "complete original finding/criterion source; global denominator is preserved in the artifact",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_bindings": [
+      {
+        "finding_id": "B199",
+        "bundle": "UQS-01",
+        "unit": "E",
+        "historical_ledger_status": "partial",
+        "current_disposition": "not_adjudicated; no criterion closure proposed",
+        "criterion_refs": [
+          {
+            "card": "UQS-01",
+            "criterion_id": "B199",
+            "document": "B_r19",
+            "lines": [
+              4950,
+              4963
+            ],
+            "sha256": "ef72002be021501dcd6755c48233dc54679f66a89fd8e363e08f5b506b018952"
+          }
+        ]
+      },
+      {
+        "finding_id": "B200",
+        "bundle": "UQS-01",
+        "unit": "E",
+        "historical_ledger_status": "partial",
+        "current_disposition": "not_adjudicated; no criterion closure proposed",
+        "criterion_refs": [
+          {
+            "card": "UQS-01",
+            "criterion_id": "B200",
+            "document": "B_r19",
+            "lines": [
+              4964,
+              4977
+            ],
+            "sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d"
+          }
+        ]
+      }
+    ],
+    "finding_ids": [
+      "B199",
+      "B200"
+    ],
+    "occurrence_disposition": "B199 and B200 remain separate and not_adjudicated. This scoped runtime record proposes no occurrence closure; a shared route is not another occurrence."
+  },
+  "property": {
+    "negative_controls": [
+      "Exact selected-view repetition preserves its fixture 0.83 confidence level/type and reduces unique selected views to one.",
+      "Same payload with distinct selected profiles remains two selected views but relation remains not_established and no precision narrowing occurs.",
+      "Caller labels or distinct origin strings alone do not establish independence.",
+      "The reviewed 1e-8 consumer-narrowing control fails at exact source-hull equality while preserving semantic/status markers."
+    ],
+    "proxy_divergence": "The one prior 58/59 red was an exact nominal-endpoint assertion; independent R1 review identifies binary32 recomputation drift. The replacement exact source-hull assertion passes for real persisted sources and rejects the below-tolerance narrowing control.",
+    "statement": "The four exact B199/B200 modules pass with the real analytical dispatcher, CAS persistence, aggregate, and fresh reader. The B200 selected integration output is an exact source-interval hull with unresolved relation/estimand/subject/unit and effective information; it remains deterministic candidate-only bounds and not gate-eligible.",
+    "surface": "Selected Python integration and unit tests only; no external law, source-owner relation, production-currentness or authority surface is supplied."
+  },
+  "denominator": {
+    "collected_case_count": 59,
+    "deselected": 0,
+    "errors": 0,
+    "executed_case_count": 59,
+    "failed": 0,
+    "module_counts": {
+      "tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py": 1,
+      "tests/unit/foundry/uncertainty/test_aggregation_strategies.py": 12,
+      "tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py": 22,
+      "tests/unit/remediation/test_uqs_01.py": 24
+    },
+    "passed": 59,
+    "skipped": 0,
+    "whole_module_count": 4
+  },
+  "checks": [
+    {
+      "command": "See the exact argv and effective configuration in the pinned request.json, result.json, and pytest-collection-basis.json. The actual invocation names all four full modules and has no -k/-m/deselection/xdist.",
+      "environment": "Existing product .venv, standard pytest.ini/default plugin autoload; capture plugins pinned in request and runtime origins.",
+      "exit_code": 0,
+      "input_closure": "59 unique selected nodeids from exactly the four module paths in denominator; JUnit, R10 case reports, collection basis, origin capture and source-before/after are all bound in outputs.",
+      "name": "Exact composed four-whole-module R8/R10 runtime replay",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/request.json",
+          "role": "exact authorized invocation, source/module pins, environment and limits",
+          "sha256": "5dbcc4bb967a1017104cbbf8b30d025c2c4a489be0dc263b2f267a095fd582f3"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/result.json",
+          "role": "decision record with selection qualification, source integrity, resource result and no-closure flags",
+          "sha256": "e8782e48b7b4cbd81cfa1a90f34e0e650c6736eda9461600d6e3aacb1ceceb43"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest.stdout.txt",
+          "role": "complete pytest stdout",
+          "sha256": "dd963e5626bde7ee592ed84a58ea7ecc6cc961ed3135787330e4f739a114084b"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest.stderr.txt",
+          "role": "complete pytest stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest.xml",
+          "role": "JUnit parsed as 59 unique testcases: 59 pass, 0 failures/errors/skips",
+          "sha256": "58323c9491cef41fc497331a9a72cfcbf8a0549ac1cfce9f5d91d7b2361f6517"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest-collection-basis.json",
+          "role": "actual collection-finish basis; exact four modules, 59 unique nodeids, no filters or deselection",
+          "sha256": "95cf46c982f4a264cc63c9a24245bbab222448111538a73b4d80a2c6950dd293"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest-case-reports.jsonl",
+          "role": "R10/I4 case lifecycle reports; 177 setup/call/teardown events, all pass",
+          "sha256": "eb9d2b8ab4f162b4691022faa1d11b5f0a0035fab01259bd754d98b68c85388c"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/runtime-module-origins.json",
+          "role": "R10 source/runtime origin capture and default plugin inventory",
+          "sha256": "94f3985b67db2af1cd82446ec1fef27a6bd0be94fe1e6840f888384b3d305386"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/source-before.json",
+          "role": "full tracked source snapshot before run",
+          "sha256": "212dfbf3a7a2ee27b3b30ed2d84f332ca2afb2902d971f469790c2f33268d6fd"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/source-after.json",
+          "role": "full tracked source snapshot after run; byte-identical to before snapshot",
+          "sha256": "212dfbf3a7a2ee27b3b30ed2d84f332ca2afb2902d971f469790c2f33268d6fd"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/launch-context.json",
+          "role": "source/request/helper/limit bindings for the actual launch",
+          "sha256": "50c39bd1c6dfe05d246c61106d20037c96e5ea0d81accee56a84a9b0d5b5c57f"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/sandbox-probe-receipt.json",
+          "role": "real sandbox temporary-write probe receipt",
+          "sha256": "8ad73ce24e3c920e400093e2cf0788bbe1b093eac48029bbbeb6aa868652ec07"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/phase-output.jsonl",
+          "role": "full sampled phase output",
+          "sha256": "fcc76c2fbdf00bd517ceb67e0c76307bc7cc080e259e57bc13bb9a70a9ef1da7"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/controller-events.jsonl",
+          "role": "full controller event log",
+          "sha256": "433290445fc97aeb36c87df04551a6667c7ef7938778e12b1118ae6f912e5801"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/process-tree.jsonl",
+          "role": "full sampled process-tree/resource log",
+          "sha256": "ad0ffffa27ff2e99549167d2d61994a221a99a417ad16ac29a65489ea6f32c48"
+        },
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/outer-execution-record.json",
+          "role": "outer launcher exit/status and request binding",
+          "sha256": "15307bc7cc440345347effa22e9cdc21753974a4ed8344f9db639b7ba2ff5408"
+        }
+      ]
+    },
+    {
+      "command": "Read-only independent review record and bounded candidate/mutant controls; no source changes in this handoff.",
+      "exit_code": 0,
+      "name": "Independent exact-source-hull candidate review",
+      "outcome": "PASS",
+      "outputs": [
+        {
+          "availability": "shared_local_host_raw; not committed",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-float32-oracle-independent-review-20261020/review-v1.json",
+          "role": "independent test source review plus 1e-8 subtolerance removal control",
+          "sha256": "289f2ad14cae27937025255fd599a62fd1967820393deb97a01369dc9aedff03"
+        }
+      ]
+    }
+  ],
+  "verification_status": "Qualified bounded composed four-module runtime PASS at exact historical B86 source frame (59 collected, 59 executed, 59 passed; 0 failed, errors, skipped or deselected). This is not criterion-wide verification or closure.",
+  "capability_state_or_finding_state": {
+    "capability_label": "verification_missing",
+    "source_mechanism_state": "The four selected whole modules passed at B86. B199/B200 criterion adjudication and owner-supplied relation, independence, and effective-information evidence remain not_established.",
+    "authority": "not_established; this receipt grants none."
+  },
+  "predicate_basis": "not_established",
+  "predicate_basis_detail": "Tests recompute selected-view identity and preserve uncertainty/status fields. The synthetic fixture does not supply actual source dependence, overlap, estimand, subject, unit, or independent-information law. Distinct labels/profiles do not promote those predicates.",
+  "source_provenance": {
+    "historical_runtime_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "b86b87b9b0801c75297b688c1aa0f83cebe224a7",
+      "tree": "7ba1b142be6d3d796391b44831adc3a50671b41b",
+      "parent": "98f91c74ad93a0b6f4ca3b0ec8e7aeb45de818f6"
+    },
+    "run_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b199-b200-b86-scoped-runtime-handoff-independent-20261020-r1/handoff.json",
+      "sha256": "e69c2a94db023d9e1de6b2b5853df1cf436b0379e4af47a54fe1cde02548befb",
+      "role": "Complete bounded runtime handoff, source cut, criteria bindings, and output references",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    "run_package_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b199-b200-b86-scoped-runtime-handoff-independent-20261020-r1/package-manifest.json",
+      "sha256": "fb68ef93265152aa0c4e93ff0225585e86814baa4ba41e532e8ee50b76c4dcb2",
+      "role": "Independent-review package inventory",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    "actual_run_request": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/request.json",
+      "role": "exact authorized invocation, source/module pins, environment and limits",
+      "sha256": "5dbcc4bb967a1017104cbbf8b30d025c2c4a489be0dc263b2f267a095fd582f3"
+    },
+    "actual_run_result": {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/result.json",
+      "role": "decision record with selection qualification, source integrity, resource result and no-closure flags",
+      "sha256": "e8782e48b7b4cbd81cfa1a90f34e0e650c6736eda9461600d6e3aacb1ceceb43"
+    },
+    "prior_source_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-b199-b200-core-ir-manifest-input-normalization-20261020.json",
+      "sha256": "40b134a5acb9824676b8583f0c948a5ce5943beef306b3b42ddad9a5a90d8ec8",
+      "role": "Prior source/implementation proposal; not a closure",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    "prior_source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-core-ir-lineage-source-review-20261020-r1/review.json",
+      "sha256": "6d37d9a6d501ad598416384f4b28ee50c8266ecbf121e9a93b992ae137ff3dc3",
+      "role": "Prior independent source and test review",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    "prior_58_of_59_context": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/proposal-b199-b200-core-ir-manifest-input-normalization-20261020.json",
+      "sha256": "40b134a5acb9824676b8583f0c948a5ce5943beef306b3b42ddad9a5a90d8ec8",
+      "role": "Existing proposal preserves the prior 58/59 red separately; its historical claim is not overwritten here."
+    },
+    "current_observation_frame": {
+      "head": "8aff19299d7d248dbea9f382c8fd654b5040839f",
+      "tree": "7bdad7df3302c270b7d5485f13b0db0b24c90f91",
+      "parent": "ebbe5987e49b5964d67620faa824cd50668ed783",
+      "tracked_worktree_changes": [
+        [
+          " M",
+          "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+        ]
+      ],
+      "untracked_path_count": 2406
+    }
+  },
+  "source_change_commits": [
+    {
+      "commit": "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514",
+      "tree": "4046329115304f1e0db1b397e7430b6d86bd26bb",
+      "parents": [
+        "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+      ],
+      "subject": "fix(foundry): normalize core manifest refs at IR aggregation boundary",
+      "changed_path_count": 4,
+      "changed_paths": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "6e2c271b77c0dd95b7dabfdc5fa18d362e3ee011",
+            "sha256": "0d313c16adf3ae183190f1bd23dfc080025b8b74660ed6fd1d68727a3fa5264e",
+            "bytes": 2208937
+          },
+          "postimage": {
+            "git_blob_oid": "213fa785df964e8f4949a4bb33c066de77089b27",
+            "sha256": "bc68625016f83dde868a840f61a83b84e9c5a297cd0b073d0e93181154957ba5",
+            "bytes": 2219048
+          }
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "b198edacc8ad14ec126ea62a0e6afac6b5f47e86",
+            "sha256": "84a6650d5eda454293b9fb9f335c28a62df54ddb1d16b50faf73669e5c05c8fb",
+            "bytes": 230784
+          },
+          "postimage": {
+            "git_blob_oid": "1a61d71dc658db124bcbf9d97fbfb1c2cd42b5b3",
+            "sha256": "2e7919325071c3acafc0acceb43bca9c226634b8e7d2cf81ca1b021c207d350d",
+            "bytes": 230784
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+          "status": "M",
+          "role": "production source",
+          "preimage": {
+            "git_blob_oid": "b8bf3c2d110e289b7c01707ae9ff1bfc236cdb5e",
+            "sha256": "32208474530f673b007f328055b9d492416488fb927e2a4e7a4e87231a2f2b4a",
+            "bytes": 26561
+          },
+          "postimage": {
+            "git_blob_oid": "1b4b42edcc61d5f5ec9c88577e913464dea7a817",
+            "sha256": "417d888e7d4a23b0633a5302ae82e31927b5837cb6cf2725d9bdea1ced0899e3",
+            "bytes": 26613
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+          "status": "M",
+          "role": "test source",
+          "preimage": {
+            "git_blob_oid": "3c28f4480b3b9ceebda518a48c5c3970bc2785a3",
+            "sha256": "cdd222cf456d00dcfeed21ba85ed896c5224b2f9e47a9d2c7802f2df68d4b5a8",
+            "bytes": 22711
+          },
+          "postimage": {
+            "git_blob_oid": "211743de339aa7755487a64888ec718ffe6b9dff",
+            "sha256": "b6132abe33c407bcf48e20e7d014bfa29138238823879248fdeae5e3e571090f",
+            "bytes": 24547
+          }
+        }
+      ],
+      "configuration_paths_changed": []
+    },
+    {
+      "commit": "5d0397d2e5085b4c68e2f786b40e7bbd96bac4f1",
+      "tree": "adfa05f84e3d1b9959404f3a5f57c85b1df54098",
+      "parents": [
+        "ffa801d6dd1e114d303f768337f73ff772da5c52"
+      ],
+      "subject": "test(foundry): compare persisted interval to actual source hull",
+      "changed_path_count": 3,
+      "changed_paths": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "51b06711c4c03456a8df4c55006b706a315f8d14",
+            "sha256": "e543f3744ffe524c2ef01c530d0aaca73984e0a652f56b83293e026a4ddbe68f",
+            "bytes": 2320544
+          },
+          "postimage": {
+            "git_blob_oid": "2c7bdb1172897aebf5de12cb64b3d00c53429d55",
+            "sha256": "9d33945dd76c0d52eb9758c5e3626a72b3274bd075e147e0e8b9b1ab1c500f1b",
+            "bytes": 2329597
+          }
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "9ab3d636de522da074337cb0dc256a496a6a2ed7",
+            "sha256": "981448d8a1b75b5c3dfcfa230bfc258e688f3560ed49a1ad4b31f51286c626d9",
+            "bytes": 230784
+          },
+          "postimage": {
+            "git_blob_oid": "6036c1c881359ee54888e299a6e590f8acfa6c02",
+            "sha256": "ed03225c0ab8531db83db2b34542da9d28ac6d05b437cb56ba0b29e67b6bb0b3",
+            "bytes": 230784
+          }
+        },
+        {
+          "path": "policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+          "status": "M",
+          "role": "test source",
+          "preimage": {
+            "git_blob_oid": "dbf54cbae89358a3d0f61cb2ce41f2ffb44be8cc",
+            "sha256": "d866260b80fb5f87cf88fe68b39d41f9e6d21bceba6c4dceb426c35495b7d26c",
+            "bytes": 6734
+          },
+          "postimage": {
+            "git_blob_oid": "2ed7d712fa2d9698550174e249e5e729800919f5",
+            "sha256": "8e06f4b51aa14fb1a80fe491b31f754089f2257a6be9fea9de68a4e886e58a16",
+            "bytes": 7332
+          }
+        }
+      ],
+      "configuration_paths_changed": []
+    }
+  ],
+  "implementation_commits": [
+    "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514",
+    "5d0397d2e5085b4c68e2f786b40e7bbd96bac4f1"
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "commit": "bc4fe0e8c8f75e6d7bef921acd68a5653b5b9514",
+      "tree": "4046329115304f1e0db1b397e7430b6d86bd26bb",
+      "parents": [
+        "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0"
+      ],
+      "subject": "fix(foundry): normalize core manifest refs at IR aggregation boundary",
+      "changed_path_count": 4,
+      "changed_paths": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "6e2c271b77c0dd95b7dabfdc5fa18d362e3ee011",
+            "sha256": "0d313c16adf3ae183190f1bd23dfc080025b8b74660ed6fd1d68727a3fa5264e",
+            "bytes": 2208937
+          },
+          "postimage": {
+            "git_blob_oid": "213fa785df964e8f4949a4bb33c066de77089b27",
+            "sha256": "bc68625016f83dde868a840f61a83b84e9c5a297cd0b073d0e93181154957ba5",
+            "bytes": 2219048
+          }
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "b198edacc8ad14ec126ea62a0e6afac6b5f47e86",
+            "sha256": "84a6650d5eda454293b9fb9f335c28a62df54ddb1d16b50faf73669e5c05c8fb",
+            "bytes": 230784
+          },
+          "postimage": {
+            "git_blob_oid": "1a61d71dc658db124bcbf9d97fbfb1c2cd42b5b3",
+            "sha256": "2e7919325071c3acafc0acceb43bca9c226634b8e7d2cf81ca1b021c207d350d",
+            "bytes": 230784
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+          "status": "M",
+          "role": "production source",
+          "preimage": {
+            "git_blob_oid": "b8bf3c2d110e289b7c01707ae9ff1bfc236cdb5e",
+            "sha256": "32208474530f673b007f328055b9d492416488fb927e2a4e7a4e87231a2f2b4a",
+            "bytes": 26561
+          },
+          "postimage": {
+            "git_blob_oid": "1b4b42edcc61d5f5ec9c88577e913464dea7a817",
+            "sha256": "417d888e7d4a23b0633a5302ae82e31927b5837cb6cf2725d9bdea1ced0899e3",
+            "bytes": 26613
+          }
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py",
+          "status": "M",
+          "role": "test source",
+          "preimage": {
+            "git_blob_oid": "3c28f4480b3b9ceebda518a48c5c3970bc2785a3",
+            "sha256": "cdd222cf456d00dcfeed21ba85ed896c5224b2f9e47a9d2c7802f2df68d4b5a8",
+            "bytes": 22711
+          },
+          "postimage": {
+            "git_blob_oid": "211743de339aa7755487a64888ec718ffe6b9dff",
+            "sha256": "b6132abe33c407bcf48e20e7d014bfa29138238823879248fdeae5e3e571090f",
+            "bytes": 24547
+          }
+        }
+      ]
+    },
+    {
+      "commit": "5d0397d2e5085b4c68e2f786b40e7bbd96bac4f1",
+      "tree": "adfa05f84e3d1b9959404f3a5f57c85b1df54098",
+      "parents": [
+        "ffa801d6dd1e114d303f768337f73ff772da5c52"
+      ],
+      "subject": "test(foundry): compare persisted interval to actual source hull",
+      "changed_path_count": 3,
+      "changed_paths": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "51b06711c4c03456a8df4c55006b706a315f8d14",
+            "sha256": "e543f3744ffe524c2ef01c530d0aaca73984e0a652f56b83293e026a4ddbe68f",
+            "bytes": 2320544
+          },
+          "postimage": {
+            "git_blob_oid": "2c7bdb1172897aebf5de12cb64b3d00c53429d55",
+            "sha256": "9d33945dd76c0d52eb9758c5e3626a72b3274bd075e147e0e8b9b1ab1c500f1b",
+            "bytes": 2329597
+          }
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+          "status": "M",
+          "role": "generated metadata companion (historical commit content, not a live input)",
+          "preimage": {
+            "git_blob_oid": "9ab3d636de522da074337cb0dc256a496a6a2ed7",
+            "sha256": "981448d8a1b75b5c3dfcfa230bfc258e688f3560ed49a1ad4b31f51286c626d9",
+            "bytes": 230784
+          },
+          "postimage": {
+            "git_blob_oid": "6036c1c881359ee54888e299a6e590f8acfa6c02",
+            "sha256": "ed03225c0ab8531db83db2b34542da9d28ac6d05b437cb56ba0b29e67b6bb0b3",
+            "bytes": 230784
+          }
+        },
+        {
+          "path": "policy-engine/tests/integration/foundry/uncertainty/test_artifact_aware_aggregation.py",
+          "status": "M",
+          "role": "test source",
+          "preimage": {
+            "git_blob_oid": "dbf54cbae89358a3d0f61cb2ce41f2ffb44be8cc",
+            "sha256": "d866260b80fb5f87cf88fe68b39d41f9e6d21bceba6c4dceb426c35495b7d26c",
+            "bytes": 6734
+          },
+          "postimage": {
+            "git_blob_oid": "2ed7d712fa2d9698550174e249e5e729800919f5",
+            "sha256": "8e06f4b51aa14fb1a80fe491b31f754089f2257a6be9fea9de68a4e886e58a16",
+            "bytes": 7332
+          }
+        }
+      ]
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "Existing local product Python environment; no install, model or package substitution.",
+    "environment": "policy-engine/.venv; Python 3.14.3; pytest 9.0.2; standard policy-engine/pytest.ini with default plugin autoload on; numeric threads=1, workers=1.",
+    "origin_evidence": "R10/R8 qualified 120 regular polisyos/tools module origins with no mismatches; requested JAX/JAXLIB/NumPy/SciPy came from the pinned .venv files. Third-party/pre-sitecustomize/child-process scope limits remain as recorded in result."
+  },
+  "time_and_version_semantics": {
+    "runtime_profile": "Python 3.14.3 / pytest 9.0.2; original local .venv and captured installed package origins.",
+    "source_frame": "b86b87b9b0801c75297b688c1aa0f83cebe224a7",
+    "verification_window": {
+      "finished_at": "2026-10-20T04:34:39.405787+00:00",
+      "started_at": "2026-10-20T04:34:35.068005+00:00"
+    }
+  },
+  "independent_review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b199-b200-b86-whole-run-independent-review-20261020-r1/review.json",
+      "sha256": "fc50174d50c41dfc65cde85be304b8f8e322f30025099dfe73dd5216a9fe58ae",
+      "role": "Independent whole-run reconciliation; PASS_SCOPED_RUNTIME_EVIDENCE_NO_CRITERION_CLOSURE",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-float32-oracle-independent-review-20261020/review-v1.json",
+      "sha256": "289f2ad14cae27937025255fd599a62fd1967820393deb97a01369dc9aedff03",
+      "role": "Independent exact-source-hull/numerical oracle review",
+      "availability": "shared_local_host_raw; not committed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-core-ir-lineage-source-review-20261020-r1/review.json",
+      "sha256": "6d37d9a6d501ad598416384f4b28ee50c8266ecbf121e9a93b992ae137ff3dc3",
+      "role": "Prior independent source and test review",
+      "availability": "shared_local_host_raw; not committed"
+    }
+  ],
+  "preservation": {
+    "known_dirty_path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "known_dirty_sha256": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57",
+    "run_source_snapshot_before_after_sha256": "20b31a505470d9e1ab08ec5d1e9b1b0efdaf5d0d9e6c5f3b156347f711675d73",
+    "source_unchanged_during_historical_run": true,
+    "no_whole_worktree_clean_claim": true
+  },
+  "commands_and_full_deciding_outputs": [
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/request.json",
+      "role": "exact authorized invocation, source/module pins, environment and limits",
+      "sha256": "5dbcc4bb967a1017104cbbf8b30d025c2c4a489be0dc263b2f267a095fd582f3"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/result.json",
+      "role": "decision record with selection qualification, source integrity, resource result and no-closure flags",
+      "sha256": "e8782e48b7b4cbd81cfa1a90f34e0e650c6736eda9461600d6e3aacb1ceceb43"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest.stdout.txt",
+      "role": "complete pytest stdout",
+      "sha256": "dd963e5626bde7ee592ed84a58ea7ecc6cc961ed3135787330e4f739a114084b"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest.stderr.txt",
+      "role": "complete pytest stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest.xml",
+      "role": "JUnit parsed as 59 unique testcases: 59 pass, 0 failures/errors/skips",
+      "sha256": "58323c9491cef41fc497331a9a72cfcbf8a0549ac1cfce9f5d91d7b2361f6517"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest-collection-basis.json",
+      "role": "actual collection-finish basis; exact four modules, 59 unique nodeids, no filters or deselection",
+      "sha256": "95cf46c982f4a264cc63c9a24245bbab222448111538a73b4d80a2c6950dd293"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/pytest-case-reports.jsonl",
+      "role": "R10/I4 case lifecycle reports; 177 setup/call/teardown events, all pass",
+      "sha256": "eb9d2b8ab4f162b4691022faa1d11b5f0a0035fab01259bd754d98b68c85388c"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/runtime-module-origins.json",
+      "role": "R10 source/runtime origin capture and default plugin inventory",
+      "sha256": "94f3985b67db2af1cd82446ec1fef27a6bd0be94fe1e6840f888384b3d305386"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/source-before.json",
+      "role": "full tracked source snapshot before run",
+      "sha256": "212dfbf3a7a2ee27b3b30ed2d84f332ca2afb2902d971f469790c2f33268d6fd"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/source-after.json",
+      "role": "full tracked source snapshot after run; byte-identical to before snapshot",
+      "sha256": "212dfbf3a7a2ee27b3b30ed2d84f332ca2afb2902d971f469790c2f33268d6fd"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/launch-context.json",
+      "role": "source/request/helper/limit bindings for the actual launch",
+      "sha256": "50c39bd1c6dfe05d246c61106d20037c96e5ea0d81accee56a84a9b0d5b5c57f"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/sandbox-probe-receipt.json",
+      "role": "real sandbox temporary-write probe receipt",
+      "sha256": "8ad73ce24e3c920e400093e2cf0788bbe1b093eac48029bbbeb6aa868652ec07"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/phase-output.jsonl",
+      "role": "full sampled phase output",
+      "sha256": "fcc76c2fbdf00bd517ceb67e0c76307bc7cc080e259e57bc13bb9a70a9ef1da7"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/controller-events.jsonl",
+      "role": "full controller event log",
+      "sha256": "433290445fc97aeb36c87df04551a6667c7ef7938778e12b1118ae6f912e5801"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/actual-run/process-tree.jsonl",
+      "role": "full sampled process-tree/resource log",
+      "sha256": "ad0ffffa27ff2e99549167d2d61994a221a99a417ad16ac29a65489ea6f32c48"
+    },
+    {
+      "availability": "shared_local_host_raw; not committed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-composed-exact-source-hull-actual-b86-20261020-r1/outer-execution-record.json",
+      "role": "outer launcher exit/status and request binding",
+      "sha256": "15307bc7cc440345347effa22e9cdc21753974a4ed8344f9db639b7ba2ff5408"
+    }
+  ],
+  "authority_purpose": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "G code acceptance",
+      "integration publication",
+      "formal B199/B200 closure",
+      "external source relationship, independence, or effective-information count",
+      "production currentness or authority",
+      "global E02 closeout"
+    ]
+  },
+  "proposal_fields": {
+    "author_proposal_only": true,
+    "evidence_status": "scoped_runtime_pass_at_historical_B86_only",
+    "formal_adjudication": "not_adjudicated",
+    "occurrence_level_decision": "B199 and B200 remain separate; no closure proposed",
+    "pattern_pass": {
+      "relevant": [
+        "P29",
+        "P32",
+        "P35",
+        "P37",
+        "P38",
+        "P40"
+      ],
+      "anti_pattern": "No marker/profile/caller-label promotion; no decimal-oracle waiver; no subset-to-criterion inference; no current-source equivalence claim.",
+      "P38_property": "The actual four-module path composes dispatcher, CAS persistence, aggregation, and fresh-reader output; exact source hull and unresolved status are asserted.",
+      "P38_divergent_case": "Prior decimal-literal expectation disagreed with binary32-produced endpoints; independent review accepted the exact source-hull oracle and its below-tolerance narrowing rejection control.",
+      "P40_classification": "Scoped runtime-observation receipt after numerical-oracle review; not an occurrence-level closure or another criteria-repair round."
+    }
+  },
+  "integration_publication": {
+    "status": "out_of_scope",
+    "reason": "This is a local scoped runtime observation, not a production/publication or authority receipt."
+  },
+  "limitations_and_next_owner": [
+    "Exactly four whole modules at B86 are covered; later source has not been requalified.",
+    "B199 and B200 remain not_adjudicated with historical ledger status partial; closure_ids remains empty.",
+    "The integration fixture uses synthetic seeded uncertainty and source labels; it exercises the real dispatcher, persistence, aggregator, and fresh-reader composition but does not establish a production source-owner relation or effective-information count.",
+    "R8/R10 origin evidence has the scope stated in the actual result; it does not establish all imports, interpreter startup before capture, or child-process origins.",
+    "The known dirty funnel test file was preserved unchanged; no whole-worktree-clean claim is made.",
+    "Any later source/test change requires a newly rebound four-module run before claiming current-frame behavior."
+  ],
+  "next_check": [
+    "Keep the 59/59 B86 result and prior 58/59 red documented in their separate source-bound records.",
+    "Continue owner-bound B199/B200 work: resolve and verify relation, overlap, estimand, subject, unit, and effective-information predicates before interpretation.",
+    "Any proposal to close either criterion requires its own occurrence-level evidence and review; this receipt does not close either."
+  ],
+  "G_acceptance": false,
+  "formal_G_closure_ids": [],
+  "closure_ids": [],
+  "source_freeze": false
+}

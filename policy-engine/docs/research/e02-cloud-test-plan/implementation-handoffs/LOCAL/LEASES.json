@@ -42948,5 +42948,65 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1": {
+    "slice_base": "697bc5df606785483d828ae5b51c07b07f4be78a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py": {
+        "operation": "update",
+        "preimage_sha256": "0211413163fb02fb83500d366e9ad3d1a5d9c241e08508804efa54a48bad1957",
+        "postimage_sha256": "9bd8ce83a3171af119f1988ef788460113bf21c59ca90a0bd3366cf72a531174",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-report-basis-fixed-profile-matrix-20261020-r2/candidate_test_adversarial.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1/source-application.json",
+      "sha256": "0fd0a71cb6e27d5424a5eb8722c6a90a34ab8e982dfccd7d45dee66f23c77910"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-adversarial-fixed-basis-profile-r2-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-report-basis-fixed-profile-matrix-20261020-r2/manifest-r2.json",
+        "sha256": "9c1d4d713d155f6014367da63dd1b0bfcf1eb017195743ace4e35366ac4dc739"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-report-basis-fixed-profile-matrix-independent-review-20261020-r2/review.json",
+        "sha256": "e72d093d1b9149ef6e8f6fea1dfb248149141d9be9cc882b1a22a6dad00ce3b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-report-basis-fixed-profile-matrix-20261020-r2/static-verification-r2.json",
+        "sha256": "c61c2bb782f06a8cc6cc6f90509d313b27895d12401d701f4d9a9bd824a0fda5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-report-basis-fixed-profile-matrix-20261020-r2/coverage-review-r2.json",
+        "sha256": "0ce90b94de52ed59b53abfcc9a0d0c264499c80212948e50286f849dc9c98e00"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME report/basis fixed-profile composition class widened once to complete kind/media/schema name/version owner boundary.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime UNRUN on this source; oldca4 run1adversarialFAIL remains historical.",
+      "No product algorithm or authority semantics changed; no source/G acceptance/closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual whole adversarial module and composed VOI/F1F2 whole cohort with all preexisting assertions and new fixed-profile matrix.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

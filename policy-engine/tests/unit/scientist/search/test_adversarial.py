@@ -1373,7 +1373,9 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
 
     def persist_report_for_basis(ref: ArtifactRef) -> ArtifactRef:
         selected_component = component.model_copy(update={"outcome_basis_ref": ref})
-        selected_report = top_one.model_copy(update={"score_components": [selected_component]})
+        selected_report = self_claimed_report.model_copy(
+            update={"score_components": [selected_component]}
+        )
         return store.put_json(
             selected_report.model_dump(mode="json"),
             PutOptions(
@@ -1394,7 +1396,6 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         *,
         component_status: str,
         component_reason: str,
-        report_reason: str = "score_claim_without_resolved_basis",
         report_ref: ArtifactRef | None = None,
     ) -> None:
         selected_component = component.model_copy(update={"outcome_basis_ref": ref})
@@ -1412,14 +1413,13 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             store, selected_report_ref, expected_candidate_ref=candidate_ref
         )
         assert report_resolution.status == "invalid"
-        assert report_resolution.reason_code == report_reason
+        assert report_resolution.reason_code == "score_claim_without_resolved_basis"
         assert report_resolution.robustness_score is None
 
     assert_basis_refusal(
         wrong_plan_basis_ref,
         component_status="invalid",
         component_reason="adversarial_plan_unreadable",
-        report_reason="outcome_basis_unreadable",
     )
 
     # The complete report projection is derived from source rows, not trusted by list shape.
@@ -1453,31 +1453,64 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         == "report_vulnerability_projection_reconciliation_failed"
     )
     assert report_projection_resolution.robustness_score is None
-    wrong_basis_schema_ref = store.put_json(
-        basis_payload,
-        PutOptions(
-            kind="scientist.stress_outcome_basis",
-            media_type="application/json",
-            schema=SchemaInfo(name="wrong.StressOutcomeBasis", version=basis.schema_version),
-            inputs=basis_inputs(basis),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
+    selected_basis_manifest = store.get_manifest(component.outcome_basis_ref)
+    selected_basis_bytes = store.get_bytes(component.outcome_basis_ref)
+    selected_basis_schema = selected_basis_manifest.artifact_schema
+    if selected_basis_schema is None:
+        raise AssertionError("producer-selected outcome basis must have a schema profile")
+
+    def persist_basis_profile_variant(
+        *,
+        kind: str | None = None,
+        media_type: str | None = None,
+        schema_name: str | None = None,
+        schema_version: str | None = None,
+    ) -> ArtifactRef:
+        return store.put_bytes(
+            selected_basis_bytes,
+            PutOptions(
+                kind=selected_basis_manifest.kind if kind is None else kind,
+                media_type=selected_basis_manifest.media_type if media_type is None else media_type,
+                schema=SchemaInfo(
+                    name=selected_basis_schema.name if schema_name is None else schema_name,
+                    version=(
+                        selected_basis_schema.version if schema_version is None else schema_version
+                    ),
+                ),
+                producer=selected_basis_manifest.producer,
+                env=selected_basis_manifest.env,
+                inputs=selected_basis_manifest.inputs,
+                canon=selected_basis_manifest.canon,
+                governance=selected_basis_manifest.governance,
+                tenant_context=selected_basis_manifest.tenant_context,
+                same_input_closure=selected_basis_manifest.same_input_closure,
+                authority=selected_basis_manifest.authority,
+                warnings=selected_basis_manifest.warnings,
+            ),
+            return_selected_profile=True,
+        )
+
+    # Change each fixed admission field independently while retaining real producer bytes.
+    wrong_basis_profile_refs = (
+        persist_basis_profile_variant(kind=f"{selected_basis_manifest.kind}.wrong"),
+        persist_basis_profile_variant(media_type="application/octet-stream"),
+        persist_basis_profile_variant(schema_name=f"{selected_basis_schema.name}.wrong"),
+        persist_basis_profile_variant(schema_version=f"{selected_basis_schema.version}.wrong"),
     )
-    assert wrong_basis_schema_ref.artifact_id == component.outcome_basis_ref.artifact_id
-    assert store.get_bytes(wrong_basis_schema_ref.artifact_id) == store.get_bytes(
-        component.outcome_basis_ref.artifact_id
-    )
-    assert (
-        wrong_basis_schema_ref.manifest_profile_sha256
-        != component.outcome_basis_ref.manifest_profile_sha256
-    )
-    assert_basis_refusal(
-        wrong_basis_schema_ref,
-        component_status="invalid",
-        component_reason="outcome_basis_unreadable",
-        report_reason="outcome_basis_unreadable",
-    )
+    for wrong_basis_schema_ref in wrong_basis_profile_refs:
+        assert wrong_basis_schema_ref.artifact_id == component.outcome_basis_ref.artifact_id
+        assert store.get_bytes(wrong_basis_schema_ref.artifact_id) == store.get_bytes(
+            component.outcome_basis_ref.artifact_id
+        )
+        assert (
+            wrong_basis_schema_ref.manifest_profile_sha256
+            != component.outcome_basis_ref.manifest_profile_sha256
+        )
+        assert_basis_refusal(
+            wrong_basis_schema_ref,
+            component_status="invalid",
+            component_reason="outcome_basis_unreadable",
+        )
     stale_profile_basis = basis.model_copy(
         update={"plan_ref": plan_ref.model_copy(update={"manifest_profile_sha256": None})}
     )
@@ -1498,7 +1531,9 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     forged_basis_ref = persist_basis(forged_basis)
     forged_component = component.model_copy(update={"outcome_basis_ref": forged_basis_ref})
     forged_report_ref = store.put_json(
-        top_one.model_copy(update={"score_components": [forged_component]}).model_dump(mode="json"),
+        self_claimed_report.model_copy(update={"score_components": [forged_component]}).model_dump(
+            mode="json"
+        ),
         PutOptions(
             kind="scientist.stress_test_report",
             media_type="application/json",

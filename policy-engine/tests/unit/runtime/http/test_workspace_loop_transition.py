@@ -1205,17 +1205,18 @@ def test_http_control_route_persists_production_and_replay_proofs(
     )
     from polisyos.core.artifacts import ArtifactID, profile_bound_ref
 
-    root_manifest = service._artifact_store.get_manifest(  # noqa: SLF001
-        ArtifactID(runtime_api_env["root_artifact_id"])
-    )
-    source_ref = profile_bound_ref(
-        service._artifact_store,  # noqa: SLF001
-        CoreArtifactRef(
-            artifact_id=root_manifest.artifact_id,
-            kind=root_manifest.kind,
-            media_type=root_manifest.media_type,
-        ),
-    )
+    with tenant_scope(None, tenant_id=admitted_tenant, cell_id=admitted_cell):
+        root_manifest = service._artifact_store.get_manifest(  # noqa: SLF001
+            ArtifactID(runtime_api_env["root_artifact_id"])
+        )
+        source_ref = profile_bound_ref(
+            service._artifact_store,  # noqa: SLF001
+            CoreArtifactRef(
+                artifact_id=root_manifest.artifact_id,
+                kind=root_manifest.kind,
+                media_type=root_manifest.media_type,
+            ),
+        )
     snapshot_ref = _data_snapshot_ref_for_source(
         service,
         source_ref,
@@ -2380,7 +2381,7 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         job_id = str(launch["job_id"])
         job = service._control_store.get_job(job_id)
         assert job is not None
-        reads: list[tuple[str, str | None, str | None, object]] = []
+        reads: list[dict[str, object]] = []
         original_load = service._load_payload_ref
         original_require_binding = service._require_nl_job_execution_intent_binding
         binding_results: list[dict[str, object]] = []
@@ -2391,13 +2392,49 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
             if ref in {job.payload_ref, job.capability_manifest_ref}:
                 read_kind = "payload" if ref == job.payload_ref else "manifest"
                 read_events.append(read_kind)
+                access_scope = get_current_access_scope_or_none()
+                tenant_id = get_current_tenant_id_or_none()
+                cell_id = get_current_cell_id()
+                scope_roles = getattr(access_scope, "roles", ())
                 reads.append(
-                    (
-                        read_kind,
-                        get_current_tenant_id_or_none(),
-                        get_current_cell_id(),
-                        get_current_access_scope_or_none(),
-                    )
+                    {
+                        "read_kind": read_kind,
+                        "ref": ref,
+                        "ref_type": type(ref).__qualname__,
+                        "declared_kind": kind,
+                        "tenant_id": tenant_id,
+                        "tenant_id_type": type(tenant_id).__qualname__
+                        if tenant_id is not None
+                        else None,
+                        "cell_id": cell_id,
+                        "cell_id_type": type(cell_id).__qualname__ if cell_id is not None else None,
+                        "access_scope": access_scope,
+                        "access_scope_type": (
+                            type(access_scope).__qualname__ if access_scope is not None else None
+                        ),
+                        "access_scope_repr": repr(access_scope),
+                        "access_scope_owner": (
+                            getattr(access_scope, "tenant_id", None),
+                            getattr(access_scope, "cell_id", None),
+                        ),
+                        "access_scope_roles": tuple(
+                            sorted(getattr(role, "value", str(role)) for role in scope_roles)
+                        ),
+                        "job_id": job.job_id,
+                        "run_id": str(job.run_id),
+                        "selected_payload_ref": job.payload_ref,
+                        "selected_payload_ref_type": (
+                            type(job.payload_ref).__qualname__
+                            if job.payload_ref is not None
+                            else None
+                        ),
+                        "selected_capability_manifest_ref": job.capability_manifest_ref,
+                        "selected_capability_manifest_ref_type": (
+                            type(job.capability_manifest_ref).__qualname__
+                            if job.capability_manifest_ref is not None
+                            else None
+                        ),
+                    }
                 )
             return original_load(ref, kind=kind)
 
@@ -2538,10 +2575,16 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
 
         assert binding_results
         intent_binding = binding_results[0]
-        assert {item[0] for item in reads} >= {"payload", "manifest"}
+        assert {item["read_kind"] for item in reads} >= {"payload", "manifest"}
         assert all(
-            tenant_id == admitted_tenant and observed_cell == cell_id and access_scope is None
-            for _kind, tenant_id, observed_cell, access_scope in reads
+            row["tenant_id"] == admitted_tenant
+            and row["cell_id"] == cell_id
+            and row["access_scope"] is None
+            for row in reads
+        ), (
+            "N4 job artifact reads must use the admitted tenant/cell with no inherited "
+            "request access scope; observed owner/ref/type/role evidence: "
+            f"{reads!r}"
         )
         assert read_events.index("payload") < read_events.index("manifest")
         assert read_events.index("manifest") < read_events.index("binding")

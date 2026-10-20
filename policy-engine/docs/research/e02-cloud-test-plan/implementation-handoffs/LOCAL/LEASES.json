@@ -27279,5 +27279,112 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "la021-typed-profile-mutation-error-and-owner-scoped-fixture-v3-20261020": {
+    "slice_base": "20148cdc2bd996bc4fcfee697a74cf6a41e519e3",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py": {
+        "operation": "write",
+        "preimage_sha256": "88eddfd8c8d0687f9bf33fb30a0035a80405cce37687c15259c790c5a25b0abc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-failure-boundary-candidate-v3-20261020/postimages/policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+        "postimage_sha256": "a68869e5025e933c35d9780af6b6a1dfa77d4e8b0dbb60ed280d0c2a5b5271d1"
+      },
+      "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py": {
+        "operation": "write",
+        "preimage_sha256": "9d767b91f99cd5d21c3086e43a3a0d6d50f05863fa716500ea8aaff59fac76fb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-failure-boundary-candidate-v3-20261020/postimages/policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+        "postimage_sha256": "3e009e6a0c4e0245ff6abd65ef5f00510ec7d8c7827c5ed42e3f8390221b5e0e"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-typed-mutation-and-owner-fixture-v3-adoption-20261020/source-application.json",
+      "sha256": "2b11ddb7a92ecd09084937eaead1a9275d0fc623b3d4533446b6e65fd3659826"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-la021-typed-mutation-and-owner-fixture-v3-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-failure-boundary-candidate-v3-20261020/manifest.json",
+        "sha256": "82718c9cdc65f608dc999c30db4a8d4fd3b11e0f6eff0cdde6e1dbccf4e364f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-failure-boundary-candidate-v3-20261020/candidate.patch",
+        "sha256": "00a4d5314789a9dc40e0f62c27e272a729816f64dbfb20a2c67b4289784058ce"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-failure-boundary-candidate-v3-20261020/static-checks/receipt.json",
+        "sha256": "7cfe1eecd941aa970ae8127845fe8f8d396e39ce4f735777f156ed69e9923503"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-three-failure-boundary-review-v3-20261020/review.json",
+        "sha256": "dba8bd5609ffba06fee4d7183a268475b693b7ffd198dc57967dc256c383ad64"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-authority-workspace-whole-actual-10a9e80-20261020/actual-run/result.json",
+        "sha256": "d556fa3b5191a14bcb87ade10e8bcbc6adfc25b7a03024a023639938d612e216"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same selected-profile refusal class repaired structurally with existing MeasurementRootBindingError. Fixture owner scope is setup-only. N4 tuple failure remains unclassified until actual observation.",
+    "bounded_proof": "Independent source GO dba8bd56; two exact postimages pass native canonical Ruff check/format and AST; unchanged authority regression guards mutation refusal. Prior full79 run 76P3F is a completed failing baseline, not candidate evidence.",
+    "limitations": [
+      "Candidate runtime remains UNRUN.",
+      "N4 read-scope assertion remains unchanged, and this change only retains its deciding tuples; no N4 repair or LA021 closure claim.",
+      "Concurrent CAN shared profile-preflight hunk is disjoint but not included in this source slice; root will compose sequentially and rerun full-source checks.",
+      "Two known-owned incomplete N7/B108 tests remain unchanged.",
+      "No G acceptance, publication, native global-green or whole-capability claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the three prior failing tests as explicit diagnostic controls on this committed source to obtain N4 read tuples; then review any necessary source repair, compose CAN and run both full79 modules plus the repaired lifecycle suite at agreed final freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

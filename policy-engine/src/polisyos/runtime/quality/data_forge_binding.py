@@ -668,7 +668,9 @@ def resolve_measurement_root_selected_profile(
             or not store.verify(selected_ref).ok
             or gy_content_hash(payload) != envelope_content_hash
         ):
-            raise ValueError("measurement_root_selected_profile_changed_after_read")
+            raise MeasurementRootBindingError(
+                "measurement_root_selected_profile_changed_after_read"
+            )
         return manifest, payload
     except MeasurementRootBindingError:
         raise

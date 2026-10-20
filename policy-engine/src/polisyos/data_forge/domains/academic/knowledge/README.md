@@ -33,10 +33,12 @@ selection.
   `require_forwardable_confidence`. Foundry returns an empty prior with the declaration in metadata.
   Values remain in the read-only source for audit. This is a known-snapshot restriction, not a
   currentness verifier: unregistered hashes and row-wise rewrites need their own binding.
-- **Prepared K_ref source rows** - `PreparedSKGRead.read_credal_source_rows()` exposes only the
+- **Prepared K_ref source rows** - `PreparedSKGRead._prepare_credal_source_stream()` exposes only the
   fixed typed SKG table projections used by K_ref from the same read-only transaction whose source
-  bytes and version it binds. It returns immutable rows, not a connection or arbitrary-query API;
-  known historical confidence remains refused, and authenticity/currentness remain unestablished.
+  bytes and version it binds. Runtime consumes bounded typed batches; the existing
+  `read_credal_source_rows()` compatibility API still returns the complete immutable row snapshot.
+  Neither path exposes arbitrary SQL; known historical confidence remains refused, and
+  authenticity/currentness remain unestablished.
 
 ## Public API
 

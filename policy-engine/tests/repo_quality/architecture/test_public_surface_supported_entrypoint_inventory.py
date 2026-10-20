@@ -112,7 +112,9 @@ def test_runtime_quality_inventory_contains_human_decision_record() -> None:
     import hashlib
 
     import polisyos.runtime.quality as native
-    from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import HumanDecisionRecord
+    from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+        HumanDecisionRecord,
+    )
 
     inventory = _inventory()
     entrypoint = next(
@@ -149,7 +151,11 @@ def test_runtime_quality_eval_safety_facade_exports_canonical_objects() -> None:
     """The supported facade preserves each EvalSafety owner's exact object identity."""
     import polisyos.runtime.quality as facade
     from polisyos import pdc
-    from polisyos.runtime.quality import evaluation_modes, evaluation_safety, world_model_record
+    from polisyos.runtime.quality import (
+        evaluation_modes,
+        evaluation_safety,
+        world_model_record,
+    )
 
     expected = {
         "EvalSafetyAdmissionChallenge": pdc.EvalSafetyAdmissionChallenge,
@@ -180,6 +186,39 @@ def test_runtime_quality_facade_reexports_canonical_gy_content_hash() -> None:
     assert "gy_content_hash" in facade.__all__
     assert facade.gy_content_hash({"design": "bound"}) == canonical_gy_content_hash(
         {"design": "bound"}
+    )
+
+
+def test_runtime_quality_facade_reexports_streaming_gy_content_hash_rows() -> None:
+    """The stream helper stays owned by PDC and available through the same facade."""
+    import polisyos.runtime.quality as facade
+    from polisyos.pdc import gy_content_hash_rows as canonical_hash_rows
+
+    rows = [("dataset-1", "variable", "metric", 0.75, None, True, 0.0)]
+    assert facade.gy_content_hash_rows is canonical_hash_rows
+    assert "gy_content_hash_rows" in facade.__all__
+    assert facade.gy_content_hash_rows(
+        [
+            "dataset_id",
+            "raw_variable",
+            "canonical_var",
+            "confidence",
+            "evidence",
+            "is_proxy",
+            "proxy_penalty",
+        ],
+        iter(rows),
+    ) == canonical_hash_rows(
+        [
+            "dataset_id",
+            "raw_variable",
+            "canonical_var",
+            "confidence",
+            "evidence",
+            "is_proxy",
+            "proxy_penalty",
+        ],
+        iter(rows),
     )
 
 

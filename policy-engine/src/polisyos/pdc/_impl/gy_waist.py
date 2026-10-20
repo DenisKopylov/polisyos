@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
@@ -802,6 +802,40 @@ def gy_content_hash(value: object) -> str:
             digest.update(fragment.encode("utf-8"))
     except _GyContentHashStreamFallbackError:
         return _legacy_gy_content_hash(value)
+    return "sha256:" + digest.hexdigest()
+
+
+def gy_content_hash_rows(columns: Sequence[str], rows: Iterable[Sequence[object]]) -> str:
+    """Hash a canonical ``{columns, rows}`` payload without retaining its rows.
+
+    The envelope and row shape match ``gy_content_hash({"columns": columns,
+    "rows": list(rows)})``. The caller must provide database-style built-in
+    JSON rows; unsupported or cyclic row values fail closed because a one-shot
+    iterator cannot be replayed through the legacy fallback.
+    """
+
+    column_values = list(columns)
+    if any(type(column) is not str for column in column_values):
+        raise TypeError("gy_content_hash_rows_columns_must_be_strings")
+    if not _gy_content_hash_plain_json(column_values):
+        raise TypeError("gy_content_hash_rows_columns_not_plain_json")
+
+    digest = hashlib.sha256()
+    encoder = json.JSONEncoder(sort_keys=True, separators=(",", ":"), default=str)
+    digest.update(b'{"columns":')
+    for fragment in _iter_gy_content_hash_json(column_values, encoder):
+        digest.update(fragment.encode("utf-8"))
+    digest.update(b',"rows":[')
+    first = True
+    for row in rows:
+        if type(row) not in (tuple, list) or not _gy_content_hash_plain_json(row):
+            raise TypeError("gy_content_hash_rows_row_not_plain_json_sequence")
+        if not first:
+            digest.update(b",")
+        first = False
+        for fragment in _iter_gy_content_hash_json(row, encoder):
+            digest.update(fragment.encode("utf-8"))
+    digest.update(b"]}")
     return "sha256:" + digest.hexdigest()
 
 
@@ -1690,7 +1724,9 @@ class PromotionObligationRecord(PromotionObligationDraft):
         )
 
     @model_validator(mode="after")
-    def _identity_is_recomputed_from_governing_content(self) -> PromotionObligationRecord:
+    def _identity_is_recomputed_from_governing_content(
+        self,
+    ) -> PromotionObligationRecord:
         expected = promotion_obligation_instance_id(
             obligation_role=self.obligation_role,
             obligation_class=self.obligation_class,
@@ -2063,7 +2099,11 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
                 raise ValueError("promotion_trace_risk_spend_exceeds_budget")
         requested_kind = self.declared_authority_transform.get("requested_evidence_kind")
         requested_grade = self.declared_authority_transform.get("requested_decision_grade")
-        if self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:
+        if self.transform_mismatch_disposition not in {
+            "matched",
+            "downgraded",
+            "rejected",
+        }:
             raise ValueError("authority_transform hints cannot self-promote")
         kind_self_promotes = isinstance(
             requested_kind, str
@@ -2123,7 +2163,9 @@ class SearchQualityRecord(_DictAccessModel):
     semantic_benchmark_run: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def _require_unestablished_population_for_unavailable_recall(self) -> SearchQualityRecord:
+    def _require_unestablished_population_for_unavailable_recall(
+        self,
+    ) -> SearchQualityRecord:
         if self.recall_at_known_seeds is None:
             value = self.semantic_benchmark_run
             if (
@@ -2537,6 +2579,7 @@ __all__ = [
     "WorkspaceContract",
     "assert_ring2_verifier_provenance",
     "gy_content_hash",
+    "gy_content_hash_rows",
     "is_gy_content_hash_excluded_field",
     "strip_gy_volatile_fields",
 ]
@@ -2557,5 +2600,11 @@ def _computed_evidence_covers_request(*, computed: str, requested: str) -> bool:
             "elicitation",
         }
     if computed == "derivation":
-        return requested in {"proxy", "transport", "bounds", "simulation", "elicitation"}
+        return requested in {
+            "proxy",
+            "transport",
+            "bounds",
+            "simulation",
+            "elicitation",
+        }
     return False

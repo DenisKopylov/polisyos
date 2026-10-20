@@ -47,6 +47,7 @@ from polisyos.pdc import (
     gy_artifact_self_identity_projection,
     gy_comparison_content_hash,
     gy_content_hash,
+    gy_content_hash_rows,
     gy_recorded_content_hash,
     is_gy_content_hash_excluded_field,
     is_gy_declared_non_authority_block,
@@ -351,6 +352,143 @@ def test_gy_content_hash_retains_legacy_default_str_fallback() -> None:
     }
 
     assert gy_content_hash(payload) == _reference_gy_content_hash(payload)
+
+
+def test_gy_content_hash_rows_matches_the_legacy_complete_envelope() -> None:
+    """A one-shot row stream preserves the exact historical columns/rows digest."""
+    columns = ["dataset_id", "raw_variable", "canonical_var", "confidence", "evidence"]
+    rows = [
+        ("dataset-1", "довіра", "trust", 0.75, None),
+        (
+            "dataset-2",
+            "GDP",
+            "income",
+            0.0,
+            {"nested": {"created_at": "volatile", "semantic": "retained"}, "ok": True},
+        ),
+    ]
+    expected = _reference_gy_content_hash({"columns": columns, "rows": rows})
+
+    assert gy_content_hash_rows(columns, iter(rows)) == expected
+    assert gy_content_hash_rows(columns, iter(rows[:-1])) != expected
+
+    with pytest.raises(TypeError, match="row_not_plain_json_sequence"):
+        gy_content_hash_rows(columns, iter([{"not": "a database row sequence"}]))
+
+
+def test_gy_content_hash_rows_handles_empty_stream_and_rejects_cycles() -> None:
+    """The canonical envelope keeps empty input and rejects an unrepeatable cycle."""
+    columns = ["dataset_id", "value"]
+    expected = _reference_gy_content_hash({"columns": columns, "rows": ()})
+    assert gy_content_hash_rows(columns, iter(())) == expected
+
+    cyclic_row: list[object] = []
+    cyclic_row.append(cyclic_row)
+    with pytest.raises(TypeError, match="row_not_plain_json_sequence"):
+        gy_content_hash_rows(columns, iter(((cyclic_row,),)))
+
+
+def test_gy_content_hash_rows_encodes_before_consuming_the_next_row(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A source row is encoded before the stream advances to its next batch item."""
+
+    class OneShotRows:
+        def __init__(self) -> None:
+            self.iterations = 0
+            self.yielded = 0
+            self.finished = False
+
+        def __iter__(self) -> OneShotRows:
+            self.iterations += 1
+            if self.iterations != 1:
+                raise AssertionError("row_source_reiterated")
+            return self
+
+        def __next__(self) -> tuple[str]:
+            if self.yielded == 2:
+                self.finished = True
+                raise StopIteration
+            self.yielded += 1
+            return ("first" if self.yielded == 1 else "second",)
+
+    rows = OneShotRows()
+    encoder_type = gy_waist_module.json.JSONEncoder
+
+    class ObservingEncoder(encoder_type):
+        def encode(self, value: object) -> str:
+            if value == "first":
+                assert rows.yielded == 1
+                assert not rows.finished
+            return super().encode(value)
+
+    monkeypatch.setattr(gy_waist_module.json, "JSONEncoder", ObservingEncoder)
+    digest = gy_content_hash_rows(["value"], rows)
+
+    assert digest.startswith("sha256:")
+    assert rows.iterations == 1
+    assert rows.yielded == 2
+    assert rows.finished
+
+
+def test_gy_content_hash_rows_propagates_source_errors_without_retry() -> None:
+    """A one-shot owner error propagates once without a second traversal."""
+
+    class FailingRows:
+        def __init__(self) -> None:
+            self.iterations = 0
+            self.next_calls = 0
+
+        def __iter__(self) -> FailingRows:
+            self.iterations += 1
+            if self.iterations != 1:
+                raise AssertionError("row_source_reiterated")
+            return self
+
+        def __next__(self) -> tuple[str]:
+            self.next_calls += 1
+            if self.next_calls == 1:
+                return ("before-error",)
+            raise RuntimeError("fixture_row_stream_failed")
+
+    rows = FailingRows()
+    with pytest.raises(RuntimeError, match="fixture_row_stream_failed"):
+        gy_content_hash_rows(["value"], rows)
+    assert rows.iterations == 1
+    assert rows.next_calls == 2
+
+
+def test_gy_content_hash_rows_supports_reentrant_hashing() -> None:
+    """Nested hash calls do not share traversal state or consume another source pass."""
+
+    nested_rows = ("nested",)
+    expected_nested = _reference_gy_content_hash({"columns": ["value"], "rows": [nested_rows]})
+
+    class ReentrantRows:
+        def __init__(self) -> None:
+            self.iterations = 0
+            self.next_calls = 0
+            self.nested_digest: str | None = None
+
+        def __iter__(self) -> ReentrantRows:
+            self.iterations += 1
+            if self.iterations != 1:
+                raise AssertionError("row_source_reiterated")
+            return self
+
+        def __next__(self) -> tuple[str]:
+            self.next_calls += 1
+            if self.next_calls == 1:
+                self.nested_digest = gy_content_hash_rows(["value"], iter((nested_rows,)))
+                return ("outer",)
+            raise StopIteration
+
+    rows = ReentrantRows()
+    actual_outer = gy_content_hash_rows(["value"], rows)
+
+    assert actual_outer == _reference_gy_content_hash({"columns": ["value"], "rows": [("outer",)]})
+    assert rows.nested_digest == expected_nested
+    assert rows.iterations == 1
 
 
 @pytest.mark.parametrize("depth", [499, 500, 600, 800])
@@ -1286,7 +1424,11 @@ def test_ring1_contracts_are_constructible_without_ring2_authority() -> None:
         port_id="port-dataset",
         direction="consumes",
         port_type="Dataset",
-        claim_shape={"kind": "descriptive", "subject_type": "firm", "predicate_type": "credit"},
+        claim_shape={
+            "kind": "descriptive",
+            "subject_type": "firm",
+            "predicate_type": "credit",
+        },
         multiplicity={"min": 1, "max": 1},
         constraints={"jurisdiction": "UA"},
     )
@@ -1299,10 +1441,16 @@ def test_ring1_contracts_are_constructible_without_ring2_authority() -> None:
         formal_preconditions=[],
         allowed_internal_execution=["tool_call"],
         implementation_refs=[
-            {"kind": "python_function", "ref": "polisyos.runtime.quality.workspace.loop"}
+            {
+                "kind": "python_function",
+                "ref": "polisyos.runtime.quality.workspace.loop",
+            }
         ],
         cost_model={"compute": {"max_operation_invocations": 1}},
-        authority_transform={"kind": "preserves", "rule_ref": "policyos.gy.authority.v1"},
+        authority_transform={
+            "kind": "preserves",
+            "rule_ref": "policyos.gy.authority.v1",
+        },
         failure_modes=[],
         repair_options=[],
     )
@@ -1372,7 +1520,11 @@ def test_slice0_budget_vector_uses_only_minimal_cut_line_subset() -> None:
     non_empty_axes = {axis for axis, value in dumped.items() if value}
 
     assert non_empty_axes == {"compute", "search_quality"}
-    assert set(budget.compute) == {"max_operation_invocations", "max_wall_seconds", "hard"}
+    assert set(budget.compute) == {
+        "max_operation_invocations",
+        "max_wall_seconds",
+        "hard",
+    }
     assert set(budget.search_quality) == {
         "min_recall_at_known_seeds",
         "required_source_classes",
@@ -1709,7 +1861,10 @@ def test_gy_artifact_ref_carries_selected_manifest_profile_without_changing_lega
 
     with pytest.raises(ValidationError):
         ArtifactRef.model_validate(
-            {**ref.model_dump(mode="json"), "manifest_profile_sha256": "present-but-invalid"}
+            {
+                **ref.model_dump(mode="json"),
+                "manifest_profile_sha256": "present-but-invalid",
+            }
         )
 
 
@@ -1730,5 +1885,8 @@ def test_artifact_envelope_preserves_optional_selected_payload_profile() -> None
     assert selected.model_dump(mode="json")["payload_manifest_profile_sha256"] == profile
     with pytest.raises(ValidationError):
         ArtifactEnvelope.model_validate(
-            {**envelope.model_dump(mode="json"), "payload_manifest_profile_sha256": "sha256:bad"}
+            {
+                **envelope.model_dump(mode="json"),
+                "payload_manifest_profile_sha256": "sha256:bad",
+            }
         )

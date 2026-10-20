@@ -153,7 +153,10 @@ def test_selected_l2_profile_requires_every_l2_edge_and_rejects_removal() -> Non
     ).with_content_hash()
     damaged = replace(
         complete,
-        essential_edges={**complete.essential_edges, missing_profile.key: missing_profile},
+        essential_edges={
+            **complete.essential_edges,
+            missing_profile.key: missing_profile,
+        },
     )
     with pytest.raises(
         ValueError,
@@ -325,10 +328,513 @@ def test_selected_l2_profile_rejects_unqualified_read_time() -> None:
         CredalReferenceSourceProfile.model_validate({**body, "content_hash": gy_content_hash(body)})
 
 
+def test_catalog_row_profile_stream_preserves_full_hash_and_tuple_primary_key_guard() -> None:
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.credal_reference import (
+        _profile_data_forge_alignment_rows,
+    )
+
+    columns = [
+        "dataset_id",
+        "raw_variable",
+        "canonical_var",
+        "method",
+        "confidence",
+        "evidence",
+        "is_proxy",
+        "proxy_penalty",
+    ]
+    rows = [
+        ("dataset-a", "tax", "policy.tax", "direct", 0.9, "доказ", False, 0.0),
+        ("dataset-b", "income", "policy.income", "proxy", 0.75, None, True, 0.2),
+    ]
+    count, digest = _profile_data_forge_alignment_rows(iter(rows))
+    assert count == len(rows)
+    assert digest == gy_content_hash({"columns": columns, "rows": tuple(rows)})
+    assert _profile_data_forge_alignment_rows(iter(rows[:-1]))[1] != digest
+    with pytest.raises(
+        ValueError,
+        match="credal_reference_data_forge_alignment_primary_key_duplicate",
+    ):
+        _profile_data_forge_alignment_rows(iter([rows[0], rows[0]]))
+
+
+def test_catalog_edge_key_collision_refuses_second_distinct_tuple_identity() -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    rows = (
+        ("x", "y:z", "w", "direct", 0.9, "first", False, 0.0),
+        ("x:y", "z", "w", "direct", 0.9, "second", False, 0.0),
+    )
+    profile = SimpleNamespace(source_version="fixture-v1", content_hash="sha256:" + "a" * 64)
+    source = SimpleNamespace(profile=profile, iter_rows=lambda: iter(rows))
+    edge_index = {}
+
+    def add_edges() -> None:
+        for edge in owner._iter_data_forge_variable_alignment_edges(
+            Path("."),
+            variable_names=set(),
+            catalog_source=source,
+            existing_edge_index=edge_index,
+        ):
+            owner._insert_l2_edge(edge_index, edge)
+
+    with pytest.raises(
+        ValueError,
+        match="credal_reference_data_forge_alignment_edge_identity_collision",
+    ):
+        add_edges()
+
+    assert len(edge_index) == 1
+    assert next(iter(edge_index.values())).edge_id == "x:y:z->w"
+
+
+def test_l3_successor_index_matches_legacy_dates_without_per_row_id_metadata() -> None:
+    from datetime import date
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    class BatchedRows:
+        def __init__(self, rows):
+            self._rows = iter(rows)
+            self.max_batch = 0
+
+        def fetchmany(self, size):
+            batch = []
+            for _ in range(size):
+                try:
+                    batch.append(next(self._rows))
+                except StopIteration:
+                    break
+            self.max_batch = max(self.max_batch, len(batch))
+            return batch
+
+    threshold_metadata = BatchedRows(
+        [
+            ("t1", "family", "m", "u", "scope", "2020-01-01"),
+            ("t2", "family", "m", "u", "scope", "2020-01-01"),
+            ("t3", "family", "m", "u", "scope", "2022-03-04"),
+            ("t4", "", "", "", "", "01.02.2021"),
+            ("t5", "", "", "", "", "invalid"),
+            ("t6", "", "", "", "", "2023-04-05"),
+            ("", "", "", "", "", "2024-01-01"),
+        ]
+    )
+    threshold_successors = owner._temporal_successors(
+        threshold_metadata,
+        id_index=0,
+        group_indexes=(1, 2, 3, 4),
+        date_index=5,
+        require_nonempty_group_indexes=(),
+    )
+    assert len(threshold_successors) == 2
+    assert threshold_successors[(("family", "m", "u", "scope"), date(2020, 1, 1))] == (
+        date(2022, 3, 4)
+    )
+    assert owner._temporal_successor_for_row(
+        threshold_successors,
+        (
+            "t2",
+            "ignored",
+            "m",
+            "ignored",
+            "ignored",
+            "ignored",
+            "u",
+            "scope",
+            "family",
+            "2020-01-01",
+        ),
+        id_index=0,
+        group_indexes=(8, 2, 6, 7),
+        date_index=9,
+        require_nonempty_group_indexes=(),
+    ) == date(2022, 3, 4)
+    assert threshold_successors[(("", "", "", ""), date(2021, 2, 1))] == date(2023, 4, 5)
+    assert threshold_metadata.max_batch == 7
+
+    amendment_metadata = BatchedRows(
+        [
+            ("a1", "doc", "anchor", "2020-01-01"),
+            ("a2", "doc", "anchor", "2021-03-04"),
+            ("a3", "doc", "anchor", "2022-05-06"),
+            ("a4", "", "anchor", "2023-01-01"),
+            ("a5", "doc", "", "2020-02-03"),
+            ("a6", "doc", "", "2022-02-03"),
+            ("a7", "", "anchor", "2024-01-01"),
+        ]
+    )
+    amendment_successors = owner._temporal_successors(
+        amendment_metadata,
+        id_index=0,
+        group_indexes=(1, 2),
+        date_index=3,
+        require_nonempty_group_indexes=(0,),
+    )
+    assert len(amendment_successors) == 3
+    assert amendment_successors[(("doc", "anchor"), date(2020, 1, 1))] == date(2021, 3, 4)
+    assert owner._temporal_successor_for_row(
+        amendment_successors,
+        (
+            "a5",
+            "amending",
+            "doc",
+            True,
+            "type",
+            "",
+            "old",
+            "new",
+            "2020-02-03",
+            0.9,
+            "{}",
+        ),
+        id_index=0,
+        group_indexes=(2, 5),
+        date_index=8,
+        require_nonempty_group_indexes=(0,),
+    ) == date(2022, 2, 3)
+    assert amendment_metadata.max_batch == 7
+
+
+def test_l3_owner_stream_matches_legacy_full_payload_and_tail_removal(
+    tmp_path: Path,
+) -> None:
+    from collections import defaultdict
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    db_path = tmp_path / owner.DEFAULT_L3_LEX_KG_PATH
+    db_path.parent.mkdir(parents=True)
+    with duckdb.connect(str(db_path)) as connection:
+        connection.execute(
+            "CREATE TABLE lex_normative_ready_facts ("
+            "fact_id VARCHAR PRIMARY KEY, doc_family_id VARCHAR, effective_from VARCHAR, "
+            "effective_to VARCHAR, temporal_state VARCHAR, temporal_resolution_status VARCHAR, "
+            "quality_band VARCHAR, gate_reason_codes VARCHAR)"
+        )
+        connection.execute(
+            "CREATE TABLE lex_rule_thresholds ("
+            "threshold_id VARCHAR PRIMARY KEY, fact_id VARCHAR, metric VARCHAR, operator VARCHAR, "
+            "value_decimal VARCHAR, value_text VARCHAR, unit VARCHAR, applies_to VARCHAR)"
+        )
+        connection.execute(
+            "CREATE TABLE lex_amendments ("
+            "amendment_id VARCHAR PRIMARY KEY, amending_doc_id VARCHAR, amended_doc_id VARCHAR, "
+            "target_resolution_expected BOOLEAN, amendment_type VARCHAR, target_anchor VARCHAR, "
+            "old_text_uk VARCHAR, new_text_uk VARCHAR, effective_from VARCHAR, confidence DOUBLE, "
+            "metadata VARCHAR)"
+        )
+        connection.execute(
+            "CREATE TABLE lex_reference_edges ("
+            "reference_edge_id VARCHAR PRIMARY KEY, source_doc_id VARCHAR, "
+            "source_doc_family_id VARCHAR, source_anchor VARCHAR, target_doc_id VARCHAR, "
+            "target_doc_family_id VARCHAR, target_doc_reestr_code VARCHAR, "
+            "target_doc_number VARCHAR, target_doc_type VARCHAR, target_doc_date_acc VARCHAR, "
+            "target_doc_status VARCHAR, target_anchor VARCHAR, relation_type VARCHAR, "
+            "matched_by VARCHAR, resolution_confidence DOUBLE, resolution_status VARCHAR, "
+            "version_id INTEGER, metadata VARCHAR)"
+        )
+        connection.executemany(
+            "INSERT INTO lex_normative_ready_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                (
+                    "f1",
+                    "family",
+                    "2020-01-01",
+                    "2021-01-01",
+                    "active",
+                    "exact",
+                    "non_ready",
+                    "[]",
+                ),
+                ("f2", "family", "2022-03-04", None, "active", "exact", "ready", "[]"),
+                ("f3", "", "01.02.2021", None, "active", "exact", "ready", "[]"),
+                ("f4", "", "2023-04-05", None, "active", "exact", "ready", "[]"),
+                (
+                    "f5",
+                    "invalid-family",
+                    "not-a-date",
+                    None,
+                    "active",
+                    "exact",
+                    "ready",
+                    "[]",
+                ),
+            ],
+        )
+        threshold_source_rows = [
+            ("t1", "f1", "m", "<=", "1", None, "u", "scope"),
+            ("t1b", "f1", "m", "<=", "1", None, "u", "scope"),
+            ("t2", "f2", "m", "<=", "2", None, "u", "scope"),
+            ("t3", "f3", "", "<=", "3", None, "", ""),
+            ("t4", "f4", "", "<=", "4", None, "", ""),
+            ("t5", "f5", "x", "<=", "5", None, "u", "scope"),
+            ("t6", "missing-fact", "missing", "<=", "6", None, "u", "scope"),
+            ("zz-tail", "missing-tail", "tail", "<=", "7", None, "u", "scope"),
+        ]
+        connection.executemany(
+            "INSERT INTO lex_rule_thresholds VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            threshold_source_rows,
+        )
+        amendment_source_rows = [
+            (
+                "a1",
+                "amender",
+                "doc",
+                True,
+                "replace",
+                "alpha",
+                "old",
+                "new",
+                "2020-01-01",
+                0.9,
+                "{}",
+            ),
+            (
+                "a2",
+                "amender",
+                "doc",
+                True,
+                "replace",
+                "alpha",
+                "old",
+                "new",
+                "2021-03-04",
+                0.9,
+                "{}",
+            ),
+            (
+                "a3",
+                "amender",
+                "doc",
+                True,
+                "replace",
+                "alpha",
+                "old",
+                "new",
+                "2022-05-06",
+                0.9,
+                "{}",
+            ),
+            (
+                "a4",
+                "amender",
+                "",
+                False,
+                "replace",
+                "alpha",
+                "old",
+                "new",
+                "2023-01-01",
+                0.9,
+                "{}",
+            ),
+            (
+                "a5",
+                "amender",
+                "doc",
+                True,
+                "replace",
+                "",
+                "old",
+                "new",
+                "2020-02-03",
+                0.9,
+                "{}",
+            ),
+            (
+                "a6",
+                "amender",
+                "doc",
+                True,
+                "replace",
+                "",
+                "old",
+                "new",
+                "2022-02-03",
+                0.9,
+                "{}",
+            ),
+            (
+                "",
+                "amender",
+                "doc",
+                True,
+                "replace",
+                "alpha",
+                "old",
+                "new",
+                "2024-01-01",
+                0.9,
+                "{}",
+            ),
+        ]
+        connection.executemany(
+            "INSERT INTO lex_amendments VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            amendment_source_rows,
+        )
+        connection.execute(
+            "INSERT INTO lex_reference_edges VALUES "
+            "('ref-1','source','family','anchor','target','target-family','code','n1',"
+            "'law','2020-01-01','active','target-anchor','cites','exact',0.9,'resolved',7,'{}')"
+        )
+
+    def legacy_successors(rows, *, id_index, group_indexes, date_index, nonempty=()):
+        grouped = defaultdict(list)
+        for row in rows:
+            row_id = str(row[id_index] or "")
+            key = tuple(str(row[index] or "") for index in group_indexes)
+            start = owner._parse_date(row[date_index])
+            if row_id and start is not None and all(key[index] for index in nonempty):
+                grouped[key].append((row_id, start))
+        output = {}
+        for items in grouped.values():
+            ordered = sorted(items, key=lambda item: item[1])
+            for index, (row_id, start) in enumerate(ordered[:-1]):
+                for _, candidate in ordered[index + 1 :]:
+                    if candidate > start:
+                        output[row_id] = candidate
+                        break
+        return output
+
+    as_of = "2010-01-01"
+    with duckdb.connect(str(db_path), read_only=True) as connection:
+        version_row = connection.execute(
+            "SELECT MAX(effective_from) FROM lex_amendments"
+        ).fetchone()
+        version = str(version_row[0] or db_path.parent.name)
+        threshold_rows = connection.execute(
+            """SELECT t.threshold_id, t.fact_id, t.metric, t.operator, t.value_decimal,
+                      t.value_text, t.unit, t.applies_to, f.doc_family_id, f.effective_from,
+                      f.effective_to, f.temporal_state, f.temporal_resolution_status,
+                      f.quality_band, f.gate_reason_codes
+               FROM lex_rule_thresholds t
+               LEFT JOIN lex_normative_ready_facts f ON t.fact_id=f.fact_id
+               ORDER BY t.threshold_id"""
+        ).fetchall()
+        amendment_rows = connection.execute(
+            """SELECT amendment_id, amending_doc_id, amended_doc_id,
+                      target_resolution_expected, amendment_type, target_anchor,
+                      old_text_uk, new_text_uk, effective_from, confidence, metadata
+               FROM lex_amendments ORDER BY amendment_id"""
+        ).fetchall()
+        reference_rows = connection.execute(
+            """SELECT reference_edge_id, source_doc_id, source_doc_family_id, source_anchor,
+                      target_doc_id, target_doc_family_id, target_doc_reestr_code,
+                      target_doc_number, target_doc_type, target_doc_date_acc, target_doc_status,
+                      target_anchor, relation_type, matched_by, resolution_confidence,
+                      resolution_status, version_id, metadata
+               FROM lex_reference_edges ORDER BY reference_edge_id"""
+        ).fetchall()
+
+    threshold_next = legacy_successors(
+        threshold_rows,
+        id_index=0,
+        group_indexes=(8, 2, 6, 7),
+        date_index=9,
+    )
+    amendment_next = legacy_successors(
+        amendment_rows,
+        id_index=0,
+        group_indexes=(2, 5),
+        date_index=8,
+        nonempty=(0,),
+    )
+    expected = [
+        owner._derive_l3_threshold_edge(
+            row,
+            version=version,
+            as_of=as_of,
+            next_start=threshold_next.get(str(row[0] or "")),
+        )
+        for row in threshold_rows
+    ]
+    expected.extend(
+        owner._derive_l3_amendment_edge(
+            row,
+            version=version,
+            as_of=as_of,
+            next_start=amendment_next.get(str(row[0] or "")),
+        )
+        for row in amendment_rows
+    )
+    expected.extend(owner._derive_l3_reference_edge(row, version=version) for row in reference_rows)
+    actual = tuple(owner._iter_l3_edges(tmp_path, as_of=as_of))
+
+    assert len(actual) == len(threshold_source_rows) + len(amendment_source_rows) + 1
+    assert [edge.to_payload() for edge in actual] == [edge.to_payload() for edge in expected]
+
+    import shutil
+
+    snapshot_root = tmp_path / "l3-snapshot-mutation"
+    snapshot_db = snapshot_root / owner.DEFAULT_L3_LEX_KG_PATH
+    snapshot_db.parent.mkdir(parents=True)
+    replacement_db = snapshot_db.with_name(f"{snapshot_db.name}.replacement")
+    shutil.copyfile(db_path, snapshot_db)
+    shutil.copyfile(db_path, replacement_db)
+    with duckdb.connect(str(replacement_db)) as connection:
+        connection.execute(
+            "UPDATE lex_rule_thresholds SET value_text='changed' WHERE threshold_id='zz-tail'"
+        )
+
+    in_flight = iter(owner._iter_l3_edges(snapshot_root, as_of=as_of))
+    first_edge = next(in_flight)
+    opened_db = snapshot_db.with_name(f"{snapshot_db.name}.opened")
+    snapshot_db.replace(opened_db)
+    replacement_db.replace(snapshot_db)
+    in_flight_edges = (first_edge, *in_flight)
+    assert [edge.to_payload() for edge in in_flight_edges] == [
+        edge.to_payload() for edge in expected
+    ]
+    assert [edge.to_payload() for edge in owner._iter_l3_edges(snapshot_root, as_of=as_of)] != [
+        edge.to_payload() for edge in expected
+    ]
+
+    by_key = {edge.key: edge for edge in actual}
+    versions = owner._component_versions(by_key)
+    reference_hash = owner._reference_hash(
+        component_versions=versions,
+        edge_index=by_key,
+        as_of=as_of,
+        schema_version=owner.CREDAL_REFERENCE_SCHEMA_VERSION,
+    )
+    assert reference_hash == owner._reference_hash(
+        component_versions=owner._component_versions({edge.key: edge for edge in expected}),
+        edge_index={edge.key: edge for edge in expected},
+        as_of=as_of,
+        schema_version=owner.CREDAL_REFERENCE_SCHEMA_VERSION,
+    )
+    assert by_key[("L3_RULE_THRESHOLD", "t1")].provenance["signals"]["next_effective_from"] == (
+        "2022-03-04"
+    )
+    assert by_key[("L3_RULE_THRESHOLD", "t3")].provenance["signals"]["next_effective_from"] == (
+        "2023-04-05"
+    )
+    assert by_key[("L3_RULE_THRESHOLD", "t6")].provenance["signals"]["effective_from"] == ""
+    assert by_key[("L3_AMENDMENT", "a3")].provenance["signals"]["next_effective_from"] is None
+
+    with duckdb.connect(str(db_path)) as connection:
+        connection.execute("DELETE FROM lex_rule_thresholds WHERE threshold_id='zz-tail'")
+    after_tail_removal = tuple(owner._iter_l3_edges(tmp_path, as_of=as_of))
+    after_index = {edge.key: edge for edge in after_tail_removal}
+    after_hash = owner._reference_hash(
+        component_versions=owner._component_versions(after_index),
+        edge_index=after_index,
+        as_of=as_of,
+        schema_version=owner.CREDAL_REFERENCE_SCHEMA_VERSION,
+    )
+    assert len(after_tail_removal) == len(actual) - 1
+    assert after_hash != reference_hash
+
+
 def test_prepared_skg_rows_drive_kref_without_claiming_data_forge_source(
     tmp_path: Path,
 ) -> None:
-    from polisyos.data_forge.domains.academic.knowledge.skg_store import ensure_skg_schema
+    from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+        ensure_skg_schema,
+    )
     from polisyos.runtime.quality import credal_reference as owner
 
     skg_path = tmp_path / DEFAULT_L2_SCHOLAR_KG_PATH
@@ -699,7 +1205,9 @@ def _phase5_l6_law_scope(root: Path):
 
 def _assert_phase5_atom_law_lifts(atoms, law_keys: set[str]) -> None:
     """Check every law projection emitted into every selected atom."""
-    from polisyos.data_forge.domains.legal.source_relation import LEGAL_SOURCE_RELATION_REFUSAL
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LEGAL_SOURCE_RELATION_REFUSAL,
+    )
 
     expected_refusal = LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
     assert law_keys
@@ -721,7 +1229,9 @@ def _assert_phase5_atom_law_lifts(atoms, law_keys: set[str]) -> None:
 
 
 def _assert_phase5_law_scope_preserved_and_nonconfirmed(root, bundle, scoped, atoms):
-    from polisyos.data_forge.domains.legal.source_relation import LEGAL_SOURCE_RELATION_REFUSAL
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LEGAL_SOURCE_RELATION_REFUSAL,
+    )
     from polisyos.runtime.quality import intervention_substrate as substrate
 
     laws = {
@@ -878,7 +1388,11 @@ def test_replayed_legacy_lex_mapping_is_candidate_only_in_current_atoms(
                 "operator_kind": "tax_relief_rate",
                 "parameter_domain": {"minimum": 0, "maximum": 1, "unit": "ratio"},
             },
-            {"owner": "L6", "source": "intervention_knob_dictionary", "version": "legacy"},
+            {
+                "owner": "L6",
+                "source": "intervention_knob_dictionary",
+                "version": "legacy",
+            },
             unit="ratio",
         ),
         ("L6_KNOB_WORLD_SLOT", "tax_relief_rate"): owner._confirmed_edge(
@@ -889,7 +1403,11 @@ def test_replayed_legacy_lex_mapping_is_candidate_only_in_current_atoms(
                 "target_world_slots": ["global.tax_rate"],
                 "world_model_record_id": "wmr:controlled",
             },
-            {"owner": "L6", "source": "intervention_knob_dictionary", "version": "legacy"},
+            {
+                "owner": "L6",
+                "source": "intervention_knob_dictionary",
+                "version": "legacy",
+            },
             unit="ratio",
         ),
         ("L6_LEX_INTERVENTION_MAP", "tax_relief_statute"): owner._confirmed_edge(
@@ -1024,7 +1542,9 @@ def test_phase5_law_resolution_exception_keeps_declared_dependency(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     from polisyos.runtime.quality import credal_reference as owner
-    from polisyos.runtime.quality.intervention_substrate import InterventionSubstrateError
+    from polisyos.runtime.quality.intervention_substrate import (
+        InterventionSubstrateError,
+    )
 
     def unresolved(*args, **kwargs):
         raise InterventionSubstrateError("law_threshold_unresolved")
@@ -1102,7 +1622,9 @@ def test_phase5_atom_consumer_refusal_removal_goes_red(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.data_forge.domains.legal.source_relation import LEGAL_SOURCE_RELATION_REFUSAL
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LEGAL_SOURCE_RELATION_REFUSAL,
+    )
 
     original_reference_lift = CredalReference.reference_lift
 
@@ -1464,7 +1986,9 @@ def test_free_grow_alignment_statuses_without_known_edge_table() -> None:
     assert edge.provenance["signals"]["method"] == "unit_test_free_grow_probe"
 
 
-def test_expanded_essential_scope_classes_are_counted(reference: CredalReference) -> None:
+def test_expanded_essential_scope_classes_are_counted(
+    reference: CredalReference,
+) -> None:
     counts = reference.denominator_counts()
     scope = essential_edge_scope_definition()
     modalities = {edge_class["modality"] for edge_class in scope["included_edge_classes"]}
@@ -2500,7 +3024,11 @@ def test_credal_controlled_contested_edge_lifts_set_valued_and_blocks_confirmati
     profile = _selected_l2_profile_fixture()
     seed = _profiled_l2_reference(profile)
     template = seed.essential_edges[("L2_CAUSAL_EDGE", "edge-a")]
-    value = {"direction": "positive", "dst": "controlled-outcome", "src": "controlled-policy"}
+    value = {
+        "direction": "positive",
+        "dst": "controlled-outcome",
+        "src": "controlled-policy",
+    }
     contested = CredalReferenceEdge(
         modality=template.modality,
         edge_id=template.edge_id,
@@ -2875,7 +3403,10 @@ def test_credal_controlled_certificate_stales_after_source_content_repair() -> N
                 "controlled_source_repair",
             ),
         ),
-        provenance={**dict(contested.provenance), "controlled_revision": "candidate-v2"},
+        provenance={
+            **dict(contested.provenance),
+            "controlled_revision": "candidate-v2",
+        },
         unit=contested.unit,
         scale=contested.scale,
     ).with_content_hash()
@@ -2924,7 +3455,10 @@ def test_credal_controlled_default_vintage_refusal_constructs_no_source_profile(
                 variable_hint="cause",
             )
         ],
-        metadata={"synthetic": True, "fixture_scope": "credal_vintage_refusal_test_only"},
+        metadata={
+            "synthetic": True,
+            "fixture_scope": "credal_vintage_refusal_test_only",
+        },
     )
     db_path = _phase5_build_synthetic_skg_fixture(root, records=(record,))
     with db_path.open("rb") as stream:
@@ -3057,6 +3591,21 @@ def _build_n4_reference_from_selected_catalog(
         def read_credal_source_rows(self) -> PreparedSKGCredalSourceRows:
             return selected_rows
 
+        def _prepare_credal_source_stream(self) -> SimpleNamespace:
+            return SimpleNamespace(
+                source_snapshot_ref=selected_rows.source_snapshot_ref,
+                source_snapshot_sha256=selected_rows.source_snapshot_sha256,
+                version_id=selected_rows.version_id,
+                iter_variables=lambda: iter(selected_rows.variables),
+                iter_variable_synonyms=lambda: iter(selected_rows.variable_synonyms),
+                iter_causal_edges=lambda: iter(selected_rows.causal_edges),
+                iter_family_edges=lambda: iter(selected_rows.family_edges),
+                iter_moderation_edges=lambda: iter(selected_rows.moderation_edges),
+                iter_contested_edges=lambda: iter(selected_rows.contested_edges),
+                iter_causal_claim_results=lambda: iter(selected_rows.causal_claim_results),
+                iter_synthetic_values=lambda: iter(selected_rows.synthetic_values),
+            )
+
     @contextmanager
     def _prepared_l2_source(_root: Path, _world: object) -> Iterator[object]:
         yield owner._PreparedL2Source(
@@ -3082,20 +3631,42 @@ def test_selected_catalog_context_binds_all_alignment_rows_into_kref(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+    from polisyos.runtime.quality.substrate_registry import (
+        default_substrate_catalog_paths,
+    )
 
     root = tmp_path.resolve()
     default_path = default_substrate_catalog_paths(root).l1_dcat_path
     _write_n4_catalog(
         default_path,
-        (("default", "tax", "policy.tax_rate", "default", 0.91, "default basis", False, 0.0),),
+        (
+            (
+                "default",
+                "tax",
+                "policy.tax_rate",
+                "default",
+                0.91,
+                "default basis",
+                False,
+                0.0,
+            ),
+        ),
     )
     selected_a_path = (
         root / "snapshots" / "catalog-a" / "datasets" / "graph" / "dataset_catalog.duckdb"
     )
     selected_a_rows = (
         ("selected-a", "tax", "policy.tax_rate", "a", 0.92, "A canonical", False, 0.0),
-        ("selected-a", "raw unknown", "unmapped.canonical", "a", 0.89, "A other", False, 0.0),
+        (
+            "selected-a",
+            "raw unknown",
+            "unmapped.canonical",
+            "a",
+            0.89,
+            "A other",
+            False,
+            0.0,
+        ),
     )
     _write_n4_catalog(selected_a_path, selected_a_rows)
     source_a = _selected_n4_catalog_source(root, root / "snapshots" / "catalog-a")
@@ -3207,7 +3778,16 @@ def test_selected_catalog_denominator_survives_absent_l2_source(
     catalog_path = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
     rows = (
         ("selected", "tax", "policy.tax_rate", "source", 0.92, "tax map", False, 0.0),
-        ("selected", "unknown", "unmapped.canonical", "source", 0.89, "other", False, 0.0),
+        (
+            "selected",
+            "unknown",
+            "unmapped.canonical",
+            "source",
+            0.89,
+            "other",
+            False,
+            0.0,
+        ),
     )
     _write_n4_catalog(catalog_path, rows)
     source = _selected_n4_catalog_source(root, snapshot_root)
@@ -3249,13 +3829,26 @@ def test_empty_selected_catalog_profile_survives_replay_and_present_source_never
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
-    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+    from polisyos.runtime.quality.substrate_registry import (
+        default_substrate_catalog_paths,
+    )
 
     root = tmp_path.resolve()
     default_path = default_substrate_catalog_paths(root).l1_dcat_path
     _write_n4_catalog(
         default_path,
-        (("default", "tax", "policy.tax_rate", "default", 0.91, "default basis", False, 0.0),),
+        (
+            (
+                "default",
+                "tax",
+                "policy.tax_rate",
+                "default",
+                0.91,
+                "default basis",
+                False,
+                0.0,
+            ),
+        ),
     )
     empty_path = root / "snapshots" / "empty" / "datasets" / "graph" / "dataset_catalog.duckdb"
     _write_n4_catalog(empty_path, ())
@@ -3428,7 +4021,10 @@ def test_l6_intervention_result_union_preserves_typed_edge_and_bounded_lift(
         monkeypatch.setattr(owner, "resolve_intervention_lever", lambda *_args, **_kwargs: refusal)
 
     edges = tuple(owner._iter_l6_edges(tmp_path, world_model_record=world_model_record))
-    assert {edge.modality for edge in edges} == {"L6_KNOB_OPERATOR", "L6_KNOB_WORLD_SLOT"}
+    assert {edge.modality for edge in edges} == {
+        "L6_KNOB_OPERATOR",
+        "L6_KNOB_WORLD_SLOT",
+    }
     assert {edge.status for edge in edges} == {expected_status}
 
     edge_index = {edge.key: edge for edge in edges}
@@ -3505,3 +4101,803 @@ def test_float_projection_preserves_supported_numeric_inputs() -> None:
     assert _float("1.25") == 1.25
     assert _float(Decimal("2.5")) == 2.5
     assert _float(object(), default=3.75) == 3.75
+
+
+def _seed_n7_full_owner_source_fixture(
+    root: Path, *, row_count: int = 257
+) -> tuple[Path, Path, Path, Path]:
+    """Seed all selected N7 owner relations below one controlled root."""
+    from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+        ensure_skg_schema,
+    )
+    from polisyos.runtime.quality import credal_reference as owner
+
+    snapshot_root = root / "snapshots" / "n7-full-source"
+    catalog_path = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    catalog_path.parent.mkdir(parents=True)
+    with duckdb.connect(str(catalog_path)) as connection:
+        connection.execute(
+            "CREATE TABLE ds_variable_alignments ("
+            "dataset_id VARCHAR, raw_variable VARCHAR, canonical_var VARCHAR, "
+            "method VARCHAR, confidence FLOAT, evidence VARCHAR, "
+            "is_proxy BOOLEAN, proxy_penalty FLOAT)"
+        )
+        connection.executemany(
+            "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                (
+                    f"dataset-{index:03d}",
+                    f"raw-{index:03d}",
+                    f"variable-{index:03d}",
+                    "controlled_fixture",
+                    0.92,
+                    f"catalog-evidence-{index:03d}",
+                    False,
+                    0.0,
+                )
+                for index in range(row_count)
+            ],
+        )
+
+    skg_path = root / DEFAULT_L2_SCHOLAR_KG_PATH
+    skg_path.parent.mkdir(parents=True)
+    with duckdb.connect(str(skg_path)) as connection:
+        ensure_skg_schema(connection)
+        connection.execute("INSERT INTO ac_skg_versions(version_id) VALUES (7)")
+        connection.executemany(
+            "INSERT INTO ac_skg_variables "
+            "(canonical_name, normalized_name, display_name, approved_canonical_name, "
+            "is_approved_canonical, resolution_method, resolution_confidence, mention_count) "
+            "VALUES (?, ?, 'Fixture variable', ?, TRUE, 'controlled_fixture', 0.95, 2)",
+            [
+                (f"variable-{index:03d}", f"variable-{index:03d}", f"variable-{index:03d}")
+                for index in range(row_count)
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO ac_skg_variable_synonyms "
+            "(synonym, canonical_name, method, confidence, approved) "
+            "VALUES (?, ?, 'controlled_fixture', 0.95, TRUE)",
+            [(f"synonym-{index:03d}", f"variable-{index:03d}") for index in range(row_count)],
+        )
+        connection.executemany(
+            "INSERT INTO ac_skg_edges "
+            "(edge_id, src, dst, direction, n_articles, article_refs, "
+            "evidence_strength, confidence, candidate_layer, quality_signals_json) "
+            "VALUES (?, ?, ?, 'increases', 3, '[]', 'strong', 0.9, 'controlled', '{}')",
+            [
+                (
+                    f"causal-{index:03d}",
+                    f"variable-{index:03d}",
+                    f"variable-{(index + 1) % row_count:03d}",
+                )
+                for index in range(row_count)
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO ac_skg_family_edges "
+            "(family_edge_id, src_family, dst_family, direction, n_articles, n_claims, "
+            "article_refs, claim_refs, evidence_strength, confidence, "
+            "direction_histogram_json, design_tier_histogram_json, candidate_layer, "
+            "quality_signals_json) "
+            "VALUES (?, ?, ?, 'increases', 3, 2, '[]', '[]', 'strong', 0.9, "
+            "'{}', '{}', 'controlled', ?)",
+            [
+                (
+                    f"family-edge-{index:03d}",
+                    f"family-{index:03d}",
+                    f"family-{(index + 1) % row_count:03d}",
+                    "{}",
+                )
+                for index in range(row_count)
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO ac_skg_moderation_edges "
+            "(moderation_id, base_cause, base_effect, moderator, base_claim_id, "
+            "direction_of_mod, interaction_coeff, interaction_pvalue, evidence_count, "
+            "confidence, match_quality, alignment_source, source_refs, skg_version) "
+            "VALUES (?, ?, ?, ?, ?, 'decreases', -0.2, 0.05, 3, 0.9, "
+            "'exact_claim_ref', 'controlled_fixture', '[]', 7)",
+            [
+                (
+                    f"moderation-{index:03d}",
+                    f"variable-{index:03d}",
+                    f"variable-{(index + 1) % row_count:03d}",
+                    f"variable-{(index + 2) % row_count:03d}",
+                    f"claim-{index:03d}",
+                )
+                for index in range(row_count)
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO ac_skg_contested_edges "
+            "(contested_edge_id, src_family, dst_family, article_refs, claim_refs, "
+            "dominant_direction, resolution_status, runtime_support, evidence_strength, "
+            "confidence, positive_weight, negative_weight, mixed_weight, "
+            "direction_histogram_json, quality_signals_json) "
+            "VALUES (?, ?, ?, '[]', ?, 'increases', 'resolved', 'strong', 'strong', "
+            "0.9, 1.0, 0.0, 0.0, '{}', ?)",
+            [
+                (
+                    f"causal-{index:03d}",
+                    f"family-{index:03d}",
+                    f"family-{(index + 1) % row_count:03d}",
+                    f'["claim-{index:03d}"]',
+                    json.dumps({"exact_edge_ids": [f"causal-{index:03d}"]}),
+                )
+                for index in range(row_count)
+            ],
+        )
+        connection.execute(
+            "CREATE TABLE ac_causal_claims (id VARCHAR, work_id VARCHAR, cause VARCHAR, "
+            "effect VARCHAR, direction VARCHAR, strength VARCHAR, mechanism VARCHAR, "
+            "domain VARCHAR, trust_score FLOAT, strong_design_evidence BOOLEAN, "
+            "design_quality_tier INTEGER, publish_blockers VARCHAR, candidate_layer VARCHAR)"
+        )
+        connection.execute("CREATE TABLE ac_works (id VARCHAR, title VARCHAR, year INTEGER)")
+        connection.executemany(
+            "INSERT INTO ac_works VALUES (?, ?, 2025)",
+            [(f"work-{index:03d}", f"Controlled work {index:03d}") for index in range(row_count)],
+        )
+        connection.executemany(
+            "INSERT INTO ac_causal_claims VALUES (?, ?, ?, ?, 'positive', 'rct', "
+            "'controlled mechanism', 'fixture-domain', 0.9, TRUE, 3, '[]', 'controlled')",
+            [
+                (
+                    f"claim-{index:03d}",
+                    f"work-{index:03d}",
+                    f"variable-{index:03d}",
+                    f"variable-{(index + 1) % row_count:03d}",
+                )
+                for index in range(row_count)
+            ],
+        )
+        connection.execute("CREATE TABLE ac_causal_claims_raw (synthetic BOOLEAN)")
+        connection.executemany(
+            "INSERT INTO ac_causal_claims_raw VALUES (?)",
+            [(index == row_count - 1,) for index in range(row_count)],
+        )
+
+    l3_path = root / owner.DEFAULT_L3_LEX_KG_PATH
+    l3_path.parent.mkdir(parents=True)
+    with duckdb.connect(str(l3_path)) as connection:
+        connection.execute(
+            "CREATE TABLE lex_normative_ready_facts ("
+            "fact_id VARCHAR, doc_family_id VARCHAR, effective_from VARCHAR, "
+            "effective_to VARCHAR, temporal_state VARCHAR, temporal_resolution_status VARCHAR, "
+            "quality_band VARCHAR, gate_reason_codes VARCHAR)"
+        )
+        connection.execute(
+            "CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR, fact_id VARCHAR, "
+            "metric VARCHAR, operator VARCHAR, value_decimal VARCHAR, value_text VARCHAR, "
+            "unit VARCHAR, applies_to VARCHAR)"
+        )
+        connection.execute(
+            "CREATE TABLE lex_amendments (amendment_id VARCHAR, amending_doc_id VARCHAR, "
+            "amended_doc_id VARCHAR, target_resolution_expected BOOLEAN, amendment_type VARCHAR, "
+            "target_anchor VARCHAR, old_text_uk VARCHAR, new_text_uk VARCHAR, "
+            "effective_from VARCHAR, confidence DOUBLE, metadata VARCHAR)"
+        )
+        connection.execute(
+            "CREATE TABLE lex_reference_edges (reference_edge_id VARCHAR, source_doc_id VARCHAR, "
+            "source_doc_family_id VARCHAR, source_anchor VARCHAR, target_doc_id VARCHAR, "
+            "target_doc_family_id VARCHAR, target_doc_reestr_code VARCHAR, "
+            "target_doc_number VARCHAR, target_doc_type VARCHAR, target_doc_date_acc VARCHAR, "
+            "target_doc_status VARCHAR, target_anchor VARCHAR, relation_type VARCHAR, "
+            "matched_by VARCHAR, resolution_confidence DOUBLE, resolution_status VARCHAR, "
+            "version_id INTEGER, metadata VARCHAR)"
+        )
+        dates = [f"2020-{1 + index // 28:02d}-{1 + index % 28:02d}" for index in range(row_count)]
+        connection.executemany(
+            "INSERT INTO lex_normative_ready_facts VALUES (?, 'fixture-family', ?, NULL, "
+            "'active', 'exact', 'ready', '[]')",
+            [(f"fact-{index:03d}", dates[index]) for index in range(row_count)],
+        )
+        connection.executemany(
+            "INSERT INTO lex_rule_thresholds VALUES (?, ?, 'income', '<=', '1.0', "
+            "NULL, 'ratio', 'fixture')",
+            [(f"threshold-{index:03d}", f"fact-{index:03d}") for index in range(row_count)],
+        )
+        connection.executemany(
+            "INSERT INTO lex_amendments VALUES (?, ?, ?, TRUE, 'controlled_fixture', ?, "
+            "'old text', 'new text', ?, 0.9, '{}')",
+            [
+                (
+                    f"amendment-{index:03d}",
+                    f"amending-doc-{index:03d}",
+                    f"amended-doc-{index:03d}",
+                    f"anchor-{index:03d}",
+                    dates[index],
+                )
+                for index in range(row_count)
+            ],
+        )
+        connection.executemany(
+            "INSERT INTO lex_reference_edges VALUES (?, ?, 'fixture-source-family', ?, ?, "
+            "'fixture-target-family', 'fixture-reestr', ?, 'law', '2020-01-01', 'active', ?, "
+            "'cites', 'controlled_fixture', 0.9, 'resolved', 7, '{}')",
+            [
+                (
+                    f"reference-{index:03d}",
+                    f"source-doc-{index:03d}",
+                    f"source-anchor-{index:03d}",
+                    f"target-doc-{index:03d}",
+                    f"number-{index:03d}",
+                    f"target-anchor-{index:03d}",
+                )
+                for index in range(row_count)
+            ],
+        )
+
+    return snapshot_root, catalog_path, skg_path, l3_path
+
+
+def test_full_kref_build_matches_source_bound_materialized_skg_counterpart(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Compare real PreparedSKGRead output and the complete materialized build."""
+    import asyncio
+    from collections import Counter
+    from contextlib import contextmanager
+    from datetime import UTC, datetime
+
+    from polisyos.data_forge.domains.academic.knowledge import skg_query
+    from polisyos.data_forge.domains.academic.knowledge.skg_query import (
+        _preflight_causal_claim_results_v2,
+        iter_causal_claim_results_v2,
+    )
+    from polisyos.data_forge.read_api.academic import PreparedSKGCredalSourceRows
+    from polisyos.pdc._impl.world_model_record import (
+        SkgCausalPriorRef,
+        WorldModelRecord,
+        world_model_record_content_hash,
+    )
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
+
+    root = tmp_path.resolve()
+    row_count = 257
+    snapshot_root, catalog_path, skg_path, _l3_path = _seed_n7_full_owner_source_fixture(
+        root, row_count=row_count
+    )
+    source = _selected_n4_catalog_source(root, snapshot_root)
+    fixture_world = _phase5_l6_candidate_world_model_record()
+    world_fields = fixture_world.model_dump(mode="python")
+    world_fields["skg_causal_prior_ref"] = SkgCausalPriorRef(
+        skg_snapshot_ref=f"duckdb://{skg_path.resolve()}#v7",
+        skg_version_id="7",
+        source_data_snapshot_id="n7-controlled-source-fixture",
+    )
+    world_draft = WorldModelRecord.model_construct(**world_fields)
+    world_hash = world_model_record_content_hash(world_draft)
+    world_fields["content_hash"] = world_hash
+    world_fields["world_model_record_id"] = (
+        f"world_model_record_{world_hash.removeprefix('sha256:')[:16]}"
+    )
+    world = WorldModelRecord.model_validate(world_fields)
+
+    original_prepared_l2_source = owner._prepared_l2_source
+
+    class FixedDateTime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return cls(2026, 10, 20, 12, 0, tzinfo=tz or UTC)
+
+    monkeypatch.setattr(owner, "datetime", FixedDateTime)
+    monkeypatch.setattr(skg_query, "datetime", FixedDateTime)
+    l6_edge = CredalReferenceEdge(
+        modality="L6_KNOB_OPERATOR",
+        edge_id="fixture-knob",
+        status="incomplete",
+        admissible_completions=(
+            AdmissibleCompletion("may_exist", {"value": 1}, "fixture_unresolved"),
+        ),
+        provenance={"owner": "L6", "source": "controlled-fixture"},
+    ).with_content_hash()
+    monkeypatch.setattr(owner, "_iter_l6_edges", lambda *_args, **_kwargs: (l6_edge,))
+
+    with original_prepared_l2_source(root, world) as selected:
+        assert selected is not None
+        source_profile = selected.profile
+        assert selected.prepared_read.matches_path(skg_path)
+        assert selected.prepared_read.source_generation_matches()
+        with duckdb.connect(str(skg_path), read_only=True) as connection:
+            query_basis = skg_query._CREDAL_SOURCE_QUERY_BASIS
+            for query_id, statement in query_basis.items():
+                if query_id != "synthetic_values":
+                    connection.execute(f"EXPLAIN {statement}").fetchall()
+            _preflight_causal_claim_results_v2(connection)
+            materialized_rows = PreparedSKGCredalSourceRows(
+                source_snapshot_ref=selected.profile.source_snapshot_ref,
+                source_snapshot_sha256=selected.profile.source_snapshot_sha256,
+                version_id=int(connection.execute(query_basis["version"]).fetchone()[0]),
+                variables=tuple(
+                    skg_query._CredalVariableRow(*row)
+                    for row in connection.execute(query_basis["variables"]).fetchall()
+                ),
+                variable_synonyms=tuple(
+                    skg_query._CredalSynonymRow(*row)
+                    for row in connection.execute(query_basis["variable_synonyms"]).fetchall()
+                ),
+                causal_edges=tuple(
+                    skg_query._CredalCausalEdgeRow(*row)
+                    for row in connection.execute(query_basis["causal_edges"]).fetchall()
+                ),
+                family_edges=tuple(
+                    skg_query._CredalFamilyEdgeRow(*row)
+                    for row in connection.execute(query_basis["family_edges"]).fetchall()
+                ),
+                moderation_edges=tuple(
+                    skg_query._CredalModerationRow(*row)
+                    for row in connection.execute(query_basis["moderation_edges"]).fetchall()
+                ),
+                contested_edges=tuple(
+                    skg_query._CredalContestedEdgeRow(*row)
+                    for row in connection.execute(query_basis["contested_edges"]).fetchall()
+                ),
+                causal_claim_results=tuple(iter_causal_claim_results_v2(connection)),
+                synthetic_column_present=(
+                    connection.execute(query_basis["synthetic_column"]).fetchone() is not None
+                ),
+                synthetic_values=tuple(
+                    row[0] for row in connection.execute(query_basis["synthetic_values"]).fetchall()
+                ),
+            )
+        assert selected.prepared_read.source_generation_matches()
+        assert materialized_rows.source_snapshot_ref == source_profile.source_snapshot_ref
+        assert materialized_rows.source_snapshot_sha256 == source_profile.source_snapshot_sha256
+        assert materialized_rows.version_id == 7
+    assert len(materialized_rows.variables) == row_count
+    assert len(materialized_rows.variable_synonyms) == row_count
+    assert len(materialized_rows.causal_edges) == row_count
+    assert len(materialized_rows.family_edges) == row_count
+    assert len(materialized_rows.moderation_edges) == row_count
+    assert len(materialized_rows.contested_edges) == row_count
+    assert len(materialized_rows.causal_claim_results) == row_count
+    assert materialized_rows.synthetic_column_present is True
+    assert len(materialized_rows.synthetic_values) == row_count
+    expected_indexes = range(row_count)
+    assert {row.canonical_name for row in materialized_rows.variables} == {
+        f"variable-{index:03d}" for index in expected_indexes
+    }
+    assert {row.synonym for row in materialized_rows.variable_synonyms} == {
+        f"synonym-{index:03d}" for index in expected_indexes
+    }
+    assert {row.edge_id for row in materialized_rows.causal_edges} == {
+        f"causal-{index:03d}" for index in expected_indexes
+    }
+    assert {row.family_edge_id for row in materialized_rows.family_edges} == {
+        f"family-edge-{index:03d}" for index in expected_indexes
+    }
+    assert {row.moderation_id for row in materialized_rows.moderation_edges} == {
+        f"moderation-{index:03d}" for index in expected_indexes
+    }
+    assert {row.contested_edge_id for row in materialized_rows.contested_edges} == {
+        f"causal-{index:03d}" for index in expected_indexes
+    }
+    assert {row.id for row in materialized_rows.causal_claim_results} == {
+        f"claim-{index:03d}" for index in expected_indexes
+    }
+    assert Counter(materialized_rows.synthetic_values) == Counter({False: row_count - 1, True: 1})
+    assert materialized_rows.synthetic_values[-1] is True
+
+    class RowView:
+        def __init__(self, rows: PreparedSKGCredalSourceRows) -> None:
+            self.source_rows = rows
+            self.source_snapshot_ref = rows.source_snapshot_ref
+            self.source_snapshot_sha256 = rows.source_snapshot_sha256
+            self.version_id = rows.version_id
+
+        def iter_variables(self) -> Iterator[object]:
+            return iter(self.source_rows.variables)
+
+        def iter_variable_synonyms(self) -> Iterator[object]:
+            return iter(self.source_rows.variable_synonyms)
+
+        def iter_causal_edges(self) -> Iterator[object]:
+            return iter(self.source_rows.causal_edges)
+
+        def iter_family_edges(self) -> Iterator[object]:
+            return iter(self.source_rows.family_edges)
+
+        def iter_moderation_edges(self) -> Iterator[object]:
+            return iter(self.source_rows.moderation_edges)
+
+        def iter_contested_edges(self) -> Iterator[object]:
+            return iter(self.source_rows.contested_edges)
+
+        def iter_causal_claim_results(self) -> Iterator[object]:
+            return iter(self.source_rows.causal_claim_results)
+
+        def iter_synthetic_values(self) -> Iterator[bool | None]:
+            return iter(self.source_rows.synthetic_values)
+
+    class MaterializedRead:
+        def __init__(self, rows: PreparedSKGCredalSourceRows) -> None:
+            self.rows = rows
+
+        def _prepare_credal_source_stream(self) -> RowView:
+            return RowView(self.rows)
+
+    @contextmanager
+    def materialized_source(_root: Path, _world: object) -> Iterator[object]:
+        yield owner._PreparedL2Source(
+            prepared_read=MaterializedRead(materialized_rows),
+            profile=source_profile,
+            version=str(materialized_rows.version_id),
+        )
+
+    def build(*, materialized: bool = False) -> CredalReference:
+        monkeypatch.setattr(
+            owner,
+            "_prepared_l2_source",
+            materialized_source if materialized else original_prepared_l2_source,
+        )
+
+        async def build_async() -> CredalReference:
+            return owner.build_credal_reference(
+                root,
+                as_of="2026-10-11",
+                world_model_record=world,
+            )
+
+        return asyncio.run(run_catalog_source_awaitable(source, build_async()))
+
+    streamed = build()
+
+    def edge_ids(modality: str) -> set[str]:
+        return {
+            edge.edge_id for edge in streamed.essential_edges.values() if edge.modality == modality
+        }
+
+    def expected_ids(prefix: str) -> set[str]:
+        return {f"{prefix}-{index:03d}" for index in expected_indexes}
+
+    assert edge_ids("L2_CANONICAL_VARIABLE") == expected_ids("variable")
+    assert edge_ids("L2_VARIABLE_ALIGNMENT") == {
+        f"synonym-{index:03d}->variable-{index:03d}" for index in expected_indexes
+    }
+    assert edge_ids("L2_DATA_FORGE_VARIABLE_ALIGNMENT") == {
+        f"dataset-{index:03d}:raw-{index:03d}->variable-{index:03d}" for index in expected_indexes
+    }
+    for modality, prefix in (
+        ("L2_CAUSAL_EDGE", "causal"),
+        ("L2_FAMILY_EDGE", "family-edge"),
+        ("L2_MODERATION_EDGE", "moderation"),
+        ("L2_CAUSAL_CLAIM", "claim"),
+        ("L2_CONTESTED_EDGE", "causal"),
+        ("L3_RULE_THRESHOLD", "threshold"),
+        ("L3_AMENDMENT", "amendment"),
+        ("L3_REFERENCE_EDGE", "reference"),
+    ):
+        assert edge_ids(modality) == expected_ids(prefix), modality
+
+    materialized = build(materialized=True)
+    assert streamed == materialized
+    assert streamed.reference_hash == materialized.reference_hash
+    assert streamed.component_versions == materialized.component_versions
+    assert streamed.data_forge_catalog_source_profile == (
+        materialized.data_forge_catalog_source_profile
+    )
+    streamed_l2_profile = owner.credal_reference_l2_source_profile(streamed)
+    materialized_l2_profile = owner.credal_reference_l2_source_profile(materialized)
+    assert streamed_l2_profile == materialized_l2_profile
+    streamed_payloads = {key: edge.to_payload() for key, edge in streamed.essential_edges.items()}
+    materialized_payloads = {
+        key: edge.to_payload() for key, edge in materialized.essential_edges.items()
+    }
+    assert streamed_payloads == materialized_payloads
+    assert Counter(
+        (edge.modality, edge.status) for edge in streamed.essential_edges.values()
+    ) == Counter((edge.modality, edge.status) for edge in materialized.essential_edges.values())
+    modality_counts = Counter(edge.modality for edge in streamed.essential_edges.values())
+    for modality in (
+        "L2_CANONICAL_VARIABLE",
+        "L2_VARIABLE_ALIGNMENT",
+        "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
+        "L2_CAUSAL_EDGE",
+        "L2_FAMILY_EDGE",
+        "L2_MODERATION_EDGE",
+        "L2_CAUSAL_CLAIM",
+        "L2_CONTESTED_EDGE",
+        "L3_RULE_THRESHOLD",
+        "L3_AMENDMENT",
+        "L3_REFERENCE_EDGE",
+    ):
+        assert modality_counts[modality] == row_count, modality
+    assert {edge.status for edge in streamed.essential_edges.values()} >= {
+        "confirmed",
+        "contested",
+        "incomplete",
+    }
+    assert all(
+        edge.provenance.get("synthetic") is True
+        for edge in streamed.essential_edges.values()
+        if edge.modality.startswith("L2_")
+    )
+    assert streamed.component_versions["L2_SOURCE_PROFILE"] == source_profile.content_hash
+    catalog_profile = streamed.data_forge_catalog_source_profile
+    assert catalog_profile is not None
+    assert streamed.component_versions["DATA_FORGE_CATALOG_SOURCE_PROFILE"] == (
+        catalog_profile.content_hash
+    )
+
+    with duckdb.connect(str(catalog_path)) as connection:
+        connection.execute("DELETE FROM ds_variable_alignments WHERE dataset_id = 'dataset-256'")
+    after_catalog_tail_removal = build()
+    assert after_catalog_tail_removal.reference_hash != streamed.reference_hash
+    assert after_catalog_tail_removal.data_forge_catalog_source_profile is not None
+    assert after_catalog_tail_removal.data_forge_catalog_source_profile.alignment_row_count == 256
+    assert (
+        after_catalog_tail_removal.data_forge_catalog_source_profile.alignment_rows_sha256
+        != catalog_profile.alignment_rows_sha256
+    )
+
+    with duckdb.connect(str(skg_path)) as connection:
+        connection.execute("DELETE FROM ac_skg_variables WHERE canonical_name = 'variable-256'")
+    after_skg_tail_removal = build()
+    assert after_skg_tail_removal.reference_hash != after_catalog_tail_removal.reference_hash
+    after_skg_profile = owner.credal_reference_l2_source_profile(after_skg_tail_removal)
+    before_skg_profile = owner.credal_reference_l2_source_profile(streamed)
+    assert after_skg_profile is not None and before_skg_profile is not None
+    assert after_skg_profile.source_snapshot_sha256 != (before_skg_profile.source_snapshot_sha256)
+    assert after_skg_tail_removal.component_versions != streamed.component_versions
+
+
+def test_selected_catalog_replacement_between_profile_and_edge_pass_fails_closed(
+    tmp_path: Path,
+) -> None:
+    """A selected catalog replacement after profiling cannot change the edge pass."""
+    import asyncio
+    import os
+
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
+
+    root = tmp_path.resolve()
+    snapshot_root = root / "snapshots" / "catalog-generation-change"
+    catalog_path = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    replacement_path = catalog_path.with_name("catalog-replacement.duckdb")
+    catalog_path.parent.mkdir(parents=True)
+
+    def write_catalog(path: Path, rows: tuple[tuple[object, ...], ...]) -> None:
+        with duckdb.connect(str(path)) as connection:
+            connection.execute(
+                "CREATE TABLE ds_variable_alignments ("
+                "dataset_id VARCHAR, raw_variable VARCHAR, canonical_var VARCHAR, "
+                "method VARCHAR, confidence FLOAT, evidence VARCHAR, "
+                "is_proxy BOOLEAN, proxy_penalty FLOAT)"
+            )
+            if rows:
+                connection.executemany(
+                    "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    rows,
+                )
+
+    write_catalog(
+        catalog_path,
+        (
+            ("a", "tax", "policy.tax_rate", "a", 0.91, "A", False, 0.0),
+            ("z", "tax2", "policy.tax_rate", "z", 0.92, "Z", False, 0.0),
+        ),
+    )
+    write_catalog(
+        replacement_path,
+        (("replacement", "income", "policy.income", "new", 0.95, "N", False, 0.0),),
+    )
+    source = _selected_n4_catalog_source(root, snapshot_root)
+
+    async def exercise_generation_boundary() -> None:
+        with owner._read_data_forge_catalog_source(root) as selected:
+            assert selected is not None
+            first_profile = selected.profile
+            assert first_profile.alignment_row_count == 2
+            os.replace(replacement_path, catalog_path)
+            with pytest.raises(
+                ValueError,
+                match="dataset_registry_kref_source_generation_changed",
+            ):
+                tuple(selected.iter_rows())
+
+        with owner._read_data_forge_catalog_source(root) as fresh:
+            assert fresh is not None
+            assert fresh.profile.alignment_row_count == 1
+            assert fresh.profile.alignment_rows_sha256 != (first_profile.alignment_rows_sha256)
+            assert tuple(fresh.iter_rows()) == (
+                (
+                    "replacement",
+                    "income",
+                    "policy.income",
+                    "new",
+                    0.95,
+                    "N",
+                    False,
+                    0.0,
+                ),
+            )
+
+    asyncio.run(run_catalog_source_awaitable(source, exercise_generation_boundary()))
+
+
+def test_selected_owner_payload_readers_batch_and_refuse_payload_fetchall(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every selected owner cursor batches its nonempty full-source denominator."""
+    from collections import Counter, defaultdict
+
+    from polisyos.data_forge.domains.academic.knowledge import skg_query
+    from polisyos.data_forge.domains.catalog.knowledge import (
+        registry as catalog_registry,
+    )
+    from polisyos.runtime.quality import credal_reference as credal_reference_module
+
+    row_count = 257
+    root = tmp_path.resolve()
+    _snapshot_root, catalog_path, skg_path, _l3_path = _seed_n7_full_owner_source_fixture(
+        root, row_count=row_count
+    )
+
+    class QueryTracker:
+        def __init__(self) -> None:
+            self.read_batches: dict[str, list[list[int]]] = defaultdict(list)
+            self.payload_fetchall: list[str] = []
+            self.unclassified_fetchmany: list[tuple[str, int, int]] = []
+            self.explain_fetchall_count = 0
+
+        @staticmethod
+        def owner_for(statement: str) -> str | None:
+            normalized = " ".join(statement.casefold().split())
+            if normalized.startswith("explain "):
+                return None
+            if "ds_variable_alignments" in normalized:
+                return "catalog.alignment"
+            if "ac_causal_claims_raw" in normalized:
+                return "skg.synthetic_values"
+            if "from ac_causal_claims c left join ac_works w" in normalized:
+                return "skg.causal_claim_results"
+            for table, route in (
+                ("ac_skg_variables", "skg.variables"),
+                ("ac_skg_variable_synonyms", "skg.variable_synonyms"),
+                ("ac_skg_edges", "skg.causal_edges"),
+                ("ac_skg_family_edges", "skg.family_edges"),
+                ("ac_skg_moderation_edges", "skg.moderation_edges"),
+                ("ac_skg_contested_edges", "skg.contested_edges"),
+            ):
+                if f"from main.{table}" in normalized:
+                    return route
+            if "lex_rule_thresholds" in normalized:
+                if "select t.threshold_id, f.doc_family_id" in normalized:
+                    return "l3.threshold_metadata"
+                return "l3.threshold_rows"
+            if "lex_amendments" in normalized:
+                if "select amendment_id, amended_doc_id" in normalized:
+                    return "l3.amendment_metadata"
+                return "l3.amendment_rows"
+            if "lex_reference_edges" in normalized:
+                return "l3.reference_edges"
+            return None
+
+        def begin_read(self, statement: str) -> tuple[str | None, list[int] | None]:
+            route = self.owner_for(statement)
+            if route is None:
+                return None, None
+            batches: list[int] = []
+            self.read_batches[route].append(batches)
+            return route, batches
+
+    tracker = QueryTracker()
+    real_duckdb = duckdb
+
+    class GuardedConnection:
+        def __init__(self, connection: object) -> None:
+            self._connection = connection
+            self._statement = ""
+            self._result = None
+            self._route: str | None = None
+            self._batches: list[int] | None = None
+
+        def execute(self, statement: str, *args: object, **kwargs: object) -> GuardedConnection:
+            self._statement = statement
+            self._route, self._batches = tracker.begin_read(statement)
+            self._result = self._connection.execute(statement, *args, **kwargs)
+            return self
+
+        def fetchmany(self, size: int = 1):
+            if size > 256:
+                raise AssertionError("owner_fetchmany_exceeded_batch_cap")
+            rows = self._result.fetchmany(size)
+            if self._batches is not None:
+                self._batches.append(len(rows))
+                if len(rows) > size:
+                    raise AssertionError("owner_fetchmany_exceeded_requested_batch")
+            elif not self._statement.lstrip().casefold().startswith("explain"):
+                tracker.unclassified_fetchmany.append((self._statement, size, len(rows)))
+            return rows
+
+        def fetchall(self):
+            if self._statement.lstrip().casefold().startswith("explain"):
+                tracker.explain_fetchall_count += 1
+                return self._result.fetchall()
+            tracker.payload_fetchall.append(self._statement)
+            raise AssertionError("owner_payload_fetchall_forbidden")
+
+        def fetchone(self):
+            return self._result.fetchone()
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(self._connection, name)
+
+    class DuckDBSpy:
+        Error = real_duckdb.Error
+
+        def connect(self, *args: object, **kwargs: object) -> GuardedConnection:
+            return GuardedConnection(real_duckdb.connect(*args, **kwargs))
+
+    spy_module = DuckDBSpy()
+    monkeypatch.setattr(catalog_registry, "duckdb", spy_module)
+    monkeypatch.setattr(skg_query, "duckdb", spy_module)
+    monkeypatch.setattr(credal_reference_module, "duckdb", spy_module)
+
+    with catalog_registry.DatasetRegistry(catalog_path)._prepare_kref_alignment_read() as reader:
+        catalog_rows = tuple(reader.iter_rows())
+    prepared_read = skg_query.SKGQuery.prepare_read(
+        db_path=skg_path,
+        index_dir=skg_path.parent / "index",
+    )
+    try:
+        rows = prepared_read.read_credal_source_rows()
+    finally:
+        prepared_read.close()
+    l3_edges = tuple(credal_reference_module._iter_l3_edges(root, as_of="2026-10-20"))
+
+    assert len(catalog_rows) == row_count
+    for stream in (
+        rows.variables,
+        rows.variable_synonyms,
+        rows.causal_edges,
+        rows.family_edges,
+        rows.moderation_edges,
+        rows.contested_edges,
+        rows.causal_claim_results,
+        rows.synthetic_values,
+    ):
+        assert len(stream) == row_count
+    assert len(l3_edges) == row_count * 3
+    l3_counts = Counter(edge.modality for edge in l3_edges)
+    assert l3_counts == {
+        "L3_RULE_THRESHOLD": row_count,
+        "L3_AMENDMENT": row_count,
+        "L3_REFERENCE_EDGE": row_count,
+    }
+
+    expected_routes = {
+        "catalog.alignment",
+        "skg.variables",
+        "skg.variable_synonyms",
+        "skg.causal_edges",
+        "skg.family_edges",
+        "skg.moderation_edges",
+        "skg.contested_edges",
+        "skg.causal_claim_results",
+        "skg.synthetic_values",
+        "l3.threshold_metadata",
+        "l3.threshold_rows",
+        "l3.amendment_metadata",
+        "l3.amendment_rows",
+        "l3.reference_edges",
+    }
+    assert set(tracker.read_batches) == expected_routes
+    for route in expected_routes:
+        reads = tracker.read_batches[route]
+        assert reads, route
+        for batches in reads:
+            nonempty_batches = [size for size in batches if size]
+            assert sum(nonempty_batches) == row_count, route
+            assert 256 in nonempty_batches, route
+            assert max(nonempty_batches) <= 256, route
+    assert tracker.payload_fetchall == []
+    assert tracker.unclassified_fetchmany == []
+    assert tracker.explain_fetchall_count > 0

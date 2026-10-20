@@ -4987,7 +4987,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (970; native exports unproved)</summary>
+<details><summary>Source-declared candidates (973; native exports unproved)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -5227,6 +5227,7 @@ AcquisitionGap
 AcquisitionGapType
 AcquisitionNextAction
 AcquisitionPlannerReport
+AcquisitionRequirementBasisBinding
 AcquisitionRequirementGap
 AcquisitionState
 AcquisitionStrategy
@@ -5820,6 +5821,7 @@ gate_lowering_request
 gate_universality_claim
 graded_outcome_closeout_record
 gy_content_hash
+gy_content_hash_rows
 historical_prior_claim_evidence_issues
 human_review_public_export
 inspect_argument_graph
@@ -5933,6 +5935,7 @@ validate_multiverse_specification_curve_record
 validate_obligation_rule_construct_refs
 validate_observability_orchestration_static_audit_records
 validate_pass1b_tenant_cas_approval_governance_record
+validate_persisted_acquisition_planner_report
 validate_policy_benchmarking_record
 validate_policy_design_best_in_class_benchmarking_records
 validate_policy_design_case_concept_spine

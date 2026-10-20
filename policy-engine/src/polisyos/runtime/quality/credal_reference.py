@@ -15,14 +15,22 @@ import json
 import math
 import sys
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Iterator, Mapping, Sequence
-from contextlib import contextmanager
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from functools import lru_cache
 from pathlib import Path
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Literal, SupportsFloat, SupportsIndex
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Protocol,
+    SupportsFloat,
+    SupportsIndex,
+    cast,
+)
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -32,7 +40,7 @@ from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL,
     LegalSourceRelationVerificationMissingError,
 )
-from polisyos.pdc import SkgCausalPriorRef, gy_content_hash
+from polisyos.pdc import SkgCausalPriorRef, gy_content_hash, gy_content_hash_rows
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionLeverRefusal,
     InterventionSubstrateError,
@@ -849,6 +857,82 @@ def credal_reference_data_forge_catalog_source_profile(
     return validated
 
 
+class _CredalSourceRowReader(Protocol):
+    """Repeatable typed readers used by the complete L2 edge composer."""
+
+    def iter_variables(self) -> Iterator[Any]: ...
+
+    def iter_variable_synonyms(self) -> Iterator[Any]: ...
+
+    def iter_causal_edges(self) -> Iterator[Any]: ...
+
+    def iter_family_edges(self) -> Iterator[Any]: ...
+
+    def iter_moderation_edges(self) -> Iterator[Any]: ...
+
+    def iter_contested_edges(self) -> Iterator[Any]: ...
+
+    def iter_causal_claim_results(self) -> Iterator[Any]: ...
+
+
+@dataclass(frozen=True)
+class _TupleCredalSourceRowReader:
+    """Compatibility adapter for the existing full immutable SKG row value."""
+
+    rows: PreparedSKGCredalSourceRows
+
+    def iter_variables(self) -> Iterator[Any]:
+        return iter(self.rows.variables)
+
+    def iter_variable_synonyms(self) -> Iterator[Any]:
+        return iter(self.rows.variable_synonyms)
+
+    def iter_causal_edges(self) -> Iterator[Any]:
+        return iter(self.rows.causal_edges)
+
+    def iter_family_edges(self) -> Iterator[Any]:
+        return iter(self.rows.family_edges)
+
+    def iter_moderation_edges(self) -> Iterator[Any]:
+        return iter(self.rows.moderation_edges)
+
+    def iter_contested_edges(self) -> Iterator[Any]:
+        return iter(self.rows.contested_edges)
+
+    def iter_causal_claim_results(self) -> Iterator[Any]:
+        return iter(self.rows.causal_claim_results)
+
+
+class _CredalSourceFetchManyRows(Protocol):
+    """Small result-cursor protocol for the L3 temporal metadata projection."""
+
+    def fetchmany(self, size: int = 1) -> Sequence[Sequence[object]]: ...
+
+
+class _CredalSourceRowStream(Protocol):
+    """Typed, source-bound SKG batches consumed without retaining source tuples."""
+
+    source_snapshot_ref: str
+    source_snapshot_sha256: str
+    version_id: int
+
+    def iter_variables(self) -> Iterator[Any]: ...
+
+    def iter_variable_synonyms(self) -> Iterator[Any]: ...
+
+    def iter_causal_edges(self) -> Iterator[Any]: ...
+
+    def iter_family_edges(self) -> Iterator[Any]: ...
+
+    def iter_moderation_edges(self) -> Iterator[Any]: ...
+
+    def iter_contested_edges(self) -> Iterator[Any]: ...
+
+    def iter_causal_claim_results(self) -> Iterator[Any]: ...
+
+    def iter_synthetic_values(self) -> Iterator[bool | None]: ...
+
+
 @dataclass(frozen=True)
 class _PreparedL2Source:
     """One WMR-selected source and its owner-held, read-only transaction."""
@@ -860,10 +944,10 @@ class _PreparedL2Source:
 
 @dataclass(frozen=True)
 class _PreparedDataForgeCatalogSource:
-    """Exact rowset and selected profile read from one catalog candidate."""
+    """Profile-first catalog reader held open by its DataForge owner."""
 
     profile: CredalReferenceCatalogSourceProfile
-    rows: tuple[tuple[Any, ...], ...]
+    iter_rows: Callable[[], Iterator[tuple[Any, ...]]]
 
 
 @dataclass(frozen=True)
@@ -983,7 +1067,9 @@ class CredalReference:
                 raise ValueError("credal_reference_edge_source_key_mismatch")
             captured_edges[captured_key] = edge
         object.__setattr__(
-            self, "component_versions", _freeze_reference_payload(self.component_versions)
+            self,
+            "component_versions",
+            _freeze_reference_payload(self.component_versions),
         )
         object.__setattr__(self, "essential_edges", MappingProxyType(captured_edges))
         profile = self.data_forge_catalog_source_profile
@@ -1153,31 +1239,36 @@ def build_credal_reference(
     root = repo_root.resolve()
     world_record = world_model_record or _production_world_model_record(root.as_posix())
     edge_index: dict[EdgeKey, CredalReferenceEdge] = {}
-    catalog_source = _read_data_forge_catalog_source(root)
-    if catalog_source is None:
-        raise ValueError("credal_reference_data_forge_catalog_source_missing")
-    data_forge_catalog_source_profile = catalog_source.profile
-    with _prepared_l2_source(root, world_record) as selected_l2:
-        if selected_l2 is not None:
-            selected_l2_edges = tuple(
-                _iter_selected_l2_edges(root, selected_l2, catalog_source=catalog_source)
-            )
-            if not selected_l2_edges:
-                raise ValueError("credal_reference_selected_l2_source_empty")
-            edge_index.update({edge.key: edge for edge in selected_l2_edges})
-            l2_source_profile_hash = selected_l2.profile.content_hash
-        else:
-            # Keep the complete selected catalog denominator even without SKG owner rows.
-            # Every canonical endpoint is then explicitly incomplete relative to the absent L2.
-            catalog_edges = tuple(
-                _iter_data_forge_variable_alignment_edges(
+    with _read_data_forge_catalog_source(root) as catalog_source:
+        if catalog_source is None:
+            raise ValueError("credal_reference_data_forge_catalog_source_missing")
+        data_forge_catalog_source_profile = catalog_source.profile
+        with _prepared_l2_source(root, world_record) as selected_l2:
+            if selected_l2 is not None:
+                selected_l2_edges = _iter_selected_l2_edges(
+                    root,
+                    selected_l2,
+                    catalog_source=catalog_source,
+                    existing_edge_index=edge_index,
+                )
+                selected_l2_count = 0
+                for edge in selected_l2_edges:
+                    _insert_l2_edge(edge_index, edge)
+                    selected_l2_count += 1
+                if not selected_l2_count:
+                    raise ValueError("credal_reference_selected_l2_source_empty")
+                l2_source_profile_hash = selected_l2.profile.content_hash
+            else:
+                # Keep the complete selected catalog denominator even without SKG rows.
+                # Every canonical endpoint is then explicitly incomplete relative to absent L2.
+                for edge in _iter_data_forge_variable_alignment_edges(
                     root,
                     variable_names=set(),
                     catalog_source=catalog_source,
-                )
-            )
-            edge_index.update({edge.key: edge for edge in catalog_edges})
-            l2_source_profile_hash = None
+                    existing_edge_index=edge_index,
+                ):
+                    _insert_l2_edge(edge_index, edge)
+                l2_source_profile_hash = None
     for edge in _iter_l3_edges(root, as_of=as_of):
         edge_index[edge.key] = edge
     for edge in _iter_l6_edges(root, world_model_record=world_record):
@@ -1210,6 +1301,18 @@ def build_credal_reference(
         essential_edges=edge_index,
         data_forge_catalog_source_profile=data_forge_catalog_source_profile,
     )
+
+
+def _insert_l2_edge(
+    edge_index: dict[EdgeKey, CredalReferenceEdge],
+    edge: CredalReferenceEdge,
+) -> None:
+    """Insert one L2 edge while preserving catalog EdgeKey collision refusal."""
+    if edge.modality == "L2_DATA_FORGE_VARIABLE_ALIGNMENT":
+        previous = edge_index.get(edge.key)
+        if previous is not None and previous.modality == edge.modality:
+            raise ValueError("credal_reference_data_forge_alignment_edge_identity_collision")
+    edge_index[edge.key] = edge
 
 
 def reference_lift(
@@ -1680,24 +1783,36 @@ def _iter_selected_l2_edges(
     selected: _PreparedL2Source,
     *,
     catalog_source: _PreparedDataForgeCatalogSource | None = None,
+    existing_edge_index: dict[EdgeKey, CredalReferenceEdge] | None = None,
 ) -> Iterable[CredalReferenceEdge]:
     """Derive L2 edges from typed rows returned by the selected owner transaction."""
-    rows = selected.prepared_read.read_credal_source_rows()
+    if catalog_source is None:
+        with _read_data_forge_catalog_source(repo_root) as prepared_catalog:
+            if prepared_catalog is None:
+                raise ValueError("credal_reference_data_forge_catalog_source_missing")
+            yield from _iter_selected_l2_edges(
+                repo_root,
+                selected,
+                catalog_source=prepared_catalog,
+                existing_edge_index=existing_edge_index,
+            )
+        return
+
+    rows = selected.prepared_read._prepare_credal_source_stream()
     if (
         rows.source_snapshot_ref != selected.profile.source_snapshot_ref
         or rows.source_snapshot_sha256 != selected.profile.source_snapshot_sha256
         or str(rows.version_id) != selected.version
     ):
         raise ValueError("credal_reference_skg_prepared_read_unbound")
-    synthetic = any(value is True for value in rows.synthetic_values)
-    if catalog_source is None:
-        catalog_source = _read_data_forge_catalog_source(repo_root)
+    synthetic = any(value is True for value in rows.iter_synthetic_values())
     selected_source_profile_snapshot: object | None = None
     for edge in _iter_l2_source_edges(
         repo_root,
         rows=rows,
         version=selected.version,
         catalog_source=catalog_source,
+        existing_edge_index=existing_edge_index,
     ):
         provenance = dict(edge.provenance)
         if provenance.get("owner") == "L2":
@@ -1719,27 +1834,34 @@ def _iter_selected_l2_edges(
 def _iter_l2_source_edges(
     repo_root: Path,
     *,
-    rows: PreparedSKGCredalSourceRows,
+    rows: PreparedSKGCredalSourceRows | _CredalSourceRowStream,
     version: str,
     catalog_source: _PreparedDataForgeCatalogSource | None = None,
+    existing_edge_index: dict[EdgeKey, CredalReferenceEdge] | None = None,
 ) -> Iterable[CredalReferenceEdge]:
-    """Derive the complete SKG-owned K_ref denominator from its typed source rows."""
+    """Derive the complete SKG-owned K_ref denominator from guarded row streams."""
     if str(rows.version_id) != version:
         raise ValueError("credal_reference_skg_version_changed_during_read")
-    variables = rows.variables
-    variable_names = {
-        str(variable_row.canonical_name)
-        for variable_row in variables
-        if variable_row.canonical_name
-    }
-    approved_variables = {
-        str(variable_row.canonical_name)
-        for variable_row in variables
-        if variable_row.canonical_name and bool(variable_row.is_approved_canonical)
-    }
-    for variable_row in variables:
+
+    from polisyos.data_forge.read_api.academic import PreparedSKGCredalSourceRows
+
+    if isinstance(rows, PreparedSKGCredalSourceRows):
+        row_reader: _CredalSourceRowReader = _TupleCredalSourceRowReader(rows)
+    else:
+        row_reader = cast("_CredalSourceRowReader", rows)
+
+    variable_names: set[str] = set()
+    approved_variables: set[str] = set()
+    for variable_row in row_reader.iter_variables():
+        if variable_row.canonical_name:
+            canonical_name = str(variable_row.canonical_name)
+            variable_names.add(canonical_name)
+            if bool(variable_row.is_approved_canonical):
+                approved_variables.add(canonical_name)
+
+    for variable_row in row_reader.iter_variables():
         yield _derive_l2_variable_edge(variable_row, version=version)
-    for variable_row in variables:
+    for variable_row in row_reader.iter_variables():
         parent_edge = _derive_l2_variable_hierarchy_edge(
             variable_row,
             version=version,
@@ -1749,7 +1871,7 @@ def _iter_l2_source_edges(
         if parent_edge is not None:
             yield parent_edge
 
-    for synonym_row in rows.variable_synonyms:
+    for synonym_row in row_reader.iter_variable_synonyms():
         yield derive_variable_alignment_edge(
             {
                 "approved": synonym_row.approved,
@@ -1765,10 +1887,11 @@ def _iter_l2_source_edges(
         repo_root,
         variable_names=variable_names,
         catalog_source=catalog_source,
+        existing_edge_index=existing_edge_index,
     )
 
-    contested_edges, contested_claims = _l2_contested_memberships(rows.contested_edges)
-    for causal_row in rows.causal_edges:
+    contested_edges, contested_claims = _l2_contested_memberships(row_reader.iter_contested_edges())
+    for causal_row in row_reader.iter_causal_edges():
         yield _derive_l2_causal_edge(
             causal_row,
             version=version,
@@ -1777,7 +1900,7 @@ def _iter_l2_source_edges(
             contested_edges=contested_edges,
         )
 
-    for family_row in rows.family_edges:
+    for family_row in row_reader.iter_family_edges():
         yield _derive_l2_family_edge(
             family_row,
             version=version,
@@ -1785,14 +1908,14 @@ def _iter_l2_source_edges(
             contested_edges=contested_edges,
         )
 
-    for moderation_row in rows.moderation_edges:
+    for moderation_row in row_reader.iter_moderation_edges():
         yield _derive_l2_moderation_edge(
             moderation_row,
             version=version,
             variable_names=variable_names,
         )
 
-    for claim_result in rows.causal_claim_results:
+    for claim_result in row_reader.iter_causal_claim_results():
         yield _derive_l2_causal_claim(
             claim_result,
             version=version,
@@ -1800,7 +1923,7 @@ def _iter_l2_source_edges(
             contested_claims=contested_claims,
         )
 
-    for contested_row in rows.contested_edges:
+    for contested_row in row_reader.iter_contested_edges():
         yield _derive_l2_contested_edge(contested_row[:12], version=version)
 
 
@@ -1950,14 +2073,24 @@ def _iter_data_forge_variable_alignment_edges(
     *,
     variable_names: set[str],
     catalog_source: _PreparedDataForgeCatalogSource | None = None,
+    existing_edge_index: dict[EdgeKey, CredalReferenceEdge] | None = None,
 ) -> Iterable[CredalReferenceEdge]:
-    """Derive every catalog alignment row from the selected source context."""
+    """Derive all selected catalog rows, checking encoded collisions on insertion."""
 
-    selected = catalog_source or _read_data_forge_catalog_source(repo_root)
-    if selected is None:
+    if catalog_source is None:
+        with _read_data_forge_catalog_source(repo_root) as selected:
+            if selected is None:
+                return
+            yield from _iter_data_forge_variable_alignment_edges(
+                repo_root,
+                variable_names=variable_names,
+                catalog_source=selected,
+                existing_edge_index=existing_edge_index,
+            )
         return
-    seen_keys: set[EdgeKey] = set()
-    for row in selected.rows:
+
+    seen_keys: set[EdgeKey] | None = None if existing_edge_index is not None else set()
+    for row in catalog_source.iter_rows():
         edge = derive_data_forge_variable_alignment_edge(
             {
                 "canonical_var": row[2],
@@ -1970,20 +2103,59 @@ def _iter_data_forge_variable_alignment_edges(
                 "raw_variable": row[1],
             },
             variable_names=variable_names,
-            provenance_version=selected.profile.source_version,
+            provenance_version=catalog_source.profile.source_version,
         )
-        if edge.key in seen_keys:
-            raise ValueError("credal_reference_data_forge_alignment_edge_identity_collision")
-        seen_keys.add(edge.key)
+        if existing_edge_index is not None:
+            previous = existing_edge_index.get(edge.key)
+            if previous is not None and previous.modality == edge.modality:
+                raise ValueError("credal_reference_data_forge_alignment_edge_identity_collision")
+        elif seen_keys is not None:
+            if edge.key in seen_keys:
+                raise ValueError("credal_reference_data_forge_alignment_edge_identity_collision")
+            seen_keys.add(edge.key)
         provenance = dict(edge.provenance)
-        provenance["selected_catalog_source_profile_hash"] = selected.profile.content_hash
+        provenance["selected_catalog_source_profile_hash"] = catalog_source.profile.content_hash
         yield replace(edge, provenance=provenance, content_hash="").with_content_hash()
 
 
+def _profile_data_forge_alignment_rows(
+    rows: Iterable[Sequence[Any]],
+) -> tuple[int, str]:
+    """Hash the full historical catalog envelope and reject adjacent PK duplicates."""
+    columns = (
+        "dataset_id",
+        "raw_variable",
+        "canonical_var",
+        "method",
+        "confidence",
+        "evidence",
+        "is_proxy",
+        "proxy_penalty",
+    )
+    row_count = 0
+    previous_key: tuple[Any, Any, Any] | None = None
+
+    def checked_rows() -> Iterator[Sequence[Any]]:
+        nonlocal row_count, previous_key
+        for row in rows:
+            if len(row) != len(columns):
+                raise ValueError("credal_reference_data_forge_alignment_row_shape_invalid")
+            row_key = (row[0], row[1], row[2])
+            if previous_key is not None and row_key == previous_key:
+                raise ValueError("credal_reference_data_forge_alignment_primary_key_duplicate")
+            previous_key = row_key
+            row_count += 1
+            yield row
+
+    rows_hash = gy_content_hash_rows(columns, checked_rows())
+    return row_count, rows_hash
+
+
+@contextmanager
 def _read_data_forge_catalog_source(
     repo_root: Path,
-) -> _PreparedDataForgeCatalogSource | None:
-    """Read all alignment rows from the active typed catalog source, read-only."""
+) -> Iterator[_PreparedDataForgeCatalogSource | None]:
+    """Prepare the selected catalog profile before replaying rows in one owner txn."""
 
     root = repo_root.resolve()
     active_source = current_catalog_serving_source()
@@ -1991,7 +2163,8 @@ def _read_data_forge_catalog_source(
     if active_source is None:
         candidate_path = paths.l1_dcat_path
         if not candidate_path.exists() and not candidate_path.is_symlink():
-            return None
+            yield None
+            return
         if not candidate_path.is_file():
             raise ValueError("credal_reference_data_forge_catalog_path_not_file")
         selection_owner: Literal["catalog_serving_source_paths", "legacy.default_l1_catalog"] = (
@@ -2022,73 +2195,49 @@ def _read_data_forge_catalog_source(
         catalog_run_profile = active_source.catalog_run_profile
 
     source_version = _data_forge_catalog_version(db_path)
-    connection = None
-    try:
-        connection = duckdb.connect(str(db_path), read_only=True)
-        connection.execute("BEGIN TRANSACTION")
-        source_read_prepared_at_utc = datetime.now(UTC).isoformat().replace("+00:00", "Z")
-        rows = tuple(
-            tuple(row)
-            for row in connection.execute(
-                """
-                SELECT dataset_id, raw_variable, canonical_var, method, confidence,
-                       evidence, is_proxy, proxy_penalty
-                FROM ds_variable_alignments
-                ORDER BY dataset_id, raw_variable, canonical_var
-                """
-            ).fetchall()
-        )
-        connection.execute("COMMIT")
-    except Exception as exc:
-        raise ValueError("credal_reference_data_forge_catalog_read_failed") from exc
-    finally:
-        if connection is not None:
-            connection.close()
+    from polisyos.data_forge.read_api.catalog import DatasetRegistry
 
-    row_keys = tuple(tuple(row[:3]) for row in rows)
-    if len(set(row_keys)) != len(row_keys):
-        raise ValueError("credal_reference_data_forge_alignment_primary_key_duplicate")
-    rows_hash = gy_content_hash(
-        {
-            "columns": [
-                "dataset_id",
-                "raw_variable",
-                "canonical_var",
-                "method",
-                "confidence",
-                "evidence",
-                "is_proxy",
-                "proxy_penalty",
-            ],
-            "rows": rows,
-        }
-    )
-    profile_body = {
-        "schema_version": ("runtime.quality.credal_reference_data_forge_catalog_source_profile.v1"),
-        "selection_owner": selection_owner,
-        "source_repo_root": str(root),
-        "source_snapshot_root": str(snapshot_root.resolve()),
-        "source_database_path": str(db_path),
-        "catalog_run_profile": catalog_run_profile,
-        "selection_basis": selection_basis,
-        "source_version": source_version,
-        "alignment_table": "ds_variable_alignments",
-        "alignment_query_version": "full_primary_key_order_v1",
-        "alignment_row_count": len(rows),
-        "alignment_rows_sha256": rows_hash,
-        "source_read_prepared_at_utc": source_read_prepared_at_utc,
-        "authority_band": "candidate",
-        "source_snapshot_authenticity": "not_established",
-        "currentness_status": "not_established",
-        "time_semantics": "read_transaction_opened_at",
-    }
-    profile = CredalReferenceCatalogSourceProfile.model_validate(
-        {
-            **profile_body,
-            "content_hash": _data_forge_catalog_source_profile_content_hash(profile_body),
-        }
-    )
-    return _PreparedDataForgeCatalogSource(profile=profile, rows=rows)
+    registry = DatasetRegistry(db_path)
+    with registry._prepare_kref_alignment_read() as alignment_reader:
+        try:
+            source_read_prepared_at_utc = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+            row_count, rows_hash = _profile_data_forge_alignment_rows(alignment_reader.iter_rows())
+            profile_body = {
+                "schema_version": (
+                    "runtime.quality.credal_reference_data_forge_catalog_source_profile.v1"
+                ),
+                "selection_owner": selection_owner,
+                "source_repo_root": str(root),
+                "source_snapshot_root": str(snapshot_root.resolve()),
+                "source_database_path": str(db_path),
+                "catalog_run_profile": catalog_run_profile,
+                "selection_basis": selection_basis,
+                "source_version": source_version,
+                "alignment_table": "ds_variable_alignments",
+                "alignment_query_version": "full_primary_key_order_v1",
+                "alignment_row_count": row_count,
+                "alignment_rows_sha256": rows_hash,
+                "source_read_prepared_at_utc": source_read_prepared_at_utc,
+                "authority_band": "candidate",
+                "source_snapshot_authenticity": "not_established",
+                "currentness_status": "not_established",
+                "time_semantics": "read_transaction_opened_at",
+            }
+            profile = CredalReferenceCatalogSourceProfile.model_validate(
+                {
+                    **profile_body,
+                    "content_hash": _data_forge_catalog_source_profile_content_hash(profile_body),
+                }
+            )
+            prepared = _PreparedDataForgeCatalogSource(
+                profile=profile,
+                iter_rows=alignment_reader.iter_rows,
+            )
+        except ValueError:
+            raise
+        except Exception as exc:
+            raise ValueError("credal_reference_data_forge_catalog_read_failed") from exc
+        yield prepared
 
 
 def _derive_l2_causal_edge(
@@ -2099,7 +2248,17 @@ def _derive_l2_causal_edge(
     approved_variables: set[str],
     contested_edges: Mapping[str, Mapping[str, Any]],
 ) -> CredalReferenceEdge:
-    edge_id, src, dst, direction, n_articles, strength, confidence, layer, quality_json = row
+    (
+        edge_id,
+        src,
+        dst,
+        direction,
+        n_articles,
+        strength,
+        confidence,
+        layer,
+        quality_json,
+    ) = row
     edge_text = str(edge_id or "").strip()
     src_text = str(src or "").strip()
     dst_text = str(dst or "").strip()
@@ -2564,7 +2723,7 @@ def _derive_l2_contested_edge(row: Sequence[Any], *, version: str) -> CredalRefe
 
 
 def _l2_contested_memberships(
-    contested_rows: Sequence[Any],
+    contested_rows: Iterable[Any],
 ) -> tuple[dict[str, Mapping[str, Any]], set[str]]:
     edge_membership: dict[str, Mapping[str, Any]] = {}
     claim_membership: set[str] = set()
@@ -2586,11 +2745,31 @@ def _l2_contested_memberships(
 def _iter_l3_edges(repo_root: Path, *, as_of: str) -> Iterable[CredalReferenceEdge]:
     db_path = repo_root / DEFAULT_L3_LEX_KG_PATH
     con = duckdb.connect(str(db_path), read_only=True)
+    transaction_open = False
     try:
+        con.execute("BEGIN TRANSACTION")
+        transaction_open = True
         version_row = con.execute("SELECT MAX(effective_from) FROM lex_amendments").fetchone()
         if version_row is None:
             raise RuntimeError("credal_reference_l3_version_row_missing")
         version = str(version_row[0] or db_path.parent.name)
+
+        threshold_metadata = con.execute(
+            """
+            SELECT t.threshold_id, f.doc_family_id, t.metric, t.unit,
+                   t.applies_to, f.effective_from
+            FROM lex_rule_thresholds t
+            LEFT JOIN lex_normative_ready_facts f ON t.fact_id = f.fact_id
+            ORDER BY t.threshold_id
+            """
+        )
+        threshold_successors = _temporal_successors(
+            threshold_metadata,
+            id_index=0,
+            group_indexes=(1, 2, 3, 4),
+            date_index=5,
+            require_nonempty_group_indexes=(),
+        )
         threshold_rows = con.execute(
             """
             SELECT t.threshold_id, t.fact_id, t.metric, t.operator, t.value_decimal,
@@ -2602,16 +2781,37 @@ def _iter_l3_edges(repo_root: Path, *, as_of: str) -> Iterable[CredalReferenceEd
             LEFT JOIN lex_normative_ready_facts f ON t.fact_id = f.fact_id
             ORDER BY t.threshold_id
             """
-        ).fetchall()
-        next_threshold_starts = _next_starts_for_thresholds(threshold_rows)
-        for row in threshold_rows:
-            yield _derive_l3_threshold_edge(
-                row,
-                version=version,
-                as_of=as_of,
-                next_start=next_threshold_starts.get(str(row[0] or "")),
-            )
+        )
+        while batch := threshold_rows.fetchmany(256):
+            for row in batch:
+                yield _derive_l3_threshold_edge(
+                    row,
+                    version=version,
+                    as_of=as_of,
+                    next_start=_temporal_successor_for_row(
+                        threshold_successors,
+                        row,
+                        id_index=0,
+                        group_indexes=(8, 2, 6, 7),
+                        date_index=9,
+                        require_nonempty_group_indexes=(),
+                    ),
+                )
 
+        amendment_metadata = con.execute(
+            """
+            SELECT amendment_id, amended_doc_id, target_anchor, effective_from
+            FROM lex_amendments
+            ORDER BY amendment_id
+            """
+        )
+        amendment_successors = _temporal_successors(
+            amendment_metadata,
+            id_index=0,
+            group_indexes=(1, 2),
+            date_index=3,
+            require_nonempty_group_indexes=(0,),
+        )
         amendment_rows = con.execute(
             """
             SELECT amendment_id, amending_doc_id, amended_doc_id,
@@ -2621,17 +2821,24 @@ def _iter_l3_edges(repo_root: Path, *, as_of: str) -> Iterable[CredalReferenceEd
             FROM lex_amendments
             ORDER BY amendment_id
             """
-        ).fetchall()
-        next_amendment_starts = _next_starts_for_amendments(amendment_rows)
-        for row in amendment_rows:
-            yield _derive_l3_amendment_edge(
-                row,
-                version=version,
-                as_of=as_of,
-                next_start=next_amendment_starts.get(str(row[0] or "")),
-            )
+        )
+        while batch := amendment_rows.fetchmany(256):
+            for row in batch:
+                yield _derive_l3_amendment_edge(
+                    row,
+                    version=version,
+                    as_of=as_of,
+                    next_start=_temporal_successor_for_row(
+                        amendment_successors,
+                        row,
+                        id_index=0,
+                        group_indexes=(2, 5),
+                        date_index=8,
+                        require_nonempty_group_indexes=(0,),
+                    ),
+                )
 
-        for row in con.execute(
+        reference_rows = con.execute(
             """
             SELECT reference_edge_id, source_doc_id, source_doc_family_id,
                    source_anchor, target_doc_id, target_doc_family_id,
@@ -2642,10 +2849,66 @@ def _iter_l3_edges(repo_root: Path, *, as_of: str) -> Iterable[CredalReferenceEd
             FROM lex_reference_edges
             ORDER BY reference_edge_id
             """
-        ).fetchall():
-            yield _derive_l3_reference_edge(row, version=version)
+        )
+        while batch := reference_rows.fetchmany(256):
+            for row in batch:
+                yield _derive_l3_reference_edge(row, version=version)
+        con.execute("COMMIT")
+        transaction_open = False
+    except Exception:
+        if transaction_open:
+            with suppress(duckdb.Error):
+                con.execute("ROLLBACK")
+        raise
     finally:
         con.close()
+
+
+def _temporal_successors(
+    result: _CredalSourceFetchManyRows,
+    *,
+    id_index: int,
+    group_indexes: tuple[int, ...],
+    date_index: int,
+    require_nonempty_group_indexes: tuple[int, ...],
+) -> dict[tuple[tuple[str, ...], date], date]:
+    """Build a distinct-group/date successor index from narrow metadata rows."""
+    grouped: dict[tuple[str, ...], set[date]] = defaultdict(set)
+    while batch := result.fetchmany(256):
+        for row in batch:
+            if not str(row[id_index] or ""):
+                continue
+            key = tuple(str(row[index] or "") for index in group_indexes)
+            start = _parse_date(row[date_index])
+            if start is not None and all(key[index] for index in require_nonempty_group_indexes):
+                grouped[key].add(start)
+    successors: dict[tuple[tuple[str, ...], date], date] = {}
+    for key, values in grouped.items():
+        ordered = sorted(values)
+        for index, start in enumerate(ordered[:-1]):
+            successors[(key, start)] = ordered[index + 1]
+    return successors
+
+
+def _temporal_successor_for_row(
+    successors: Mapping[tuple[tuple[str, ...], date], date],
+    row: Sequence[object],
+    *,
+    id_index: int,
+    group_indexes: tuple[int, ...],
+    date_index: int,
+    require_nonempty_group_indexes: tuple[int, ...],
+) -> date | None:
+    """Look up the legacy next start without retaining one entry per row ID."""
+    if not str(row[id_index] or ""):
+        return None
+    key = tuple(str(row[index] or "") for index in group_indexes)
+    if any(not key[index] for index in require_nonempty_group_indexes):
+        return None
+    start = _parse_date(row[date_index])
+    if start is None:
+        return None
+    return successors.get((key, start))
 
 
 def _derive_l3_threshold_edge(
@@ -3186,7 +3449,9 @@ def _iter_l6_observation_route_edges(
             )
 
 
-def _iter_wmr_edges(world_model_record: WorldModelRecord) -> Iterable[CredalReferenceEdge]:
+def _iter_wmr_edges(
+    world_model_record: WorldModelRecord,
+) -> Iterable[CredalReferenceEdge]:
     version = world_model_record.content_hash
     for slot in sorted(world_model_record.policy_slot_map, key=lambda item: item.slot_id):
         provenance = {
@@ -3216,7 +3481,14 @@ def _iter_wmr_edges(world_model_record: WorldModelRecord) -> Iterable[CredalRefe
             if status == "confirmed"
             else _incomplete_completions("world_slot_typeless_or_missing")
         )
-        yield _edge("WMR_WORLD_SLOT", slot.slot_id, status, completions, provenance, unit=slot.unit)
+        yield _edge(
+            "WMR_WORLD_SLOT",
+            slot.slot_id,
+            status,
+            completions,
+            provenance,
+            unit=slot.unit,
+        )
         yield _edge(
             "WMR_POLICY_SLOT_MAP",
             f"{world_model_record.world_model_record_id}:{slot.slot_id}",
@@ -3594,12 +3866,12 @@ def _float(value: object, *, default: float = 0.0) -> float:
     if isinstance(value, str | bytes | bytearray):
         try:
             return float(value)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return default
     if isinstance(value, SupportsFloat | SupportsIndex):
         try:
             return float(value)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return default
     return default
 

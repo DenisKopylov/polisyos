@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from threading import Lock
 from types import MappingProxyType
-from typing import Any, Literal, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, TypeVar, cast
 
 import duckdb
 import numpy as np
@@ -63,6 +63,10 @@ from polisyos.ir.analytics.literature import (
     EvidenceStrengthOrigin,
     ParameterType,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
+
 
 logger = get_logger(__name__)
 
@@ -1718,7 +1722,7 @@ class SKGQuery:
     def _parse_json_list(value: object) -> list[str]:
         try:
             payload = json.loads(str(value or "[]"))
-        except (json.JSONDecodeError, ValueError, TypeError):
+        except json.JSONDecodeError, ValueError, TypeError:
             return []
         if not isinstance(payload, list):
             return []
@@ -1733,7 +1737,7 @@ class SKGQuery:
     def _parse_json_mixed_list(value: object) -> list[Any]:
         try:
             payload = json.loads(str(value or "[]"))
-        except (json.JSONDecodeError, ValueError, TypeError):
+        except json.JSONDecodeError, ValueError, TypeError:
             return []
         return payload if isinstance(payload, list) else []
 
@@ -1745,7 +1749,7 @@ class SKGQuery:
             return dict(value)
         try:
             payload = json.loads(str(value))
-        except (json.JSONDecodeError, ValueError, TypeError):
+        except json.JSONDecodeError, ValueError, TypeError:
             return None
         if not isinstance(payload, dict):
             return None
@@ -1757,14 +1761,14 @@ class SKGQuery:
             payload = (
                 json.loads(str(value or "[]")) if not isinstance(value, (list, tuple)) else value
             )
-        except (json.JSONDecodeError, ValueError, TypeError):
+        except json.JSONDecodeError, ValueError, TypeError:
             return None
         if not isinstance(payload, (list, tuple)) or len(payload) != 2:
             return None
         try:
             lo = float(payload[0])
             hi = float(payload[1])
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None
         return (lo, hi)
 
@@ -1772,7 +1776,7 @@ class SKGQuery:
     def _safe_float(value: object) -> float | None:
         try:
             return None if value is None else float(value)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None
 
     def _parameter_estimate_by_id(self, estimate_id: str) -> ParameterEstimateResult | None:
@@ -1911,7 +1915,7 @@ class SKGQuery:
     def _bounded_unit_interval(value: float) -> float:
         try:
             return max(0.0, min(1.0, float(value)))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return 0.0
 
     @staticmethod
@@ -2025,7 +2029,7 @@ class SKGQuery:
             return None
         try:
             return ContextProfile.model_validate(payload)
-        except (ValidationError, ValueError, TypeError):
+        except ValidationError, ValueError, TypeError:
             return None
 
     @staticmethod
@@ -2178,7 +2182,7 @@ class SKGQuery:
         if confidence is not None:
             try:
                 retained_conditions.append(f"extraction_confidence:{float(confidence):g}")
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 retained_conditions.append(f"extraction_confidence:{confidence}")
             if diagnostics is not None:
                 diagnostics.append("retained:confidence->transfer_conditions")
@@ -2232,7 +2236,7 @@ class SKGQuery:
 
         try:
             value = float(raw_value)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             if diagnostics is not None:
                 diagnostics.append("dropped:non_numeric_value")
             return None
@@ -2242,7 +2246,7 @@ class SKGQuery:
         if isinstance(ci_payload, (list, tuple)) and len(ci_payload) == 2:
             try:
                 confidence_interval = (float(ci_payload[0]), float(ci_payload[1]))
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 confidence_interval = None
         elif payload.get("ci_low") is not None and payload.get("ci_high") is not None:
             try:
@@ -2250,13 +2254,13 @@ class SKGQuery:
                     float(payload.get("ci_low")),
                     float(payload.get("ci_high")),
                 )
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 confidence_interval = None
 
         std_error_raw = payload.get("std_error")
         try:
             std_error = None if std_error_raw is None else float(std_error_raw)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             std_error = None
 
         evidence_strength_raw = payload.get("evidence_strength")
@@ -2294,7 +2298,7 @@ class SKGQuery:
             if diagnostics is not None:
                 diagnostics.append("fallback:manual_evidence_parameter")
             return parameter
-        except (ValidationError, ValueError, TypeError):
+        except ValidationError, ValueError, TypeError:
             if diagnostics is not None:
                 diagnostics.append("dropped:manual_fallback_validation_failed")
             return None
@@ -2316,7 +2320,7 @@ class SKGQuery:
                 "SELECT 1 FROM ac_skg_versions WHERE version_id = ? LIMIT 1",
                 [int(version_id)],
             ).fetchone()
-        except (duckdb.Error, TypeError, ValueError):
+        except duckdb.Error, TypeError, ValueError:
             return False
         return row is not None
 
@@ -3203,6 +3207,71 @@ class SKGQuery:
         self._con.close()
 
 
+_CredalRowT = TypeVar("_CredalRowT")
+
+
+@dataclass(frozen=True)
+class _PreparedSKGCredalSourceStream:
+    """Fixed typed row streams from one source-bound PreparedSKGRead."""
+
+    _prepared_read: PreparedSKGRead = field(repr=False, compare=False)
+    source_snapshot_ref: str
+    source_snapshot_sha256: str
+    version_id: int
+    synthetic_column_present: bool
+
+    def iter_variables(self) -> Iterator[_CredalVariableRow]:
+        yield from self._prepared_read._iter_credal_source_rows("variables", _CredalVariableRow)
+
+    def iter_variable_synonyms(self) -> Iterator[_CredalSynonymRow]:
+        yield from self._prepared_read._iter_credal_source_rows(
+            "variable_synonyms", _CredalSynonymRow
+        )
+
+    def iter_causal_edges(self) -> Iterator[_CredalCausalEdgeRow]:
+        yield from self._prepared_read._iter_credal_source_rows(
+            "causal_edges", _CredalCausalEdgeRow
+        )
+
+    def iter_family_edges(self) -> Iterator[_CredalFamilyEdgeRow]:
+        yield from self._prepared_read._iter_credal_source_rows(
+            "family_edges", _CredalFamilyEdgeRow
+        )
+
+    def iter_moderation_edges(self) -> Iterator[_CredalModerationRow]:
+        yield from self._prepared_read._iter_credal_source_rows(
+            "moderation_edges", _CredalModerationRow
+        )
+
+    def iter_contested_edges(self) -> Iterator[_CredalContestedEdgeRow]:
+        yield from self._prepared_read._iter_credal_source_rows(
+            "contested_edges", _CredalContestedEdgeRow
+        )
+
+    def iter_causal_claim_results(self) -> Iterator[CausalClaimResultV2]:
+        prepared_read = self._prepared_read
+        if not prepared_read.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+        connection = prepared_read.query._confidence_connection()
+        yield from iter_causal_claim_results_v2(cast("duckdb.DuckDBPyConnection", connection))
+        if not prepared_read.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+
+    def iter_synthetic_values(self) -> Iterator[bool | None]:
+        if not self.synthetic_column_present:
+            return
+        prepared_read = self._prepared_read
+        if not prepared_read.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+        connection = prepared_read.query._confidence_connection()
+        result = connection.execute(_CREDAL_SOURCE_QUERY_BASIS["synthetic_values"])
+        while batch := result.fetchmany(256):
+            for row in batch:
+                yield row[0]
+        if not prepared_read.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+
+
 class PreparedSKGReadSchemaError(ValueError):
     """Raised when a query in the prepared SKG read basis cannot bind."""
 
@@ -3281,13 +3350,8 @@ class PreparedSKGRead:
         """Check that a consumer asks the prepared reader for its bound source path."""
         return Path(path).resolve() == self.db_path
 
-    def read_credal_source_rows(self) -> PreparedSKGCredalSourceRows:
-        """Read the fixed K_ref source tables through this transaction's guarded reader.
-
-        The method deliberately exposes no SQL argument or connection handle. All
-        fixed source queries are schema-bound before row queries execute, on the
-        same prepared, read-only connection as the source digest and version.
-        """
+    def _prepare_credal_source_stream(self) -> _PreparedSKGCredalSourceStream:
+        """Preflight the fixed K_ref query set and return owner-held row streams."""
         if self._closed:
             raise RuntimeError("prepared_skg_read_closed")
         if not self.source_generation_matches():
@@ -3325,61 +3389,63 @@ class PreparedSKGRead:
                 ).fetchall()
             except duckdb.Error as exc:
                 raise PreparedSKGReadSchemaError("synthetic_values") from exc
-
-        variables = tuple(
-            _CredalVariableRow(*row)
-            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["variables"]).fetchall()
-        )
-        variable_synonyms = tuple(
-            _CredalSynonymRow(*row)
-            for row in connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["variable_synonyms"]
-            ).fetchall()
-        )
-        causal_edges = tuple(
-            _CredalCausalEdgeRow(*row)
-            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["causal_edges"]).fetchall()
-        )
-        family_edges = tuple(
-            _CredalFamilyEdgeRow(*row)
-            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["family_edges"]).fetchall()
-        )
-        moderation_edges = tuple(
-            _CredalModerationRow(*row)
-            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["moderation_edges"]).fetchall()
-        )
-        contested_edges = tuple(
-            _CredalContestedEdgeRow(*row)
-            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["contested_edges"]).fetchall()
-        )
-        causal_claim_results = tuple(
-            iter_causal_claim_results_v2(cast("duckdb.DuckDBPyConnection", connection))
-        )
-        synthetic_values = (
-            tuple(
-                row[0]
-                for row in connection.execute(
-                    _CREDAL_SOURCE_QUERY_BASIS["synthetic_values"]
-                ).fetchall()
-            )
-            if synthetic_column_present
-            else ()
-        )
         if not self.source_generation_matches():
             raise ValueError("prepared_skg_read_source_changed_during_read")
-        return PreparedSKGCredalSourceRows(
+        return _PreparedSKGCredalSourceStream(
+            _prepared_read=self,
             source_snapshot_ref=self.source_snapshot_ref,
             source_snapshot_sha256=self.source_snapshot_sha256,
             version_id=version_id,
-            variables=variables,
-            variable_synonyms=variable_synonyms,
-            causal_edges=causal_edges,
-            family_edges=family_edges,
-            moderation_edges=moderation_edges,
-            contested_edges=contested_edges,
-            causal_claim_results=causal_claim_results,
             synthetic_column_present=synthetic_column_present,
-            synthetic_values=synthetic_values,
+        )
+
+    def _iter_credal_source_rows(
+        self,
+        query_id: Literal[
+            "variables",
+            "variable_synonyms",
+            "causal_edges",
+            "family_edges",
+            "moderation_edges",
+            "contested_edges",
+        ],
+        row_type: Callable[..., _CredalRowT],
+    ) -> Iterator[_CredalRowT]:
+        """Stream one preflighted fixed source query in bounded typed batches."""
+        if self._closed:
+            raise RuntimeError("prepared_skg_read_closed")
+        if not self.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+        statement = _CREDAL_SOURCE_QUERY_BASIS[query_id]
+        connection = self.query._confidence_connection()
+        result = connection.execute(statement)
+        while batch := result.fetchmany(256):
+            for row in batch:
+                yield cast("_CredalRowT", row_type(*row))
+        if not self.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+
+    def read_credal_source_rows(self) -> PreparedSKGCredalSourceRows:
+        """Return the legacy immutable snapshot over the guarded owner streams.
+
+        Existing callers retain the full tuple API. Runtime's complete K_ref
+        builder uses ``_prepare_credal_source_stream`` directly so it does not
+        retain every source row before deriving edges.
+        """
+        stream = self._prepare_credal_source_stream()
+        return PreparedSKGCredalSourceRows(
+            source_snapshot_ref=self.source_snapshot_ref,
+            source_snapshot_sha256=self.source_snapshot_sha256,
+            version_id=stream.version_id,
+            variables=tuple(stream.iter_variables()),
+            variable_synonyms=tuple(stream.iter_variable_synonyms()),
+            causal_edges=tuple(stream.iter_causal_edges()),
+            family_edges=tuple(stream.iter_family_edges()),
+            moderation_edges=tuple(stream.iter_moderation_edges()),
+            contested_edges=tuple(stream.iter_contested_edges()),
+            causal_claim_results=tuple(stream.iter_causal_claim_results()),
+            synthetic_column_present=stream.synthetic_column_present,
+            synthetic_values=tuple(stream.iter_synthetic_values()),
         )
 
     def close(self) -> None:

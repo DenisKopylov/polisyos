@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 import duckdb
+import pytest
 
 from polisyos.data_forge.domains.catalog.knowledge.registry import DatasetRegistry
 
@@ -93,8 +94,26 @@ def _build_registry_db(tmpdir: str) -> Path:
         con.executemany(
             "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                ("WB_WGI", "RL.EST", "institutional_quality", "exact", 0.92, "direct", False, 0.0),
-                ("TI_CPI", "cpi_score", "institutional_quality", "exact", 0.78, "proxy", True, 0.2),
+                (
+                    "WB_WGI",
+                    "RL.EST",
+                    "institutional_quality",
+                    "exact",
+                    0.92,
+                    "direct",
+                    False,
+                    0.0,
+                ),
+                (
+                    "TI_CPI",
+                    "cpi_score",
+                    "institutional_quality",
+                    "exact",
+                    0.78,
+                    "proxy",
+                    True,
+                    0.2,
+                ),
                 ("WVS_W7", "A165", "social_trust", "exact", 0.95, "direct", False, 0.0),
             ],
         )
@@ -127,8 +146,30 @@ def _build_registry_db(tmpdir: str) -> Path:
                     0.4,
                     "{}",
                 ),
-                ("obs3", "WVS_W7", "A165", "social_trust", "UA", 2020, 2020, 7, 0.6, "{}"),
-                ("obs4", "WVS_W7", "A165", "social_trust", "DE", 2018, 2018, 7, 0.55, "{}"),
+                (
+                    "obs3",
+                    "WVS_W7",
+                    "A165",
+                    "social_trust",
+                    "UA",
+                    2020,
+                    2020,
+                    7,
+                    0.6,
+                    "{}",
+                ),
+                (
+                    "obs4",
+                    "WVS_W7",
+                    "A165",
+                    "social_trust",
+                    "DE",
+                    2018,
+                    2018,
+                    7,
+                    0.55,
+                    "{}",
+                ),
             ],
         )
     finally:
@@ -220,3 +261,20 @@ def test_find_datasets_for_variables_bulk_groups_results() -> None:
         assert "social_trust" in results
         assert results["institutional_quality"]
         assert results["social_trust"]
+
+
+def test_private_kref_alignment_reader_replays_the_full_ordered_source_in_batches() -> None:
+    """Both passes read the same complete selected projection without a tuple cache."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = _build_registry_db(tmpdir)
+        reader = DatasetRegistry(db_path)
+        with reader._prepare_kref_alignment_read() as prepared:
+            first = tuple(prepared.iter_rows(batch_size=1))
+            second = tuple(prepared.iter_rows(batch_size=2))
+            with pytest.raises(ValueError, match="batch_size_invalid"):
+                tuple(prepared.iter_rows(batch_size=0))
+
+        assert first == second
+        assert len(first) == 3
+        assert tuple(row[:3] for row in first) == tuple(sorted(row[:3] for row in first))
+        assert not hasattr(prepared, "connection")

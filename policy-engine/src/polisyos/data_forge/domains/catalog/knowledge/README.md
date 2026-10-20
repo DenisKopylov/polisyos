@@ -37,7 +37,7 @@ transportability layer over the dataset catalog built by the batch pipeline.
   envelope; they do not reconstruct it from the graph's last-query diagnostic metrics. A v2
   semantic benchmark run carries query-local status and generation context while v1 serialization
   remains unchanged.
-- **Dataset registry** - `DatasetRegistry` resolves datasets for canonical variables and P*(Z) estimates.
+- **Dataset registry** - `DatasetRegistry` resolves datasets for canonical variables and P*(Z) estimates. Its private K_ref prepared reader exposes the complete ordered alignment projection in bounded batches under one read-only transaction; Runtime computes the existing full profile before replaying rows for edge derivation.
 - **Proxy resolution** - `proxy_resolver.py` builds fallback chains when direct observations are missing.
 - **Variable alignment** - `variable_alignment.py` maps canonical SKG variables onto dataset variables.
 - **Derivation catalog selection** - `derivation_catalog_selection.py` strictly loads

@@ -1143,3 +1143,12 @@ DataSnapshot's typed fields and direct manifest roles. It does not prove that
 an acquisition marker was never stripped or that the bytes came from the
 ordinary producer, so a protected `bound` result on that path is not an
 acquired-overlay custody claim.
+
+
+K_ref continues to expose the complete immutable all-edge map and preserves the same profile,
+edge, component-version, and reference hashes. Its selected DataForge alignment rows are hashed
+from a complete owner cursor before edge derivation, then replayed from the same read-only
+transaction; SKG and L3 payload rows are consumed in bounded batches. The L3 successor index keeps
+distinct group/date values, with O(U) retained metadata and O(N) worst case. DuckDB query sorting
+and the complete final edge map remain unbounded by Python batch size; a served-memory improvement
+is not claimed until the frozen source replay is measured.

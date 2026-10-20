@@ -1,6 +1,6 @@
 """Runtime quality evaluation helpers."""
 
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_content_hash, gy_content_hash_rows
 
 from .acquisition_planner import (
     ACQUISITION_PLANNER_GATE_LAYER,
@@ -1952,6 +1952,7 @@ __all__ = [
     "gate_universality_claim",
     "graded_outcome_closeout_record",
     "gy_content_hash",
+    "gy_content_hash_rows",
     "historical_prior_claim_evidence_issues",
     "human_review_public_export",
     "inspect_argument_graph",

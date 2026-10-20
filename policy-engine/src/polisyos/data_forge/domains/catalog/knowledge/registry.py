@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import json
 import math
+from contextlib import contextmanager, suppress
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from typing import TYPE_CHECKING, Any
 
 import duckdb
@@ -12,9 +15,13 @@ from polisyos.data_forge.domains.catalog.knowledge.proxy_penalties import (
     metric_name_from_alignment_evidence,
     resolve_proxy_penalty,
 )
-from polisyos.data_forge.domains.catalog.knowledge.types import DatasetMatch, PStarZResult
+from polisyos.data_forge.domains.catalog.knowledge.types import (
+    DatasetMatch,
+    PStarZResult,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
 _TEMPORAL_VOLATILITY: dict[str, float] = {
@@ -36,11 +43,110 @@ _TEMPORAL_VOLATILITY: dict[str, float] = {
 _DEFAULT_VOLATILITY = 0.05
 
 
+def _dataset_registry_file_identity(
+    path: Path,
+) -> tuple[int, int, int, int, int] | None:
+    """Return a stable local file generation or ``None`` when absent."""
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+    return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+
+
+_KREF_ALIGNMENT_QUERY = """
+    SELECT dataset_id, raw_variable, canonical_var, method, confidence,
+           evidence, is_proxy, proxy_penalty
+    FROM ds_variable_alignments
+    ORDER BY dataset_id, raw_variable, canonical_var
+"""
+
+
+@dataclass
+class _PreparedDatasetAlignmentRead:
+    """Private, source-bound cursor for complete K_ref catalog rows."""
+
+    _connection: duckdb.DuckDBPyConnection = dataclass_field(repr=False)
+    db_path: Path
+    file_identity: tuple[int, int, int, int, int]
+    wal_file_identity: tuple[int, int, int, int, int] | None
+
+    def _require_stable_generation(self) -> None:
+        """Refuse row passes when the database or its WAL generation changed."""
+        wal_path = self.db_path.with_name(self.db_path.name + ".wal")
+        try:
+            identity = _dataset_registry_file_identity(self.db_path)
+            wal_identity = _dataset_registry_file_identity(wal_path)
+        except OSError as exc:
+            raise ValueError("dataset_registry_kref_source_generation_changed") from exc
+        if identity != self.file_identity or wal_identity != self.wal_file_identity:
+            raise ValueError("dataset_registry_kref_source_generation_changed")
+
+    def iter_rows(self, *, batch_size: int = 256) -> Iterator[tuple[Any, ...]]:
+        """Stream the complete ordered alignment table in bounded Python batches."""
+        if not 1 <= batch_size <= 1024:
+            raise ValueError("dataset_registry_kref_batch_size_invalid")
+        self._require_stable_generation()
+        cursor = self._connection.execute(_KREF_ALIGNMENT_QUERY)
+        while batch := cursor.fetchmany(batch_size):
+            for row in batch:
+                if len(row) != 8:
+                    raise ValueError("dataset_registry_kref_alignment_row_shape_invalid")
+                yield tuple(row)
+        self._require_stable_generation()
+
+
 class DatasetRegistry:
     """DuckDB-backed registry for transportability-oriented dataset resolution."""
 
     def __init__(self, db_path: Path) -> None:
         self._db_path = db_path
+
+    @contextmanager
+    def _prepare_kref_alignment_read(self) -> Iterator[_PreparedDatasetAlignmentRead]:
+        """Open the fixed K_ref row projection under one read-only transaction.
+
+        Runtime receives a typed iterator, never SQL or the connection. The
+        prepared reader can be replayed for profile-first hashing and derivation
+        while both passes share the same DuckDB snapshot.
+        """
+        db_path = self._db_path.resolve()
+        if not db_path.is_file():
+            raise ValueError("dataset_registry_kref_source_missing")
+        wal_path = db_path.with_name(db_path.name + ".wal")
+        try:
+            identity = _dataset_registry_file_identity(db_path)
+            wal_identity = _dataset_registry_file_identity(wal_path)
+        except OSError as exc:
+            raise ValueError("dataset_registry_kref_source_missing") from exc
+        if identity is None:
+            raise ValueError("dataset_registry_kref_source_missing")
+        connection: duckdb.DuckDBPyConnection | None = None
+        transaction_open = False
+        try:
+            connection = duckdb.connect(str(db_path), read_only=True)
+            connection.execute("BEGIN TRANSACTION")
+            transaction_open = True
+            connection.execute(f"EXPLAIN {_KREF_ALIGNMENT_QUERY}").fetchall()
+            reader = _PreparedDatasetAlignmentRead(
+                _connection=connection,
+                db_path=db_path,
+                file_identity=identity,
+                wal_file_identity=wal_identity,
+            )
+            reader._require_stable_generation()
+            yield reader
+            reader._require_stable_generation()
+            connection.execute("COMMIT")
+            transaction_open = False
+        except Exception:
+            if connection is not None and transaction_open:
+                with suppress(duckdb.Error):
+                    connection.execute("ROLLBACK")
+            raise
+        finally:
+            if connection is not None:
+                connection.close()
 
     def find_datasets_for_variable(
         self,
@@ -187,12 +293,15 @@ class DatasetRegistry:
                             conditional=True,
                             condition_on=requested_conditions,
                         )
-                        interpolated_value, interp_confidence, support_year, imputation_method = (
-                            _interpolate_observation(
-                                series,
-                                target_year=year,
-                                max_lag=_max_temporal_lag(canonical_var),
-                            )
+                        (
+                            interpolated_value,
+                            interp_confidence,
+                            support_year,
+                            imputation_method,
+                        ) = _interpolate_observation(
+                            series,
+                            target_year=year,
+                            max_lag=_max_temporal_lag(canonical_var),
                         )
                         if interpolated_value is None:
                             conditional_failure_reason = "conditional_filter_unavailable"
@@ -220,12 +329,15 @@ class DatasetRegistry:
                             conditional=False,
                             condition_on=None,
                         )
-                        interpolated_value, _interp_confidence, support_year, imputation_method = (
-                            _interpolate_observation(
-                                series,
-                                target_year=year,
-                                max_lag=_max_temporal_lag(canonical_var),
-                            )
+                        (
+                            interpolated_value,
+                            _interp_confidence,
+                            support_year,
+                            imputation_method,
+                        ) = _interpolate_observation(
+                            series,
+                            target_year=year,
+                            max_lag=_max_temporal_lag(canonical_var),
                         )
                         if interpolated_value is None:
                             continue
@@ -468,7 +580,11 @@ class DatasetRegistry:
         start_year = int(coverage_row[0])
         end_year = int(coverage_row[1])
         if start_year <= target_year <= end_year:
-            return ("exact" if start_year == end_year == target_year else "overlap"), None, 0
+            return (
+                ("exact" if start_year == end_year == target_year else "overlap"),
+                None,
+                0,
+            )
         distance = min(abs(target_year - start_year), abs(target_year - end_year))
         return "extrapolation", None, distance
 
@@ -485,7 +601,12 @@ class DatasetRegistry:
                 "SELECT value FROM ds_observations "
                 "WHERE dataset_id = ? AND raw_variable = ? AND country_code = ? "
                 "AND survey_year = ? AND value IS NOT NULL",
-                [match.dataset_id, match.raw_variable, country_code, match.actual_survey_year],
+                [
+                    match.dataset_id,
+                    match.raw_variable,
+                    country_code,
+                    match.actual_survey_year,
+                ],
             ).fetchall()
         else:
             rows = con.execute(
@@ -510,7 +631,12 @@ class DatasetRegistry:
                 "SELECT value, condition_json FROM ds_observations "
                 "WHERE dataset_id = ? AND raw_variable = ? AND country_code = ? "
                 "AND survey_year = ? AND value IS NOT NULL",
-                [match.dataset_id, match.raw_variable, country_code, match.actual_survey_year],
+                [
+                    match.dataset_id,
+                    match.raw_variable,
+                    country_code,
+                    match.actual_survey_year,
+                ],
             ).fetchall()
         else:
             rows = con.execute(
@@ -574,7 +700,7 @@ class DatasetRegistry:
             try:
                 if abs(float(observed_value) - float(required_value)) > 1e-6:
                     return False
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 if str(observed_value) != str(required_value):
                     return False
         return True
@@ -619,13 +745,13 @@ def _parse_time_range(range_value: str) -> tuple[int | None, int | None]:
     if "-" not in range_value:
         try:
             year = int(range_value)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None, None
         return year, year
     left, right = range_value.split("-", 1)
     try:
         return int(left), int(right)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None, None
 
 
@@ -711,7 +837,12 @@ def _interpolate_observation(
         fraction = (target_year - left_year) / gap
         interpolated = left_value + fraction * (right_value - left_value)
         confidence = max(0.5, 1.0 - 0.05 * gap)
-        return float(interpolated), float(confidence), int(target_year), "linear_interpolation"
+        return (
+            float(interpolated),
+            float(confidence),
+            int(target_year),
+            "linear_interpolation",
+        )
 
     nearest_year, nearest_value = min(observations, key=lambda item: abs(item[0] - target_year))
     distance = abs(nearest_year - target_year)

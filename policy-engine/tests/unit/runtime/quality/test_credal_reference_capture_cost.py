@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_nested_dict_capture_serializes_one_wire_root(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_nested_dict_capture_serializes_one_wire_root(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A nested mapping snapshot has linear wire work and preserves the legacy projection."""
 
     from polisyos.runtime.quality import credal_reference as owner
@@ -263,7 +265,9 @@ def test_alias_memo_bounds_stateful_mapping_to_one_snapshot_per_capture() -> Non
     assert owner._json_ready(next_snapshot) == {"only": "sample-2-after"}
 
 
-def test_exact_scalars_skip_mapping_abc_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_exact_scalars_skip_mapping_abc_dispatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Exact scalar leaves avoid ABC mapping checks while container dispatch stays intact."""
 
     from polisyos.runtime.quality import credal_reference as owner

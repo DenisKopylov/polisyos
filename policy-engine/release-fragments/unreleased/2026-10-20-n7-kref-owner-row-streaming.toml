@@ -1,0 +1,34 @@
+id = "2026-10-20-n7-kref-owner-row-streaming"
+title = "Stream complete owner rows into the K_ref edge map"
+type = "changed"
+component = "runtime"
+owner = "team-runtime-quality"
+summary = "Reuse the DataForge catalog registry and PreparedSKGRead fixed-query owners to stream complete source rows into the existing full K_ref map. Catalog profile hashing remains byte-equivalent to the legacy {columns, rows} envelope; L3 temporal successor semantics are computed from compact distinct group/date metadata."
+evidence = [
+  "src/polisyos/data_forge/domains/catalog/knowledge/registry.py",
+  "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+  "src/polisyos/runtime/quality/credal_reference.py",
+  "src/polisyos/pdc/_impl/gy_waist.py",
+  "tests/unit/data_forge/domains/catalog/knowledge/test_registry.py",
+  "tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+  "tests/unit/runtime/quality/test_credal_reference.py",
+  "tests/unit/pdc/test_gy_waist_contracts.py",
+  "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+  "docs/reference/public-surface.md",
+  "architecture/public_surface/inventory.json",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n7-owner-row-streaming-hash-surface-independent-review-20261020-r1/review.md",
+]
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.pdc.gy_content_hash_rows and polisyos.runtime.quality.gy_content_hash_rows; internal: DataForge and SKG private K_ref row readers"
+compatibility = "The existing gy_content_hash digest contract is unchanged. The new gy_content_hash_rows helper emits the same canonical {columns, rows} hash for supported built-in JSON row sequences. PreparedSKGRead.read_credal_source_rows retains its full immutable tuple API; Runtime uses the new guarded typed stream. CredalReference remains the complete all-edge map with unchanged edge keys, statuses, completions, provenance, profiles, component versions, and reference hash."
+migration = "No persisted K_ref artifacts or source data are rewritten. Existing readers and callers keep their current API. New callers that need a one-pass row digest may use polisyos.pdc.gy_content_hash_rows or polisyos.runtime.quality.gy_content_hash_rows with supported built-in JSON row sequences."
+limitations = "The L3 index retains O(U) distinct group/date metadata, with O(N) worst case; DuckDB ordering/sort allocations and the complete immutable edge map remain. Source authenticity/currentness and external authority are not established. This candidate has no product-test, served-call, or RSS receipt; source replay and memory outcome remain pending root verification."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/pdc/README.md",
+  "src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+  "src/polisyos/data_forge/domains/academic/knowledge/README.md",
+  "src/polisyos/runtime/quality/README.md",
+]
+runbook_docs = []

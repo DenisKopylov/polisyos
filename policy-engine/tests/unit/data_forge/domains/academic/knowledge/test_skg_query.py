@@ -389,7 +389,9 @@ def test_query_parameters_resolves_canonical_gap_via_synonym_table(tmp_path) -> 
     assert "canonical_gap_resolved" in candidates[0].transport_notes
 
 
-def test_query_parameters_can_bridge_approved_canonical_to_observed_raw_name(tmp_path) -> None:
+def test_query_parameters_can_bridge_approved_canonical_to_observed_raw_name(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "skg.duckdb"
     _seed_skg_tables(db_path)
 
@@ -599,7 +601,9 @@ def test_query_edge_support_uses_family_layer_and_conflict_flags(tmp_path) -> No
     assert any(row.conflict_flag for row in rows)
 
 
-def test_query_edge_support_can_bridge_runtime_canonical_to_observed_raw_edge(tmp_path) -> None:
+def test_query_edge_support_can_bridge_runtime_canonical_to_observed_raw_edge(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "skg.duckdb"
     _seed_skg_tables(db_path)
 
@@ -792,7 +796,9 @@ def test_query_claims_exact_legacy_row_uses_claim_projection(tmp_path) -> None:
     assert "strength" not in rows[0].model_dump()
 
 
-def test_query_claims_family_summary_establishes_only_explicit_evidence(tmp_path) -> None:
+def test_query_claims_family_summary_establishes_only_explicit_evidence(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "skg.duckdb"
     _seed_skg_tables(db_path)
     con = duckdb.connect(str(db_path))
@@ -1075,7 +1081,9 @@ def test_prepared_read_binding_tracks_all_source_bytes(tmp_path) -> None:
         current.close()
 
 
-def test_prepared_read_static_helper_does_not_record_bound_query_execution(tmp_path) -> None:
+def test_prepared_read_static_helper_does_not_record_bound_query_execution(
+    tmp_path,
+) -> None:
     """Only a successful SELECT/WITH on the prepared connection is recorded."""
     db_path = tmp_path / "prepared-owner.duckdb"
     other_path = tmp_path / "other-owner.duckdb"
@@ -1223,7 +1231,39 @@ def test_prepared_read_exposes_typed_credal_rows_on_bound_source(tmp_path) -> No
         prepared.read_credal_source_rows()
 
 
-def test_prepared_read_refuses_first_missing_credal_relation_before_row_reads(tmp_path) -> None:
+def test_prepared_read_stream_replays_all_fixed_credal_rows_without_exposing_connection(
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "credal-stream-source.duckdb"
+    _seed_credal_read_source(db_path)
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        stream = prepared._prepare_credal_source_stream()
+        variables = tuple(stream.iter_variables())
+        assert stream.source_snapshot_ref == prepared.source_snapshot_ref
+        assert stream.source_snapshot_sha256 == prepared.source_snapshot_sha256
+        assert stream.version_id == 7
+        assert tuple(stream.iter_variables()) == variables
+        assert [row.canonical_name for row in variables] == [
+            "global.tax_rate",
+            "government.balance",
+        ]
+        assert [row.edge_id for row in stream.iter_causal_edges()] == ["tax-balance"]
+        assert [row.family_edge_id for row in stream.iter_family_edges()] == ["family-a"]
+        assert [row.moderation_id for row in stream.iter_moderation_edges()] == ["moderation-a"]
+        assert [row.contested_edge_id for row in stream.iter_contested_edges()] == ["contested-a"]
+        assert [row.id for row in stream.iter_causal_claim_results()] == ["claim-a"]
+        assert tuple(stream.iter_synthetic_values()) == (True,)
+        assert prepared.source_generation_matches()
+        assert not hasattr(stream, "connection")
+        assert not hasattr(stream, "prepared_read")
+    finally:
+        prepared.close()
+
+
+def test_prepared_read_refuses_first_missing_credal_relation_before_row_reads(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "incomplete-credal-source.duckdb"
     with duckdb.connect(str(db_path)) as con:
         con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")

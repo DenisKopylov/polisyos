@@ -5381,6 +5381,9 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         result = created.json()
         association = result["association"]
+        assert association["profile_join_status"] == "profileless_legacy"
+        assert association.get("value_data_profile_ref") is None
+        assert association.get("forecast_profile_member_ref") is None
         assert association["evidence_reason_codes"] == []
         assert association["candidate_source_ref"] == body["candidate_source_ref"]
         assert association["assessment"] == "limited"
@@ -5664,6 +5667,16 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     assert first_owner.empirical_suitability == "supported"
     assert comparison_owner.empirical_suitability == "limited"
     first_request, comparison_request = owner_requests
+    assert first_request.value_data_profile_ref is None
+    assert first_request.value_data_unit_id is None
+    assert first_request.forecast_profile_member is None
+    assert comparison_request.value_data_profile_ref is None
+    assert comparison_request.value_data_unit_id is None
+    assert comparison_request.forecast_profile_member is None
+    assert first_owner.value_data_profile_ref is None
+    assert first_owner.forecast_profile_member_ref is None
+    assert comparison_owner.value_data_profile_ref is None
+    assert comparison_owner.forecast_profile_member_ref is None
     for field in (
         "method_fqn",
         "method_params",
@@ -5679,6 +5692,9 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     assert first_request.observed_source_ref != comparison_request.observed_source_ref
 
     comparison_association = comparison_post_result["association"]
+    assert comparison_association["profile_join_status"] == "profileless_legacy"
+    assert comparison_association.get("value_data_profile_ref") is None
+    assert comparison_association.get("forecast_profile_member_ref") is None
     assert "calibration_floor_not_met" in comparison_association["evidence_reason_codes"]
     assert comparison_association["intent_id"] == comparison_body["intent_id"]
     assert comparison_association["request_sha256"] != association["request_sha256"]

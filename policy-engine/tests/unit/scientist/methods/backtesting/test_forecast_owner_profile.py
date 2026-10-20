@@ -269,6 +269,87 @@ def _profile_artifacts_from_real_owner(
     return profile_ref, projection_ref
 
 
+def test_owner_preserves_profileless_legacy_result_when_profile_pair_is_absent(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    request = _request(
+        source_ref,
+        rule_ref,
+        report_id="profile-owner-legacy-no-profile",
+    )
+
+    assert request.value_data_profile_ref is None
+    assert request.value_data_unit_id is None
+    assert request.forecast_profile_member is None
+
+    result = ForecastOwner(store).run(request)
+    assert result.value_data_profile_ref is None
+    assert result.forecast_profile_member_ref is None
+    assert result.authority_scope == "predictive_only"
+    assert result.bridge_status == "bridge_pending"
+
+    ir_store = ensure_ir_artifact_store(store)
+    diagnostics = get_json_artifact(ir_store, result.calibration_diagnostics_ref)
+    assert diagnostics["metadata"]["profile_join_status"] == "profileless_legacy"
+    assert "value_data_profile_ref" not in diagnostics["metadata"]
+    assert "forecast_profile_member_ref" not in diagnostics["metadata"]
+    diagnostic_manifest = store.get_manifest(result.calibration_diagnostics_ref)
+    assert not any(
+        edge.role in {"value_data_profile", "forecast_profile_member"}
+        for edge in diagnostic_manifest.inputs
+    )
+
+    report = load_backtest_report(ir_store, result.backtest_report_ref)
+    assert report.metadata["profile_join_status"] == "profileless_legacy"
+    assert "value_data_profile_ref" not in report.metadata
+    assert "forecast_profile_member_ref" not in report.metadata
+    report_manifest = store.get_manifest(result.backtest_report_ref)
+    assert not any(
+        edge.role in {"value_data_profile", "forecast_profile_member"}
+        for edge in report_manifest.inputs
+    )
+
+
+def test_owner_request_rejects_incomplete_present_profile_member_pairs(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    profile_ref, _values, projection_ref, projection = _cas_profile(store)
+    valid_request = _request_with_profile(
+        store,
+        source_ref,
+        rule_ref,
+        profile_ref,
+        projection_ref,
+        projection,
+        unit_id="UA",
+    )
+    before_artifacts = {str(item) for item in store.iter_artifact_ids()}
+    valid_payload = valid_request.model_dump(mode="python")
+
+    missing_member = {
+        **valid_payload,
+        "forecast_profile_member": None,
+    }
+    with pytest.raises(ValueError, match="selected value profile member receipt is incomplete"):
+        ForecastOwnerRequest.model_validate(missing_member)
+
+    member_without_profile = {
+        **valid_payload,
+        "value_data_profile_ref": None,
+        "value_data_unit_id": None,
+    }
+    with pytest.raises(
+        ValueError, match="profile member receipt requires an exact selected profile"
+    ):
+        ForecastOwnerRequest.model_validate(member_without_profile)
+
+    assert {str(item) for item in store.iter_artifact_ids()} == before_artifacts
+
+
 def test_owner_consumes_exact_prebound_profile_member_receipt_and_report_edges(
     tmp_path: Path,
 ) -> None:

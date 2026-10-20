@@ -165,6 +165,9 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import (
         profile_input_coverage_currentness as profile_input_coverage_currentness,
     )
+    from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+        WVSIndicatorRegistryError as WVSIndicatorRegistryError,
+    )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         DEFAULT_ACQUISITION_AUTHORITY_PROVISION as DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
     )

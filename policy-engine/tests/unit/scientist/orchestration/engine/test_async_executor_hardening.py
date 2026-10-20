@@ -14,6 +14,7 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -74,20 +75,17 @@ def _make_registry(*nodes_map) -> NodeRegistry:
     return registry
 
 
-def _make_ctx(tmp_path: Path):
-    ctx = MagicMock()
-    ctx.run.emit = MagicMock()
-    ctx.run.add_input = MagicMock()
-    ctx.run.add_output = MagicMock()
-    ctx.run.trace_path = None
-    ctx.run.finalize = MagicMock(return_value=MagicMock())
-    ctx.logger = MagicMock()
-    ctx.metrics = None
-    ctx.audit = None
+def _make_ctx(tmp_path: Path) -> ExecutionContext:
+    run = MagicMock()
+    run.emit = MagicMock()
+    run.add_input = MagicMock()
+    run.add_output = MagicMock()
+    run.trace_path = None
+    run.finalize = MagicMock(return_value=MagicMock())
+    logger = MagicMock()
     store = FileSystemCAS(tmp_path / "cas")
-    ctx.store = store
-    ctx.store.put_json = create_autospec(store.put_json, side_effect=store.put_json)
-    return ctx
+    store.put_json = create_autospec(store.put_json, side_effect=store.put_json)
+    return ExecutionContext(store=store, run=run, logger=logger)
 
 
 def _make_workflow(*invocations, error_policy="fail_fast") -> WorkflowSpec:

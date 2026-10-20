@@ -1,0 +1,21 @@
+id = "2026-10-20-e02-forecast-owner-profileless-legacy"
+title = "Preserve ForecastOwner profileless legacy execution"
+type = "changed"
+component = "scientist-backtesting"
+owner = "team-polisyos"
+summary = "ForecastOwner now initializes its optional persisted profile-member reference on the validated profileless branch, so existing requests without selected profile context can complete the same report and diagnostics path."
+evidence = [
+  "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+  "tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+]
+compatibility = "Requests with neither value_data_profile_ref nor forecast_profile_member retain profile_join_status=profileless_legacy and do not gain profile edges. Incomplete present profile/member pairs still fail closed. Selected profile requests continue to require the validated exact profile member and persist the selected member reference."
+change_class = "python-runtime"
+surface_classification = "internal: ForecastOwner optional profile lineage; no public API or DTO change."
+migration = "No artifact rewrite or client migration is required. Existing historical/profileless requests can use the already supported legacy branch."
+api = "No symbol, schema, DTO, or endpoint changes. The local profile-member reference is None only after the existing request validation has admitted an absent profile/member pair."
+limitations = "This restores profileless legacy execution and preserves predictive_only/bridge_pending semantics. It does not promote profileless output or establish external issuer authority, source currentness, or calibration authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

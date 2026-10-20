@@ -41420,5 +41420,135 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-profile-context-companion-batch-20261020-r1": {
+    "slice_base": "d2d2edf137f47bd4679e8f111ec60d341930c3d6",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+        "operation": "update",
+        "preimage_sha256": "926a71aeb0f18d0b81cd01e7efdcf70775e8fdfe416cafdcf01df6e379ba3dbd",
+        "postimage_sha256": "a385f7f0bed7987b7e0ccc7a47fa46dcba5715b661d9773578c43c2f7ba6c48c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-companion-batch-postimages-20261020-r1/policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "mode": "100644"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-forecast-owner-profileless-legacy.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "1c4e16eb2fdc5cef835c281135190c1e495472d706a351c50d071148ef2cec25",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-forecast-owner-profileless-optional-branch-author-20261020-r1/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-forecast-owner-profileless-legacy.toml",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+        "operation": "update",
+        "preimage_sha256": "35751646ae7f87a6fa03deb0d1c690c2399beebfac3e9c8a5df931ad969b8a21",
+        "postimage_sha256": "e246e670e007e0d9da0438fb7ec65dc4398d2b409131fac6de52b3f10de36587",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-forecast-owner-profileless-optional-branch-author-20261020-r1/postimages/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py": {
+        "operation": "update",
+        "preimage_sha256": "7e0c97267ce987205d7150f77c09203bd6afade4de433e57a076e75296a4a039",
+        "postimage_sha256": "3c69c801d0b589b6dbcd5ab14734004083f68cc76130edbcd4d911ca5fbe6e75",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-forecast-owner-profileless-optional-branch-author-20261020-r1/postimages/policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py": {
+        "operation": "update",
+        "preimage_sha256": "87327a0b13e043c9655995ff8f4987e4105c2e10d24f5a1275b028abeae3b48e",
+        "postimage_sha256": "c825e9dfc2f51d75372a753e6cf0e13d0ab2b7496cbc08879b72ceb745cffd71",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-forecast-owner-profileless-optional-branch-author-20261020-r1/postimages/policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner_profile.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/data_forge/read_api/catalog.py": {
+        "operation": "update",
+        "preimage_sha256": "a558218b0437b323bad732c36cddb84d80b71b51b0a9e7ba3e33db0286bf77a2",
+        "postimage_sha256": "a257bc25083d4229e460632cb5414a474872bee23ca7c2002ac6697e33aef676",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-wvs-public-typed-export-companion-readonly-cas-20261020-r1/postimages/policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-profile-context-companion-batch-20261020-r1/source-application.json",
+      "sha256": "548291e644818bb9f42b5bec895fb8b240d67aef80f04ee83b2556261ac2fdf6"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-profile-context-companion-batch-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-c9-context-fixture-author-20261020-r1/manifest.json",
+        "sha256": "e6ea339042ebd2b4bf39335bbe96ca84acfe004707d6abc2ca973f8430fd70b2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-c9-context-fixture-author-20261020-r1/candidate.patch",
+        "sha256": "bdb2b455be6aea1d762274c5c243e0cb71a56528285f158810ab0f88a1f819eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-c9-context-fixture-independent-review-20261020-r1/review.json",
+        "sha256": "38e1178559a76b96e5a1137c23de939efda4509a9c5c4ac870f5be52f765d91d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-companion-batch-postimages-20261020-r1/materialization-readback.json",
+        "sha256": "17ed243be005cc4de2daf29a89296e5406b6f6f4cf89db2d661c5220b542459b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-forecast-owner-profileless-optional-branch-author-20261020-r1/manifest.json",
+        "sha256": "d22691ac83876eee5e7ef226132b69aec7452e473bba90104f9f5070b5103762"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-forecast-owner-profileless-optional-branch-author-20261020-r1/candidate.patch",
+        "sha256": "879b433e7d5e9c07ebfd1f021dc1d2415a66213420c91406895c4eb9b4ae1e79"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-forecast-owner-profileless-optional-branch-independent-review-20261020-r3/review.json",
+        "sha256": "b901a2a26b540437eb7d25049191d981d9fd5f10241b39e1d9d4f6515ee23bcd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-wvs-public-typed-export-companion-readonly-cas-20261020-r1/manifest.json",
+        "sha256": "f3cb55ff48f31d12a39be167a2b07b266349e8df62253e743d2f0c25f44638e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-wvs-public-typed-export-companion-readonly-cas-20261020-r1/patch.diff",
+        "sha256": "3550df80c827efcc9d324320bfb72947cc9f6a8f27f03b3f224afa3c3bd969df"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-wvs-static-binding-independent-review-20261020-r1/review.json",
+        "sha256": "7c7c7d6eef2fac66181ec96c72bddf458f0ba2373c75fd93c04a800e57ebd845"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "forecast": {
+        "bucket": "NEW class relative to prior Q2/credal P38 proxy-gate findings: ForecastOwner optional profile-member state is not initialized on the already-valid profileless branch.",
+        "observations": "Two real ForecastOwner.run profileless tests fail at the same later use of the unassigned local.",
+        "repair": "One typed None initialization after request pair validation, before the optional persistence branch, covers the full owner method; selected-profile persistence remains exact and malformed present pairs still fail in request validation.",
+        "second_finding_disposition": "The two failing test cases are the same root class; widen at the shared optional-state boundary once, not per use or per test."
+      },
+      "catalog": "NEW static/lazy facade mismatch, one canonical owner alias; generic five-facade guard unchanged.",
+      "C9": "NEW shared test-fixture context contract mismatch, correct one factory for eight failures, preserve all property controls."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "All product tests on adopted composition pending; independent static review is not acceptance.",
+      "C12 normal33 previous893collected/126calls was partial; three relevant failures need replay, all767unrun preserved.",
+      "PreparedB defining baseline historical59=44P15F not green; all13contours and matched removals still required.",
+      "No production authority/currentness/custody/scientific calibration/G acceptance established."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole forecast owner profile/FRC02, DataForge read_api surfaces and generic lazy typed exports; whole C9eleven-case hardening plus isolated activity-worker/PreparedB current13contours/removals. Served forecast POST/event/reopen/freshGET awaits N7 hash repair.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

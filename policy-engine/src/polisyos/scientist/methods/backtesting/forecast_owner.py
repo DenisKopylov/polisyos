@@ -806,6 +806,7 @@ class ForecastOwner:
             }
         )
 
+        forecast_profile_member_ref: ArtifactRefModel | None = None
         if profile_member is not None and value_data_profile_ref is not None:
             forecast_profile_member_ref = _ref_from_payload(
                 put_json_artifact(

@@ -110,9 +110,9 @@
         "sha256": "20d537d13af62e5a8648966fd98efd7c530b6218513f03430caadff8dc06731b"
       },
       {
-        "bytes": 55019,
+        "bytes": 62157,
         "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py",
-        "sha256": "d4c30527440f41c159eb1a3110eff686e1bfc5ad43cb232504ae9e3a52c2832f"
+        "sha256": "eb409b413a48af1e5dbb2bc6337afe66aa6387f4d0d23e0c214b85bf659026d0"
       },
       {
         "bytes": 66,
@@ -176,7 +176,7 @@
       }
     ],
     "set_digest_algorithm": "sha256(concat(sorted(utf8(path) + NUL + ascii(sha256(file_bytes)) + LF)))",
-    "sorted_path_sha256_digest": "4efe9d12169ee495e838866c7ef9b281ba2fe6546602f3e8f421390f58f54979"
+    "sorted_path_sha256_digest": "14c986a3a35cccef9dea665320239363fdb1b54583f9e582b41a89d98c05e501"
   },
   "upstream": {
     "r6": {

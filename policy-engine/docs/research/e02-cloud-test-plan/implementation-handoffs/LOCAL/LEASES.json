@@ -40814,5 +40814,81 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-q2-worker-mount-semantic-r2-20261020-r1": {
+    "slice_base": "d28fad1fc2c503e023836d17973f67ba7552fc1c",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py": {
+        "operation": "update",
+        "preimage_sha256": "d4c30527440f41c159eb1a3110eff686e1bfc5ad43cb232504ae9e3a52c2832f",
+        "postimage_sha256": "eb409b413a48af1e5dbb2bc6337afe66aa6387f4d0d23e0c214b85bf659026d0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/postimages/policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py",
+        "mode": "100644"
+      },
+      "policy-engine/tools/quality/validation/q2_composite/source-manifest-r10.json": {
+        "operation": "update",
+        "preimage_sha256": "b718b52ce4c08fb3f63db692edeef07f4cc02e7f2619188c66fbb1c980c37425",
+        "postimage_sha256": "396dd9e2e414c6d122d910a8882c930642b99b6f2917ed03e73e1a1ce0aa3f44",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/postimages/policy-engine/tools/quality/validation/q2_composite/source-manifest-r10.json",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/source-application.json",
+      "sha256": "e4d3fa6c024e2e2ace73675b3e23adc12163b9b1744bc1bc809d93ec16083eb9"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/manifest-r2.json",
+        "sha256": "3cefff55216f87f038e1809ba777dd7bb9077ca4c2229cce23b2a7c77cffb38a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/candidate-r2.patch",
+        "sha256": "a59c60cabfecc6ff0f090529bd1a14723298b2f6a213e19a26fffde23fde5220"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/verification-r2.json",
+        "sha256": "a8d729710531efa9716d903f9d4c6d36ae05e065027e815696be08c0f3808a28"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-independent-review-20261020-r2/manifest.json",
+        "sha256": "b74fc3d5121a2cbef2bd18ec0d3c1598a115c7afd11948590d742b519cbce2e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-independent-review-20261020-r2/review.md",
+        "sha256": "1cf5fef1e2eb8e5f1ba7d4eaddb555faed4e7cb253d37997a80c8a1c902793a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "SAME P38 verification-proxy class, one level deeper; this is the second escape in the class.",
+      "repair": "Widen the test to a closed grammar for the actual worker-create argv, then compare every supported --mount semantically against the validated runtime contract and fixture role map.",
+      "stop_rule": "Do not add a third per-spelling repair. If the same proxy class remains after the generic closed grammar and replay, declare the bounded residual with its falsifier."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Independent G acceptance and formal closure remain open.",
+      "This test companion does not establish Docker/installed Linux consumer behavior.",
+      "Product replay on the adopted composition is pending."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run four whole Q2 test modules in separate fresh pytest processes, then combined, with canonical imports and default pytest behavior; preserve closed-grammar and extra-mount negative controls. Physical worker and installed consumers remain separate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

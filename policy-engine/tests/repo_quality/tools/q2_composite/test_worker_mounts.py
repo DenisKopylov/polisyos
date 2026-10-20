@@ -666,39 +666,232 @@ def test_runtime_binding_keeps_existing_facts_separate_from_new_worker_intent(
         )
 
 
-def test_new_worker_create_plan_has_explicit_limits_and_no_checkout_or_cache_mount(
+def _docker_mount_bindings(argv: list[str]) -> list[dict[str, str | bool]]:
+    """Parse only Docker's rendered --mount arguments into their semantic bindings."""
+    bindings: list[dict[str, str | bool]] = []
+    index = 0
+    while index < len(argv):
+        if argv[index] != "--mount":
+            index += 1
+            continue
+        if index + 1 >= len(argv):
+            raise AssertionError("Docker --mount option has no specification")
+        fields: dict[str, str] = {}
+        flags: set[str] = set()
+        for component in argv[index + 1].split(","):
+            if "=" in component:
+                key, value = component.split("=", 1)
+                if key in fields:
+                    raise AssertionError(f"Docker mount repeats {key!r}")
+                fields[key] = value
+            else:
+                flags.add(component)
+        if set(fields) != {"type", "src", "dst"} or flags - {"readonly"}:
+            raise AssertionError("Docker mount has an unsupported specification")
+        bindings.append(
+            {
+                "type": fields["type"],
+                "source": fields["src"],
+                "target": fields["dst"],
+                "read_only": "readonly" in flags,
+            }
+        )
+        index += 2
+    return bindings
+
+
+def _assert_exact_docker_mount_bindings(
+    argv: list[str], expected: list[dict[str, str | bool]]
+) -> None:
+    """Require the actual command arguments to match every declared mount binding."""
+    observed = _docker_mount_bindings(argv)
+    if observed != expected:
+        raise AssertionError(
+            f"Docker mount bindings differ: observed={observed!r}, expected={expected!r}"
+        )
+
+
+def _assert_closed_docker_create_argv(
+    argv: list[str],
+    contract: dict[str, Any],
+    mapping: dict[str, Any],
+    *,
+    container_name: str,
+    resource_limits: dict[str, int],
+) -> None:
+    """Reject every create argument outside the worker's declared Docker grammar."""
+    prefix = [
+        "docker",
+        "--config",
+        contract["docker"]["config_path"],
+        "--context",
+        contract["docker"]["context"],
+        "create",
+    ]
+    if argv[: len(prefix)] != prefix:
+        raise AssertionError("worker create argv has an unsupported Docker CLI prefix")
+
+    flags: set[str] = set()
+    values: dict[str, str] = {}
+    positional: list[str] = []
+    valued_options = {
+        "--name",
+        "--network",
+        "--tmpfs",
+        "--memory",
+        "--memory-swap",
+        "--cpus",
+        "--mount",
+        "--entrypoint",
+    }
+    flag_options = {"--pull=never", "--read-only"}
+    index = len(prefix)
+    while index < len(argv):
+        option = argv[index]
+        if option in flag_options:
+            if option in flags:
+                raise AssertionError(f"worker create argv repeats {option!r}")
+            flags.add(option)
+            index += 1
+            continue
+        if option in valued_options:
+            if index + 1 >= len(argv) or argv[index + 1].startswith("-"):
+                raise AssertionError(f"worker create option {option!r} has no value")
+            value = argv[index + 1]
+            if option != "--mount":
+                if option in values:
+                    raise AssertionError(f"worker create argv repeats {option!r}")
+                values[option] = value
+            index += 2
+            continue
+        if option.startswith("-"):
+            raise AssertionError(f"worker create argv uses unsupported option {option!r}")
+        positional = argv[index:]
+        break
+
+    expected_flags = {"--pull=never", "--read-only"}
+    if flags != expected_flags:
+        raise AssertionError(f"worker create flags differ: observed={flags!r}")
+    tmpfs_destinations = contract["isolation"]["tmpfs_destinations"]
+    if tmpfs_destinations != [_TMPFS_DESTINATION]:
+        raise AssertionError("worker create tmpfs destinations differ from the supported plan")
+    expected_values = {
+        "--name": container_name,
+        "--network": contract["isolation"]["network_mode"],
+        "--tmpfs": f"{_TMPFS_DESTINATION}:rw,nosuid,nodev,noexec,size=256m",
+        "--memory": str(resource_limits["memory_bytes"]),
+        "--memory-swap": str(resource_limits["memory_swap_bytes"]),
+        "--cpus": str(resource_limits["nano_cpus"] / 1_000_000_000),
+        "--entrypoint": "/bin/sleep",
+    }
+    if values != expected_values:
+        raise AssertionError(
+            f"worker create option values differ: observed={values!r}, expected={expected_values!r}"
+        )
+    if positional != [contract["image"]["reference"], "infinity"]:
+        raise AssertionError(f"worker create image/command tail differs: {positional!r}")
+
+    expected_mounts: list[dict[str, str | bool]] = [
+        {
+            "type": "volume",
+            "source": row["name"],
+            "target": row["destination"],
+            "read_only": row["read_only"],
+        }
+        for row in sorted(
+            contract["isolation"]["persistent_volumes"],
+            key=lambda item: item["destination"],
+        )
+    ]
+    expected_mounts.extend(
+        {
+            "type": "bind",
+            "source": str(Path(row["host_root"]).resolve()),
+            "target": row["worker_root"],
+            "read_only": row["access"] == "read-only",
+        }
+        for row in mapping["mounts"]
+    )
+    _assert_exact_docker_mount_bindings(argv, expected_mounts)
+
+
+def test_new_worker_create_plan_binds_only_declared_sources_and_roles(
     tmp_path: Path,
 ) -> None:
     contract = mounts.validate_runtime_contract(_runtime_contract())
-    mapping = _mount_map(tmp_path)
+    fixture_root = tmp_path.resolve()
+    mapping = _mount_map(fixture_root)
+    _validate_mapping(mapping)
+    home = Path.home().resolve()
+    checkout = REPO_ROOT.resolve()
+    host_roots = [Path(row["host_root"]).resolve() for row in mapping["mounts"]]
+    assert all(path.is_relative_to(fixture_root) for path in host_roots)
+    if fixture_root.is_relative_to(home):
+        assert all(path.is_relative_to(home) for path in host_roots)
+    assert all(not path.is_relative_to(checkout) for path in host_roots)
+
     limits = {
         "memory_bytes": 2 * 1024 * 1024 * 1024,
         "memory_swap_bytes": 2 * 1024 * 1024 * 1024,
         "nano_cpus": 1_000_000_000,
     }
+    container_name = "e02-q2-la029-source-wheel"
     argv = mounts.worker_container_create_argv(
         contract,
         mapping,
-        container_name="e02-q2-la029-source-wheel",
+        container_name=container_name,
         resource_limits=limits,
     )
-    rendered = " ".join(argv)
-    assert "--pull=never" in argv
-    assert "--read-only" in argv
-    assert argv[argv.index("--network") + 1] == "none"
-    memory_index = argv.index("--memory")
-    assert argv[memory_index + 1] == "2147483648"
-    cpu_index = argv.index("--cpus")
-    assert argv[cpu_index + 1] == "1.0"
-    assert "src=e02-local-uv-env,dst=/scratch,readonly" in rendered
-    assert "src=e02-local-uv-pythons,dst=/opt/uv-python,readonly" in rendered
-    assert "e02-local-uv-cache" not in rendered
-    assert "/Users/deniskopylov" not in rendered
-    assert "--rm" not in argv
+    _assert_closed_docker_create_argv(
+        argv, contract, mapping, container_name=container_name, resource_limits=limits
+    )
     with pytest.raises(mounts.WorkerMountError, match="explicit operator decision"):
-        mounts.worker_container_create_argv(
-            contract, mapping, container_name="e02-q2-la029-source-wheel"
-        )
+        mounts.worker_container_create_argv(contract, mapping, container_name=container_name)
+
+    option_boundary = argv.index("--entrypoint")
+    unauthorized_source = str(checkout)
+    alternate_mount_spellings = (
+        ("-v", f"{unauthorized_source}:/workspace/policyos-checkout"),
+        ("--volume", f"{unauthorized_source}:/workspace/policyos-checkout"),
+        (f"--volume={unauthorized_source}:/workspace/policyos-checkout",),
+        (f"--mount=type=bind,src={unauthorized_source},dst=/workspace/policyos-checkout",),
+        ("--privileged",),
+        ("--read-only",),
+    )
+    for injected_args in alternate_mount_spellings:
+        contaminated_argv = [
+            *argv[:option_boundary],
+            *injected_args,
+            *argv[option_boundary:],
+        ]
+        with pytest.raises(AssertionError):
+            _assert_closed_docker_create_argv(
+                contaminated_argv,
+                contract,
+                mapping,
+                container_name=container_name,
+                resource_limits=limits,
+            )
+
+    unauthorized_mount_specs = (
+        f"type=bind,src={unauthorized_source},dst=/workspace/policyos-checkout,readonly",
+        "type=volume,src=e02-local-uv-cache,dst=/root/.cache/uv,readonly",
+    )
+    for mount_spec in unauthorized_mount_specs:
+        extra_supported_form = [
+            *argv[:option_boundary],
+            "--mount",
+            mount_spec,
+            *argv[option_boundary:],
+        ]
+        with pytest.raises(AssertionError, match="Docker mount bindings differ"):
+            _assert_closed_docker_create_argv(
+                extra_supported_form,
+                contract,
+                mapping,
+                container_name=container_name,
+                resource_limits=limits,
+            )
 
 
 def test_worker_path_mapping_is_exact_and_role_bounded(tmp_path: Path) -> None:

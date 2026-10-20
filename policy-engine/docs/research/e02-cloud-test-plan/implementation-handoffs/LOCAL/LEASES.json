@@ -40968,5 +40968,74 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-retrieval-custody-companion-r6r2-20261020-r1": {
+    "slice_base": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py": {
+        "operation": "update",
+        "preimage_sha256": "4b2f8e299a2781ee30bc30f84364fde20ab918a0a3a07266b210e01144ab24df",
+        "postimage_sha256": "7599ca806df20f8e6d32361287e2342654bfdbef823148f43638de0e1d826bef",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-author-20261020-r2/postimages/policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-retrieval-custody-companion-r6r2-20261020-r1/source-application.json",
+      "sha256": "4e0b9b1292737db4d5e20f8fbf668626445a13f7d6083a494dee735ca12e61bf"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-retrieval-custody-companion-r6r2-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-author-20261020-r2/manifest.json",
+        "sha256": "b835d661bfae62234b4893fec43142f9cb2fa30fb8bf7ee467b55db17d4abe3b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-author-20261020-r2/patch.diff",
+        "sha256": "96032ad55efde74112eef01cd87929b8ac8fd7c30d82bb3393275fe885935206"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-author-20261020-r2/static-receipt.json",
+        "sha256": "1d1502c512bea6645f78c24bd037bbe5e2020b8492a42bd1ac0200144d012e5b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-author-20261020-r2/classification.md",
+        "sha256": "1a62d72c7e21fc23c28a5e573c08992245a38959e48ad71a71e7c982c767b410"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-author-20261020-r2/diagnosis.json",
+        "sha256": "44a8bbd6a3fe4522f1e00361abf189edd5082d975ac35014b26b83b025e97909"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-datasnapshot-nine-whole-retrieval-companion-r6-independent-review-20261020-r2/review.json",
+        "sha256": "436fa357cd84a8a0b092ebae11466190e588c9b93fbed5e637bd83ac10c66199"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same soft-refusal/no-side-effects class; R2 widens the unknown-connector observation to requested identity and CAS artifact-inventory invariance.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Production behavior unchanged.",
+      "Product replay on adopted composition pending; previous wider383 replay was partial capabort.",
+      "Independent G acceptance and all formal adjudication remain open."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole test_retrieval_fetch_custody module, including profileless/counterfeit owner removal controls; then wider nine-module DataSnapshot chain in bounded whole cohorts.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

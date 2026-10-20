@@ -991,8 +991,23 @@ def test_catalog_removal_refuses_fastlane_measurement(real_fetch_owner, replacem
 )
 def test_unknown_catalog_tuple_refuses_real_fetch(real_fetch_owner, field, value):
     owner = real_fetch_owner
-    with pytest.raises(ValueError, match="catalog"):
-        _execute(owner, owner.plan.model_copy(update={field: value}))
+    plan = owner.plan.model_copy(update={field: value})
+    if field == "connector_id":
+        # Unknown connectors are refused by the preview boundary before catalog
+        # binding or a full fetch; that refusal is returned as an error preview.
+        artifact_ids_before = set(owner.store.iter_artifact_ids())
+        outcome = _execute(owner, plan)
+        assert outcome.preview.status == "error"
+        assert outcome.preview.connector_id == plan.connector_id
+        assert outcome.preview.message
+        assert outcome.metric is None
+        assert outcome.payload_ref is None
+        assert outcome.fetch_receipt_ref is None
+        assert owner.requests == []
+        assert set(owner.store.iter_artifact_ids()) == artifact_ids_before
+    else:
+        with pytest.raises(ValueError, match="catalog"):
+            _execute(owner, plan)
     assert not any(request.page_size is None for request in owner.requests)
 
 
@@ -1055,7 +1070,7 @@ def test_dataframe_payload_roundtrip_preserves_entire_table(real_fetch_owner):
 
 
 def _copy_artifact(store, original_ref, payload, *, inputs=None, profiled=True):
-    from polisyos import canon
+    from polisyos.core import canon
     from polisyos.core.artifacts import PutOptions
 
     manifest = store.get_manifest(original_ref.artifact_id)
@@ -1637,6 +1652,9 @@ def test_persisted_fetch_replay_uses_one_atomic_current_profile_snapshot(tmp_pat
         )
 
         assert profile_replaced
-        assert observed_urls == [str(owner.csv_path)]
+        # FileTabularConnector reads once for health_check and once for fetch;
+        # both operations must retain the one config captured before replacement.
+        assert observed_urls
+        assert set(observed_urls) == {str(owner.csv_path)}
         assert resolved.source_agreement == "recomputed"
         assert resolved.fetch_receipt_ref == executed.fetch_receipt_ref

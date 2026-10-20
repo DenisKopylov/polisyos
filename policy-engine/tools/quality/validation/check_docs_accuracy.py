@@ -26,12 +26,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 from collections import Counter
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from mkdocs.config.defaults import MkDocsConfig
+    from mkdocs.structure.files import Files
 from urllib.parse import unquote, urlparse
 
 from tools.lib.fs import measure_file_reads, measured_is_dir, measured_is_file, measured_read_text
@@ -169,6 +175,87 @@ def split_exclude_docs(value: Any) -> list[str]:
     raise ValueError("MkDocs publication patterns must be a string or list of strings")
 
 
+def _get_files_pruning_excluded_dirs(
+    config: MkDocsConfig,
+) -> tuple[Files, tuple[str, ...], tuple[dict[str, object], ...], bool]:
+    """Build MkDocs files while pruning only directories excluded by its rules.
+
+    MkDocs 1.6.1 applies ``exclude_docs`` after walking every directory. This
+    preserves its ``File`` objects and exclusion predicate while avoiding
+    traversal of subtrees that cannot contain an included file. Any negated
+    rule disables pruning so a descendant cannot be skipped accidentally.
+    """
+    import mkdocs.structure.files as mkdocs_files
+
+    exclusion = mkdocs_files._default_exclude
+    configured_exclusion = config.get("exclude_docs")
+    if configured_exclusion is not None:
+        exclusion = exclusion + configured_exclusion
+    pruning_enabled = all(pattern.include for pattern in exclusion.patterns)
+
+    files: list[Any] = []
+    conflicting_files: list[tuple[Any, Any]] = []
+    pruned_directories: list[str] = []
+    traversed_parent_membership: list[dict[str, object]] = []
+    docs_dir = config["docs_dir"]
+    for source_dir, dirnames, filenames in os.walk(docs_dir, followlinks=True):
+        dirnames.sort()
+        relative_dir = os.path.relpath(source_dir, docs_dir)
+        if relative_dir == os.curdir:
+            relative_dir = ""
+        traversed_parent_membership.append(
+            {
+                "parent": relative_dir or ".",
+                "child_directories_before_pruning": list(dirnames),
+            }
+        )
+        if pruning_enabled:
+            retained_dirnames: list[str] = []
+            for dirname in dirnames:
+                relative_path = (Path(relative_dir) / dirname).as_posix()
+                if exclusion.match_file(f"{relative_path}/"):
+                    pruned_directories.append(relative_path)
+                else:
+                    retained_dirnames.append(dirname)
+            dirnames[:] = retained_dirnames
+
+        filenames.sort(key=mkdocs_files._file_sort_key)
+        files_by_dest: dict[str, Any] = {}
+        for filename in filenames:
+            file = mkdocs_files.File(
+                os.path.join(relative_dir, filename),
+                docs_dir,
+                config["site_dir"],
+                config["use_directory_urls"],
+            )
+            previous_file = files_by_dest.setdefault(file.dest_uri, file)
+            if previous_file is not file:
+                conflicting_files.append((previous_file, file))
+            files.append(file)
+
+    mkdocs_files.set_exclusions(files, config)
+    for earlier, later in conflicting_files:
+        if later.inclusion.is_included():
+            if earlier.inclusion.is_included():
+                mkdocs_files.log.warning(
+                    "Excluding '%s' from the site because it conflicts with '%s'.",
+                    earlier.src_uri,
+                    later.src_uri,
+                )
+            with suppress(ValueError):
+                files.remove(earlier)
+        else:
+            with suppress(ValueError):
+                files.remove(later)
+
+    return (
+        mkdocs_files.Files(files),
+        tuple(pruned_directories),
+        tuple(traversed_parent_membership),
+        pruning_enabled,
+    )
+
+
 def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Violation]]:
     """Resolve nav policy and MkDocs' actual included source files."""
     mkdocs_path = repo_root / "mkdocs.yml"
@@ -179,12 +266,16 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
     measured_read_text(mkdocs_path)
     try:
         from mkdocs.config import load_config
-        from mkdocs.structure.files import get_files
 
         actual_config = load_config(config_file=str(mkdocs_path))
         docs_root = Path(actual_config["docs_dir"]).resolve()
         docs_root.relative_to(repo_root.resolve())
-        all_files = tuple(get_files(actual_config))
+        (
+            all_files,
+            pruned_directory_paths,
+            traversed_parent_membership,
+            pruning_enabled,
+        ) = _get_files_pruning_excluded_dirs(actual_config)
     except (ImportError, OSError, ValueError) as exc:
         raise ValueError(
             f"actual MkDocs file selection unavailable: {type(exc).__name__}: {exc}"
@@ -217,10 +308,18 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
     if not nav_paths and not not_in_nav_paths:
         raise ValueError("MkDocs publication scope has no nav or not_in_nav entries")
 
-    source_records: list[tuple[Path, str, bool, bool]] = []
     published: set[Path] = set()
+    manifest: list[dict[str, str]] = []
+    inclusion_counts: Counter[str] = Counter()
+    markdown_count = 0
+    included_markdown_count = 0
     for file in all_files:
         inclusion = file.inclusion.name
+        included = file.inclusion.is_included()
+        inclusion_counts[inclusion] += 1
+        markdown_count += int(Path(file.src_uri).suffix.lower() == ".md")
+        if not included:
+            continue
         source_path = Path(file.abs_src_path).resolve()
         try:
             source_path.relative_to(docs_root)
@@ -229,10 +328,15 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                 f"MkDocs file `{file.src_uri}` resolves outside the repository docs root"
             ) from exc
         is_markdown = source_path.suffix.lower() == ".md"
-        included = file.inclusion.is_included()
-        source_records.append((source_path, inclusion, is_markdown, included))
-        if included:
-            published.add(source_path)
+        published.add(source_path)
+        included_markdown_count += int(is_markdown)
+        manifest.append(
+            {
+                "path": source_path.relative_to(repo_root.resolve()).as_posix(),
+                "type": "markdown" if is_markdown else "asset",
+                "inclusion": inclusion,
+            }
+        )
 
     declared: set[Path] = set()
     nav_published: set[Path] = set()
@@ -320,27 +424,25 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                 )
             )
 
-    manifest: list[dict[str, str]] = []
-    inclusion_counts: Counter[str] = Counter()
-    markdown_count = 0
-    included_markdown_count = 0
-    for source_path, inclusion, is_markdown, included in source_records:
-        inclusion_counts[inclusion] += 1
-        markdown_count += int(is_markdown)
-        if included:
-            included_markdown_count += int(is_markdown)
-            manifest.append(
-                {
-                    "path": source_path.relative_to(repo_root.resolve()).as_posix(),
-                    "type": "markdown" if is_markdown else "asset",
-                    "inclusion": inclusion,
-                }
-            )
-
     selection_summary: dict[str, Any] = {
-        "selector": "mkdocs.config.load_config + mkdocs.structure.files.get_files; inclusion.is_included()",
+        "selector": (
+            "mkdocs.config.load_config + MkDocs File/Files/set_exclusions with prewalk pruning; "
+            "inclusion.is_included()"
+        ),
         "docs_root": docs_root.relative_to(repo_root.resolve()).as_posix(),
         "enumerated_files": len(all_files),
+        "enumeration_scope": (
+            "files under traversed directories only; matching excluded directories are pruned"
+        ),
+        "containment_scope": (
+            "resolved containment applies to included MkDocs files only; excluded files in "
+            "visited parents are not path-resolved by this consumer, and pruned directories "
+            "are not traversed"
+        ),
+        "directory_pruning_enabled": pruning_enabled,
+        "pruned_directories": len(pruned_directory_paths),
+        "pruned_directory_paths": list(pruned_directory_paths),
+        "traversed_parent_membership": list(traversed_parent_membership),
         "included_files": len(published),
         "included_markdown_files": included_markdown_count,
         "enumerated_markdown_files": markdown_count,

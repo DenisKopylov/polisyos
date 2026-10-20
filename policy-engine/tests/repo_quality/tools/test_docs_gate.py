@@ -388,3 +388,167 @@ def test_docstring_quality_resolves_reexported_submodule_without_recursion(
     subjects = inspect_public_subjects(docs_root=docs_root, src_root=src_root)
 
     assert any(subject.ref.fqname == "polisyos.example.foo" for subject in subjects)
+
+
+def test_docs_selector_prunes_excluded_subtrees_before_walking_and_keeps_included_boundary(
+    tmp_path: Path, monkeypatch
+) -> None:
+    import os
+
+    import mkdocs.structure.files as mkdocs_files
+
+    docs_root = tmp_path / "docs"
+    research = docs_root / "research"
+    (docs_root / "reference").mkdir(parents=True)
+    (research / "deep").mkdir(parents=True)
+    (docs_root / "index.md").write_text("# Index\n", encoding="utf-8")
+    (docs_root / "reference" / "boundary.md").write_text("# Boundary\n", encoding="utf-8")
+    (docs_root / "reference" / "unlisted.md").write_text("# Unlisted\n", encoding="utf-8")
+    (docs_root / ".hidden.md").write_text("# Hidden\n", encoding="utf-8")
+    (docs_root / ".hidden").mkdir()
+    (docs_root / ".hidden" / "secret.md").write_text("# Secret\n", encoding="utf-8")
+    for group in range(12):
+        folder = research / "deep" / f"group-{group:02d}"
+        folder.mkdir()
+        for index in range(24):
+            (folder / f"record-{index:02d}.md").write_text("# excluded\n", encoding="utf-8")
+    loop = research / "deep" / "loop"
+    try:
+        loop.symlink_to(research, target_is_directory=True)
+    except OSError as exc:
+        pytest.skip(f"directory symlinks are unavailable: {exc}")
+
+    (tmp_path / "mkdocs.yml").write_text(
+        "site_name: Demo\n"
+        "nav:\n"
+        "  - index.md\n"
+        "  - reference/boundary.md\n"
+        "not_in_nav: |\n"
+        "  reference/unlisted.md\n"
+        "exclude_docs: |\n"
+        "  research/**\n",
+        encoding="utf-8",
+    )
+
+    real_walk = os.walk
+    visited: list[str] = []
+
+    def guarded_walk(top, *args, **kwargs):
+        for source_dir, dirnames, filenames in real_walk(top, *args, **kwargs):
+            source_path = Path(source_dir).resolve()
+            if Path(top).resolve() == docs_root.resolve():
+                assert not source_path.is_relative_to(research.resolve())
+                visited.append(source_path.relative_to(docs_root.resolve()).as_posix())
+            yield source_dir, dirnames, filenames
+
+    monkeypatch.setattr(mkdocs_files.os, "walk", guarded_walk)
+    config, violations = check_docs_accuracy.published_docs_config(tmp_path)
+
+    assert violations == []
+    assert set(config.published_files) == {
+        (docs_root / "index.md").resolve(),
+        (docs_root / "reference" / "boundary.md").resolve(),
+        (docs_root / "reference" / "unlisted.md").resolve(),
+    }
+    assert config.not_in_nav_files == ((docs_root / "reference" / "unlisted.md").resolve(),)
+    assert config.selection_summary["directory_pruning_enabled"] is True
+    assert config.selection_summary["pruned_directories"] == 2
+    assert config.selection_summary["pruned_directory_paths"] == [".hidden", "research"]
+    assert config.selection_summary["traversed_parent_membership"] == [
+        {
+            "parent": ".",
+            "child_directories_before_pruning": [".hidden", "reference", "research"],
+        },
+        {"parent": "reference", "child_directories_before_pruning": []},
+    ]
+    assert "files under traversed directories only" in config.selection_summary["enumeration_scope"]
+    assert "included MkDocs files only" in config.selection_summary["containment_scope"]
+    assert "research" not in visited
+    assert "reference" in visited
+
+
+def test_pruned_docs_walk_matches_mkdocs_on_negated_rules_and_inclusion_edges(
+    tmp_path: Path,
+) -> None:
+    from mkdocs.config import load_config
+    from mkdocs.structure.files import get_files
+
+    docs_root = tmp_path / "docs"
+    (docs_root / "private").mkdir(parents=True)
+    (docs_root / "nested").mkdir()
+    (docs_root / "index.md").write_text("# Index\n", encoding="utf-8")
+    (docs_root / "README.md").write_text("# Readme landing page\n", encoding="utf-8")
+    (docs_root / "private" / "hidden.md").write_text("# Hidden\n", encoding="utf-8")
+    (docs_root / "private" / "published.md").write_text("# Published\n", encoding="utf-8")
+    (docs_root / "nested" / "unlisted.md").write_text("# Not in nav\n", encoding="utf-8")
+    (docs_root / ".hidden.md").write_text("# Hidden\n", encoding="utf-8")
+    mkdocs_path = tmp_path / "mkdocs.yml"
+    mkdocs_path.write_text(
+        "site_name: Demo\n"
+        "nav:\n"
+        "  - index.md\n"
+        "  - private/published.md\n"
+        "not_in_nav: |\n"
+        "  nested/unlisted.md\n"
+        "exclude_docs: |\n"
+        "  private/**\n",
+        encoding="utf-8",
+    )
+
+    config = load_config(config_file=str(mkdocs_path))
+    expected = get_files(config)
+    actual, pruned_directory_paths, _, pruning_enabled = (
+        check_docs_accuracy._get_files_pruning_excluded_dirs(config)
+    )
+
+    def published_signature(files):
+        return {(file.src_uri, file.dest_uri) for file in files if file.inclusion.is_included()}
+
+    def complete_signature(files):
+        return {(file.src_uri, file.dest_uri, file.inclusion) for file in files}
+
+    assert published_signature(actual) == published_signature(expected)
+    assert pruning_enabled is True
+    assert pruned_directory_paths == ("private",)
+
+    mkdocs_path.write_text(
+        "site_name: Demo\n"
+        "nav:\n"
+        "  - index.md\n"
+        "  - private/published.md\n"
+        "not_in_nav: |\n"
+        "  nested/unlisted.md\n"
+        "exclude_docs: |\n"
+        "  private/**\n"
+        "  !private/published.md\n",
+        encoding="utf-8",
+    )
+
+    config = load_config(config_file=str(mkdocs_path))
+    expected = get_files(config)
+    actual, pruned_directory_paths, _, pruning_enabled = (
+        check_docs_accuracy._get_files_pruning_excluded_dirs(config)
+    )
+
+    assert complete_signature(actual) == complete_signature(expected)
+    assert pruning_enabled is False
+    assert pruned_directory_paths == ()
+
+
+def test_docs_selector_refuses_included_symlink_outside_docs_root(tmp_path: Path) -> None:
+    docs_root = tmp_path / "docs"
+    docs_root.mkdir()
+    outside_file = tmp_path / "outside.md"
+    outside_file.write_text("# Outside\n", encoding="utf-8")
+    linked_file = docs_root / "linked.md"
+    try:
+        linked_file.symlink_to(outside_file)
+    except OSError as exc:
+        pytest.skip(f"file symlinks are unavailable: {exc}")
+    (tmp_path / "mkdocs.yml").write_text(
+        "site_name: Demo\nnav:\n  - linked.md\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="resolves outside the repository docs root"):
+        check_docs_accuracy.published_docs_config(tmp_path)

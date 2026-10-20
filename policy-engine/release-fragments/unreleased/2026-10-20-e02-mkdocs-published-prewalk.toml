@@ -1,0 +1,34 @@
+id = "2026-10-20-e02-mkdocs-published-prewalk"
+title = "Prune excluded subtrees in the docs-accuracy selector"
+type = "fixed"
+component = "documentation"
+owner = "team-polisyos"
+summary = "The docs-accuracy selector prunes excluded MkDocs subtrees before walking only when every effective exclusion is positive, while preserving the no-prune fallback whenever any exclusion is negated."
+evidence = [
+  "tools/quality/validation/check_docs_accuracy.py",
+  "tests/repo_quality/tools/test_docs_gate.py",
+]
+compatibility = "This changes only the internal docs-accuracy selector's published-file membership computation: positive MkDocs exclusions can prune subtrees before traversal; any negated exclusion disables pruning. Pruned-directory identity uses relative paths, and each visited parent's sorted direct-child directory membership is retained. Included files that resolve outside docs_root are refused."
+change_class = "internal"
+surface_classification = "internal diagnostic only: MkDocs published-membership selector; no site content or public API change"
+migration = "None. No docs, MkDocs configuration, stored records, or production data are rewritten."
+api = "No public Python API or MkDocs site-build behavior is changed. The candidate updates the repository docs-accuracy selector only."
+limitations = "Containment is checked for included files only; excluded files in traversed parents are not path-resolved and pruned directories are not traversed. This is not a filesystem-wide containment census and makes no claim about production content or excluded-path containment. The retained selector probe covered configuration loading and GitIgnoreSpec matching, not a docs_dir walk. The strict MkDocs build, bounded actual native selector/R5 preflight, and Native13 product gates remain unrun."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "mkdocs-published-membership-prewalk-pruning"
+change_class = "internal"
+impact = "internal"
+surface = "internal: docs-accuracy selector's computed MkDocs published-file membership"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The docs-accuracy selector prunes excluded subtrees before traversal when all effective exclusion patterns are positive, and retains full traversal when any pattern is negated."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

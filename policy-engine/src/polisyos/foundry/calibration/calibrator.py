@@ -8,11 +8,14 @@ auxiliary penalties, and returns a persisted-report-ready `CalibrationReport`.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
+from dataclasses import fields as dataclass_fields
 from datetime import UTC, datetime
 from typing import Any, Literal
 
@@ -22,18 +25,40 @@ import numpy as np
 import optax
 from jax.flatten_util import ravel_pytree
 
-from polisyos.core.artifacts import ArtifactRef, ArtifactStore, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactStore,
+    input_ref_from_artifact_ref,
+    resolve_manifest_by_profile,
+)
+from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.core.observability import (
     get_metrics,
     get_tracer,
     is_hpc_observability_enabled,
 )
+from polisyos.core.registry import load_registry_bundle_content, load_registry_bundle_payload
 from polisyos.foundry.calibration.auxiliary import AuxLossComponent
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,
     make_bijector,
     to_unconstrained,
+)
+from polisyos.foundry.calibration.execution_basis import (
+    CALIBRATION_RUNTIME_INPUT_CONTRACT,
+    CALIBRATION_RUNTIME_INPUT_NAMES,
+    RUNTIME_REGISTRY_MEMBER_CONTRACT,
+    CalibrationExecutionInputBasis,
+    CalibrationParameterUnitIdentity,
+    CalibrationResolvedParameterInput,
+    CalibrationRuntimeInputBinding,
+    CalibrationTargetInputIdentity,
+    calibration_report_series_sha256,
+    calibration_report_time_axis_sha256,
+    canonical_input_sha256,
+    put_calibration_execution_input_basis,
 )
 from polisyos.foundry.calibration.hessian import HessianResult, compute_hessian
 from polisyos.foundry.calibration.identifiability import diagnose_identifiability
@@ -72,6 +97,7 @@ from polisyos.foundry.calibration.report import (
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
 from polisyos.ir.analytics.calibration import (
     CalibrationConfig,
     CalibrationTarget,
@@ -83,6 +109,7 @@ from polisyos.ir.kernel import (
     MergeRuleRegistry,
     SelectorFieldRegistry,
     SlotRegistry,
+    UnitsRegistry,
 )
 
 
@@ -94,6 +121,8 @@ class CalibratorInputs:
         config: Optimization, target, and loss configuration.
         program_graph: Compiled graph whose nodes will be replayed in-memory.
         exec_plan: Execution order and runtime flags for the graph.
+        exec_plan_ref: Optional selected CAS reference for that exact plan.
+        registry_bundle_ref: Optional selected bundle that supplied registry objects.
         base_state: Synthetic initial `GlobalState` snapshot used by simulation.
         mechanism_registry: Mechanism registry for node instantiation.
         slot_registry: Slot schema used to evaluate metrics and merge patches.
@@ -136,6 +165,41 @@ class CalibratorInputs:
     measurement_loss_config: MeasurementAwareLossConfig | None = None
     measurement_loss_adapter: MeasurementAwareLossAdapter | None = None
     aux_loss_components: Sequence[AuxLossComponent] | None = None
+    exec_plan_ref: ArtifactRef | None = None
+    registry_bundle_ref: ArtifactRef | None = None
+    mechanism_registry_ref: ArtifactRef | None = None
+    units_registry: UnitsRegistry | None = None
+    units_registry_ref: ArtifactRef | None = None
+    base_state_snapshot_ref: ArtifactRef | None = None
+
+
+def _snapshot_calibrator_inputs(inputs: CalibratorInputs) -> CalibratorInputs:
+    """Copy value inputs before a fit while retaining opaque executable providers.
+
+    Provider behavior is not made authoritative by this snapshot. Parameter and
+    target outputs are captured by the run; custom engines, adapters, and loss
+    callbacks remain explicitly limited at the execution-basis boundary.
+    """
+    opaque_fields = {
+        "parameter_loader",
+        "udf_engine",
+        "target_fetcher",
+        "measurement_loss_adapter",
+    }
+    snapshot: dict[str, Any] = {}
+    for item in dataclass_fields(inputs):
+        value = getattr(inputs, item.name)
+        if item.name in opaque_fields:
+            snapshot[item.name] = value
+            continue
+        if item.name == "aux_loss_components" and value is not None:
+            snapshot[item.name] = tuple(value)
+            continue
+        try:
+            snapshot[item.name] = deepcopy(value)
+        except Exception as exc:
+            raise ValueError(f"calibrator_input_snapshot_failed:{item.name}") from exc
+    return CalibratorInputs(**snapshot)
 
 
 @dataclass
@@ -516,6 +580,917 @@ def _calibration_span_context(
     )
 
 
+def _string_sequence(value: Any) -> tuple[str, ...] | None:
+    """Capture declared label values without inventing labels for opaque objects."""
+    if value is None:
+        return None
+    if not isinstance(value, (tuple, list)):
+        return None
+    items: list[str] = []
+    for item in value:
+        raw = item.value if hasattr(item, "value") else item
+        if not isinstance(raw, str):
+            return None
+        items.append(raw)
+    return tuple(items)
+
+
+def _artifact_ref_identity(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    """Return the exact CAS view identity for two typed artifact references."""
+    return (
+        str(ref.artifact_id),
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+    )
+
+
+def _load_selected_source_model(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    model_cls: type[Any],
+    *,
+    expected_kind: str,
+    expected_schema: str,
+) -> Any:
+    """Load a typed JSON artifact from its declared exact manifest view."""
+    if ref.manifest_profile_sha256 is not None:
+        manifest = resolve_manifest_by_profile(
+            store,
+            ref.artifact_id,
+            ref.manifest_profile_sha256,
+        )
+    else:
+        manifest = store.get_manifest(ref.artifact_id)
+    if manifest.kind != expected_kind or manifest.media_type != "application/json":
+        raise ValueError("calibration_execution_source_kind_media_mismatch")
+    schema = manifest.artifact_schema
+    if schema is None or schema.name != expected_schema:
+        raise ValueError("calibration_execution_source_schema_mismatch")
+    if not store.verify(ref).ok:
+        raise ValueError("calibration_execution_source_integrity_failure")
+    return model_cls.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+
+
+def _state_values_equal(left: GlobalState, right: GlobalState) -> bool:
+    """Compare all state leaves without stringifying device or array objects."""
+    left_leaves, left_tree = jax.tree_util.tree_flatten(left)
+    right_leaves, right_tree = jax.tree_util.tree_flatten(right)
+    if left_tree != right_tree or len(left_leaves) != len(right_leaves):
+        return False
+    for left_value, right_value in zip(left_leaves, right_leaves, strict=True):
+        try:
+            left_array = np.asarray(left_value)
+            right_array = np.asarray(right_value)
+        except (TypeError, ValueError):
+            return False
+        if left_array.shape != right_array.shape or left_array.dtype != right_array.dtype:
+            return False
+        if not np.array_equal(left_array, right_array, equal_nan=True):
+            return False
+    return True
+
+
+def _registry_model_capture(
+    store: ArtifactStore,
+    *,
+    ref: ArtifactRef | None,
+    model: Any | None,
+    model_cls: type[Any],
+    kind: str,
+    schema_name: str,
+) -> tuple[str | None, str, Any | None]:
+    """Capture in-memory registry bytes and compare any supplied selected source."""
+    if model is None and ref is None:
+        return None, "not_established", None
+    model_digest = canonical_input_sha256(model) if model is not None else None
+    if ref is None:
+        return model_digest, "in_memory_content_bound", model
+    try:
+        selected_model = _load_selected_source_model(
+            store,
+            ref,
+            model_cls,
+            expected_kind=kind,
+            expected_schema=schema_name,
+        )
+    except (FileNotFoundError, TypeError, ValueError, KeyError):
+        return model_digest, "selected_source_mismatch", model
+    selected_digest = canonical_input_sha256(selected_model)
+    if model is not None and selected_model != model:
+        return model_digest, "selected_source_mismatch", selected_model
+    if ref.manifest_profile_sha256 is None:
+        return selected_digest, "in_memory_content_bound", selected_model
+    return selected_digest, "selected_source_matched", selected_model
+
+
+def _state_snapshot_blob_digest(
+    store: ArtifactStore,
+    state_ref: ArtifactRef,
+) -> tuple[str, list[InputRef]]:
+    """Verify and digest the single state blob selected by one state snapshot."""
+    manifest = store.get_manifest(state_ref)
+    edges = [edge for edge in manifest.inputs if edge.role == "state_blob"]
+    if len(edges) != 1:
+        raise ValueError("calibration_base_state_snapshot_requires_one_state_blob_edge")
+    edge = edges[0]
+    if edge.manifest_profile_sha256 is None:
+        blob_manifest = store.get_manifest(edge.artifact_id)
+        blob_profile = None
+    else:
+        blob_manifest = resolve_manifest_by_profile(
+            store,
+            edge.artifact_id,
+            edge.manifest_profile_sha256,
+        )
+        blob_profile = edge.manifest_profile_sha256
+    blob_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind=blob_manifest.kind,
+        media_type=blob_manifest.media_type,
+        manifest_profile_sha256=blob_profile,
+    )
+    state_blob = store.get_bytes(blob_ref)
+    digest = hashlib.sha256(state_blob).hexdigest()
+    if edge.artifact_id.hex != digest:
+        raise ValueError("calibration_base_state_blob_checksum_mismatch")
+    return digest, [input_ref_from_artifact_ref(blob_ref, role="state_blob")]
+
+
+def _runtime_input_binding(
+    *,
+    name: str,
+    usage: str,
+    source_role: str,
+    value: object | None,
+    active: bool,
+    selected_ref: ArtifactRef | None = None,
+    selected_value: object | None = None,
+    selected_source_expected: bool = False,
+    value_digest_override: str | None = None,
+    source_digest_override: str | None = None,
+    resolved_by: tuple[str, ...] = (),
+    limitations: set[str],
+) -> CalibrationRuntimeInputBinding:
+    """Capture one declared CalibratorInputs field without hashing callable identity."""
+    if not active:
+        return CalibrationRuntimeInputBinding(
+            input_name=name,
+            usage=usage,
+            source_role=source_role,
+            status="not_consumed",
+        )
+
+    value_digest = value_digest_override
+    if value_digest is None and value is not None:
+        try:
+            value_digest = canonical_input_sha256(value)
+        except (TypeError, ValueError, OverflowError):
+            limitations.add(f"runtime_input_not_canonically_serializable:{name}")
+
+    if source_role == "runtime_registry_member":
+        if selected_ref is None:
+            if value is None:
+                status = "selected_source_absent" if selected_source_expected else "absent"
+                return CalibrationRuntimeInputBinding(
+                    input_name=name,
+                    usage=usage,
+                    source_role=source_role,
+                    status=status,
+                )
+            if value_digest is None:
+                return CalibrationRuntimeInputBinding(
+                    input_name=name,
+                    usage=usage,
+                    source_role=source_role,
+                    status="not_established",
+                )
+            limitations.add(f"runtime_registry_member_source_not_established:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="in_memory_content_bound",
+                value_sha256=value_digest,
+            )
+        if value is None:
+            selected_digest = source_digest_override
+            if selected_digest is None and selected_value is not None:
+                selected_digest = canonical_input_sha256(selected_value)
+            limitations.add(f"runtime_registry_member_missing_from_calibrator_inputs:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="selected_source_mismatch",
+                source_ref=selected_ref,
+                source_payload_sha256=selected_digest,
+            )
+        if value_digest is None:
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="not_established",
+                source_ref=selected_ref,
+            )
+        selected_digest = source_digest_override
+        if selected_digest is None and selected_value is not None:
+            try:
+                selected_digest = canonical_input_sha256(selected_value)
+            except (TypeError, ValueError, OverflowError):
+                limitations.add(f"selected_runtime_registry_member_not_serializable:{name}")
+        if selected_digest is None:
+            limitations.add(f"selected_runtime_registry_member_not_established:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="not_established",
+                value_sha256=value_digest,
+                source_ref=selected_ref,
+            )
+        if value_digest != selected_digest:
+            limitations.add(f"runtime_registry_member_source_mismatch:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="selected_source_mismatch",
+                value_sha256=value_digest,
+                source_ref=selected_ref,
+                source_payload_sha256=selected_digest,
+            )
+        if selected_ref.manifest_profile_sha256 is None:
+            limitations.add(f"runtime_registry_member_selected_profile_not_established:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="not_established",
+                value_sha256=value_digest,
+                source_ref=selected_ref,
+                source_payload_sha256=selected_digest,
+            )
+        return CalibrationRuntimeInputBinding(
+            input_name=name,
+            usage=usage,
+            source_role=source_role,
+            status="selected_source_matched",
+            value_sha256=value_digest,
+            source_ref=selected_ref,
+            source_payload_sha256=selected_digest,
+        )
+
+    if value is None:
+        return CalibrationRuntimeInputBinding(
+            input_name=name,
+            usage=usage,
+            source_role=source_role,
+            status="absent",
+        )
+    if value_digest is None:
+        return CalibrationRuntimeInputBinding(
+            input_name=name,
+            usage=usage,
+            source_role=source_role,
+            status="not_established",
+            resolved_by=resolved_by,
+        )
+    if resolved_by:
+        return CalibrationRuntimeInputBinding(
+            input_name=name,
+            usage=usage,
+            source_role=source_role,
+            status="resolved_output_content_bound",
+            value_sha256=value_digest,
+            resolved_by=resolved_by,
+        )
+    if selected_ref is not None:
+        selected_digest = source_digest_override
+        if selected_digest is None and selected_value is not None:
+            try:
+                selected_digest = canonical_input_sha256(selected_value)
+            except (TypeError, ValueError, OverflowError):
+                limitations.add(f"selected_runtime_input_not_serializable:{name}")
+        if selected_digest is None:
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="not_established",
+                value_sha256=value_digest,
+                source_ref=selected_ref,
+            )
+        if value_digest != selected_digest:
+            limitations.add(f"runtime_input_selected_source_mismatch:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="selected_source_mismatch",
+                value_sha256=value_digest,
+                source_ref=selected_ref,
+                source_payload_sha256=selected_digest,
+            )
+        if selected_ref.manifest_profile_sha256 is None:
+            limitations.add(f"runtime_input_selected_profile_not_established:{name}")
+            return CalibrationRuntimeInputBinding(
+                input_name=name,
+                usage=usage,
+                source_role=source_role,
+                status="not_established",
+                value_sha256=value_digest,
+                source_ref=selected_ref,
+                source_payload_sha256=selected_digest,
+            )
+        return CalibrationRuntimeInputBinding(
+            input_name=name,
+            usage=usage,
+            source_role=source_role,
+            status="selected_source_matched",
+            value_sha256=value_digest,
+            source_ref=selected_ref,
+            source_payload_sha256=selected_digest,
+        )
+    return CalibrationRuntimeInputBinding(
+        input_name=name,
+        usage=usage,
+        source_role=source_role,
+        status="in_memory_content_bound",
+        value_sha256=value_digest,
+    )
+
+
+def _persist_calibration_execution_basis(
+    store: ArtifactStore,
+    *,
+    inputs: CalibratorInputs,
+    config_ref: ArtifactRef,
+    report: CalibrationReport,
+    capture: dict[str, Any],
+) -> ArtifactRef:
+    """Persist the exact local fit inputs and their selected source edges."""
+    graph_ref = ArtifactRef.model_validate(inputs.exec_plan.program_ref.model_dump(mode="python"))
+    graph_digest = canonical_input_sha256(inputs.program_graph)
+    plan_digest = canonical_input_sha256(inputs.exec_plan)
+    limitations = set(capture.get("limitations", ()))
+    runtime_limitations = set(capture.get("runtime_input_limitations", ()))
+
+    graph_status = "in_memory_snapshot_only"
+    selected_graph: ProgramGraph | None = None
+    try:
+        selected_graph = _load_selected_source_model(
+            store,
+            graph_ref,
+            ProgramGraph,
+            expected_kind=ProgramGraph.ARTIFACT_KIND,
+            expected_schema=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+        )
+        if selected_graph != inputs.program_graph:
+            graph_status = "selected_source_mismatch"
+            limitations.add("program_graph_did_not_match_selected_source")
+        elif graph_ref.manifest_profile_sha256 is not None:
+            graph_status = "selected_source_matched"
+        else:
+            limitations.add("program_graph_selected_profile_not_supplied")
+    except (FileNotFoundError, TypeError, ValueError, KeyError):
+        if graph_ref.manifest_profile_sha256 is not None:
+            graph_status = "selected_source_mismatch"
+            limitations.add("selected_program_graph_unavailable_or_invalid")
+        else:
+            limitations.add("program_graph_selected_profile_not_supplied")
+
+    plan_status = "object_only"
+    selected_plan: ExecPlan | None = None
+    if inputs.exec_plan_ref is None:
+        limitations.add("exec_plan_selected_artifact_ref_not_supplied")
+    else:
+        try:
+            selected_plan = _load_selected_source_model(
+                store,
+                inputs.exec_plan_ref,
+                ExecPlan,
+                expected_kind=ExecPlan.ARTIFACT_KIND,
+                expected_schema=ExecPlan.ARTIFACT_SCHEMA_NAME,
+            )
+            if selected_plan != inputs.exec_plan or _artifact_ref_identity(
+                selected_plan.program_ref
+            ) != _artifact_ref_identity(graph_ref):
+                plan_status = "selected_source_mismatch"
+                limitations.add("exec_plan_did_not_match_selected_source")
+            elif inputs.exec_plan_ref.manifest_profile_sha256 is not None:
+                plan_status = "selected_source_matched"
+            else:
+                limitations.add("exec_plan_selected_profile_not_supplied")
+        except (FileNotFoundError, TypeError, ValueError, KeyError):
+            if inputs.exec_plan_ref.manifest_profile_sha256 is not None:
+                plan_status = "selected_source_mismatch"
+                limitations.add("selected_exec_plan_unavailable_or_invalid")
+            else:
+                limitations.add("exec_plan_selected_profile_not_supplied")
+
+    registry_bundle_ref = inputs.registry_bundle_ref
+    registry_bundle_digest: str | None = None
+    registry_bundle_status = "not_established"
+    bundle_members = None
+    bundle_content = None
+    if registry_bundle_ref is not None:
+        try:
+            bundle_members = load_registry_bundle_payload(store, registry_bundle_ref)
+            bundle_content = load_registry_bundle_content(store, registry_bundle_ref)
+            registry_bundle_digest = canonical_input_sha256(bundle_members)
+            registry_bundle_status = (
+                "selected_source_matched"
+                if registry_bundle_ref.manifest_profile_sha256 is not None
+                else "in_memory_content_bound"
+            )
+        except (FileNotFoundError, TypeError, ValueError, KeyError):
+            registry_bundle_status = "selected_source_mismatch"
+            limitations.add("registry_bundle_unavailable_or_invalid")
+    else:
+        limitations.add("registry_bundle_selected_source_not_supplied")
+
+    mechanism_registry_ref = inputs.mechanism_registry_ref
+    units_registry_ref = inputs.units_registry_ref
+    if bundle_members is not None:
+        mechanism_registry_ref = mechanism_registry_ref or bundle_members.mechanism_registry
+        units_registry_ref = units_registry_ref or bundle_members.units_registry
+
+    mechanism_digest, mechanism_status, selected_mechanism_registry = _registry_model_capture(
+        store,
+        ref=mechanism_registry_ref,
+        model=inputs.mechanism_registry,
+        model_cls=MechanismTypeRegistry,
+        kind="ir.mechanism_registry",
+        schema_name="polisyos.ir.kernel.MechanismTypeRegistry",
+    )
+    units_registry = inputs.units_registry
+    if units_registry is None and units_registry_ref is not None:
+        try:
+            units_registry = _load_selected_source_model(
+                store,
+                units_registry_ref,
+                UnitsRegistry,
+                expected_kind="ir.units_registry",
+                expected_schema="polisyos.ir.kernel.UnitsRegistry",
+            )
+        except (FileNotFoundError, TypeError, ValueError, KeyError):
+            units_registry = None
+    units_digest, units_status, selected_units_registry = _registry_model_capture(
+        store,
+        ref=units_registry_ref,
+        model=units_registry,
+        model_cls=UnitsRegistry,
+        kind="ir.units_registry",
+        schema_name="polisyos.ir.kernel.UnitsRegistry",
+    )
+    mechanism_registry = inputs.mechanism_registry
+    if selected_mechanism_registry is not None and mechanism_status == "selected_source_matched":
+        mechanism_registry = selected_mechanism_registry
+    if selected_units_registry is not None and units_status == "selected_source_matched":
+        units_registry = selected_units_registry
+
+    if mechanism_status != "selected_source_matched":
+        limitations.add("mechanism_registry_selected_source_not_established")
+    if units_status != "selected_source_matched":
+        limitations.add("unit_registry_selected_source_not_established")
+    if registry_bundle_status != "selected_source_matched":
+        limitations.add("registry_bundle_selected_source_not_established")
+
+    base_state_ref = inputs.base_state_snapshot_ref
+    selected_base_state: GlobalState | None = None
+    if base_state_ref is None:
+        base_state_ref = put_state_snapshot(
+            store,
+            state=inputs.base_state,
+            step=0,
+            return_selected_profile=True,
+        )
+        base_state_source_status = "snapshot_materialized_only"
+        limitations.add("base_state_selected_source_not_supplied")
+    else:
+        try:
+            selected_base_state = load_state_snapshot(store, snapshot_ref=base_state_ref)
+        except (TypeError, ValueError, KeyError) as exc:
+            raise ValueError("supplied_base_state_snapshot_invalid") from exc
+        if not _state_values_equal(selected_base_state, inputs.base_state):
+            base_state_source_status = "selected_source_mismatch"
+            limitations.add("base_state_snapshot_did_not_match_consumed_state")
+        elif base_state_ref.manifest_profile_sha256 is None:
+            base_state_source_status = "snapshot_materialized_only"
+            limitations.add("base_state_selected_profile_not_supplied")
+        else:
+            base_state_source_status = "selected_source_matched"
+    state_checksum, state_blob_inputs = _state_snapshot_blob_digest(store, base_state_ref)
+
+    if inputs.measurement_loss_adapter is not None:
+        runtime_limitations.add(
+            "custom_measurement_loss_adapter_behavior_not_independently_recomputed"
+        )
+    if inputs.aux_loss_components:
+        runtime_limitations.add(
+            "auxiliary_loss_implementation_behavior_not_independently_recomputed"
+        )
+
+    target_inputs: list[CalibrationTargetInputIdentity] = []
+    target_source_kinds = capture.get("target_source_kinds", {})
+    consumed_values = capture.get("target_values", {})
+    captured_time_axes = capture.get("report_time_axes", {})
+    measurement_bundle = inputs.measurement_bundle
+    for target in inputs.config.targets:
+        target_id = target.target_id
+        comparison = report.series_comparison.get(target_id)
+        if comparison is None or target_id not in consumed_values:
+            limitations.add(f"calibration_target_materialization_missing:{target_id}")
+            continue
+        observed_values = consumed_values[target_id]
+        if comparison.real != observed_values or comparison.time != captured_time_axes.get(
+            target_id
+        ):
+            limitations.add(
+                f"calibration_report_target_differs_from_captured_objective:{target_id}"
+            )
+        source_time_axis: Any = inputs.config.time_axis
+        time_grain = None
+        split_labels = None
+        observation_ids = None
+        identification_modes = None
+        measurement_digest = None
+        split_status = "not_established"
+        if measurement_bundle is not None:
+            source_time_axis = measurement_bundle.time_axis.get(target_id)
+            raw_grain = measurement_bundle.time_grain.get(target_id)
+            if hasattr(raw_grain, "value"):
+                time_grain = raw_grain.value
+            elif isinstance(raw_grain, str):
+                time_grain = raw_grain
+            split_labels = _string_sequence(measurement_bundle.split_label.get(target_id))
+            observation_ids = _string_sequence(measurement_bundle.observation_id.get(target_id))
+            identification_modes = _string_sequence(
+                measurement_bundle.identification_mode.get(target_id)
+            )
+            if split_labels:
+                split_status = "captured"
+            metadata = {
+                name: getattr(measurement_bundle, name).get(target_id)
+                for name in (
+                    "trust_weight",
+                    "coverage_estimate",
+                    "censoring_mask",
+                    "lag_days_estimate",
+                    "shock_mask",
+                    "schema_regime_id",
+                    "observation_id",
+                    "time_axis",
+                    "split_label",
+                    "identification_mode",
+                    "time_grain",
+                )
+            }
+            try:
+                measurement_digest = canonical_input_sha256(metadata)
+            except (TypeError, ValueError, OverflowError):
+                limitations.add(f"measurement_metadata_content_not_bound:{target_id}")
+        if source_time_axis is not None and not isinstance(source_time_axis, (tuple, list)):
+            limitations.add(f"source_time_axis_not_captured_as_ordered_sequence:{target_id}")
+            source_time_axis = None
+        report_time = comparison.time
+        target_inputs.append(
+            CalibrationTargetInputIdentity(
+                target_id=target_id,
+                report_series_sha256=calibration_report_series_sha256(
+                    real=comparison.real,
+                    time=report_time,
+                ),
+                observed_values_sha256=canonical_input_sha256(observed_values),
+                report_time_axis_sha256=calibration_report_time_axis_sha256(report_time),
+                source_kind=target_source_kinds.get(target_id, "mixed_or_unknown"),
+                source_time_axis=tuple(source_time_axis) if source_time_axis is not None else None,
+                time_grain=time_grain,
+                split_labels=split_labels,
+                observation_ids=observation_ids,
+                identification_modes=identification_modes,
+                measurement_metadata_sha256=measurement_digest,
+                split_status=split_status,
+            )
+        )
+
+    parameter_unit_identities: list[CalibrationParameterUnitIdentity] = []
+    for parameter_input in capture.get("parameter_inputs", ()):
+        if parameter_input.node_id is None or parameter_input.mechanism_type is None:
+            if parameter_input.parameter_ids:
+                limitations.add("parameter_contract_source_not_established")
+            continue
+        mechanism_spec = mechanism_registry.mechanisms.get(parameter_input.mechanism_type)
+        for parameter_id in parameter_input.parameter_ids:
+            parameter_spec = (
+                mechanism_spec.params.get(parameter_id) if mechanism_spec is not None else None
+            )
+            if parameter_spec is None:
+                parameter_unit_identities.append(
+                    CalibrationParameterUnitIdentity(
+                        field_name=f"{parameter_input.node_id}.{parameter_id}",
+                        mechanism_type=parameter_input.mechanism_type,
+                        parameter_id=parameter_id,
+                        value_type="not_established",
+                        unit_id=None,
+                        parameter_spec_status="not_established",
+                        unit_definition_status="not_established",
+                        status="not_established",
+                    )
+                )
+                limitations.add("resolved_parameter_spec_missing_from_mechanism_registry")
+                continue
+            parameter_spec_status = (
+                "selected_source_content_bound"
+                if mechanism_status == "selected_source_matched"
+                else "in_memory_content_bound"
+            )
+            parameter_spec_digest = canonical_input_sha256(parameter_spec)
+            unit_digest = None
+            unit_definition_status = "not_established"
+            unit_id = parameter_spec.unit_id
+            if unit_id is None:
+                limitations.add("parameter_unit_id_not_declared")
+            elif units_registry is None:
+                limitations.add("unit_definition_not_established")
+            elif unit_id not in units_registry.units:
+                unit_definition_status = "selected_source_missing"
+                limitations.add(f"selected_unit_definition_missing:{unit_id}")
+            else:
+                unit_digest = canonical_input_sha256(units_registry.units[unit_id])
+                unit_definition_status = (
+                    "selected_source_content_bound"
+                    if units_status == "selected_source_matched"
+                    else "in_memory_content_bound"
+                )
+                limitations.add("unit_definition_authority_not_established")
+            parameter_unit_identities.append(
+                CalibrationParameterUnitIdentity(
+                    field_name=f"{parameter_input.node_id}.{parameter_id}",
+                    mechanism_type=parameter_input.mechanism_type,
+                    parameter_id=parameter_id,
+                    value_type=parameter_spec.value_type.value,
+                    unit_id=unit_id,
+                    parameter_spec_sha256=parameter_spec_digest,
+                    parameter_spec_status=parameter_spec_status,
+                    unit_definition_sha256=unit_digest,
+                    unit_definition_status=unit_definition_status,
+                    status="parameter_spec_bound",
+                )
+            )
+
+    report_envelope_digests: dict[str, str] = {}
+    for field_name, envelope in (report.uncertainty_envelopes or {}).items():
+        report_envelope_digests[field_name] = canonical_input_sha256(envelope)
+
+    input_names = tuple(field.name for field in dataclass_fields(inputs))
+    if input_names != CALIBRATION_RUNTIME_INPUT_NAMES:
+        raise ValueError("calibrator_input_runtime_roster_contract_drift")
+    target_resolution_digest = canonical_input_sha256(
+        [item.model_dump(mode="json") for item in target_inputs]
+    )
+    parameter_resolution_digest = canonical_input_sha256(
+        [item.model_dump(mode="json") for item in capture.get("parameter_inputs", ())]
+    )
+    report_horizons = {len(item.model) for item in report.series_comparison.values()}
+    report_horizon_digest = (
+        canonical_input_sha256({"steps": next(iter(report_horizons))})
+        if len(report_horizons) == 1
+        else None
+    )
+    active_target_queries = any(target.fabric_query is not None for target in inputs.config.targets)
+    runtime_input_roster: list[CalibrationRuntimeInputBinding] = []
+    registry_member_by_name = {
+        name: (ref_field, model_field)
+        for name, ref_field, _kind, _schema_name in RUNTIME_REGISTRY_MEMBER_CONTRACT
+        for model_field in (name,)
+    }
+    for name, usage, source_role in CALIBRATION_RUNTIME_INPUT_CONTRACT:
+        value = getattr(inputs, name)
+        active = True
+        resolved_by: tuple[str, ...] = ()
+        value_digest_override: str | None = None
+        selected_ref: ArtifactRef | None = None
+        selected_value: object | None = None
+        selected_source_expected = False
+        source_digest_override: str | None = None
+
+        if name in {"constraint_registry", "constraint_values"}:
+            active = bool(inputs.config.constraint_loss.enabled)
+        elif name in {"raw_targets", "udf_engine", "target_fetcher"}:
+            active = inputs.measurement_bundle is None and bool(
+                inputs.raw_targets or active_target_queries
+            )
+            if name in {"udf_engine", "target_fetcher"}:
+                active = active and active_target_queries and value is not None
+            if name == "raw_targets":
+                active = active and bool(value)
+            if active:
+                resolved_by = ("target_inputs",)
+                value_digest_override = target_resolution_digest
+        elif name == "controls_seq":
+            active = value is not None
+            if active and report_horizon_digest is not None:
+                resolved_by = ("report_series_horizon",)
+                value_digest_override = report_horizon_digest
+        elif name == "parameter_loader":
+            active = bool(capture.get("parameter_inputs"))
+            if active:
+                resolved_by = ("parameter_inputs",)
+                value_digest_override = parameter_resolution_digest
+        elif name in {"measurement_bundle", "measurement_loss_config", "measurement_loss_adapter"}:
+            active = inputs.measurement_bundle is not None
+            if name != "measurement_bundle":
+                active = active and value is not None
+        elif name == "aux_loss_components":
+            active = bool(value)
+        elif name == "units_registry":
+            # This optional object is used only while creating parameter-unit
+            # identities; it is not passed to the fit loop itself.
+            active = value is not None
+
+        if name in registry_member_by_name:
+            ref_field, model_field = registry_member_by_name[name]
+            selected_ref = getattr(bundle_members, ref_field, None)
+            selected_value = getattr(bundle_content, model_field, None)
+            selected_source_expected = bundle_members is not None
+            if name == "constraint_registry" and not active:
+                selected_ref = None
+                selected_value = None
+                selected_source_expected = False
+        elif name == "config":
+            selected_ref, selected_value = config_ref, inputs.config
+        elif name == "program_graph":
+            selected_ref, selected_value = graph_ref, selected_graph
+        elif name == "exec_plan":
+            selected_ref, selected_value = inputs.exec_plan_ref, selected_plan
+        elif name == "base_state":
+            selected_ref = base_state_ref
+            selected_value = selected_base_state
+            source_digest_override = state_checksum
+            if base_state_source_status == "selected_source_mismatch":
+                source_digest_override = None
+                value_digest_override = None
+        elif source_role in {
+            "selected_exec_plan_ref",
+            "selected_runtime_registry_bundle_ref",
+            "runtime_registry_member_ref",
+            "selected_base_state_snapshot_ref",
+        }:
+            # These fields are themselves references. Their exact identities
+            # are separately checked by the corresponding selected-source
+            # contract fields above; do not confuse a ref digest with payload bytes.
+            selected_ref = None
+
+        if source_role == "runtime_registry_member" and name in registry_member_by_name:
+            binding = _runtime_input_binding(
+                name=name,
+                usage=usage,
+                source_role=source_role,
+                value=value,
+                active=active,
+                selected_ref=selected_ref,
+                selected_value=selected_value,
+                selected_source_expected=selected_source_expected,
+                limitations=runtime_limitations,
+            )
+        elif source_role == "resolved_parameter_inputs" or source_role == "resolved_target_inputs":
+            binding = _runtime_input_binding(
+                name=name,
+                usage=usage,
+                source_role=source_role,
+                value=value,
+                active=active,
+                value_digest_override=value_digest_override,
+                resolved_by=resolved_by,
+                limitations=runtime_limitations,
+            )
+        elif source_role == "report_series_horizon":
+            binding = _runtime_input_binding(
+                name=name,
+                usage=usage,
+                source_role=source_role,
+                value=value,
+                active=active and report_horizon_digest is not None,
+                value_digest_override=value_digest_override,
+                resolved_by=resolved_by,
+                limitations=runtime_limitations,
+            )
+        elif source_role in {
+            "selected_calibration_config",
+            "selected_program_graph",
+            "selected_exec_plan",
+            "selected_base_state_snapshot",
+        }:
+            binding = _runtime_input_binding(
+                name=name,
+                usage=usage,
+                source_role=source_role,
+                value=value,
+                active=active,
+                selected_ref=selected_ref,
+                selected_value=selected_value,
+                source_digest_override=source_digest_override,
+                value_digest_override=value_digest_override,
+                limitations=runtime_limitations,
+            )
+        else:
+            binding = _runtime_input_binding(
+                name=name,
+                usage=usage,
+                source_role=source_role,
+                value=value,
+                active=active,
+                value_digest_override=value_digest_override,
+                resolved_by=resolved_by,
+                limitations=runtime_limitations,
+            )
+        if binding.status == "not_established":
+            runtime_limitations.add(f"runtime_input_not_established:{name}")
+        if binding.status == "selected_source_mismatch":
+            runtime_limitations.add(f"runtime_input_selected_source_mismatch:{name}")
+        runtime_input_roster.append(binding)
+
+    input_refs: list[InputRef] = [
+        input_ref_from_artifact_ref(config_ref, role="calibration_config"),
+        input_ref_from_artifact_ref(graph_ref, role="program_graph"),
+        input_ref_from_artifact_ref(base_state_ref, role="base_state_snapshot"),
+        *state_blob_inputs,
+    ]
+    if inputs.exec_plan_ref is not None:
+        input_refs.append(input_ref_from_artifact_ref(inputs.exec_plan_ref, role="exec_plan"))
+    if registry_bundle_ref is not None:
+        input_refs.append(input_ref_from_artifact_ref(registry_bundle_ref, role="registry_bundle"))
+    if mechanism_registry_ref is not None:
+        input_refs.append(
+            input_ref_from_artifact_ref(mechanism_registry_ref, role="mechanism_registry")
+        )
+    if units_registry_ref is not None:
+        input_refs.append(input_ref_from_artifact_ref(units_registry_ref, role="unit_registry"))
+    for parameter_input in capture.get("parameter_inputs", ()):
+        if parameter_input.source_ref is None:
+            continue
+        input_refs.append(
+            input_ref_from_artifact_ref(
+                parameter_input.source_ref,
+                role=f"parameter_input.{parameter_input.ordinal}",
+            )
+        )
+
+    limitations.update(runtime_limitations)
+    limitations.add("external_source_attestation_not_established")
+    limitations.add("physical_time_semantics_not_established")
+    limitations.add("external_unit_law_not_established")
+    expected_target_order = tuple(target.target_id for target in inputs.config.targets)
+    target_complete = tuple(item.target_id for item in target_inputs) == expected_target_order
+    parameters_complete = all(
+        item.status == "content_bound" and item.effective_values_status == "content_bound"
+        for item in capture.get("parameter_inputs", ())
+    )
+    local_capture_complete = (
+        target_complete
+        and parameters_complete
+        and not runtime_limitations
+        and len(report.series_comparison) == len(expected_target_order)
+    )
+    basis = CalibrationExecutionInputBasis(
+        input_capture_status="content_bound" if local_capture_complete else "limited",
+        calibration_config_ref=config_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        registry_bundle_sha256=registry_bundle_digest,
+        registry_bundle_status=registry_bundle_status,
+        exec_plan_ref=inputs.exec_plan_ref,
+        exec_plan_sha256=plan_digest,
+        program_graph_ref=graph_ref,
+        program_graph_sha256=graph_digest,
+        program_graph_status=graph_status,
+        exec_plan_source_status=plan_status,
+        mechanism_registry_ref=mechanism_registry_ref,
+        mechanism_registry_sha256=mechanism_digest,
+        mechanism_registry_status=mechanism_status,
+        unit_registry_ref=units_registry_ref,
+        unit_registry_sha256=units_digest,
+        unit_registry_status=units_status,
+        exec_plan=inputs.exec_plan,
+        base_state_snapshot_ref=base_state_ref,
+        base_state_checksum_sha256=state_checksum,
+        base_state_source_status=base_state_source_status,
+        target_order=expected_target_order,
+        target_inputs=tuple(target_inputs),
+        parameter_inputs=tuple(capture.get("parameter_inputs", ())),
+        parameter_unit_identities=tuple(parameter_unit_identities),
+        calibrated_parameter_values_sha256=canonical_input_sha256(report.calibrated_params),
+        report_envelope_sha256=report_envelope_digests,
+        runtime_input_sha256={},
+        runtime_input_roster=tuple(runtime_input_roster),
+        runtime_input_limitations=tuple(sorted(runtime_limitations)),
+        limitations=tuple(sorted(limitations)),
+    )
+    return put_calibration_execution_input_basis(store, basis, inputs=input_refs)
+
+
 class Calibrator:
     """Fit trainable mechanism parameters by minimizing synthetic-vs-observed loss.
 
@@ -530,6 +1505,7 @@ class Calibrator:
         """Initialize the calibrator with compile/runtime contracts and callbacks."""
         self.inputs = inputs
         self._bundle: StaticBundle | None = None
+        self._execution_capture: dict[str, Any] | None = None
 
     def _build_bundle(self) -> StaticBundle:
         if self._bundle is not None:
@@ -686,8 +1662,12 @@ class Calibrator:
     def run_and_persist(self, store: ArtifactStore) -> tuple[CalibrationReport, ArtifactRef]:
         """Run once and persist the report with the exact configuration used.
 
-        A deep configuration snapshot is passed to the optimizer and stored as
-        a versioned artifact. The report edge is built from the complete config ArtifactRef, preserving a
+        A deep value snapshot of all ``CalibratorInputs`` is taken before the fit.
+        The optimizer and the persisted execution identity use independent copies of
+        that snapshot, so later caller mutation cannot rewrite the recorded inputs.
+        Opaque providers retain their callable identity; their consumed parameter or
+        target outputs are captured where possible and remaining behavior stays limited.
+        The report edge is built from the complete config ArtifactRef, preserving a
         selected non-default manifest profile as well as the content ID. The report's
         fitted coordinates can then be inspected alongside that exact config view.
 
@@ -702,13 +1682,200 @@ class Calibrator:
         Returns:
             The report produced by the run and its persisted CAS reference.
         """
-        config = self.inputs.config.model_copy(deep=True)
-        report = Calibrator(replace(self.inputs, config=config)).run()
-        config_ref = put_calibration_config(store, config)
+        fit_inputs = _snapshot_calibrator_inputs(self.inputs)
+        basis_inputs = _snapshot_calibrator_inputs(fit_inputs)
+        fit_config = fit_inputs.config.model_copy(deep=True)
+        basis_config = basis_inputs.config.model_copy(deep=True)
+        capture: dict[str, Any] = {
+            "parameter_inputs": [],
+            "runtime_input_limitations": [],
+            "limitations": [],
+        }
+        parameter_sources: list[tuple[Any, str, str, ArtifactRef | None]] = []
+        node_by_id = {node.node_id: node for node in fit_inputs.program_graph.nodes}
+        order = fit_inputs.exec_plan.order or [
+            node.node_id for node in fit_inputs.program_graph.nodes
+        ]
+        for node_id in order:
+            node = node_by_id.get(node_id)
+            if node is None or node.node_kind not in {"mechanism", "op"}:
+                continue
+            mechanism_type = node.mechanism_type
+            params_ref = node.params_ref
+            if node.node_kind == "op" and node.op is not None:
+                if node.op.op_kind != "apply_mechanism":
+                    continue
+                mechanism_type = node.op.params.get("mechanism_type") or mechanism_type
+                params_ref = node.op.params.get("params_ref") or params_ref
+            if mechanism_type is None:
+                continue
+            source = params_ref or node
+            source_ref = source if isinstance(source, ArtifactRef) else None
+            parameter_sources.append((source, node_id, mechanism_type, source_ref))
+
+        def capture_parameter_payload(source: Any) -> dict[str, Any]:
+            payload = fit_inputs.parameter_loader(source) or {}
+            match_index = next(
+                (
+                    index
+                    for index, (candidate, _node_id, _mechanism_type, _source_ref) in enumerate(
+                        parameter_sources
+                    )
+                    if candidate is source or candidate == source
+                ),
+                None,
+            )
+            if match_index is None:
+                node_id = None
+                mechanism_type = None
+                source_ref = source if isinstance(source, ArtifactRef) else None
+                capture["runtime_input_limitations"].append(
+                    "parameter_loader_call_source_not_mapped_to_program_node"
+                )
+            else:
+                _candidate, node_id, mechanism_type, source_ref = parameter_sources.pop(match_index)
+            try:
+                payload_sha256 = canonical_input_sha256(payload)
+                status = "content_bound"
+            except (TypeError, ValueError, OverflowError):
+                payload_sha256 = None
+                status = "not_established"
+                capture["runtime_input_limitations"].append(
+                    "parameter_loader_output_not_canonically_serializable"
+                )
+            source_payload_sha256 = None
+            source_status = "in_memory_only" if source_ref is None else "not_established"
+            if source_ref is not None and source_ref.manifest_profile_sha256 is not None:
+                try:
+                    if not store.verify(source_ref).ok:
+                        raise ValueError("parameter_source_integrity_failure")
+                    source_payload = from_canonical_bytes(store.get_bytes(source_ref))
+                    source_payload_sha256 = canonical_input_sha256(source_payload)
+                    if source_payload_sha256 == payload_sha256:
+                        source_status = "selected_source_matched"
+                    else:
+                        source_status = "selected_source_mismatch"
+                        capture["runtime_input_limitations"].append(
+                            "parameter_loader_output_differs_from_selected_source"
+                        )
+                except (FileNotFoundError, TypeError, ValueError, KeyError, OverflowError):
+                    source_payload_sha256 = None
+                    source_status = "selected_source_mismatch"
+                    capture["runtime_input_limitations"].append(
+                        "selected_parameter_source_unavailable_or_invalid"
+                    )
+            elif source_ref is not None:
+                capture["runtime_input_limitations"].append(
+                    "parameter_source_selected_profile_not_supplied"
+                )
+            capture["parameter_inputs"].append(
+                CalibrationResolvedParameterInput(
+                    ordinal=len(capture["parameter_inputs"]),
+                    node_id=node_id,
+                    mechanism_type=mechanism_type,
+                    parameter_ids=(
+                        tuple(payload["params"].keys())
+                        if isinstance(payload.get("params"), Mapping)
+                        and all(isinstance(key, str) for key in payload["params"])
+                        else ()
+                    ),
+                    source_ref=source_ref,
+                    source_payload_sha256=source_payload_sha256,
+                    source_status=source_status,
+                    payload_sha256=payload_sha256,
+                    status=status,
+                )
+            )
+            return payload
+
+        fit_calibrator = Calibrator(
+            replace(
+                fit_inputs,
+                config=fit_config,
+                parameter_loader=capture_parameter_payload,
+            )
+        )
+        fit_calibrator._execution_capture = capture
+        report = fit_calibrator.run()
+        compiled_bundle = fit_calibrator._bundle
+        if compiled_bundle is None:
+            capture["runtime_input_limitations"].append(
+                "compiled_calibration_bundle_not_available_after_run"
+            )
+        else:
+            prepared_by_node = {node.node_id: node for node in compiled_bundle.nodes}
+            resolved_inputs: list[CalibrationResolvedParameterInput] = []
+            for parameter_input in capture["parameter_inputs"]:
+                prepared = prepared_by_node.get(parameter_input.node_id)
+                mechanism_spec = fit_inputs.mechanism_registry.mechanisms.get(
+                    parameter_input.mechanism_type
+                )
+                if prepared is None or mechanism_spec is None:
+                    resolved_inputs.append(
+                        CalibrationResolvedParameterInput.model_validate(
+                            {
+                                **parameter_input.model_dump(mode="python"),
+                                "parameter_ids": (),
+                                "effective_parameter_values_sha256": None,
+                                "effective_values_status": "not_established",
+                            }
+                        )
+                    )
+                    capture["runtime_input_limitations"].append(
+                        "compiled_effective_parameter_values_not_established"
+                    )
+                    continue
+                effective_values: dict[str, Any] = {}
+                missing_fields: list[str] = []
+                for field_name in mechanism_spec.params:
+                    if not hasattr(prepared.mechanism, field_name):
+                        missing_fields.append(field_name)
+                        continue
+                    effective_values[field_name] = getattr(prepared.mechanism, field_name)
+                try:
+                    effective_values_sha256 = canonical_input_sha256(effective_values)
+                    effective_status = "content_bound"
+                except (TypeError, ValueError, OverflowError):
+                    effective_values_sha256 = None
+                    effective_status = "not_established"
+                    capture["runtime_input_limitations"].append(
+                        f"compiled_effective_parameter_values_not_serializable:{prepared.node_id}"
+                    )
+                if missing_fields:
+                    capture["runtime_input_limitations"].append(
+                        f"compiled_effective_parameter_fields_missing:{prepared.node_id}"
+                    )
+                    effective_status = "not_established"
+                    effective_values_sha256 = None
+                resolved_inputs.append(
+                    CalibrationResolvedParameterInput.model_validate(
+                        {
+                            **parameter_input.model_dump(mode="python"),
+                            "parameter_ids": tuple(mechanism_spec.params),
+                            "effective_parameter_values_sha256": effective_values_sha256,
+                            "effective_values_status": effective_status,
+                        }
+                    )
+                )
+            capture["parameter_inputs"] = resolved_inputs
+        config_ref = put_calibration_config(store, basis_config, return_selected_profile=True)
+        basis_ref = _persist_calibration_execution_basis(
+            store,
+            inputs=replace(basis_inputs, config=basis_config),
+            config_ref=config_ref,
+            report=report,
+            capture=capture,
+        )
         report_ref = put_calibration_report(
             store,
             report,
-            inputs=[input_ref_from_artifact_ref(config_ref, role="calibration_config")],
+            inputs=[
+                input_ref_from_artifact_ref(config_ref, role="calibration_config"),
+                input_ref_from_artifact_ref(
+                    basis_ref,
+                    role="calibration_execution_input_basis",
+                ),
+            ],
         )
         return report, report_ref
 
@@ -778,6 +1945,7 @@ class Calibrator:
             )
 
         if measurement_bundle is None:
+            fetched_target_ids: set[str] = set()
             if self.inputs.raw_targets:
                 raw_targets.update(self.inputs.raw_targets)
             if any(t.fabric_query is not None for t in targets):
@@ -788,6 +1956,7 @@ class Calibrator:
                         fetcher=self.inputs.target_fetcher,
                     )
                     raw_targets = {**fetched, **raw_targets}
+                    fetched_target_ids = set(fetched)
             steps = resolve_steps(cfg, raw_targets)
             if steps == 0:
                 raise ValueError("No target series provided for calibration")
@@ -868,6 +2037,29 @@ class Calibrator:
                     measurement_bundle.time_axis.get(target.target_id)
                 )
                 for target in targets
+            }
+
+        if self._execution_capture is not None:
+            raw_target_ids = set(self.inputs.raw_targets or {})
+            target_source_kinds: dict[str, str] = {}
+            for target in targets:
+                target_id = target.target_id
+                if measurement_bundle is not None and target_id in aligned_targets:
+                    source_kind = "measurement_bundle"
+                elif target_id in raw_target_ids:
+                    source_kind = "caller_raw_targets"
+                elif target_id in locals().get("fetched_target_ids", set()):
+                    source_kind = "target_fetcher_or_udf"
+                else:
+                    source_kind = "mixed_or_unknown"
+                target_source_kinds[target_id] = source_kind
+            self._execution_capture["target_source_kinds"] = target_source_kinds
+            self._execution_capture["target_values"] = {
+                target.target_id: _as_float_list(aligned_targets[target.target_id])
+                for target in targets
+            }
+            self._execution_capture["report_time_axes"] = {
+                target.target_id: time_axes.get(target.target_id) for target in targets
             }
 
         measurement_support: dict[str, bool] = {}

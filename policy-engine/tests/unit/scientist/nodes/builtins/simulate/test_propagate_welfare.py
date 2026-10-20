@@ -28,28 +28,35 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
+    CompileRequest,
     EquilibriumMultiplicityDiagnostics,
     EquilibriumMultiplicityReport,
     EquilibriumMultiplicityReportRef,
     EquilibriumSearchProtocol,
     ExecPlan,
     ExecPlanRef,
+    ExecuteRequest,
     FeedbackResultRef,
     FeedbackSolveResult,
     FeedbackStateSnapshot,
+    FoundryExecConfig,
     FoundryExecutionInputBasisRef,
+    FoundryInputBindingsRef,
     Metrics,
     MetricsRef,
+    ParameterOverrideBundle,
+    ParameterOverrideBundleRef,
     ProgramGraph,
     ProgramGraphRef,
-    ProgramNode,
     SimulationResult,
     SimulationResultRef,
+    StateSnapshotRef,
 )
 from polisyos.core.errors import ErrorCategory, PolicyOSError
-from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.calibration.calibrator import Calibrator, CalibratorInputs
+from polisyos.foundry.calibration.execution_basis import load_calibration_execution_input_basis
 from polisyos.foundry.calibration.report import (
     CalibrationCoordinateProjection,
     CalibrationReport,
@@ -58,7 +65,12 @@ from polisyos.foundry.calibration.report import (
     put_calibration_report,
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelope_from_calibration_param
+from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.data_plane.bindings import build_input_bindings
+from polisyos.foundry.execute import admit_execution_source
+from polisyos.foundry.execute.api import execute as execute_foundry
+from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
 from polisyos.ir.analytics.calibration import (
     CalibrationConfig,
     CalibrationTarget,
@@ -88,15 +100,20 @@ from polisyos.ir.analytics.welfare import (
     load_welfare_sample_bundle,
     persist_ge_uncertainty_bundle,
 )
-from polisyos.ir.kernel.mechanisms import DEFAULT_MECHANISM_REGISTRY
-from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
-from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.feedback.core import build_parameter_override_bundle
 from polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment import (
     _build_welfare_section,
 )
 from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import (
     PropagateWelfareNode,
+)
+from polisyos.scientist.nodes.builtins.simulate.welfare_context import (
+    _calibration_execution_source_join,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -110,6 +127,10 @@ from polisyos.scientist.policy_design.phase3 import (
     Phase3CertificateStatus,
     phase3_gate_reference_blockers,
     resolve_phase3_gate,
+)
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    persist_policy_candidate_schema,
 )
 
 
@@ -1180,37 +1201,12 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
     assert "dependence_assumed_independent" in mixed_bundle.warnings
 
 
-def _run_b197_tied_calibrator(
-    store: FileSystemCAS,
-    *,
-    incomplete_projection: bool = False,
-    hessian_enabled: bool = True,
-    seed_competing_profile: bool = False,
-    caller_configs: list[CalibrationConfig] | None = None,
-) -> tuple[ArtifactRef, CalibrationReport]:
-    dummy_id = ArtifactID.from_sha256_hex("0" * 64)
-    graph_ref = ArtifactRef(
-        artifact_id=dummy_id,
-        kind="ir.trinity_bundle",
-        media_type="application/json",
-    )
-    nodes = [
-        ProgramNode(
-            node_id=node_id,
-            node_kind="mechanism",
-            mechanism_type="income_tax",
-            params_ref=None,
-            outputs=["agents.income", "government.balance"],
-        )
-        for node_id in ("A", "B")
-    ]
-    graph = ProgramGraph(
-        ir_ref=graph_ref,
-        nodes=nodes,
-        edges=[],
-        entrypoints=[],
-    )
-    plan = ExecPlan(program_ref=ProgramGraphRef(artifact_id=dummy_id), order=["A", "B"])
+_B197_REPLAY_BY_STORE_ROOT: dict[str, SimulationResultRef] = {}
+
+
+def _build_b197_tied_execution_source(store: FileSystemCAS):
+    """Persist a real selected Foundry graph, plan, state, bindings, and baseline run."""
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
     base_state = GlobalState.empty(n_agents=1, n_firms=1)
     base_state = base_state.replace(
         agents=base_state.agents.replace(
@@ -1219,6 +1215,287 @@ def _run_b197_tied_calibrator(
         ),
         government_balance=jnp.asarray(0.0),
     )
+    snapshot_payload_ref = put_state_snapshot(
+        store,
+        state=base_state,
+        step=0,
+        return_selected_profile=True,
+    )
+    state_snapshot_ref = StateSnapshotRef.model_validate(
+        snapshot_payload_ref.model_dump(mode="python")
+    )
+    data_snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=state_snapshot_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(state_snapshot_ref, role="data_ref")],
+        ),
+        return_selected_profile=True,
+    )
+    selected_data_snapshot_ref = DataSnapshotRef.model_validate(
+        data_snapshot_ref.model_dump(mode="python")
+    )
+    bindings = build_input_bindings(
+        store,
+        data_snapshot_ref=selected_data_snapshot_ref,
+        registry_bundle_ref=registry.bundle_ref,
+        return_selected_profile=True,
+    )
+
+    policy = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="b197_tied", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="b197_tied",
+            interventions=[
+                {
+                    "intervention_id": intervention_id,
+                    "kind": "income_tax",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": "==",
+                        "value": "all",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.2"},
+                    "priority": priority,
+                }
+                for intervention_id, priority in (("a", 0), ("b", 1))
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="b197_tied",
+            data_snapshot_ref=str(selected_data_snapshot_ref.artifact_id),
+            registry_bundle_ref=str(registry.bundle_ref.artifact_id),
+        ),
+    )
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        policy,
+        candidate_id="b197_tied_candidate",
+        metadata={"evidence_grade": "candidate", "purpose": "controlled B197 fixture"},
+    )
+    candidate_ref = persist_policy_candidate_schema(
+        store,
+        candidate,
+        inputs=[
+            input_ref_from_artifact_ref(
+                selected_data_snapshot_ref, role="world_model_data_snapshot"
+            ),
+            input_ref_from_artifact_ref(registry.bundle_ref, role="world_model_registry"),
+        ],
+        return_selected_profile=True,
+    )
+    policy_ref = store.put_json(
+        policy,
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
+        ),
+        return_selected_profile=True,
+    )
+    compiled = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            return_selected_profile=True,
+        ),
+    )
+    assert compiled.ok and compiled.exec_plan_ref is not None
+    source_plan = ExecPlan.model_validate(
+        from_canonical_bytes(store.get_bytes(compiled.exec_plan_ref))
+    )
+    source_graph_ref = source_plan.program_ref
+    source_graph = ProgramGraph.model_validate(
+        from_canonical_bytes(store.get_bytes(source_graph_ref))
+    )
+    node_aliases = {"a": "A", "b": "B"}
+    mapped_graph = source_graph.model_copy(
+        update={
+            "nodes": [
+                node.model_copy(update={"node_id": node_aliases[node.node_id]})
+                if node.node_id in node_aliases
+                else node
+                for node in source_graph.nodes
+            ],
+            "edges": [
+                edge.model_copy(
+                    update={
+                        "src": node_aliases.get(edge.src, edge.src),
+                        "dst": node_aliases.get(edge.dst, edge.dst),
+                    }
+                )
+                for edge in source_graph.edges
+            ],
+            "entrypoints": [node_aliases.get(item, item) for item in source_graph.entrypoints],
+            "notes": [
+                *source_graph.notes,
+                "Controlled B197 graph maps source interventions a/b to execution labels A/B.",
+                "This identity fixture makes no source-authenticity or calibration-authority claim.",
+            ],
+        }
+    )
+    source_graph_manifest = store.get_manifest(source_graph_ref)
+    selected_graph_ref = store.put_json(
+        mapped_graph,
+        PutOptions(
+            kind=ProgramGraph.ARTIFACT_KIND,
+            media_type=ProgramGraph.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ProgramGraph.ARTIFACT_SCHEMA_NAME,
+                version=ProgramGraph.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=source_graph_manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    typed_graph_ref = ProgramGraphRef.model_validate(selected_graph_ref.model_dump(mode="python"))
+    mapped_plan = source_plan.model_copy(
+        update={
+            "program_ref": typed_graph_ref,
+            "order": [node_aliases.get(item, item) for item in source_plan.order],
+            "notes": [
+                note
+                for note in source_plan.notes
+                if not note.startswith("randomization:treasury_salts_v1")
+            ],
+        }
+    )
+    source_plan_manifest = store.get_manifest(compiled.exec_plan_ref)
+    plan_inputs = [
+        input_ref_from_artifact_ref(typed_graph_ref, role="program_graph")
+        if item.role == "program_graph"
+        else item
+        for item in source_plan_manifest.inputs
+        if item.role != "treasury_plan"
+    ]
+    selected_plan_payload_ref = store.put_json(
+        mapped_plan,
+        PutOptions(
+            kind=ExecPlan.ARTIFACT_KIND,
+            media_type=ExecPlan.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ExecPlan.ARTIFACT_SCHEMA_NAME,
+                version=ExecPlan.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=plan_inputs,
+        ),
+        return_selected_profile=True,
+    )
+    selected_plan_ref = ExecPlanRef.model_validate(
+        selected_plan_payload_ref.model_dump(mode="python")
+    )
+    initial_execution = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=selected_plan_ref,
+            input_bindings_ref=bindings.input_bindings_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            exec_config=FoundryExecConfig(seed=29),
+            return_selected_profile=True,
+        ),
+    )
+    assert initial_execution.ok
+    assert initial_execution.simulation_result_ref is not None
+    admitted = admit_execution_source(store, initial_execution.simulation_result_ref)
+    assert admitted.basis is not None
+    source_basis = admitted.basis
+    selected_graph = ProgramGraph.model_validate(
+        from_canonical_bytes(store.get_bytes(source_basis.program_graph_ref))
+    )
+    selected_plan = ExecPlan.model_validate(
+        from_canonical_bytes(store.get_bytes(source_basis.exec_plan_ref))
+    )
+    registry_content = load_registry_bundle_content(store, source_basis.runtime_registry_ref)
+    selected_state = load_state_snapshot(store, snapshot_ref=source_basis.base_state_snapshot_ref)
+    return {
+        "registry": registry,
+        "source_basis": source_basis,
+        "initial_simulation_ref": initial_execution.simulation_result_ref,
+        "graph": selected_graph,
+        "plan": selected_plan,
+        "base_state": selected_state,
+        "registry_content": registry_content,
+    }
+
+
+def _b197_replay_report(
+    store: FileSystemCAS,
+    source_basis,
+    report_ref: ArtifactRef,
+    report: CalibrationReport,
+) -> SimulationResultRef:
+    """Execute the selected graph again with the report's exact fitted values."""
+    override = build_parameter_override_bundle(report)
+    assert override is not None
+    override_ref = store.put_json(
+        override,
+        PutOptions(
+            kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(report_ref, role="calibration_report")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    replay = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=ExecPlanRef.model_validate(
+                source_basis.exec_plan_ref.model_dump(mode="python")
+            ),
+            input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                source_basis.input_bindings_ref.model_dump(mode="python")
+            ),
+            registry_bundle_ref=source_basis.runtime_registry_ref,
+            parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
+                override_ref.model_dump(mode="python")
+            ),
+            exec_config=FoundryExecConfig(seed=29),
+            return_selected_profile=True,
+        ),
+    )
+    assert replay.ok
+    assert replay.simulation_result_ref is not None
+    return replay.simulation_result_ref
+
+
+def _b197_legacy_report_inputs(store: FileSystemCAS, report_ref: ArtifactRef) -> list[InputRef]:
+    """Retain only the selected config edge for deliberate legacy covariance fixtures."""
+    return [
+        edge for edge in store.get_manifest(report_ref).inputs if edge.role == "calibration_config"
+    ]
+
+
+def _run_b197_tied_calibrator(
+    store: FileSystemCAS,
+    *,
+    incomplete_projection: bool = False,
+    hessian_enabled: bool = True,
+    seed_competing_profile: bool = False,
+    caller_configs: list[CalibrationConfig] | None = None,
+) -> tuple[ArtifactRef, CalibrationReport]:
+    source = _build_b197_tied_execution_source(store)
+    source_basis = source["source_basis"]
+    graph = source["graph"]
+    plan = source["plan"]
+    base_state = source["base_state"]
+    registry_content = source["registry_content"]
     tied_trainables = [
         TrainableParamRef(param_id="rate", node_id=node_id, tie_id="shared_rate")
         for node_id in ("A", "B")
@@ -1270,16 +1547,22 @@ def _run_b197_tied_calibrator(
         program_graph=graph,
         exec_plan=plan,
         base_state=base_state,
-        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
-        slot_registry=DEFAULT_SLOT_REGISTRY,
-        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
-        selector_field_registry=None,
-        parameter_loader=lambda _node: {
-            "params": {"rate": 0.2},
-            "schedule": {"start_step": 0, "end_step": 10},
-        },
+        mechanism_registry=registry_content.mechanism_registry,
+        slot_registry=registry_content.slot_registry,
+        merge_registry=registry_content.merge_registry,
+        selector_field_registry=registry_content.selector_field_registry,
+        parameter_loader=lambda source_ref: from_canonical_bytes(store.get_bytes(source_ref))
+        if isinstance(source_ref, ArtifactRef)
+        else {},
         raw_targets={"gov_balance": jnp.asarray([36.0])},
         controls_seq=jnp.arange(1),
+        constraint_registry=registry_content.constraint_registry,
+        registry_bundle_ref=source_basis.runtime_registry_ref,
+        mechanism_registry_ref=source_basis.runtime_registry_members.mechanism_registry,
+        units_registry=registry_content.units_registry,
+        units_registry_ref=source_basis.runtime_registry_members.units_registry,
+        base_state_snapshot_ref=source_basis.base_state_snapshot_ref,
+        exec_plan_ref=source_basis.exec_plan_ref,
     )
 
     artifact_ids_before_run = {str(item) for item in store.iter_artifact_ids()}
@@ -1328,13 +1611,54 @@ def _run_b197_tied_calibrator(
         assert selected_config_manifest.inputs == []
         assert default_config_manifest.inputs[0].role == "test_profile_collision_control"
     else:
-        assert config_input.manifest_profile_sha256 is None
+        assert config_input.manifest_profile_sha256 is not None
     persisted_config_payload = from_canonical_bytes(store.get_bytes(config_input.artifact_id))
     assert CalibrationConfig.model_validate(persisted_config_payload) == config_before_run
     if caller_configs is None:
         assert config == config_before_run
     new_artifact_ids = {str(item) for item in store.iter_artifact_ids()} - artifact_ids_before_run
-    assert new_artifact_ids <= {str(config_input.artifact_id), str(report_ref.artifact_id)}
+    basis_input = next(
+        item for item in report_manifest.inputs if item.role == "calibration_execution_input_basis"
+    )
+    assert basis_input.manifest_profile_sha256 is not None
+    basis_ref = ArtifactRef(
+        artifact_id=basis_input.artifact_id,
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=basis_input.manifest_profile_sha256,
+    )
+    basis = load_calibration_execution_input_basis(store, basis_ref)
+    state_manifest = store.get_manifest(basis.base_state_snapshot_ref)
+    state_blob_inputs = [edge for edge in state_manifest.inputs if edge.role == "state_blob"]
+    assert len(state_blob_inputs) == 1
+    assert new_artifact_ids <= {
+        str(config_input.artifact_id),
+        str(report_ref.artifact_id),
+        str(basis_ref.artifact_id),
+        str(basis.base_state_snapshot_ref.artifact_id),
+        str(state_blob_inputs[0].artifact_id),
+    }
+    required_new_artifacts = {str(basis_ref.artifact_id)}
+    if not seed_competing_profile:
+        required_new_artifacts.add(str(config_input.artifact_id))
+    assert required_new_artifacts <= new_artifact_ids
+    assert basis.input_capture_status == "content_bound"
+    assert all(item.status == "content_bound" for item in basis.parameter_inputs)
+    assert all(item.source_status == "selected_source_matched" for item in basis.parameter_inputs)
+    assert basis.program_graph_status == "selected_source_matched"
+    assert basis.exec_plan_source_status == "selected_source_matched"
+    assert basis.base_state_source_status == "selected_source_matched"
+    assert (
+        str(basis.base_state_snapshot_ref.artifact_id),
+        basis.base_state_snapshot_ref.kind,
+        basis.base_state_snapshot_ref.media_type,
+        basis.base_state_snapshot_ref.manifest_profile_sha256,
+    ) == (
+        str(source_basis.base_state_snapshot_ref.artifact_id),
+        source_basis.base_state_snapshot_ref.kind,
+        source_basis.base_state_snapshot_ref.media_type,
+        source_basis.base_state_snapshot_ref.manifest_profile_sha256,
+    )
     persisted_payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
     persisted = CalibrationReport.model_validate(persisted_payload)
     assert persisted == report
@@ -1355,7 +1679,245 @@ def _run_b197_tied_calibrator(
             assert persisted_envelope["confidence_level"] is None
         assert persisted.coordinate_projection is not None
         assert persisted.coordinate_projection.field_order == ("A.rate", "B.rate")
+    _B197_REPLAY_BY_STORE_ROOT[str(store.root)] = _b197_replay_report(
+        store,
+        source_basis,
+        report_ref,
+        persisted,
+    )
     return report_ref, persisted
+
+
+def _b197_execute_calibration_source(
+    tmp_path,
+    *,
+    slot_registry_override=None,
+    target_metric_path="government_balance",
+    target_aggregation="none",
+    caller_inputs_out=None,
+):
+    """Build the real compile→execute→calibrate→execute source join for B197."""
+    store = FileSystemCAS(tmp_path)
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    state = GlobalState.empty(n_agents=2, n_firms=1)
+    state = state.replace(
+        agents=state.agents.replace(
+            active=jnp.asarray([True, True]),
+            income=jnp.asarray([10.0, 10.0]),
+            reported_income=jnp.asarray([10.0, 10.0]),
+        ),
+        government_balance=jnp.asarray(-2.0),
+        tax_rate=jnp.asarray(0.125),
+    )
+    snapshot = put_state_snapshot(store, state=state, step=0, return_selected_profile=True)
+    state_ref = StateSnapshotRef.model_validate(snapshot.model_dump(mode="python"))
+    data_snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=state_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(state_ref, role="data_ref")],
+        ),
+        return_selected_profile=True,
+    )
+    selected_data_snapshot_ref = DataSnapshotRef.model_validate(
+        data_snapshot_ref.model_dump(mode="python")
+    )
+    bindings = build_input_bindings(
+        store,
+        data_snapshot_ref=selected_data_snapshot_ref,
+        registry_bundle_ref=registry.bundle_ref,
+        return_selected_profile=True,
+    )
+    policy = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="b197_source", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="b197_source",
+            interventions=[
+                {
+                    "intervention_id": "a",
+                    "kind": "income_tax",
+                    "target": {
+                        "kind": "predicate",
+                        "field": "id",
+                        "operator": "==",
+                        "value": "all",
+                    },
+                    "schedule": {"start_step": 0, "duration_steps": 1},
+                    "params": {"rate": "0.5"},
+                }
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="b197_source",
+            data_snapshot_ref=str(selected_data_snapshot_ref.artifact_id),
+            registry_bundle_ref=str(registry.bundle_ref.artifact_id),
+        ),
+    )
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        policy,
+        candidate_id="b197_source_candidate",
+        metadata={"evidence_grade": "candidate", "purpose": "controlled test fixture"},
+    )
+    candidate_ref = persist_policy_candidate_schema(
+        store,
+        candidate,
+        inputs=[
+            input_ref_from_artifact_ref(
+                selected_data_snapshot_ref,
+                role="world_model_data_snapshot",
+            ),
+            input_ref_from_artifact_ref(registry.bundle_ref, role="world_model_registry"),
+        ],
+        return_selected_profile=True,
+    )
+    policy_ref = store.put_json(
+        policy,
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
+        ),
+        return_selected_profile=True,
+    )
+    compiled = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            return_selected_profile=True,
+        ),
+    )
+    assert compiled.ok
+    initial_execution = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=compiled.exec_plan_ref,
+            input_bindings_ref=bindings.input_bindings_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            exec_config=FoundryExecConfig(seed=29),
+            return_selected_profile=True,
+        ),
+    )
+    assert initial_execution.ok
+    assert initial_execution.simulation_result_ref is not None
+    initial_admission = admit_execution_source(store, initial_execution.simulation_result_ref)
+    assert initial_admission.basis is not None
+    source_basis = initial_admission.basis
+    graph = ProgramGraph.model_validate(
+        from_canonical_bytes(store.get_bytes(source_basis.program_graph_ref))
+    )
+    plan = ExecPlan.model_validate(
+        from_canonical_bytes(store.get_bytes(source_basis.exec_plan_ref))
+    )
+    registry_content = load_registry_bundle_content(store, source_basis.runtime_registry_ref)
+    base_state = load_state_snapshot(store, snapshot_ref=source_basis.base_state_snapshot_ref)
+    mechanism_node = next(node for node in graph.nodes if node.mechanism_type == "income_tax")
+
+    def load_selected_parameters(source):
+        if isinstance(source, ArtifactRef):
+            return from_canonical_bytes(store.get_bytes(source))
+        return {}
+
+    inputs = CalibratorInputs(
+        config=CalibrationConfig(
+            targets=[
+                CalibrationTarget(
+                    target_id="balance",
+                    model_metric_path=target_metric_path,
+                    aggregation=target_aggregation,
+                    loss={"relative": False},
+                )
+            ],
+            trainables=[TrainableParamRef(param_id="rate", node_id=mechanism_node.node_id)],
+            max_steps=2,
+            learning_rate=0.01,
+            hessian={"enabled": True, "damping": 1e-6},
+            seed=29,
+        ),
+        program_graph=graph,
+        exec_plan=plan,
+        base_state=base_state,
+        mechanism_registry=registry_content.mechanism_registry,
+        slot_registry=slot_registry_override or registry_content.slot_registry,
+        merge_registry=registry_content.merge_registry,
+        selector_field_registry=registry_content.selector_field_registry,
+        parameter_loader=load_selected_parameters,
+        raw_targets={"balance": jnp.asarray([0.0])},
+        controls_seq=jnp.arange(1),
+        constraint_registry=registry_content.constraint_registry,
+        registry_bundle_ref=source_basis.runtime_registry_ref,
+        mechanism_registry_ref=source_basis.runtime_registry_members.mechanism_registry,
+        units_registry=registry_content.units_registry,
+        units_registry_ref=source_basis.runtime_registry_members.units_registry,
+        base_state_snapshot_ref=source_basis.base_state_snapshot_ref,
+        exec_plan_ref=source_basis.exec_plan_ref,
+    )
+    if caller_inputs_out is not None:
+        caller_inputs_out.append(inputs)
+    report, report_ref = Calibrator(inputs).run_and_persist(store)
+    basis_edge = next(
+        edge
+        for edge in store.get_manifest(report_ref).inputs
+        if edge.role == "calibration_execution_input_basis"
+    )
+    basis_ref = ArtifactRef(
+        artifact_id=basis_edge.artifact_id,
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=basis_edge.manifest_profile_sha256,
+    )
+    captured_basis = load_calibration_execution_input_basis(store, basis_ref)
+    override = build_parameter_override_bundle(report)
+    assert override is not None
+    override_ref = store.put_json(
+        override,
+        PutOptions(
+            kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(report_ref, role="calibration_report")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    replay = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=source_basis.exec_plan_ref,
+            input_bindings_ref=source_basis.input_bindings_ref,
+            registry_bundle_ref=source_basis.runtime_registry_ref,
+            parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
+                override_ref.model_dump(mode="python")
+            ),
+            exec_config=FoundryExecConfig(seed=29),
+            return_selected_profile=True,
+        ),
+    )
+    assert replay.ok
+    assert replay.simulation_result_ref is not None
+    return (
+        store,
+        registry.bundle_ref,
+        report,
+        report_ref,
+        captured_basis,
+        replay.simulation_result_ref,
+        mechanism_node.node_id,
+        source_basis,
+    )
 
 
 def test_calibrator_preserves_selected_config_profile_through_fresh_consumers(
@@ -1380,9 +1942,9 @@ def test_calibrator_preserves_selected_config_profile_through_fresh_consumers(
         run_configs.append(calibrator.inputs.config.model_copy(deep=True))
         return original_run(calibrator)
 
-    def capture_config_write(store_arg, config_arg):
+    def capture_config_write(store_arg, config_arg, **kwargs):
         writer_configs.append(config_arg.model_copy(deep=True))
-        config_ref = original_put_config(store_arg, config_arg)
+        config_ref = original_put_config(store_arg, config_arg, **kwargs)
         config_refs.append(config_ref)
         return config_ref
 
@@ -1471,6 +2033,408 @@ def test_calibrator_preserves_selected_config_profile_through_fresh_consumers(
     assert refused_config_nodes[0].status.value == "missing_manifest"
 
 
+def test_b197_source_join_requires_selected_parameter_bytes_and_fresh_consumer_agreement(
+    tmp_path,
+) -> None:
+    (
+        store,
+        registry_ref,
+        report,
+        report_ref,
+        basis,
+        simulation_ref,
+        node_id,
+        _initial_basis,
+    ) = _b197_execute_calibration_source(tmp_path)
+    assert report.coordinate_projection_status == "complete"
+    assert basis.input_capture_status == "content_bound"
+    assert basis.program_graph_status == "selected_source_matched"
+    assert basis.exec_plan_source_status == "selected_source_matched"
+    assert basis.base_state_source_status == "selected_source_matched"
+    assert basis.registry_bundle_status == "selected_source_matched"
+    assert basis.mechanism_registry_status == "selected_source_matched"
+    assert basis.unit_registry_status == "selected_source_matched"
+    assert len(basis.parameter_inputs) == 1
+    parameter_input = basis.parameter_inputs[0]
+    assert parameter_input.source_status == "selected_source_matched"
+    assert parameter_input.source_payload_sha256 == parameter_input.payload_sha256
+    assert report.calibrated_params.keys() == {f"{node_id}.rate"}
+
+    source_join = _calibration_execution_source_join(
+        _b197_execution_context(store, registry_ref, "R_b197_direct_source_join"),
+        _b197_execution_state(simulation_ref, report_ref),
+        report_ref=report_ref,
+        report=report,
+    )
+    assert source_join[0] == "matched", source_join
+
+    _outcome, positive_bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        simulation_ref,
+        report_ref,
+        run_id="R_b197_source_join_positive",
+        method="delta",
+        labels=[node_id],
+        weights=[1.0],
+    )
+    positive_report_id = ArtifactID.model_validate(
+        positive_bundle.diagnostics["propagation_report_ref"]
+    )
+    positive_report = from_canonical_bytes(store.get_bytes(positive_report_id))
+    assert positive_report["source_execution_status"] == "matched", positive_report
+    assert (
+        "calibration_external_source_attestation_not_established"
+        in positive_report["source_execution_limitations"]
+    )
+    assert (
+        "calibration_unit_definition_not_established"
+        in positive_report["source_execution_limitations"]
+    )
+    assert (
+        "calibration_physical_time_semantics_not_established"
+        in positive_report["source_execution_limitations"]
+    )
+    assert (
+        "calibration_noise_law_not_established" in positive_report["source_execution_limitations"]
+    )
+    assert (
+        "calibration_authority_not_established" in positive_report["source_execution_limitations"]
+    )
+
+    selected_report_manifest = store.get_manifest(report_ref)
+    config_edge = next(
+        edge for edge in selected_report_manifest.inputs if edge.role == "calibration_config"
+    )
+    missing_basis_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[config_edge],
+    )
+    missing_basis_status = _calibration_execution_source_join(
+        _b197_execution_context(store, registry_ref, "R_b197_source_join_missing_basis"),
+        _b197_execution_state(simulation_ref, missing_basis_report_ref),
+        report_ref=missing_basis_report_ref,
+        report=report,
+    )
+    assert missing_basis_status[0] == "not_established"
+    assert "source_execution_not_established" in missing_basis_status[1]
+    assert not missing_basis_status[2]
+
+    fake_basis_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("f" * 64),
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+    )
+    fake_basis_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[
+            config_edge,
+            input_ref_from_artifact_ref(
+                fake_basis_ref,
+                role="calibration_execution_input_basis",
+            ),
+        ],
+    )
+    fake_basis_status = _calibration_execution_source_join(
+        _b197_execution_context(store, registry_ref, "R_b197_source_join_fake_basis"),
+        _b197_execution_state(simulation_ref, fake_basis_report_ref),
+        report_ref=fake_basis_report_ref,
+        report=report,
+    )
+    assert fake_basis_status[0] == "mismatch"
+    assert fake_basis_status[2] == ("calibration_execution_basis_invalid",)
+
+    changed_override = build_parameter_override_bundle(report)
+    assert changed_override is not None
+    changed_override.overrides[node_id]["rate"] += 0.01
+    changed_override_ref = store.put_json(
+        changed_override,
+        PutOptions(
+            kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            media_type=ParameterOverrideBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=ParameterOverrideBundle.ARTIFACT_SCHEMA_NAME,
+                version=ParameterOverrideBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(report_ref, role="calibration_report")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    changed_replay = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=_initial_basis.exec_plan_ref,
+            input_bindings_ref=_initial_basis.input_bindings_ref,
+            registry_bundle_ref=_initial_basis.runtime_registry_ref,
+            parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
+                changed_override_ref.model_dump(mode="python")
+            ),
+            exec_config=FoundryExecConfig(seed=29),
+            return_selected_profile=True,
+        ),
+    )
+    assert changed_replay.ok
+    assert changed_replay.simulation_result_ref is not None
+    changed_status = _calibration_execution_source_join(
+        _b197_execution_context(store, registry_ref, "R_b197_source_join_changed_override"),
+        _b197_execution_state(changed_replay.simulation_result_ref, report_ref),
+        report_ref=report_ref,
+        report=report,
+    )
+    assert changed_status[0] == "mismatch"
+    assert "calibration_execution_parameter_overrides_mismatch" in changed_status[2]
+
+
+def test_runtime_input_binding_recomputes_selected_registry_content() -> None:
+    from polisyos.foundry.calibration.execution_basis import (
+        CalibrationRuntimeInputBinding,
+        canonical_input_sha256,
+        reconcile_selected_runtime_input,
+    )
+    from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+
+    selected = DEFAULT_SLOT_REGISTRY
+    selected_spec = selected.slots["government.balance"]
+    altered_spec = selected_spec.model_copy(update={"state_path": "agents.income"})
+    altered = selected.model_copy(
+        update={
+            "slots": {
+                **selected.slots,
+                "government.balance": altered_spec,
+            }
+        }
+    )
+    selected_ref = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+        kind="ir.slot_registry",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    binding = CalibrationRuntimeInputBinding(
+        input_name="slot_registry",
+        usage="fit_required",
+        source_role="runtime_registry_member",
+        status="selected_source_mismatch",
+        value_sha256=canonical_input_sha256(altered),
+        source_ref=selected_ref,
+        source_payload_sha256=canonical_input_sha256(selected),
+    )
+
+    assert (
+        reconcile_selected_runtime_input(
+            binding,
+            selected_ref=selected_ref,
+            selected_value=selected,
+        )
+        == "mismatch"
+    )
+
+
+def test_persisted_basis_uses_pre_fit_input_snapshot(tmp_path, monkeypatch) -> None:
+    from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+
+    caller_inputs: list[CalibratorInputs] = []
+    original_run = Calibrator.run
+    altered_spec = DEFAULT_SLOT_REGISTRY.slots["government.balance"].model_copy(
+        update={"state_path": "agents.income"}
+    )
+    altered_slots = DEFAULT_SLOT_REGISTRY.model_copy(
+        update={
+            "slots": {
+                **DEFAULT_SLOT_REGISTRY.slots,
+                "government.balance": altered_spec,
+            }
+        }
+    )
+
+    def mutate_caller_after_fit(self):
+        report = original_run(self)
+        assert caller_inputs
+        caller_inputs[0].slot_registry = altered_slots
+        return report
+
+    monkeypatch.setattr(Calibrator, "run", mutate_caller_after_fit)
+    (
+        store,
+        registry_ref,
+        report,
+        report_ref,
+        basis,
+        simulation_ref,
+        _node_id,
+        _initial_basis,
+    ) = _b197_execute_calibration_source(
+        tmp_path,
+        target_metric_path="government.balance",
+        target_aggregation="sum",
+        caller_inputs_out=caller_inputs,
+    )
+    slot_binding = next(
+        item for item in basis.runtime_input_roster if item.input_name == "slot_registry"
+    )
+    assert slot_binding.status == "selected_source_matched"
+    assert slot_binding.value_sha256 == slot_binding.source_payload_sha256
+    source_join = _calibration_execution_source_join(
+        _b197_execution_context(store, registry_ref, "R_b197_pre_fit_input_snapshot"),
+        _b197_execution_state(simulation_ref, report_ref),
+        report_ref=report_ref,
+        report=report,
+    )
+    assert source_join[0] == "matched", source_join
+
+
+def test_fresh_welfare_recomputes_complete_runtime_registry_member_content(tmp_path) -> None:
+    from polisyos.foundry.calibration.execution_basis import (
+        CALIBRATION_RUNTIME_INPUT_NAMES,
+        CalibrationExecutionInputBasis,
+        CalibrationRuntimeInputBinding,
+        canonical_input_sha256,
+        put_calibration_execution_input_basis,
+    )
+    from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+
+    original_spec = DEFAULT_SLOT_REGISTRY.slots["government.balance"]
+    altered_spec = original_spec.model_copy(update={"state_path": "agents.income"})
+    altered_slot_registry = DEFAULT_SLOT_REGISTRY.model_copy(
+        update={
+            "slots": {
+                **DEFAULT_SLOT_REGISTRY.slots,
+                "government.balance": altered_spec,
+            }
+        }
+    )
+    (
+        store,
+        registry_ref,
+        report,
+        report_ref,
+        basis,
+        simulation_ref,
+        _node_id,
+        _initial_basis,
+    ) = _b197_execute_calibration_source(
+        tmp_path,
+        slot_registry_override=altered_slot_registry,
+        target_metric_path="government.balance",
+        target_aggregation="sum",
+    )
+    assert tuple(item.input_name for item in basis.runtime_input_roster) == (
+        CALIBRATION_RUNTIME_INPUT_NAMES
+    )
+    slot_binding = next(
+        item for item in basis.runtime_input_roster if item.input_name == "slot_registry"
+    )
+    selected_registry = load_registry_bundle_content(store, registry_ref)
+    selected_slot_digest = canonical_input_sha256(selected_registry.slot_registry)
+    assert slot_binding.status == "selected_source_mismatch"
+    assert slot_binding.source_payload_sha256 == selected_slot_digest
+    assert slot_binding.value_sha256 == canonical_input_sha256(altered_slot_registry)
+
+    original_welfare = _run_b197_welfare(
+        store,
+        registry_ref,
+        simulation_ref,
+        report_ref,
+        run_id="R_b197_runtime_slot_mismatch",
+        method="delta",
+        labels=["income_tax"],
+        weights=[1.0],
+    )[1]
+    original_report_ref = ArtifactID.model_validate(
+        original_welfare.diagnostics["propagation_report_ref"]
+    )
+    original_report = from_canonical_bytes(store.get_bytes(original_report_ref))
+    assert original_report["source_execution_status"] == "mismatch", original_report
+
+    # Falsify the producer's status while keeping the digest declaration and
+    # every schema marker valid. The fresh consumer must still resolve and hash
+    # the actual selected member bytes.
+    false_match = CalibrationRuntimeInputBinding(
+        **{
+            **slot_binding.model_dump(mode="python"),
+            "status": "selected_source_matched",
+            "source_payload_sha256": slot_binding.value_sha256,
+        }
+    )
+    false_roster = tuple(
+        false_match if item.input_name == "slot_registry" else item
+        for item in basis.runtime_input_roster
+    )
+    false_basis = CalibrationExecutionInputBasis.model_validate(
+        {
+            **basis.model_dump(mode="python"),
+            "input_capture_status": "content_bound",
+            "runtime_input_limitations": (),
+            "runtime_input_roster": false_roster,
+        }
+    )
+    basis_edge = next(
+        edge
+        for edge in store.get_manifest(report_ref).inputs
+        if edge.role == "calibration_execution_input_basis"
+    )
+    basis_ref = ArtifactRef(
+        artifact_id=basis_edge.artifact_id,
+        kind="foundry.calibration_execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=basis_edge.manifest_profile_sha256,
+    )
+    false_basis_ref = put_calibration_execution_input_basis(
+        store,
+        false_basis,
+        inputs=store.get_manifest(basis_ref).inputs,
+    )
+    config_edge = next(
+        edge for edge in store.get_manifest(report_ref).inputs if edge.role == "calibration_config"
+    )
+    false_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[
+            config_edge,
+            input_ref_from_artifact_ref(
+                false_basis_ref,
+                role="calibration_execution_input_basis",
+            ),
+        ],
+    )
+    false_match_welfare = _run_b197_welfare(
+        store,
+        registry_ref,
+        simulation_ref,
+        false_report_ref,
+        run_id="R_b197_runtime_slot_false_match",
+        method="delta",
+        labels=["income_tax"],
+        weights=[1.0],
+    )[1]
+    false_match_output_ref = ArtifactID.model_validate(
+        false_match_welfare.diagnostics["propagation_report_ref"]
+    )
+    false_match_output = from_canonical_bytes(store.get_bytes(false_match_output_ref))
+    assert false_match_output["source_execution_status"] == "mismatch", false_match_output
+
+
+def _b197_execution_context(store, registry_ref, run_id):
+    run = RunContext.start(store=store, registry_bundle=registry_ref, run_id=run_id)
+    return ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger(f"test.welfare.{run_id}"),
+    )
+
+
+def _b197_execution_state(simulation_ref, report_ref):
+    return ExperimentState(
+        run_id="R_b197_execution_source_join",
+        inputs={INPUT_CALIBRATION_REPORT_REF: report_ref},
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: simulation_ref},
+    )
+
+
 def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_ref = build_default_registry_bundle(store).bundle_ref
@@ -1507,34 +2471,11 @@ def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tm
 
 
 def _b197_simulation_result(store: FileSystemCAS) -> SimulationResultRef:
-    snapshot_ref = store.put_json(
-        {"state": {}},
-        PutOptions(kind="foundry.state_snapshot", media_type="application/json"),
-    )
-    exec_plan_ref = store.put_json(
-        {
-            "program_ref": {
-                "artifact_id": str(snapshot_ref.artifact_id),
-                "kind": "foundry.program_graph",
-                "media_type": "application/json",
-            },
-            "order": [],
-        },
-        PutOptions(kind="foundry.exec_plan", media_type="application/json"),
-    )
-    metrics_ref = store.put_json(
-        Metrics(values={"A": 1.0, "B": 1.0, "C": 1.0}),
-        PutOptions(kind="foundry.metrics", media_type="application/json"),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
-    sim_ref = store.put_json(
-        SimulationResult(
-            exec_plan_ref=ExecPlanRef(artifact_id=exec_plan_ref.artifact_id),
-            metrics_ref=MetricsRef(artifact_id=metrics_ref.artifact_id),
-        ),
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
-    )
-    return sim_ref
+    replay = _B197_REPLAY_BY_STORE_ROOT.get(str(store.root))
+    if replay is not None:
+        return replay
+    source = _build_b197_tied_execution_source(store)
+    return source["initial_simulation_ref"]
 
 
 def _b197_dependence_structure_ref(
@@ -1580,9 +2521,7 @@ def _run_b197_welfare(
         logger=logging.getLogger(f"test.welfare.{run_id}"),
     )
     response_labels = labels or ["A", "B"]
-    pe_sensitivity = {
-        label: {f"{label}.rate": 1.0} for label in response_labels if label in {"A", "B"}
-    }
+    pe_sensitivity = {label: {f"{label}.rate": 1.0} for label in response_labels}
     if "C" in response_labels:
         pe_sensitivity["C"] = {"C.rate": 1.0}
     config: dict[str, object] = {
@@ -2095,10 +3034,19 @@ def test_hessian_disabled_producer_refuses_welfare_without_inventing_interval(
     assert persisted_report.coordinate_projection_status == "not_established"
     assert persisted_report.uncertainty_envelopes is None
 
+    selected_simulation_ref = _b197_simulation_result(fresh_store)
+    source_join = _calibration_execution_source_join(
+        _b197_execution_context(fresh_store, registry_ref, "R_b198_source_join_probe"),
+        _b197_execution_state(selected_simulation_ref, report_ref),
+        report_ref=report_ref,
+        report=persisted_report,
+    )
+    assert source_join[0] == "matched", source_join
+
     outcome, bundle = _run_b197_welfare(
         fresh_store,
         registry_ref,
-        _b197_simulation_result(fresh_store),
+        selected_simulation_ref,
         report_ref,
         run_id="R_b198_hessian_disabled_no_carrier",
         method="delta",
@@ -2106,7 +3054,7 @@ def test_hessian_disabled_producer_refuses_welfare_without_inventing_interval(
         require_success=False,
     )
 
-    assert outcome.status == "skip"
+    assert outcome.status == "skip", outcome
     assert outcome.error is None
     assert outcome.skip_blocker is None
     assert len(outcome.events) == 1
@@ -2184,7 +3132,7 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
     report_ref = put_calibration_report(
         store,
         single_field_report,
-        inputs=store.get_manifest(source_report_ref).inputs,
+        inputs=_b197_legacy_report_inputs(store, source_report_ref),
     )
     assert store.get_manifest(report_ref).artifact_schema.version == "2.0"
     assert any(item.role == "calibration_config" for item in store.get_manifest(report_ref).inputs)
@@ -2434,7 +3382,7 @@ def _b197_persist_covariance_profile_report(
     report_ref = put_calibration_report(
         store,
         report,
-        inputs=store.get_manifest(source_ref).inputs,
+        inputs=_b197_legacy_report_inputs(store, source_ref),
     )
     return report_ref, report
 
@@ -3633,7 +4581,7 @@ def test_welfare_withholds_interval_when_envelope_covariance_disagrees_with_proj
     forged_report_ref = put_calibration_report(
         store,
         forged_report,
-        inputs=store.get_manifest(report_ref).inputs,
+        inputs=_b197_legacy_report_inputs(store, report_ref),
     )
     sim_ref = _b197_simulation_result(store)
     outcome, bundle = _run_b197_welfare(
@@ -3754,7 +4702,7 @@ def test_welfare_suppresses_unproved_or_malformed_calibration_dependence(tmp_pat
         }
     )
     assert missing_projection.uncertainty_envelopes["A.rate"].metadata["covariance_row"]
-    calibration_inputs = store.get_manifest(report_ref).inputs
+    calibration_inputs = _b197_legacy_report_inputs(store, report_ref)
     missing_projection_ref = put_calibration_report(
         store,
         missing_projection,

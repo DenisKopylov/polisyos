@@ -214,6 +214,8 @@ class _CalibrationCovarianceSource:
     coordinate_order: tuple[str, ...]
     coordinate_covariance: tuple[tuple[float, ...], ...]
     issue_codes: tuple[str, ...] = ()
+    source_execution_status: Literal["matched", "not_established", "mismatch"] = "not_established"
+    source_execution_limitations: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

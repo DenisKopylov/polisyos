@@ -1,0 +1,27 @@
+id = "2026-10-20-e02-calibration-execution-input-identity"
+title = "Bind calibration reports to execution inputs for fresh welfare reads"
+type = "fixed"
+component = "foundry/scientist"
+owner = "team-policyos-runtime"
+summary = "Calibrator snapshots all 25 runtime input fields before fitting and persists a typed execution-input basis for selected graph, plan, state, six registry members, ordered target bytes, parameter payloads/specs, and report envelopes; a fresh welfare consumer recomputes selected-member content and the report join before projecting source-qualified covariance."
+evidence = [
+  "src/polisyos/foundry/calibration/calibrator.py",
+  "src/polisyos/foundry/calibration/report.py",
+  "src/polisyos/foundry/calibration/execution_basis.py",
+  "src/polisyos/foundry/calibration/README.md",
+  "src/polisyos/scientist/nodes/builtins/simulate/welfare_context.py",
+  "src/polisyos/scientist/nodes/builtins/simulate/welfare_types.py",
+  "src/polisyos/scientist/nodes/builtins/simulate/welfare_covariance.py",
+  "src/polisyos/scientist/nodes/builtins/simulate/welfare_propagation.py",
+  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+]
+compatibility = "Legacy v1 reports remain readable with their original bytes. Fresh v2 reports add the exact selected execution-basis manifest edge; consumers without that edge retain candidate-only covariance with an explicit source_execution_not_established limitation. A present malformed or mismatching basis refuses source-qualified covariance rather than being treated as absent."
+change_class = "internal"
+surface_classification = "Internal Foundry calibration artifact lineage and the existing fresh Scientist welfare output; no external service or public API admission is created."
+migration = "No historical report rewrite is required. Existing/profileless reports remain candidate-only and carry the source execution limitation when used by a fresh welfare consumer. New calibration runs persist selected execution inputs and a basis edge for downstream revalidation."
+api = "Calibration report payloads preserve their v1 schema bytes. The v2 report manifest records selected config and calibration-execution-input-basis edges. Existing welfare result types add a typed source-execution status/limitation; B198 display and gate_eligible behavior are preserved."
+limitations = "Content hashes establish only selected local object identity and recomputed graph/plan/state/selected-registry-member/target/parameter/report agreement. In-memory values and opaque provider behavior remain typed limitations. The basis does not establish external source custody or authenticity, unit-definition semantics, physical time, split validity, a noise/observation law, calibration authority, causal validity, or production currentness. Missing basis is a non-gating candidate limitation; supplied malformed/foreign/mismatching basis is refused. This controlled synthetic fixture is not a production or scientific-qualification claim."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

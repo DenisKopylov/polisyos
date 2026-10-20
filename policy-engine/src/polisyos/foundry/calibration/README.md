@@ -4,7 +4,7 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-10-15
+- Last updated: 2026-10-20
 
 Generic calibration diagnostics, recalibration helpers, and validation-report
 adapters live in the shared `polisyos.calibration` package. This package owns
@@ -202,3 +202,32 @@ and validate its own source/law/target contract before consuming this internal
 basis; this producer does not implement that cross-owner adapter. Registered
 deterministic income tax is an available synthetic witness, not a calibrated
 fiscal model.
+
+
+## Execution-input identity for fresh consumers
+
+A persisted Foundry calibration run now writes a typed
+`CalibrationExecutionInputBasis` alongside the v2 report. Its manifest edge binds
+the report to the selected calibration config profile and captures the exact
+selected ProgramGraph, ExecPlan, base StateSnapshot, all 25 declared
+``CalibratorInputs`` fields, six selected runtime-registry members, ordered target
+series/time-axis bytes, resolved parameter payload bytes, declared parameter
+spec/unit identities, and report-envelope bytes. The fit and persisted identity
+use separate pre-fit copies, so caller mutation after execution cannot change the
+recorded input basis. The fresh welfare consumer resolves those selected CAS views,
+recomputes the selected registry member content and resolved output identities,
+and records a source status in its result. In-memory values and opaque callback
+behavior remain typed limitations unless separately resolved through selected
+artifacts. A real compile → execute → calibrate → CAS → fresh-consumer fixture
+exercises this path, selected parameter/member mutations, and a present-but-falsely
+matched runtime member.
+
+This identity is limited to local content and object consistency. A missing or
+legacy basis produces the visible `source_execution_not_established` candidate
+limitation; it does not suppress candidate covariance display or make it
+gate-eligible. A present malformed, foreign, or mismatching basis refuses the
+source-qualified covariance projection rather than falling back to legacy
+absence. A matched basis still does not establish external source authenticity,
+unit-definition semantics, physical time, split validity, an observation/noise
+law, calibration authority, or production currentness. Historical v1 report
+bytes remain readable and unchanged.

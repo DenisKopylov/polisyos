@@ -197,6 +197,7 @@ def put_calibration_config(
     config: CalibrationConfig,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist a `CalibrationConfig` artifact with caller-supplied provenance edges."""
     return store.put_json(
@@ -208,6 +209,7 @@ def put_calibration_config(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -243,4 +245,5 @@ def put_calibration_report(
         report,
         options,
         canon_spec=canon_spec,
+        return_selected_profile=True,
     )

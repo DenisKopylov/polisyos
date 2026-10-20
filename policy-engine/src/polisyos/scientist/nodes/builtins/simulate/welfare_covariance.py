@@ -784,6 +784,8 @@ def _calibration_projection_report_metadata(
         ),
         "calibration_projection_present": calibration_source.projection_present,
         "calibration_field_order": list(calibration_source.field_order),
+        "source_execution_status": calibration_source.source_execution_status,
+        "source_execution_limitations": list(calibration_source.source_execution_limitations),
         "covariance_source_selection": covariance_note.get("strategy"),
         "independence_source_validated": False,
         "uncertainty_status": uncertainty_status,

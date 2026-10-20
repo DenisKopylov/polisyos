@@ -79,6 +79,16 @@ def _resolve_pe_simulation_envelopes(
     return nominal_params, used_envelopes, pe_refs
 
 
+def _calibration_source_limitations(
+    calibration_source: _CalibrationCovarianceSource | None,
+) -> list[str]:
+    if calibration_source is None or calibration_source.source_execution_status == "matched":
+        return []
+    return list(
+        calibration_source.source_execution_limitations or ("source_execution_not_established",)
+    )
+
+
 def _add_ge_simulation_envelopes(
     context: _ResolvedWelfareContext,
     available_envelopes: _EnvelopeCollection,
@@ -299,6 +309,11 @@ def _propagate_without_envelopes(
             "input_envelope_count": 0,
             "methods": [WelfareMethod.DETERMINISTIC.value],
             "requested_method": requested_method,
+            **_calibration_projection_report_metadata(
+                calibration_source,
+                covariance_note={"strategy": "no_uncertainty_envelopes"},
+                uncertainty_status="candidate",
+            ),
         },
         kind="foundry.welfare_propagation_report",
         schema_name="polisyos.foundry.WelfarePropagationReport",
@@ -314,7 +329,11 @@ def _propagate_without_envelopes(
         method_config_ref=config_ref,
         report_ref=report_ref,
         sample_bundle_ref=None,
-        diagnostics={"dependence_applied": False, "requested_method": requested_method},
+        diagnostics={
+            "dependence_applied": False,
+            "requested_method": requested_method,
+            "limitation_codes": _calibration_source_limitations(calibration_source),
+        },
     )
 
 
@@ -335,6 +354,11 @@ def _propagate_interval_outer_request(
             "methods": [WelfareMethod.INTERVAL_OUTER.value],
             "requested_method": requested_method,
             "reason": "credible_interval_skipped_by_requested_method",
+            **_calibration_projection_report_metadata(
+                calibration_source,
+                covariance_note={"strategy": "interval_outer_not_requested"},
+                uncertainty_status="candidate",
+            ),
         },
         kind="foundry.welfare_propagation_report",
         schema_name="polisyos.foundry.WelfarePropagationReport",
@@ -350,7 +374,11 @@ def _propagate_interval_outer_request(
         method_config_ref=config_ref,
         report_ref=report_ref,
         sample_bundle_ref=None,
-        diagnostics={"dependence_applied": False, "requested_method": requested_method},
+        diagnostics={
+            "dependence_applied": False,
+            "requested_method": requested_method,
+            "limitation_codes": _calibration_source_limitations(calibration_source),
+        },
     )
 
 
@@ -590,7 +618,12 @@ def _summarize_welfare_monte_carlo(
                 if summary is not None
                 else {}
             ),
-            "limitation_codes": ["welfare_mc_incomplete_draws"] if not complete_draws else [],
+            "limitation_codes": list(
+                dict.fromkeys(
+                    (["welfare_mc_incomplete_draws"] if not complete_draws else [])
+                    + _calibration_source_limitations(calibration_source)
+                )
+            ),
         },
     )
 
@@ -831,5 +864,6 @@ def _propagate_delta_interval(
             "requested_method": requested_method,
             "delta_gradient": gradient,
             "delta_std": float(std),
+            "limitation_codes": _calibration_source_limitations(calibration_source),
         },
     )

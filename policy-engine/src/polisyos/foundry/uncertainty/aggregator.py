@@ -25,7 +25,7 @@ from polisyos.ir.analytics.uncertainty import (
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef, normalize_input_sequence
 from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 
 from .covariance import extract_std
@@ -708,7 +708,7 @@ def load_aggregated_envelope_fresh(
     """Recompute a persisted aggregate from its exact ordered selected source views."""
     manifest = _require_selected_envelope_manifest(store, aggregate_ref)
     expected_inputs = [_source_envelope_input_ref(ref) for ref in source_refs]
-    if manifest.inputs != expected_inputs:
+    if normalize_input_sequence(manifest.inputs) != expected_inputs:
         raise ValueError("aggregated_uncertainty_envelope_manifest_source_mismatch")
     stored = load_uncertainty_envelope(store, aggregate_ref)
     expected = aggregate_persisted_envelope_views(store, source_refs, method=method)

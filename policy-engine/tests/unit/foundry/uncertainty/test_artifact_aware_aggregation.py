@@ -29,6 +29,7 @@ from polisyos.ir.analytics.uncertainty import (
 from polisyos.ir.artifacts import (
     ArtifactStore,
     InputRef,
+    normalize_input_sequence,
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -180,6 +181,13 @@ def test_exact_selected_view_repeats_once_with_ordered_fresh_lineage(tmp_path: P
 
     preview = aggregate_persisted_envelope_views(store, (source, source), method="widest")
     receipt = persist_aggregated_envelope(store, (source, source), method="widest")
+    manifest = store.get_manifest(receipt)
+    expected_input = InputRef(
+        artifact_id=source.artifact_id,
+        role="source_uncertainty_envelope",
+        manifest_profile_sha256=source.manifest_profile_sha256,
+    )
+    assert normalize_input_sequence(manifest.inputs) == [expected_input, expected_input]
     fresh = load_aggregated_envelope_fresh(
         _ir_store(tmp_path),
         receipt,
@@ -575,5 +583,49 @@ def test_changed_source_order_is_rejected_by_fresh_reader(tmp_path: Path) -> Non
             _ir_store(tmp_path),
             receipt,
             source_refs=(right, left),
+            method="widest",
+        )
+
+
+@pytest.mark.parametrize("changed_field", ["role", "selected_profile"])
+def test_fresh_reader_rejects_lineage_role_or_selected_profile_mismatch(
+    tmp_path: Path,
+    changed_field: str,
+) -> None:
+    store = _ir_store(tmp_path)
+    source = _persist_envelope(store, source_label="source-a")
+    aggregate = aggregate_persisted_envelope_views(store, (source,), method="widest")
+    expected_input = InputRef(
+        artifact_id=source.artifact_id,
+        role="source_uncertainty_envelope",
+        manifest_profile_sha256=source.manifest_profile_sha256,
+    )
+    role = expected_input.role
+    profile = expected_input.manifest_profile_sha256
+    if changed_field == "role":
+        role = "tampered_source_role"
+    else:
+        assert profile is not None
+        wrong_profile = "sha256:" + "0" * 64
+        if wrong_profile == profile:
+            wrong_profile = "sha256:" + "1" * 64
+        profile = wrong_profile
+    changed_input = InputRef(
+        artifact_id=expected_input.artifact_id,
+        role=role,
+        manifest_profile_sha256=profile,
+    )
+    mismatched_receipt = persist_uncertainty_envelope(
+        store,
+        aggregate,
+        inputs=[changed_input],
+        return_selected_profile=True,
+    )
+
+    with pytest.raises(ValueError, match="manifest_source_mismatch"):
+        load_aggregated_envelope_fresh(
+            _ir_store(tmp_path),
+            mismatched_receipt,
+            source_refs=(source,),
             method="widest",
         )

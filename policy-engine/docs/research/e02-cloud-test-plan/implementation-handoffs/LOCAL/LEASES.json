@@ -29925,5 +29925,134 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b199-b200-core-ir-manifest-input-normalization-20261020-r1": {
+    "slice_base": "75ab2c8bd4ed8c8c438507e168e6698517ffdfe0",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b199-b200-manifest-input-normalization-20261020-v1/postimages/aggregator.py",
+        "postimage_sha256": "417d888e7d4a23b0633a5302ae82e31927b5837cb6cf2725d9bdea1ced0899e3",
+        "preimage_sha256": "32208474530f673b007f328055b9d492416488fb927e2a4e7a4e87231a2f2b4a"
+      },
+      "policy-engine/tests/unit/foundry/uncertainty/test_artifact_aware_aggregation.py": {
+        "operation": "write",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b199-b200-manifest-input-normalization-20261020-v1/postimages/test_artifact_aware_aggregation.py",
+        "postimage_sha256": "b6132abe33c407bcf48e20e7d014bfa29138238823879248fdeae5e3e571090f",
+        "preimage_sha256": "cdd222cf456d00dcfeed21ba85ed896c5224b2f9e47a9d2c7802f2df68d4b5a8"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/source-application.json",
+      "sha256": "df0cc79dcb00b8eecded10270861ddd2e0d6ee408d925a4bb9f4f81a2159e1a5"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-b200-input-normalization-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/census-corrigendum.json",
+        "sha256": "7b185f8e4ecb9f4715d3576d845ecf43aecb1a8f6631c7e8aa197797a86a8b75"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b199-b200-manifest-input-normalization-20261020-v1/manifest.json",
+        "sha256": "71d80c2dd11448cea7f11cab1fe0acd29b5302d8390a0a49a684c49015dea17b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b199-b200-manifest-input-normalization-20261020-v1/candidate.patch",
+        "sha256": "f6afd61aa3f7e14de926e1fd0b28a8fc5d9cd8c8e4133284a917bd67dbf31514"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b200-core-ir-lineage-source-review-20261020-r1/review.json",
+        "sha256": "6d37d9a6d501ad598416384f4b28ee50c8266ecbf121e9a93b992ae137ff3dc3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r8-reference-binding-candidate-20261020-r3/actual-run/result.json",
+        "sha256": "2c2f65d6e7d8c039a79bf787b924a6929c3374b88df52d9653ffcf2abfa73bd4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r8-reference-binding-candidate-20261020-r3/actual-run/pytest.xml",
+        "sha256": "465731c760666d6b8666cf0fbfc97cf01bacc34580836bd13afe9fa0e47e80d9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/plan.json",
+        "sha256": "a31851f426fe74cbc2295eeca0096394a66f3927dcf675a0ab9c40958200c7ee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-n11-r5-unbound-provider-adoption-20261020-r1/implementation-readback-preservation-r2.json",
+        "sha256": "e4f6e8abf64ed78c4b9df8f14d68286d330f8c836d26513ccea11b72ce42009c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b199-b200-source-correction-adoption-r1-20261020/root-adoption-plan.json",
+        "sha256": "aa14671707b92e270b0d9a611b3fc839270059f118d4e203b6449f2bc9159f89"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same Core-to-IR value-boundary mismatch class at the existing adapter/consumer seam; the independent census corrected the denominator but did not expand the patch into unrelated comparisons. No per-instance allowlist or equality weakening. The remaining direct-input comparison sites are not owner-classified by this review.",
+    "bounded_proof": "Independent mechanism review GO; current canonical target preimages match candidate pins; candidate patch passes git apply --check without writes. Candidate AST/Ruff/format checks were recorded in the immutable V1 package. Product replay remains UNRUN.",
+    "limitations": [
+      "Adopt exactly the two reviewed candidate source/test postimages; the two rows above exclude root-generated automatic LEASE and candidate delivery-index companions.",
+      "Root adoption procedure owns source application, automatic LEASE/index generation, native commit, and after-commit readback; do not hand-add generated metadata rows.",
+      "The current R5 frame is the source base for preflight. Root must confirm these exact two preimages and branch/index state immediately before applying; unexpected target drift stops adoption.",
+      "Preserve the two known dirty owned test files byte-identically; inspect complete tracked/untracked partitions in the root adoption wrapper and make no whole-worktree-clean claim.",
+      "The previous four-module run is diagnostic evidence only (57 collected, 54 passed, 3 failed); no candidate product tests have run on these postimages.",
+      "The corrected AST census is complete only for its pinned predicate and 2,792-file denominator; the other 40 direct occurrences are not owner-classified here.",
+      "No production currentness, policy authority, formal closure, or G acceptance is established."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Root validates this plan and correction, confirms exact current source frame/target hashes and preserved dirty files, then applies only the two postimages with its qualified automatic LEASE/index adoption wrapper. After native commit and readback, create a fresh R8/R10 four-whole-module request bound to the actual new HEAD/tree and run only under root grant.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

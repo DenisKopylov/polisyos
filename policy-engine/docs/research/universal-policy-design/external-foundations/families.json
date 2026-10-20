@@ -1,0 +1,843 @@
+{
+  "format": "editorial-foundation-families-v1",
+  "updated_at": "2026-10-20",
+  "extension_rule": "New records may remain unclassified; extend facets from substantive distinctions. No runtime allowlist or product enum.",
+  "families": [
+    {
+      "id": "EF-01",
+      "title": "Наблюдения и измеренные состояния",
+      "question": "Что наблюдалось, у кого, когда и каким процессом?",
+      "required_objects": [
+        "dataset/version",
+        "sampling frame и coverage",
+        "instrument и variable definitions",
+        "weights, missingness, revisions, linkage"
+      ],
+      "non_substitution": "Большое число строк не доказывает representativeness, causal identification или currentness.",
+      "alternative_axes": [
+        "administrative / survey / sensor",
+        "population vs sample",
+        "person / household / institution",
+        "frequency and coverage"
+      ],
+      "functions": [
+        "world model",
+        "measurement",
+        "verification",
+        "monitoring"
+      ],
+      "source_ids": [
+        "S-DATA-01",
+        "S-DATA-03"
+      ],
+      "next_substantive_content": "Конкретные releases, dictionaries и collection designs; права доступа; coverage gaps и изменения процесса измерения.",
+      "reuse_owner_hints": "Data Forge; Fabric; existing read APIs",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-02",
+      "title": "Качественные и локальные знания",
+      "question": "Какие механизмы, смыслы и последствия не видны в агрегированных числах?",
+      "required_objects": [
+        "interview/observation record",
+        "sampling and elicitation context",
+        "interpretation protocol",
+        "community permissions and dissent"
+      ],
+      "non_substitution": "Доступность интервью не доказывает представительность; пережитый опыт не сводится к шумному proxy числовой метрики.",
+      "alternative_axes": [
+        "interviews / ethnography / process tracing",
+        "individual vs collective knowledge",
+        "researcher and participant interpretations"
+      ],
+      "functions": [
+        "problem framing",
+        "mechanisms",
+        "disconfirmation",
+        "legitimacy"
+      ],
+      "source_ids": [
+        "S-DATA-05",
+        "S-EVID-07",
+        "S-GOV-01",
+        "S-VALUE-02"
+      ],
+      "next_substantive_content": "Методы анализа, оригинальные свидетельства с допустимым доступом, альтернативные кодировки и контекст носителей знания.",
+      "reuse_owner_hints": "Scholar; Data Forge; Scientist participation owners",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-03",
+      "title": "Конструкты, определения и классификации",
+      "question": "Что именно обозначает переменная или цель?",
+      "required_objects": [
+        "concept definition",
+        "classification version",
+        "operationalization",
+        "semantic crosswalk with evidence"
+      ],
+      "non_substitution": "Совпадение названия не означает тождество понятия; lexical mapping не доказывает measurement invariance.",
+      "alternative_axes": [
+        "jurisdictions",
+        "disciplines",
+        "language expressions",
+        "construct vs observable indicator"
+      ],
+      "functions": [
+        "discovery",
+        "task formulation",
+        "composition",
+        "explanation"
+      ],
+      "source_ids": [
+        "S-DATA-01",
+        "S-MEASURE-01",
+        "S-MEASURE-08"
+      ],
+      "next_substantive_content": "Определения и несовпадения смысла с примерами; проверяемые bridges вместо alias-by-name.",
+      "reuse_owner_hints": "Concept spine; Data Forge; Scholar; Lex",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-04",
+      "title": "Идентичности и соответствия пространства и времени",
+      "question": "Какие записи, территории, периоды и версии допустимо связывать?",
+      "required_objects": [
+        "entity correspondence",
+        "geographic boundaries/vintage",
+        "time-window and period law",
+        "linkage uncertainty"
+      ],
+      "non_substitution": "Одинаковый ID или название территории не доказывает одинаковое население и границы.",
+      "alternative_axes": [
+        "boundary vintages",
+        "point/area/grid",
+        "calendar/fiscal/reference period",
+        "exact/probabilistic linkage"
+      ],
+      "functions": [
+        "composition",
+        "transport",
+        "replay",
+        "observability"
+      ],
+      "source_ids": [
+        "S-DATA-04",
+        "S-DATA-01",
+        "S-OBS-02"
+      ],
+      "next_substantive_content": "Конкретные correspondences с validity interval, source versions, unmatched cases и ошибками связывания.",
+      "reuse_owner_hints": "Data Forge; concept spine; family-native time owners",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-05",
+      "title": "Измерительные модели и дизайн наблюдения",
+      "question": "Как наблюдаемый сигнал связан с требуемым конструктом?",
+      "required_objects": [
+        "measurement model",
+        "instrument validation",
+        "sampling/assignment/reporting units",
+        "error and missingness model"
+      ],
+      "non_substitution": "Надёжность инструмента не равна валидности конструкта; хороший prediction не доказывает causal measurement.",
+      "alternative_axes": [
+        "survey modes",
+        "latent-variable model",
+        "self-report vs administrative measure",
+        "informative missingness"
+      ],
+      "functions": [
+        "measurement",
+        "model calibration",
+        "method eligibility"
+      ],
+      "source_ids": [
+        "S-DATA-01",
+        "S-MEASURE-08",
+        "S-MEASURE-01"
+      ],
+      "next_substantive_content": "Instrument versions, validation populations, error structures и негативные случаи нарушения применимости.",
+      "reuse_owner_hints": "Foundry; Data Forge; Scientist method fitness",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-06",
+      "title": "Статистические и бухгалтерские конвенции",
+      "question": "По какому правилу поток, запас, доход или стоимость входит в расчёт?",
+      "required_objects": [
+        "accounting boundary",
+        "recognition and valuation rules",
+        "unit/currency/price basis",
+        "period and revision policy"
+      ],
+      "non_substitution": "Размерность и правильная арифметика не выбирают cash/accrual, gross/net, sector boundary или welfare meaning.",
+      "alternative_axes": [
+        "cash vs accrual",
+        "market vs imputed value",
+        "nominal vs real",
+        "stock vs flow",
+        "household vs national accounts"
+      ],
+      "functions": [
+        "calculation",
+        "comparability",
+        "fiscal interpretation"
+      ],
+      "source_ids": [
+        "S-MEASURE-05",
+        "S-MEASURE-10",
+        "S-FEAS-02"
+      ],
+      "next_substantive_content": "Точные определения строк и law преобразований с pin версии; законодательные и статистические scopes отдельно.",
+      "reuse_owner_hints": "Foundry; IR metric/unit owners; Data Forge",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-07",
+      "title": "Метрики и способы исчисления",
+      "question": "Какое свойство распределения измерено и какие оценки встроены в методику?",
+      "required_objects": [
+        "estimand",
+        "formula/algorithm version",
+        "population and weights",
+        "parameters and edge-case policy"
+      ],
+      "non_substitution": "Gini, Atkinson и poverty headcount отвечают на разные вопросы; нельзя выбрать удобный результат после просмотра.",
+      "alternative_axes": [
+        "inequality aversion",
+        "equivalence scale",
+        "absolute/relative poverty",
+        "zero/negative values",
+        "normalization and aggregation"
+      ],
+      "functions": [
+        "objective interpretation",
+        "comparison",
+        "sensitivity",
+        "public explanation"
+      ],
+      "source_ids": [
+        "S-MEASURE-02",
+        "S-MEASURE-03",
+        "S-MEASURE-04",
+        "S-MEASURE-07",
+        "S-MEASURE-09"
+      ],
+      "next_substantive_content": "Source-bound recipes и допустимые inputs, точные параметры, competing conventions и ranking reversals.",
+      "reuse_owner_hints": "Foundry methods; concept spine; IR objectives/metrics",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-08",
+      "title": "Причинная структура и идентификация",
+      "question": "Что позволяет перейти от наблюдаемой связи к эффекту вмешательства?",
+      "required_objects": [
+        "causal graph/mechanism",
+        "estimand and intervention regime",
+        "identification assumptions",
+        "selection and interference model"
+      ],
+      "non_substitution": "Fit, корреляция и совпадение прогнозов не устанавливают идентификацию; graph declaration — hypothesis.",
+      "alternative_axes": [
+        "competing SCMs",
+        "back-door/experimental designs",
+        "point/partial identification",
+        "spillovers"
+      ],
+      "functions": [
+        "world model",
+        "intervention design",
+        "causal evaluation"
+      ],
+      "source_ids": [
+        "S-CAUSAL-01",
+        "S-CAUSAL-02",
+        "S-CAUSAL-05"
+      ],
+      "next_substantive_content": "Обоснованные альтернативные структуры, критические предпосылки, доступные проверки и ненаблюдаемые ограничения.",
+      "reuse_owner_hints": "Scholar academic SKG; Foundry; Scientist",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-09",
+      "title": "Вмешательства и механизмы исполнения",
+      "question": "Как институциональное действие меняет реальные процессы и model slots?",
+      "required_objects": [
+        "operator and target mapping",
+        "implementation chain",
+        "compliance/take-up evidence",
+        "direct/indirect effects and spillovers"
+      ],
+      "non_substitution": "do(X) в модели не доказывает возможность институционального акта или фактическое изменение X.",
+      "alternative_axes": [
+        "deterministic/stochastic interventions",
+        "take-up/compliance",
+        "individual vs joint policies",
+        "implementation variants"
+      ],
+      "functions": [
+        "candidate generation",
+        "feasibility",
+        "simulation",
+        "monitoring"
+      ],
+      "source_ids": [
+        "S-CAUSAL-03",
+        "S-CAUSAL-05",
+        "S-EVID-07",
+        "S-FEAS-03"
+      ],
+      "next_substantive_content": "Lever-to-mechanism relations, реальные реализации и неисполнения, interaction evidence; legal competence отдельно.",
+      "reuse_owner_hints": "Foundry world model; Scientist; Lex",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-10",
+      "title": "Параметры, priors и калибровочные основания",
+      "question": "Откуда взялись значения и какую неопределённость они выражают?",
+      "required_objects": [
+        "parameter definition and scale",
+        "data/elicitation provenance",
+        "prior and likelihood",
+        "calibration target/protocol"
+      ],
+      "non_substitution": "Приемлемый posterior fit не подтверждает implicit causal assumptions; borrowed prior не становится local evidence.",
+      "alternative_axes": [
+        "empirical vs elicited",
+        "population/time transport",
+        "prior families",
+        "forecast vs causal calibration"
+      ],
+      "functions": [
+        "simulation",
+        "uncertainty",
+        "learning",
+        "diagnostics"
+      ],
+      "source_ids": [
+        "S-CAUSAL-07",
+        "S-CAUSAL-08",
+        "S-CAUSAL-02"
+      ],
+      "next_substantive_content": "Parameter records с выборкой, периодом, uncertainty и независимой проверкой переноса/калибровки.",
+      "reuse_owner_hints": "Foundry; Scholar/Data Forge parameter owners",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-11",
+      "title": "Переносимость и неоднородность",
+      "question": "Почему результат из одного контекста применим к другому?",
+      "required_objects": [
+        "source/target populations",
+        "effect modifiers",
+        "selection/transport relation",
+        "positivity and overlap evidence"
+      ],
+      "non_substitution": "Похожесть географии/названия не заменяет transport assumptions; average effect не универсальный индивидуальный эффект.",
+      "alternative_axes": [
+        "countries",
+        "institutions",
+        "cohorts",
+        "policy intensity",
+        "time and scale"
+      ],
+      "functions": [
+        "source selection",
+        "composition",
+        "external validity"
+      ],
+      "source_ids": [
+        "S-CAUSAL-04",
+        "S-CAUSAL-02",
+        "S-EVID-04"
+      ],
+      "next_substantive_content": "Source→target maps, открытые основания переноса, exclusions и cases, где перенос разрушает вывод.",
+      "reuse_owner_hints": "Scientist method fitness; Foundry; concept spine",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-12",
+      "title": "Baseline, прогнозы и сценарии",
+      "question": "С чем сравнивается политика и в каких условных мирах?",
+      "required_objects": [
+        "counterfactual comparator",
+        "forecast model/version",
+        "scenario assumptions",
+        "joint consistency and time horizon"
+      ],
+      "non_substitution": "BAU не означает неизменный мир; scenario не probability forecast; shared scenario label не доказывает совместимость.",
+      "alternative_axes": [
+        "no-policy/continuation baseline",
+        "technology/demography/climate",
+        "deep uncertainty",
+        "structural alternatives"
+      ],
+      "functions": [
+        "design search",
+        "robustness",
+        "long-horizon planning"
+      ],
+      "source_ids": [
+        "S-FEAS-01",
+        "S-FEAS-02",
+        "S-FEAS-04",
+        "S-LEARN-04"
+      ],
+      "next_substantive_content": "Внешние scenario families с assumptions; конкретные baselines и stress cases без произвольного назначения вероятностей.",
+      "reuse_owner_hints": "Foundry simulation; Scientist portfolio",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-13",
+      "title": "Право и его толкование",
+      "question": "Какая норма в какой редакции регулирует конкретный рычаг?",
+      "required_objects": [
+        "authentic provision/version",
+        "jurisdiction and hierarchy",
+        "scope and competence",
+        "interpretation, exceptions and transitions"
+      ],
+      "non_substitution": "Текст закона, ELI или подпись не доказывают governing correspondence; иностранная норма не альтернатива действующему праву.",
+      "alternative_axes": [
+        "jurisdictions and dates",
+        "competing interpretations",
+        "enacted vs proposed law",
+        "general/special norms"
+      ],
+      "functions": [
+        "admissibility",
+        "design constraints",
+        "legal explanation",
+        "revalidation"
+      ],
+      "source_ids": [
+        "S-LEGAL-01",
+        "S-LEGAL-02",
+        "S-LEGAL-04",
+        "S-LEGAL-05"
+      ],
+      "next_substantive_content": "Аутентичные действующие положения, official interpretations и точный intervention binding; unresolved conflict отдельно.",
+      "reuse_owner_hints": "Lex; Data Forge legal corpus. These hints do not appoint a provision-to-lever correspondence adjudicator or positive acceptance rule.",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-14",
+      "title": "Компетенция и реальные институциональные акты",
+      "question": "Кто вправе решить и какой акт действительно состоялся?",
+      "required_objects": [
+        "mandate/delegation",
+        "issuer competence",
+        "actual act and scope",
+        "conditions, revocation and currentness evidence"
+      ],
+      "non_substitution": "Рекомендация, signature verification или найденное полномочие не доказывают, что действие совершено и действует.",
+      "alternative_axes": [
+        "principal/agent delegation",
+        "proposed/approved/executed",
+        "conditional or time-limited acts"
+      ],
+      "functions": [
+        "authority",
+        "execution assumptions",
+        "custody"
+      ],
+      "source_ids": [
+        "S-LEGAL-02",
+        "S-AUTH-01",
+        "S-VALUE-01"
+      ],
+      "next_substantive_content": "Настоящие решения/делегирования и проверяемая correspondence их subject, issuer, scope, time.",
+      "reuse_owner_hints": "Lex; existing institutional evidence/custody owners",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-15",
+      "title": "Доступ, лицензии, согласие и data governance",
+      "question": "На каких условиях можно получить, обработать и раскрыть основание?",
+      "required_objects": [
+        "license/grant/consent",
+        "purpose/audience limits",
+        "rights-holder and custodian",
+        "retention/revocation conditions"
+      ],
+      "non_substitution": "Доступный URL не означает право reuse; FAIR не означает open; consent и lawful basis не взаимозаменяемы.",
+      "alternative_axes": [
+        "public/controlled/private",
+        "individual/collective rights",
+        "research/publication purposes",
+        "retention regimes"
+      ],
+      "functions": [
+        "acquisition eligibility",
+        "privacy",
+        "publication",
+        "custody"
+      ],
+      "source_ids": [
+        "S-LEGAL-03",
+        "S-GOV-01",
+        "S-RIGHTS-01",
+        "S-OBS-04"
+      ],
+      "next_substantive_content": "Source-specific permission records и ограничения использования с проверкой полномочий, а не общая отметка licensed.",
+      "reuse_owner_hints": "Data Forge; Lex; custody/privacy owners",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-16",
+      "title": "Нормативные позиции, цели и правила сравнения",
+      "question": "Чьё благо и какие tradeoffs обосновывают предпочтение?",
+      "required_objects": [
+        "principal and authorization",
+        "objective/constraint interpretation",
+        "normative theory or convention",
+        "elicitation and dissent"
+      ],
+      "non_substitution": "Наблюдаемое предпочтение не мандат; оптимизированная score не моральная истинность; нельзя учить веса по удобству результата.",
+      "alternative_axes": [
+        "welfare/fairness/rights",
+        "priority vs compensation",
+        "discount and risk attitude",
+        "individual/collective values"
+      ],
+      "functions": [
+        "problem framing",
+        "objective selection",
+        "deliberation",
+        "conditional recommendations"
+      ],
+      "source_ids": [
+        "S-VALUE-02",
+        "S-VALUE-03",
+        "S-VALUE-05",
+        "S-MEASURE-07",
+        "S-FEAS-02"
+      ],
+      "next_substantive_content": "Конкретные позиции и их носители, основания полномочий, несовместимости и последствия выбора без forced consensus.",
+      "reuse_owner_hints": "Scientist intent/governance; concept spine",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-17",
+      "title": "Участие, представительство и легитимность",
+      "question": "Кого услышали, кого не услышали и какой вес имеет участие?",
+      "required_objects": [
+        "affected group map",
+        "representation/selection design",
+        "participation record",
+        "decision influence and dissent"
+      ],
+      "non_substitution": "Число ответов не равно representative mandate; consultation не автоматически consent или authorization.",
+      "alternative_axes": [
+        "survey/deliberative/participatory processes",
+        "selected vs self-selected participants",
+        "informational vs binding input"
+      ],
+      "functions": [
+        "problem framing",
+        "design generation",
+        "legitimacy",
+        "accountability"
+      ],
+      "source_ids": [
+        "S-VALUE-01",
+        "S-VALUE-06",
+        "S-DATA-05",
+        "S-GOV-01"
+      ],
+      "next_substantive_content": "Реальные participation designs и records; missing voices и limitations; institution-native authority отдельно.",
+      "reuse_owner_hints": "Scientist participation; external institutions",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-18",
+      "title": "Ресурсы и исполнимость",
+      "question": "Может ли названный актор реализовать выбранный механизм в заданный срок?",
+      "required_objects": [
+        "capacity/staffing",
+        "budget/procurement",
+        "implementation schedule",
+        "operations/maintenance and dependencies"
+      ],
+      "non_substitution": "Бюджетная строка не доказательство staffing; модельный успех не delivery capability; PolicyOS не executor.",
+      "alternative_axes": [
+        "actors/levels of government",
+        "sequencing",
+        "lifecycle costs",
+        "compliance and maintenance"
+      ],
+      "functions": [
+        "feasibility",
+        "portfolio design",
+        "risk",
+        "monitoring"
+      ],
+      "source_ids": [
+        "S-FEAS-03",
+        "S-FEAS-02",
+        "S-FEAS-05"
+      ],
+      "next_substantive_content": "Actor-specific capacity evidence, costs, dependencies, historical errors и current delivery constraints.",
+      "reuse_owner_hints": "Scientist; Foundry costs; external delivery institutions",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-19",
+      "title": "Физические, технологические и экологические ограничения",
+      "question": "Какие границы и взаимодействия не устраняются политическим предпочтением?",
+      "required_objects": [
+        "physical response model",
+        "engineering constraints",
+        "environmental thresholds",
+        "irreversibility and horizon"
+      ],
+      "non_substitution": "Physical projection не доказывает socio-economic pathway feasibility; инженерный стандарт не гарантирует local conformance.",
+      "alternative_axes": [
+        "technology performance",
+        "ecosystem/geography",
+        "hard/soft limits",
+        "irreversible/tail effects"
+      ],
+      "functions": [
+        "design feasibility",
+        "simulation",
+        "risk",
+        "long-term custody"
+      ],
+      "source_ids": [
+        "S-FEAS-04",
+        "S-FEAS-05"
+      ],
+      "next_substantive_content": "Domain-native laws, engineering standards и measured limits с validity scope; численные значения только из точного источника.",
+      "reuse_owner_hints": "Foundry; Data Forge; external technical authorities",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-20",
+      "title": "Экспертные суждения и elicitation",
+      "question": "Как получено суждение при неполных измерениях?",
+      "required_objects": [
+        "expertise and selection",
+        "elicitation protocol",
+        "individual judgments before aggregation",
+        "conflicts/calibration/uncertainty"
+      ],
+      "non_substitution": "Экспертность не создаёт истину или мандат; consensus может отражать общий источник ошибки.",
+      "alternative_axes": [
+        "individual/structured group",
+        "probabilities vs rankings",
+        "empirical belief vs values",
+        "aggregation protocols"
+      ],
+      "functions": [
+        "hypothesis generation",
+        "uncertainty",
+        "acquisition planning"
+      ],
+      "source_ids": [
+        "S-EVID-07",
+        "S-LEARN-05",
+        "S-VALUE-01"
+      ],
+      "next_substantive_content": "Отдельно найти первичные elicitation protocols и calibration studies: текущие seed sources дают контекст, не полноценное покрытие семьи.",
+      "reuse_owner_hints": "Scholar; Scientist; Foundry elicitation adapters where present",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-21",
+      "title": "Синтез, противоречия и независимость",
+      "question": "Что подтверждает, опровергает или ограничивает вывод в совокупности?",
+      "required_objects": [
+        "study/report/cohort linkage",
+        "inclusion/exclusion protocol",
+        "dependence structure",
+        "synthesis and missing-evidence analysis"
+      ],
+      "non_substitution": "Количество papers не independent evidence; общая score не устраняет outcome-specific uncertainty.",
+      "alternative_axes": [
+        "systematic review/triangulation",
+        "shared datasets",
+        "negative/null findings",
+        "heterogeneous estimands"
+      ],
+      "functions": [
+        "verification",
+        "portfolio synthesis",
+        "disconfirmation"
+      ],
+      "source_ids": [
+        "S-EVID-01",
+        "S-EVID-02",
+        "S-EVID-04",
+        "S-EVID-05",
+        "S-EVID-06"
+      ],
+      "next_substantive_content": "Study-level lineages, unpublished/negative sources, exact synthesis rules и случаи несводимого конфликта.",
+      "reuse_owner_hints": "Scholar; Scientist ADR-0160 portfolio",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-22",
+      "title": "Верификация, стандарты и внешние evaluators",
+      "question": "Какое свойство проверено, кем и независимо от чего?",
+      "required_objects": [
+        "property and scope",
+        "verification protocol/version",
+        "independent oracle/reference",
+        "complete output and limitations"
+      ],
+      "non_substitution": "Conformance, reporting quality, authenticity и substantive truth различны; self-attestation не независимая проверка.",
+      "alternative_axes": [
+        "formal/statistical/institutional",
+        "source vs result validation",
+        "rubric and evaluator scope"
+      ],
+      "functions": [
+        "admission support",
+        "audit",
+        "disconfirmation"
+      ],
+      "source_ids": [
+        "S-EVID-04",
+        "S-EVID-05",
+        "S-OBS-03",
+        "S-AUTH-01"
+      ],
+      "next_substantive_content": "Purpose-specific evaluators и falsifiers; preserve exact observed property, не универсальный verified badge.",
+      "reuse_owner_hints": "Existing verification owners; Scientist; external assessors",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-23",
+      "title": "Provenance, версии, изменения и отзыв",
+      "question": "Откуда взялось основание и что делает прежнее применение неактуальным?",
+      "required_objects": [
+        "resource/version/distribution identity",
+        "derivation and use edges",
+        "correction/retraction events",
+        "time roles and currentness rule"
+      ],
+      "non_substitution": "Hash доказывает identity bytes, не истину; последний fetch не current authority; отсутствие update metadata не отсутствие изменений.",
+      "alternative_axes": [
+        "historical/current",
+        "content/authority change",
+        "public/private provenance",
+        "version/supersession"
+      ],
+      "functions": [
+        "replay",
+        "custody",
+        "impact analysis",
+        "observability"
+      ],
+      "source_ids": [
+        "S-OBS-01",
+        "S-OBS-02",
+        "S-OBS-05",
+        "S-EVID-06",
+        "S-AUTH-01"
+      ],
+      "next_substantive_content": "Конкретные event providers, identity relations и revalidation pathways; public projection с privacy limits.",
+      "reuse_owner_hints": "CAS; Data Forge; Scientist custody; runtime surfaces",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-24",
+      "title": "Решения при неопределённости и цена знания",
+      "question": "Как действовать и что исследовать дальше при остающихся неизвестных?",
+      "required_objects": [
+        "decision criterion",
+        "uncertainty/ambiguity model",
+        "loss/payoff convention",
+        "eligible acquisition and costs"
+      ],
+      "non_substitution": "VOI не делает незаконный маршрут допустимым; entropy reduction не обязательно меняет решение; robust не probability-optimal.",
+      "alternative_axes": [
+        "expected utility/minimax/regret",
+        "partial identification",
+        "information vs decision value",
+        "sequential designs"
+      ],
+      "functions": [
+        "search stopping",
+        "design comparison",
+        "acquisition"
+      ],
+      "source_ids": [
+        "S-CAUSAL-06",
+        "S-LEARN-04",
+        "S-LEARN-05",
+        "S-LEARN-06"
+      ],
+      "next_substantive_content": "Применимые decision/VOI recipes, условия математической гарантии и внешне выбранные valuation/loss assumptions.",
+      "reuse_owner_hints": "Existing ADR-0166 planner; Foundry; Scientist",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-25",
+      "title": "Мониторинг и условия обучения",
+      "question": "Какие изменения можно отнести к политике и когда допустимо обновить знание?",
+      "required_objects": [
+        "monitoring/evaluation design",
+        "counterfactual and process measures",
+        "adaptive selection history",
+        "diagnosis and change evidence"
+      ],
+      "non_substitution": "Аномалия не причинный диагноз; not-executed не negative outcome; historical success не current evidence.",
+      "alternative_axes": [
+        "confirmatory/exploratory",
+        "policy failure vs implementation failure",
+        "distribution vs instrument drift",
+        "adaptive sampling"
+      ],
+      "functions": [
+        "world-model learning",
+        "custody",
+        "method selection"
+      ],
+      "source_ids": [
+        "S-DATA-02",
+        "S-EVID-07",
+        "S-LEARN-03",
+        "S-LEARN-07",
+        "S-CAUSAL-08"
+      ],
+      "next_substantive_content": "Post-deployment designs, disconfirmation criteria, error controls и external measurement/change events.",
+      "reuse_owner_hints": "Scientist monitoring; Foundry; balanced memory ledger",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    },
+    {
+      "id": "EF-26",
+      "title": "Угрозы достоверности и приобретению",
+      "question": "Как основание могло быть искажено, подменено или использовано для управления агентом?",
+      "required_objects": [
+        "threat/source model",
+        "authenticity and integrity evidence",
+        "poisoning/selection risks",
+        "safe acquisition boundaries"
+      ],
+      "non_substitution": "Документ не инструкция агенту; valid signature не true claim; retrieval rank не independence или applicability.",
+      "alternative_axes": [
+        "counterfeit/poisoned/stale sources",
+        "prompt injection",
+        "selective disclosure",
+        "provenance leakage"
+      ],
+      "functions": [
+        "safe discovery",
+        "verification",
+        "custody",
+        "observability"
+      ],
+      "source_ids": [
+        "S-THREAT-01",
+        "S-AUTH-01",
+        "S-GOV-01"
+      ],
+      "next_substantive_content": "Concrete counterexamples и detection limits для имеющихся acquisition paths, без нового sovereign security subsystem.",
+      "reuse_owner_hints": "Existing security/intake owners; Scholar; Data Forge",
+      "coverage_note": "Open editorial family, neither exhaustive nor a requirement on every task; seed sources do not establish a complete or admitted capability."
+    }
+  ]
+}

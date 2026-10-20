@@ -1,0 +1,232 @@
+{
+  "kind": "documentation-research-receipt",
+  "date": "2026-10-20",
+  "input_head": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+  "branch": "codex/e02-integration",
+  "standing": "Research proposal and initial corpus. No new ratification, runtime admission, code acceptance, or finding closure.",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "sha256": "46f6502a1a29c160d99a258ea3a6209e08ae55dfcb95836790403ec26c8998e2",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "sha256": "791d7028932d0b8097c8d6b1962e068b956136ae5d314ae0c7f60d5863d8b44d",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+      "sha256": "f1910b0aadc4758a6b08b9976df6926f43974267dbabfedddae2eb251787dc9e",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "sha256": "f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "sha256": "e3e9265b9a48a9cf1b7110f657616c61770e3a73ed812da5de4853291ab7338a",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md",
+      "sha256": "0691783add6af224e5f09e3aa9645622c1283ce9e17376df258d7a9b81338229",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "sha256": "cec0658a3df7828e19a9f2c3e20b56629f8bc8e0db32aa703d1ed215214fd7fe",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/adr/0158-concept-spine-multi-jurisdiction-reconciliation.md",
+      "sha256": "91a79046efeb2eb0955cf07021148ae4001642a402bc7bc4d8d99b11d6559659",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/adr/0160-evidence-portfolio-independence-multiverse-synthesis.md",
+      "sha256": "5c75e541006e6181be05b767594d579caf3419edc9660dec194169ede965c1c7",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/adr/0166-evidence-acquisition-decision-boundaries.md",
+      "sha256": "f54b9f5b27da91d49ccf02157e8472fa3711c45cffc9f5621747116ff711157e",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/adr/0172-balanced-memory-influence-ledger.md",
+      "sha256": "c83b8cb3576a4a806e8c76846d956da406a9512f58d8f5ef76e889cdf6e55c8b",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/adr/0174-policy-evidence-capability-graph.md",
+      "sha256": "4d0b384e448071ee8b946266e0dbb76290398665327f619a6b2a64f9f7050e1f",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "a64956e284b411276a16a612afffb1fb42daf03ffef8f7ef1c3f3f9bc25d0349",
+      "read_scope": "full or relevant sections as cited in narrative; hash identifies the entire input document, not a claim of exhaustive substantive audit"
+    }
+  ],
+  "delegation": {
+    "depth": 1,
+    "direct_agents": [
+      "foundations_vision",
+      "foundations_owners",
+      "foundations_data",
+      "foundations_measurement",
+      "foundations_causal",
+      "foundations_legal",
+      "foundations_learning",
+      "foundations_observability",
+      "foundations_feasibility",
+      "foundations_values",
+      "foundations_evidence",
+      "foundations_security",
+      "foundations_red_universality",
+      "foundations_red_search"
+    ],
+    "role": "Text research and critique; root is sole writer of this tracked package; two critics reviewed initial drafts and final additional documents."
+  },
+  "research_scope": {
+    "sources": 61,
+    "source_denominator": "sources.json:sources[]; every canonical source card, excluding aliases and nested related-source pointers",
+    "families": 26,
+    "family_denominator": "families.json:families[]; open editorial families only",
+    "source_access": {
+      "primary_text_or_selected_sections": 39,
+      "search_extract_only": 10,
+      "abstract_or_metadata": 12
+    },
+    "not_established": [
+      "completeness of external knowledge",
+      "actual production corpus presence or current release",
+      "task-specific applicability or source admission",
+      "universal end-to-end runtime capability"
+    ],
+    "bias": "Initial corpus is predominantly English and methodological, with international/UK/EU/US institutional sources. Local data, authentic law/acts, capacity and rights records require substantive acquisition."
+  },
+  "root_source_spot_checks": [
+    {
+      "source_id": "S-MEASURE-03",
+      "finding": "Official page identifies chapter 9 section 9.2, despite component-11 URL. Corrected card and narrative; scale and household decile definition confirmed."
+    },
+    {
+      "source_id": "S-MEASURE-04",
+      "finding": "Official June 2025 version confirms 2021 PPP basis and published lines; no indefinite-currentness claim."
+    },
+    {
+      "source_id": "S-AUTH-01",
+      "finding": "Official W3C 2025 Recommendation section 1.1 distinguishes verifiability from truth; privacy scope retained."
+    }
+  ],
+  "checks": {
+    "json_parse_and_required_editorial_fields": "PASS",
+    "unique_ids_alias_separation_and_family_source_links": "PASS",
+    "relative_markdown_file_targets": "PASS",
+    "relative_links_checked": 36,
+    "heading_anchors": "not checked",
+    "external_web_links": "source research with per-card access limits, not a bulk network link check",
+    "illustrative_fraction_arithmetic": [
+      {
+        "distribution": "A",
+        "gini": "2/5",
+        "atkinson_epsilon_2": "56/131"
+      },
+      {
+        "distribution": "B",
+        "gini": "8/25",
+        "atkinson_epsilon_2": "4/7"
+      }
+    ],
+    "product_tests_builds_imports": "NOT RUN: user resource constraint; no runtime claims"
+  },
+  "review_repairs": [
+    "Open taxonomy and unknown-family discovery preserved",
+    "Exploratory evidence not promoted into confirmation",
+    "Query logs do not prove recall",
+    "Publisher/signer identity distinguished from truth and authority",
+    "Search history and stable-ID privacy",
+    "Explicit criteria/frontier before acquisition priority aggregation",
+    "W5 does not appoint correspondence adjudicator",
+    "OECD chapter locator corrected by root spot-check"
+  ],
+  "files_excluding_this_receipt": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/01-architecture-and-functions.md",
+      "bytes": 15067,
+      "sha256": "847c57a6c8ea4274800040f5749860d6d26000a55d21efaa7025a119cda7cfde"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/02-foundation-map.md",
+      "bytes": 19051,
+      "sha256": "d3aa42da503ef5a144a9f53ec6640ef05a493dd19d2b65b897f94c7a475cf95c"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/03-search-composition-and-learning.md",
+      "bytes": 18947,
+      "sha256": "1224b5b5c10ba8504718c1af4b3a0f51290a78baeb36829dea53d0188e9917ba"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/04-records-and-observability.md",
+      "bytes": 13954,
+      "sha256": "7d0ff54cb021c71ecb3b19eccf5baf13b04d469e75710e26607662071a0b13a9"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/05-acquisition-and-research.md",
+      "bytes": 14488,
+      "sha256": "c4201b5a6b5b4daa039b439a46dd93c10bbc5fb26e9c7d5f6b6cbcd24084be60"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/06-review-and-proposals.md",
+      "bytes": 15459,
+      "sha256": "694435d28e38c5a9619dd33228cd81f1ce4730c6c20d8d9fd78601f19ec7c73b"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "bytes": 8592,
+      "sha256": "7675a2046ead625dee97c3e3058fcc01130db4259a89f9a6228634aa304ddca8"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/examples/one-task-many-bases.md",
+      "bytes": 10068,
+      "sha256": "5ad8eb913a618488408a43a8f7bf258b2ad892420cfc9980d2d247a9bf008259"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+      "bytes": 38925,
+      "sha256": "f2161026d481de7612b54f5d1babdbab5974f72302fb66685fad1c7bfe931af6"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json",
+      "bytes": 121114,
+      "sha256": "ec2421b38ceb588439da029b70a784148c6710679b185fa09365a29ec1842a22"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/README.md",
+      "bytes": 818,
+      "sha256": "752f84cf2d71d5988d414a60691e7d9fe82c2bc69fe2e2f386670d6d0ca26074"
+    }
+  ],
+  "resource_scope": {
+    "bytes_of_listed_documents": 276483,
+    "free_gib_at_document_check": 10.98,
+    "no_datasets_environments_or_bulk_downloads_created": true,
+    "production_payload_accessed": false,
+    "cleanup_performed": false
+  },
+  "limitations": "Research_access labels summarize source access, not scientific/legal verification. Small document checks prove file integrity, internal links and the stated illustrative arithmetic only. No product authority or claim closure follows."
+}

@@ -1,0 +1,17 @@
+id = "2026-10-20-e02-foundry-selection-owner-map"
+title = "Make Foundry selection owner routes source-visible"
+type = "changed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Use one literal 40-entry owner map for Foundry selection lazy imports and source-route analysis."
+evidence = ["src/polisyos/foundry/methods/selection/__init__.py", "tests/unit/foundry/methods/selection/test_literal_owner_routes.py"]
+compatibility = "The existing public __all__ list type, values, and order remain unchanged; imports remain lazy, successful lookups remain cached, and unknown names still raise AttributeError. The map is a private implementation representation."
+change_class = "internal"
+surface_classification = "internal: Foundry selection source-owned owner map"
+migration = "No public API migration is introduced. After adoption, run the new owner-map test and the full finite-facade test module before relying on the source-route repair."
+api = "No Python export, HTTP operation, DTO, OpenAPI schema, or generated-client contract is added."
+limitations = "This is an internal source/test candidate. Runtime replay is UNRUN; the global N11 owner graph and public-surface inventory are not established. No claim is made that the private __dir__ member set is unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

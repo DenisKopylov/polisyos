@@ -57,7 +57,7 @@
       "P40"
     ],
     "remaining": "physical artifacts, installed consumers, Linux runtime, and full 135-per-profile/18-supplemental receipts remain UNRUN",
-    "target": "real CLI → source-bound R6/R7 helpers → concrete host/worker executors → common three-profile barrier → supplemental callbacks; tested recorded command effects and stop/readback controls"
+    "target": "real CLI \u2192 source-bound R6/R7 helpers \u2192 concrete host/worker executors \u2192 common three-profile barrier \u2192 supplemental callbacks; tested recorded command effects and stop/readback controls"
   },
   "proposals": {
     "capability_label": "implemented_but_not_orchestrated_until_physical_consumer_matrix_is_replayed",
@@ -87,12 +87,17 @@
   },
   "source_set": {
     "complete_input_denominator": "all *.py files discovered under the canonical q2_composite implementation and test roots; runtime verifier derives those roots and requires exact path-set equality",
-    "file_count": 16,
+    "file_count": 17,
     "files": [
       {
-        "bytes": 53738,
+        "bytes": 2104,
+        "path": "policy-engine/tests/repo_quality/tools/q2_composite/_test_imports.py",
+        "sha256": "2b650890471d6c2b25a5993c794f05e8ef1a73974327bcff8263ede3e123750e"
+      },
+      {
+        "bytes": 54806,
         "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_profile_composite.py",
-        "sha256": "006c9260e7501bbef2b6dda1f03547185f01e9bad1e7c31491f832dec4471d1b"
+        "sha256": "3c05d341edbf17c451ca18f1ddbe4f1ea4abc8201445f971dc7749479bb48f03"
       },
       {
         "bytes": 57506,
@@ -100,9 +105,9 @@
         "sha256": "d66a5d3d6215aa5d698f3be8c4ad403a516f68035749484e119ff76ebbb70db0"
       },
       {
-        "bytes": 40630,
+        "bytes": 42838,
         "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_host_driver.py",
-        "sha256": "dc28b7bdbc3e452e9352eaf305b6ad1a6d7f1ecdb6223155c0d8ae9b823829d4"
+        "sha256": "20d537d13af62e5a8648966fd98efd7c530b6218513f03430caadff8dc06731b"
       },
       {
         "bytes": 55019,
@@ -171,7 +176,7 @@
       }
     ],
     "set_digest_algorithm": "sha256(concat(sorted(utf8(path) + NUL + ascii(sha256(file_bytes)) + LF)))",
-    "sorted_path_sha256_digest": "15c032d41bfedff1b352951b1095900f839257e580b2b5a4dee260626a4359cb"
+    "sorted_path_sha256_digest": "4efe9d12169ee495e838866c7ef9b281ba2fe6546602f3e8f421390f58f54979"
   },
   "upstream": {
     "r6": {
@@ -234,5 +239,21 @@
     "ruff_check": "pending_final_current_postimage_run",
     "ruff_format": "pending_final_current_postimage_run",
     "supplemental_18_matrix": "UNRUN"
+  },
+  "collection_companion": {
+    "kind": "R10 canonical pytest import-resolution companion",
+    "status": "proposed_raw_postimage_not_source_freeze_or_acceptance",
+    "purpose": "Load sibling fixture test modules explicitly by their exact path under unchanged pytest --import-mode=importlib; bind the updated complete source/test byte set.",
+    "p40_bucket": "NEW actual canonical test import resolution versus RAW harness green; all four canonical test modules were inventoried.",
+    "scope": [
+      "Replace sibling bare imports in the two affected test modules with a path-bound loader.",
+      "Bind the non-collected _test_imports.py helper into the complete canonical source/test set.",
+      "Derive source membership, per-file bytes and SHA-256 values, and sorted set digest from every discovered *.py member."
+    ],
+    "out_of_scope": [
+      "No pytest configuration or PYTHONPATH changes.",
+      "No runtime coordinator changes.",
+      "No product tests or canonical source writes in this RAW authoring task."
+    ]
   }
 }

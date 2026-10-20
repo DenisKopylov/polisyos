@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 import hashlib
+import importlib.util
 import json
 import os
 import sys
@@ -36,15 +37,36 @@ RAW = (
 SOURCE = REPO_ROOT / "policy-engine/tools/quality/validation/q2_composite"
 R6 = SOURCE
 R7 = SOURCE
-sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(REPO_ROOT / "policy-engine"))
 
-import test_profile_composite as fixtures  # noqa: E402
-import test_worker_mounts as worker_fixtures  # noqa: E402
+_TEST_IMPORTS_PATH = HERE / "_test_imports.py"
+_TEST_IMPORTS_NAME = (
+    "_e02_q2_test_imports_"
+    + hashlib.sha256(str(_TEST_IMPORTS_PATH.resolve()).encode("utf-8")).hexdigest()[:16]
+)
+_TEST_IMPORTS_SPEC = importlib.util.spec_from_file_location(_TEST_IMPORTS_NAME, _TEST_IMPORTS_PATH)
+if _TEST_IMPORTS_SPEC is None or _TEST_IMPORTS_SPEC.loader is None:
+    raise RuntimeError("q2_sibling_test_import_helper_unavailable")
+_TEST_IMPORTS_MODULE = importlib.util.module_from_spec(_TEST_IMPORTS_SPEC)
+_TEST_IMPORTS_MODULE_PREVIOUS = sys.modules.get(_TEST_IMPORTS_NAME)
+if _TEST_IMPORTS_MODULE_PREVIOUS is None:
+    sys.modules[_TEST_IMPORTS_NAME] = _TEST_IMPORTS_MODULE
+    try:
+        _TEST_IMPORTS_SPEC.loader.exec_module(_TEST_IMPORTS_MODULE)
+    except BaseException:
+        sys.modules.pop(_TEST_IMPORTS_NAME, None)
+        raise
+else:
+    _TEST_IMPORTS_MODULE = _TEST_IMPORTS_MODULE_PREVIOUS
+    if Path(_TEST_IMPORTS_MODULE.__file__).resolve() != _TEST_IMPORTS_PATH.resolve():
+        raise RuntimeError("q2_sibling_test_import_helper_identity_changed")
+
+fixtures = _TEST_IMPORTS_MODULE.load_sibling_test(__file__, "test_profile_composite")
+worker_fixtures = _TEST_IMPORTS_MODULE.load_sibling_test(__file__, "test_worker_mounts")
 
 from tools.quality.validation.q2_composite import q2_composite_cli as composite_cli  # noqa: E402
-from tools.quality.validation.q2_composite import (
-    run_q2_protocol_a94 as protocol_runner,  # noqa: E402
+from tools.quality.validation.q2_composite import (  # noqa: E402
+    run_q2_protocol_a94 as protocol_runner,
 )
 from tools.quality.validation.q2_composite import worker_host_driver as driver_module  # noqa: E402
 
@@ -976,7 +998,36 @@ def test_protocol_runner_binds_nested_r10_source_set_files() -> None:
     manifest = json.loads(protocol_runner.R10_MANIFEST.read_text(encoding="utf-8"))
     source_set = manifest["source_set"]
     rows = source_set["files"]
-    assert source_set["file_count"] == len(rows) == 16
+    row_paths = [row["path"] for row in rows]
+    assert source_set["file_count"] == len(rows)
+    assert row_paths == sorted(row_paths)
+    assert len(row_paths) == len(set(row_paths))
+
+    roots = (
+        SOURCE,
+        REPO_ROOT / "policy-engine/tests/repo_quality/tools/q2_composite",
+    )
+    discovered: set[str] = set()
+    for root in roots:
+        assert root.is_dir() and not root.is_symlink()
+        for path in root.rglob("*"):
+            assert not path.is_symlink()
+            if path.is_file() and path.suffix == ".py":
+                discovered.add(path.relative_to(protocol_runner.ROOT).as_posix())
+    assert set(row_paths) == discovered
+
+    entries: list[tuple[str, str]] = []
+    for row in rows:
+        path = protocol_runner.ROOT.joinpath(*Path(row["path"]).parts)
+        raw = path.read_bytes()
+        actual_sha256 = hashlib.sha256(raw).hexdigest()
+        assert row["bytes"] == len(raw)
+        assert row["sha256"] == actual_sha256
+        entries.append((row["path"], actual_sha256))
+    assert source_set["sorted_path_sha256_digest"] == (
+        driver_module._canonical_source_set_digest(entries)
+    )
+
     expected = tuple(protocol_runner.ROOT.joinpath(*Path(row["path"]).parts) for row in rows)
     assert (*expected, protocol_runner.R10_MANIFEST) == protocol_runner.SOURCE_FILES
 

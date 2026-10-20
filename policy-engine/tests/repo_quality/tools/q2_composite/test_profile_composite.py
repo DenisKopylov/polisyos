@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import importlib.util
 import io
 import json
 import os
@@ -35,7 +36,30 @@ sys.path.insert(0, str(RAW))
 import profile_composite as composite  # noqa: E402
 import profile_partition_runner as partition_runner  # noqa: E402
 import split_consumer  # noqa: E402
-import test_worker_mounts as worker_fixtures  # noqa: E402
+
+_TEST_IMPORTS_PATH = Path(__file__).resolve().with_name("_test_imports.py")
+_TEST_IMPORTS_NAME = (
+    "_e02_q2_test_imports_"
+    + hashlib.sha256(str(_TEST_IMPORTS_PATH).encode("utf-8")).hexdigest()[:16]
+)
+_TEST_IMPORTS_MODULE = sys.modules.get(_TEST_IMPORTS_NAME)
+if _TEST_IMPORTS_MODULE is None:
+    _TEST_IMPORTS_SPEC = importlib.util.spec_from_file_location(
+        _TEST_IMPORTS_NAME, _TEST_IMPORTS_PATH
+    )
+    if _TEST_IMPORTS_SPEC is None or _TEST_IMPORTS_SPEC.loader is None:
+        raise RuntimeError("q2_sibling_test_import_helper_unavailable")
+    _TEST_IMPORTS_MODULE = importlib.util.module_from_spec(_TEST_IMPORTS_SPEC)
+    sys.modules[_TEST_IMPORTS_NAME] = _TEST_IMPORTS_MODULE
+    try:
+        _TEST_IMPORTS_SPEC.loader.exec_module(_TEST_IMPORTS_MODULE)
+    except BaseException:
+        sys.modules.pop(_TEST_IMPORTS_NAME, None)
+        raise
+elif Path(_TEST_IMPORTS_MODULE.__file__).resolve() != _TEST_IMPORTS_PATH:
+    raise RuntimeError("q2_sibling_test_import_helper_identity_changed")
+
+worker_fixtures = _TEST_IMPORTS_MODULE.load_sibling_test(__file__, "test_worker_mounts")
 import worker_mounts as worker_mounts  # noqa: E402
 from split_protocol import (  # noqa: E402
     PROFILE_CHAIN_KEYS,

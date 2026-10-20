@@ -40457,5 +40457,99 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-q2-canonical-import-companion-20261020-r1": {
+    "slice_base": "9204953ead5acefa1d48919fa9caa1928846623e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/tools/q2_composite/_test_imports.py": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "2b650890471d6c2b25a5993c794f05e8ef1a73974327bcff8263ede3e123750e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/postimages/policy-engine/tests/repo_quality/tools/q2_composite/_test_imports.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/repo_quality/tools/q2_composite/test_profile_composite.py": {
+        "operation": "update",
+        "preimage_sha256": "006c9260e7501bbef2b6dda1f03547185f01e9bad1e7c31491f832dec4471d1b",
+        "postimage_sha256": "3c05d341edbf17c451ca18f1ddbe4f1ea4abc8201445f971dc7749479bb48f03",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/postimages/policy-engine/tests/repo_quality/tools/q2_composite/test_profile_composite.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_host_driver.py": {
+        "operation": "update",
+        "preimage_sha256": "dc28b7bdbc3e452e9352eaf305b6ad1a6d7f1ecdb6223155c0d8ae9b823829d4",
+        "postimage_sha256": "20d537d13af62e5a8648966fd98efd7c530b6218513f03430caadff8dc06731b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/postimages/policy-engine/tests/repo_quality/tools/q2_composite/test_worker_host_driver.py",
+        "mode": "100644"
+      },
+      "policy-engine/tools/quality/validation/q2_composite/source-manifest-r10.json": {
+        "operation": "update",
+        "preimage_sha256": "9a35080dbc19c79718060fb659194ef3d3401b84d1afedeb6117986f96b4b9de",
+        "postimage_sha256": "b718b52ce4c08fb3f63db692edeef07f4cc02e7f2619188c66fbb1c980c37425",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/postimages/policy-engine/tools/quality/validation/q2_composite/source-manifest-r10.json",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-canonical-import-companion-20261020-r1/source-application.json",
+      "sha256": "11fd10254e5bec53767ef4bf65d69ac4e363c3bb2d98e2f48148153c05ef4b9f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-canonical-import-companion-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r1/author-receipt.json",
+        "sha256": "1a930eac044b80deb2c9dde964dca804f08f42ba995e5e4fe29c1e5e5210f035"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/delta-pins-r2.json",
+        "sha256": "f987906cc90ee0a11a9adcf9ccb38d9622c1eeefc247cab81f05b067b7e17778"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/native-checks-r2.json",
+        "sha256": "633d323d38d41febf30ebec2d47e22418149085975038c55cf0e9cd45508a6c2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-test-import-companion-author-20261020-r2/candidate-r2.patch",
+        "sha256": "14587564bd7352530b8f683192499ee88f9b4e5ce4a6407499c4803c625bcad7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-import-companion-independent-review-20261020-r1/manifest.json",
+        "sha256": "34c9da3dbbf2f00ca8284723b29e6bb6b56f7e66d56fa358fe0d395f6479ec59"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-import-companion-independent-review-20261020-r2/manifest.json",
+        "sha256": "fd251cbb5f2c17b1aec566e181f7191c7387c19a96bf795c6fa744c7543c4714"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-canonical-import-companion-independent-review-20261020-r2/harness-scope-manifest.json",
+        "sha256": "d5330efbf00a8d2e2e974786f6f2d88dd2cd8152b98a395334b783264ef859f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW canonical import-resolution class repaired by generic scoped fixture loader across all three sibling imports; R2 mechanical import/format-only. R1 wrong Ruff context not inherited red.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Four single-module plus combined actual pytest invocations UNRUN after adoption",
+      "Capture-only plugin paths and canonical P/src+P acceptable per exact independent clarification; no Q2 test/postimage directory on effective PYTHONPATH",
+      "Physical archive/wheel/rebuilt-sdist/Linux consumers remain UNRUN, no G acceptance/formal closure"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Fresh exactsource 4single+combined full Q2 modules with unchanged default pytest.ini and no selector reorder; verify all17manifest members and corrupt-digest control; no installed-consumer claim.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

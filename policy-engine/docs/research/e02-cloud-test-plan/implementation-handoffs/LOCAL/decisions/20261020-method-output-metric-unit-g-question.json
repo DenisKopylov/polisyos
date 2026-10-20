@@ -1,0 +1,242 @@
+{
+  "capability_labels_for_policy_simulation_unit_qualification": [
+    "producer_missing",
+    "artifact_missing",
+    "bridge_missing",
+    "verification_missing",
+    "surface_missing",
+    "semantic_test_missing"
+  ],
+  "decision_request_to_G": {
+    "authority_and_status": "Candidate-grade only. Existing output slot declarations and selected registry members are evidence inputs, not authority. A passing owner recomputation may establish source/unit consistency for the named candidate method output; external law, calibration, custody, currentness, and publication remain not_established.",
+    "g_adjudication": {
+      "accepted": false,
+      "formal_closures": [],
+      "g_acceptance": false
+    },
+    "recommended_choice": "extend_existing",
+    "requested_semantics": "Ratify a generic selected-program method-output binding, owner-recomputed from the persisted source graph and exact output bytes, as the sole path from Foundry method outputs to unit-qualified candidate metric observations. A unit match establishes dimensional compatibility only; it does not establish policy meaning, calibration, empirical adequacy, temporal currentness, authority, or publication eligibility.",
+    "time_semantics": "Bind execution_time and producer/toolchain identity to the run record; bind metric observation time to the source-data epoch represented by its exact input refs. Never substitute readback time for source/currentness time. R2 has no run-time or source-time claim.",
+    "unresolved_choice": "Whether exact producer slot unit identity can map to an IR MetricSpec unit through a narrow, versioned adapter, or whether every such mapping must be expressed as an explicit derivation law in selected compiled source. The proposal recommends explicit compiled binding plus exact unit adapter, with no name-based or conversion heuristic."
+  },
+  "existing_source_findings": [
+    {
+      "finding": "Foundry MethodDispatcher returns complete MethodResult.slot_outputs, but the graph executor currently passes method_result.output only into a patch_records translator. Non-patch outputs are not persisted into the simulation result.",
+      "source": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py"
+    },
+    {
+      "finding": "SimulationResult 1.4 and admit_execution_source bind selected source basis, metrics, state delta, and state snapshot; no method-output artifact refs or metric-output projection are part of this source admission.",
+      "source": "policy-engine/src/polisyos/core/contracts/foundry.py and policy-engine/src/polisyos/foundry/execute/api.py"
+    },
+    {
+      "finding": "Policy runtime reads Metrics.values into dict[str,float] and currently emits metric_units={} with explicit no-unit comment.",
+      "source": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py and policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py"
+    },
+    {
+      "finding": "Objective assessment already refuses unitless legacy numeric metrics, preserving UNAVAILABLE rather than inferring a unit.",
+      "source": "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+    }
+  ],
+  "finding_bucket": {
+    "current_divergence": "The unit-projection consumer can receive a numeric dictionary, but policy runtime emits metric_units={} and discards producer source refs. Method slot labels and IR MetricSpec.unit_id currently have no owner-recomputed run-output relation.",
+    "divergent_case": "The same metric id could be emitted by one producer as a percentage-point change and another as a currency change; selected MetricSpec membership or a metric_units dictionary accepts both unless the run output and unit derivation are bound.",
+    "p40": "Same producer-origin and unit-qualification class one level deeper than the R1 self-constructed readback HOLD. R2 widens from caller-owned model validation to CAS resolution plus real registry dispatch/replay. The remaining run/candidate association is part of the same class; do not patch one metric or one method at a time.",
+    "property": "A unit-qualified candidate metric value is derived from the selected compiled program\u2019s actual registered producer output, with exact run, selected candidate/metric registry, method/output slot, source input basis, derivation, and unit all reconciled by the canonical owner.",
+    "related_patterns": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P12",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ]
+  },
+  "formal_closures": [],
+  "g_acceptance": false,
+  "historical_frame": {
+    "head": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+    "tree": "5189e0ac61d3d05a52848ec075635b6c400ab1cc"
+  },
+  "implementation_estimate": {
+    "basis": "Estimate is an engineering planning range for the concrete cross-module footprint described here, not a completion claim.",
+    "excluded": "Full 22-module C12 replay, supported-backend matrix, authenticated external calibration/currentness, causal/empirical unit adequacy, or frontend publication journey.",
+    "narrow_source_contract": "12-20 engineering hours after G resolves binding and unit-adapter semantics; includes Foundry graph capture, CAS owner, consumer projection, tests/removal controls, docs and generated surfaces."
+  },
+  "options": {
+    "build_new": {
+      "benefit": "Could model broad derived units.",
+      "choice": "Create a new general-purpose dimensional algebra and separate metric-evidence subsystem.",
+      "impact": "Duplicates existing IR UnitsRegistry, Foundry SlotSpec, and Core QuantityValue owners while inventing conversion and authority semantics.",
+      "status": "not_recommended"
+    },
+    "consolidate_existing": {
+      "benefit": "One value+unit shape appears reusable.",
+      "choice": "Replace Foundry Metrics and policy runtime dictionaries with Core QuantityValue everywhere.",
+      "impact": "Foundry Unit and IR UnitRegistry ids are not yet one identity; QuantityValue does not by itself bind producer/run/metric derivation. It would conflate runtime counters, policy outcomes, and source evidence.",
+      "status": "defer_until_adapter_and_source_owner_exist"
+    },
+    "extend_existing": {
+      "benefit": "Reuses MethodSignature, MethodDispatcher, MethodResult, CAS, SimulationResult 1.4 source basis, MetricSpec/UnitsRegistry, and objective consumer; one owner closes the bridge for all metrics.",
+      "choice": "Add one generic compiled metric-output binding, persist all real method slot outputs on the selected run through SimulationResult 1.4 manifest edges, and extend the existing graph, Foundry source owner, and policy runtime to recompute exact source/output/unit joins.",
+      "impact": "Requires a method-output CAS artifact, compiled metric-output binding, graph capture, graph/run replay or owner-generated node-state chain, versioned unit adapter/derivation law, policy runtime typed projection, and public/generated companions. SimulationResult 1.3/1.4 JSON and historical numeric metrics remain unchanged; legacy source stays unit-limited.",
+      "status": "recommended_candidate_extension; G must adjudicate the selected binding/unit semantics; unsupported cases remain unavailable"
+    },
+    "reuse_existing": {
+      "benefit": "No schema migration.",
+      "choice": "Use MetricSpec.unit_id, UnitsRegistry, Foundry SlotSpec.Unit, SimulationResult 1.4, admit_execution_source, and existing objective consumers as-is.",
+      "impact": "No persisted relation joins a method slot output to the selected candidate metric; policy runtime still produces metric_units={} and objective remains unit-unavailable.",
+      "status": "insufficient_for_scoring"
+    }
+  },
+  "prototype": {
+    "actual_controlled_chain": [
+      "Persist exact MethodInvocationArtifact inputs: method FQN, current MethodSignature ABI digest, seed, params, and method state.",
+      "Resolve the actual registered method through ensure_causal_methods_registered and MethodRegistry.",
+      "Invoke the production MethodDispatcher and serialize the complete MethodResult.slot_outputs and full signature output-slot inventory to selected-profile CAS artifacts.",
+      "Persist a typed candidate metric intent referencing CAS MetricRegistry and UnitsRegistry artifacts; intent includes metric id, slot, and reducer but does not supply the unit.",
+      "Fresh owner takes only ArtifactStore and output ArtifactRef, resolves exact lineage roles/profiles and bytes, resolves the current registered method, checks ABI and all slot declarations, re-dispatches from persisted inputs, and compares the full output mapping.",
+      "Owner resolves the selected IR MetricRegistry and UnitsRegistry through exact manifest edges, then checks the DRE ratio output law before reducing the finite vector.",
+      "Controlled test passes only the owner-produced candidate value/unit to the existing _assess_search_metric consumer. This is a method diagnostic, not a policy runtime result."
+    ],
+    "limitations": [
+      "No ProgramGraph, ExecPlan, SimulationResult, execution-input-basis, candidate, selected Trinity registry, or actual run is attached to the method invocation.",
+      "Method ABI digest describes the declared method contract, not executable source/build identity; re-dispatch proves current implementation agreement, not historical execution identity.",
+      "The reducer is controlled caller intent, not a selected ObjectiveSpec or compiled output binding.",
+      "Only DRE weights ratio is mapped; all other 174 literal output slots and 25 dynamic/nonliteral method-signature classes remain unqualified by this projection.",
+      "No policy_runtime metric field changes, generated/public API changes, or actual POST/fresh-GET journey are included in R2.",
+      "No external law, issuer, empirical calibration, protected custody, source currentness, or publication authority is inferred."
+    ],
+    "next_run_status": "UNRUN until independent review and root source freeze/adoption; author has not run product tests or imports.",
+    "next_source_bound_command_after_adoption": "cd policy-engine && .venv/bin/python -m pytest -q tests/integration/foundry/test_measured_output_owner.py",
+    "positive_expected_if_replayed": "Real registered DRE dispatch emits all its declared slots; fresh owner replays exact CAS invocation and accepts only the weights ratio mapping; existing unit consumer receives unit ratio and should assess the candidate diagnostic AVAILABLE.",
+    "removal_and_adversarial_controls": [
+      "Change persisted weights while preserving method FQN, ABI, slot inventory, and both manifest edges: fresh owner must refuse method_output_replay_mismatch.",
+      "Use a selected IR metric/unit registry that declares percent instead of ratio, while keeping registered DRE output and lineage: owner must refuse producer_output_unit_not_established.",
+      "Remove method_invocation edge while leaving the output payload and candidate intent edge: owner must refuse the missing source edge.",
+      "Remove unit evidence from the legacy numeric dictionary and call the existing consumer: objective remains UNAVAILABLE with no fallback unit."
+    ],
+    "scope": "RAW-only candidate mechanism. It dispatches registered methods generically and stores every returned slot plus the full current MethodSignature inventory. Only one currently inspected unit law is projected: causal.transport.density_ratio@1.0.0 / weights / importance_weight:ratio to selected IR RateUnit(base=ratio).",
+    "source_data": "No production data read. Controlled arrays are generated in the test using NumPy seed 41/42; method dispatch seed is 23 with params method=logistic_trick.",
+    "source_input_profile": "No production profile selected. Controlled test uses local FileSystemCAS and deterministic synthetic arrays. Synthetic CAS registry artifacts are not selected Trinity or candidate source.",
+    "verification_by_this_author": {
+      "ast_parse": "PASS for both postimage files and census script.",
+      "candidate_patch_apply_check": "PASS; check only, no canonical files were changed.",
+      "census": "PASS; zero parse errors; full 403-file source denominator retained.",
+      "product_imports": "NOT_RUN.",
+      "product_tests": "NOT_RUN.",
+      "real_production_profile": "NOT_SELECTED.",
+      "ruff_check": "PASS for both postimage Python files and AST census script under canonical workspace config, using canonical stdin filenames.",
+      "ruff_format": "PASS for all three Python files.",
+      "runtime_wave": "NOT_RUN."
+    }
+  },
+  "question": "How can a numeric value used as a policy metric be tied to the selected run\u2019s actual producer output and selected IR unit without trusting metric names, method labels, caller-supplied unit dictionaries, or a self-constructed owner readback?",
+  "recommended_product_contract": {
+    "method_output_artifact": "At each actual method dispatch, persist one generic MethodOutputBundle with method node id, FQN, ABI and execution identity, complete resolved signature/output-slot inventory, complete slot_outputs, exact method invocation inputs, selected ProgramGraph/ExecPlan/input-basis refs, and selected MethodMetricOutputBinding ref where applicable. Preserve patch_records behavior. Add one SimulationResult 1.4 manifest input edge per output using the exact role pattern method_output:<node_id>; keep historical SimulationResult 1.3/1.4 JSON payload shape unchanged. The output bundle manifest binds each exact input ref/profile; no payload-only refs.",
+    "migration": "Do not reinterpret historical Metrics.values. Existing SimulationResult 1.3/1.4 and unitless dictionaries remain readable but unit-limited. New source-bound output records are additive; if JSON payload shape changes, use a new schema version and preserve manifest-profile edges. Invalid present refs never fall back to legacy absence. Gate policy runtime L3/L4 to unavailable until new owner projection exists.",
+    "minimum_falsifier": "Run a real deterministic composed Foundry graph and read its fresh SimulationResult. Owner-recompute a selected metric from exact method output through the compiled binding and candidate registry. Keep CAS refs and status markers but alter one output byte, binding/unit, output slot, selected candidate/registry, method invocation input state, or method executable profile: admission must refuse or remain unavailable. Remove the method_output edge while retaining all numeric metrics and unit labels: no AVAILABLE fallback. A positive is graph\u2192SimulationResult manifest\u2192fresh owner\u2192L3/L4 readback, not direct MethodDispatcher-only fixture.",
+    "owner_admission": "Extend admit_execution_source(store, simulation_result_ref) to enumerate every unique method_output:<node_id> edge from the selected SimulationResult manifest, resolve exact bytes/profiles, and compare each record with its selected ProgramGraph node, compiled MethodMetricOutputBinding, Candidate/Trinity, MetricRegistry, UnitsRegistry, and execution-input basis. Recompute output values from exact source inputs. To prove a method invocation state was the actual graph state, replay the selected deterministic graph from the admitted basis (or provide an equivalent owner-generated complete node-transition chain); do not trust a copied pre-node state. If replay identity, unit law, or graph/source link cannot be established, retain the numeric value only as limited/unavailable. A method-ABI label or module hash alone is not executable provenance.",
+    "public_surface": "The persisted method-output artifact and MethodMetricOutputBinding get strict versioned schemas. Expose only the necessary typed admission projection through the existing Foundry facade, update public-surface inventory, README/release docs, importer tests and removal controls. SimulationResult 1.4 JSON shape can remain unchanged by using manifest edges; if code chooses a payload field instead, that requires an explicit new SimulationResult schema version. Root owns generated schema/client surfaces.",
+    "runtime_bridge": "Have the policy runtime resolve the state-held SimulationResultRef through the canonical Foundry owner before evaluation. Match the owner projection to the selected candidate objective metric and expected unit, then pass a typed owner projection internally; the caller may not supply metric_units. The existing Metrics.values/dict path remains numeric-only with unit unknown. Propagate selected ObjectiveSpec unit and exact source refs into L3/L4 evidence. A malformed-present typed source refuses; genuinely absent legacy inputs stay limited/unavailable.",
+    "selected_binding": "Compile one strict versioned MethodMetricOutputBinding from the selected candidate ObjectiveSpec/MetricSpec and exact compiled ProgramGraph. Required fields: schema/rule version, metric_id, method_node_id, method_fqn + ABI, output_slot, a registered derivation_law_id/version (direct scalar or an explicitly defined typed reduction), and exact expected IR unit ref. Bind the artifact into the ProgramGraph/CAS source graph. Never accept a runtime request override or infer a binding from metric/slot names.",
+    "time_and_status": "Persist execution time, source observation interval/epoch, method runtime identity, unit registry version, rule/derivation version, and authority purpose separately. Status may be candidate-only for an internally replayed output; empirical adequacy, calibration, currentness, institutional authority, and publishability remain separate gates.",
+    "unit_semantics": "Prefer a versioned adapter from exact Foundry Unit(dim,symbol,scale) + selected IR UnitSpec to a typed internal unit relation, but only for exact dimension/scale mappings. No implicit conversion. A method slot declaration alone is not proof of a metric mapping. Each metric needs selected compiled binding plus owner-recomputed producer/output relation; a derived metric requires an approved derivation law. Ratio compatibility proves no policy interpretation; currency additionally needs exact currency/nominal-year/price-base inputs and source-time currentness."
+  },
+  "schema_version": "polisyos.e02.measured_output_owner_decision.v2",
+  "source_composition": {
+    "candidate_patch": "candidate.patch@sha256:2fea50d455095ac89e2fea2f783825459a1e8480d8f7455189c86ff0f33d734a",
+    "census_output": "source-census.json@sha256:ce1c36de885234029902b8c9b54d8ab9af0bddad51549e2bc8220e90614da99f",
+    "census_script": "tools/census_source_declared_method_output_slots.py@sha256:01bc0721d05699c5021be5f5bb2c7674b7695cca23cb93759f4299d4cb5e4f08",
+    "complete_method_source_census": {
+      "decorated_method_class_declarations": 409,
+      "literal_method_signature_classes": 384,
+      "literal_output_slot_declarations": 175,
+      "literal_unit_declarations": 175,
+      "nonliteral_signature_classes": 25,
+      "output": "source-census.json",
+      "python_file_denominator": 403,
+      "script": "tools/census_source_declared_method_output_slots.py",
+      "special_case": "One source-declared slot has dimension/symbol importance_weight/ratio. This is an AST source declaration count only, not a runtime registry or output coverage claim."
+    },
+    "prototype_source": "postimages/policy-engine/src/polisyos/foundry/execute/metric_output_owner.py@sha256:8282888a0a8e2e4fe848add8b1c3125d4fb5500e55d4033340a228189c9a90d4",
+    "prototype_test": "postimages/policy-engine/tests/integration/foundry/test_measured_output_owner.py@sha256:43e1835ee392d18ebf3d2d0d4d50da8af20142c04b17109b304bec0ff3f9159b",
+    "relevant_sources": [
+      {
+        "git_blob": "7d3f669280bb1812ecd6d5b1ee995bc065ff4541",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/density_ratio.py",
+        "sha256": "e3b9b76abfb8096ab003d91195b3e9100aa7b947de80277bfd9684a6649b64d2"
+      },
+      {
+        "git_blob": "c134c13fd13d18ecf33ce3bb51b29d82e627b37c",
+        "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+        "sha256": "a621c597d9f01fdd89f366470c38feb8b457ec07faa7d3251aaa749a4754689e"
+      },
+      {
+        "git_blob": "e4e5e9e2f6824b4d031731ac7d27c00dd5e72057",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+        "sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1"
+      },
+      {
+        "git_blob": "73b065f615cada277c07967783a3ea17e9502a8b",
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+        "sha256": "c01373ffb6c460c332ee358f812d72403b7562e1f32be7d446e2311ca7173f62"
+      },
+      {
+        "git_blob": "d51e59eb4521228706d11286d0cba20d6b9d0607",
+        "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "sha256": "ada451edc1a573159eade2a7b9e11bbcc113bc5489216b10f5b0a83de420c67d"
+      },
+      {
+        "git_blob": "a49411e637b0b0d72dd8cb9d7da49ebe45cdcc9d",
+        "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+        "sha256": "582576549b3d219d339234d9dc7818585b347a99a639a0905c6f62d4348bf006"
+      },
+      {
+        "git_blob": "c098279062a1ee558b97876fcc7d6d9a3a57f975",
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62"
+      },
+      {
+        "git_blob": "7d16561f4020d8b3b6aa483d88ffb3074a454c23",
+        "path": "policy-engine/src/polisyos/ir/kernel/metrics.py",
+        "sha256": "95021b068bbf25c784556db0163a3c2bdabbb63659a2179acc44fbbcb7ffe65c"
+      },
+      {
+        "git_blob": "b6cdaf4c59d5e952a2afb4eccd7d89203988516f",
+        "path": "policy-engine/src/polisyos/ir/kernel/units.py",
+        "sha256": "f060c028e64ba4320c5f78f3899bacd0971b3aa49c285dcb1b89218c52c1ea47"
+      },
+      {
+        "git_blob": "d54f2136492e31021b71e3b2a17fe4cd93f47f43",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "sha256": "19cfb1c734d9600c9da83d35c275fa5bb7626628b0d7554bc1a886f141f3a596"
+      },
+      {
+        "git_blob": "533574bad2e57ad7f25d019836e832c69ab822cc",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+        "sha256": "4afd27e6a5d3e463726f936c506d54159d45eb5ae9ab22feac80e012f8ad8af4"
+      },
+      {
+        "git_blob": "d9c73cf554cf2d7bbc376097b55c2f9ff08f6b50",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "sha256": "36d80fb9c0146bc78c0ed44d43d80e124aa41e6aeaea231e14fbd7ea926ad46c"
+      }
+    ],
+    "source_footprint": "source-footprint.json@sha256:72f2ced2b99817627c9e8f6a367a504ddaad2f909e3437a2a82654f4a7054593"
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "59edc7228d7fb7ae22349e5b803db1e8760f0b19",
+    "parent": "44e0747d7532c75fad6372ff54ea3cfa5d4e7487",
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tree": "a3493bc702ef891053866c4e38dd79f198b54226"
+  },
+  "status": "candidate_prototype_for_independent_review",
+  "title": "Persisted registered-method output envelope and unit-boundary proposal"
+}

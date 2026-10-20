@@ -1,0 +1,157 @@
+{
+  "packet_id": "g-observational-http-input-architecture-question-20261020-r1",
+  "scope": "R4 public workflow intake for selected observational method input; architecture choice only",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "fe046fefbb06fc3dcaf259766f048a6defed58ea",
+    "tree": "c664005a5a930f91a7e05bc25e13c376dccdeabb",
+    "parents": [
+      "76ea932f6c2188980ae506f6855e14e77005dd0f"
+    ],
+    "actual_replay_base": "76ea932f6c2188980ae506f6855e14e77005dd0f",
+    "pinned_paths_equal_replay_base": true
+  },
+  "question": "Which representation should carry a generic R4 method's selected observational input from public workflow HTTP intake to the existing method-owner parser?",
+  "options": [
+    {
+      "id": "A",
+      "name": "Typed selected ArtifactRef plus existing method-owner raw parser",
+      "recommendation": "Preferred only if G confirms candidate-only legacy/unversioned intake creates no new authority or scientific semantics and specifies the legacy window, canonical source intent, selected method identity, and fail-closed present-invalid behavior.",
+      "tradeoff": "Smallest reuse-first bridge; schema:null remains explicitly limited and lacks a versioned producer contract."
+    },
+    {
+      "id": "B",
+      "name": "Versioned ObservationMethodInputEnvelope with real HTE target/producer/reader migration",
+      "recommendation": "Choose if G requires versioned method input at this boundary; define actual HTE target/producer/migration before implementation.",
+      "tradeoff": "Stronger explicit contract, but expands IR/schema/producer/reader/migration/generated-surface work."
+    },
+    {
+      "id": "C",
+      "name": "Existing Ukraine/panel binder",
+      "recommendation": "Reject as universal route; retain only for its purpose-specific panel contract.",
+      "tradeoff": "Narrower domain semantics do not cover generic HTE/policy method input."
+    }
+  ],
+  "g_decisions_required": [
+    "A or B as universal root; C remains purpose-specific",
+    "If A, accepted legacy/unversioned window, its migration/retirement condition, and required manifest profile behavior",
+    "Canonical immutable source intent and exact selected method identity source; do not elevate caller labels to attestation",
+    "Typed refusal for explicit null, malformed/wrong kind/media/profile/content/method; omission may retain old limited/skip behavior",
+    "Whether fresh GET /api/v1/runs/{run_id} is the required serving surface and exact result/source binding it must expose",
+    "Candidate/status/authority/time limits; external production currentness remains separate"
+  ],
+  "evidence": {
+    "r4_whole_result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-requested-native-whole-4gib-76ea932f-20261020-r2/actual/result.json",
+    "r4_whole_result_sha256": "2ba7f614a44bc59b6986f7789074c7f8ec3e1cc227113eca80c6a1194fae76f1",
+    "r4_whole_counts": {
+      "cases": 56,
+      "pass": 52,
+      "fail": 3,
+      "intentional_skip": 1,
+      "error": 0
+    },
+    "r4_internal_chain": "ControlWorker -> RunLifecycle -> run_experiment -> causal node -> TMLE MethodBackend/folds -> CAS",
+    "r4_internal_http_post": "UNRUN",
+    "r4_fresh_http_get": "UNRUN",
+    "r4_candidate_only": true,
+    "safety_blockers_monkeypatched_in_internal_witness": true,
+    "b56_qualifying_external_workload": "not_established; do not infer from synthetic local witness",
+    "closure_ids": [],
+    "g_acceptance": false
+  },
+  "source_pins": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "git_blob": "8c71d2e725c20ba3d39e8c00e24e58c517d9cd6b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+      "git_blob": "37af8c36f8b8f9e3ad124e4710dffc39bd644ffe"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "git_blob": "1ca7015233e634e085f378e7de3da813f7ef14b8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "git_blob": "b4a9cdcd82f30c081f5b276a417f9f401c4ecd2c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "git_blob": "cf46b3d8bf01adbb0c837597e7f7ccb9336fcb85"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "git_blob": "f172af526149796dd7f5e212856a166c3e13952f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "git_blob": "c6fa570614d13e34f373b8b198ec2129c4ed7a62"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/scientist.py",
+      "git_blob": "cd4a7ae9e419d318c8d9a8b849fb1316bf814d23"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "git_blob": "6626a21c5c961303d3118e387cbb5c6311c2102e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "git_blob": "e09ad659e1b55f4d4edcad12f9dc2b069ede160d"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "git_blob": "02442265abffbd84b8acae68c926b6a89ec00d8a"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+      "git_blob": "6e3f7fd0cdca9355d42621b6fed0701800dd5479"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "git_blob": "c173f5e8a4e333b50ceb268ffa83331c144290c3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/B56.md",
+      "git_blob": "a9e0df4b312732feda52123cee7eba6978133dc5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "git_blob": "18dfda08673f322a021d0d2313f97c00112b33bb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "git_blob": "c134c13fd13d18ecf33ce3bb51b29d82e627b37c"
+    }
+  ],
+  "prototype_falsifier": [
+    "ordinary authenticated POST selects exact method and CAS ref, enters real shared ControlWorker/RunLifecycle/Scientist/TMLE route",
+    "cap-1/cap-2 two-job contention preserves all folds, result/semantic hashes, costs/status and captures wall/RSS/wait/active metrics",
+    "remove shared bridge and prove configured cap violation while markers remain",
+    "fresh independent RunIndex GET proves served candidate result and exact source binding",
+    "absence remains limited/skip; present-invalid ref/profile/content/method refuses before admission",
+    "controlled local evidence does not establish source-qualified production workload"
+  ],
+  "selected_method_identity": {
+    "fqn": "causal.treatment_effects.tmle@1.0.0",
+    "signature_owner": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+    "raw_artifact_binds_method_or_code_identity": false
+  }
+}

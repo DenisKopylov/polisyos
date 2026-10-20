@@ -42408,5 +42408,98 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-g-architecture-decision-tracked-delivery-20261020-r1": {
+    "slice_base": "fe046fefbb06fc3dcaf259766f048a6defed58ea",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "80b890fdb39fde8348640f0ef64a91fe9bf7d20f752dfa10e29d00e5951e13f7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-architecture-decision-packet-20261020-r1/20261020-g-architecture-decision-queue.md",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-method-output-metric-unit-g-question.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "8ee914b3e6c843ad4fdbeccf9039abfa9cdbdb989cc8dd99370f53b3f63d652c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/measured-output-owner-prototype-20261020-r2/decision-r2.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-observational-http-input-g-question.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "e0838cb15d5d9d206161acc484e3ea7c8e96bf074b50bfb3617bb6c08e96d310",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-http-readiness-76ea932f-20261020-r1/g-observational-http-input-architecture-question-20261020-r1.md",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-observational-http-input-g-question.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "0c06cd45cff8b00d1e072186ad270eac36b8ec8491a6656ca73f7935f91809aa",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-http-readiness-76ea932f-20261020-r1/g-observational-http-input-architecture-question-20261020-r1.json",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-architecture-decision-tracked-delivery-20261020-r1/source-application.json",
+      "sha256": "f722ec602dde8d228f43eaa7ee6df3449cf7b65daf2cb7efc97cb021a6fc5065"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-architecture-decision-tracked-delivery-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-architecture-decision-packet-20261020-r1/manifest.json",
+        "sha256": "e269c574cf8c2516e14982bc00a183b1e1b1d85f8ead37c511af8023e25de0e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-architecture-decision-packet-independent-review-20261020-r1/review.json",
+        "sha256": "7550b83e958346bce04fa47d1741cb0edb0b36aa7f5f129aa5c6e967a8a80f68"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-architecture-decision-packet-20261020-r1/20261020-g-architecture-decision-queue.md",
+        "sha256": "80b890fdb39fde8348640f0ef64a91fe9bf7d20f752dfa10e29d00e5951e13f7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/measured-output-owner-prototype-20261020-r2/decision-r2.json",
+        "sha256": "8ee914b3e6c843ad4fdbeccf9039abfa9cdbdb989cc8dd99370f53b3f63d652c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-http-readiness-76ea932f-20261020-r1/g-observational-http-input-architecture-question-20261020-r1.md",
+        "sha256": "e0838cb15d5d9d206161acc484e3ea7c8e96bf074b50bfb3617bb6c08e96d310"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-http-readiness-76ea932f-20261020-r1/g-observational-http-input-architecture-question-20261020-r1.json",
+        "sha256": "0c06cd45cff8b00d1e072186ad270eac36b8ec8491a6656ca73f7935f91809aa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-shared-runtime-admission-scope.md",
+        "sha256": "0671d7f90be06dcb45ab42d218a6742bf6650d208ab08a0bbba91f8d2e0c00b0"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Separate new contract choices from routine codec/profile/view/producer repairs and genuine external facts; no ladder or acceptance by declaration.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No production or test code changes. Global source/input/backend freeze remains incomplete.",
+      "Independent bounded packet review is not G code acceptance; G decides semantics and adjudicates findings. Native pre-push is not green; local own-topic delivery only."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "G can read exact own-topic commit through the shared Git common directory; return selected contracts/owners/migration and acceptance falsifiers. Continue independent E02 engineering.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

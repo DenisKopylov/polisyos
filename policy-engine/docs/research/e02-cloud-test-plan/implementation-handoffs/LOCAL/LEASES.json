@@ -27503,5 +27503,109 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b10-served-sibling-and-real-factory-cache-witnesses-20261020": {
+    "slice_base": "ab222d06f42a7bd97ac1dc92c92b91616206a462",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/integration/runtime_quality/test_b10_alternative_candidate_served.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-factory-cache-20261020-v1/postimages/policy-engine/tests/integration/runtime_quality/test_b10_alternative_candidate_served.py",
+        "postimage_sha256": "9b8440afb566a744a9227e3dc06a424b5e76cfe3bd8720ba677133d32c5016ed"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-factory-cache-20261020-v1/postimages/policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+        "postimage_sha256": "870e06c613de8f4c877f99f214d62e15c2bb73b29812460353ef66c45eaabbf6"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b10-factory-cache-adoption-20261020/source-application.json",
+      "sha256": "970946a1c5535d071d176d6e6b5a125f90be269c2e0e99826e2a5e4e33aa6110"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-b10-factory-cache-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-factory-cache-20261020-v1/manifest-v1.json",
+        "sha256": "3350a88a88d2d675118aeedd1520c225b2a2f07e520bb6e3944f8151ef0d0837"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-factory-cache-20261020-v1/patch-v1.diff",
+        "sha256": "23225a5b68ef7fd10dbcf4203487586e7ac08a3dbcfdbe2b61710e68e30e1297"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-factory-cache-20261020-v1/postimages/manifest-v1.json",
+        "sha256": "8cb33b3c2f2ce2e1c3df8ed5657d90df5d6550c682c381902472fd2b4b7612a6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-factory-cache-independent-review-20261020-r1/review.json",
+        "sha256": "2d9d430eb117e0343556e85a40be7827773a5d90d94c924bbaab0999f976035e"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "B10 original criterion served witness and factory/cache composition verification gap; test-only companions exercise existing mechanisms without a new authority claim.",
+    "bounded_proof": "Independent source GO 2d9d430e; all native Ruff/AST/patch checks passed. Actual runtime on adopted canonical bytes remains UNRUN.",
+    "limitations": [
+      "Two new mirrored test modules only; no runtime or production currentness claim.",
+      "B10 refusal is a controlled candidate-grade input; real sibling grounding and N5 path are maintained.",
+      "Factory HTTP endpoint is controlled; configured client/cache/CAS/ledger are real.",
+      "The two known-owned incomplete N7/B108 test overlays are preserved byte-for-byte.",
+      "No G acceptance, formal closure, full capability or global native green.",
+      "No file deletion or Trash operation occurs; generic helper relocation wording is inapplicable."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "At agreed freeze run complete B10/served N4 modules and complete R3/R4/cache consumer cohort, with normal pytest configuration, deciding outputs, imports and removal controls retained.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1,0 +1,237 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "acq_fixture",
+  "slice_base": "3db12aa6488c461c6473e094ab748a69d24a3c85",
+  "candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+  "tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+  "parents": [
+    "3db12aa6488c461c6473e094ab748a69d24a3c85"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "c381528406ccffc975f6c2124552d06bba91506e",
+      "sha256": "f51772df646de86f05cf471e596159d92206eaf2558118a1c77cf37e5f1a1442",
+      "bytes": 3014684,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "fd85d50b4d5869733466ff147579baa1f8945f6d",
+      "sha256": "b058adf50d5b0e25465b971eea988b3f01faec2229a2459b204938b21031a3ee",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_production.py",
+      "mode": "100644",
+      "git_blob": "df68aca4c588303c76e99da9cb45d442916c5839",
+      "sha256": "b7e0b33569eccc3c43baa777563a7ff6f7755db544bf2b260b390f013bb70841",
+      "bytes": 50423,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "mode": "100644",
+      "git_blob": "702f7f4434a0a3d4c88f5f3b7706e882676b476a",
+      "sha256": "95dd0dbcf2107b7165eda6063c0fc2f60362adbee14bfab39b3ade764d47d639",
+      "bytes": 92324,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "root_source_commit": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+    "source_commit_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+    "source_commit_parents": [
+      "3db12aa6488c461c6473e094ab748a69d24a3c85"
+    ],
+    "branch_blob_readback": "all exact",
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/plan.json",
+      "sha256": "54573466eecc29328450699c3fcaab3190cdd00901c48906097c1f26599044cb",
+      "availability": "retained_local_ignored_raw"
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/source-application.json",
+      "sha256": "86fe17a4e79eb80ca3fcc26270df9545c86ef4e2bf9e2ff9fa827b99e92a8e68",
+      "availability": "retained_local_ignored_raw"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/implementation-readback.json",
+      "sha256": "e81318dee6cf234e56eb5e7286dc21e913df955ac53008601a8fe06a74bc4610",
+      "availability": "retained_local_ignored_raw"
+    },
+    "outer_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/outer-readback.json",
+      "sha256": "0fcf2386cb6216c9e5ae5a6bd06b2ef8ded1fb513aca0dbcb128b53be7c4506e",
+      "availability": "retained_local_ignored_raw"
+    }
+  },
+  "property": "Both custom generation leaf factories persist the actual N7 compiler and planner report in the application CAS; the existing persisted-report consumer validates the source basis before resolving one costed route. Preserve actual no-cost and synthetic S/B negatives.",
+  "source_vs_runtime_boundary": "Exact source commit and branch blob readback are pinned above. Root implementation-readback records the source application; test runs below preserve their own exact source frames and are not relabeled across commits. This is not a global input/backend freeze.",
+  "selected_input_profile_backend": {
+    "selection": "CPython 3.14 existing local venv; controlled contract_testing acquisition fixture and application CAS; no production source or authority asserted.",
+    "command_and_source_frame": "See per-run request/result/invocation references; complete stdout/stderr and collection/JUnit are retained locally and cited, not copied.",
+    "authority": "No live production currentness, calibration, issuer, law, permission, external custody or G acceptance is asserted."
+  },
+  "real_chain": {
+    "summary": "Custom generation-cycle test factories -> actual application CAS for N7 compiler/planner reports -> persisted-report consumer and costed AcquisitionRouteLoop. This changes test fixture wiring only; production route resolver and authority gates remain unchanged.",
+    "producer_artifact_bridge_consumer_surface_verification": "Custom generation-cycle test factories -> actual application CAS for N7 compiler/planner reports -> persisted-report consumer and costed AcquisitionRouteLoop. This changes test fixture wiring only; production route resolver and authority gates remain unchanged.",
+    "runtime_qualification": "Exact-source whole-module replay FAIL: 16 completed, 2 passed, 14 failed in recursive owner-scope contract.",
+    "whole_capability": "not established by this slice alone"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+      "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+      "source_relation_to_handoff": "exact",
+      "outcome": {
+        "tests": 16,
+        "passed": 2,
+        "failures": 14,
+        "errors": 0,
+        "skipped": 0,
+        "failure_class": "RecursiveGenerationCycleError: recursive_contract_testing_candidate_n9_owner_not_established at recursive_generation_cycle.py:3529"
+      },
+      "collected": 16,
+      "completed_calls": 16,
+      "aborted_reason": null,
+      "calls_match_actual_collection": true,
+      "source_unchanged": true,
+      "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+      "outputs": {
+        "request": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/request.json",
+          "sha256": "721863d722e911b8bf77a45ade6a66df69af19a1ec45a190510d3117b4f4f318",
+          "availability": "retained_local_ignored_raw"
+        },
+        "deciding_result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/result.json",
+          "sha256": "c298cb2d9bc10d88923191da80cebe978b9a9d89052c2d928bfedcc023e3c4d3",
+          "availability": "retained_local_ignored_raw"
+        },
+        "command_invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/invocation.json",
+          "sha256": "fbb63a6ed7047b8a8eab20bd8054cec877255e9e3716fe18ac63719dd1ec0f77",
+          "availability": "retained_local_ignored_raw"
+        },
+        "collection": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/collection.json",
+          "sha256": "4e08c3c43ec1962cb710842690f0c2494efe9c5079d85c7bc6b815474d4fe3ce",
+          "availability": "retained_local_ignored_raw"
+        },
+        "source_before": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/source-before.json",
+          "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+          "availability": "retained_local_ignored_raw"
+        },
+        "source_after": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/source-after.json",
+          "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+          "availability": "retained_local_ignored_raw"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "8e2910867ebb3ab251ec38edf38e1f6024ea2a114df0167dfd650ecf4ac2ee85",
+          "availability": "retained_local_ignored_raw"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "6f48d9da362c73d2256ce39c00b546d8ce7cb86f9ba8966e939a087e92bace1b",
+          "availability": "retained_local_ignored_raw"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-whole-a3f0cabf-20261020-r1/actual/pytest.xml",
+          "sha256": "b0d8a48229c985e0218479cf7b026d948ee172292d0d77415e2e4c4eff88ec56",
+          "availability": "retained_local_ignored_raw"
+        }
+      }
+    }
+  ],
+  "author_and_independent_review_pins": {
+    "author": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/manifest.json",
+        "sha256": "1c9408a50752f7b2a7a7a7d1c55212a57c55ffd407b939b97ff9913f72c66b98",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/proposed.patch",
+        "sha256": "1bac3a01043e822b23694f7e1348171a3ea33aae111b450b5c9af99732b5b989",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/postimage-digests.json",
+        "sha256": "4b602fa41d58a147302402759646603edd72d2128f9bf8a409616f1aaf45c2c7",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/source-pins.json",
+        "sha256": "f611f6ba709d7e6f7e825721fda2449117bc433f2c1d133f4f68c00a9d923d39",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-20261020-r1/static-receipt.json",
+        "sha256": "311379f6ce61752bc025de9d417a46a53fdce1bce5d80514ad9c1f5d22d09878",
+        "availability": "retained_local_ignored_raw"
+      }
+    ],
+    "independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-costed-route-independent-review-20261020-r2/review.json",
+        "sha256": "66fe6d098b497530b2f28a50c9d922514a2dbc06b0e4c707c68b4f044c22391a",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a",
+        "availability": "retained_local_ignored_raw"
+      }
+    ]
+  },
+  "adversarial_removal_controls": {
+    "status": "slice-specific; scoped test evidence and limitations below",
+    "summary": "Existing no-cost and synthetic S/B controls remain in the test module but do not override the actual recursive owner-scope failure. The contract_testing leaf conflicts with the parent route’s required production leaf/N9 scope adapter."
+  },
+  "limitations": [
+    "Current actual whole-module replay FAIL: 16 completed, 2 passed, 14 failed; all 14 report the recursive owner-scope error.",
+    "This patch is test-only; production route resolution/authority is unchanged.",
+    "Independent review approved only the bounded source/static candidate before replay; actual failure reopens behavioral result.",
+    "No G acceptance or formal finding closure.",
+    "Full nine-module pytest run ended at the declared sampled process-tree RSS cap; 383 were collected and only 61 calls completed.",
+    "The five failures outside the assigned acquisition-route class are not analyzed here.",
+    "Expected post-patch tests and independent review remain unrun; root owns apply/replay under its budget.",
+    "No product authority or external data is asserted by this test-fixture repair.",
+    "Adoption is not a product replay; independent G acceptance remains open."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "standing G decision procedure; no new decision assumed"
+    }
+  ],
+  "proposals": {
+    "status": "slice-level evidence proposal; original criterion/occurrence mapping remains for G",
+    "proposed_closed_ids": [],
+    "proposed_limited_ids": [],
+    "proposed_held_ids": [],
+    "proposed_open_ids": [],
+    "formal_adjudication": "G only",
+    "next_check": "Apply acquisition author R2 through the supported production leaf/N9 scope adapter, then independently review and replay the full module; do not weaken production authority boundary."
+  },
+  "formal_closures": [],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-acquisition-costed-route-fixture-20261020-r1/source-application.json",
+    "sha256": "86fe17a4e79eb80ca3fcc26270df9545c86ef4e2bf9e2ff9fa827b99e92a8e68",
+    "availability": "retained_local_ignored_raw"
+  },
+  "source_application_status_at_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "runtime": "Exact-source whole-module replay FAIL: 16 completed, 2 passed, 14 failed in recursive owner-scope contract.",
+  "next_check": "Apply acquisition author R2 through the supported production leaf/N9 scope adapter, then independently review and replay the full module; do not weaken production authority boundary."
+}

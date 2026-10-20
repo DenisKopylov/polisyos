@@ -1,0 +1,616 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "q2_mount",
+  "slice_base": "d28fad1fc2c503e023836d17973f67ba7552fc1c",
+  "candidate": "3db12aa6488c461c6473e094ab748a69d24a3c85",
+  "tree": "06a62d84ae4427ce093183942cbce676104fb0ee",
+  "parents": [
+    "d28fad1fc2c503e023836d17973f67ba7552fc1c"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "dbae9a2927b97b929b64faa06f7a1e7c7ef2bac2",
+      "sha256": "6e94480dad2a11ce57c633bb4adfd0ce9b8fe1e382dddf8a894b6de32c24c253",
+      "bytes": 3009352,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "5a238c2bbd8059688b26247a5fe027f903be7629",
+      "sha256": "14f289fedea41bb30322e0b82814dba9a42011e37385204d012f03fa42f8dbf8",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py",
+      "mode": "100644",
+      "git_blob": "a7330714e2b16bb365ee1b736e8d45305d5e12c3",
+      "sha256": "eb409b413a48af1e5dbb2bc6337afe66aa6387f4d0d23e0c214b85bf659026d0",
+      "bytes": 62157,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/q2_composite/source-manifest-r10.json",
+      "mode": "100644",
+      "git_blob": "ccd34de2f58eced8eb1eec6081d746d6a99f2079",
+      "sha256": "396dd9e2e414c6d122d910a8882c930642b99b6f2917ed03e73e1a1ce0aa3f44",
+      "bytes": 15693,
+      "role": "config_resource_or_documentation"
+    }
+  ],
+  "implementation_readback": {
+    "root_source_commit": "3db12aa6488c461c6473e094ab748a69d24a3c85",
+    "source_commit_tree": "06a62d84ae4427ce093183942cbce676104fb0ee",
+    "source_commit_parents": [
+      "d28fad1fc2c503e023836d17973f67ba7552fc1c"
+    ],
+    "branch_blob_readback": "all exact",
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/plan.json",
+      "sha256": "822dbfa5e984cba8395f4606308133012186308f0ea76395f2a5b26e922f023b",
+      "availability": "retained_local_ignored_raw"
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/source-application.json",
+      "sha256": "e4d3fa6c024e2e2ace73675b3e23adc12163b9b1744bc1bc809d93ec16083eb9",
+      "availability": "retained_local_ignored_raw"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/implementation-readback.json",
+      "sha256": "47cbd886a583feab8a22a9b3ecc2c1e1c9712374f1b0779d07bdac30799e8efa",
+      "availability": "retained_local_ignored_raw"
+    },
+    "outer_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/outer-readback.json",
+      "sha256": "ef1eaf842b0cb8e47567f12428d0cb22cdf784ea0e0857a3cfa74e2f2bb37ed7",
+      "availability": "retained_local_ignored_raw"
+    }
+  },
+  "property": "The generated worker Docker create command contains only the exact supported CLI options and the contract-authorized read-only dependency volumes plus validated role binds; no checkout, cache, or other unapproved mount is present.",
+  "source_vs_runtime_boundary": "Exact source commit and branch blob readback are pinned above. Root implementation-readback records the source application; test runs below preserve their own exact source frames and are not relabeled across commits. This is not a global input/backend freeze.",
+  "selected_input_profile_backend": {
+    "selection": "CPython 3.14 existing local venv; controlled argv/config fixtures. Docker operations and installed/Linux worker execution were not run.",
+    "command_and_source_frame": "See per-run request/result/invocation references; complete stdout/stderr and collection/JUnit are retained locally and cited, not copied.",
+    "authority": "No live production currentness, calibration, issuer, law, permission, external custody or G acceptance is asserted."
+  },
+  "real_chain": {
+    "summary": "Validated Q2 worker role/config -> generated Docker-create argv -> closed grammar and semantic parsing of every --mount -> comparison with authorized read-only dependency volumes and validated role binds.",
+    "producer_artifact_bridge_consumer_surface_verification": "Validated Q2 worker role/config -> generated Docker-create argv -> closed grammar and semantic parsing of every --mount -> comparison with authorized read-only dependency volumes and validated role binds.",
+    "runtime_qualification": "Descendant a3f0 run with exact unchanged Q2 targets: 4/28/13/17 individual tests and combined 62 passed, no failures/errors/skips; physical worker still UNRUN.",
+    "whole_capability": "not established by this slice alone"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+      "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+      "source_relation_to_handoff": "descendant",
+      "combined_invocation_counts": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 62,
+        "skipped": 0,
+        "tests": 62
+      },
+      "per_invocation_counts": [
+        {
+          "modules": [
+            "tests/repo_quality/tools/q2_composite/test_profile_composite.py"
+          ],
+          "counts": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 4,
+            "skipped": 0,
+            "tests": 4
+          },
+          "collected": 4,
+          "completed_calls": 4
+        },
+        {
+          "modules": [
+            "tests/repo_quality/tools/q2_composite/test_split_protocol.py"
+          ],
+          "counts": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 28,
+            "skipped": 0,
+            "tests": 28
+          },
+          "collected": 28,
+          "completed_calls": 28
+        },
+        {
+          "modules": [
+            "tests/repo_quality/tools/q2_composite/test_worker_host_driver.py"
+          ],
+          "counts": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 13,
+            "skipped": 0,
+            "tests": 13
+          },
+          "collected": 13,
+          "completed_calls": 13
+        },
+        {
+          "modules": [
+            "tests/repo_quality/tools/q2_composite/test_worker_mounts.py"
+          ],
+          "counts": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 17,
+            "skipped": 0,
+            "tests": 17
+          },
+          "collected": 17,
+          "completed_calls": 17
+        },
+        {
+          "modules": [
+            "tests/repo_quality/tools/q2_composite/test_profile_composite.py",
+            "tests/repo_quality/tools/q2_composite/test_split_protocol.py",
+            "tests/repo_quality/tools/q2_composite/test_worker_host_driver.py",
+            "tests/repo_quality/tools/q2_composite/test_worker_mounts.py"
+          ],
+          "counts": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 62,
+            "skipped": 0,
+            "tests": 62
+          },
+          "collected": 62,
+          "completed_calls": 62
+        }
+      ],
+      "non_additive_note": "The four individual runs and combined run overlap; only combined_invocation_counts is the combined denominator. Do not sum invocation rows as unique tests.",
+      "all_source_unchanged_and_calls_match_collection": true,
+      "batch_plan": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/batch-plan.json",
+        "sha256": "71ae4926ea142abe4a16b5bf48765545f2749aa791ed42f3699ac8edf6acff12",
+        "availability": "retained_local_ignored_raw"
+      },
+      "batch_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/batch-result.json",
+        "sha256": "c117983e82fcb72f5f7fa5612d8ee213cb3c8be39eb13baa1849d73b7432ba47",
+        "availability": "retained_local_ignored_raw"
+      },
+      "invocations": [
+        {
+          "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+          "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+          "source_relation_to_handoff": "descendant",
+          "outcome": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 4,
+            "skipped": 0,
+            "tests": 4
+          },
+          "collected": 4,
+          "completed_calls": 4,
+          "calls_match_actual_collection": true,
+          "source_unchanged": true,
+          "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+          "selected_modules": [
+            "tests/repo_quality/tools/q2_composite/test_profile_composite.py"
+          ],
+          "outputs": {
+            "request": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/request.json",
+              "sha256": "3fc300d667f803e1440723c6b451d91cca0c503043b7e619a532aac7fb1f5c24",
+              "availability": "retained_local_ignored_raw"
+            },
+            "deciding_result": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/result.json",
+              "sha256": "b354fa6a6269d00db42a008e63e314f91cfa74b5389ae062049aef2fc31e4316",
+              "availability": "retained_local_ignored_raw"
+            },
+            "command_invocation": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/invocation.json",
+              "sha256": "ff13b3dae0f2b80b360ef7d9ee7da62fa90e6078918c0f1d50db5c426f146ede",
+              "availability": "retained_local_ignored_raw"
+            },
+            "collection": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/collection.json",
+              "sha256": "4c93623877b2bb70ddfc7187330d970f78c9fe6d4f7c881d926863e2d61d4be7",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_before": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/source-before.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_after": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/source-after.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stdout": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/pytest.stdout.txt",
+              "sha256": "f01540017d0a74b41e11265faa31d15869b16fc65b5270ad5f0e7df32a8e7f4a",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stderr": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/pytest.stderr.txt",
+              "sha256": "b3841f63ef7d5b0f4b757b9038a57ee840dcae9d892157e2aea42956649c1eb3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "junit": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-1/actual/pytest.xml",
+              "sha256": "dbc1789edfa562205132178cc0590732d001f6579b193cca6a5fe43764a4c340",
+              "availability": "retained_local_ignored_raw"
+            }
+          }
+        },
+        {
+          "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+          "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+          "source_relation_to_handoff": "descendant",
+          "outcome": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 28,
+            "skipped": 0,
+            "tests": 28
+          },
+          "collected": 28,
+          "completed_calls": 28,
+          "calls_match_actual_collection": true,
+          "source_unchanged": true,
+          "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+          "selected_modules": [
+            "tests/repo_quality/tools/q2_composite/test_split_protocol.py"
+          ],
+          "outputs": {
+            "request": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/request.json",
+              "sha256": "9cd2ce30d89a21d60d5422147d6bba3d84b20257fd801b303b48ce3c7f5c5617",
+              "availability": "retained_local_ignored_raw"
+            },
+            "deciding_result": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/result.json",
+              "sha256": "7311f35da1cbe3f2f9ef186998daa9ed015a7cce26b31a4ce4626c335ae7abb3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "command_invocation": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/invocation.json",
+              "sha256": "326e911d5dd6f89d7f5ad312ee0ecefba53bc884df8e333c2aa79633808f65c8",
+              "availability": "retained_local_ignored_raw"
+            },
+            "collection": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/collection.json",
+              "sha256": "f51ef3790c3e83109784144b310a4919e4ce68e2cfa8984b077cf89692e79340",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_before": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/source-before.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_after": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/source-after.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stdout": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/pytest.stdout.txt",
+              "sha256": "28bc77df757776c61bad1e9c7b85488e53a82899566e83058f3ed741896e5d65",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stderr": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/pytest.stderr.txt",
+              "sha256": "b3841f63ef7d5b0f4b757b9038a57ee840dcae9d892157e2aea42956649c1eb3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "junit": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-2/actual/pytest.xml",
+              "sha256": "204f9b0b8b9800e9eb7dfa213cad9e6cf1465d6e8105471f8468122f542c2a8d",
+              "availability": "retained_local_ignored_raw"
+            }
+          }
+        },
+        {
+          "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+          "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+          "source_relation_to_handoff": "descendant",
+          "outcome": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 13,
+            "skipped": 0,
+            "tests": 13
+          },
+          "collected": 13,
+          "completed_calls": 13,
+          "calls_match_actual_collection": true,
+          "source_unchanged": true,
+          "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+          "selected_modules": [
+            "tests/repo_quality/tools/q2_composite/test_worker_host_driver.py"
+          ],
+          "outputs": {
+            "request": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/request.json",
+              "sha256": "9d8e1ce84b6a9aecfcdd4c5fa14e1c2a6f8a2ca7df827e74ccca51ecd35ac35a",
+              "availability": "retained_local_ignored_raw"
+            },
+            "deciding_result": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/result.json",
+              "sha256": "c7ad93292508037ec806687e300c090a48d6e1b2f23c38e52de00e9ed23548f7",
+              "availability": "retained_local_ignored_raw"
+            },
+            "command_invocation": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/invocation.json",
+              "sha256": "81922b283921fc8512da5bd5128f71bc82f0b7f50ea91b335061e89a1ab795fe",
+              "availability": "retained_local_ignored_raw"
+            },
+            "collection": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/collection.json",
+              "sha256": "e5485705848f7651d8f798a2799c602ef8fafdcc01f78c21439e5b85462056d4",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_before": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/source-before.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_after": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/source-after.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stdout": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/pytest.stdout.txt",
+              "sha256": "eea13fe4ba81d9e4126f36eda5ea84ce6e797509345c5479b94f19eb9c0cbc4c",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stderr": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/pytest.stderr.txt",
+              "sha256": "b3841f63ef7d5b0f4b757b9038a57ee840dcae9d892157e2aea42956649c1eb3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "junit": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-3/actual/pytest.xml",
+              "sha256": "db0f8f7e93cef17fb9a387feaf6726d6d3a1920e4e0b7315cf2f984f19368e3c",
+              "availability": "retained_local_ignored_raw"
+            }
+          }
+        },
+        {
+          "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+          "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+          "source_relation_to_handoff": "descendant",
+          "outcome": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 17,
+            "skipped": 0,
+            "tests": 17
+          },
+          "collected": 17,
+          "completed_calls": 17,
+          "calls_match_actual_collection": true,
+          "source_unchanged": true,
+          "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+          "selected_modules": [
+            "tests/repo_quality/tools/q2_composite/test_worker_mounts.py"
+          ],
+          "outputs": {
+            "request": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/request.json",
+              "sha256": "25c8d422b3ffe9f686d3b1650e96a4e7660475a9b780ba399aaeb5545e97f60c",
+              "availability": "retained_local_ignored_raw"
+            },
+            "deciding_result": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/result.json",
+              "sha256": "8412a9cd6146f05c49fb842f15b43e59eb891dd8c71c138c36eba25949bf576c",
+              "availability": "retained_local_ignored_raw"
+            },
+            "command_invocation": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/invocation.json",
+              "sha256": "81e071a5e1f7f1a09ba3c38db71cba808166a8554e9e1727d674dbcbec25a17f",
+              "availability": "retained_local_ignored_raw"
+            },
+            "collection": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/collection.json",
+              "sha256": "ac08d3d0ffb165a261043dbfb90266870a53137b150fbf4195dc992b76379ae3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_before": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/source-before.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_after": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/source-after.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stdout": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/pytest.stdout.txt",
+              "sha256": "29a71c4bef532d5f65db00766eb15e5f7282efe05f0a5e0a528fe9e287651061",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stderr": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/pytest.stderr.txt",
+              "sha256": "b3841f63ef7d5b0f4b757b9038a57ee840dcae9d892157e2aea42956649c1eb3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "junit": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-4/actual/pytest.xml",
+              "sha256": "b4eeeb025816bcb027479df3e1e0515b7951e389697c02604a7701030c6cc99e",
+              "availability": "retained_local_ignored_raw"
+            }
+          }
+        },
+        {
+          "actual_source_candidate": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+          "source_tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+          "source_relation_to_handoff": "descendant",
+          "outcome": {
+            "errors": 0,
+            "failures": 0,
+            "passed": 62,
+            "skipped": 0,
+            "tests": 62
+          },
+          "collected": 62,
+          "completed_calls": 62,
+          "calls_match_actual_collection": true,
+          "source_unchanged": true,
+          "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+          "selected_modules": [
+            "tests/repo_quality/tools/q2_composite/test_profile_composite.py",
+            "tests/repo_quality/tools/q2_composite/test_split_protocol.py",
+            "tests/repo_quality/tools/q2_composite/test_worker_host_driver.py",
+            "tests/repo_quality/tools/q2_composite/test_worker_mounts.py"
+          ],
+          "outputs": {
+            "request": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/request.json",
+              "sha256": "e6a95c3216149fffc7f32b757e0e8dc2c36e9d70a1e434951ca6a9b71aba2428",
+              "availability": "retained_local_ignored_raw"
+            },
+            "deciding_result": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/result.json",
+              "sha256": "28e5a514e551d978eaf4473c771e429a13431a442fef3c316b0a22dd61ca7c1d",
+              "availability": "retained_local_ignored_raw"
+            },
+            "command_invocation": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/invocation.json",
+              "sha256": "b5b98f34380020f7699f25bffc7c47e529170061b9f83cc2948924d20a14cbd8",
+              "availability": "retained_local_ignored_raw"
+            },
+            "collection": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/collection.json",
+              "sha256": "0ac4234f8c14af72cec6a0ba4ce3d2de7f0a4ac247a3f4e24d6afb4977b99d83",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_before": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/source-before.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "source_after": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/source-after.json",
+              "sha256": "52b571097e0126d1d3acf54550b20f2f782ac7386274ecd734b3c2540d6055ff",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stdout": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/pytest.stdout.txt",
+              "sha256": "2c058cc979afc7c40886842a8e2436251fd803ff7ab2beffc3f79858a43b8b18",
+              "availability": "retained_local_ignored_raw"
+            },
+            "complete_stderr": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/pytest.stderr.txt",
+              "sha256": "b3841f63ef7d5b0f4b757b9038a57ee840dcae9d892157e2aea42956649c1eb3",
+              "availability": "retained_local_ignored_raw"
+            },
+            "junit": {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-five-invocations-a3f0cabf-20261020-r2/invocation-5/actual/pytest.xml",
+              "sha256": "c2ea350a77d0422986ba089726312c51889325af728bef5a80e373e7f7ba5fe3",
+              "availability": "retained_local_ignored_raw"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "author_and_independent_review_pins": {
+    "author": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/manifest-r2.json",
+        "sha256": "3cefff55216f87f038e1809ba777dd7bb9077ca4c2229cce23b2a7c77cffb38a",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/candidate-r2.patch",
+        "sha256": "a59c60cabfecc6ff0f090529bd1a14723298b2f6a213e19a26fffde23fde5220",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-author-20261020-r2/verification-r2.json",
+        "sha256": "a8d729710531efa9716d903f9d4c6d36ae05e065027e815696be08c0f3808a28",
+        "availability": "retained_local_ignored_raw"
+      }
+    ],
+    "independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-independent-review-20261020-r2/manifest.json",
+        "sha256": "b74fc3d5121a2cbef2bd18ec0d3c1598a115c7afd11948590d742b519cbce2e0",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-worker-mount-semantic-test-companion-independent-review-20261020-r2/review.md",
+        "sha256": "1cf5fef1e2eb8e5f1ba7d4eaddb555faed4e7cb253d37997a80c8a1c902793a3",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a",
+        "availability": "retained_local_ignored_raw"
+      }
+    ]
+  },
+  "adversarial_removal_controls": {
+    "status": "slice-specific; scoped test evidence and limitations below",
+    "summary": "Closed grammar rejects alternate/unapproved Docker arguments and extra mounts while preserving validated read-only mounts. Independent source review was GO for the two-target delta; physical Docker behavior remains untested."
+  },
+  "limitations": [
+    "Runtime evidence is on descendant a3f0cabf; Q2 targets are byte-identical to 3db12aa6. The descendant adds the disjoint acquisition helper/integration companion and mandatory records.",
+    "No Docker command or physical installed Linux worker was executed.",
+    "No G acceptance or formal finding closure.",
+    "Independent G acceptance and formal closure remain open.",
+    "This test companion does not establish Docker/installed Linux consumer behavior.",
+    "Product replay on the adopted composition is pending."
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "standing G decision procedure; no new decision assumed"
+    }
+  ],
+  "proposals": {
+    "status": "slice-level evidence proposal; original criterion/occurrence mapping remains for G",
+    "proposed_closed_ids": [],
+    "proposed_limited_ids": [],
+    "proposed_held_ids": [],
+    "proposed_open_ids": [],
+    "formal_adjudication": "G only",
+    "next_check": "Run supported Linux worker and installed-consumer matrix after composed source/input freeze; keep this 62-test pytest result scoped to argv-generation semantics."
+  },
+  "formal_closures": [],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-q2-worker-mount-semantic-r2-20261020-r1/source-application.json",
+    "sha256": "e4d3fa6c024e2e2ace73675b3e23adc12163b9b1744bc1bc809d93ec16083eb9",
+    "availability": "retained_local_ignored_raw"
+  },
+  "source_application_status_at_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "runtime": "Descendant a3f0 run with exact unchanged Q2 targets: 4/28/13/17 individual tests and combined 62 passed, no failures/errors/skips; physical worker still UNRUN.",
+  "next_check": "Run supported Linux worker and installed-consumer matrix after composed source/input freeze; keep this 62-test pytest result scoped to argv-generation semantics.",
+  "descendant_source_relation": {
+    "test_frame": "a3f0cabff3869a72ce2d3f1cd9cd3f8123fad922",
+    "tree": "6edd54c5b45bccbd720588ed4cf3971aa35ef037",
+    "slice_targets_unchanged": {
+      "policy-engine/tests/repo_quality/tools/q2_composite/test_worker_mounts.py": true,
+      "policy-engine/tools/quality/validation/q2_composite/source-manifest-r10.json": true
+    },
+    "paths_changed_between_slice_and_replay": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/tests/_helpers/acquisition_production.py",
+      "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py"
+    ]
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "stress_r3",
+  "slice_base": "ad87d04c72c3828ab7dc2bf8687d92212b596986",
+  "candidate": "d28fad1fc2c503e023836d17973f67ba7552fc1c",
+  "tree": "375f7be1029a3a2aee9ce461f45796a88ea90182",
+  "parents": [
+    "ad87d04c72c3828ab7dc2bf8687d92212b596986"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "f66700b40db7037024c9f29a7d272b9fb93584bb",
+      "sha256": "52bf4290ecc6223641ad4c811b42545d2d48ed9e45bb7f8fdcbad62f4ccebab5",
+      "bytes": 3004002,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "314a574e7ea2eebcd9d84b47a3a7fa72731bd749",
+      "sha256": "599b8e8e80c315eb78a644d08bac12d2d4b3ddf656ad282b51076ea822dee8a2",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-b108-stress-intent-and-projection-r3.json",
+      "mode": "100644",
+      "git_blob": "32848a79e8dd5c776d4016caa3d40fa72dcac8be",
+      "sha256": "50d9de6c3b2e3138a9c0a3f54cabe14231c21eaa150808f2ae5e8d34e4c3ac6b",
+      "bytes": 10206,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-e02-stress-objective-source-evidence.toml",
+      "mode": "100644",
+      "git_blob": "ccf7f75386a86b631e0eb4e760dc55b18a1196b2",
+      "sha256": "d3446100d27f9e857f7bc8827744d5f055d964337d6db815736c3e39fbd168e3",
+      "bytes": 2228,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "mode": "100644",
+      "git_blob": "cc2cdd4205acbec0c094c67e210f77581f383378",
+      "sha256": "84bfeba0450f1af8b97ba716867237b0aead8d78b01b3cf8419f6bce38a870f2",
+      "bytes": 47327,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "mode": "100644",
+      "git_blob": "1c6b3c84dd622721102bfe5f71cb2b3ee5086da6",
+      "sha256": "052d5067dfbfb38fdcf93be5575ecfe8c1be32715f1f399066ed49317a9f27d4",
+      "bytes": 51783,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "mode": "100644",
+      "git_blob": "d96e842180ea49e1ca1cc4f62d0db9ae93688c64",
+      "sha256": "557dcb99c6c74d9cac5f89e91b612e2cb257781bbc4116210e1659481aaa7ae2",
+      "bytes": 46261,
+      "role": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "mode": "100644",
+      "git_blob": "b400dca95e8e245f40c909596ef26372397d05fd",
+      "sha256": "3414c6444a155a53ba6d05b9b7d903733e187711d774de7790c5b0c64cd0274c",
+      "bytes": 61541,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "root_source_commit": "d28fad1fc2c503e023836d17973f67ba7552fc1c",
+    "source_commit_tree": "375f7be1029a3a2aee9ce461f45796a88ea90182",
+    "source_commit_parents": [
+      "ad87d04c72c3828ab7dc2bf8687d92212b596986"
+    ],
+    "branch_blob_readback": "all exact",
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-stress-source-outcome-r3-20261020-r1/plan.json",
+      "sha256": "85f3d22b63bd82149249931d35c45bc2d1c77d2c960bf705e0e0dad578c0db45",
+      "availability": "retained_local_ignored_raw"
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-stress-source-outcome-r3-20261020-r1/source-application.json",
+      "sha256": "0a94d36ee359f8117b8311573ff7e9e31613170ea28faace9d55e90b6dcbcb9d",
+      "availability": "retained_local_ignored_raw"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-stress-source-outcome-r3-20261020-r1/implementation-readback.json",
+      "sha256": "73f69cee3ffdb5d75c2df62eff7a3e9aba65aa3ed1d89230df07269476ac63ab",
+      "availability": "retained_local_ignored_raw"
+    },
+    "outer_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-stress-source-outcome-r3-20261020-r1/outer-readback.json",
+      "sha256": "03d525ad2394e0c73241e301a752e120b9b5fd7ce818ec856fa58b11439a1b69",
+      "availability": "retained_local_ignored_raw"
+    }
+  },
+  "property": "Fresh adversarial stress readers replay configured objective source, plan and each occurrence; shared generic vulnerability projection reconciles every presented typed field. Without independently bound selected objective intent, protected result remains unbound/no numeric robustness/blocker/promotion. Preserve candidate diagnostics and unsupported-rule typed refusal.",
+  "source_vs_runtime_boundary": "Exact source commit and branch blob readback are pinned above. Root implementation-readback records the source application; test runs below preserve their own exact source frames and are not relabeled across commits. This is not a global input/backend freeze.",
+  "selected_input_profile_backend": {
+    "selection": "CPython 3.14 existing local venv; configured GDPGrowthObjective fixture, declared unit fixture and local FileSystemCAS; no production calibration/currentness or external unit truth.",
+    "command_and_source_frame": "See per-run request/result/invocation references; complete stdout/stderr and collection/JUnit are retained locally and cited, not copied.",
+    "authority": "No live production currentness, calibration, issuer, law, permission, external custody or G acceptance is asserted."
+  },
+  "real_chain": {
+    "summary": "Configured GDP objective -> runtime stress assessment -> per-occurrence CAS source/outcome basis -> fresh report resolver -> Level5 consumer. Bounded controlled fixture only; absent independent selected-intent provenance keeps protected numeric robustness unbound.",
+    "producer_artifact_bridge_consumer_surface_verification": "Configured GDP objective -> runtime stress assessment -> per-occurrence CAS source/outcome basis -> fresh report resolver -> Level5 consumer. Bounded controlled fixture only; absent independent selected-intent provenance keeps protected numeric robustness unbound.",
+    "runtime_qualification": "Exact-source two-module run: 70 collected, 49 passed, 21 failed.",
+    "whole_capability": "not established by this slice alone"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "d28fad1fc2c503e023836d17973f67ba7552fc1c",
+      "source_tree": "375f7be1029a3a2aee9ce461f45796a88ea90182",
+      "source_relation_to_handoff": "exact",
+      "outcome": {
+        "errors": 0,
+        "failures": 21,
+        "passed": 49,
+        "skipped": 0,
+        "tests": 70
+      },
+      "collected": 70,
+      "completed_calls": 70,
+      "aborted_reason": null,
+      "calls_match_actual_collection": true,
+      "source_unchanged": true,
+      "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+      "outputs": {
+        "request": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/request.json",
+          "sha256": "90bbb3ab08102cd898f83afee964511ce95d244f7a441214d0c00fa4696d038f",
+          "availability": "retained_local_ignored_raw"
+        },
+        "deciding_result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/result.json",
+          "sha256": "76238746cc673ce1e670d5eb5e4959da81953085b2046de4424d40940cc68fb3",
+          "availability": "retained_local_ignored_raw"
+        },
+        "command_invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/invocation.json",
+          "sha256": "7d1f4bcbf2b8094361a15ea914ab563fae9b47b1bb6acad4ee0fa1dd5ace2fc1",
+          "availability": "retained_local_ignored_raw"
+        },
+        "collection": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/collection.json",
+          "sha256": "cfe8dfe3e633125ed8a45fc617247e2ebd14f7a2c3296ba2b858d8a06ff93c1e",
+          "availability": "retained_local_ignored_raw"
+        },
+        "source_before": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/source-before.json",
+          "sha256": "230ef8a3443a414d099c91bee54686caa09e2adab0054fa37908beb221997df9",
+          "availability": "retained_local_ignored_raw"
+        },
+        "source_after": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/source-after.json",
+          "sha256": "230ef8a3443a414d099c91bee54686caa09e2adab0054fa37908beb221997df9",
+          "availability": "retained_local_ignored_raw"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "879b163f5247d15980f384cda1a2d73ce3cffe02b109cc690aab3402e1c11293",
+          "availability": "retained_local_ignored_raw"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "availability": "retained_local_ignored_raw"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stress-r3-two-whole-d28fad1f-20261020-r1/actual/pytest.xml",
+          "sha256": "824ffa1de183707be623ba65d4fa9c42d6437c99a356e407ff0be64c4298c678",
+          "availability": "retained_local_ignored_raw"
+        }
+      }
+    }
+  ],
+  "author_and_independent_review_pins": {
+    "author": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r3/manifest-r3.json",
+        "sha256": "bfa20f6231793329c2948975a6d808d7856dd0469df40a0f3efabdd58f856124",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r3/candidate-r3.patch",
+        "sha256": "5146c7b966bd82f9a19ebe8b9bd87ab8cde52dde33e98110305465ec685b2a9b",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r3/delta-r3-from-r2.patch",
+        "sha256": "1ad7e6ef87c7c84b05f6168c34ad5890509eed715a89a04af14106fb7392b929",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r3/r3-static-lint.json",
+        "sha256": "02a24ed32c980a597ed7cf8f139e809a9b06d3c30494a5f9226fa8768dd19d22",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r3/patch-validation-r3.json",
+        "sha256": "0dbaca159f6e5aab46cc0a0d96d00ee6f7177b2f0ad6646ec30fb0afeb9ae42c",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r2/manifest-r2.json",
+        "sha256": "b972effd9c4d15942a43f3c18a7b4d8fde6c488727e0e1014a31c4257397049c",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r2/r2-static-verification-frozen.json",
+        "sha256": "b2b30e2e9772b51c70d66fa1f5587ce8630680205ed17b087681744d194f46e2",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-author-20261020-r1/r2/decision-proposal-r2-final.json",
+        "sha256": "50d9de6c3b2e3138a9c0a3f54cabe14231c21eaa150808f2ae5e8d34e4c3ac6b",
+        "availability": "retained_local_ignored_raw"
+      }
+    ],
+    "independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-independent-review-20261020-r2/review.json",
+        "sha256": "6c8d03652561deb72af90ec0e31ef4cd39397a22570d8556e419d5179c49cf92",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/stress-source-status-admission-independent-review-20261020-r3/review.json",
+        "sha256": "fb34d862157dc7262c32be729c9eb48db33e4340cbc0d1c7fca2df1e54d53f69",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a",
+        "availability": "retained_local_ignored_raw"
+      }
+    ]
+  },
+  "adversarial_removal_controls": {
+    "status": "slice-specific; scoped test evidence and limitations below",
+    "summary": "R3 includes source/status/severity/parameter tamper and typed-refusal controls, plus configured GDP fixture path. Protected result remains unbound when independent selected objective intent is absent; no numeric robustness, blocker or promotion claim."
+  },
+  "limitations": [
+    "Exact two-module run has 21 failures.",
+    "Selected objective intent is not independently established; protected numeric result remains unbound.",
+    "GDP/unit data are test fixtures, not law, issuer, permission, calibration, production currentness, custody or external authority.",
+    "Associated decision packet is a proposal for G only.",
+    "Independent G code acceptance, global integration publication and formal finding adjudication remain open.",
+    "Configured GDP source/unit can be replayed, but selected objective intent is not independently bound; score remains unbound.",
+    "No law, issuer/permission, causal calibration, scientific adequacy, production currentness or external custody is established.",
+    "R3 is a test-only correction/companion; full product tests and composed runtime are UNRUN by this author lane.",
+    "Tracked small decision proposal is mandatory G handoff copied byte-exact from previously ignored author proposal; it is not authority or formal adjudication.",
+    "Independent actualD4case-truth swap was accepted withsameaggregate atad87 result7fc2e5e9342e75b41dfda08dd961539fa5e9f6ab94d89ef84fdee39cf5a52948; existingD4aggregate admission is NOT wholecase_truth and is separateactive repair.",
+    "Composedadversarial/orchestrator tests UNRUNafteradoption; authorstaticGO notruntime/Gacceptance"
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-b108-stress-intent-and-projection-r3.json",
+      "status": "tracked G proposal; not authority or adjudication"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "standing G decision procedure; no new decision assumed"
+    }
+  ],
+  "proposals": {
+    "status": "slice-level evidence proposal; original criterion/occurrence mapping remains for G",
+    "proposed_closed_ids": [],
+    "proposed_limited_ids": [],
+    "proposed_held_ids": [],
+    "proposed_open_ids": [],
+    "formal_adjudication": "G only",
+    "next_check": "Keep intent provenance gap held; replay full composed adversarial/orchestrator cohort after current source freeze and map each original occurrence. G adjudicates any semantic choice in tracked decision packet."
+  },
+  "formal_closures": [],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-stress-source-outcome-r3-20261020-r1/source-application.json",
+    "sha256": "0a94d36ee359f8117b8311573ff7e9e31613170ea28faace9d55e90b6dcbcb9d",
+    "availability": "retained_local_ignored_raw"
+  },
+  "source_application_status_at_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "runtime": "Exact-source two-module run: 70 collected, 49 passed, 21 failed.",
+  "next_check": "Keep intent provenance gap held; replay full composed adversarial/orchestrator cohort after current source freeze and map each original occurrence. G adjudicates any semantic choice in tracked decision packet."
+}

@@ -1,0 +1,236 @@
+{
+  "schema": "policyos.e02.local_source_slice_handoff.v1",
+  "slice": "annotation",
+  "slice_base": "c13ecce41fa685b0d2718ef79ee5e79a7e6f95eb",
+  "candidate": "9204953ead5acefa1d48919fa9caa1928846623e",
+  "tree": "c81d69182ef2740a9512fba50641ef0a1f41024b",
+  "parents": [
+    "c13ecce41fa685b0d2718ef79ee5e79a7e6f95eb"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_freeze": false,
+  "full_code_test_config_and_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "mode": "100644",
+      "git_blob": "fc480b47101d22192c798777faa118606476ad0a",
+      "sha256": "86522c4276c616e361a9e5f2295e6b6365d166cd67526f6705a351c2ea2c7ef7",
+      "bytes": 2976792,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "mode": "100644",
+      "git_blob": "6f2c22959ba77807cd2e5de87d6137c4345a3987",
+      "sha256": "f6ed6bff85c0fb4e2841033a48c05bebd9d30fcb1fd6d3ae4cecd0b3d4c4fc53",
+      "bytes": 338875,
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-20-search-legacy-record-annotation-binding.toml",
+      "mode": "100644",
+      "git_blob": "93dca18aba904165c00f6c4e4aa0d53993a070a4",
+      "sha256": "1cf16b0393a661d012df07a18035ee16515aa7afa35e1879aa10b1f52a15b0d3",
+      "bytes": 1939,
+      "role": "config_resource_or_documentation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "mode": "100644",
+      "git_blob": "45c95834e267efc34dfd58bbce64e1ec6b035e26",
+      "sha256": "9e70a023a6eff7b0084d15b5e619370fb45d7f0970ed4500fe881e91c56c4337",
+      "bytes": 23226,
+      "role": "code"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_search.py",
+      "mode": "100644",
+      "git_blob": "26ad9169e07c756f6c3a726eef5654089a5f25b6",
+      "sha256": "e4c357a232fd5ec401fd2635ac8d70c415d9452684c61233cb78d7aec157c76b",
+      "bytes": 2640,
+      "role": "test"
+    }
+  ],
+  "implementation_readback": {
+    "root_source_commit": "9204953ead5acefa1d48919fa9caa1928846623e",
+    "source_commit_tree": "c81d69182ef2740a9512fba50641ef0a1f41024b",
+    "source_commit_parents": [
+      "c13ecce41fa685b0d2718ef79ee5e79a7e6f95eb"
+    ],
+    "branch_blob_readback": "all exact",
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/plan.json",
+      "sha256": "a2add81ace349e7ee1315499b768ca81a28e86f4f624452e6bb8e888115f8585",
+      "availability": "retained_local_ignored_raw"
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/source-application.json",
+      "sha256": "bd8a2deb3bc3cdb6756fe8860f1a69164fe3ebc85d822eb906df449e8cb596ec",
+      "availability": "retained_local_ignored_raw"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/implementation-readback.json",
+      "sha256": "4f64ea68ec7a0181b36427d9d11d33aeab33012233c0f439e53b5a79bda38f2e",
+      "availability": "retained_local_ignored_raw"
+    },
+    "outer_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/outer-readback.json",
+      "sha256": "92079a263e4f2d1cb8b4f15bd43041e1b964d5929e86a79d84c1df0bb50b62ad",
+      "availability": "retained_local_ignored_raw"
+    }
+  },
+  "property": "Resolve every annotated field of the three relocated dataclasses in their canonical owner before compatibility aliases; preserve all six historic aliases, public exports and wire shape; real nested schema/JSON and pickle regression.",
+  "source_vs_runtime_boundary": "Exact source commit and branch blob readback are pinned above. Root implementation-readback records the source application; test runs below preserve their own exact source frames and are not relabeled across commits. This is not a global input/backend freeze.",
+  "selected_input_profile_backend": {
+    "selection": "CPython 3.14 in existing policy-engine local venv; controlled unit fixtures, no external authority/data source.",
+    "command_and_source_frame": "See per-run request/result/invocation references; complete stdout/stderr and collection/JUnit are retained locally and cited, not copied.",
+    "authority": "No live production currentness, calibration, issuer, law, permission, external custody or G acceptance is asserted."
+  },
+  "real_chain": {
+    "summary": "Canonical owner resolves every annotated field on SearchIteration, SearchResult and _EvaluationTransition before legacy __module__ aliases; schema, JSON and pickle consumers retain typed compatibility records.",
+    "producer_artifact_bridge_consumer_surface_verification": "Canonical owner resolves every annotated field on SearchIteration, SearchResult and _EvaluationTransition before legacy __module__ aliases; schema, JSON and pickle consumers retain typed compatibility records.",
+    "runtime_qualification": "Exact-source 26-test replay: 21 passed, 5 failed. Broader composed scope remains open.",
+    "whole_capability": "not established by this slice alone"
+  },
+  "evidence": [
+    {
+      "actual_source_candidate": "9204953ead5acefa1d48919fa9caa1928846623e",
+      "source_tree": "c81d69182ef2740a9512fba50641ef0a1f41024b",
+      "source_relation_to_handoff": "exact",
+      "outcome": {
+        "errors": 0,
+        "failures": 5,
+        "passed": 21,
+        "skipped": 0,
+        "tests": 26
+      },
+      "collected": 26,
+      "completed_calls": 26,
+      "aborted_reason": null,
+      "calls_match_actual_collection": true,
+      "source_unchanged": true,
+      "exact_command_in": "deciding_result.command.argv and command_invocation.argv",
+      "outputs": {
+        "request": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/request.json",
+          "sha256": "8245ba5c5d11b625525c5d1274c3994d756d5059e3502faf9b2a37db31d5f5cb",
+          "availability": "retained_local_ignored_raw"
+        },
+        "deciding_result": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/result.json",
+          "sha256": "f4fb495a8a3573c153e5225af8f936497bc69e77b7eec6f4107a1b122b54fcc1",
+          "availability": "retained_local_ignored_raw"
+        },
+        "command_invocation": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/invocation.json",
+          "sha256": "9339d1cf22404ed0cbe6836f00951f393f9fd041f801d9f942fb7052275de489",
+          "availability": "retained_local_ignored_raw"
+        },
+        "collection": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/collection.json",
+          "sha256": "735d8a44db2338437b092ad496899bf1dfa05aafc7fc9081b44931cdc0a49b6a",
+          "availability": "retained_local_ignored_raw"
+        },
+        "source_before": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/source-before.json",
+          "sha256": "76e35a0c749c95a9e1ecc6a095f7a4e131076d40f57fb06b2214035ea659e501",
+          "availability": "retained_local_ignored_raw"
+        },
+        "source_after": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/source-after.json",
+          "sha256": "76e35a0c749c95a9e1ecc6a095f7a4e131076d40f57fb06b2214035ea659e501",
+          "availability": "retained_local_ignored_raw"
+        },
+        "complete_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/pytest.stdout.txt",
+          "sha256": "1b6cf18f1c8296900682b4baec06a85af88ce5b2a7dd200eb7b86dc045be23e5",
+          "availability": "retained_local_ignored_raw"
+        },
+        "complete_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/pytest.stderr.txt",
+          "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+          "availability": "retained_local_ignored_raw"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-real-9204953e-20261020-r1/actual/pytest.xml",
+          "sha256": "4eb33d52435968c44f02b2b50baaa0febd309ce436ddc6d283ba3f9ed4c89e38",
+          "availability": "retained_local_ignored_raw"
+        }
+      }
+    }
+  ],
+  "author_and_independent_review_pins": {
+    "author": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/candidate-manifest-v3.json",
+        "sha256": "59a8994f43abf54360b7c6af90df487d320a8c1839dc0057e1cec375d4548fd3",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/candidate-r3.patch",
+        "sha256": "9988d99b58bd4c6ce00f3f49b77a0b9992f92f57a3c1f03eba03000166a6d77a",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-objective-assessment-runtime-annotation-author-20261020-r1/annotation-ownership-inventory.json",
+        "sha256": "c4156349edeedb23ef0003b7aefe7e6a56c6abc363a9ed577e134ca0324b66ca",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-record-annotation-native-format-companion-20261020-r1/manifest.json",
+        "sha256": "adea237f6fec3e5d988b10d672032e5ca4641cc8b7b8f1b91c8fc762805e7420",
+        "availability": "retained_local_ignored_raw"
+      }
+    ],
+    "independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/search-record-annotation-owner-independent-review-20261020-r1/review.json",
+        "sha256": "dd794ce7591c28663d09701441aa0351145244fd42003b7f31e4224f259bc323",
+        "availability": "retained_local_ignored_raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a",
+        "availability": "retained_local_ignored_raw"
+      }
+    ]
+  },
+  "adversarial_removal_controls": {
+    "status": "slice-specific; scoped test evidence and limitations below",
+    "summary": "Schema/JSON/pickle regressions are exercised. Exact run retained five failures in the wider objective-availability tests; do not treat a targeted test or source review as closure."
+  },
+  "limitations": [
+    "Five tests failed in exact-source 26-test replay; retain full failure traces.",
+    "No integrated API/browser or broader composed cohort receipt.",
+    "No G acceptance or formal finding closure.",
+    "Runtime collection/schema/JSON/pickle tests UNRUN on adopted source",
+    "Synthetic unit-bound objective fixture only, no production authority",
+    "No G acceptance or formal closure"
+  ],
+  "decision_pointers": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "status": "standing G decision procedure; no new decision assumed"
+    }
+  ],
+  "proposals": {
+    "status": "slice-level evidence proposal; original criterion/occurrence mapping remains for G",
+    "proposed_closed_ids": [],
+    "proposed_limited_ids": [],
+    "proposed_held_ids": [],
+    "proposed_open_ids": [],
+    "formal_adjudication": "G only",
+    "next_check": "Reconcile five retained failures against the full composed search/property denominator and rerun the source-frozen consumer cohort; map individual outcomes to original occurrences."
+  },
+  "formal_closures": [],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-search-record-annotation-owner-20261020-r1/source-application.json",
+    "sha256": "bd8a2deb3bc3cdb6756fe8860f1a69164fe3ebc85d822eb906df449e8cb596ec",
+    "availability": "retained_local_ignored_raw"
+  },
+  "source_application_status_at_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "runtime": "Exact-source 26-test replay: 21 passed, 5 failed. Broader composed scope remains open.",
+  "next_check": "Reconcile five retained failures against the full composed search/property denominator and rerun the source-frozen consumer cohort; map individual outcomes to original occurrences."
+}

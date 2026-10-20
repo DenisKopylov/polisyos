@@ -41550,5 +41550,101 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-applied-six-source-handoff-receipts-20261020-r1": {
+    "slice_base": "0f42bfae73cc400875ab3927ce4b1c25f3377b0f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-search-record-annotation-owner.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "a87f377d9541400b5903ab403487bc3c1509e950b30846de2373a8c57c131148",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/20261020-source-search-record-annotation-owner.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-q2-canonical-import-companion.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "922f3196313f7e52811ab37b696ac78a0e1fe417263712c69b6b656b840eebe7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/20261020-source-q2-canonical-import-companion.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-datasnapshot-selected-producer-profiles.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "89f52e74d68af6932db225e7af4291ea7ba9284d647a94287a11acf983ebb5be",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/20261020-source-datasnapshot-selected-producer-profiles.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-stress-source-outcome-r3.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "aebbf51be8c7e021727275e89d58f34a0c9f2e5e4772f414df0c1e4b24b8a57e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/20261020-source-stress-source-outcome-r3.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-q2-worker-mount-semantic-r2.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "8d1a71a8d2ab2fdca9a220e25b8b43616bf73cbde4074e3675b7bd681568a1c9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/20261020-source-q2-worker-mount-semantic-r2.json",
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/20261020-source-acquisition-costed-route-fixture.json": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "eaf71a9a8ed74ef9747a89c0fa6848af752031c20f2716e5d7e1abe47df5b473",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/20261020-source-acquisition-costed-route-fixture.json",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-six-source-handoff-receipts-20261020-r1/source-application.json",
+      "sha256": "9d559151a2b551909c87a6374426a668ace478a6acc149236eaa5bba7fada8ff"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-applied-six-source-handoff-receipts-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-six-source-handoff-proposals-20261020-r1/manifest.json",
+        "sha256": "4fe848fdb43c144862216c333c03ff8b04692538c0eae89c869ad56d8745ab84"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-six-source-handoff-proposals-independent-review-20261020-r1/manifest.json",
+        "sha256": "4a7037a197f5c9bc9dd46225e676720c4bea9453150e8953d23414dc7bc92b6d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-six-source-handoff-proposals-independent-review-20261020-r1/review.md",
+        "sha256": "2aaa40e9ed3affda3043debf9b8727e4f9cfe52abf07805a23ce182d8f0a7791"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preserved-six-handoff-postimages-20261020-r1/preservation.json",
+        "sha256": "b77f58f016f3a1107c709580148fefddf534d5672a3a6f6d1465d8d64d1f7972"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Evidence attribution check covers full sixpacket/208distinctreference set; not code acceptance, no automatic closure from source commit or aggregate pass.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Six exact prior source slices only, newer root source changes separately journaled and not silently folded into old runtime receipts.",
+      "Author proposal IDs and all formal closures empty; no G acceptance/global source freeze.",
+      "Acquisition2P14F, stress49P21F and DataSnapshot383/61partial43P18F remain explicit current at their exact historical source frames."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Complete newer current source companions and replay, then final source/input/backend freeze and full282IDs/291occurrence proposal report for independent G.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

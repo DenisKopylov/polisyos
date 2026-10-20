@@ -702,6 +702,18 @@ def test_terminal_finalization_ref_is_unique_selected_profile_and_manifest_linke
     )
     assert selected.workflow_finalization_ref == finalization
 
+    historical_finalization = ref(5)
+    resumed = load(
+        terminal_inputs=[finalization],
+        manifest_outputs=[
+            prior_state,
+            historical_finalization,
+            final_state,
+            finalization,
+        ],
+    )
+    assert resumed.workflow_finalization_ref == finalization
+
     profileless = ref(2, profile=None)
     alternate_profile = ref(2, profile="sha256:" + "c" * 64)
     wrong_kind = ref(2, kind="scientist.experiment_state")

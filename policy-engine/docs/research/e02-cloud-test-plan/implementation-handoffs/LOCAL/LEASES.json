@@ -43662,5 +43662,66 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-terminal-exact-finalization-r4-adoption-20261021-r1": {
+    "slice_base": "087b588a92c1c1cfe4419f7a5276ed0fa5c73eca",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/services/adapters/core_run.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "d2c2c0ae43ed4a6ca901351d4dd97247a8f448aa465871e4bb6852e923773973",
+        "git_base_preimage_sha256": "d2c2c0ae43ed4a6ca901351d4dd97247a8f448aa465871e4bb6852e923773973",
+        "postimage_path": "LOCAL/raw/ad03-runtime-core-run-cleanup-20261021-r4/postimages/policy-engine/src/polisyos/runtime/http/services/adapters/core_run.py",
+        "postimage_sha256": "6a12bdf2371e075a9244c0831e103fad643a2b7728c8869c700d3c722043eb85"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "84c782bde832827a8a5a81d84c6d90e60ff0f42b37dcf910df83f834ac4618db",
+        "git_base_preimage_sha256": "84c782bde832827a8a5a81d84c6d90e60ff0f42b37dcf910df83f834ac4618db",
+        "postimage_path": "LOCAL/raw/ad03-runtime-core-run-cleanup-20261021-r4/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "postimage_sha256": "fba66d60a432be2f3d219a1b22f25e7f44e422e470fb22dc1c7397777951c4c7"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-exact-finalization-r4-adoption-20261021-r1/source-application.json",
+      "sha256": "6bc0f79534e244486580b5ab706ddea14927a777d09eff0f8629f00429d7ead0"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-exact-finalization-r4-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-exact-finalization-r4-adoption-preparation-20261021-r1/review.json",
+        "sha256": "bca62f4cbeb9f1830d361dce92329a966267c91099fe92c2246be548753c6279"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-voi-ten-whole-6fd2578f-20261021-r1/actual/result.json",
+        "sha256": "e8d56d0bb3fe3630594d9696d49117962e2ea2f984b0556b3ce1927fd9a3aa44"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "SAME terminal identity proxy-count class, second quantity repaired by exact reference multiplicity over all outputs",
+      "falsifier": "Actual resumed process preserves two different same-kind finalization artifacts while the terminal-selected full ref appears once. Accept it; duplicate that exact ref, remove its trace input, swap profile, or unlink it and selection stays unavailable."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Pointer-only carrier; finalization payload/schema/run scope/currentness remain a separate bounded reader responsibility.",
+      "Actual source6fd whole195=176P19F includes the deciding terminal failure; this reviewed postimage remains runtime UNRUN.",
+      "Current Core087 typed adapter has43 known failures in a separate slice; the combined recheck waits for its batched repair. No inherited/green/global/G closure claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After the independently reviewed Core adapter repair, execute whole engine_executor_idempotency plus three whole Core modules on one source-qualified frozen input set; retain actual producer/removal and historical-output controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

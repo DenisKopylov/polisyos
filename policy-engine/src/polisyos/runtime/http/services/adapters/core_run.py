@@ -258,16 +258,13 @@ def load_terminal_core_run_source(
         cell_id=owner.cell_id,
     )
     workflow_finalization_ref: ArtifactRef | None = None
-    finalization_outputs = [
-        ref for ref in manifest.outputs if ref.kind == "scientist.workflow_state_finalization"
-    ]
-    if len(terminal.refs.inputs) == 1 and len(finalization_outputs) == 1:
+    if len(terminal.refs.inputs) == 1:
         candidate = terminal.refs.inputs[0]
         if (
             candidate.kind == "scientist.workflow_state_finalization"
             and candidate.media_type == "application/json"
             and candidate.manifest_profile_sha256 is not None
-            and finalization_outputs[0] == candidate
+            and sum(ref == candidate for ref in manifest.outputs) == 1
         ):
             workflow_finalization_ref = candidate
     return TerminalCoreRunSource(

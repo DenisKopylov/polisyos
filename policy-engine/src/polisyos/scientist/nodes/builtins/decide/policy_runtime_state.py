@@ -102,7 +102,7 @@ def load_predictive_voi_scheduler(
     if path is None or not path.exists():
         return PredictiveVOIScheduler(training_config=VOITrainingConfig(cross_domain_weight=0.0))
     snapshot = VOIModelSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
-    return PredictiveVOIScheduler.from_snapshot(snapshot)
+    return PredictiveVOIScheduler.from_snapshot(snapshot, artifact_store=ctx.store)
 
 
 def persist_predictive_voi_scheduler(

@@ -7,7 +7,11 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    input_ref_from_artifact_ref,
+    load_core_json_artifact,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -30,12 +34,14 @@ from polisyos.scientist.methods.search.funnel.types import (
 from polisyos.scientist.methods.search.objective import ObjectiveScoreStatus
 from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
+    _budget_deficit_measurement,
     _build_policy_simulation_results_impl,
     _policy_runtime_execution_metadata,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PolicyRuntimeEvaluationArtifact,
     PolicyRuntimeProvenance,
+    ProductionPolicyEvaluationBackend,
     persist_funnel_executed_work_packet,
     persist_policy_evaluation_vector_to_store,
 )
@@ -88,16 +94,14 @@ class _PassingPolicyEvaluationBackend:
             evaluation_attempt_id=evaluation_attempt_id,
             effective_estimation_config=effective_estimation_config,
         )
+        metrics = {"gdp_change": 0.1, "gov_balance": 0.0}
+        fiscal_measurement = _budget_deficit_measurement(metrics)
         vector = PolicyEvaluationVector(
             candidate_id=candidate.candidate_id,
             feasible=True,
             metadata={
                 "policy_runtime_invocation": execution,
-                "policy_runtime_fiscal_measurement": {
-                    "usable": True,
-                    "normalized_value": 0.0,
-                    "source_values": {"gov_balance": 0.0},
-                },
+                "policy_runtime_fiscal_measurement": fiscal_measurement,
             },
         )
         provenance = PolicyRuntimeProvenance(
@@ -108,17 +112,18 @@ class _PassingPolicyEvaluationBackend:
             source_components=("test_policy_evaluator",),
             notes=("Test fixture; no scientific draw loop is exercised.",),
         )
-        metrics = {"gdp_change": 0.1, "gov_balance": 0.0}
+        simulation_results = _build_policy_simulation_results_impl(
+            vector,
+            fidelity=fidelity,
+            uncertainty=uncertainty,
+            base_metrics=metrics,
+            provenance=provenance,
+            runtime_execution=execution,
+        )
+        vector = vector.with_score_source_results(simulation_results)
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
-            simulation_results=_build_policy_simulation_results_impl(
-                vector,
-                fidelity=fidelity,
-                uncertainty=uncertainty,
-                base_metrics=metrics,
-                provenance=provenance,
-                runtime_execution=execution,
-            ),
+            simulation_results=simulation_results,
             evaluation_vector=vector,
             fidelity=fidelity,
             provenance=provenance,
@@ -250,6 +255,13 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
     assert direct_packet_ref is not None
     assert chain_l3_packet_ref is not None
     assert chain_l4_packet_ref is not None
+    for packet_ref in (direct_packet_ref, chain_l3_packet_ref, chain_l4_packet_ref):
+        packet_manifest = store.get_manifest(packet_ref)
+        assert packet_ref.manifest_profile_sha256 is not None
+        assert packet_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            packet_manifest
+        )
+        assert all(item.manifest_profile_sha256 is not None for item in packet_manifest.inputs)
     direct_packet = FunnelExecutedWorkPacket.model_validate(
         from_canonical_bytes(store.get_bytes(direct_packet_ref.artifact_id))
     )
@@ -276,6 +288,16 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(
     )
     assert chain_l3_packet.requested_draw_count == 64
     assert direct_packet.requested_draw_count == chain_l4_packet.requested_draw_count == 500
+    for packet_ref, packet in (
+        (direct_packet_ref, direct_packet),
+        (chain_l3_packet_ref, chain_l3_packet),
+        (chain_l4_packet_ref, chain_l4_packet),
+    ):
+        for input_ref in (packet.candidate_ref, packet.source_result_ref):
+            assert input_ref.manifest_profile_sha256 is not None
+            assert input_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+                store.get_manifest(input_ref)
+            )
     direct_source = from_canonical_bytes(
         store.get_bytes(direct_packet.source_result_ref.artifact_id)
     )
@@ -388,6 +410,73 @@ def test_default_l3_requested_count_comes_from_effective_config_only(
     assert packet.successful_draw_count is None
     assert packet.failed_draw_count is None
     assert packet.unattempted_draw_count is None
+
+
+@pytest.mark.integration
+def test_actual_runtime_writer_keeps_unavailable_draw_nulls_with_issued_attempt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Persist a valid issued attempt with absent draw config without claiming a score."""
+    from polisyos.scientist.nodes.builtins.decide import policy_runtime_support
+
+    monkeypatch.setattr(
+        policy_runtime_support,
+        "_production_policy_evaluation_safety_blockers",
+        lambda **_: (),
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
+    context = _context(store, candidate, candidate_ref)
+    context.pop("estimation_config")
+    engine = _PolicyRuntimeWorkflowEngine(
+        fidelity="full",
+        backend=ProductionPolicyEvaluationBackend(),
+    )
+    orchestrator = FunnelOrchestrator(
+        [Level4FullFidelity(workflow_engine=engine, estimated_cost_usd=0.2)]
+    )
+
+    outcome = orchestrator.advance(
+        orchestrator.submit(_candidate_payload(candidate), context),
+        target_level=4,
+    )
+
+    result = outcome.stage_results[4]
+    assert result.executed_work_packet_status == "available"
+    assert result.executed_work_packet_ref is not None
+    assert result.score_status is not ObjectiveScoreStatus.AVAILABLE
+    assert result.objective_value is None
+    assert result.is_promising is False
+    packet = FunnelExecutedWorkPacket.model_validate(
+        from_canonical_bytes(store.get_bytes(result.executed_work_packet_ref.artifact_id))
+    )
+    assert packet.evaluation_attempt_id
+    assert packet.requested_draw_count is None
+    assert packet.requested_draw_source == "unavailable"
+    assert packet.effective_estimation_config_sha256 is None
+
+    source_ref = packet.source_result_ref
+    assert source_ref.manifest_profile_sha256 is not None
+    source_manifest = store.get_manifest(source_ref)
+    assert source_manifest.canon is not None
+    assert source_manifest.canon.exclude_none is False
+    vector_payload = load_core_json_artifact(store, source_ref)
+    invocation = vector_payload["metadata"]["policy_runtime_invocation"]
+    bootstrap = vector_payload["score_source"]["bootstrap"]
+    expected = {
+        "evaluation_attempt_id": packet.evaluation_attempt_id,
+        "requested_draw_count": None,
+        "requested_draw_source": "unavailable",
+        "effective_estimation_config_sha256": None,
+    }
+    assert invocation == expected
+    assert set(expected) <= set(bootstrap)
+    assert {field: bootstrap[field] for field in expected} == expected
+    restored = PolicyEvaluationVector.model_validate(vector_payload)
+    assert restored.metadata["policy_runtime_invocation"] == expected
+    assert restored.legacy_scalar_proxy_for_search()[1] is not ObjectiveScoreStatus.AVAILABLE
 
 
 def test_legacy_fidelity_default_packet_is_not_admitted_as_current_config_evidence(

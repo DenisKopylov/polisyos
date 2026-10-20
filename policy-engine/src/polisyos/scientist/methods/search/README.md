@@ -42,6 +42,19 @@ keeps its ask/tell interface while forwarding to that same owner.
 compatibility controller. The owner is internal and is not added to package
 exports; `SearchService` and all existing public exports stay unchanged.
 
+## Policy-runtime VOI packet qualification
+
+New qualified VOI observations retain the exact packet manifest view returned by the
+policy-runtime packet writer. The fresh funnel admission and snapshot restore both
+reopen that selected view and reconcile its manifest digest with the reference, then
+check its selected candidate and evaluation-vector inputs. The Core `put_json` default
+remains profileless; it is not rebound by artifact ID or by reading whichever manifest
+view is current later. Historical profileless packets and 1.3 VOI snapshots remain
+readable as score-only candidate history. A missing, malformed, or mismatched selected
+view withholds the packet claim while retaining an otherwise valid score-only row.
+This manifest-view binding establishes no external authority, unit, calibration, or
+scientific adequacy.
+
 ## Pareto Basis Declaration
 
 SearchConfig may receive caller-owned ParetoBasisScope values by view through
@@ -116,7 +129,7 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-10-13
+- Last updated: 2026-10-20
 
 ## Configured uncertainty observation intake
 

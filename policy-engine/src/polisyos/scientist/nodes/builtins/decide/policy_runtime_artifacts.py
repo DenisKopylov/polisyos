@@ -60,6 +60,7 @@ from polisyos.scientist.methods.search.funnel.types import (
 )
 from polisyos.scientist.methods.search.judge_stack import to_search_uncertainty_envelope
 from polisyos.scientist.methods.search.objective import (
+    ObjectiveScoreStatus,
     SourceMetricObservation,
     source_observation_input_refs,
 )
@@ -201,7 +202,7 @@ def _persist_policy_evaluation_vector_to_store_impl(
             ),
             inputs=inputs,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         return_selected_profile=True,
     )
 
@@ -230,6 +231,7 @@ def _persist_funnel_executed_work_packet_impl(
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -243,24 +245,46 @@ def _build_selection_benchmark_evaluation_impl(
     metadata_extension: Mapping[str, Any] | None = None,
     selection_score_fn: Callable[[PolicyEvaluationVector], float],
 ) -> BenchmarkEvaluation:
-    """Build selection benchmark evaluation."""
-    base_score = selection_score_fn(evaluation_vector)
-    return BenchmarkEvaluation(
-        loop_id=str(state.params.get("policy_loop_id") or state.run_id),
-        suite_id="policy_selection",
-        candidate_ref=candidate_ref,
-        selection_metrics={
+    """Build a source-qualified selection view without promoting unscored vectors."""
+    _, score_status = evaluation_vector.legacy_scalar_proxy_for_search()
+    assessment = evaluation_vector.score_assessment
+    limitation = assessment.limitation if assessment is not None else None
+    if score_status is ObjectiveScoreStatus.AVAILABLE:
+        base_score = selection_score_fn(evaluation_vector)
+        selection_metrics = {
             "score": base_score,
             **{
                 name: channel.higher_is_better
                 for name, channel in evaluation_vector.primary.items()
             },
-        },
-        holdout_metrics={"score": base_score},
-        sample_counts={BenchmarkSplit.SELECTION.value: 100},
-        promotable=evaluation_vector.feasible,
+        }
+        holdout_metrics = {"score": base_score}
+        sample_counts = {BenchmarkSplit.SELECTION.value: 100}
+        promotable = evaluation_vector.feasible
+        status = "ok"
+        notes: list[str] = []
+    else:
+        limitation = limitation or "policy_vector_score_assessment_missing"
+        selection_metrics = {}
+        holdout_metrics = {}
+        sample_counts = {}
+        promotable = False
+        status = score_status.value
+        notes = [limitation]
+
+    return BenchmarkEvaluation(
+        loop_id=str(state.params.get("policy_loop_id") or state.run_id),
+        suite_id="policy_selection",
+        candidate_ref=candidate_ref,
+        selection_metrics=selection_metrics,
+        holdout_metrics=holdout_metrics,
+        sample_counts=sample_counts,
+        promotable=promotable,
+        status=status,
+        notes=notes,
         runtime_split_type=BenchmarkSplit.SELECTION,
         metadata={
+            **dict(metadata_extension or {}),
             "lineage_complete": True,
             "generated_from": source,
             "backend_kind": (
@@ -278,7 +302,8 @@ def _build_selection_benchmark_evaluation_impl(
                 if runtime_artifact is not None
                 else None
             ),
-            **dict(metadata_extension or {}),
+            "objective_score_status": score_status.value,
+            "objective_score_limitation": limitation,
         },
     )
 

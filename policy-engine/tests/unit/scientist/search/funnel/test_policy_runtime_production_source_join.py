@@ -343,6 +343,14 @@ def test_runtime_session_recomputes_indexed_balance_before_selection(
         owner=run_policy_blueprint_runtime,
     )
 
+    assert session.selection_evaluation is not None
+    assert session.selection_evaluation.status == "not_established"
+    assert session.selection_evaluation.notes == ["policy_vector_score_assessment_missing"]
+    assert session.selection_evaluation.selection_metrics == {}
+    assert session.selection_evaluation.holdout_metrics == {}
+    assert session.selection_evaluation.sample_counts == {}
+    assert session.selection_evaluation.promotable is False
+    assert session.selection_evaluation.metadata["objective_score_status"] == "not_established"
     assert evaluated_metrics == {"gdp_change": 0.1}
     measurement = session.source_measurement
     assert measurement is not None
@@ -491,6 +499,33 @@ def test_profiled_foundry_balance_is_persisted_but_not_ranked_as_budget_deficit(
     assert packet_ref is not None
     packet = FunnelExecutedWorkPacket.model_validate(load_core_json_artifact(store, packet_ref))
     source_vector_payload = load_core_json_artifact(store, packet.source_result_ref)
+    assert packet.source_result_ref.manifest_profile_sha256 is not None
+    assert source_vector_payload["score_assessment"] is not None
+    assessment_payload = source_vector_payload["score_assessment"]
+    assert {"objective_ref", "rule_spec", "source_sha256", "value"} <= set(assessment_payload)
+    assert assessment_payload["source_sha256"] is None
+    assert assessment_payload["value"] is None
+    source_vector_manifest = store.get_manifest(packet.source_result_ref)
+    assert source_vector_manifest.canon is not None
+    assert source_vector_manifest.canon.exclude_none is False
+    runtime_invocation = source_vector_payload["metadata"]["policy_runtime_invocation"]
+    runtime_bootstrap = source_vector_payload["score_source"]["bootstrap"]
+    invocation_fields = {
+        "evaluation_attempt_id",
+        "requested_draw_count",
+        "requested_draw_source",
+        "effective_estimation_config_sha256",
+    }
+    assert set(runtime_invocation) == invocation_fields
+    assert invocation_fields <= set(runtime_bootstrap)
+    assert runtime_invocation == {field: runtime_bootstrap[field] for field in invocation_fields}
+    assert runtime_invocation["evaluation_attempt_id"] == packet.evaluation_attempt_id
+    assert runtime_invocation["requested_draw_count"] == packet.requested_draw_count
+    assert runtime_invocation["requested_draw_source"] == packet.requested_draw_source
+    assert runtime_invocation["effective_estimation_config_sha256"] == (
+        packet.effective_estimation_config_sha256
+    )
+    PolicyEvaluationVector.model_validate(source_vector_payload)
     stored_measurement = source_vector_payload["metadata"]["policy_runtime_source_measurement"]
     assert stored_measurement == measurement.model_dump(mode="json", exclude_none=False)
     assert result.simulation_results["budget_deficit_objective_usable"] is False

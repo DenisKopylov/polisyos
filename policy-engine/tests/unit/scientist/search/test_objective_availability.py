@@ -1443,7 +1443,7 @@ def test_voi_snapshot_roundtrip_binds_nested_source_and_demotes_unbound_rows() -
         disagreement=0.0,
     )
     wire = scheduler.snapshot().model_dump(mode="json")
-    assert wire["schema_version"] == "1.3"
+    assert wire["schema_version"] == "1.4"
     restored = VOIModelSnapshot.model_validate(wire)
     observation = restored.observations[0]
     assert observation.score_status is ObjectiveScoreStatus.AVAILABLE

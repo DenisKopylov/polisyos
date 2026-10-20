@@ -34,9 +34,11 @@ from polisyos.scientist.methods.search.lessons import (
     success_lesson_from_outcome,
 )
 from polisyos.scientist.methods.search.objective import (
+    _POLICY_RUNTIME_INVOCATION_FIELDS,
     ObjectiveScoreAdmission,
     ObjectiveScoreStatus,
     SourceMetricObservation,
+    _policy_runtime_invocation_bindings_status,
     _unestablished_score_assessment,
     recompute_source_government_balance,
     reconcile_objective_score_assessment,
@@ -57,6 +59,8 @@ from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
     SimpleVOIScheduler,
+    _policy_evaluation_vector_source_chain_matches_store,
+    _VOIWorkPacketClaim,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 
@@ -526,7 +530,9 @@ class FunnelOrchestrator:
                     self._build_stage_context(resolved_ticket),
                 )
             )
-            self._admit_executed_work_packet(resolved_ticket, result, next_level)
+            work_packet_claim = self._admit_executed_work_packet(
+                resolved_ticket, result, next_level
+            )
             resolved_ticket.stage_results[next_level] = result
             resolved_ticket.current_level = next_level
             resolved_ticket.next_level = self._level_after(next_level)
@@ -552,7 +558,9 @@ class FunnelOrchestrator:
                 blocker_count=sum(1 for card in result.failure_cards if card.is_blocker),
             )
             resolved_ticket.trace.append(trace_step)
-            self._maybe_record_voi_observation(resolved_ticket, result, next_level)
+            self._maybe_record_voi_observation(
+                resolved_ticket, result, next_level, work_packet_claim=work_packet_claim
+            )
 
             score_limited = _candidate_score_limited(result)
             if result.has_blockers:
@@ -1215,20 +1223,26 @@ class FunnelOrchestrator:
         ticket: FunnelTicket,
         result: FunnelStageResult,
         stage_level: int,
-    ) -> None:
+    ) -> _VOIWorkPacketClaim | None:
         """Fresh-read and bind a native work packet before projecting its reference."""
         from polisyos.core.artifacts import (
+            artifact_manifest_profile_sha256,
             input_ref_from_artifact_ref,
             load_core_json_artifact,
         )
 
         ref = result.executed_work_packet_ref
         if ref is None:
-            return
+            if result.executed_work_packet_status == "available":
+                self._reject_work_packet(result, "work_packet_reference_missing")
+            return None
+        if result.executed_work_packet_status != "available":
+            self._reject_work_packet(result, "work_packet_status_not_available")
+            return None
         store = ticket.context.get("store")
         if store is None or not all(hasattr(store, name) for name in ("get_bytes", "get_manifest")):
             self._reject_work_packet(result, "artifact_store_unavailable")
-            return
+            return None
 
         transfer_context = ticket.context.get("transfer_context")
         transfer_run_id = (
@@ -1242,8 +1256,16 @@ class FunnelOrchestrator:
         expected_candidate_ref = ticket.context.get("policy_candidate_ref")
         expected_candidate = ticket.context.get("policy_candidate_schema")
         try:
-            packet = FunnelExecutedWorkPacket.model_validate(load_core_json_artifact(store, ref))
             packet_manifest = store.get_manifest(ref)
+            if (
+                ref.manifest_profile_sha256 is None
+                or artifact_manifest_profile_sha256(packet_manifest) != ref.manifest_profile_sha256
+            ):
+                self._reject_work_packet(
+                    result, "work_packet_selected_profile_missing_or_mismatched"
+                )
+                return None
+            packet = FunnelExecutedWorkPacket.model_validate(load_core_json_artifact(store, ref))
             result_manifest = store.get_manifest(packet.source_result_ref)
             actual_candidate_bytes = store.get_bytes(packet.candidate_ref)
             candidate_payload = load_core_json_artifact(
@@ -1255,6 +1277,21 @@ class FunnelOrchestrator:
                 else None
             )
             source_result_payload = load_core_json_artifact(store, packet.source_result_ref)
+            source_candidate_id = (
+                candidate_payload.get("candidate_id")
+                if isinstance(candidate_payload, Mapping)
+                else None
+            )
+            if not isinstance(source_candidate_id, str) or not (
+                _policy_evaluation_vector_source_chain_matches_store(
+                    store,
+                    packet.source_result_ref,
+                    packet.candidate_ref,
+                    source_candidate_id,
+                )
+            ):
+                self._reject_work_packet(result, "work_packet_binding_mismatch")
+                return None
             source_metadata = source_result_payload.get("metadata")
             source_measurement_payload = (
                 source_metadata.get("policy_runtime_source_measurement")
@@ -1361,18 +1398,13 @@ class FunnelOrchestrator:
                 runtime_binding_matches = (
                     isinstance(bootstrap, Mapping)
                     and isinstance(invocation, Mapping)
-                    and packet.evaluation_attempt_id
-                    == invocation.get("evaluation_attempt_id")
-                    == bootstrap.get("evaluation_attempt_id")
-                    and packet.requested_draw_count
-                    == invocation.get("requested_draw_count")
-                    == bootstrap.get("requested_draw_count")
-                    and packet.requested_draw_source
-                    == invocation.get("requested_draw_source")
-                    == bootstrap.get("requested_draw_source")
-                    and packet.effective_estimation_config_sha256
-                    == invocation.get("effective_estimation_config_sha256")
-                    == bootstrap.get("effective_estimation_config_sha256")
+                    and _policy_runtime_invocation_bindings_status(invocation, bootstrap)
+                    is ObjectiveScoreStatus.AVAILABLE
+                    and _policy_runtime_invocation_bindings_status(
+                        invocation,
+                        {name: getattr(packet, name) for name in _POLICY_RUNTIME_INVOCATION_FIELDS},
+                    )
+                    is ObjectiveScoreStatus.AVAILABLE
                     and isinstance(fiscal_measurement, Mapping)
                     and dict(fiscal_measurement) == expected_fiscal_measurement
                     and source_measurement_matches
@@ -1433,9 +1465,28 @@ class FunnelOrchestrator:
                 or packet.backend_kind != result.feedback.get("policy_runtime_backend_kind")
             ):
                 self._reject_work_packet(result, "work_packet_binding_mismatch")
-                return
+                return None
         except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             self._reject_work_packet(result, "work_packet_unreadable_or_invalid")
+            return None
+        # Schema 1.0 predates the invocation tuple needed for a source-bound
+        # observation. Keep its existing packet admission behavior, but do not
+        # promote it into the stronger VOI work-packet qualification.
+        if packet.schema_version != "1.1":
+            return None
+        return _VOIWorkPacketClaim(
+            packet_ref=ref,
+            packet_schema_version=packet.schema_version,
+            run_id=packet.run_id,
+            ticket_id=packet.ticket_id,
+            candidate_hash=packet.candidate_hash,
+            candidate_ref=packet.candidate_ref,
+            source_result_ref=packet.source_result_ref,
+            stage_level=packet.stage_level,
+            stage_name=packet.stage_name,
+            fidelity=packet.fidelity,
+            evaluation_attempt_id=packet.evaluation_attempt_id,
+        )
 
     @staticmethod
     def _reject_work_packet(result: FunnelStageResult, reason: str) -> None:
@@ -1664,6 +1715,8 @@ class FunnelOrchestrator:
         ticket: FunnelTicket,
         result: FunnelStageResult,
         stage_level: int,
+        *,
+        work_packet_claim: _VOIWorkPacketClaim | None = None,
     ) -> None:
         if (
             result.score_status is not ObjectiveScoreStatus.AVAILABLE
@@ -1692,24 +1745,29 @@ class FunnelOrchestrator:
             disagreement = abs(
                 float(result.cheap_signal.expected_value_proxy) - float(result.objective_value)
             )
-        self._voi_scheduler.observe_stage_result(
-            candidate_id=ticket.candidate_hash,
-            task_family=transfer_context.task_family,
-            domain=transfer_context.domain,
-            tenant_hash=str(transfer_context.tenant_hash or ""),
-            stage_level=stage_level,
-            frontier_position=self._frontier.position_for(ticket.candidate_hash),
-            cheap_signal=result.cheap_signal,
-            actual_objective_value=result.objective_value,
-            score_assessment=result.score_assessment,
-            objective_source=result.simulation_results,
-            actual_promising=result.is_promising,
-            duration_seconds=result.duration_seconds,
-            compute_cost_usd=result.compute_cost_usd,
-            compute_cost_origin=result.compute_cost_origin,
-            timeout_occurred=timeout_occurred,
-            disagreement=disagreement,
-            metadata={
+        run_id = (
+            ticket.context.get("source_run_id")
+            or ticket.context.get("run_id")
+            or transfer_context.run_id
+        )
+        observation_args: dict[str, Any] = {
+            "candidate_id": ticket.candidate_hash,
+            "task_family": transfer_context.task_family,
+            "domain": transfer_context.domain,
+            "tenant_hash": str(transfer_context.tenant_hash or ""),
+            "stage_level": stage_level,
+            "frontier_position": self._frontier.position_for(ticket.candidate_hash),
+            "cheap_signal": result.cheap_signal,
+            "actual_objective_value": result.objective_value,
+            "score_assessment": result.score_assessment,
+            "objective_source": result.simulation_results,
+            "actual_promising": result.is_promising,
+            "duration_seconds": result.duration_seconds,
+            "compute_cost_usd": result.compute_cost_usd,
+            "compute_cost_origin": result.compute_cost_origin,
+            "timeout_occurred": timeout_occurred,
+            "disagreement": disagreement,
+            "metadata": {
                 "ticket_id": ticket.ticket_id,
                 "stage_name": result.stage_name,
                 "fidelity_level": result.fidelity_level,
@@ -1720,7 +1778,14 @@ class FunnelOrchestrator:
                     else result.executed_work_packet_ref.model_dump(mode="json")
                 ),
             },
-        )
+        }
+        if isinstance(self._voi_scheduler, PredictiveVOIScheduler):
+            observation_args.update(
+                run_id=None if run_id is None else str(run_id),
+                ticket_id=ticket.ticket_id,
+                work_packet_claim=work_packet_claim,
+            )
+        self._voi_scheduler.observe_stage_result(**observation_args)
 
     def _maybe_update_voi_calibration_state(self) -> None:
         if self._correlation_tracker is None or not hasattr(

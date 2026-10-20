@@ -1,0 +1,27 @@
+id = "2026-10-20-e02-voi-work-packet-qualified-observations"
+title = "Bind qualified VOI observations to admitted execution packets"
+type = "changed"
+component = "scientist"
+owner = "team-policyos-scientist"
+summary = "Predictive VOI snapshots retain a typed qualification only when the funnel admits a versioned execution packet and fresh restore revalidates the strict PolicyEvaluationVector, the exact producer-selected packet/candidate/source-result manifest views, invocation, score-source binding, and any embedded source measurement from CAS. Existing score-only observations remain distinct and usable for candidate learning."
+evidence = ["src/polisyos/scientist/methods/search/funnel/orchestrator.py", "src/polisyos/scientist/methods/search/voi_scheduler.py", "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py", "tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py", "tests/unit/scientist/search/test_objective_availability.py"]
+change_class = "internal-runtime-state-format"
+surface_classification = "internal: scientist search VOI snapshot and funnel observation provenance"
+compatibility = "VOI snapshot writers now identify schema 1.4 and persist an optional work-packet claim. Readers continue to accept older snapshots; rows without a verifiable claim remain score-only, and a claim whose exact selected CAS view is absent, mismatched, or cannot be reopened is demoted without discarding the typed numeric observation. The packet writer explicitly requests the existing return_selected_profile result; the Core default remains unchanged. Work-packet schema 1.0 retains its existing admission behavior but does not produce the stronger VOI qualification."
+migration = "No rewrite of existing snapshots is required. Existing 1.3 snapshots remain readable as score-only observations. New schema 1.4 snapshots add qualification only after normal funnel packet admission and source recomputation; the packet producer carries the exact selected profile returned by its CAS write, and fresh restoration must reopen that same profile to retain the qualification. Profileless historical rows stay score-only without backfill or profile inference."
+limitations = "This is an engineering-execution observation binding, not a source of external authority, scientific calibration, policy permission, or production measurement-unit evidence. The controlled fixture supplies a declared test unit; current production metric output still lacks an owner-bound unit projection, so no live production VOI qualification is claimed. Product tests and full composed replay remain UNRUN."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "voi-work-packet-qualified-observation"
+change_class = "runtime-state-format"
+impact = "compatible"
+surface = "Internal predictive VOI snapshots and restored scheduler observations"
+owner = "team-policyos-scientist"
+version_owner = "team-policyos-scientist"
+deprecation_window = "not_applicable"
+release_note = "New snapshots use schema 1.4 to store an optional CAS-revalidated work-packet claim. Older snapshots remain score-only; stale, profileless, mismatched, or unavailable claim refs are demoted on load without dropping the numeric observation; generic Core writes retain their historical profileless default."
+generated_client_compatibility = "not_applicable"

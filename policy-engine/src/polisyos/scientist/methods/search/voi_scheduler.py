@@ -19,10 +19,15 @@ from polisyos.foundry.methods.selection_history import (
     SelectionHistoryStore,
 )
 from polisyos.scientist.methods.search.objective import (
+    _POLICY_RUNTIME_INVOCATION_ABSENT,
+    _POLICY_RUNTIME_INVOCATION_FIELDS,
     ObjectiveScoreAssessment,
     ObjectiveScoreStatus,
+    SourceMetricObservation,
+    _policy_runtime_invocation_bindings_status,
     _project_score_assessment_source,
     score_assessment_matches_source,
+    source_observation_input_refs,
 )
 from polisyos.scientist.methods.search.voi_models import (
     VOIDecisionRecord,
@@ -142,12 +147,50 @@ class VOIModelStatus(BaseModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class _VOIWorkPacketClaim(BaseModel):
+    """Carry the CAS identities joined by the funnel's packet verifier.
+
+    This is a persisted claim, not proof by itself. Snapshot restoration keeps it
+    only after reopening the referenced packet and source result in CAS.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    packet_ref: ArtifactRef
+    packet_schema_version: Literal["1.1"] = "1.1"
+    run_id: str = Field(min_length=1)
+    ticket_id: str = Field(min_length=1)
+    candidate_hash: str = Field(min_length=1)
+    candidate_ref: ArtifactRef
+    source_result_ref: ArtifactRef
+    stage_level: Literal[3, 4]
+    stage_name: Literal["funnel_L3_medium", "funnel_L4_full"]
+    fidelity: Literal["medium", "full"]
+    evaluation_attempt_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_packet_identity(self) -> _VOIWorkPacketClaim:
+        if (
+            self.packet_ref.kind != "scientist.search.funnel_native_work_packet"
+            or self.candidate_ref.kind != "scientist.policy_design.candidate"
+            or self.source_result_ref.kind != "scientist.policy_evaluation_vector"
+        ):
+            raise ValueError("VOI work-packet claim has an unsupported artifact kind")
+        expected = {3: ("funnel_L3_medium", "medium"), 4: ("funnel_L4_full", "full")}
+        if (self.stage_name, self.fidelity) != expected[self.stage_level]:
+            raise ValueError("VOI work-packet claim stage identity is inconsistent")
+        return self
+
+
 class VOIObservation(BaseModel):
     """Store one expensive-stage training sample for predictive VOI models."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     candidate_id: str = Field(min_length=1)
+    run_id: str | None = Field(default=None, min_length=1)
+    ticket_id: str | None = Field(default=None, min_length=1)
+    work_packet_claim: _VOIWorkPacketClaim | None = None
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
     tenant_hash: str = Field(default="", min_length=0)
@@ -246,6 +289,18 @@ class VOIObservation(BaseModel):
             and self.disagreement is not None
         ):
             raise ValueError("VOI disagreement requires an available objective score")
+        claim = self.work_packet_claim
+        if claim is not None and (
+            self.run_id != claim.run_id
+            or self.ticket_id != claim.ticket_id
+            or self.candidate_id != claim.candidate_hash
+            or self.stage_level != claim.stage_level
+            or self.score_status is not ObjectiveScoreStatus.AVAILABLE
+            or self.score_assessment is None
+            or self.objective_source is None
+            or self.actual_objective_value != self.score_assessment.value
+        ):
+            raise ValueError("VOI work-packet claim is not joined to its scored observation")
         return self
 
 
@@ -269,12 +324,324 @@ class VOIModelSnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.3", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default="1.4", pattern=r"^\d+\.\d+$")
     training_config: VOITrainingConfig = Field(default_factory=VOITrainingConfig)
     stage_costs: dict[int, float] = Field(default_factory=dict)
     observations: list[VOIObservation] = Field(default_factory=list)
     promotion_observations: list[PromotionObservation] = Field(default_factory=list)
     calibration_state: dict[str, Any] = Field(default_factory=dict)
+
+
+def _policy_evaluation_vector_source_chain_matches_store(
+    store: Any,
+    source_result_ref: ArtifactRef,
+    candidate_ref: ArtifactRef,
+    expected_candidate_id: str,
+) -> bool:
+    """Reopen, type-check, and replay one complete policy-runtime source vector.
+
+    Both live funnel intake and VOI snapshot restoration use this verifier so a
+    typed packet claim cannot survive on a generic JSON mapping or a copied
+    source-measurement assertion.
+    """
+    try:
+        from polisyos.core.artifacts import (
+            artifact_manifest_profile_sha256,
+            input_ref_from_artifact_ref,
+            load_core_json_artifact,
+        )
+        from polisyos.scientist.methods.search.objective import (
+            recompute_source_government_balance,
+        )
+        from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+        if (
+            source_result_ref.kind != "scientist.policy_evaluation_vector"
+            or source_result_ref.manifest_profile_sha256 is None
+            or candidate_ref.kind != "scientist.policy_design.candidate"
+            or candidate_ref.manifest_profile_sha256 is None
+        ):
+            return False
+        result_manifest = store.get_manifest(source_result_ref)
+        if (
+            result_manifest.artifact_id != source_result_ref.artifact_id
+            or result_manifest.kind != source_result_ref.kind
+            or result_manifest.media_type != source_result_ref.media_type
+            or result_manifest.artifact_schema is None
+            or result_manifest.artifact_schema.name
+            != "polisyos.scientist.policy_design.PolicyEvaluationVector"
+            or result_manifest.artifact_schema.version != "1.1"
+            or artifact_manifest_profile_sha256(result_manifest)
+            != source_result_ref.manifest_profile_sha256
+        ):
+            return False
+
+        payload = load_core_json_artifact(store, source_result_ref)
+        if not isinstance(payload, Mapping):
+            return False
+        vector = PolicyEvaluationVector.model_validate(payload)
+        if vector.model_dump(mode="json") != payload:
+            return False
+        if vector.candidate_id != expected_candidate_id or not isinstance(
+            vector.score_source, Mapping
+        ):
+            return False
+        invocation = vector.metadata.get(
+            "policy_runtime_invocation", _POLICY_RUNTIME_INVOCATION_ABSENT
+        )
+        bootstrap = vector.score_source.get("bootstrap", _POLICY_RUNTIME_INVOCATION_ABSENT)
+        if (
+            _policy_runtime_invocation_bindings_status(invocation, bootstrap)
+            is not ObjectiveScoreStatus.AVAILABLE
+        ):
+            return False
+
+        expected_inputs = [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
+        source_measurement_payload = vector.metadata.get("policy_runtime_source_measurement")
+        if source_measurement_payload is not None:
+            observation = SourceMetricObservation.model_validate(source_measurement_payload)
+            recomputed = recompute_source_government_balance(store, observation)
+            if observation.model_dump(mode="json", exclude_none=False) != recomputed.model_dump(
+                mode="json", exclude_none=False
+            ):
+                return False
+            expected_inputs.extend(
+                input_ref_from_artifact_ref(ref, role=role)
+                for role, ref in source_observation_input_refs(observation)
+            )
+
+        actual_input_keys = sorted(
+            (
+                item.role,
+                str(item.artifact_id),
+                item.manifest_profile_sha256 is None,
+                item.manifest_profile_sha256 or "",
+            )
+            for item in result_manifest.inputs
+        )
+        expected_input_keys = sorted(
+            (
+                item.role,
+                str(item.artifact_id),
+                item.manifest_profile_sha256 is None,
+                item.manifest_profile_sha256 or "",
+            )
+            for item in expected_inputs
+        )
+        if actual_input_keys != expected_input_keys:
+            return False
+
+        fiscal_measurement = vector.metadata.get("policy_runtime_fiscal_measurement")
+        if not isinstance(fiscal_measurement, Mapping):
+            return False
+        fiscal_aliases = ("gov_balance", "government_balance", "budget_deficit", "deficit")
+        expected_fiscal_measurement = {
+            "usable": vector.score_source.get("budget_deficit_objective_usable"),
+            "normalized_value": vector.score_source.get("budget_deficit_objective_value"),
+            "source_values": {
+                alias: vector.score_source[alias]
+                for alias in fiscal_aliases
+                if alias in vector.score_source
+            },
+        }
+        return dict(fiscal_measurement) == expected_fiscal_measurement
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return False
+
+
+def _work_packet_claim_matches_store(store: Any, observation: VOIObservation) -> bool:
+    """Reopen a claimed packet and recompute its score-source join from CAS."""
+    claim = observation.work_packet_claim
+    assessment = observation.score_assessment
+    if claim is None or assessment is None or observation.objective_source is None:
+        return False
+    try:
+        from polisyos.core.artifacts import (
+            artifact_manifest_profile_sha256,
+            input_ref_from_artifact_ref,
+            load_core_json_artifact,
+        )
+        from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
+
+        packet_manifest = store.get_manifest(claim.packet_ref)
+        if (
+            packet_manifest.artifact_id != claim.packet_ref.artifact_id
+            or packet_manifest.kind != claim.packet_ref.kind
+            or packet_manifest.media_type != claim.packet_ref.media_type
+            or packet_manifest.artifact_schema is None
+            or packet_manifest.artifact_schema.name
+            != "polisyos.scientist.search.FunnelExecutedWorkPacket"
+            or packet_manifest.artifact_schema.version != claim.packet_schema_version
+            or artifact_manifest_profile_sha256(packet_manifest)
+            != claim.packet_ref.manifest_profile_sha256
+        ):
+            return False
+        packet = FunnelExecutedWorkPacket.model_validate(
+            load_core_json_artifact(store, claim.packet_ref)
+        )
+        if (
+            packet.schema_version != claim.packet_schema_version
+            or packet.run_id != claim.run_id
+            or packet.ticket_id != claim.ticket_id
+            or packet.candidate_hash != claim.candidate_hash
+            or packet.candidate_ref != claim.candidate_ref
+            or packet.source_result_ref != claim.source_result_ref
+            or packet.stage_level != claim.stage_level
+            or packet.stage_name != claim.stage_name
+            or packet.fidelity != claim.fidelity
+            or packet.evaluation_attempt_id != claim.evaluation_attempt_id
+        ):
+            return False
+
+        candidate_manifest = store.get_manifest(packet.candidate_ref)
+        result_manifest = store.get_manifest(packet.source_result_ref)
+        if (
+            candidate_manifest.artifact_id != packet.candidate_ref.artifact_id
+            or candidate_manifest.kind != packet.candidate_ref.kind
+            or candidate_manifest.media_type != packet.candidate_ref.media_type
+            or candidate_manifest.artifact_schema is None
+            or candidate_manifest.artifact_schema.name
+            != "polisyos.scientist.policy_design.PolicyCandidateSchema"
+            or candidate_manifest.artifact_schema.version != "1.0"
+            or artifact_manifest_profile_sha256(candidate_manifest)
+            != packet.candidate_ref.manifest_profile_sha256
+            or result_manifest.artifact_id != packet.source_result_ref.artifact_id
+            or result_manifest.kind != "scientist.policy_evaluation_vector"
+            or result_manifest.media_type != packet.source_result_ref.media_type
+            or result_manifest.artifact_schema is None
+            or result_manifest.artifact_schema.name
+            != "polisyos.scientist.policy_design.PolicyEvaluationVector"
+            or result_manifest.artifact_schema.version != "1.1"
+            or artifact_manifest_profile_sha256(result_manifest)
+            != packet.source_result_ref.manifest_profile_sha256
+        ):
+            return False
+        from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+        from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+        candidate_payload = load_core_json_artifact(store, packet.candidate_ref)
+        candidate = PolicyCandidateSchema.model_validate(candidate_payload)
+        if candidate.candidate_id != claim.candidate_hash:
+            return False
+        if not _policy_evaluation_vector_source_chain_matches_store(
+            store,
+            packet.source_result_ref,
+            packet.candidate_ref,
+            candidate.candidate_id,
+        ):
+            return False
+        result_vector = PolicyEvaluationVector.model_validate(
+            load_core_json_artifact(store, packet.source_result_ref)
+        )
+        result_payload = result_vector.model_dump(mode="json")
+
+        candidate_input = input_ref_from_artifact_ref(packet.candidate_ref, role="candidate")
+        source_input = input_ref_from_artifact_ref(packet.source_result_ref, role="source_result")
+        packet_input_keys = sorted(
+            (
+                item.role,
+                str(item.artifact_id),
+                item.manifest_profile_sha256 is None,
+                item.manifest_profile_sha256 or "",
+            )
+            for item in packet_manifest.inputs
+        )
+        if packet_input_keys != sorted(
+            (
+                item.role,
+                str(item.artifact_id),
+                item.manifest_profile_sha256 is None,
+                item.manifest_profile_sha256 or "",
+            )
+            for item in (candidate_input, source_input)
+        ):
+            return False
+
+        metadata = result_vector.metadata
+        invocation = metadata.get("policy_runtime_invocation")
+        if not isinstance(invocation, Mapping):
+            return False
+        bootstrap = (
+            result_payload.get("score_source", {}).get("bootstrap")
+            if isinstance(result_payload.get("score_source"), Mapping)
+            else None
+        )
+        if not isinstance(bootstrap, Mapping):
+            return False
+        packet_invocation = {
+            name: getattr(packet, name) for name in _POLICY_RUNTIME_INVOCATION_FIELDS
+        }
+        if (
+            _policy_runtime_invocation_bindings_status(invocation, bootstrap)
+            is not ObjectiveScoreStatus.AVAILABLE
+            or _policy_runtime_invocation_bindings_status(invocation, packet_invocation)
+            is not ObjectiveScoreStatus.AVAILABLE
+        ):
+            return False
+
+        source_measurement_payload = metadata.get("policy_runtime_source_measurement")
+        expected_result_inputs = [candidate_input]
+        if source_measurement_payload is not None:
+            source_measurement = SourceMetricObservation.model_validate(source_measurement_payload)
+            expected_result_inputs.extend(
+                input_ref_from_artifact_ref(ref, role=role)
+                for role, ref in source_observation_input_refs(source_measurement)
+            )
+        actual_result_input_keys = sorted(
+            (
+                item.role,
+                str(item.artifact_id),
+                item.manifest_profile_sha256 is None,
+                item.manifest_profile_sha256 or "",
+            )
+            for item in result_manifest.inputs
+        )
+        expected_result_input_keys = sorted(
+            (
+                item.role,
+                str(item.artifact_id),
+                item.manifest_profile_sha256 is None,
+                item.manifest_profile_sha256 or "",
+            )
+            for item in expected_result_inputs
+        )
+        candidate_inputs = [item for item in result_manifest.inputs if item.role == "candidate"]
+        if actual_result_input_keys != expected_result_input_keys or candidate_inputs != [
+            candidate_input
+        ]:
+            return False
+
+        fiscal_measurement = metadata.get("policy_runtime_fiscal_measurement")
+        score_source = result_vector.score_source
+        if not isinstance(fiscal_measurement, Mapping) or not isinstance(score_source, Mapping):
+            return False
+        source_values = fiscal_measurement.get("source_values")
+        units = score_source.get("metric_units")
+        if not isinstance(source_values, Mapping) or not isinstance(units, Mapping):
+            return False
+        recomputed_source = dict(source_values)
+        recomputed_source["budget_deficit_objective_usable"] = fiscal_measurement.get("usable")
+        recomputed_source["budget_deficit_objective_value"] = fiscal_measurement.get(
+            "normalized_value"
+        )
+        for name in (
+            "metric_units",
+            "objective_channels",
+            "feasible",
+            "blocking_reasons",
+            "bootstrap",
+        ):
+            if name in score_source:
+                recomputed_source[name] = score_source[name]
+        if (
+            not score_assessment_matches_source(assessment, recomputed_source)
+            or _project_score_assessment_source(assessment, recomputed_source)
+            != observation.objective_source
+        ):
+            return False
+        return True
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return False
 
 
 class SimpleVOIScheduler:
@@ -604,6 +971,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         self,
         *,
         candidate_id: str,
+        run_id: str | None = None,
+        ticket_id: str | None = None,
+        work_packet_claim: _VOIWorkPacketClaim | None = None,
         task_family: str = "policy",
         domain: str = "",
         tenant_hash: str = "",
@@ -658,6 +1028,9 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
                 objective_source_basis = None
         observation = VOIObservation(
             candidate_id=candidate_id,
+            run_id=run_id,
+            ticket_id=ticket_id,
+            work_packet_claim=work_packet_claim,
             task_family=str(task_family or "policy"),
             domain=_normalized_scope_domain(domain, fallback_id=candidate_id),
             tenant_hash=str(tenant_hash or ""),
@@ -745,6 +1118,7 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
         budget_key: str = "run",
         min_roi_threshold: float = 1.0,
         timeout_risk_threshold: float = 0.7,
+        artifact_store: Any | None = None,
     ) -> PredictiveVOIScheduler:
         scheduler = cls(
             stage_costs={level: Decimal(str(cost)) for level, cost in snapshot.stage_costs.items()},
@@ -753,7 +1127,16 @@ class PredictiveVOIScheduler(SimpleVOIScheduler):
             timeout_risk_threshold=timeout_risk_threshold,
             training_config=snapshot.training_config,
         )
-        scheduler._observations = list(snapshot.observations)
+        scheduler._observations = [
+            observation
+            if observation.work_packet_claim is None
+            or (
+                artifact_store is not None
+                and _work_packet_claim_matches_store(artifact_store, observation)
+            )
+            else observation.model_copy(update={"work_packet_claim": None})
+            for observation in snapshot.observations
+        ]
         scheduler._promotion_observations = list(snapshot.promotion_observations)
         scheduler._calibration_state = dict(snapshot.calibration_state)
         for observation in scheduler._observations:

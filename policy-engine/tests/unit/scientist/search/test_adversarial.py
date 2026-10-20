@@ -1419,7 +1419,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         wrong_plan_basis_ref,
         component_status="invalid",
         component_reason="adversarial_plan_unreadable",
-        report_reason="adversarial_plan_unreadable",
+        report_reason="outcome_basis_unreadable",
     )
 
     # The complete report projection is derived from source rows, not trusted by list shape.
@@ -1476,6 +1476,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         wrong_basis_schema_ref,
         component_status="invalid",
         component_reason="outcome_basis_unreadable",
+        report_reason="outcome_basis_unreadable",
     )
     stale_profile_basis = basis.model_copy(
         update={"plan_ref": plan_ref.model_copy(update={"manifest_profile_sha256": None})}

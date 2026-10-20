@@ -42641,5 +42641,167 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-voi-f1-f2-whole-composition-adoption-20261020-r1": {
+    "slice_base": "22c3ec92414084ce787e25b254d17c1602add4ad",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-e02-voi-work-packet-qualified-observations.toml": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "0884eb39c28053462532ce1ad7c28b659b7dd0dda4fb23780e07b8ab7d5406ae",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/release-fragments/unreleased/2026-10-20-e02-voi-work-packet-qualified-observations.toml",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/README.md": {
+        "operation": "update",
+        "preimage_sha256": "efae8bca433a6a5004b2c4288d100f81ff0909fc09242928b47f4a8dd1d50b0e",
+        "postimage_sha256": "13b491a546206cb1f0e2c1ab40f0ee1ad6c59ece08bb235fdab4f75d9af8892c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py": {
+        "operation": "update",
+        "preimage_sha256": "e7c624d83d1d0b3ac85c34ab9f1a8ff3d973f46d6aad34d88065a65c1d450092",
+        "postimage_sha256": "dd80fd13d76787cee52288146b7d140756afa26249f4e500c6d6828ca1b8409f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py": {
+        "operation": "update",
+        "preimage_sha256": "d60166e161d0aaac214af9b56ccb31a500e229d931c73fc9d3a2e50489146bb0",
+        "postimage_sha256": "bc25f3d4f6fe07660c0236ccfb475050bee856be55211da6d897e150a241cdbd",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py": {
+        "operation": "update",
+        "preimage_sha256": "19cfb1c734d9600c9da83d35c275fa5bb7626628b0d7554bc1a886f141f3a596",
+        "postimage_sha256": "c2be9a20b3b6e81983c9341931842f845672aa939844015928e4129f1018bcf7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py": {
+        "operation": "update",
+        "preimage_sha256": "86b786f33bc6f69f914da1cd8bf81a13c13110208654488664a0100090008538",
+        "postimage_sha256": "ae5ca85275a5ce6e95a8268e3bb9352c7bde3eadce8f55d0d0350cf972af6190",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py",
+        "mode": "100644"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py": {
+        "operation": "update",
+        "preimage_sha256": "175514a06bddaa908e95420c1e6036194a0e33d8c57172c1952f85f6ef333e04",
+        "postimage_sha256": "7a3929bcb87d369b6693ffbc41448d99a3b6759b4b632117a3154ad24e2090cb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py": {
+        "operation": "update",
+        "preimage_sha256": "52d318d5eb24a847797ac033b863a4686f3e59fb4c0bd96f2fbdc94c171cef8a",
+        "postimage_sha256": "1c5c69739bb535497bdc75daf85935412ad4f84894e459b00dd69702099b8257",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py": {
+        "operation": "update",
+        "preimage_sha256": "9db3f4b0751a4aa1e8e4938b49c366ebea3c05fb59eb943fa67a532a59893924",
+        "postimage_sha256": "f337ff75490e848dacc451c1e3f51e0b7a9d5c00e30c7db334e3a710113287d1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "update",
+        "preimage_sha256": "c18250dde340da7b66f902d0b958fee49c459557ea0899e5ffbcacde2632eb7c",
+        "postimage_sha256": "62701f98c1b7e6023d529b9353206f88632cfbe6d0e5643cf8be7d20696c3385",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_sha256": "c4590fc1d6a20da6c48022667df3923cd338cbf6b77b33de6cdf7381d4a9d039",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/tests/unit/scientist/search/funnel/test_voi_work_packet_bridge.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py": {
+        "operation": "update",
+        "preimage_sha256": "592eab121c58baa1e8477735e018001be3cdd83d69c9e47712a70fab1ab41269",
+        "postimage_sha256": "0211413163fb02fb83500d366e9ad3d1a5d9c241e08508804efa54a48bad1957",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "mode": "100644"
+      },
+      "policy-engine/tests/unit/scientist/search/test_objective_availability.py": {
+        "operation": "update",
+        "preimage_sha256": "eccf34931cb64cb7f087db8e24cb688f9c4b66887b1ca379d38dbc9f38595535",
+        "postimage_sha256": "822ff640b7f8e9b9b1e2a7789d564a6fa7c152ada8912c5630b160d0cba73d7f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/postimages/policy-engine/tests/unit/scientist/search/test_objective_availability.py",
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-f1-f2-whole-composition-adoption-20261020-r1/source-application.json",
+      "sha256": "41ad0f8f904d77af71f0e289695a6177a947270640c50cc1635dd0363713301a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-voi-f1-f2-whole-composition-adoption-20261020-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/manifest-composed.json",
+        "sha256": "c7606ed5259ced6cc196d871838ecb0673945c714fe639c6189cc27fd888cbe0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/composition-proof.json",
+        "sha256": "af93f1db8b51931b0891f5175365772968e6d364020b53ddfdde3cdb6f415ad9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-independent-review-20261020-r1/review.json",
+        "sha256": "887a129d1c4de5a828fae9e0ecf6a547e5b4b6ae0a92e6b7a30f9d2d6b7145ba"
+      },
+      {
+        "apply_check_current_checkout": {
+          "argv": [
+            "git",
+            "apply",
+            "--check",
+            "--whitespace=error",
+            "candidate-composed.patch"
+          ],
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": ""
+        },
+        "bytes": 102101,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/candidate-composed.patch",
+        "sha256": "ac67e3e70c167c91e0c7513953d0573c4e7fdcb1f196e26723265244db556506"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-f1-f2-voi-r5-composition-20261020-r2/static-composed.json",
+        "sha256": "62943140f876e5b248ef6fed207ce5647ffb289106fdb8e5af7bc57328c20ac6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-clean-source-adoption-outer-20261020-r2-independent-review/review.json",
+        "sha256": "246f1028a5b6e238fad301ef30a0f2dfad1e882229b31d506811deb2276baf1a"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same selected-profile/nullable/invocation-presence binding class widened once across the central writer, packet producer, fresh admission, and VOI snapshot consumer. R3 F1 remains the source-score qualification predicate at selection projection. The composition introduces no authority, law, calibration, draw-count, or invocation-identity semantics.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Independent static GO only; product replay pending on this exact composition.",
+      "Legacy available-score empirical count/promotability remains not established; typed round-trip equivalence is not literal-null-key wire proof.",
+      "No external scientific law, custody/currentness or G acceptance established."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Whole changed and importer tests, VOI packet real producer/CAS/fresh restore with profile/null/presence/tamper/removal controls; D4whole composition after scoped source freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -55,6 +55,7 @@ from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import 
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     _policy_runtime_numeric_inputs,
+    build_selection_benchmark_evaluation,
     load_ambiguity_certificate,
     load_prior_knowledge_bundle_for_state,
     resolve_effective_latent_discovery_bundle_for_state,
@@ -346,37 +347,18 @@ def _load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> d
     return output
 
 
-def _selection_score(evaluation_vector: PolicyEvaluationVector) -> float:
-    if "policy_value" in evaluation_vector.primary:
-        return float(evaluation_vector.primary["policy_value"].value)
-    if evaluation_vector.primary:
-        return float(next(iter(evaluation_vector.primary.values())).value)
-    return 0.0
-
-
 def _build_selection_benchmark_evaluation(
     *,
     state: ExperimentState,
     candidate_ref: ArtifactRef,
     evaluation_vector: PolicyEvaluationVector,
 ) -> BenchmarkEvaluation:
-    base_score = _selection_score(evaluation_vector)
-    return BenchmarkEvaluation(
-        loop_id=str(state.params.get("policy_loop_id") or state.run_id),
-        suite_id="policy_selection",
+    """Use the shared source-qualified selection projection for legacy callers."""
+    return build_selection_benchmark_evaluation(
+        state=state,
         candidate_ref=candidate_ref,
-        selection_metrics={
-            "score": base_score,
-            **{
-                name: channel.higher_is_better
-                for name, channel in evaluation_vector.primary.items()
-            },
-        },
-        holdout_metrics={"score": base_score},
-        sample_counts={BenchmarkSplit.SELECTION.value: 100},
-        promotable=evaluation_vector.feasible,
-        runtime_split_type=BenchmarkSplit.SELECTION,
-        metadata={"lineage_complete": True, "generated_from": "policy_evaluation_vector"},
+        evaluation_vector=evaluation_vector,
+        source="policy_evaluation_vector",
     )
 
 

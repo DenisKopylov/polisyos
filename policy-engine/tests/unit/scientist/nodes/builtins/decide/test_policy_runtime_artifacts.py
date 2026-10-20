@@ -5,12 +5,13 @@ from datetime import UTC, datetime
 import pytest
 
 from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -78,6 +79,8 @@ def test_work_packet_cas_round_trip_binds_selected_inputs_and_refuses_tampering(
 
     packet_ref = persist_funnel_executed_work_packet(cas_store, packet)
     manifest = cas_store.get_manifest(packet_ref)
+    assert packet_ref.manifest_profile_sha256 is not None
+    assert packet_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(manifest)
     restored = FunnelExecutedWorkPacket.model_validate(
         from_canonical_bytes(cas_store.get_bytes(packet_ref))
     )
@@ -97,8 +100,23 @@ def test_work_packet_cas_round_trip_binds_selected_inputs_and_refuses_tampering(
     assert restored.candidate_ref.manifest_profile_sha256 == candidate_ref.manifest_profile_sha256
     assert restored.source_result_ref.manifest_profile_sha256 == result_ref.manifest_profile_sha256
 
-    # The core producer's default-view ref is not a selected-profile attestation. Exercise
-    # selection through the typed IR writer, which returns the exact non-default view selector.
+    # A generic Core write keeps the historical profileless default selector. The packet
+    # owner above explicitly returns the selected view; callers do not infer it from a later read.
+    default_ref = cas_store.put_json(
+        packet,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            inputs=manifest.inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    assert default_ref.manifest_profile_sha256 is None
+    assert artifact_manifest_profile_sha256(cas_store.get_manifest(default_ref)) is not None
+
+    # The typed IR writer also returns the exact non-default view selector.
     ir_store = ensure_ir_artifact_store(cas_store)
     selected_ref = put_json_artifact(
         ir_store,
@@ -284,3 +302,133 @@ def test_runtime_vulnerabilities_reuse_typed_constraint_distributional_and_refut
         ),
     )
     assert approved_with_issues == []
+
+
+def test_policy_evaluation_vector_serialization_keeps_required_nullable_score_fields(
+    cas_store,
+) -> None:
+    """Persist required nullable score-basis keys and refuse missing historical keys."""
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.scientist.methods.search.objective import (
+        ObjectiveScoreAssessment,
+        ObjectiveScoreStatus,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+        persist_policy_evaluation_vector_to_store,
+    )
+    from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+    candidate_ref = cas_store.put_json(
+        {"candidate_id": "candidate-nullable-score-basis"},
+        PutOptions(
+            kind="scientist.policy_design.candidate",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.PolicyCandidate", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    vector = PolicyEvaluationVector(
+        candidate_id="candidate-nullable-score-basis",
+        score_assessment=ObjectiveScoreAssessment(
+            objective_ref=None,
+            rule_spec=None,
+            required_input_groups=(),
+            source_field_names=(),
+            source_values=(),
+            source_sha256=None,
+            value=None,
+            status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+            limitation="objective_source_not_established",
+        ),
+    )
+
+    vector_ref = persist_policy_evaluation_vector_to_store(
+        cas_store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=vector,
+    )
+
+    manifest = cas_store.get_manifest(vector_ref)
+    payload = load_core_json_artifact(cas_store, vector_ref)
+    assert vector_ref.manifest_profile_sha256 is not None
+    assert manifest.kind == "scientist.policy_evaluation_vector"
+    assert manifest.media_type == "application/json"
+    assert manifest.artifact_schema == SchemaInfo(
+        name="polisyos.scientist.policy_design.PolicyEvaluationVector",
+        version="1.1",
+    )
+    assert manifest.canon is not None
+    assert manifest.canon.forbid_floats is False
+    assert manifest.canon.exclude_none is False
+    for required_nullable in ("objective_ref", "rule_spec", "source_sha256", "value"):
+        assert required_nullable in payload["score_assessment"]
+        assert payload["score_assessment"][required_nullable] is None
+    assert PolicyEvaluationVector.model_validate(payload) == vector
+
+    malformed = dict(payload)
+    assessment_payload = dict(payload["score_assessment"])
+    for required_nullable in ("objective_ref", "rule_spec", "source_sha256", "value"):
+        assessment_payload.pop(required_nullable)
+    malformed["score_assessment"] = assessment_payload
+    with pytest.raises(ValidationError):
+        PolicyEvaluationVector.model_validate(malformed)
+
+
+def test_unestablished_selection_score_stays_limited_after_metadata_extension(
+    cas_store,
+) -> None:
+    """Candidate metadata cannot turn an unscored selection into promotion evidence."""
+    from polisyos.scientist.methods.search.objective import (
+        ObjectiveScoreAssessment,
+        ObjectiveScoreStatus,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+        build_selection_benchmark_evaluation,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+    candidate_ref = cas_store.put_json(
+        {"candidate_id": "candidate-unscored-selection"},
+        PutOptions(
+            kind="scientist.policy_design.candidate",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.PolicyCandidate", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    vector = PolicyEvaluationVector(
+        candidate_id="candidate-unscored-selection",
+        score_assessment=ObjectiveScoreAssessment(
+            objective_ref=None,
+            rule_spec=None,
+            required_input_groups=(),
+            source_field_names=(),
+            source_values=(),
+            source_sha256=None,
+            value=None,
+            status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+            limitation="objective_source_not_established",
+        ),
+    )
+
+    evaluation = build_selection_benchmark_evaluation(
+        state=ExperimentState(run_id="run-unscored-selection"),
+        candidate_ref=candidate_ref,
+        evaluation_vector=vector,
+        metadata_extension={
+            "objective_score_status": "available",
+            "objective_score_limitation": None,
+        },
+    )
+
+    assert evaluation.selection_metrics == {}
+    assert evaluation.holdout_metrics == {}
+    assert evaluation.sample_counts == {}
+    assert evaluation.status == "not_established"
+    assert evaluation.notes == ["objective_source_not_established"]
+    assert evaluation.promotable is False
+    assert evaluation.metadata["objective_score_status"] == "not_established"
+    assert evaluation.metadata["objective_score_limitation"] == "objective_source_not_established"

@@ -241,6 +241,33 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.academic.knowledge.skg_query import (
         SKGQuery as SKGQuery,
     )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSnapshot as RetainedSKGSnapshot,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSnapshotChunk as RetainedSKGSnapshotChunk,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSnapshotError as RetainedSKGSnapshotError,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSnapshotRecord as RetainedSKGSnapshotRecord,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSnapshotV10 as RetainedSKGSnapshotV10,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSnapshotV11 as RetainedSKGSnapshotV11,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        RetainedSKGSourceBinding as RetainedSKGSourceBinding,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        load_retained_skg_snapshot as load_retained_skg_snapshot,
+    )
+    from polisyos.data_forge.domains.academic.knowledge.skg_snapshot import (
+        retained_skg_source_binding as retained_skg_source_binding,
+    )
     from polisyos.data_forge.domains.academic.knowledge.skg_source_population import (
         SourceReferencePopulation as SourceReferencePopulation,
     )
@@ -363,6 +390,15 @@ _EXPORTS = {
     "PreparedSKGRead": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
     "PreparedSKGReadReceipt": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
     "PreparedSKGCredalSourceRows": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
+    "RetainedSKGSnapshot": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "RetainedSKGSnapshotChunk": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "RetainedSKGSnapshotError": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "RetainedSKGSnapshotRecord": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "RetainedSKGSnapshotV10": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "RetainedSKGSnapshotV11": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "RetainedSKGSourceBinding": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "load_retained_skg_snapshot": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
+    "retained_skg_source_binding": f"{_ACADEMIC_KNOWLEDGE}.skg_snapshot",
     "ParameterPrior": f"{_ACADEMIC_KNOWLEDGE}.types",
     "ParameterSelector": f"{_ACADEMIC_KNOWLEDGE}.parameter_selector",
     "RUNTIME_CANONICAL_REGISTRY": _RUNTIME_CANONICAL_REGISTRY,

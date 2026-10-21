@@ -18,8 +18,6 @@ from dataclasses import replace
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
-
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactManifest,
@@ -32,7 +30,19 @@ from polisyos.core.artifacts import (
     fsync_directory,
     input_ref_from_artifact_ref,
 )
-from polisyos.data_forge.read_api.academic import SKGQuery
+from polisyos.data_forge.read_api.academic import (
+    RetainedSKGSnapshot as RetainedSKGSnapshot,
+)
+from polisyos.data_forge.read_api.academic import (
+    RetainedSKGSnapshotChunk,
+    RetainedSKGSnapshotError,
+    RetainedSKGSnapshotRecord,
+    RetainedSKGSnapshotV11,
+    SKGQuery,
+)
+from polisyos.data_forge.read_api.academic import (
+    load_retained_skg_snapshot as _load_retained_skg_snapshot,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import PutOptions
@@ -100,41 +110,9 @@ _RETAINED_SKG_READ_METHODS = (
 )
 _SNAPSHOT_KIND = "scientist.skg_source_snapshot"
 _CHUNK_KIND = "scientist.skg_source_chunk"
-_VERSION: Literal["1.0"] = "1.0"
+_SNAPSHOT_VERSION: Literal["1.1"] = "1.1"
+_CHUNK_VERSION: Literal["1.0"] = "1.0"
 _CHUNK_BYTES = 1024 * 1024
-
-
-class RetainedSKGSnapshotError(ValueError):
-    """Refuse a missing, inconsistent, or changing saved source."""
-
-
-class _SnapshotChunk(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
-
-    ref: ArtifactRef
-    byte_size: int = Field(gt=0, le=_CHUNK_BYTES)
-
-
-class RetainedSKGSnapshot(BaseModel):
-    """Exact operational bytes and provenance; no scientific authenticity claim."""
-
-    model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
-
-    schema_version: Literal["1.0"]
-    source_reference: str = Field(min_length=1)
-    source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
-    byte_size: int = Field(gt=0)
-    source_binding_schema_version: str = Field(min_length=1)
-    query_version: str = Field(min_length=1)
-    chunks: tuple[_SnapshotChunk, ...] = Field(min_length=1)
-
-    @model_validator(mode="after")
-    def _require_complete_length(self) -> RetainedSKGSnapshot:
-        if sum(chunk.byte_size for chunk in self.chunks) != self.byte_size:
-            raise ValueError("retained_skg_chunk_length_mismatch")
-        if any(chunk.byte_size != _CHUNK_BYTES for chunk in self.chunks[:-1]):
-            raise ValueError("retained_skg_chunk_boundary_mismatch")
-        return self
 
 
 def _file_identity(value: os.stat_result) -> tuple[int, int, int, int, int]:
@@ -148,11 +126,12 @@ def _file_identity(value: os.stat_result) -> tuple[int, int, int, int, int]:
 
 
 def _write_options(kind: str, media_type: str) -> ArtifactWriteOptions:
+    version = _CHUNK_VERSION if kind == _CHUNK_KIND else _SNAPSHOT_VERSION
     return ArtifactWriteOptions(
         kind=kind,
         media_type=media_type,
-        schema=SchemaInfo(name=kind, version=_VERSION),
-        producer=ProducerInfo(component=__name__, version=_VERSION),
+        schema=SchemaInfo(name=kind, version=version),
+        producer=ProducerInfo(component=__name__, version=version),
     )
 
 
@@ -191,56 +170,10 @@ def _require_selected_written_ref(
 def load_retained_skg_snapshot(
     store: _RetainedSKGReadStore,
     ref: ArtifactRef,
-) -> RetainedSKGSnapshot:
+) -> RetainedSKGSnapshotRecord:
     """Read the exact descriptor and verify its complete retained byte closure."""
-    from polisyos.core.artifacts import validate_core_model_json_artifact
-
     store = _require_retained_skg_read_store(store)
-    if ref.manifest_profile_sha256 is None:
-        raise RetainedSKGSnapshotError("retained_skg_descriptor_profile_required")
-    manifest = store.get_manifest(ref)
-    if (
-        ref.kind != _SNAPSHOT_KIND
-        or ref.media_type != "application/json"
-        or manifest.kind != _SNAPSHOT_KIND
-        or manifest.artifact_schema is None
-        or (manifest.artifact_schema.name, manifest.artifact_schema.version)
-        != (_SNAPSHOT_KIND, _VERSION)
-    ):
-        raise RetainedSKGSnapshotError("retained_skg_descriptor_type_mismatch")
-    snapshot = validate_core_model_json_artifact(RetainedSKGSnapshot, store, ref)
-    expected_inputs = [
-        input_ref_from_artifact_ref(chunk.ref, role=f"source_chunk:{index}")
-        for index, chunk in enumerate(snapshot.chunks)
-    ]
-    if manifest.inputs != expected_inputs:
-        raise RetainedSKGSnapshotError("retained_skg_descriptor_lineage_mismatch")
-    digest = hashlib.sha256()
-    total = 0
-    for chunk in snapshot.chunks:
-        if chunk.ref.manifest_profile_sha256 is None:
-            raise RetainedSKGSnapshotError("retained_skg_chunk_profile_required")
-        chunk_manifest = store.get_manifest(chunk.ref)
-        if (
-            chunk.ref.kind != _CHUNK_KIND
-            or chunk.ref.media_type != "application/octet-stream"
-            or chunk_manifest.kind != _CHUNK_KIND
-            or chunk_manifest.byte_size != chunk.byte_size
-            or chunk_manifest.artifact_schema is None
-            or (
-                chunk_manifest.artifact_schema.name,
-                chunk_manifest.artifact_schema.version,
-            )
-            != (_CHUNK_KIND, _VERSION)
-        ):
-            raise RetainedSKGSnapshotError("retained_skg_chunk_type_mismatch")
-        with store.open_member(chunk.ref, "blob") as source:
-            while payload := source.read(_CHUNK_BYTES):
-                digest.update(payload)
-                total += len(payload)
-    if total != snapshot.byte_size or digest.hexdigest() != snapshot.source_sha256:
-        raise RetainedSKGSnapshotError("retained_skg_retained_digest_mismatch")
-    return snapshot
+    return _load_retained_skg_snapshot(store, ref)
 
 
 def retain_prepared_skg_read(
@@ -258,13 +191,25 @@ def retain_prepared_skg_read(
     """
     if not prepared.source_generation_matches():
         raise RetainedSKGSnapshotError("retained_skg_source_changed")
+    source_version_id = prepared.query.latest_skg_version_id()
+    if source_version_id is None:
+        raise RetainedSKGSnapshotError("retained_skg_source_version_missing")
+    if (
+        prepared.query.skg_snapshot_ref(version_id=source_version_id)
+        != prepared.source_snapshot_ref
+    ):
+        raise RetainedSKGSnapshotError("retained_skg_source_version_binding_mismatch")
     if existing_ref is not None:
         snapshot = load_retained_skg_snapshot(store, existing_ref)
+        if not isinstance(snapshot, RetainedSKGSnapshotV11):
+            raise RetainedSKGSnapshotError("retained_skg_legacy_source_version_unbound")
         if (
             snapshot.source_sha256 != prepared.source_snapshot_sha256
             or snapshot.source_reference != prepared.source_snapshot_ref
             or snapshot.source_binding_schema_version != prepared.source_binding_schema_version
             or snapshot.query_version != prepared.query_version
+            or snapshot.source_version_id != source_version_id
+            or snapshot.version_identity_kind != "content_digest"
         ):
             raise RetainedSKGSnapshotError("retained_skg_existing_source_mismatch")
         if not prepared.source_generation_matches():
@@ -275,7 +220,7 @@ def retain_prepared_skg_read(
         prepared.db_path,
         os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
     )
-    chunks: list[_SnapshotChunk] = []
+    chunks: list[RetainedSKGSnapshotChunk] = []
     digest = hashlib.sha256()
     total = 0
     with os.fdopen(descriptor, "rb") as source:
@@ -299,7 +244,7 @@ def retain_prepared_skg_read(
                 kind=_CHUNK_KIND,
                 media_type="application/octet-stream",
             )
-            chunks.append(_SnapshotChunk(ref=chunk_ref, byte_size=len(payload)))
+            chunks.append(RetainedSKGSnapshotChunk(ref=chunk_ref, byte_size=len(payload)))
         if _file_identity(os.fstat(source.fileno())) != prepared.source_file_identity:
             raise RetainedSKGSnapshotError("retained_skg_source_changed")
     if (
@@ -308,13 +253,15 @@ def retain_prepared_skg_read(
         or total != prepared.source_file_identity[2]
     ):
         raise RetainedSKGSnapshotError("retained_skg_capture_digest_mismatch")
-    snapshot = RetainedSKGSnapshot(
-        schema_version=_VERSION,
+    snapshot = RetainedSKGSnapshotV11(
+        schema_version=_SNAPSHOT_VERSION,
         source_reference=prepared.source_snapshot_ref,
         source_sha256=digest.hexdigest(),
         byte_size=total,
         source_binding_schema_version=prepared.source_binding_schema_version,
         query_version=prepared.query_version,
+        source_version_id=source_version_id,
+        version_identity_kind="content_digest",
         chunks=tuple(chunks),
     )
     options = replace(
@@ -340,7 +287,7 @@ def retain_prepared_skg_read(
     return ref
 
 
-def _require_local_file(path: Path, snapshot: RetainedSKGSnapshot) -> None:
+def _require_local_file(path: Path, snapshot: RetainedSKGSnapshotRecord) -> None:
     if path.with_name(path.name + ".wal").exists():
         raise RetainedSKGSnapshotError("retained_skg_materialization_wal")
     descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
@@ -367,7 +314,7 @@ def retained_skg_snapshot_directory(trace_path: Path | None) -> Path:
 
 def _materialize_loaded_retained_skg_snapshot(
     store: _RetainedSKGReadStore,
-    snapshot: RetainedSKGSnapshot,
+    snapshot: RetainedSKGSnapshotRecord,
     *,
     directory: Path,
 ) -> Path:

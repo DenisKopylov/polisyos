@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+
 import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
+    ArtifactRef,
     ArtifactWriteOptions,
     ProducerInfo,
     SchemaInfo,
@@ -17,15 +20,23 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.data_forge.read_api.academic import (
+    RetainedSKGSnapshotChunk,
+    RetainedSKGSnapshotV11,
+    RetainedSKGSourceBinding,
+    retained_skg_source_binding,
+)
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.literature import EvidenceParameter
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     ContextAdaptiveParameterBundleV11,
+    ContextAdaptiveParameterBundleV12,
     ParameterApplicability,
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle_v1_1,
+    persist_context_adaptive_parameter_bundle_v1_2,
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import ArtifactID, InputRef, get_json_artifact, put_json_artifact
@@ -349,3 +360,157 @@ def test_context_adaptive_parameter_bundle_v1_1_missing_selection_field_is_rejec
     assert any(
         error["loc"] == ("selected_cross_graph_profile_ref",) for error in exc_info.value.errors()
     )
+
+
+def _persisted_skg_source_v11(store, *, source_digest=None, build_binding=True):
+    """Create one selected source descriptor for bundle tests."""
+    chunk_bytes = b"source bytes selected by one read"
+    chunk_ref = store.put_bytes(
+        chunk_bytes,
+        ArtifactWriteOptions(
+            kind="scientist.skg_source_chunk",
+            media_type="application/octet-stream",
+            schema=SchemaInfo(name="scientist.skg_source_chunk", version="1.0"),
+            producer=ProducerInfo(component="tests.ir.parameters", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    snapshot = RetainedSKGSnapshotV11(
+        schema_version="1.1",
+        source_reference="duckdb://captured/source#v7",
+        source_sha256=source_digest or hashlib.sha256(chunk_bytes).hexdigest(),
+        byte_size=len(chunk_bytes),
+        source_binding_schema_version="academic.skg_source_binding.v2",
+        query_version="skg-query-read.v3",
+        source_version_id=7,
+        version_identity_kind="content_digest",
+        chunks=(RetainedSKGSnapshotChunk(ref=chunk_ref, byte_size=len(chunk_bytes)),),
+    )
+    source_payload = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        snapshot.model_dump(mode="json"),
+        kind="scientist.skg_source_snapshot",
+        schema_name="scientist.skg_source_snapshot",
+        schema_version="1.1",
+        inputs=[input_ref_from_artifact_ref(chunk_ref, role="source_chunk:0")],
+        return_selected_profile=True,
+    )
+    source_ref = ArtifactRef.model_validate(source_payload)
+    if not build_binding:
+        return source_ref, None
+    binding = retained_skg_source_binding(_ensure_ir_artifact_store(store), source_ref)
+    return source_ref, binding
+
+
+def test_context_adaptive_parameter_bundle_v1_2_roundtrips_exact_source_and_observed_version(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ir_store = _ensure_ir_artifact_store(store)
+    source_ref, binding = _persisted_skg_source_v11(store)
+    bundle = ContextAdaptiveParameterBundleV12(
+        target_context=ContextProfile(context_id="UA"),
+        simulation_domain="fiscal",
+        selected_cross_graph_profile_ref=None,
+        skg_snapshot_ref=binding.source_reference,
+        skg_version_id=binding.source_version_id,
+        selected_skg_source=binding,
+    )
+
+    ref = persist_context_adaptive_parameter_bundle_v1_2(
+        ir_store,
+        bundle,
+        inputs=[
+            _graph_input(),
+            input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot"),
+        ],
+    )
+    cold_bundle = load_context_adaptive_parameter_bundle(ir_store, ref)
+    manifest = ir_store.get_manifest(ref)
+
+    assert isinstance(cold_bundle, ContextAdaptiveParameterBundleV12)
+    assert cold_bundle.selected_skg_source == binding
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.version == "1.2"
+    assert manifest.inputs[1] == input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot")
+
+
+def test_context_adaptive_parameter_bundle_v1_2_recomputes_retained_source_bytes(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ir_store = _ensure_ir_artifact_store(store)
+    source_ref, _ = _persisted_skg_source_v11(
+        store,
+        source_digest="0" * 64,
+        build_binding=False,
+    )
+    binding = RetainedSKGSourceBinding(
+        descriptor_ref=source_ref,
+        source_reference="duckdb://captured/source#v7",
+        source_sha256="0" * 64,
+        source_version_id=7,
+        source_binding_schema_version="academic.skg_source_binding.v2",
+        query_version="skg-query-read.v3",
+        version_identity_kind="content_digest",
+    )
+    bundle = ContextAdaptiveParameterBundleV12(
+        target_context=ContextProfile(context_id="UA"),
+        simulation_domain="fiscal",
+        selected_cross_graph_profile_ref=None,
+        skg_snapshot_ref=binding.source_reference,
+        skg_version_id=binding.source_version_id,
+        selected_skg_source=binding,
+    )
+
+    with pytest.raises(ValueError, match="descriptor could not be resolved"):
+        persist_context_adaptive_parameter_bundle_v1_2(
+            ir_store,
+            bundle,
+            inputs=[
+                _graph_input(),
+                input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot"),
+            ],
+        )
+
+
+def test_context_adaptive_parameter_bundle_v1_2_rejects_unjoined_or_changed_source(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    ir_store = _ensure_ir_artifact_store(store)
+    source_ref, binding = _persisted_skg_source_v11(store)
+    source_input = input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot")
+    bundle = ContextAdaptiveParameterBundleV12(
+        target_context=ContextProfile(context_id="UA"),
+        simulation_domain="fiscal",
+        selected_cross_graph_profile_ref=None,
+        skg_snapshot_ref=binding.source_reference,
+        skg_version_id=binding.source_version_id,
+        selected_skg_source=binding,
+    )
+
+    with pytest.raises(ValueError, match="exactly one selected SKG source input"):
+        persist_context_adaptive_parameter_bundle_v1_2(ir_store, bundle, inputs=[_graph_input()])
+    changed = binding.model_copy(update={"source_sha256": "0" * 64})
+    with pytest.raises(ValueError, match="content and observed version disagree"):
+        persist_context_adaptive_parameter_bundle_v1_2(
+            ir_store,
+            bundle.model_copy(update={"selected_skg_source": changed}),
+            inputs=[_graph_input(), source_input],
+        )
+
+    payload = bundle.model_dump(mode="json")
+    payload.pop("selected_skg_source")
+    unbound_ref = put_json_artifact(
+        ir_store,
+        payload,
+        kind="ir.context_adaptive_parameter_bundle",
+        schema_name="ir.context_adaptive_parameter_bundle",
+        schema_version="1.2",
+        inputs=[_graph_input(), source_input],
+    )
+    with pytest.raises(ValidationError):
+        load_context_adaptive_parameter_bundle(
+            ir_store, ContextAdaptiveParameterBundleRef.model_validate(unbound_ref)
+        )

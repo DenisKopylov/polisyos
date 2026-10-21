@@ -83,10 +83,10 @@ from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
     RetainedSKGSnapshotError,
     bind_retained_skg_workflow_input,
-    load_retained_skg_snapshot,
     prepare_retained_skg_read,
     retain_prepared_skg_read,
     retained_skg_snapshot_directory,
+    retained_skg_source_binding,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
     _completed_producer_state,
@@ -130,7 +130,7 @@ _CACHE_BYPASS_REPLAY_INCOMPATIBLE = 4
 _CACHE_BYPASS_PREPARED_READ = 5
 _CACHE_BYPASS_CACHE_HIT_VALIDATION = 6
 _CACHE_BYPASS_PREPARED_READ_TIMEOUT = 7
-_PREPARED_READ_SELECTOR_EPOCH = "prepared-read-retained-source-v5"
+_PREPARED_READ_SELECTOR_EPOCH = "prepared-read-retained-source-v6"
 
 _CACHE_DISABLED_NODE_IDS = frozenset(
     {
@@ -536,10 +536,21 @@ def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dic
         "retained_snapshot_ref_json",
         "retained_snapshot_schema_version",
         "retained_source_original_reference",
+        "retained_source_version_id",
+        "retained_source_version_identity_kind",
     )
     if any(not isinstance(attrs.get(key), str) or not attrs[key] for key in required):
         return None
-    if attrs.get("retained_snapshot_schema_version") != "1.0":
+    if attrs.get("retained_snapshot_schema_version") != "1.1":
+        return None
+    try:
+        source_version_id = int(attrs["retained_source_version_id"])
+    except (TypeError, ValueError):
+        return None
+    if (
+        source_version_id <= 0
+        or attrs.get("retained_source_version_identity_kind") != "content_digest"
+    ):
         return None
     if attrs.get("selector_version") != selector_version:
         return None
@@ -574,7 +585,7 @@ def _retained_prepared_source(
     prepared_read: PreparedSKGRead,
     selected_ref: ArtifactRef | None,
     existing_ref: ArtifactRef | None = None,
-) -> tuple[ArtifactRef, str]:
+) -> tuple[ArtifactRef, str, int]:
     """Reconcile the real prepared generation with one retained descriptor.
 
     Explicit replay preserves its selected full ref. Its original logical source
@@ -593,15 +604,25 @@ def _retained_prepared_source(
         if existing_ref is not None and existing_ref != selected_ref:
             raise RetainedSKGSnapshotError("retained_skg_selected_ref_mismatch")
         ref = selected_ref
-    snapshot = load_retained_skg_snapshot(ctx.store, ref)
+    source_binding = retained_skg_source_binding(ctx.store, ref)
+    source_version_id = prepared_read.query.latest_skg_version_id()
     if (
-        snapshot.source_sha256 != prepared_read.source_snapshot_sha256
-        or snapshot.source_binding_schema_version != prepared_read.source_binding_schema_version
-        or snapshot.query_version != prepared_read.query_version
+        source_version_id is None
+        or prepared_read.query.skg_snapshot_ref(version_id=source_version_id)
+        != prepared_read.source_snapshot_ref
+        or source_binding.source_sha256 != prepared_read.source_snapshot_sha256
+        or source_binding.source_binding_schema_version
+        != prepared_read.source_binding_schema_version
+        or source_binding.query_version != prepared_read.query_version
+        or source_binding.source_version_id != source_version_id
+        or (
+            selected_ref is None
+            and source_binding.source_reference != prepared_read.source_snapshot_ref
+        )
         or not prepared_read.source_generation_matches()
     ):
         raise RetainedSKGSnapshotError("retained_skg_prepared_source_mismatch")
-    return ref, snapshot.source_reference
+    return ref, source_binding.source_reference, source_version_id
 
 
 def _prepared_read_selector_version(node_id: str) -> str:
@@ -1379,13 +1400,15 @@ class WorkflowExecutor:
                                     origin_matches = False
                                 else:
                                     try:
-                                        retained_hit_ref, original_reference = (
-                                            _retained_prepared_source(
-                                                ctx=self._ctx,
-                                                prepared_read=prepared_read,
-                                                selected_ref=replay_source_ref,
-                                                existing_ref=origin_ref,
-                                            )
+                                        (
+                                            retained_hit_ref,
+                                            original_reference,
+                                            retained_hit_version_id,
+                                        ) = _retained_prepared_source(
+                                            ctx=self._ctx,
+                                            prepared_read=prepared_read,
+                                            selected_ref=replay_source_ref,
+                                            existing_ref=origin_ref,
                                         )
                                     except _EXECUTOR_DEGRADED_ERRORS as exc:
                                         if replay_source_ref is not None:
@@ -1402,6 +1425,8 @@ class WorkflowExecutor:
                                         origin_matches = (
                                             original_reference
                                             == origin["retained_source_original_reference"]
+                                            and str(retained_hit_version_id)
+                                            == origin["retained_source_version_id"]
                                         )
                         if not origin_matches:
                             self._cache.discard(cache_key)
@@ -1712,10 +1737,33 @@ class WorkflowExecutor:
                         and outcome.status == "ok"
                     ):
                         try:
-                            retained_ref, original_reference = _retained_prepared_source(
-                                ctx=self._ctx,
-                                prepared_read=prepared_read,
-                                selected_ref=replay_source_ref,
+                            retained_source_refs = [
+                                ref
+                                for ref in outcome.artifacts
+                                if isinstance(ref, ArtifactRef)
+                                and ref.kind == "scientist.skg_source_snapshot"
+                            ]
+                            has_parameter_bundle = any(
+                                getattr(ref, "kind", None) == "ir.context_adaptive_parameter_bundle"
+                                for ref in outcome.artifacts
+                            )
+                            if has_parameter_bundle and len(retained_source_refs) != 1:
+                                raise RetainedSKGSnapshotError(
+                                    "retained_skg_bundle_source_join_missing"
+                                )
+                            if len(retained_source_refs) > 1:
+                                raise RetainedSKGSnapshotError(
+                                    "retained_skg_bundle_source_join_ambiguous"
+                                )
+                            retained_ref, original_reference, retained_version_id = (
+                                _retained_prepared_source(
+                                    ctx=self._ctx,
+                                    prepared_read=prepared_read,
+                                    selected_ref=replay_source_ref,
+                                    existing_ref=(
+                                        retained_source_refs[0] if retained_source_refs else None
+                                    ),
+                                )
                             )
                         except _EXECUTOR_DEGRADED_ERRORS as exc:
                             if replay_source_ref is not None:
@@ -1756,8 +1804,10 @@ class WorkflowExecutor:
                                         "retained_snapshot_ref_json": (
                                             retained_ref.model_dump_json()
                                         ),
-                                        "retained_snapshot_schema_version": "1.0",
+                                        "retained_snapshot_schema_version": "1.1",
                                         "retained_source_original_reference": original_reference,
+                                        "retained_source_version_id": str(retained_version_id),
+                                        "retained_source_version_identity_kind": "content_digest",
                                         "source_snapshot_sha256": (
                                             prepared_read.source_snapshot_sha256
                                         ),

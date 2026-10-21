@@ -6,6 +6,10 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.data_forge.read_api.academic import (
+    RetainedSKGSourceBinding,
+    retained_skg_source_binding,
+)
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.artifacts import (
     ArtifactStore,
@@ -30,6 +34,7 @@ else:
 _SCHEMA_NAME = "ir.context_adaptive_parameter_bundle"
 _SCHEMA_VERSION = "1.0"
 _SCHEMA_VERSION_V1_1 = "1.1"
+_SCHEMA_VERSION_V1_2 = "1.2"
 _SKG_SOURCE_SNAPSHOT_ROLE = "skg_source_snapshot"
 _SKG_SOURCE_SNAPSHOT_KIND = "scientist.skg_source_snapshot"
 _SKG_SOURCE_SNAPSHOT_MEDIA_TYPE = "application/json"
@@ -75,6 +80,13 @@ class ContextAdaptiveParameterBundleV11(ContextAdaptiveParameterBundle):
 
     schema_version: Literal["1.1"] = "1.1"
     selected_cross_graph_profile_ref: CrossGraphEvidenceProfileRef | None
+
+
+class ContextAdaptiveParameterBundleV12(ContextAdaptiveParameterBundleV11):
+    """Source-bound bundle requiring an exact retained SKG descriptor."""
+
+    schema_version: Literal["1.2"] = "1.2"
+    selected_skg_source: RetainedSKGSourceBinding
 
 
 def persist_context_adaptive_parameter_bundle(
@@ -124,10 +136,34 @@ def persist_context_adaptive_parameter_bundle_v1_1(
     return ContextAdaptiveParameterBundleRef.model_validate(ref)
 
 
+def persist_context_adaptive_parameter_bundle_v1_2(
+    store: ArtifactStore,
+    bundle: ContextAdaptiveParameterBundleV12,
+    *,
+    inputs: list[InputRef],
+) -> ContextAdaptiveParameterBundleRef:
+    """Persist a v1.2 bundle with a fully verified retained source join."""
+    _validate_v1_2_input_lineage(store, bundle, inputs)
+    ref = put_json_artifact(
+        store,
+        bundle.model_dump(mode="json"),
+        kind=_SCHEMA_NAME,
+        schema_name=_SCHEMA_NAME,
+        schema_version=_SCHEMA_VERSION_V1_2,
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+    return ContextAdaptiveParameterBundleRef.model_validate(ref)
+
+
 def load_context_adaptive_parameter_bundle(
     store: ArtifactStore,
     ref: ContextAdaptiveParameterBundleRef,
-) -> ContextAdaptiveParameterBundle | ContextAdaptiveParameterBundleV11:
+) -> (
+    ContextAdaptiveParameterBundle
+    | ContextAdaptiveParameterBundleV11
+    | ContextAdaptiveParameterBundleV12
+):
     """Load only known bundle versions through their distinct typed decoders."""
     manifest = store.get_manifest(ref)
     schema = manifest.artifact_schema
@@ -145,6 +181,12 @@ def load_context_adaptive_parameter_bundle(
         if bundle.schema_version != _SCHEMA_VERSION_V1_1:
             raise ValueError("Context-adaptive parameter bundle payload version is incompatible")
         _validate_v1_1_manifest_lineage(store, bundle, manifest.inputs)
+        return bundle
+    if schema.version == _SCHEMA_VERSION_V1_2:
+        bundle = ContextAdaptiveParameterBundleV12.model_validate(payload)
+        if bundle.schema_version != _SCHEMA_VERSION_V1_2:
+            raise ValueError("Context-adaptive parameter bundle payload version is incompatible")
+        _validate_v1_2_manifest_lineage(store, bundle, manifest.inputs)
         return bundle
     raise ValueError(f"Unsupported context-adaptive parameter bundle version: {schema.version}")
 
@@ -188,16 +230,26 @@ def _validate_v1_1_input_lineage(
     source_profile = source_input.manifest_profile_sha256
     if source_profile is None:
         raise ValueError("A selected SKG source requires its exact manifest profile")
+    manifest_reader = getattr(store, "get_manifest_by_profile", None)
+    if not callable(manifest_reader):
+        raise ValueError("Selected SKG source profile could not be resolved")
     try:
-        selected_source_ref = ArtifactRefModel(
-            artifact_id=source_input.artifact_id,
-            kind=_SKG_SOURCE_SNAPSHOT_KIND,
-            media_type=_SKG_SOURCE_SNAPSHOT_MEDIA_TYPE,
-            manifest_profile_sha256=source_profile,
-        )
-        manifest = store.get_manifest(selected_source_ref)
-        # A profile digest identifies manifest metadata, not the current blob bytes.
-        # Keep the IR store's selected-view read so profile and payload stay bound.
+        manifest = manifest_reader(source_input.artifact_id, source_profile)
+    except (OSError, TypeError, ValueError) as exc:
+        raise ValueError("Selected SKG source profile could not be resolved") from exc
+    if (
+        str(manifest.artifact_id) != str(source_input.artifact_id)
+        or manifest.kind != _SKG_SOURCE_SNAPSHOT_KIND
+        or manifest.media_type != _SKG_SOURCE_SNAPSHOT_MEDIA_TYPE
+    ):
+        raise ValueError("Selected SKG source input has an incompatible manifest")
+    selected_source_ref = ArtifactRefModel(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=source_profile,
+    )
+    try:
         store.get_bytes(selected_source_ref)
     except (OSError, TypeError, ValueError) as exc:
         raise ValueError("Selected SKG source profile could not be resolved") from exc
@@ -207,7 +259,12 @@ def _validate_v1_1_input_lineage(
         or manifest.media_type != _SKG_SOURCE_SNAPSHOT_MEDIA_TYPE
         or schema is None
         or schema.name != _SKG_SOURCE_SNAPSHOT_KIND
-        or schema.version != _SKG_SOURCE_SNAPSHOT_SCHEMA_VERSION
+        or schema.version
+        != (
+            "1.1"
+            if isinstance(bundle, ContextAdaptiveParameterBundleV12)
+            else _SKG_SOURCE_SNAPSHOT_SCHEMA_VERSION
+        )
     ):
         raise ValueError("Selected SKG source input has an incompatible manifest")
 
@@ -220,11 +277,55 @@ def _validate_v1_1_manifest_lineage(
     _validate_v1_1_input_lineage(store, bundle, inputs)
 
 
+def _validate_v1_2_input_lineage(
+    store: ArtifactStore,
+    bundle: ContextAdaptiveParameterBundleV12,
+    inputs: list[InputRef],
+) -> None:
+    """Require the bundle to bind one exact, fully reconciled source descriptor."""
+    _validate_v1_1_input_lineage(store, bundle, inputs)
+    source_inputs = [item for item in inputs if item.role == _SKG_SOURCE_SNAPSHOT_ROLE]
+    if len(source_inputs) != 1:
+        raise ValueError("A v1.2 bundle requires exactly one selected SKG source input")
+    selected = bundle.selected_skg_source
+    source_input = source_inputs[0]
+    selected_ref = selected.descriptor_ref
+    if (
+        selected_ref.kind != _SKG_SOURCE_SNAPSHOT_KIND
+        or selected_ref.media_type != _SKG_SOURCE_SNAPSHOT_MEDIA_TYPE
+        or selected_ref.manifest_profile_sha256 is None
+        or str(source_input.artifact_id) != str(selected_ref.artifact_id)
+        or source_input.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    ):
+        raise ValueError("Bundle source content and manifest input lineage disagree")
+    try:
+        resolved = retained_skg_source_binding(store, selected_ref)
+    except (OSError, TypeError, ValueError) as exc:
+        raise ValueError("Selected SKG source descriptor could not be resolved") from exc
+    if (
+        resolved != selected
+        or bundle.skg_snapshot_ref != resolved.source_reference
+        or bundle.skg_version_id != resolved.source_version_id
+        or selected.version_identity_kind != "content_digest"
+    ):
+        raise ValueError("Bundle source content and observed version disagree")
+
+
+def _validate_v1_2_manifest_lineage(
+    store: ArtifactStore,
+    bundle: ContextAdaptiveParameterBundleV12,
+    inputs: list[InputRef],
+) -> None:
+    _validate_v1_2_input_lineage(store, bundle, inputs)
+
+
 __all__ = [
     "ContextAdaptiveParameterBundle",
     "ContextAdaptiveParameterBundleV11",
+    "ContextAdaptiveParameterBundleV12",
     "ParameterApplicability",
     "load_context_adaptive_parameter_bundle",
     "persist_context_adaptive_parameter_bundle",
     "persist_context_adaptive_parameter_bundle_v1_1",
+    "persist_context_adaptive_parameter_bundle_v1_2",
 ]

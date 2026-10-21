@@ -16,6 +16,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
+    ProducerInfo,
 )
 from polisyos.core.artifacts.manifest import (
     CanonInfo as CoreCanonInfo,
@@ -24,6 +25,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo as CoreSchemaInfo,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.data_forge.read_api.academic import RetainedSKGSourceBinding
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -39,6 +41,7 @@ from polisyos.ir.analytics.cross_graph import (
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     ContextAdaptiveParameterBundleV11,
+    ContextAdaptiveParameterBundleV12,
     ParameterApplicability,
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
@@ -186,7 +189,17 @@ def _persist_unchecked_v1_1_bundle(store, bundle, *, inputs):
 
 def _persist_and_capture(store, bundle, *, inputs, observed):
     observed["inputs"] = inputs
-    bundle_ref = _persist_v1_1_bundle(store, bundle, inputs=inputs)
+    observed["bundle"] = bundle
+    payload = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        bundle.model_dump(mode="json"),
+        kind="ir.context_adaptive_parameter_bundle",
+        schema_name="ir.context_adaptive_parameter_bundle",
+        schema_version="1.2",
+        inputs=inputs,
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+    bundle_ref = ContextAdaptiveParameterBundleRef.model_validate(payload)
     observed["bundle_ref"] = bundle_ref
     return bundle_ref
 
@@ -376,7 +389,15 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
             "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
         ) as selector_cls,
         patch(
-            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.persist_context_adaptive_parameter_bundle_v1_1",
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.retain_prepared_skg_read",
+            side_effect=lambda *_args: observed["source_ref"],
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.retained_skg_source_binding",
+            side_effect=lambda *_args: observed["source_binding"],
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.persist_context_adaptive_parameter_bundle_v1_2",
             side_effect=lambda store, bundle, *, inputs: _persist_and_capture(
                 store, bundle, inputs=inputs, observed=observed
             ),
@@ -396,7 +417,38 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
             },
         ),
     ):
-        skg_query = skg_query_cls.prepare_read.return_value.query
+        source_payload_ref = execution_context.store.put_bytes(
+            b"{}",
+            ArtifactWriteOptions(
+                kind="scientist.skg_source_snapshot",
+                media_type="application/json",
+                schema=CoreSchemaInfo(
+                    name="scientist.skg_source_snapshot",
+                    version="1.1",
+                ),
+                producer=ProducerInfo(component="tests.resolve_parameters", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        source_ref = ArtifactRef.model_validate(source_payload_ref.model_dump(mode="json"))
+        source_binding = RetainedSKGSourceBinding(
+            descriptor_ref=source_ref,
+            source_reference="snapshot",
+            source_sha256="a" * 64,
+            source_version_id=1,
+            source_binding_schema_version="academic.skg_source_binding.v2",
+            query_version="skg-query-read.v3",
+            version_identity_kind="content_digest",
+        )
+        observed["source_ref"] = source_ref
+        observed["source_binding"] = source_binding
+        prepared_read = skg_query_cls.prepare_read.return_value
+        prepared_read.source_snapshot_ref = "snapshot"
+        prepared_read.source_snapshot_sha256 = source_binding.source_sha256
+        prepared_read.source_binding_schema_version = source_binding.source_binding_schema_version
+        prepared_read.query_version = source_binding.query_version
+        prepared_read.source_generation_matches.return_value = True
+        skg_query = prepared_read.query
         skg_query.latest_skg_version_id.return_value = 1
         skg_query.skg_snapshot_ref.return_value = "snapshot"
         selector_cls.return_value.select_for_context.return_value = (
@@ -448,8 +500,8 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
         )
     ir_store = _ensure_ir_artifact_store(execution_context.store)
     persisted_manifest = ir_store.get_manifest(persisted_ir_bundle_ref)
-    persisted_bundle = load_context_adaptive_parameter_bundle(ir_store, persisted_ir_bundle_ref)
-    assert isinstance(persisted_bundle, ContextAdaptiveParameterBundleV11)
+    persisted_bundle = observed["bundle"]
+    assert isinstance(persisted_bundle, ContextAdaptiveParameterBundleV12)
     expected_inputs = [
         input_ref_from_artifact_ref(
             _core_artifact_ref(graph_ref),
@@ -463,12 +515,15 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
                 role="cross_graph_evidence_profile",
             )
         )
+    expected_inputs.append(input_ref_from_artifact_ref(source_ref, role="skg_source_snapshot"))
     assert persisted_inputs == expected_inputs
     assert persisted_manifest.inputs == expected_inputs
     if selected_profile_ref is None:
         assert persisted_bundle.selected_cross_graph_profile_ref is None
     else:
         assert persisted_bundle.selected_cross_graph_profile_ref == selected_profile_ref
+    assert persisted_bundle.selected_skg_source == source_binding
+    assert persisted_bundle.skg_version_id == 1
 
 
 def test_cache_hit_requires_exact_graph_profile_and_role(

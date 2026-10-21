@@ -590,7 +590,7 @@ def _workflow_fixture(
     source = tmp_path / "live.duckdb"
     _seed(source, 1.25)
     store = FileSystemCAS(tmp_path / "cas").for_tenant("retained-tenant", "retained-cell")
-    registry_bundle = build_default_registry_bundle(store)
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True)
     run = RunContext.start(
         store,
         registry_bundle.bundle_ref,
@@ -656,6 +656,9 @@ async def _run_bound_worker(
         alias="resolve",
         dispatch_params={},
     )
+    capability, binding = retry_module._bind_spawn_timeout_dispatch(
+        ctx, task, expected_run_id=state.run_id
+    )
     payload = _spawn_timeout_payload(task)
     if timeout_authority is not None:
         receipt = await run_node_in_worker(payload, timeout_authority=timeout_authority)
@@ -663,18 +666,11 @@ async def _run_bound_worker(
         receipt = await run_node_in_worker(payload, parent_receipt=True)
     else:
         receipt = await asyncio.to_thread(run_node_in_worker_sync, payload, parent_receipt=True)
-    owner_snapshot_ref = ctx.run._owner_snapshot_ref
-    invocation_id = task.worker_invocation_id
-    dispatch_sha256 = task.worker_dispatch_sha256
-    assert owner_snapshot_ref is not None
-    assert isinstance(invocation_id, str)
-    assert isinstance(dispatch_sha256, str)
     return retry_module._admit_worker_execution_receipt(
         ctx,
         receipt,
-        invocation_id=invocation_id,
-        expected_dispatch=dispatch_sha256,
-        owner_snapshot_ref=owner_snapshot_ref,
+        capability=capability,
+        binding=binding,
         expected_run_id=state.run_id,
     )
 
@@ -843,7 +839,14 @@ def test_timeout_worker_v2_roundtrips_persisted_access_scope_and_owner_ref(
         )
         worker_ctx = _build_timeout_worker_context(worker_meta)
         assert worker_ctx.run.access_scope == scope
-        assert worker_ctx.run._owner_snapshot_ref == run._owner_snapshot_ref
+        worker_binding = worker_ctx.run.dispatch_binding
+        assert worker_binding is not None
+        assert (
+            worker_binding.owner_snapshot_ref.model_dump(
+                mode="json", by_alias=True, exclude_none=False
+            )
+            == worker_meta["run"]["owner_snapshot_ref"]
+        )
 
 
 def test_timeout_worker_v2_rejects_scope_and_owner_tampering_before_effects(

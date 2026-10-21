@@ -771,6 +771,13 @@ SCIENTIST_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         schema_mode=SchemaMode.SERIALIZATION,
         schema_variant_version="1.1",
     ),
+    ABIModelEntry(
+        abi_key="retained_skg_snapshot_v1_1",
+        fqn="polisyos.data_forge.domains.academic.knowledge.skg_snapshot.RetainedSKGSnapshotV11",
+        module="scientist",
+        schema_file="retained_skg_snapshot_v1_1.schema.json",
+        priority=Priority.P2,
+    ),
 )
 
 

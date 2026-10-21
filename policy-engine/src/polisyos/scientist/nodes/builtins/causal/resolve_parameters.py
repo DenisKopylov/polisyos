@@ -23,7 +23,12 @@ from polisyos.core.components import (
     ComponentKind,
     ComponentMetadata,
 )
-from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
+from polisyos.data_forge.read_api.academic import (
+    ParameterSelector,
+    RetainedSKGSourceBinding,
+    SKGQuery,
+    retained_skg_source_binding,
+)
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
 from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
@@ -34,9 +39,10 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundleV11,
+    ContextAdaptiveParameterBundleV12,
     ParameterApplicability,
     load_context_adaptive_parameter_bundle,
-    persist_context_adaptive_parameter_bundle_v1_1,
+    persist_context_adaptive_parameter_bundle_v1_2,
 )
 from polisyos.ir.registry.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -56,6 +62,7 @@ from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
     RetainedSKGSnapshotError,
     prepare_or_validate_retained_skg_read,
+    retain_prepared_skg_read,
     retained_skg_snapshot_directory,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -176,6 +183,9 @@ class ResolveParametersNode:
         )
         if bundle_ref is None:
             return False
+        selected_source_ref = state.inputs.get(SNAPSHOT_INPUT_KEY)
+        if SNAPSHOT_INPUT_KEY in state.inputs and not isinstance(selected_source_ref, ArtifactRef):
+            return False
         try:
             graph_ref = _resolve_causal_graph_ref(state)
             _cross_graph_profile, cross_graph_profile_ref = _resolve_cross_graph_profile(ctx, state)
@@ -192,6 +202,8 @@ class ResolveParametersNode:
             required_parameters=_resolve_required_parameters(state),
             graph_ref=graph_ref,
             cross_graph_profile_ref=cross_graph_profile_ref,
+            prepared_read=ctx.prepared_skg_read,
+            selected_source_ref=selected_source_ref,
         )
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
@@ -291,6 +303,7 @@ class ResolveParametersNode:
         unsupported: list[str] = []
         prepared_read = ctx.prepared_skg_read
         owns_prepared_read = False
+        source_binding: RetainedSKGSourceBinding | None = None
         if has_selected_snapshot:
             assert isinstance(selected_snapshot_ref, ArtifactRef)
             prepared_read = prepare_or_validate_retained_skg_read(
@@ -324,23 +337,55 @@ class ResolveParametersNode:
                 parameters[parameter_name] = parameter
 
             skg_version_id = skg_query.latest_skg_version_id()
-            skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version_id) or ""
-            if selected_snapshot_ref is not None and not prepared_read.source_generation_matches():
+            if skg_version_id is None:
+                raise RetainedSKGSnapshotError("retained_skg_source_version_missing")
+            if (
+                not prepared_read.source_generation_matches()
+                or skg_query.skg_snapshot_ref(version_id=skg_version_id)
+                != prepared_read.source_snapshot_ref
+            ):
                 raise RetainedSKGSnapshotError("retained_skg_prepared_source_changed_during_read")
+            if selected_snapshot_ref is None:
+                retained_ref = retain_prepared_skg_read(ctx.store, prepared_read)
+            else:
+                # Replay keeps its selected descriptor; its source path is the
+                # original logical path, unlike this worker materialization.
+                retained_ref = selected_snapshot_ref
+            source_binding = retained_skg_source_binding(ctx.store, retained_ref)
+            if (
+                source_binding.source_sha256 != prepared_read.source_snapshot_sha256
+                or source_binding.source_binding_schema_version
+                != prepared_read.source_binding_schema_version
+                or source_binding.query_version != prepared_read.query_version
+                or source_binding.source_version_id != skg_version_id
+                or (
+                    selected_snapshot_ref is None
+                    and source_binding.source_reference != prepared_read.source_snapshot_ref
+                )
+                or (
+                    selected_snapshot_ref is not None
+                    and source_binding.descriptor_ref != selected_snapshot_ref
+                )
+                or not prepared_read.source_generation_matches()
+            ):
+                raise RetainedSKGSnapshotError("retained_skg_prepared_source_mismatch")
         finally:
             if owns_prepared_read:
                 prepared_read.close()
 
-        bundle = ContextAdaptiveParameterBundleV11(
+        if source_binding is None:
+            raise RetainedSKGSnapshotError("retained_skg_source_bundle_join_missing")
+        bundle = ContextAdaptiveParameterBundleV12(
             target_context=target_context,
             simulation_domain=simulation_domain,
             parameters=parameters,
             applicability=applicability,
             unsupported_parameters=unsupported,
-            skg_snapshot_ref=skg_snapshot_ref,
+            skg_snapshot_ref=source_binding.source_reference,
             skg_version_id=skg_version_id,
             selection_timestamp=datetime.now(UTC).replace(microsecond=0).isoformat(),
             selected_cross_graph_profile_ref=cross_graph_profile_ref,
+            selected_skg_source=source_binding,
         )
 
         input_refs = [
@@ -356,14 +401,13 @@ class ResolveParametersNode:
                     role="cross_graph_evidence_profile",
                 )
             )
-        if selected_snapshot_ref is not None:
-            input_refs.append(
-                input_ref_from_artifact_ref(
-                    selected_snapshot_ref,
-                    role="skg_source_snapshot",
-                )
+        input_refs.append(
+            input_ref_from_artifact_ref(
+                source_binding.descriptor_ref,
+                role="skg_source_snapshot",
             )
-        bundle_ref = persist_context_adaptive_parameter_bundle_v1_1(
+        )
+        bundle_ref = persist_context_adaptive_parameter_bundle_v1_2(
             _ensure_ir_artifact_store(ctx.store),
             bundle,
             inputs=input_refs,
@@ -409,7 +453,7 @@ class ResolveParametersNode:
         return NodeOutcome(
             status="ok",
             state=new_state,
-            artifacts=[bundle_ref],
+            artifacts=[bundle_ref, source_binding.descriptor_ref],
             events=events,
         )
 
@@ -441,12 +485,12 @@ def _bundle_matches_request(
     required_parameters: list[str],
     graph_ref: CausalGraphModelRef | None,
     cross_graph_profile_ref: CrossGraphEvidenceProfileRef | None,
+    prepared_read: PreparedSKGRead | None = None,
+    selected_source_ref: ArtifactRef | None = None,
 ) -> bool:
-    """Check bundle custody and exact graph/profile bindings for this request.
-
-    SKG owner/version binding belongs to its separate slice and is not inferred
-    from this helper.
-    """
+    """Check bundle custody and exact graph/profile/source bindings for this request."""
+    if selected_source_ref is not None and not isinstance(selected_source_ref, ArtifactRef):
+        return False
     store = _ensure_ir_artifact_store(ctx.store)
     try:
         bundle = load_context_adaptive_parameter_bundle(store, bundle_ref)
@@ -458,7 +502,7 @@ def _bundle_matches_request(
         manifest.kind != "ir.context_adaptive_parameter_bundle"
         or manifest.artifact_schema is None
         or manifest.artifact_schema.name != "ir.context_adaptive_parameter_bundle"
-        or manifest.artifact_schema.version not in {"1.0", "1.1"}
+        or manifest.artifact_schema.version not in {"1.0", "1.1", "1.2"}
     ):
         return False
 
@@ -474,11 +518,36 @@ def _bundle_matches_request(
 
     if target_context is None or not required_parameters or graph_ref is None:
         return False
-    if manifest.artifact_schema.version != "1.1" or not isinstance(
+    source_scoped_request = prepared_read is not None or selected_source_ref is not None
+    if source_scoped_request:
+        if manifest.artifact_schema.version != "1.2" or not isinstance(
+            bundle, ContextAdaptiveParameterBundleV12
+        ):
+            return False
+        source_binding = bundle.selected_skg_source
+        if bundle.skg_version_id != source_binding.source_version_id:
+            return False
+        if selected_source_ref is not None and selected_source_ref != source_binding.descriptor_ref:
+            return False
+        if prepared_read is not None:
+            if (
+                source_binding.source_sha256 != prepared_read.source_snapshot_sha256
+                or source_binding.source_binding_schema_version
+                != prepared_read.source_binding_schema_version
+                or source_binding.query_version != prepared_read.query_version
+                or prepared_read.query.latest_skg_version_id() != source_binding.source_version_id
+                or not prepared_read.source_generation_matches()
+            ):
+                return False
+            if (
+                selected_source_ref is None
+                and source_binding.source_reference != prepared_read.source_snapshot_ref
+            ):
+                return False
+    elif manifest.artifact_schema.version not in {"1.1", "1.2"} or not isinstance(
         bundle, ContextAdaptiveParameterBundleV11
     ):
-        # v1.0 never recorded whether an optional profile was absent or merely
-        # unobserved; it is readable historically but cannot satisfy a request.
+        # Historical source-unbound bundles remain readable when no current source is selected.
         return False
     if bundle.target_context != target_context:
         return False

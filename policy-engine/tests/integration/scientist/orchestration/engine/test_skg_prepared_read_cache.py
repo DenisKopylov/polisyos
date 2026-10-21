@@ -61,6 +61,7 @@ from polisyos.ir.analytics.literature import (
 )
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundleV11,
+    ContextAdaptiveParameterBundleV12,
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle_v1_1,
 )
@@ -442,7 +443,7 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
     )
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._select_champion_candidate",
-        lambda fallback, _search_result: fallback,
+        lambda _search_result: candidate,
     )
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
@@ -494,6 +495,33 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     first_value = _resolved_value(store, first_state)
     assert first_report.status == "ok"
     assert first_value == 1.4
+    bundle_ref = first_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        first_bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        assert isinstance(first_bundle, ContextAdaptiveParameterBundleV12)
+        source_ref = first_bundle.selected_skg_source.descriptor_ref
+        source_snapshot = load_retained_skg_snapshot(store, source_ref)
+        source_manifest = store.get_manifest(source_ref)
+        cold_store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+        cold_bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(cold_store), bundle_ref
+        )
+    assert source_snapshot.source_version_id == first_bundle.skg_version_id == 7
+    assert source_snapshot.version_identity_kind == "content_digest"
+    assert source_snapshot.source_sha256 == first_bundle.selected_skg_source.source_sha256
+    assert first_bundle.selected_skg_source.source_reference == source_snapshot.source_reference
+    assert source_manifest.artifact_schema is not None
+    assert source_manifest.artifact_schema.version == "1.1"
+    assert isinstance(cold_bundle, ContextAdaptiveParameterBundleV12)
+    assert cold_bundle.selected_skg_source == first_bundle.selected_skg_source
+    assert any(
+        item.role == "skg_source_snapshot"
+        and str(item.artifact_id) == str(source_ref.artifact_id)
+        and item.manifest_profile_sha256 == source_ref.manifest_profile_sha256
+        for item in store.get_manifest(bundle_ref).inputs
+    )
     cache_store_event = next(
         event for event in first_events if event.get("event") == "NODE_CACHE_STORE"
     )
@@ -1278,23 +1306,21 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
         bundle_manifest = store.get_manifest(bundle_ref)
         selected_graph_ref = profile_bound_ref(_ensure_ir_artifact_store(store), graph_ref)
         selected_profile_ref = profile_bound_ref(_ensure_ir_artifact_store(store), profile_ref)
-        assert isinstance(bundle, ContextAdaptiveParameterBundleV11)
-        assert bundle.schema_version == "1.1"
+        assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
+        assert bundle.schema_version == "1.2"
         assert bundle.parameters["fiscal_multiplier"].value == 2.6
         assert bundle.skg_version_id == 7
-        selected_materialization = (
-            context.run.trace_path.parent
-            / "skg-snapshots"
-            / f"{selected_snapshot.source_sha256}.duckdb"
-        )
-        assert bundle.skg_snapshot_ref == f"duckdb://{selected_materialization.resolve()}#v7"
+        assert bundle.selected_skg_source.descriptor_ref == selected_snapshot_ref
+        assert bundle.selected_skg_source.source_sha256 == selected_snapshot.source_sha256
+        assert bundle.selected_skg_source.source_version_id == selected_snapshot.source_version_id
+        assert bundle.skg_snapshot_ref == selected_snapshot.source_reference
         assert bundle.selected_cross_graph_profile_ref == selected_profile_ref
         assert load_cross_graph_evidence_profile(
             _ensure_ir_artifact_store(store), selected_profile_ref
         ).notes == ["spawn-worker-profile"]
         assert bundle_manifest.artifact_schema is not None
         assert bundle_manifest.artifact_schema.name == "ir.context_adaptive_parameter_bundle"
-        assert bundle_manifest.artifact_schema.version == "1.1"
+        assert bundle_manifest.artifact_schema.version == "1.2"
         expected_inputs = [
             input_ref_from_artifact_ref(selected_graph_ref, role="causal_graph"),
             input_ref_from_artifact_ref(

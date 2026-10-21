@@ -1,6 +1,6 @@
 {
   "format": "editorial-ground-records-v1",
-  "updated_at": "2026-10-20",
+  "updated_at": "2026-10-21",
   "scope": "Substantive extracted propositions, methods and constraints for research; not an executable schema, closed taxonomy, production release or positive authority decision. Conditions and root inferences are explicit.",
   "extension_rule": "Kinds and research_stream are navigation only; unknown families and new forms remain admissible to research.",
   "grounds": [
@@ -1752,6 +1752,1158 @@
       "acquisition_next": "For each consequential claim, write the evidence-to-claim bridge and its boundary; ask a domain expert and an affected knowledge holder to challenge it where relevant; record the strongest rival and the observation that would distinguish it.",
       "research_stream": "QUA",
       "standing": "editorial research ground; not task-admitted evidence or authority"
+    },
+    {
+      "id": "G3-MEA-01",
+      "title": "Treat WG-SS as a bounded functioning measure with an explicit cut-point",
+      "kind": "editorial",
+      "statement": "The Washington Group Short Set on Functioning (WG-SS) is a six-item module covering seeing, hearing, walking, cognition, self-care, and communication, designed for short census and survey use, especially disaggregating outcomes by disability status. It captures many, but not all, people with basic-activity limitations. The recommended analytic threshold is at least one domain with a lot of difficulty or inability; changing that cut-point changes both estimated prevalence and subgroup outcome gaps. WG-SS was not designed for children and is not recommended for reporting childhood disability. The guidance describes an ages-5+ fallback if the Child Functioning Module cannot be used, with expected underestimation and restricted domain coverage; it excludes children under five. One specified item asks, “Do you have difficulty walking or climbing steps?” Its question specifications support consistent translation and administration. This defines a measurement choice, not a complete account of disability.",
+      "source_refs": [
+        {
+          "source_id": "S3-MEA-01",
+          "url": "https://www.washingtongroup-disability.com/fileadmin/uploads/wg/Documents/WG_Implementation_Document__1_-_Data_Collection_Tools_Developed_by_the_Washington_Group.pdf",
+          "locator": "pp. 1–3 (purpose and tool choice), p. 5 (age limits and child alternatives), pp. 7–8 (cut-points and reporting).",
+          "access": "Official 9-page PDF opened; cited pages selected and read."
+        },
+        {
+          "source_id": "S3-MEA-02",
+          "url": "https://www.washingtongroup-disability.com/fileadmin/uploads/wg/Documents/WG_Implementation_Document__4A_-_WG-SS_Question_Specifications__February_2023_.pdf",
+          "locator": "pp. 1–3 (six domains, four response levels, item intent and translation/administration specifications).",
+          "access": "Official 7-page PDF opened; cited pages selected and read."
+        },
+        {
+          "source_id": "S3-MEA-03",
+          "url": "https://www.washingtongroup-disability.com/fileadmin/uploads/wg/Documents/Events/17/WG-Document-5-Analytic-Guidelines-for-the-Washington-Group-Short-Set.pdf",
+          "locator": "pp. 1–3 (disability identifier and cut-point choices, including the recommended threshold).",
+          "access": "Official 11-page PDF opened; cited pages selected and read."
+        }
+      ],
+      "scope": "Population censuses and broad household surveys that use functioning to disaggregate outcomes; the stated age range, tool version, language, respondent, and analytic threshold must match the intended use.",
+      "required_inputs": [
+        "Exact questionnaire version, language, item wording, response options, administration mode, and local translation/pretesting record.",
+        "Target population, age limits, respondent type, sampling frame, reporting unit, field period, weights, and missing/refused handling.",
+        "Each of the six item responses, the derived identifier rule/cut-point, and the outcome to be disaggregated."
+      ],
+      "alternatives": [
+        "Use the WG Extended Set or Short Set–Enhanced when a broader functioning profile is needed.",
+        "Use the WG/UNICEF Child Functioning Module for child populations covered by that module.",
+        "Retain item-level or continuous responses when the decision does not require a binary identifier; use a clinical or program eligibility assessment only for that different construct and purpose."
+      ],
+      "non_substitution": "The short module does not measure every impairment, environmental barrier, participation restriction, or support need. A WG-SS identifier is not itself a diagnosis, an individual eligibility determination, or proof that a particular policy response is authorized.",
+      "counterexample": "PolicyOS constructed boundary test: a survey includes children younger than five and silently applies the adult cut-point. The resulting classification is out of the instrument's stated age scope. A second test changes the cut-point from any reported difficulty to the recommended higher threshold; a resulting prevalence or employment-gap change cannot be described as a real-world trend without holding the definition fixed or showing both results.",
+      "task_uses": "PolicyOS application: bind a disability-disaggregated claim to the instrument/version, age scope, source population, item responses, missingness rule, and cut-point. Preserve the derived rule and make threshold sensitivity visible when it can change the recommendation.",
+      "acquisition_next": "Acquire the actual questionnaire and language version, translation/pretest notes, source microdata and weights, age-specific denominator, derived-identifier code, and the policy outcome being compared. Ask the data producer to confirm any deviations from the WG item specifications.",
+      "research_stream": "MEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-MEA-02",
+      "title": "Keep subjective well-being components and survey context distinct",
+      "kind": "editorial",
+      "statement": "The OECD 2025 update distinguishes life evaluation, affect, and eudaimonia as separate components. Its short household-survey core module uses one measure for each: overall life satisfaction, whether one's activities feel worthwhile, and an affect item about average pain over the past seven days, generally on anchored 0–10 scales. The guidance recommends direct self-response, reports of survey mode, consistent question phrasing and response formats across modes, and placement near the start to limit priming from surrounding items. It recommends large samples for subgroup estimates (at least 2,000, ideally 5,000 or more) and phasing wording changes through parallel split samples to estimate a time-series discontinuity. These practices improve measurement comparability; they do not define a complete welfare objective.",
+      "source_refs": [
+        {
+          "source_id": "S3-MEA-04",
+          "url": "https://www.oecd.org/content/dam/oecd/en/publications/reports/2025/10/oecd-guidelines-on-measuring-subjective-well-being-2025-update_b957f42e/9203632a-en.pdf",
+          "locator": "Chapter 1, pp. 12–21 (constructs, sampling, mode, placement, wording and translation); Box 2.2, pp. 32–33 (core module).",
+          "access": "Official 95-page PDF opened; cited pages selected and read."
+        }
+      ],
+      "scope": "Repeated population survey measurement of self-reported subjective well-being, including subgroup and time comparisons; OECD recommendations are a concrete statistical practice profile, not a universal value rule.",
+      "required_inputs": [
+        "Exact module/version, question wording/order, response scale and anchors, language, and any translation/adaptation.",
+        "Target population, sample frame/design, individual respondent identity, sample size by planned subgroup, weights, item missingness, and field dates/season.",
+        "Collection mode, preceding survey items, interview setting, and any parallel-sample or mode experiment used to bridge a change."
+      ],
+      "alternatives": [
+        "Use a domain-specific evaluation, affect diary/time-use module, or mental-health instrument when that is the construct in question.",
+        "Report the three components separately; if a composite is required, state its normative weights and test whether the conclusion changes under plausible alternatives.",
+        "When the legacy wording must continue, retain its series and field the new wording in a bridge sample before replacing it."
+      ],
+      "non_substitution": "A life-satisfaction response is not a clinical mental-health diagnosis, a causal estimate of policy impact, or a complete welfare measure. The three OECD components are not interchangeable, and a common scale alone does not remove mode, order, cultural, or nonresponse effects.",
+      "counterexample": "PolicyOS constructed test: a survey moves life-satisfaction items from before to after a sequence about job loss, changes half the sample from interview to web response, and then calls the score difference a population welfare change. Without a bridge or design analysis, the contrast mixes possible construct change with context and mode.",
+      "task_uses": "PolicyOS application: keep self-report construct, instrument version, respondent, mode, placement, sample, and field period attached to any trend or subgroup comparison. Do not promote one SWB component into an overall objective without an explicit value frame.",
+      "acquisition_next": "Obtain the fielded questionnaire and translations, question order, mode-by-response sample, sampling and weighting documentation, field calendar, item-level data, and any split-sample bridge. If a protocol is changing, run a concurrent old/new wording and mode comparison sized for the intended subgroups.",
+      "research_stream": "MEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-MEA-03",
+      "title": "Require construct-specific invariance evidence before pooled latent-score comparisons",
+      "kind": "editorial",
+      "statement": "PISA 2022 provides a concrete cross-country questionnaire example: its technical report evaluates item fit across country-by-language groups and releases group-specific item parameters when international parameters misfit. For context-questionnaire items, RMSD above 0.25 triggered that treatment; a scale needed at least three items with international parameters for cross-group comparability, and reporting also required group-level internal-consistency criteria. The final RMSD distribution figures omit item-by-group cells with 150 or fewer cases because group-specific item-characteristic curves are unstable; this is not a blanket exclusion from all measurement evaluation. These are PISA-specific operating thresholds, not universal cut-offs. A comparable multi-item construct therefore needs evidence at item and group level; identical wording or a high within-group reliability statistic alone does not establish that group means share a scale.",
+      "source_refs": [
+        {
+          "source_id": "S3-MEA-05",
+          "url": "https://www.oecd.org/content/dam/oecd/en/publications/reports/2024/03/pisa-2022-technical-report_599753f0/01820d6d-en.pdf",
+          "locator": "PISA 2022 Technical Report, Chapter 19, pp. 384–386 (RMSD, parameter release, group sample-size limit, scale reporting rules).",
+          "access": "Official 545-page PDF opened; cited chapter pages selected and read."
+        }
+      ],
+      "scope": "Multi-item latent scales compared across populations, language versions, assessment modes, or cycles; PISA supplies a worked method, not a mandatory general-purpose threshold.",
+      "required_inputs": [
+        "Construct definition, item set, response coding, translation/version history, proposed groups, and the intended comparison.",
+        "Item-level responses, group/language/mode/cycle sample sizes, item fit/DIF diagnostics, anchor-item status, missingness, and calibration code/version.",
+        "Predeclared criteria for partial invariance, group-specific parameters, minimum anchors/sample size, suppressed estimates, and sensitivity analysis."
+      ],
+      "alternatives": [
+        "Estimate and label group-specific scales where common parameters do not fit.",
+        "Use a partial-invariance model with justified anchors, and show sensitivity to anchor selection.",
+        "Report item-level distributions or within-group trends rather than a pooled latent mean when comparability is not established."
+      ],
+      "non_substitution": "PISA's RMSD, internal-consistency, and minimum-anchor thresholds are project-specific. Passing a threshold in a different construct, population, language, mode, or sample does not establish invariance there; invariance evidence also does not establish a policy's normative objective.",
+      "counterexample": "PolicyOS constructed divergence probe: two translations have the same item text and acceptable internal consistency, but a common item threshold fits one language group poorly. A pooled mean gap then contains both the latent difference and differential item functioning. Retain the group limitation or model the noninvariant item rather than treating alpha or wording identity as proof.",
+      "task_uses": "PolicyOS application: a cross-group or cross-time scale claim should carry the exact item basis, group-specific diagnostics, anchor set, sample adequacy, calibration version, and the rule that admitted/suppressed the comparison. Keep unresolved comparisons contested or limited rather than hiding them in an aggregate.",
+      "acquisition_next": "Acquire the questionnaire and translations per cycle, response microdata, item calibration outputs and scripts, group sizes, anchor map, and any released/suppressed item parameters. Recompute fit for the actual construct and groups before using a pooled score.",
+      "research_stream": "MEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-MEA-04",
+      "title": "Evaluate nonresponse bias for the estimate, not from a response-rate proxy",
+      "kind": "editorial",
+      "statement": "FCSM's 2023 guidance treats the unit response rate as a starting point: nonresponse bias depends on whether response propensity is related to the survey item or estimate, and a rate alone omits coverage, sampling, measurement, and processing error. A bias report should identify target population, frame and coverage, design, sampled/reporting unit, mode, and key items. It should then compare relevant respondent/nonrespondent auxiliary data or use other complementary analyses, report uncertainty and contradictory evidence, and restrict conclusions where auxiliary-data coverage does not overlap the target. Analysis is estimate- and subgroup-specific; weighting cannot by itself demonstrate absence of residual bias.",
+      "source_refs": [
+        {
+          "source_id": "S3-MEA-06",
+          "url": "https://statspolicy.gov/assets/fcsm/files/docs/FCSM%20NRBA%20Report%20062623.pdf",
+          "locator": "FCSM-23-01, pp. 6–8 (response-rate relationship), pp. 10–19 (survey design and rate reporting), pp. 22–28 (bias analysis), Appendix B, p. 42 (auxiliary-data coverage limits).",
+          "access": "Official 45-page PDF opened; cited pages selected and read."
+        }
+      ],
+      "scope": "Probability or otherwise documented sample surveys used for population and subgroup estimates; analyze each important outcome/estimate and the actual response/coverage process.",
+      "required_inputs": [
+        "Target population, frame, coverage exclusions, sample and reporting units, selection probabilities, field modes, and every sampled-unit disposition.",
+        "Outcome/item response rates and missingness, design weights, nonresponse adjustment, variance estimates, contact/paradata, and published subgroups.",
+        "Auxiliary variables for respondents and nonrespondents, their coverage/timeliness/measurement quality, and evidence of association with response propensity and the target outcome."
+      ],
+      "alternatives": [
+        "Use a nonresponse follow-up sample or randomized contact treatment when missing groups can be recontacted.",
+        "Compare with independent benchmarks or linked administrative measures when the definitions and covered populations align.",
+        "Run multiple adjustment and sensitivity analyses; if overlap or outcome linkage is unavailable, publish a bounded limitation rather than a “representative” label."
+      ],
+      "non_substitution": "A large sample, high response rate, balanced observed demographics, or calibrated weights alone cannot establish low bias for every outcome. Auxiliary data and methods can only speak to the populations, variables, and estimates they cover.",
+      "counterexample": "PolicyOS constructed divergence test: a 90% response rate coexists with nonresponse concentrated among people with unusually high values on the target item, so the estimate remains biased; conversely, a lower response rate need not bias an item unrelated to response propensity. A single rate cannot distinguish these cases.",
+      "task_uses": "PolicyOS application: freeze a sampling/response unit and outcome-specific bias assessment alongside every survey estimate used in an admissibility argument. Carry coverage gaps and residual-bias sensitivity into the status and audience projection.",
+      "acquisition_next": "Request the full disposition file, response-rate definitions, design weights and variance method, frame coverage, subgroup and item response diagnostics, paradata, linked/benchmark auxiliary variables, and the producer's bias-analysis report. Ask which estimates are directly supported by auxiliary-data overlap and which are extrapolations.",
+      "research_stream": "MEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-MEA-05",
+      "title": "Represent source-process changes as explicit breaks in administrative time series",
+      "kind": "editorial",
+      "statement": "ONS's UK trade methods guide, revised 16 January 2026, documents a concrete comparability break: data collection for physical goods trade between Great Britain and the EU changed from the Intrastat survey to customs declarations in 2021 for exports and 2022 for imports. ONS adjusted EU import estimates for 2021–22 but says a structural break remains in the EU goods series from January 2021 and advises caution in interpretation. The example shows why a time-series discontinuity must be checked against source and collection epochs before it is treated as a change in underlying behavior. The documented case is specific to this series; it does not imply every administrative change creates a break or that every break is repairable.",
+      "source_refs": [
+        {
+          "source_id": "S3-MEA-07",
+          "url": "https://www.ons.gov.uk/economy/nationalaccounts/balanceofpayments/methodologies/uktradeqmi",
+          "locator": "Section 6, “Changes and their effects on comparability over time,” especially “Brexit structural break”; guide revised 16 January 2026.",
+          "access": "Official ONS methods webpage opened; cited section read."
+        }
+      ],
+      "scope": "Repeated administrative or survey-derived statistics where collection source, frame, definitions, coding, eligibility, or processing may change over time; the ONS case is an empirical example, not a universal rule.",
+      "required_inputs": [
+        "Source owner and collection purpose, covered units/transactions, definition and coding versions, geography, eligibility, periodicity, and effective dates.",
+        "Time-stamped processing/revision history, source-data vintage, parallel overlap or bridge records, and revisions/backcasts for each series segment.",
+        "The target estimand and a declared decision about comparability across each source/process epoch."
+      ],
+      "alternatives": [
+        "Reconstruct and backcast the full series only when common definitions and adequate historical records support that operation.",
+        "Use a parallel-overlap or bridge estimate with uncertainty when old and new sources coexist for a period.",
+        "If comparability cannot be established, retain separate segments with a break marker and limit claims to within-segment change."
+      ],
+      "non_substitution": "A break flag does not prove the whole observed change is a measurement artifact; an unadjusted administrative series does not prove a real population or behavioral change. Source metadata is evidence about measurement process, not itself an explanation of the causal effect.",
+      "counterexample": "PolicyOS constructed divergence probe: a trend model interprets a level shift in the EU trade series as a policy-induced change in trade behavior while ignoring the documented collection switch. Re-estimating within source epochs or using a defensible bridge may change that inference.",
+      "task_uses": "PolicyOS application: bind longitudinal claims to a versioned series, source/process epoch, revision vintage, and admitted bridge or explicit comparability limitation. Keep an observed break distinct from a causal account of why the underlying quantity changed.",
+      "acquisition_next": "Acquire the producer's source definitions and vintage tables, customs/survey overlap if any, adjustment and backcast methods, classification and coverage changes, and revision policy. Ask ONS/HMRC which cross-break comparisons are supported; if no validated bridge exists, segment the series and declare the limit.",
+      "research_stream": "MEA",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-FIS-01",
+      "title": "A fiscal amount requires a declared recording basis and consolidation perimeter",
+      "kind": "editorial",
+      "statement": "GFSM 2014 describes linked fiscal statements for flows and stock positions and distinguishes accrual, commitment, due-for-payment, and cash recording. Under accrual, flows are recorded when economic value is created, transformed, exchanged, transferred, or extinguished, regardless of cash settlement; cash data remain useful for liquidity but omit noncash flows and can place an event in a different period. Consolidated GFS for a declared group eliminates matched flows and positions between units inside that group. A reported fiscal cost, balance, or exposure therefore needs its reporting unit/sector, period, recording basis, flow-versus-stock classification, and consolidation boundary stated. These choices define the fiscal statistic; they do not by themselves value social welfare.",
+      "source_refs": [
+        {
+          "source_id": "S-MEASURE-10",
+          "url": "https://www.imf.org/external/pubs/ft/gfs/manual/2014/gfsfinal.pdf",
+          "locator": "GFSM 2014 §§3.61–3.74 (recording bases; §§3.62, 3.67, 3.69–3.73 for accrual/cash distinctions) and §§3.152–3.155 (consolidation).",
+          "access": "Official IMF indexed excerpts displayed the cited paragraph text. Direct PDF and eLibrary chapter fetches returned 403 in this session; treat access as search-extract-only, not a full-manual review."
+        }
+      ],
+      "scope": "PolicyOS inference: Fiscal-statistical reporting and comparison of government units or sectors under an explicitly selected perimeter; GFSM 2014 is the named statistical framework, not a substitute for a jurisdiction's budget law or accounting standard.",
+      "required_inputs": [
+        "PolicyOS proposed input: Reporting unit, subsector/sector, included entities, and consolidation group.",
+        "PolicyOS proposed input: Transaction or position class, reference period, recording basis, and relevant event/payment dates.",
+        "PolicyOS proposed input: Currency and valuation basis, plus cash-flow and balance-sheet records needed for the chosen fiscal question."
+      ],
+      "alternatives": [
+        "PolicyOS alternative: Use cash-basis data when the decision concerns payment capacity or appropriation timing, while carrying an explicit bridge/limitation for noncash obligations and event timing.",
+        "PolicyOS alternative: Use accrual or a specified partial-accrual profile for event/resource timing and integrated stocks, while retaining a cash view when liquidity is decision-relevant.",
+        "PolicyOS alternative: Show both unit-level and consolidated figures when a transfer among public bodies matters to one body's affordability but cancels in a wider sector total."
+      ],
+      "non_substitution": "PolicyOS inference: A cash or accrual fiscal statistic is not a social-resource-cost estimate, a welfare measure, or an authorized spending decision. Consolidation only eliminates matched positions inside the declared boundary; it does not erase effects on households, firms, or units outside that boundary.",
+      "counterexample": "Illustrative PolicyOS inference: A central department records a grant outflow and a local authority records the matching receipt. The amount remains relevant to the department's cash affordability, but it cancels in a consolidated general-government view. Calling the department's outflow a whole-society resource loss would confuse perimeter and welfare valuation.",
+      "task_uses": "PolicyOS use: Before comparing fiscal totals across options, periods, units, or sources, freeze the intended fiscal statistic and its reporting perimeter; preserve a second view when liquidity, accrual, and consolidated questions differ.",
+      "acquisition_next": "PolicyOS proposed acquisition: Obtain the applicable jurisdictional budget/accounting profile, chart of accounts, reporting-unit list, source statements, and transaction-level timing/settlement metadata; reconcile the selected basis and perimeter with their issuer.",
+      "research_stream": "FIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Only statement and source_refs are source-grounded summaries. Scope, required_inputs, alternatives, non_substitution, counterexample, task_uses and acquisition_next are PolicyOS analysis/inference, not source-issued requirements.",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-FIS-02",
+      "title": "Keep public-finance affordability and social-value appraisal as distinct views",
+      "kind": "editorial",
+      "statement": "Green Book (2026), Table 9, separates real, STPR-discounted social appraisal from nominal, undiscounted public-finance reporting; transfer and wider-impact treatments differ by view. Depreciation is financial, while appraisal costs arise as resources are consumed.",
+      "source_refs": [
+        {
+          "source_id": "S-FEAS-02",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026",
+          "locator": "Chapter 6, 'Public sector financial impact', Table 9 (economic versus financial case) and 'Depreciation'; Table 10 and accompanying definitions for metric-specific present values.",
+          "access": "Official 2026 GOV.UK HTML edition opened; selected sections and tables read."
+        }
+      ],
+      "scope": "PolicyOS inference: An explicit UK central-government appraisal convention, useful as a comparison profile; financial accounting/budgeting treatment must still come from the applicable public-sector rules.",
+      "required_inputs": [
+        "PolicyOS proposed input: The question being answered: affordability/receipts, fiscal reporting, social CBA/CEA, or a named summary metric.",
+        "PolicyOS proposed input: Separate nominal budget cash/receipt profile and real social cost/benefit profile, with price index, period, timing, and public/private bearer.",
+        "PolicyOS proposed input: Transfer, depreciation, and wider social-cost classifications, plus the rule used to construct any public-cost summary denominator."
+      ],
+      "alternatives": [
+        "PolicyOS alternative: For affordability, use the jurisdiction's authorized nominal budget and accounting presentation; do not force an NPV transformation into a statutory budget question.",
+        "PolicyOS alternative: For social comparison, use the applicable real-price and discounting convention and identify wider external costs/benefits.",
+        "PolicyOS alternative: When an option is compared on both dimensions, publish both views and their bridge; compute only the metric the decision maker actually uses."
+      ],
+      "non_substitution": "PolicyOS inference: The Green Book is UK-specific guidance, not a global accounting rule. Its financial-view costs cannot stand in for total social cost, and its economic-case net present social value cannot establish affordability, cash availability, legal authority, or a spending limit.",
+      "counterexample": "Illustrative PolicyOS inference: A proposal shows a nominal, undiscounted grant payment in its affordability schedule and a real discounted social-value result. Collapsing the two into one number or counting the same payment again as a net social resource cost can produce a false ranking while obscuring the actual budget requirement.",
+      "task_uses": "PolicyOS use: Keep fiscal-space, budget, financial-case, and social-value conclusions aligned but separately interpretable; identify when an apparent benefit is a receipt/transfer rather than a net social benefit.",
+      "acquisition_next": "PolicyOS proposed acquisition: Obtain the applicable accounting/budget rules and the decision's required fiscal/economic output format, then bind each source line to the view and transformation in which it is used.",
+      "research_stream": "FIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Only statement and source_refs are source-grounded summaries. Scope, required_inputs, alternatives, non_substitution, counterexample, task_uses and acquisition_next are PolicyOS analysis/inference, not source-issued requirements.",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-FIS-03",
+      "title": "Treat transfers as payer-recipient incidence, not an automatic net resource cost",
+      "kind": "editorial",
+      "statement": "Green Book (2026) treats an in-boundary transfer as equal payer cost and recipient benefit. It permits paired CBA entries (cancelling in NPSV but potentially shifting BCR toward one) or NPSV exclusion, while requiring distributional consideration.",
+      "source_refs": [
+        {
+          "source_id": "S-FEAS-02",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026",
+          "locator": "Chapter 6, 'Economic transfers' and 'Public sector financial impact'; Table 9, treatment of transfers in economic and financial cases.",
+          "access": "Official 2026 GOV.UK HTML edition opened; selected sections and table read."
+        }
+      ],
+      "scope": "PolicyOS inference: The transfer identity is conditional on the stated social boundary and the transfer actually being a payment without a good/service exchange; UK Green Book appraisal supplies one explicit public-sector convention.",
+      "required_inputs": [
+        "PolicyOS proposed input: Payer, recipient, amount, timing, jurisdiction/population perimeter, and whether there is an exchange of goods or services.",
+        "PolicyOS proposed input: Any repayment, default, subsidy element, real output, displacement, administrative/remediation cost, externality, or cross-perimeter incidence.",
+        "PolicyOS proposed input: The selected CBA transfer convention and a separate group/bearer incidence presentation."
+      ],
+      "alternatives": [
+        "PolicyOS alternative: Include transfers on both sides of CBA when an auditable reconciliation is needed, while explaining that the entries cancel in NPSV and can distort BCR.",
+        "PolicyOS alternative: Exclude transfers from NPSV when that better isolates net resource effects, but retain a distributional/fiscal schedule so redistribution remains visible.",
+        "PolicyOS alternative: Treat a payment as one-sided only when the declared analysis boundary and evidence support an outside-boundary recipient or another specific reason; state the boundary condition."
+      ],
+      "non_substitution": "PolicyOS inference: A transfer is not necessarily socially neutral in every decision: group utility, legal rights, tax distortions, take-up, output, displacement, administration, fraud, and boundary crossings may matter. The Green Book convention does not decide which redistribution is just or authorized.",
+      "counterexample": "Illustrative PolicyOS inference: A £10m grant is recorded as a £10m public financial outflow. In an in-boundary social account, recording that same £10m as a second net resource loss while omitting the recipient's £10m gain double-counts the transfer against society; separately evidenced administration and displaced production remain costs.",
+      "task_uses": "PolicyOS use: Separate cash/fiscal exposure from transfer incidence and from effects that change resources or welfare; reveal when a BCR changes mechanically because transfer entries are present in both numerator and denominator.",
+      "acquisition_next": "PolicyOS proposed acquisition: Acquire payment/eligibility and repayment records, recipient and payer scope, transfer classification, evidence for any induced activity or displacement, and the authorized social boundary/value frame.",
+      "research_stream": "FIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Only statement and source_refs are source-grounded summaries. Scope, required_inputs, alternatives, non_substitution, counterexample, task_uses and acquisition_next are PolicyOS analysis/inference, not source-issued requirements.",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-FIS-04",
+      "title": "Real-price conversion and social discounting are separate, selected operations",
+      "kind": "editorial",
+      "statement": "HM Treasury’s February 2026 UK schedule sets STPR at 3.5% (years 1–30), 3.0% (31–75), and 2.5% (76–125); health rates are 1.5%, 1.286%, and 1.071%. It separates inflation adjustment from discounting and calls for δ=0 sensitivity beyond 50 years.",
+      "source_refs": [
+        {
+          "source_id": "S3-FIS-01",
+          "url": "https://assets.publishing.service.gov.uk/media/698f30a4492ea446ea7f43d3/Green_Book_supplementary_guidance_-_discounting.pdf",
+          "locator": "February 2026 guidance, §§2.1–2.20; §§3.1–3.5; Annex A, Tables A.1–A.3.",
+          "access": "Official 17-page HM Treasury PDF opened through GOV.UK; cited sections read."
+        }
+      ],
+      "scope": "PolicyOS inference: treat this as one dated UK appraisal profile, not a global rate default; another jurisdiction or population needs its own authorized convention.",
+      "required_inputs": [
+        "PolicyOS proposed inputs: valuation view; base year; currency, deflator and price basis; impact year/horizon; affected population; health/life versus other impact; selected rate schedule and version.",
+        "PolicyOS arithmetic check: use the published cumulative discount factors or correctly compose rate segments; do not apply a later segment rate retrospectively to the whole horizon."
+      ],
+      "alternatives": [
+        "PolicyOS candidate analysis may compare declared hypothetical real-rate schedules and sensitivity ranges without asserting they are authorized. Presenting a schedule as the operative basis of a real decision requires the applicable authority.",
+        "For past outturn spending, report the required historical-price fiscal view; keep it separate from future present-value appraisal."
+      ],
+      "non_substitution": "PolicyOS inference: deflation converts price basis; discounting applies a time-rate convention. If a nominal rate is needed, use exact Fisher compounding: (1+i)=(1+r)(1+π), so i=r+π+rπ; simple addition drops the cross-term.",
+      "counterexample": "Illustrative PolicyOS arithmetic: with 2% annual inflation and a 3.5% real rate, exact nominal i=1.02×1.035−1=5.57%, not 5.5%. A £100 real year-5 benefit is £110.41 nominal, deflates to £100, then ×0.8420 gives £84.20 in year-0 real present value.",
+      "task_uses": "PolicyOS use: make future-value comparisons reproducible and distinguish real social present values from nominal affordability schedules.",
+      "acquisition_next": "PolicyOS proposed acquisition: obtain the applicable rate authority, deflator/price-base series, impact-specific rule, affected-population scope, and schedule version; retain the sensitivity if decision-relevant.",
+      "research_stream": "FIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Only statement and source_refs are source-grounded summaries. Scope, required_inputs, alternatives, non_substitution, counterexample, task_uses and acquisition_next are PolicyOS analysis/inference, not source-issued requirements.",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-FIS-05",
+      "title": "Show distributional incidence before applying an explicit welfare-weight schedule",
+      "kind": "editorial",
+      "statement": "Green Book (2026) illustrates group weight = (national median equivalised income ÷ group median equivalised income)^1.3; it pairs weighted and unweighted estimates and suggests sensitivity to group-median uncertainty.",
+      "source_refs": [
+        {
+          "source_id": "S-FEAS-02",
+          "url": "https://www.gov.uk/government/publications/the-green-book--2/the-green-book-2026",
+          "locator": "Chapter 7, 'Distributional analysis', 'Equivalisation', and 'Distributional weighting'; group welfare-weight formula and requirement to present weighted with unweighted estimates.",
+          "access": "Official 2026 GOV.UK HTML edition opened; selected sections read."
+        }
+      ],
+      "scope": "PolicyOS inference: UK population appraisal convention for monetisable income effects and its explicit welfare-weight example; broader distribution, rights, equality, place, or non-monetisable impacts require their own representation.",
+      "required_inputs": [
+        "PolicyOS proposed input: Unweighted benefit/cost/risks by selected group, population denominator and geographic scope.",
+        "PolicyOS proposed input: Income concept and reference time, household composition/equivalisation method, group and national median sources, and uncertainty intervals.",
+        "PolicyOS proposed input: Whether weighting is authorized for this decision; selected elasticity and competing or unweighted value presentations.",
+        "Formula-domain check: positive, comparable group and national median incomes. A zero or incompatible denominator needs a declared alternative or limitation, not silent clipping."
+      ],
+      "alternatives": [
+        "Show unweighted incidence alongside candidate comparisons under explicitly hypothetical value-weight schedules; absence of mandate does not prohibit those conditional calculations.",
+        "For an operative recommendation, obtain the applicable principal choice, rights/priority constraints and evidence for the selected social-weight profile.",
+        "Preserve unresolved normative disagreement and ranking sensitivity rather than averaging value frames into an invented mandate."
+      ],
+      "non_substitution": "PolicyOS inference: An income-based weight neither measures all dimensions of disadvantage nor establishes protected status, rights, legal duties, consent, or a principal's authority to trade one group's welfare against another's.",
+      "counterexample": "Illustrative PolicyOS inference: Two options provide the same unweighted £1m income gain but to groups with different median equivalised incomes. Under the Green Book's example, the weighted values differ; applying that difference without naming the population, formula, and authority would turn an explicit welfare assumption into a hidden ranking rule.",
+      "task_uses": "PolicyOS use: Keep incidence visible, identify whether a chosen social-weight profile changes a comparison, and expose sensitivity to group composition, equivalisation, and marginal-utility assumptions.",
+      "acquisition_next": "PolicyOS proposed acquisition: Obtain fit-for-purpose group-level income and incidence evidence, verify the equivalence and denominator profiles, and record who authorized the value-weight choice and which alternatives remain contested.",
+      "research_stream": "FIS",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "interpretation_status": "Only statement and source_refs are source-grounded summaries. Scope, required_inputs, alternatives, non_substitution, counterexample, task_uses and acquisition_next are PolicyOS analysis/inference, not source-issued requirements.",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-PHY-01",
+      "title": "Combustion emission factors use fuel energy input, not useful output",
+      "kind": "editorial",
+      "statement": "External finding: IPCC Eq. 2.1 multiplies fuel activity by a compatible gas-specific factor. The cited Table 2.2 energy-industry natural-gas factor is 56,100 kg CO2/TJ NCV (range 54,300–58,300), requiring activity on that energy basis. Section 2.3.1.2 also permits compatible mass/volume factor bases. PolicyOS inference: fuel input is not useful output; an output comparison needs efficiency/heat rate and CHP allocation.",
+      "source_refs": [
+        {
+          "source_id": "S3-PHY-01",
+          "url": "https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/2_Volume2/V2_2_Ch2_Stationary_Combustion.pdf",
+          "locator": "§§2.3.1–2.3.2; Eqs. 2.1/2.3 and Table 2.2 (printed pp. 2.11–2.17): activity basis, tiers and factors.",
+          "access": "primary_text_or_selected_sections; official corrected chapter opened; selected sections and table read."
+        },
+        {
+          "source_id": "S3-PHY-07",
+          "url": "https://www.ipcc-nggip.iges.or.jp/public/2006gl/vol2.html",
+          "locator": "Volume 2 index: Chapter 2 marked *1; footnote says corrected April 2007.",
+          "access": "primary_text_or_selected_sections; official publication index opened."
+        }
+      ],
+      "scope": "Source scope: stationary-combustion inventories; example is energy industries on NCV basis. Local plant/output scope is not established.",
+      "required_inputs": "PolicyOS checklist: fuel/gas identity; matched activity and factor units; NCV and mass/volume conversion only for the cited energy-basis route; factor version; technology/operating scope; useful-output and CHP allocation data if that is the question.",
+      "alternatives": [
+        "Use matching fuel-mass or volume activity and factor when their exact basis is supported; do not mandate conversion to energy for such a route.",
+        "Use an appropriate country/technology-specific factor with its own calibration and applicability evidence.",
+        "Compare delivered heat/electricity only after a separately grounded input-to-output relation."
+      ],
+      "non_substitution": "Non-substitution inference: an inventory factor is not an output-intensity, upstream/lifecycle, dispatch, facility-measurement, or causal policy-effect estimate.",
+      "counterexample": "Constructed PolicyOS counterexample (inference): applying kg CO2/TJ directly to delivered MWh ignores plant heat rate; differing efficiency or CHP allocation can reverse a technology ranking.",
+      "task_uses": "PolicyOS inference: EF-10 binds factor to fuel, version, unit basis, uncertainty and transfer assumptions; EF-19 preserves input/output boundary and combustion category.",
+      "acquisition_next": "PolicyOS acquisition inference: obtain applicable inventory rule and local NCV/fuel-use records; add plant heat input/output, operating condition and CHP allocation for service comparisons; use separate counterfactual/dispatch evidence for policy attribution.",
+      "research_stream": "PHY",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-PHY-02",
+      "title": "Methane-to-CO2e weight depends on metric and time horizon",
+      "kind": "editorial",
+      "statement": "External finding: IPCC AR6 WGI Table 7.15 reports fossil-methane GWP-20 as 82.5 ± 25.8 and GWP-100 as 29.8 ± 11; these values include carbon-cycle response and fossil-carbon CO2. PolicyOS inference: for options trading methane against CO2, horizon choice can change relative weights and reverse a near-boundary ranking; the table alone does not select an option.",
+      "source_refs": [
+        {
+          "source_id": "S3-PHY-02",
+          "url": "https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-7/",
+          "locator": "§7.6.1.3–7.6.1.5 and Table 7.15: GWP/GTP definitions, carbon-cycle treatment, fossil/non-fossil methane distinction, and the reported 20-, 100-, and 500-year horizons.",
+          "access": "search_extract_only; official AR6 chapter/Table 7.15 search extract inspected; direct chapter and PDF fetch returned 403."
+        }
+      ],
+      "scope": "Source scope: selected emissions metrics in IPCC AR6 WGI (2021); GWP is relative to CO2 over a named horizon. The cited assessment values are not asserted as universal legal reporting factors.",
+      "required_inputs": [
+        "Task-specific input checklist (PolicyOS inference): gas-specific mass and methane source origin where relevant.",
+        "PolicyOS input checklist (inference): Metric name, assessment/version, time horizon, conversion basis, and uncertainty treatment.",
+        "PolicyOS input checklist (inference): The purpose or governing reporting convention for aggregation, plus the decision horizon if options trade short- and long-lived gases."
+      ],
+      "alternatives": [
+        "PolicyOS comparison option (inference): keep gas quantities disaggregated when aggregation is unnecessary.",
+        "PolicyOS comparison option (inference): compare GWP-20 and GWP-100 where the decision purpose does not select a horizon.",
+        "PolicyOS comparison option (inference): use GTP or rate-sensitive metrics only if their target variable/time fits the question."
+      ],
+      "non_substitution": "Non-substitution inference: metric values do not define the climate goal, acceptable trade-off, local impact, policy effect, or authority to choose a horizon.",
+      "counterexample": "Constructed arithmetic, using cited central values only: A avoids 1 tonne fossil CH4 but adds 20 tonnes CO2; B avoids 30 tonnes CO2. GWP-20 gives A 62.5 versus B 30 tonnes CO2e avoided; GWP-100 gives A 9.8 versus B 30. This reverses the accounting ranking. It is neither observed policy impact nor uncertainty-robust preference; gas quantities, uncertainty and the selected climate objective still need grounds.",
+      "task_uses": "PolicyOS inference: EF-10 binds metric, horizon, gas origin, version and uncertainty; EF-19 exposes how those choices weight physical response across gas lifetimes.",
+      "acquisition_next": "PolicyOS acquisition inference: obtain gas-specific quantities/origin, reporting rule or task purpose, and exact metric version; compare horizons and separately establish policy effects.",
+      "research_stream": "PHY",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-PHY-03",
+      "title": "Grid-average emissions and avoided-generation emissions answer different questions",
+      "kind": "editorial",
+      "statement": "External findings: EPA eGRID reports output factors in lb/MWh by grid boundary; its nonbaseload category approximates plants more likely to respond to demand. eGRID2023 CO2e uses AR5 100-year GWPs without climate-carbon feedbacks, as specified in its Technical Guide. EPA AVERT v4.3 models hourly unit data for 14 U.S. regions, using 2017–2023 data. PolicyOS inference: average footprint and changed-generation emissions are distinct; location/hour and GWP version can change a comparison.",
+      "source_refs": [
+        {
+          "source_id": "S3-PHY-03",
+          "url": "https://www.epa.gov/egrid/frequent-questions-about-egrid",
+          "locator": "FAQ §§5, 7, 12–13: eGRID2023 vintage; CO2e GWP basis; lb/MWh output rates and grid boundaries; nonbaseload-rate definition.",
+          "access": "primary_text_or_selected_sections; official EPA FAQ opened and relevant sections inspected."
+        },
+        {
+          "source_id": "S3-PHY-04",
+          "url": "https://www.epa.gov/avert/how-avert-works",
+          "locator": "How AVERT Works, steps 1–4 and version description: v4.3, selected historical year, 2017–2023 data, 14 regional files, MWh/MW inputs, and hourly-unit emissions impact calculation.",
+          "access": "primary_text_or_selected_sections; official EPA page opened; current method/version scope inspected."
+        },
+        {
+          "source_id": "S3-PHY-08",
+          "url": "https://www.epa.gov/system/files/documents/2025-01/egrid2023_technical_guide.pdf",
+          "locator": "Section 3.1.1.2, Table 3-1, printed pp. 12–13 (PDF pp. 23–24).",
+          "access": "Independent quantitative reviewer opened the official PDF and read these sections; root retry returned HTTP 502. No complete guide audit or data execution."
+        }
+      ],
+      "scope": "Source scope: U.S. grid aggregates (eGRID) and historical regional operations (AVERT v4.3). A non-U.S. grid or long-run capacity-expansion response is not established.",
+      "required_inputs": [
+        "Task-specific input checklist (PolicyOS inference): footprint versus intervention question, selected grid boundary, data year, gases/pollutants and loss treatment.",
+        "PolicyOS input checklist (inference): Geographic grid boundary, data year/model version, pollutant/gas boundary, generation denominator, and treatment of transmission/distribution losses.",
+        "PolicyOS input checklist (inference): For a modeled change: hourly or otherwise justified load/generation profile, MWh/MW quantity, technology category, scenario year, and short- or long-run response assumption."
+      ],
+      "alternatives": [
+        "PolicyOS comparison option (inference): eGRID average rates for footprint/accounting questions with region/year named.",
+        "PolicyOS comparison option (inference): eGRID nonbaseload rates as an approximate historical displacement proxy.",
+        "PolicyOS comparison option (inference): AVERT for supported U.S. regional operations; consider a validated system model for material future structure or market changes."
+      ],
+      "non_substitution": "Non-substitution inference: an average rate does not identify changed generators; a historical operational estimate is not causal policy uptake, net lifecycle emissions or future market equilibrium.",
+      "counterexample": "Constructed arithmetic, not EPA observations: two options each save 10 MWh. A stipulated annual average of 0.4 t/MWh assigns 4 t to each. Stipulated time-matched marginal rates of 0.2 and 0.8 t/MWh yield 2 and 8 t. Equal annual electricity savings need not imply equal avoided-generation emissions; the actual response relation remains to be established.",
+      "task_uses": "PolicyOS inference: EF-19 binds dispatch/region/time to grid-dependent technology; EF-10 binds rate to region, profile, pollutant, data year and model version.",
+      "acquisition_next": "PolicyOS acquisition inference: obtain the U.S. regional AVERT input/profile for the selected year, or local hourly data and validated system model elsewhere/for long-run effects; separately establish policy uptake/counterfactuals.",
+      "research_stream": "PHY",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-PHY-04",
+      "title": "Water availability constrains energy technologies through different operating mechanisms",
+      "kind": "editorial",
+      "statement": "External finding: IPCC AR6 WGII Chapter 4 identifies runoff volume/timing as relevant to hydropower and streamflow/water temperature as relevant to thermoelectric cooling. PolicyOS inference: water availability is a technology-specific, time-varying operating input; local seasonality and competing uses may change capacity and option comparisons, but the global/regional assessment does not set a plant's water limit.",
+      "source_refs": [
+        {
+          "source_id": "S3-PHY-05",
+          "url": "https://www.ipcc.ch/report/ar6/wg2/chapter/chapter-4/",
+          "locator": "§4.3.2, Observed Impacts on Energy and Industrial Water Use; §4.5.2 and §4.6.3, projected energy impacts and adaptation: runoff and timing for hydropower, streamflow/temperature for cooling, and adaptation/residual-risk discussion.",
+          "access": "search_extract_only; official AR6 chapter search extract inspected; direct chapter/PDF fetch returned 403."
+        }
+      ],
+      "scope": "Source scope: climate-related water risks to energy at global and regional scales. Local facility capacity, operating rules, permits and effects are not established.",
+      "required_inputs": [
+        "Task-specific input checklist (PolicyOS inference): technology/facility, observed output, horizon, and time-aligned flow/runoff, cooling water/temperature, withdrawals versus consumption, storage and ecological/permit constraints.",
+        "PolicyOS input checklist (inference): Time-aligned river inflow/runoff or cooling-water source, withdrawals versus consumptive use, temperature, reservoir/storage or cooling design, and applicable ecological-flow/permit constraints.",
+        "PolicyOS input checklist (inference): Drought/heat scenarios, competing water demand, seasonal load profile, and uncertainty for any future capacity or emissions comparison."
+      ],
+      "alternatives": [
+        "PolicyOS comparison option (inference): observed monthly/hourly operations for near-term seasonal reliability.",
+        "PolicyOS comparison option (inference): couple hydrology/climate scenarios to plant/system operations for future risks.",
+        "PolicyOS comparison option (inference): compare cooling and generation portfolios on water use, output, reliability and ecological effects."
+      ],
+      "non_substitution": "Non-substitution inference: global findings do not supply a site threshold, permit, facility forecast, causal effect or universal technology ranking.",
+      "counterexample": "Constructed PolicyOS counterexample (inference): annual mean runoff makes hydro appear firm, but dry-season inflow and thermal cooling can coincide with peak demand; a local time-aligned model could change the ranking.",
+      "task_uses": "PolicyOS inference: EF-19 binds water, cooling, season and competing use to technology; EF-10 requires calibration/transport before transferring capacity or water-use parameters.",
+      "acquisition_next": "PolicyOS acquisition inference: obtain basin flows/environmental flows, plant withdrawal/consumption and output logs, reservoir/cooling rules and permits; align time bins to demand and dispatch.",
+      "research_stream": "PHY",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-PHY-05",
+      "title": "A hard adaptation limit is distinct from an overcomeable resource or technology constraint",
+      "kind": "editorial",
+      "statement": "External finding: IPCC AR6 WGII Chapter 16 defines soft limits as potentially changeable when practicable options become available and hard limits as cases where no further adaptive action is possible; it says tolerability is framed by values and objectives. PolicyOS inference: classify the physical/ecological option set separately from the actor's risk criterion; a current funding or capacity shortfall alone does not establish a hard limit.",
+      "source_refs": [
+        {
+          "source_id": "S3-PHY-06",
+          "url": "https://www.ipcc.ch/report/ar6/wg2/chapter/chapter-16/",
+          "locator": "Chapter 16, Box 16.2, Linking Adaptation Constraints, Soft and Hard Limits, and the chapter's limits-to-adaptation discussion: definitions of soft/hard limits, objective/system-needs framing, and value dependence of tolerable/intolerable risk.",
+          "access": "search_extract_only; official AR6 chapter search extract inspected; direct chapter/PDF fetch returned 403."
+        }
+      ],
+      "scope": "Source scope: conceptual distinction in IPCC AR6 WGII climate-risk contexts; local limit, objective and tolerability threshold are not established.",
+      "required_inputs": [
+        "Task-specific input checklist (PolicyOS inference): actor/system and objectives, risk/tolerability frame, place/horizon, physical or ecological indicators, and option/constraint evidence.",
+        "PolicyOS input checklist (inference): Measured physical or ecological constraint, observed threshold indicators, rate of hazard change and confidence/uncertainty.",
+        "PolicyOS input checklist (inference): Available adaptive options, implementation constraints, evidence about whether those constraints can be overcome, and residual risk after each option."
+      ],
+      "alternatives": [
+        "PolicyOS comparison option (inference): test whether investment/capacity/technology can relax a proposed soft limit.",
+        "PolicyOS comparison option (inference): consider a hard limit only with local evidence that no further action avoids the scoped risk.",
+        "PolicyOS comparison option (inference): leave status contested/not established if the option set, threshold or risk frame is incomplete."
+      ],
+      "non_substitution": "Non-substitution inference: scientific assessment does not set local thresholds or authorize risk tolerance; a value choice cannot make a physically unavailable option possible.",
+      "counterexample": "Constructed PolicyOS counterexample (inference): calling a budget shortfall a hard limit may reject a fundable option; calling lost ecological space soft may assume money can restore an unavailable physical option.",
+      "task_uses": "PolicyOS inference: EF-19 separates physical/biological options from relaxable constraints and retains horizon/residual risk; a limit label cannot substitute for a value choice.",
+      "acquisition_next": "PolicyOS acquisition inference: acquire local indicators, scoped objectives/risk rule and option/constraint evidence from technical custodians and affected objective-holders; retain unresolved disputes.",
+      "research_stream": "PHY",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-ACC-01",
+      "title": "CC BY 4.0 grants only rights the licensor can grant and requires attributable sharing",
+      "kind": "editorial",
+      "statement": "CC BY 4.0 licenses only copyright and similar rights, including sui generis database rights, that apply to the use and that the licensor can license (Section 1(3), (7)). On sharing, Section 3(a) requires retaining supplied creator, copyright, license, disclaimer, and source notices where applicable, marking modifications, and linking the license. Where the grant includes database rights, Section 4 applies those conditions to all or a substantial portion of the database contents. Section 2(b)(1) leaves privacy and similar personality rights unlicensed. The grant therefore depends on the exact asset’s notice and scope.",
+      "source_refs": [
+        {
+          "source_id": "S3-ACC-01",
+          "url": "https://creativecommons.org/licenses/by/4.0/legalcode.en",
+          "locator": "CC BY 4.0, Sections 1(3), 1(7), 2(b)(1), 3(a), and 4",
+          "access": "Opened the full official legal code on 2026-10-21 and read the listed sections; no asset-specific notice was examined."
+        }
+      ],
+      "scope": "The exact file, database, release, and rights for which a licensor has applied CC BY 4.0; local law and any excluded or third-party components still matter.",
+      "required_inputs": [
+        "Exact source asset, release/version, and stable source URI.",
+        "The license notice and identity of the licensor for that asset, not only the catalog or host page.",
+        "Attribution and copyright notices supplied with the asset, prior modification notices, and any marked third-party content.",
+        "Planned extraction, adaptation, redistribution, and audience."
+      ],
+      "alternatives": [
+        "Ask the rights holder for an asset-specific permission where the notice or authority is incomplete.",
+        "Use an independently licensed extract or a public-domain/exception route only after checking the relevant jurisdiction and subject matter.",
+        "Keep the material internal or request an approved output when redistribution rights are not established."
+      ],
+      "non_substitution": "A CC BY label or a correct attribution does not prove the named licensor controls every embedded right, authorize access to restricted files, permit personal-data processing, remove confidentiality conditions, or make the source authoritative for a policy claim.",
+      "counterexample": "Hypothetical counterexample (PolicyOS inference): a catalogue labels a multi-source table CC BY 4.0, but an embedded national series has a separate third-party notice. Crediting the catalogue alone does not establish rights in that component.",
+      "task_uses": "PolicyOS inference: bind the license to the exact source release and preserve attribution and modification data at ingestion and export; retain excluded and third-party components as separate rights dependencies.",
+      "acquisition_next": "Operational route (inference): resolve the release notice, identify the rights holder, and obtain written clarification for excluded components before redistribution. Retain the URI, version/date, notice, modifications, and scope with the acquired artifact.",
+      "research_stream": "ACC",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "The version 4.0 legal code was opened on 2026-10-21; its errata history and any asset-specific license application were not checked. Re-resolve both before authority-bearing or public reuse.",
+      "application_basis": "PolicyOS editorial inference: scope, required_inputs, alternatives, non_substitution, counterexample, task_uses, and acquisition_next operationalize the cited text; they are not additional source requirements."
+    },
+    {
+      "id": "G3-ACC-02",
+      "title": "EU database rights can cover substantial extraction even when database contents are unoriginal",
+      "kind": "editorial",
+      "statement": "Directive 96/9/EC, in its original 1996 text, provides a sui generis right where a database maker shows substantial qualitative or quantitative investment in obtaining, verifying, or presenting contents (Article 7(1)). Article 7(2) covers extraction or re-utilization of all or a substantial part, whether or not copyright also applies. Article 7(5) addresses repeated, systematic extraction or re-utilization of insubstantial parts when those acts conflict with normal exploitation or unreasonably prejudice the maker’s legitimate interests. Article 8 preserves lawful users’ extraction or re-utilization of insubstantial parts of public databases subject to stated limits. Member-State implementation and facts govern application.",
+      "source_refs": [
+        {
+          "source_id": "S3-ACC-02",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:31996L0009",
+          "locator": "Directive 96/9/EC, original Official Journal text; Articles 7(1)-(5) and 8(1)-(3)",
+          "access": "Official EUR-Lex indexed extracts exposed Articles 7 and 8; direct full-page retrieval returned a robot interstitial. No national transposition was checked."
+        }
+      ],
+      "scope": "A database and its relevant maker/rightsholder under the applicable European Union Member State implementation of Directive 96/9/EC; assess the database, territory, relevant period, substantial investment, and conduct.",
+      "required_inputs": [
+        "Identity and territorial connection of the database maker/rightsholder and the database version.",
+        "Evidence relevant to qualifying investment in obtaining, verifying, or presenting the contents.",
+        "The portion and qualitative significance proposed for extraction or public reuse.",
+        "A cumulative log of repeated or systematic extracts, applicable license terms, and how the proposed use relates to ordinary exploitation."
+      ],
+      "alternatives": [
+        "Use an expressly licensed API or request permission for the planned extraction and downstream sharing.",
+        "Use an independently released data file with clear rights and provenance.",
+        "Limit extraction to a lawful user's permitted insubstantial use after checking both the statutory conditions and any license."
+      ],
+      "non_substitution": "Public accessibility does not itself waive a database right. A row-count or percentage threshold is not stated as a general safe harbor in the cited provisions; copyright in selected arrangement and rights in individual contents remain separate questions.",
+      "counterexample": "Hypothetical counterexample (PolicyOS inference): a crawler takes few rows per request but repeats the process until it reconstructs much of a database. A per-request cap misses the cumulative conduct Article 7(5) may address if its conditions are met.",
+      "task_uses": "PolicyOS inference: bind every dataset extraction and export to its version, rightsholder, jurisdiction, amount, and cumulative extraction history; route unresolved rights to the issuer or carry a limitation.",
+      "acquisition_next": "Operational route (inference): identify the maker and holder, inspect relevant national implementing law and current API/reuse terms, and request a grant covering planned extraction, frequency, transformation, and redistribution when scope is unresolved.",
+      "research_stream": "ACC",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Original 1996 text only. The independent reader observed a 2019-06-06 consolidated view in EUR-Lex; its changed provisions and relevant national transposition must be compared before operative current-use claims. A consolidated view is documentary, not a new authentic OJ act.",
+      "application_basis": "PolicyOS editorial inference: scope, required_inputs, alternatives, non_substitution, counterexample, task_uses, and acquisition_next operationalize the cited text; they are not additional source requirements."
+    },
+    {
+      "id": "G3-ACC-03",
+      "title": "European statistical microdata access is a purpose-bound approval and disclosure-control route",
+      "kind": "editorial",
+      "statement": "In the EUR-Lex consolidation of Regulation (EC) No 223/2009 dated 2024-12-26, Article 19 permits public-use files only when a statistical unit is not identifiable, directly or indirectly, by means reasonably likely to be used. Articles 20 and 23 govern confidentiality and statistical-purpose use, and permit conditional researcher access to confidential data for scientific statistical analyses. Commission Regulation (EU) No 557/2013, Articles 3-5 and 7, sets the Eurostat route through recognised entities, proposals demonstrating need, identified data/users/facility/results, any required national authority approval, and disclosure safeguards. Eurostat’s access guidance likewise requires entity recognition and a project proposal. Approval is bounded to the permitted project and conditions.",
+      "source_refs": [
+        {
+          "source_id": "S3-ACC-03",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02009R0223-20241226",
+          "locator": "Regulation 223/2009, consolidated English text CELEX 02009R0223-20241226; Articles 19, 20(1)-(2), and 23",
+          "access": "Opened the official consolidated text and inspected the listed articles on 2026-10-21; the pinned consolidation date is 2024-12-26."
+        },
+        {
+          "source_id": "S3-ACC-04",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32013R0557",
+          "locator": "Commission Regulation (EU) No 557/2013, Articles 3-5 and 7; OJ L 164, 18.6.2013, pp. 16-19",
+          "access": "EUR-Lex record showed the 2013 act and in-force status; English Official Journal text extracts exposed the listed articles. No application was submitted."
+        },
+        {
+          "source_id": "S2-DAT-05",
+          "url": "https://ec.europa.eu/eurostat/web/microdata/access",
+          "locator": "Eurostat microdata access guidance: recognised entity, proposal, access conditions, and scientific-use files",
+          "access": "Existing source S2-DAT-05 was reopened on 2026-10-21 and the official page read; no request was submitted."
+        }
+      ],
+      "scope": "European statistics under Regulation 223/2009 and confidential data held by Eurostat or handled through the ESS route; national statistical institute datasets outside that route require their own national access conditions.",
+      "required_inputs": [
+        "Named survey/release, wave, variables, unit, access type, and the disclosure-control transformations already applied.",
+        "The intended statistical question, scientific purpose, analysts, methods, outputs, facility, and period of access.",
+        "Recognised research entity status, proposal approval, confidentiality undertakings, and any provider/NSI approval.",
+        "Output-checking, retention, destruction, and result-publication conditions for the granted file type."
+      ],
+      "alternatives": [
+        "Use published aggregates or a public-use file when they answer the question adequately.",
+        "Apply through Eurostat for a scientific-use file or secure-use facility when eligible and necessary.",
+        "Use the relevant national statistical institute's access route for data it holds outside Eurostat's approval scope."
+      ],
+      "non_substitution": "Removing direct identifiers or seeing an open aggregate does not prove that a linked record is anonymous, lift statistical confidentiality, or authorize raw microdata access. Research-entity recognition and Eurostat approval do not authorize reuse beyond the approved project, users, facility, period, and output review.",
+      "counterexample": "Hypothetical counterexample (PolicyOS inference): a file is labelled “scientific-use” and treated as anonymous, but the approved access terms and indirect-identification risk have not been resolved. The label alone does not establish unrestricted public-release eligibility.",
+      "task_uses": "PolicyOS inference: carry the external approval’s project, data, users, facility, output, and time limits through each use and release decision; do not generalize it into permission for unrelated work.",
+      "acquisition_next": "Operational route (inference): verify file disclosure notes, obtain research-entity recognition, and submit a proposal specifying data need, users, methods, facility, outputs, and period. Confirm any National Statistical Institute approval and output-review path before access.",
+      "research_stream": "ACC",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "The Regulation 223 text is pinned to the 2024-12-26 consolidation shown on EUR-Lex; no later consolidation was checked. Regulation 557/2013 is the official 2013 act whose EUR-Lex page showed in-force status at access; no national route outside this instrument or specific dataset availability was checked.",
+      "application_basis": "PolicyOS editorial inference: scope, required_inputs, alternatives, non_substitution, counterexample, task_uses, and acquisition_next operationalize the cited text and Eurostat route; they are not additional statutory requirements."
+    },
+    {
+      "id": "G3-ACC-04",
+      "title": "Consent withdrawal and the research erasure exception have different conditions",
+      "kind": "editorial",
+      "statement": "Under GDPR Article 7(3), consent may be withdrawn at any time; withdrawal does not retroactively invalidate the lawfulness of earlier consent-based processing and must be as easy as giving consent. Article 17(3)(d) is a qualified exception to erasure for public-interest archiving, scientific or historical research, or statistical purposes under Article 89(1), where erasure would likely make the objectives impossible or seriously impair them. Article 89(1) requires safeguards, including minimisation and pseudonymisation, or processing that no longer permits identification where the purpose allows. A research label alone is not a retention grant or processing basis.",
+      "source_refs": [
+        {
+          "source_id": "S-LEGAL-03",
+          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
+          "locator": "Regulation (EU) 2016/679, original Official Journal text; Articles 7(3), 17(3)(d), and 89(1)",
+          "access": "Official EUR-Lex indexed extracts exposed the listed English provisions; direct full-page retrieval returned a robot interstitial. No national Article 89 derogation was checked.",
+          "access_url": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32016R0679",
+          "resource_identity_note": "Same original 2016/679 OJ legal text through a CELEX rendering; no byte-equivalence assertion."
+        }
+      ],
+      "scope": "Personal-data processing within the GDPR's material and territorial scope; assess the controller, consent scope, processing purpose, relevant Member State rules, and applicable research safeguards.",
+      "required_inputs": [
+        "The exact consent text, notice, controller, purpose, data categories, recipients, and consent/withdrawal times.",
+        "Which future processing depends on consent and which records or outputs remain identifiable personal data.",
+        "The controller's basis for any continued or later processing and any claimed Article 17(3)(d) necessity.",
+        "The safeguards, minimisation, pseudonymisation, retention schedule, and applicable national research provisions."
+      ],
+      "alternatives": [
+        "Stop future processing that depends on withdrawn consent and apply the person's rights to remaining personal data.",
+        "Where the controller can substantiate the Article 17(3)(d) conditions, retain only what is necessary under Article 89 safeguards and document the reason.",
+        "Use non-identifying or properly anonymised material when it can meet the purpose, after validating that it no longer relates to an identifiable person."
+      ],
+      "non_substitution": "Withdrawal is not retroactive invalidation of earlier consent-based processing, but Article 17(3)(d) is not a blanket research exemption and does not create a lawful basis by itself. Consent for one interview, study, or publication does not automatically permit a later controller, purpose, or public release.",
+      "counterexample": "Hypothetical counterexample (PolicyOS inference): after consent is withdrawn, a team retains identifiable interviews indefinitely for possible projects merely because future analysis may be scientific. That description alone does not establish a basis or the Article 17(3)(d) conditions and Article 89 safeguards.",
+      "task_uses": "PolicyOS inference: carry purpose, consent version, withdrawal time, controller, and retention rule in lineage; distinguish completed processing from continued storage, new analysis, disclosure, and erasure.",
+      "acquisition_next": "Operational route (inference): obtain the consent/notice and withdrawal record from the controller, then resolve continuing purpose, lawful basis, any erasure request, national Article 89 rules, and safeguards with the competent owner.",
+      "research_stream": "ACC",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "The source is the original 2016 GDPR Official Journal text; no later consolidated text, Member State Article 89 law, or case-specific interpretation was checked. Re-resolve the governing text and national rules at the relevant processing date.",
+      "application_basis": "PolicyOS editorial inference: scope, required_inputs, alternatives, non_substitution, counterexample, task_uses, and acquisition_next operationalize the cited provisions; they are not additional statutory requirements."
+    },
+    {
+      "id": "G3-ACC-05",
+      "title": "A public-sector reuse licence does not supply the separate data-protection permission",
+      "kind": "editorial",
+      "statement": "Directive (EU) 2019/1024 excludes some documents whose access is restricted under personal-data rules (Article 1(2)(h)). Recital 52 says personal-data re-use must satisfy GDPR purpose limitation and Article 6; Article 8 addresses conditions for document re-use. CC BY 4.0 also leaves privacy/personality rights unlicensed (Section 2(b)(1)). Treating reuse rights and personal-data processing permission as independent checks is an operational inference from these texts, not a separate statutory formula.",
+      "source_refs": [
+        {
+          "source_id": "S3-ACC-06",
+          "url": "https://eur-lex.europa.eu/eli/dir/2019/1024/oj",
+          "locator": "Directive (EU) 2019/1024, Article 1(2)(h), Recital 52, and Article 8; OJ L 172, 26.6.2019, pp. 56-83",
+          "access": "Opened official EUR-Lex document page and metadata; indexed extracts exposed Recital 52 and Articles 1 and 8. The page displayed in-force status on 2026-10-21; national transposition was not checked."
+        },
+        {
+          "source_id": "S3-ACC-01",
+          "url": "https://creativecommons.org/licenses/by/4.0/legalcode.en",
+          "locator": "CC BY 4.0, Section 2(b)(1)",
+          "access": "Opened the full official legal code on 2026-10-21."
+        },
+        {
+          "source_id": "S-LEGAL-03",
+          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng",
+          "locator": "Regulation (EU) 2016/679, Article 6; original Official Journal text",
+          "access": "Official EUR-Lex indexed extract exposed Article 6; direct full-page retrieval returned a robot interstitial.",
+          "access_url": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32016R0679",
+          "resource_identity_note": "Same original 2016/679 OJ legal text through a CELEX rendering; no byte-equivalence assertion."
+        }
+      ],
+      "scope": "EU public-sector information re-use within Directive (EU) 2019/1024 and personal-data processing within GDPR scope; national access rules, controller, data categories, intended purpose, and rights holder determine the concrete route.",
+      "required_inputs": [
+        "The exact source release, public-access decision, reuse licence, rights holder, exclusions, and embedded third-party rights.",
+        "Whether the reused material contains personal data or data still linkable to natural persons.",
+        "The processing actor/controller, each purpose and operation, applicable GDPR basis and any Article 9 condition.",
+        "Intended sharing, recipients, safeguards, and any restriction on the source's statistical, confidential, or protected content."
+      ],
+      "alternatives": [
+        "Use an approved aggregate or genuinely anonymous release when it meets the analytical purpose.",
+        "Request a rights-cleared and privacy-reviewed release from the source body.",
+        "Process only within a valid access arrangement and publish only an output cleared for both reuse rights and disclosure rules."
+      ],
+      "non_substitution": "A licence answers only the rights it grants; it cannot establish the controller's GDPR basis or override an access restriction. Conversely, a lawful processing basis does not establish a copyright or database-right grant for public redistribution.",
+      "counterexample": "Hypothetical counterexample (PolicyOS inference): a public catalogue offers a CC-licensed table with identifiable benefit or health records. The licence does not itself resolve personal-data access and processing permission.",
+      "task_uses": "PolicyOS inference: track rights clearance separately from processing permission at acquisition and export; identify the licensor/access authority separately from the controller and purpose.",
+      "acquisition_next": "Operational route (inference): resolve the exact document and licence with its holder, then separately obtain the controller’s basis, purpose, and any special-category condition. If either remains unresolved, seek an approved aggregate or declare the limitation.",
+      "research_stream": "ACC",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "currentness_limit": "Directive (EU) 2019/1024 is cited as its 2019 Official Journal text; EUR-Lex displayed it as in force on 2026-10-21, but no later consolidated text or national transposition was checked. GDPR is cited as its original 2016 text. The separation of rights and processing permission is an operational inference that must be applied to the facts and law of the actual release.",
+      "application_basis": "PolicyOS editorial inference: scope, required_inputs, alternatives, non_substitution, counterexample, task_uses, and acquisition_next operationalize the cited texts; they are not additional statutory requirements."
+    },
+    {
+      "id": "G3-ASR-01",
+      "title": "Metrological traceability relates a result to a reference; it does not certify truth or fitness",
+      "kind": "editorial",
+      "statement": "Source-established: VIM 2.41 treats traceability as a documented calibration chain from result to reference, with each link contributing to uncertainty; it requires the reference time and says traceability alone does not establish purpose-adequate uncertainty or absence of mistakes. PolicyOS application (inference): keep reference-chain support distinct from construct validity, result accuracy, and downstream fitness. A multi-input measurement model may require branched chains.",
+      "source_refs": [
+        {
+          "source_id": "S3-ASR-01",
+          "url": "https://www.bipm.org/documents/20126/2071204/JCGM_200_2012.pdf/f0e1ad45-d337-bbeb-53a6-15fe649d0ff1",
+          "locator": "VIM 3, entries 2.40 and 2.41, notes 2–5: calibration hierarchy, time of reference, branched inputs, and express non-guarantee of fitness/error absence",
+          "access": "Official BIPM PDF opened; selected entries 2.40–2.41 read directly."
+        },
+        {
+          "source_id": "S3-ASR-04",
+          "url": "https://ilac.org/?ddownload=123220",
+          "locator": "ILAC P10:07/2020, §§1–2: chain definition, suitable reference and calibration routes",
+          "access": "Official ILAC PDF opened; selected clauses read directly."
+        }
+      ],
+      "scope": "Physical quantities measured by instruments, standards, or reference materials for which a calibration hierarchy can be defined. This does not settle whether an operationalized physical quantity validly represents a non-physical policy construct.",
+      "required_inputs": [
+        "Claim-specific measurand, unit or non-SI reference, relevant range, location/population, and intended decision.",
+        "Exact measurement system/instrument identity, procedure and version, calibration certificates, reference identity and reference-use time for each link, and the uncertainty contributed at each link.",
+        "All material input quantities in the measurement model, including branch-specific calibration records and relative contribution to the result; measurement/environment conditions and any corrections.",
+        "For an asserted recognized route, the calibration provider's service/range and scope as of the calibration date; for other routes, the documented basis establishing a suitable reference and competent procedure."
+      ],
+      "alternatives": [
+        "Trace to a practical realization of an SI unit through a suitable NMI service or an accredited laboratory whose scope covers the calibration.",
+        "Where SI traceability is inappropriate or technically unavailable, use an appropriate certified reference material or a clearly defined non-SI reference/procedure with documented comparison and task-specific suitability evidence, following the bounded alternatives ILAC P10 describes.",
+        "If no reference relation is established, retain the result with an explicit unresolved-reference limitation; do not infer either zero error or no measurement."
+      ],
+      "non_substitution": "A certificate, accreditation logo, calibration date, or unbroken reference chain is not a verdict that the observation is correct, the chosen measurand represents the intended construct, the uncertainty resolves the decision boundary, or the result is causal evidence.",
+      "counterexample": "A sensor certificate contains a complete chain to SI, but its calibrated range omits the policy threshold or its uncertainty is wider than the distance between the observed value and that threshold. The chain can be traceable while the result remains unable to support the proposed threshold decision.",
+      "task_uses": [
+        "Separate reference-chain integrity from measurement fitness and substantive claim support.",
+        "Acquire calibration evidence for the exact instrument, range, procedure, and time used by the claim rather than relying on a generic lab or source badge."
+      ],
+      "acquisition_next": "For a concrete measurement, retrieve the original calibration certificate and contemporaneous service scope; resolve each reference and calibration date, the instrument range, uncertainty contributors, environment, and any adjustment or as-found/as-left record. Check the corresponding BIPM KCDB CMC or accreditation-body scope where that route is claimed. If SI is not the right reference, identify a suitable reference procedure/CRM and obtain its certificate and use conditions.",
+      "research_stream": "ASR",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-ASR-02",
+      "title": "Measurement uncertainty characterizes a result; it does not choose tolerance or fitness for action",
+      "kind": "editorial",
+      "statement": "Source-established: GUM §§1.1–1.4 gives general rules for uncertainty of a defined measurand and expressly leaves tolerance-setting and safe-action use to application-specific rules. PolicyOS application (inference): report measurement uncertainty separately from tolerance/fitness, and do not import GUM to survey, causal, forecast, or value uncertainty without a suitable method.",
+      "source_refs": [
+        {
+          "source_id": "S3-ASR-02",
+          "url": "https://www.bipm.org/documents/20126/2071204/JCGM_100_2008_E.pdf/cb0ef43f-baa5-11cf-3f85-4dcd86f77bd6",
+          "locator": "JCGM 100:2008(E), §§1.1–1.4; §1.4 names tolerance and safe-action decisions as uses the guide itself does not prescribe",
+          "access": "Official BIPM PDF opened; §§1.1–1.4 read directly."
+        },
+        {
+          "source_id": "S3-ASR-01",
+          "url": "https://www.bipm.org/documents/20126/2071204/JCGM_200_2012.pdf/f0e1ad45-d337-bbeb-53a6-15fe649d0ff1",
+          "locator": "VIM 3, entry 2.41 note 5: traceability does not establish purpose-adequate uncertainty",
+          "access": "Official BIPM PDF opened; entry 2.41 and notes read directly."
+        }
+      ],
+      "scope": "Quantitative physical measurement uncertainty evaluated against a defined measurement model. A survey estimate, causal-effect interval, forecast range, or value disagreement needs its own uncertainty model and cannot inherit this guide merely because it is reported numerically.",
+      "required_inputs": [
+        "Measurand, measurement procedure/model, scope and intended use, including relevant time and environmental conditions.",
+        "Input estimates, uncertainty components and distributions, covariance where relevant, evaluation method, corrections, assumptions, and the reported standard or expanded uncertainty with its coverage factor/probability interpretation.",
+        "A separately sourced tolerance/requirement or action purpose, plus the rule that maps a measured result and its uncertainty to an outcome."
+      ],
+      "alternatives": [
+        "Use a domain-specific uncertainty/evaluation method where the construct, measurement process, or regulatory application needs detail beyond the general GUM rules; pin its version and the exact measured property.",
+        "For measurements represented by a distribution or dependent on time/parameters, define the additional measurands and describe the dependence instead of compressing it into one scalar interval.",
+        "Where the phenomenon or data-generating design does not support a GUM-style measurement uncertainty, report the appropriate sampling, model, or qualitative limitation rather than relabeling it as metrological uncertainty."
+      ],
+      "non_substitution": "An uncertainty budget cannot supply an authorized tolerance or decide who should bear false-acceptance versus false-rejection risk. A small uncertainty does not establish that the measured quantity is the policy-relevant construct; a large one does not by itself establish that the measurement is useless for every task.",
+      "counterexample": "The same thermometer result and uncertainty may be adequate for estimating a broad seasonal trend yet too imprecise to decide whether one facility crossed an enforcement threshold. The result's uncertainty is unchanged; the tolerance, cost of wrong decisions, and fitness question differ.",
+      "task_uses": [
+        "Keep result characterization, requirements, and action fitness as separate evidence relations.",
+        "Make interval interpretation and uncertainty-model assumptions visible before calculating a pass/fail or safety conclusion."
+      ],
+      "acquisition_next": "Acquire the full measurement model and component budget for the actual procedure, not just the printed ± value. Separately acquire the governing tolerance and who set it. Because the BIPM publication list checked on 2026-10-21 also lists JCGM 100:2008/Amd.1:2026 on nonlinear models, check that amendment's text before relying on the base GUM for a nonlinear model; its text was not reviewed in this wave.",
+      "research_stream": "ASR",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-ASR-03",
+      "title": "Measurement-based conformity is requirement plus decision rule, with explicit error trade-offs",
+      "kind": "editorial",
+      "statement": "Source-established: JCGM 106 defines a decision rule as the documented use of uncertainty when accepting or rejecting against a requirement; simple acceptance and guard bands yield different consumer/producer error trade-offs. PolicyOS application (inference): neither the measurement nor JCGM 106 chooses the operative requirement or acceptable public-policy risk, so preserve the governing decision and conditional outcomes separately.",
+      "source_refs": [
+        {
+          "source_id": "S3-ASR-03",
+          "url": "https://www.bipm.org/documents/20126/2071204/JCGM_106_2012_E.pdf/fe9537d2-e7d7-e146-5abb-2649c3450b25",
+          "locator": "JCGM 106:2012, §3.3.12 (decision rule), §7 (conformance probability), §§8.2–8.3 (simple acceptance, shared risk, and guard bands), §9 (consumer/producer risks); §8.3.3, Example 1 (speed-limit enforcement) illustrates a purpose-specific confidence threshold",
+          "access": "Official BIPM PDF opened; selected clauses and example read directly."
+        },
+        {
+          "source_id": "S3-ASR-02",
+          "url": "https://www.bipm.org/documents/20126/2071204/JCGM_100_2008_E.pdf/cb0ef43f-baa5-11cf-3f85-4dcd86f77bd6",
+          "locator": "JCGM 100:2008(E), §1.4: uncertainty expression does not itself define tolerance or safe-action use",
+          "access": "Official BIPM PDF opened; selected clause read directly."
+        }
+      ],
+      "scope": "Conformity decisions where a specified item/property is measured against a stated requirement and the measurement uncertainty can be characterized. The guide's equations/examples do not automatically transfer to a policy design, non-measurement criterion, or jurisdiction without a separate governing rule.",
+      "required_inputs": [
+        "The requirement itself, its issuer/authority, scope, effective period, exact property, units, tolerance limits, and the protected action the result controls.",
+        "Measured value and uncertainty distribution/coverage appropriate to the measurand, method, range, and relevant measurement conditions.",
+        "A documented decision rule chosen before interpreting the result, the acceptance/rejection/indeterminate zones, and the stated treatment of consumer and producer consequences or other error costs.",
+        "The authority or parties responsible for choosing the requirement and risk trade-off; analytical guidance alone cannot fill that role."
+      ],
+      "alternatives": [
+        "Use simple acceptance/shared-risk when its shared error exposure is explicitly acceptable under the governing rule.",
+        "Use guarded acceptance or guarded rejection when reducing a specified false-acceptance or false-rejection risk justifies the corresponding cost; calculate the guard band under the stated distributional assumptions.",
+        "Use an indeterminate/retest/referral band when the result is too close to the limit for the chosen rule to support a binary decision, if the governing process permits it."
+      ],
+      "non_substitution": "A numeric limit does not specify the decision rule; a decision rule does not authorize the underlying limit. A conformity result under one rule is not a general verified badge, nor does it establish causal effect or overall policy acceptability.",
+      "counterexample": "PolicyOS-created illustration (not a source result or recommended rule): with an upper limit of 100 and a result of 99 ±2, simple acceptance can accept the point result while a predeclared guarded-acceptance rule requiring result plus expanded uncertainty to stay below 100 will not establish conformity. The result is identical; the separately chosen rule changes its decision use.",
+      "task_uses": [
+        "Expose the source and version of a conformity requirement separately from the measurement and uncertainty.",
+        "Show why a result is admitted, limited, retested, rejected, or indeterminate under the actual decision rule and its risk assumptions."
+      ],
+      "acquisition_next": "For a real decision, obtain the operative requirement and decision rule from the competent source, confirm when it applied, then bind the measurement distribution and method to the rule. If the governing institution has not set a rule or risk allocation, retain alternative conditional outcomes rather than selecting one silently.",
+      "research_stream": "ASR",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-ASR-04",
+      "title": "Accreditation is evidence about a scoped service route, not a universal pass for every result",
+      "kind": "editorial",
+      "statement": "Source-established: ILAC P10’s recognized traceability routes require a service suitable for the intended use and a matching scope; Appendix A identifies technical-competence and traceability evidence for less-recognized routes. PolicyOS application (inference): accreditation is a scoped service signal; the claim-specific checklist below is an evidence demand, not a source-prescribed universal test. Verify the calibration date/range/scope and still evaluate task fitness.",
+      "source_refs": [
+        {
+          "source_id": "S3-ASR-04",
+          "url": "https://ilac.org/?ddownload=123220",
+          "locator": "ILAC P10:07/2020, §2 routes 1–3b and notes 1–4 (PDF pp. 6–8); Appendix A evidence list and practical-assessment guidance (PDF pp. 10–11)",
+          "access": "Official ILAC PDF opened; selected clauses read directly."
+        }
+      ],
+      "scope": "Testing, calibration, and other conformity-assessment activities involving measurement within the ILAC policy framework; P10 also addresses in-house calibration and certified reference materials. Use outside this framework requires its own authority and competence basis.",
+      "required_inputs": [
+        "Original calibration certificate plus provider, instrument, measurand/range, method, calibration date, and stated uncertainty.",
+        "A dated KCDB CMC or accreditation-body record showing that the exact service/range was covered at calibration time.",
+        "For a non-ordinary route: independently reviewable method, uncertainty, result-validity, personnel, equipment, facility/environment, and audit evidence; identify who assessed it.",
+        "The task-specific tolerance or decision purpose needed to judge whether the service uncertainty and range are adequate."
+      ],
+      "alternatives": [
+        "Use an NMI service whose contemporaneous KCDB CMC covers the calibration range.",
+        "Use an accredited-laboratory service shown in the accreditation body’s dated scope.",
+        "When ordinary routes are unavailable, require competent independent review of a fallback route; if SI is unavailable or inapplicable, use a suitable CRM or documented comparison to an accepted reference procedure, method, or consensus standard."
+      ],
+      "non_substitution": "The accreditation mark establishes neither that every service of the laboratory is in scope nor that the chosen calibration is adequate for the task. A calibration provider's competence cannot establish the semantic validity of a construct or the truth of a downstream claim.",
+      "counterexample": "A calibration certificate carries a recognized accreditation mark, but its listed scope covers another quantity or range. A consumer who checks only the issuer/logo would report an assurance pass even though the particular service is outside the scope the ILAC route requires.",
+      "task_uses": [
+        "Check measurement assurance evidence at the service-and-range level instead of promoting a provider-level badge.",
+        "Name the evidence deficit and a feasible fallback assessment when recognized scope is absent, rather than treating absence of accreditation as proof of invalidity or as a free pass."
+      ],
+      "acquisition_next": "Resolve the provider's exact scope and status from the responsible accreditation body or BIPM KCDB for the calibration date; retrieve the result certificate and the stated uncertainty. If using an exception route, request the Appendix A records from the provider and arrange an independent competent review. Keep the ISO texts referenced by ILAC as a separate acquisition step if a task needs their normative clauses; they were not accessed in this review.",
+      "research_stream": "ASR",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-ASR-05",
+      "title": "Provenance and revocation are typed change evidence; each dependent claim needs scoped reassessment",
+      "kind": "editorial",
+      "statement": "Source-established: W3C VC v2 supports tamper-evident issuer claims and status signals such as suspension or revocation; it leaves issuer trust and purpose-specific claim validation to the verifier, and warns that a valid signature/status does not make every credential valid for every context. PolicyOS application (inference): treat a verified status change as a trigger to revisit dependent uses, not a blanket truth verdict; preserve the earlier decision and its time basis.",
+      "source_refs": [
+        {
+          "source_id": "S-AUTH-01",
+          "url": "https://www.w3.org/TR/vc-data-model/",
+          "locator": "W3C VC Data Model v2.0 (Recommendation 2025-05-15), §§4.10, 5.1, 9.9.2, and Appendix A.6–A.10: credential status, verifier-specific issuer trust, claim validation, and fitness-for-purpose checks",
+          "access": "Existing atlas primary-source card reused; recommendation and selected clauses reopened and read directly."
+        }
+      ],
+      "scope": "Signed credentials or institutional attestations whose current validity or use as evidence depends on a declared issuer/status scheme. It does not prescribe a status scheme for calibration certificates, academic publications, or other resources.",
+      "required_inputs": [
+        "Exact credential/version and subject/claim; issuer identity and applicable signing proof/key status.",
+        "Declared credentialStatus type and status source, the actual status response/event, retrieval/receipt time, any issuer-supplied effective time or reason, and verification cutoff.",
+        "The verifier’s purpose-specific issuer-trust and claim-validation rule, including which claim must be current for the decision.",
+        "A supported dependency relation from the credential claim to each affected result/publication and any independent basis that may preserve it."
+      ],
+      "alternatives": [
+        "Query the issuer’s declared status mechanism/register and verify the result against the exact credential and status type; acquire an updated credential where the issuer’s process requires reissue.",
+        "If no valid status mechanism or authoritative response is available, report current status as unresolved at the stated cutoff and limit any use that requires present validity.",
+        "For other source types (e.g. a paper correction or calibration scope change), seek that source type’s responsible publisher, repository, NMI, or accreditation-body record rather than treating VC status as a universal revocation feed."
+      ],
+      "non_substitution": "A valid proof binds an issuer to particular signed bytes, and a status mechanism reports credential status under its scheme. Neither proves that the issuer is competent for this purpose, the claim is substantively true, the status feed is complete, or a downstream claim is materially affected.",
+      "counterexample": "PolicyOS-created illustration: revocation of a professional-license credential can remove its current-status warrant for a decision requiring a present license while leaving intact the historical fact that the credential was once issued. Whether a dependent decision changes depends on its purpose, status event, and effective time.",
+      "task_uses": [
+        "Separate content integrity, issuer identity/trust, present credential status, and truth/fitness of the underlying claim.",
+        "Revisit uses whose dependency and purpose actually require the changed status; preserve the earlier claim state and its time cutoff for replay.",
+        "Expose missing status mechanisms and unresolved event scope instead of treating signature validity or last fetch as current truth."
+      ],
+      "acquisition_next": "For an actual credential-backed claim, resolve the credential and status scheme, query the issuer’s status source through an authorized/privacy-safe route, record the response cutoff and event scope, and reconstruct which claims require that credential to be current. If status is unavailable or the verifier’s purpose/trust rule is absent, leave current validity not established and ask the responsible claim/currentness owner to determine the scoped reaction.",
+      "research_stream": "ASR",
+      "standing": "editorial research ground; not task-admitted evidence or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-INS-01",
+      "title": "EU institutional authority must be traced to conferred and instrument-specific powers",
+      "kind": "editorial",
+      "statement": "TEU Article 5 confines Union action to Treaty-conferred competences; Article 13(2) confines each institution to Treaty-conferred powers and their procedures, conditions and objectives. TFEU Articles 290–291 distinguish delegated amendment or supplementation of non-essential elements from implementing powers conferred where uniform implementation conditions are needed. PolicyOS inference: these distinctions support a candidate-level trace from actor and action to a specific Treaty basis and, where used, the parent act’s delegation or implementing-power clause. They do not themselves adjudicate a concrete act’s legality.",
+      "source_refs": [
+        {
+          "source_id": "S3-INS-01",
+          "url": "https://eur-lex.europa.eu/eli/treaty/teu_2016/art_5/oj/eng",
+          "locator": "Article 5(1)–(2), conferral; current consolidated version metadata",
+          "access": "Official EUR-Lex text of the selected article and version metadata; not a full Treaty review."
+        },
+        {
+          "source_id": "S3-INS-01",
+          "url": "https://eur-lex.europa.eu/eli/treaty/teu_2016/art_13/oj/eng",
+          "locator": "Article 13(2), institutional powers, procedure, conditions and objectives",
+          "access": "Official EUR-Lex selected article text."
+        },
+        {
+          "source_id": "S3-INS-02",
+          "url": "https://eur-lex.europa.eu/eli/treaty/tfeu_2016/art_290/oj/eng",
+          "locator": "Article 290(1)–(2), delegation limits and conditions",
+          "access": "Official EUR-Lex selected article text; clauses only."
+        },
+        {
+          "source_id": "S3-INS-02",
+          "url": "https://eur-lex.europa.eu/eli/treaty/tfeu_2016/art_291/oj/eng",
+          "locator": "Article 291(1)–(4), national implementation and conferred implementing powers",
+          "access": "Official EUR-Lex selected article text; clauses only."
+        }
+      ],
+      "scope": "EU institutional action under the TEU and TFEU, including delegated and implementing acts. A concrete legal opinion, domestic competence finding, or review of a named act is outside this research ground.",
+      "required_inputs": [
+        "Identified institution or other actor, proposed act, target and relevant time.",
+        "The precise Treaty legal basis and required procedure, conditions and objectives.",
+        "For a delegated or implementing measure, the parent legislative act and its scope, duration, conditions, scrutiny and current version.",
+        "The final instrument and its official publication or notification record."
+      ],
+      "alternatives": [
+        "The relevant power may remain with Member States if not conferred on the Union.",
+        "A direct Treaty power, legislative procedure, delegated power and implementing power are distinct routes and must be resolved from the actual instrument.",
+        "An institution may issue non-binding communications that do not themselves exercise the power asserted for a later binding act."
+      ],
+      "non_substitution": "An institution’s mission statement, policy priority, organizational chart, signature or prior activity does not establish the Treaty basis or procedure for this act. A cited legal basis also does not prove the act fits that basis.",
+      "counterexample": "A Commission policy statement supports action on public health, but a later delegated act that changes an essential element cannot be justified by the statement: Article 290 reserves essential elements to the legislative act and requires an express parent-act delegation.",
+      "task_uses": "Use as an evidence-linking prompt for actor → legal basis → instrument class → procedure. Keep an unresolved link as a declared limitation; PolicyOS receives and evaluates institutional evidence and does not grant an institution power or adjudicate legality.",
+      "acquisition_next": "Resolve the final act’s legal-basis citation and parent act in the relevant EUR-Lex OJ versions; retrieve the delegated or implementing clause, conditions, scrutiny events, and date-specific text. Refer contested interpretation to a qualified legal reviewer.",
+      "research_stream": "INS",
+      "standing": "editorial research ground; not task-admitted evidence, legal advice, or authority",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-INS-02",
+      "title": "An EU budget appropriation and a basic act establish different parts of spending authority",
+      "kind": "editorial",
+      "statement": "TFEU Articles 310 and 314 provide for annual expenditure authorization and an annual budget established by Parliament and Council. Article 310(3) requires a prior legally binding Union act for implementation of budget expenditure, subject to the financial rules. Financial Regulation 2024/2509 Article 58 generally requires a basic act before appropriations for Union action are used, while listing conditional exceptions. The 2026 Definitive Adoption is a concrete annual budget act. PolicyOS inference: that act alone does not identify the applicable basic act, recipient eligibility, commitment, or payment.",
+      "source_refs": [
+        {
+          "source_id": "S3-INS-02",
+          "url": "https://eur-lex.europa.eu/eli/treaty/tfeu_2016/art_310/oj/eng",
+          "locator": "Article 310(2)–(5), annual authorization, basic legal act, and sound financial management",
+          "access": "Official EUR-Lex selected article text; clauses only."
+        },
+        {
+          "source_id": "S3-INS-02",
+          "url": "https://eur-lex.europa.eu/eli/treaty/tfeu_2016/art_314/oj/eng",
+          "locator": "Article 314, annual budget procedure",
+          "access": "Official EUR-Lex selected article text; clauses only."
+        },
+        {
+          "source_id": "S3-INS-03",
+          "url": "https://eur-lex.europa.eu/eli/reg/2024/2509/oj/eng",
+          "locator": "Articles 8–9 and 58, authorized appropriations, annuality, basic-act rule and exceptions",
+          "access": "Official EUR-Lex text extract for selected clauses; full Regulation not reviewed."
+        },
+        {
+          "source_id": "S3-INS-04",
+          "url": "https://eur-lex.europa.eu/eli/budget/2026/72/oj",
+          "locator": "Document identity and legal-status metadata for Definitive Adoption (EU, Euratom) 2026/72",
+          "access": "Official EUR-Lex metadata and summary only; no budget line inspected."
+        }
+      ],
+      "scope": "EU annual budget expenditure and the legal instruments needed to implement it. This does not resolve national budgets, a particular programme’s eligibility, or a named authorising officer’s powers.",
+      "required_inputs": [
+        "Financial year and the original budget line plus any relevant amending budget or transfer.",
+        "Commitment versus payment appropriation and the applicable basic act or a specifically supported Financial Regulation exception.",
+        "Programme conditions, responsible authorising actor, legal or budgetary commitment, and payment evidence if execution is claimed."
+      ],
+      "alternatives": [
+        "A different year, line, amending budget, transfer, or funding instrument may govern.",
+        "Financial Regulation Article 58(2)–(5) provides limited, conditioned exceptions; the proposed action must still fall within Union competence.",
+        "A budget appropriation can be available while a programme’s implementing act, eligibility decision, or commitment remains absent."
+      ],
+      "non_substitution": "A budget heading or announced allocation does not establish substantive competence, an adopted basic act, eligibility, a legal commitment, payment, or delivery capacity. Conversely, a basic act does not prove that funds were appropriated or spent.",
+      "counterexample": "An annual budget contains an appropriation for an action, but no basic act exists and the action falls outside the conditioned Article 58 exceptions; the line alone is not sufficient to use the appropriation for that action.",
+      "task_uses": "Keep resource authority distinct from substantive authority and implementation evidence. For an actual expenditure claim, bind the year-specific line and legal base to the responsible actor and transaction state.",
+      "acquisition_next": "Use the current official annual budget and any applicable amendments to identify the line, then retrieve its basic act, financing instrument and execution record. The large 2026 budget file and individual lines were not opened in this research pass.",
+      "research_stream": "INS",
+      "standing": "editorial research ground; not task-admitted evidence, legal advice, or proof of a specific allocation",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-INS-03",
+      "title": "EU entry into force depends on the act class and its publication or notification path",
+      "kind": "editorial",
+      "statement": "TFEU Article 297 sets different formal paths: legislative acts and specified generally addressed non-legislative acts are published in the Official Journal and take effect on their stated date or, absent one, the twentieth day after publication; other directives and decisions addressed to identified recipients take effect on notification. PolicyOS inference: a vote, adoption announcement, signature, or OJ page alone may not settle the applicable date without the act class, clause and notification record. Entry into force and a separately stated application date should be represented separately.",
+      "source_refs": [
+        {
+          "source_id": "S3-INS-02",
+          "url": "https://eur-lex.europa.eu/eli/treaty/tfeu_2016/art_297/oj/eng",
+          "locator": "Article 297(1)–(2), signature, publication, notification and entry into force",
+          "access": "Official EUR-Lex selected article text; clauses only."
+        }
+      ],
+      "scope": "EU legal acts covered by Article 297. It is a date-resolution rule, not a determination that a named act was validly adopted or correctly classified.",
+      "required_inputs": [
+        "Final signed act and its legal form and addressees.",
+        "The relevant OJ edition and publication date or recipient-specific notification evidence.",
+        "The act’s entry-into-force, application, transitional, amendment and repeal clauses."
+      ],
+      "alternatives": [
+        "An act may specify a different entry-into-force date.",
+        "An addressee-specific directive or decision follows notification rather than the general publication default in Article 297(2).",
+        "A later application date may follow entry into force."
+      ],
+      "non_substitution": "Parliamentary or committee adoption records, institutional announcements, signatures, and consolidated-text timestamps are not interchangeable with the act-specific publication or notification event that governs its effect.",
+      "counterexample": "A decision identifies a recipient but has not been notified: the generic twentieth-day-after-publication default for specified published acts cannot establish that this decision took effect.",
+      "task_uses": "Resolve rule validity and claim time from the act’s own procedural branch; preserve separate adoption, publication, notification, entry-into-force and application times.",
+      "acquisition_next": "Retrieve the exact final instrument, OJ edition or notification receipt, and subsequent corrigenda or amendments; calculate the date only after applying the instrument-specific clause.",
+      "research_stream": "INS",
+      "standing": "editorial research ground; not task-admitted evidence or legal advice",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority.",
+      "currentness_limit": "Named versions and access observations only. Current operative law/release, local applicability, actual input bytes and task admission are not established by this card."
+    },
+    {
+      "id": "G3-INS-04",
+      "title": "Ukraine separates parliamentary adoption, presidential promulgation and a law’s effective date",
+      "kind": "editorial",
+      "statement": "Constitution of Ukraine Article 94 requires the Speaker to sign and forward an adopted law. Within 15 days after receipt, the President must sign and officially promulgate it or return reasoned proposals; failure to return it within that period means it is deemed approved and must be signed and promulgated. After two-thirds re-adoption, the President must sign and promulgate within ten days; if the President does not sign, the Speaker promulgates and publishes it with the Speaker’s signature. A law takes effect ten days after official promulgation unless it sets another date, which cannot precede publication.",
+      "source_refs": [
+        {
+          "source_id": "S2-LAW-01",
+          "url": "https://zakon.rada.gov.ua/laws/show/254%D0%BA/96-%D0%B2%D1%80",
+          "locator": "Article 94, paragraphs 1–5, including non-return and Speaker promulgation branches; official portal states current revision 2020-01-01",
+          "access": "Official portal’s indexed Article 94 text and revision metadata; direct page fetch timed out, and the full Constitution was not reviewed."
+        }
+      ],
+      "scope": "Ukraine’s constitutional law-making and promulgation sequence for ordinary laws under Article 94. Other act classes, constitutional amendments, special commencement rules and later legal interpretation may differ.",
+      "required_inputs": [
+        "Final law identifier and adoption record, distinct from draft or bill status.",
+        "Speaker signature/forwarding event and presidential signature, return, veto-override or deemed-approval path.",
+        "Official promulgation/publication record plus the law’s own commencement clause and version applicable at the relevant time."
+      ],
+      "alternatives": [
+        "The law may set its own entry-into-force date, subject to the constitutional publication floor.",
+        "A veto and two-thirds re-adoption use the special path in Article 94.",
+        "A different Ukrainian instrument class may follow a different constitutional or statutory procedure."
+      ],
+      "non_substitution": "A parliamentary vote or bill page does not by itself establish completed promulgation or the date the law became effective. A translated summary also does not replace the operative Ukrainian text and its official publication record.",
+      "counterexample": "Hypothetical PolicyOS example: the task has a parliamentary-vote record but no verified promulgation or publication record. That narrow evidence does not establish completion of the Article 94 sequence; neither does an absent display entry prove that the institutional event never occurred. Obtain the law text and the relevant official event records before determining effective status.",
+      "task_uses": "For a Ukraine-specific candidate claim, bind the actor, provision, act identifier, event history and effective period. This is an evidence-retrieval boundary, not an automated ruling on validity.",
+      "acquisition_next": "Open the current official Verkhovna Rada text and document card, then retrieve the specific act’s signature, forwarding, promulgation, publication and commencement evidence. Refer any procedural dispute to Ukrainian counsel.",
+      "currentness_limit": "The Constitution portal metadata identifies a revision dated 2020-01-01. Article 94 was accessed through official-portal search excerpts; no current complete consolidation, later-ruling survey or particular law's act history was established.",
+      "research_stream": "INS",
+      "standing": "editorial research ground; not task-admitted evidence, legal advice, or a finding on a specific Ukrainian law",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority."
+    },
+    {
+      "id": "G3-INS-05",
+      "title": "EU official-language duties and authentic publication are document-class-specific",
+      "kind": "editorial",
+      "statement": "Regulation No 1 Articles 4–5 require regulations and other documents of general application to be drafted in the official languages and the Official Journal to be published in those languages; Article 6 lets institutions set language rules for specific cases. In CILFIT paragraph 18, the Court said the language versions of Community legislation are equally authentic and interpretation entails comparing them; in Kik, it held that this does not create a general right to every individual decision in every language. Separately, Regulation 216/2013 makes the electronic Official Journal the authentic legally effective edition, with a print exception for an exceptional system disruption until the corresponding electronic issue is restored. PolicyOS inference: a translated display alone does not establish institutional authority to translate or authenticate the instrument. Consorzio Italian Management (C-561/19), paragraph 44, clarifies that a national court of last instance need not examine every language version but must consider known divergences, particularly those raised by parties and verified; this does not impose a universal all-language scan.",
+      "source_refs": [
+        {
+          "source_id": "S3-INS-06",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A01958R0001-20130701",
+          "locator": "Regulation No 1, Articles 1–8, especially Articles 4–6",
+          "access": "Official EUR-Lex selected text; consolidated text dated 2013-07-01, with later corrigendum metadata visible."
+        },
+        {
+          "source_id": "S3-INS-07",
+          "url": "https://curia.europa.eu/juris/showPdf.jsf?docid=91672&doclang=EN",
+          "locator": "CILFIT, Case 283/81, judgment 1982-10-06, paragraph 18",
+          "access": "Official Court of Justice PDF, paragraph 18 extract; full judgment not reviewed."
+        },
+        {
+          "source_id": "S3-INS-08",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A62001CJ0361",
+          "locator": "Kik v OHIM, Case C-361/01 P, paragraphs 82 and 85",
+          "access": "Official EUR-Lex selected judgment paragraphs; full judgment not reviewed."
+        },
+        {
+          "source_id": "S3-INS-09",
+          "url": "https://eur-lex.europa.eu/eli/reg/2013/216/2024-03-14/eng",
+          "locator": "Regulation 216/2013, Articles 1 and 3, consolidated through Regulation 2024/741",
+          "access": "Official EUR-Lex consolidated selected clauses; full Regulation not reviewed."
+        },
+        {
+          "source_id": "S3-INS-10",
+          "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A62019CJ0561",
+          "locator": "Judgment of 6 October 2021, paragraphs 43–46, especially 44.",
+          "access": "Official EUR-Lex indexed paragraphs read by root; direct HTML returned a JavaScript robot interstitial. No full judgment or subsequent case-law review claimed."
+        }
+      ],
+      "scope": "EU regulations and other general-application documents, Official Journal editions, and interpretation of multilingual EU legislation. An individual decision or special institutional procedure may have a narrower language rule.",
+      "required_inputs": [
+        "Act class, addressees and any sector-specific language or translation rule.",
+        "Official-language text versions and the relevant OJ issue, with its publication/authenticity status.",
+        "For an individual decision or correspondence, the governing institutional and procedural language rules."
+      ],
+      "alternatives": [
+        "An applicable sector-specific rule may prescribe a language for individual proceedings or communications.",
+        "A national or unofficial translation can aid access but its status must be resolved from the governing instrument; it may be informational only.",
+        "Where official versions diverge, compare the versions in context and consult the applicable judicial interpretation rather than selecting a source language by default."
+      ],
+      "non_substitution": "Regulation No 1’s general-application rule does not itself require every individual decision to be translated into all official languages. A local, machine or working translation does not displace an official-language version or authenticate the OJ issue; the operative publication channel is set by Regulation 216/2013.",
+      "counterexample": "Requiring every recipient-specific decision to appear in all EU languages merely because a regulation must do so overreads Regulation No 1; conversely, treating an unofficial English rendering as controlling over conflicting authentic OJ language versions ignores CILFIT’s comparison rule.",
+      "task_uses": "Store language, document class, version and publication channel as separate provenance. For EU general legislation, compare the equally authentic versions when meaning is disputed; do not assign translation authority to PolicyOS or infer it from a translated copy.",
+      "acquisition_next": "Resolve the act-specific language rule, download or read only the relevant official OJ language versions and confirm edition authenticity under the current Regulation 216/2013 text; use a qualified legal-linguistic reviewer for material divergences.",
+      "currentness_limit": "Regulation No 1’s selected Articles 4–5 were checked in a 2013 consolidated text; no complete amendment-history audit was performed. CILFIT and Kik are cited for their stated holdings and were not paired with a full current case-law survey.",
+      "research_stream": "INS",
+      "standing": "editorial research ground; not task-admitted evidence, translation authority, or legal advice",
+      "application_basis": "statement contains the bounded source account; task uses, proposed acquisition, alternative comparisons and constructed counterexamples are editorial reasoning, not source-issued requirements or task authority."
     }
   ]
 }

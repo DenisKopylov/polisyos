@@ -1,0 +1,127 @@
+{
+  "format": "editorial-research-receipt-v3",
+  "date": "2026-10-21",
+  "input_head": "682214afdcf18f9dad1cdb51d6dc6922ec14d7da",
+  "scope": "Atlas documentation and primary-source research. No runtime implementation, evidence admission, code acceptance or finding closure.",
+  "sdd_adoption": "682214afdcf18f9dad1cdb51d6dc6922ec14d7da; A/B01–B07/C01/C02 applied on explicit user approval; SDD unchanged during atlas continuation.",
+  "denominator": {
+    "families": 26,
+    "grounds": 73,
+    "source_cards": 147,
+    "new_grounds": 30,
+    "new_source_cards": 34
+  },
+  "new_ground_streams": {
+    "MEA": 5,
+    "FIS": 5,
+    "PHY": 5,
+    "ACC": 5,
+    "ASR": 5,
+    "INS": 5
+  },
+  "new_source_access": {
+    "primary_text_or_selected_sections": 27,
+    "search_extract_only": 6,
+    "abstract_or_metadata": 1
+  },
+  "existing_source_ids_reused": [
+    "S-AUTH-01",
+    "S-FEAS-02",
+    "S-LEGAL-03",
+    "S-MEASURE-10",
+    "S2-DAT-05",
+    "S2-LAW-01"
+  ],
+  "researchers": [
+    "ef3_measurement",
+    "ef3_fiscal",
+    "ef3_physical",
+    "ef3_access",
+    "ef3_assurance",
+    "ef3_institutions"
+  ],
+  "independent_reviewers": [
+    "ef3_quant_review",
+    "ef3_authority_review"
+  ],
+  "delegation": "one level; root sole tracked writer; reviewers did not author the researched records",
+  "review_corrections": [
+    "IPCC energy conversion narrowed to the cited kg/TJ NCV route; compatible mass/volume factor route retained.",
+    "WG child suitability, OECD seven-day pain recall and PISA plotted-RMSD small-cell limitation made precise.",
+    "Exact eGRID2023 AR5 100-year/no-feedback convention cited to technical guide; reviewer section access and root 502 separately recorded.",
+    "Independent constructed methane-horizon and marginal-grid arithmetic expose ranking changes; neither claimed as observed policy effect.",
+    "Fisher arithmetic, positive income-ratio domain and cumulative discount segments explicit; candidate hypothetical profiles remain allowed.",
+    "Duplicate nested FIS04 application fields removed after delta review, preventing stale authorization wording.",
+    "Exact original GDPR source identity reused rather than duplicated; withdrawal wording concerns earlier lawfulness, not continued retention permission.",
+    "Unverified attribution of petition narrative to a Court finding removed together with its unused case source; stale case-currentness reference removed.",
+    "CILFIT qualified by C-561/19 paragraph44; known divergences considered without a universal exhaustive-language scan.",
+    "Historical Directive96/9 scope retained; operative current-use comparison and national transposition remain explicit acquisition tasks.",
+    "Public redaction preserves material basis/counterbasis and limitations in permitted detail; candidate activity does not grant privacy/access/publication permission."
+  ],
+  "root_review": "Reviewed statements, scope/inputs, counterexamples and cited-resource identity; opened selected primary fiscal, CC, metrology and judicial resources. Independently resolved reported quantitative and authority defects. This is not a claim to have read every full work.",
+  "checks": {
+    "json_parse": true,
+    "unique_ids": true,
+    "source_refs_resolve": true,
+    "old_ground_and_source_records_unchanged": true,
+    "sdd_unchanged_since_adoption": true,
+    "scope": "finite documentation integrity only; no product tests/builds/imports/installs/data download"
+  },
+  "remaining_limits": [
+    "Task-specific actual datasets, access grants, adopted value frames, institutional acts, local calibration and transfer grounds still require case-specific acquisition.",
+    "Source access is selected text, metadata or official indexed excerpts as labeled; no full-current-law or complete corpus coverage claim.",
+    "No source payload snapshots or remote resource content digests retained; source URLs and versions are research locators, not admitted immutable evidence.",
+    "Prior receipts describe prior versions and remain historical; local full reviews are retained in ignored scratch and are not remote artifacts."
+  ],
+  "local_complete_reviews": [
+    {
+      "path": "policy-engine/_build/external-foundations-20261021/sdd-adoption-review.md",
+      "sha256": "28400347a672a2d4886ef4625ecb275c54e171d91f25f363ebd17f9d0da27483"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-20261021/quant-review.md",
+      "sha256": "9d011b8ddca924909c5755d575cd6343094bab5578c0c07eaf7eafa6198e9fbf"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-20261021/authority-review.md",
+      "sha256": "aaae51877535175fa587dffb6660874e842900af2c58cbf1bf4bfce07e423021"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-20261021/delta-quant-review.md",
+      "sha256": "2075a0eb60fd1f7dbb6dc761b847a649e268b8fe8b4f8db22ab9e04db8100154"
+    },
+    {
+      "path": "policy-engine/_build/external-foundations-20261021/delta-authority-review.md",
+      "sha256": "fec10cb31e2d3b44d8db0f533110007c7422fd896437777901a9194dfb46a748"
+    }
+  ],
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "sha256": "4fbaa564c662181c285d62fa8ffb23bcbc4ab1f02dd8b467ce3b19bfb4f7f4bd"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/08-substantive-foundations.md",
+      "sha256": "f34482e754c4507804bad7f957f92d5d158d424af187a6b64ea735ecb4a5b3aa"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/09-measurement-conventions-and-institutions.md",
+      "sha256": "3d891d83450ff781b721c671dac252ae90606ce15eb6ada1453f5a2f6dc18799"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+      "sha256": "a7d153d790ad2fde31f31118d6c2f0283a81e7a601208dccc0c1f907ed5775ca"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json",
+      "sha256": "9e896c8d3987d6dc16756c62e3b01a3a412fa00efc14b90efc8f5d0285899503"
+    }
+  ],
+  "historical_receipts": [
+    "research-receipt.json",
+    "research-receipt-r2.json"
+  ],
+  "product_tests_builds_imports_executed": false,
+  "G_code_acceptance": false,
+  "closure_ids": []
+}

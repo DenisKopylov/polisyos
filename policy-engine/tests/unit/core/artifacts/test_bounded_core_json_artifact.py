@@ -70,6 +70,70 @@ def _limits(
     )
 
 
+def _inject_postread_fstat_failure(
+    monkeypatch,
+    store_module,
+    *,
+    usage_stage: str,
+) -> list[int]:
+    """Fail fstat only after the selected owner read returned its bytes."""
+    real_fdopen = store_module.os.fdopen
+    real_fstat = store_module.os.fstat
+    real_read = store_module.FileSystemCAS._read_cas_file_no_follow
+    active_usage_stage: str | None = None
+    pending_postread_checks: dict[int, int] = {}
+    injected_read_sizes: list[int] = []
+
+    class _ReadObservedFile:
+        def __init__(self, stream) -> None:
+            self._stream = stream
+
+        def read(self, size: int = -1) -> bytes:
+            payload = self._stream.read(size)
+            pending_postread_checks[self.fileno()] = len(payload)
+            return payload
+
+        def fileno(self) -> int:
+            return self._stream.fileno()
+
+        def close(self) -> None:
+            descriptor = self.fileno()
+            try:
+                self._stream.close()
+            finally:
+                pending_postread_checks.pop(descriptor, None)
+
+    def observed_fdopen(descriptor, *args, **kwargs):
+        stream = real_fdopen(descriptor, *args, **kwargs)
+        if active_usage_stage == usage_stage:
+            return _ReadObservedFile(stream)
+        return stream
+
+    def observed_read(self, *args, **kwargs):
+        nonlocal active_usage_stage
+        previous_usage_stage = active_usage_stage
+        active_usage_stage = kwargs.get("_usage_stage", "bounded_manifest_transfer")
+        try:
+            return real_read(self, *args, **kwargs)
+        finally:
+            active_usage_stage = previous_usage_stage
+
+    def fail_after_observed_read(descriptor: int) -> os.stat_result:
+        if descriptor in pending_postread_checks:
+            injected_read_sizes.append(pending_postread_checks.pop(descriptor))
+            raise OSError("injected post-read fstat failure")
+        return real_fstat(descriptor)
+
+    monkeypatch.setattr(store_module.os, "fdopen", observed_fdopen)
+    monkeypatch.setattr(store_module.os, "fstat", fail_after_observed_read)
+    monkeypatch.setattr(
+        store_module.FileSystemCAS,
+        "_read_cas_file_no_follow",
+        observed_read,
+    )
+    return injected_read_sizes
+
+
 class _DiscriminatedTextPayload(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
@@ -797,7 +861,7 @@ def test_bounded_reader_refuses_nested_arrays_before_core_json_materialization(
         "expected_observed",
     ),
     [
-        pytest.param({"k": 0}, "max_bytes", -1, 8, 8, -1, id="bytes"),
+        pytest.param({"k": 0}, "max_bytes", -1, 8, 8, 0, id="bytes"),
         pytest.param({"k": [0]}, "max_depth", 0, 1, 8, 2, id="depth"),
         pytest.param({"k": 0}, "max_elements", 0, 1, 2, 3, id="elements"),
     ],
@@ -840,6 +904,15 @@ def test_each_selected_bound_refuses_before_decode_and_removal_reopens_value(
     expected = len(raw) if expected_observed < 0 else expected_observed
     assert getattr(error.value, observed_name) == expected
     assert decode_calls == 0
+    if limit_name == "max_bytes":
+        assert error.value.observed_payload_size == len(raw)
+        assert error.value.observed_payload_bytes == 0
+        assert error.value.observed_source_bytes == (
+            error.value.observed_manifest_selection_bytes
+            + error.value.observed_manifest_verification_bytes
+        )
+        assert error.value.payload_integrity_verified is False
+        assert error.value.failure_stage == "bounded_member_bounds_validation"
 
     # Matched removal: exact manifest/profile selection remains, but deleting
     # the generic bound admits the conformant value for each independent axis.
@@ -854,6 +927,26 @@ def test_each_selected_bound_refuses_before_decode_and_removal_reopens_value(
         del observed_manifest_bytes, observed_bytes, observed_depth, observed_elements
 
     monkeypatch.setattr(owner, "_enforce_core_json_read_bounds", remove_selected_bounds)
+    if limit_name == "max_bytes":
+        original_open_member_bounded = store.open_member_bounded
+
+        def remove_owner_byte_limit(
+            artifact_ref,
+            member,
+            *,
+            max_manifest_bytes,
+            expected_manifest_sha256,
+            max_member_bytes,
+        ):
+            return original_open_member_bounded(
+                artifact_ref,
+                member,
+                max_manifest_bytes=max_manifest_bytes,
+                expected_manifest_sha256=expected_manifest_sha256,
+                max_member_bytes=max(len(raw) + 1, max_member_bytes),
+            )
+
+        monkeypatch.setattr(store, "open_member_bounded", remove_owner_byte_limit)
     result = read_core_json_artifact_bounded(store, ref, limits=limits)
     assert result.value == value
     assert decode_calls >= 1
@@ -1193,7 +1286,11 @@ def test_manifest_attempt_preserves_known_usage_and_keeps_unknown_usage_unknown(
 
     refusal = error.value
     assert original_error is not None
-    assert refusal.failure_stage == "selected_manifest_reader_refusal"
+    assert refusal.failure_stage == (
+        "selected_manifest_reader_refusal"
+        if reports_exact_bytes
+        else "selected_manifest_usage_unknown"
+    )
     assert refusal.observed_manifest_selection_bytes == (
         len(selected_manifest) if reports_exact_bytes else None
     )
@@ -1257,17 +1354,11 @@ def test_bounded_manifest_integrity_refusal_retains_bytes_read_before_postread_s
     store, ref, _raw = _profiled_store(tmp_path, {"value": 7})
     manifest_path = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
     expected_bytes = manifest_path.stat().st_size
-    real_fstat = os.fstat
-    fstat_calls = 0
-
-    def fail_after_read(descriptor: int) -> os.stat_result:
-        nonlocal fstat_calls
-        fstat_calls += 1
-        if fstat_calls == 2:
-            raise OSError("injected post-read stat failure")
-        return real_fstat(descriptor)
-
-    monkeypatch.setattr(store_module.os, "fstat", fail_after_read)
+    injected_read_sizes = _inject_postread_fstat_failure(
+        monkeypatch,
+        store_module,
+        usage_stage="bounded_manifest_transfer",
+    )
 
     with pytest.raises(OSError) as error:
         store._read_cas_file_no_follow(
@@ -1277,7 +1368,7 @@ def test_bounded_manifest_integrity_refusal_retains_bytes_read_before_postread_s
             raise_read_limit=True,
         )
 
-    assert fstat_calls == 2
+    assert injected_read_sizes == [expected_bytes]
     assert error.value.bytes_read == expected_bytes  # type: ignore[attr-defined]
 
 
@@ -1291,17 +1382,11 @@ def test_core_open_context_entry_keeps_exact_verification_bytes_before_fstat_ref
     manifest_bytes = store.get_raw_manifest_bytes(
         ref, manifest_profile_sha256=ref.manifest_profile_sha256
     )
-    real_fstat = os.fstat
-    fstat_calls = 0
-
-    def fail_verification_postread(descriptor: int) -> os.stat_result:
-        nonlocal fstat_calls
-        fstat_calls += 1
-        if fstat_calls == 4:
-            raise OSError("injected verification post-read fstat failure")
-        return real_fstat(descriptor)
-
-    monkeypatch.setattr(store_module.os, "fstat", fail_verification_postread)
+    injected_read_sizes = _inject_postread_fstat_failure(
+        monkeypatch,
+        store_module,
+        usage_stage="manifest_verification_transfer",
+    )
     with pytest.raises(CoreJsonReadBoundsRefusalError) as error:
         read_core_json_artifact_bounded(
             store,
@@ -1310,7 +1395,7 @@ def test_core_open_context_entry_keeps_exact_verification_bytes_before_fstat_ref
         )
 
     refusal = error.value
-    assert fstat_calls == 4
+    assert injected_read_sizes == [len(manifest_bytes)]
     assert refusal.observed_manifest_selection_bytes == len(manifest_bytes)
     assert refusal.observed_manifest_verification_bytes == len(manifest_bytes)
     assert refusal.observed_payload_bytes == 0
@@ -1333,17 +1418,11 @@ def test_read_only_facade_preserves_usage_before_verification_refusal(
         manifest_profile_sha256=ref.manifest_profile_sha256,
     )
     reader = FileSystemCAS.open_existing_read_only(writer.root)
-    real_fstat = os.fstat
-    fstat_calls = 0
-
-    def fail_verification_postread(descriptor: int) -> os.stat_result:
-        nonlocal fstat_calls
-        fstat_calls += 1
-        if fstat_calls == 4:
-            raise OSError("injected read-only verification post-read fstat failure")
-        return real_fstat(descriptor)
-
-    monkeypatch.setattr(store_module.os, "fstat", fail_verification_postread)
+    injected_read_sizes = _inject_postread_fstat_failure(
+        monkeypatch,
+        store_module,
+        usage_stage="manifest_verification_transfer",
+    )
     with pytest.raises(CoreJsonReadBoundsRefusalError) as error:
         read_core_json_artifact_bounded(
             reader,
@@ -1352,7 +1431,7 @@ def test_read_only_facade_preserves_usage_before_verification_refusal(
         )
 
     refusal = error.value
-    assert fstat_calls == 4
+    assert injected_read_sizes == [len(manifest_bytes)]
     assert refusal.observed_manifest_selection_bytes == len(manifest_bytes)
     assert refusal.observed_manifest_verification_bytes == len(manifest_bytes)
     assert refusal.observed_payload_bytes == 0
@@ -1735,12 +1814,18 @@ def test_manifest_byte_limit_refuses_before_parse_and_removal_exposes_allocation
         member: str,
         max_bytes: int | None = None,
         raise_read_limit: bool = False,
+        _read_attempt=None,
+        _usage_field=None,
+        _usage_stage: str = "bounded_manifest_transfer",
     ) -> bytes:
         data = original_read(
             path,
             member=member,
             max_bytes=None if member == "manifest" else max_bytes,
             raise_read_limit=False if member == "manifest" else raise_read_limit,
+            _read_attempt=_read_attempt,
+            _usage_field=_usage_field,
+            _usage_stage=_usage_stage,
         )
         if member == "manifest":
             materialized_oversize_reads.append((max_bytes, len(data)))
@@ -1793,6 +1878,7 @@ def test_bounded_blob_open_rejects_manifest_drift_after_prepost_metadata_read(
         max_manifest_bytes=None,
         expected_manifest_sha256=None,
         max_member_bytes=None,
+        _read_attempt=None,
     ):
         nonlocal open_attempts
         open_attempts += 1
@@ -1803,6 +1889,7 @@ def test_bounded_blob_open_rejects_manifest_drift_after_prepost_metadata_read(
             max_manifest_bytes=max_manifest_bytes,
             expected_manifest_sha256=expected_manifest_sha256,
             max_member_bytes=max_member_bytes,
+            _read_attempt=_read_attempt,
         )
 
     monkeypatch.setattr(store, "open_member", drift_manifest_before_open)
@@ -1840,6 +1927,7 @@ def test_bounded_reader_counts_manifest_verification_preflight_without_payload_r
         max_manifest_bytes=None,
         expected_manifest_sha256=None,
         max_member_bytes=None,
+        _read_attempt=None,
     ):
         changed = raw_manifest + (b" " * (max_manifest_bytes + 1))
         manifest_path.write_bytes(changed)
@@ -1850,6 +1938,7 @@ def test_bounded_reader_counts_manifest_verification_preflight_without_payload_r
             max_manifest_bytes=max_manifest_bytes,
             expected_manifest_sha256=expected_manifest_sha256,
             max_member_bytes=max_member_bytes,
+            _read_attempt=_read_attempt,
         )
 
     monkeypatch.setattr(store, "open_member", grow_manifest_before_owner_verification)

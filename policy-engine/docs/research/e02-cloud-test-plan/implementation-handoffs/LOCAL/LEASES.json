@@ -46810,5 +46810,103 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-r8-full-failure-reviewed-adoption-20261021-r1": {
+    "slice_base": "377e4b81c4dd999042bef77ad9de1d49ac4dc60b",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "43aea9d0e8189e31fa74a264a0ecc1ae332f456249d03bf56b7f32a026c9465c",
+        "preimage_bytes": 107514,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-reviewed-postimage-transport-20261021-r1/canonical_profile.py",
+        "postimage_sha256": "a27b0b27c9b70af26a29bc3917a31c7baa8a0311605888ed2b57f6458305d23a",
+        "postimage_bytes": 107646
+      },
+      "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "681632a9d9a7a25ebe27f881bf25543324430d54970f49309d497881179a414f",
+        "preimage_bytes": 70966,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-reviewed-postimage-transport-20261021-r1/test_bounded_core_json_artifact.py",
+        "postimage_sha256": "862c3f2407714951935d084fa1da80d43a30e4cbce3d52cef9493ef8a9e677f6",
+        "postimage_bytes": 74248
+      },
+      "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "af4ff483214535f3d5e611821bd9ece82c8711e4a5c5ae77cffce7d441727836",
+        "preimage_bytes": 39466,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-reviewed-postimage-transport-20261021-r1/test_hte_observational_input.py",
+        "postimage_sha256": "5652d3bdca765049fdf9f0886966d1ffc4024006ea8bbbd19d239ab25c305255",
+        "postimage_bytes": 39268
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-full-failure-reviewed-adoption-20261021-r1/source-application.json",
+      "sha256": "6055764e726690c8a5fa5593aae8aa011650c466a66c9d2eeb6362ba38af3d52"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-full-failure-reviewed-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-read-usage-r8-governance-helper-assertion-20261021-r2/manifest.json",
+        "sha256": "88b9ca4eab4fbb79eb03c345d106cbb08bbc88df2a19eca6d1d6e05d0377a2bb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-read-usage-r8-governance-helper-assertion-20261021-r2/candidate.patch",
+        "sha256": "802322a2a710159f2657cfd9593f8ebcd684532b116fff8feff29b4412f99c6a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-read-usage-r7-whole-failure-batch-20261021-r1/manifest.json",
+        "sha256": "4b812f986ee9cd9a9af1d6e3b6b705afc52269a6e9c8d573c3dcc3ba9d58bf1a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-read-usage-r7-whole-failure-batch-20261021-r1/classification-validation-corrigendum-r2.json",
+        "sha256": "beb71658baaa1c997b52194f13b5ba1ebe0d7c2032aa52336ce45973914a4617"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r7-full-failure-batch-review-20261021-r1/review.json",
+        "sha256": "90deaa30cf43b2036e92f5038a7a56e6073b60070fff23fccdfcdbf629f29253"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-core-r8-governance-delta-review-20261021-r1/review.json",
+        "sha256": "cb004f3ed2f8da1bf2cce2f30d070a0ae12d18955adbae560a6790a4f9afc5dd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-read-usage-r6-two-whole-ebbacf54f9a1-20261021-r1/actual/result.json",
+        "sha256": "d2a99c945fe8c4845f7aa59b058bdd032fd382e1ee3b7780aa7755f02e533346"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-runtime-receipt-tracked-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "3f8b8274c4fd9302b11331104aa03ef3a5d1876561998d0e79dfe577716b8636"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same typed-reader owner error/code/fixture boundary",
+      "action": "Map exact owner typed bounds class and repair all reader/removal/sourcegovernance companion controls without forging ownerusage or trusting RuntimeError.bytes_read."
+    },
+    "bounded_proof": "Independent completeR7review andexactR8deltaGO, nativecanonicalRuff check/format requiredbeforeandafterapply; productproofseparate.",
+    "limitations": [
+      "Author R7 originalclassification contains duplicate; additivecorrigendum exact12actualXMLfailures is admitted.",
+      "R8 only corrects helper assertion toNone; realstore caller refusal still exercised.",
+      "Independent sourceGO only; canonicalwhole99REPLAY UNRUN afteradoption.",
+      "Coreobservedtransfer is notphysicaldiskIO; unknownusage keptunknown, noauthoritydefault.",
+      "OtherDS17focused8P5F andcausaltransportlegalgap remain open; this slice doesnotresolve them."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both wholeCore boundedJSON andHTEobservationalinput modules on exactnewsource; all99callphases/origins/JUnit/removalcontrols then qualify component before AD01composition.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

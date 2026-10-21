@@ -1494,6 +1494,8 @@ def read_core_json_artifact_bounded(
         )
         if isinstance(exc, _CoreJsonBoundedReadAbortError):
             refusal_code = exc.code
+        elif isinstance(original, ArtifactMemberReadBoundsError):
+            refusal_code = "canon_profile_bounded_bytes_exceeded"
         else:
             refusal_code = _refusal_code(
                 original,

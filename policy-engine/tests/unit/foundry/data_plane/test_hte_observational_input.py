@@ -345,9 +345,8 @@ def test_legacy_source_requires_null_artifact_schema(tmp_path: Path) -> None:
         _prepare(store, source_ref, protocol="legacy_hte_json_v1")
 
 
-def test_legacy_source_does_not_treat_typed_public_default_as_raw_declaration(
+def test_selected_source_governance_requires_raw_declaration_not_typed_default(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     import polisyos.foundry.data_plane.bindings as bindings
 
@@ -361,28 +360,16 @@ def test_legacy_source_does_not_treat_typed_public_default_as_raw_declaration(
     selected = read_core_json_artifact_bounded(store, source_ref, limits=_limits())
     raw_manifest = json.loads(selected.raw_manifest_bytes)
     raw_manifest["governance"] = {}
-    selected = SimpleNamespace(
-        effective_ref=selected.effective_ref,
+    # Isolate the declaration interpreter: this adversarial local value does
+    # not stand in for a Core owner receipt or a prepared HTE source.
+    materialized = SimpleNamespace(
         manifest=selected.manifest.model_copy(
             update={"governance": ArtifactGovernanceInfo(classification="public")}
         ),
-        profile_read=selected.profile_read,
         raw_manifest_bytes=json.dumps(raw_manifest).encode("utf-8"),
-        observed_bytes=selected.observed_bytes,
-        observed_depth=selected.observed_depth,
-        observed_elements=selected.observed_elements,
     )
-    monkeypatch.setattr(
-        bindings,
-        "read_core_json_artifact_bounded",
-        lambda *_args, **_kwargs: selected,
-    )
-    ids_before = _artifact_id_strings(store)
 
-    with pytest.raises(HTEInputPreparationRefusal, match="source_governance_unavailable"):
-        _prepare(store, source_ref, protocol="legacy_hte_json_v1")
-
-    assert _artifact_id_strings(store) == ids_before
+    assert bindings._selected_source_governance(materialized) is None
 
 
 def test_canonical_envelope_preserves_absent_governance_as_absent(
@@ -531,6 +518,7 @@ def test_core_resource_policy_limits_refuse_before_hte_materialization(
             schema=None,
         )
     ids_before = _artifact_id_strings(store)
+    payload_size = len(store.get_bytes(source_ref))
     limits = _limits(**{limit_name: 1})
     monkeypatch.setattr(
         bindings,
@@ -548,7 +536,11 @@ def test_core_resource_policy_limits_refuse_before_hte_materialization(
         + refusal.value.observed_manifest_verification_bytes
         + refusal.value.observed_payload_bytes
     )
-    assert refusal.value.payload_integrity_verified is False
+    if limit_name in {"max_depth", "max_elements"}:
+        assert refusal.value.observed_payload_bytes == payload_size
+        assert refusal.value.payload_integrity_verified is True
+    else:
+        assert refusal.value.payload_integrity_verified is False
     assert _artifact_id_strings(store) == ids_before
 
 

@@ -1,5 +1,7 @@
 # Изменяющиеся основания: содержательные связи и работа системы
 
+Уточнение после повторного review: [implementation protocols](05-implementation-protocols.md) и [delivery/probes](06-delivery-and-review.md) конкретизируют capture, enrollment, current-read, rights/restore и retirement. Они сохраняют standing исследовательского проекта; новые runtime проверки не выполнены.
+
 Часть [предложения о lifecycle](../11-foundation-lifecycle.md). Полные новые записи — `G5-STW-01`–`G5-STW-05` в [grounds.json](../grounds.json), источники — `S5-STW-01`–`S5-STW-07` в [sources.json](../sources.json). Ниже проектируется использование оснований, а не присваивается authority внешнему тексту. Все сценарии и проверки — будущие; в этой работе они не исполнялись.
 
 ## 1. Уточнённые категории

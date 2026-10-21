@@ -1,5 +1,7 @@
 # Расширение без переделки ядра
 
+Уточнение после повторного review: [implementation protocols](05-implementation-protocols.md) и [delivery/probes](06-delivery-and-review.md) конкретизируют capture, enrollment, current-read, rights/restore и retirement. Они сохраняют standing исследовательского проекта; новые runtime проверки не выполнены.
+
 Исследовательское предложение в составе [жизненного цикла](../11-foundation-lifecycle.md). Оно не вводит новый plugin ABI, product enum или deployment requirement. Переиспользуемые символы приведены в [карте кода](01-reuse-map.md); будущие проверки — в [сценариях](04-stewardship-and-probes.md).
 
 ## 1. Общие механизмы и независимые предметные расширения

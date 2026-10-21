@@ -1,0 +1,223 @@
+{
+  "format": "editorial-research-receipt-v6",
+  "date": "2026-10-21",
+  "input_head": "bfcdbda0dd1181b8b854180efbd5cffe6a8a6a2b",
+  "read_only_code_snapshot": "635413bcd1bd1d7e7b829d9123765e28e6bf23d6",
+  "scope": "Critical lifecycle design review; docs, primary-source research, targeted static code reads. No product changes, runtime verification or E02 code acceptance.",
+  "architecture_boundary": "Existing CTM/S0/identity/PV govern. Actual system-design-decisions unchanged; exact C03 proposal outside authoritative directory is optional and pending human agreement.",
+  "denominator": {
+    "families": 26,
+    "grounds": 103,
+    "source_cards": 197,
+    "new_grounds": 0,
+    "new_source_cards": 0,
+    "thematic_review_rows": 12,
+    "future_protocol_probes": 20,
+    "delivery_waves": 7,
+    "primary_comparison_rows": 15
+  },
+  "denominator_scope": "Complete arrays in families.json, grounds.json, sources.json; complete R01–R12/T01–T20/W0–W6 in lifecycle/06; 15 comparison rows in lifecycle/07 (not unique publications or proofs). Counts are recomputed by root.",
+  "denominator_files": [
+    "policy-engine/docs/research/universal-policy-design/external-foundations/families.json",
+    "policy-engine/docs/research/universal-policy-design/external-foundations/grounds.json",
+    "policy-engine/docs/research/universal-policy-design/external-foundations/sources.json"
+  ],
+  "researchers": [
+    "ef6_capture",
+    "ef6_consistency",
+    "ef6_execution",
+    "ef6_rights",
+    "ef6_semantics",
+    "ef6_growth",
+    "ef6_sdd"
+  ],
+  "independent_reviewers": [
+    "ef6_protocol_redteam",
+    "ef6_authority_redteam"
+  ],
+  "delegation": "One level, direct agents. Root sole tracked writer; agents wrote assigned ignored notes. No children, product execution, new environments, data downloads, cleanup or production payload access.",
+  "root_review": "Read seven research reports, two independent initial and delta reviews, and final documents. Re-read decisive pinned claim_support, decision_validity, claim models and memory influence seams plus ratified SDD sections. Verified selected primary-source sections. This is neither a complete code callgraph nor a systematic literature census.",
+  "decisions": [
+    "Native owner protocols, no sovereign GroundService, universal temporal envelope or mandatory Capability DTO.",
+    "Source-specific snapshot/CDC cuts, sparse continuity, incarnation and durable data-before-progress.",
+    "Assertion/assessment/use are logical roles in existing contracts; ref presence and count shape cannot prove semantic support or independence.",
+    "Claim-relative memory selection trace; bounded candidate exploration is allowed without a complete rejected corpus.",
+    "Object and set/negative dependencies; source-owner journal/generation commit, C-to-W enrollment and retained replay, explicit retention-floor failure.",
+    "Named participating publication fence and read cut; optimistic snapshot is not a later protected-action fence. Local-known currentness does not freeze external reality.",
+    "Public consumer composes existing PV dimensions and negative/disclosure obligations; historical authenticity is distinct from current authority.",
+    "Applicable rights decision precedes scoped restriction; copy intents, late-write fences, restore quarantine and independently retained post-backup decisions.",
+    "Duty/intent/attempt/effect separation; effect identity per step; finite provider dedupe window and unknown-outcome reconciliation.",
+    "Operation-specific compatibility, predicate-relevant caches, physical budgets, controlled-root GC fence and real second-source acceptance."
+  ],
+  "independent_review_result": {
+    "protocol": "No blocking contradiction after journal/read-cut and GC-final-delete refinements; documentary disposition only.",
+    "authority": "Three original gaps addressed; no blocking contradiction. Nonblocking T06/T07 unrelated-generation overgate ambiguity corrected by root after final review.",
+    "not_a_runtime_result": true
+  },
+  "checks": {
+    "status": "PASS",
+    "scope": "Documentation-only stdlib + read-only Git. No product execution. Receipt self-hash excluded.",
+    "complete_arrays_preserved": true,
+    "document_only_scope": "PASS",
+    "authoritative_sdd_unchanged": true,
+    "checked_changed_markdown_local_links": 66,
+    "checked_map_source_paths_at_pin": 66,
+    "complete_output": {
+      "path": "policy-engine/_build/external-foundations-review-20261021/documentation-check.json",
+      "sha256": "6cb969efdc28ec8803623ccbb313e1a15d4fa0a080bc369c92357a931736f680"
+    },
+    "checker": {
+      "path": "policy-engine/_build/external-foundations-review-20261021/check-documents.py",
+      "sha256": "23ea883478f646a933ae4a540ec524d6d823e45ea40864d824610ab3736d03ae"
+    }
+  },
+  "local_complete_research_notes": [
+    {
+      "agent": "ef6_capture",
+      "path": "policy-engine/_build/external-foundations-review-20261021/capture.md",
+      "sha256": "1ec5af6140f7723df8479885bbf2e733ea647a557713ca234429fab619f14779"
+    },
+    {
+      "agent": "ef6_consistency",
+      "path": "policy-engine/_build/external-foundations-review-20261021/consistency.md",
+      "sha256": "b8143cfe9773d1402faf0d8a9a50c783b40fa3a7ac54081a17b71dd77c1adb15"
+    },
+    {
+      "agent": "ef6_execution",
+      "path": "policy-engine/_build/external-foundations-review-20261021/execution.md",
+      "sha256": "c117eb5e4b64e973b70d1eacc0ac2960c6dc6e6dc840c20ce32d4a4eea317ec9"
+    },
+    {
+      "agent": "ef6_rights",
+      "path": "policy-engine/_build/external-foundations-review-20261021/rights.md",
+      "sha256": "2d5221648521e10d1957f6620804434a5284975a0e09f05da70e7f5dd52a1941"
+    },
+    {
+      "agent": "ef6_semantics",
+      "path": "policy-engine/_build/external-foundations-review-20261021/semantics.md",
+      "sha256": "5685f669fc0a49efa2e295f3f327a3375a73fdeccdb44380d683b7389e050698"
+    },
+    {
+      "agent": "ef6_growth",
+      "path": "policy-engine/_build/external-foundations-review-20261021/growth.md",
+      "sha256": "54e7022ed226ff8def921153d1fa3cb3a2becb3602e20bb2f569455264e796d1"
+    },
+    {
+      "agent": "ef6_sdd",
+      "path": "policy-engine/_build/external-foundations-review-20261021/sdd.md",
+      "sha256": "1b0faf509410ffddb062e3fd5b9132b0bac71928b0c1c3e78b21881336107d62"
+    }
+  ],
+  "local_complete_reviews": [
+    {
+      "agent": "ef6_protocol_redteam",
+      "path": "policy-engine/_build/external-foundations-review-20261021/protocol-redteam.md",
+      "sha256": "2f9311a82c8a12c35cbdca0a8026737d02e9397e0fc4e77961b91766933a5303"
+    },
+    {
+      "agent": "ef6_authority_redteam",
+      "path": "policy-engine/_build/external-foundations-review-20261021/authority-redteam.md",
+      "sha256": "295687967eb1e48d74af7334b4146596c6654b174407afd823644991d2db9802"
+    }
+  ],
+  "root_final_review": {
+    "path": "policy-engine/_build/external-foundations-review-20261021/root-final-review.md",
+    "sha256": "4876a0d9126f221001de4ba0919ac09e70789c3bb1348879db82a712e9e79983"
+  },
+  "files": [
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/11-foundation-lifecycle.md",
+      "bytes": 12733,
+      "sha256": "f6d18ee548f011d694cad0e6403696e98fb2e2443f03b726adea4d8d543d0f38"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/README.md",
+      "bytes": 13422,
+      "sha256": "38df190aa5a34c56c09d3f03cdd4430cb72c284efee3550049ec0f63657d68c5"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/02-flow-and-consistency.md",
+      "bytes": 29536,
+      "sha256": "d58781ea513e87ff0b1e819a60df786345d482ab08c53542cd1cde97eabfb52a"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/03-extension-and-growth.md",
+      "bytes": 21505,
+      "sha256": "214d24014b6e057cd55df7a309b3bb02e830ef8862099025d891c1d123344305"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/04-stewardship-and-probes.md",
+      "bytes": 22162,
+      "sha256": "290ff0aa364430f7d9b8332839c4320c725fa0da18c2d262a4e7e2219847f405"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/05-implementation-protocols.md",
+      "bytes": 49197,
+      "sha256": "a45bff4598b5a93814b6b806c92bbe6258523744fc9a86b9b21c57337061b898"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/06-delivery-and-review.md",
+      "bytes": 30930,
+      "sha256": "ef333fa7cee00d8ac80d5ef787267f12b4125d7c18b7c31bf3ab7a7cd1b77075"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/lifecycle/07-primary-design-references.md",
+      "bytes": 13601,
+      "sha256": "41a7551b1546b8ce9be7b8544e538e1f6705ed09d1ca6078b360439e47f416d3"
+    },
+    {
+      "path": "policy-engine/docs/research/universal-policy-design/external-foundations/sdd-proposals/lifecycle-c03-20261021.md",
+      "bytes": 7355,
+      "sha256": "8e3c2c287bd11c89c469491a61dcccd76d9451ce471844deef098e8e4d213807"
+    }
+  ],
+  "remaining_limits": [
+    "No proposed cross-owner protocol or future probe executed. All 20 protocol probes UNRUN.",
+    "Before implementation recheck current source delta, complete participating caller/writer/reader denominator and concrete backend transaction/restore boundaries.",
+    "External source continuity, actual rights/issuer/hold/law, empirical warrants and provider behavior cannot be minted by this design.",
+    "Cross-store currentness without a proven read/commit protocol remains qualified; physical GC without complete controlled roots/writers remains disabled in that scope.",
+    "Optional C03 approval pending; no existing SDD semantics changed. Implementation under already ratified rules need not wait for the clarification.",
+    "Primary research is selected-section review; live URLs are not immutable execution inputs. Local research notes are ignored receipts, not published source copies."
+  ],
+  "resource_scope": {
+    "heavy_processes": false,
+    "allowed_operations": "Small file edits, bounded git show/cat-file/diff, web text research, stdlib documentary validation. Normal docs publication hooks expected to select no product files.",
+    "free_gib_at_document_check": 4.154,
+    "no_cleanup": true
+  },
+  "product_tests_builds_imports_installs_executed": false,
+  "dataset_downloads_or_scans_executed": false,
+  "G_code_acceptance": false,
+  "closure_ids": [],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P25",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "historical_receipts": [
+    "research-receipt-r5.json",
+    "research-receipt-r4.json",
+    "research-receipt-r3.json",
+    "research-receipt-r2.json",
+    "research-receipt.json"
+  ]
+}

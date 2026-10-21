@@ -1,5 +1,7 @@
 # Потоки оснований: получение, применение, изменение
 
+Уточнение после повторного review: [implementation protocols](05-implementation-protocols.md) и [delivery/probes](06-delivery-and-review.md) конкретизируют capture, enrollment, current-read, rights/restore и retirement. Они сохраняют standing исследовательского проекта; новые runtime проверки не выполнены.
+
 Часть [исследовательского предложения](../11-foundation-lifecycle.md). Все механизмы ниже — рекомендуемая композиция; наличие готового сквозного runtime не утверждается. Конкретные исходные владельцы и source pins — в [карте кода](01-reuse-map.md).
 
 ## 1. Идентичности и связи
@@ -70,7 +72,7 @@ Task basis — композиция выбранных inputs и правил, �
 
 Use admission состоит из конкретных предикатов: выбранная версия доступна и связана с content; reader понимает schema/profile; input соответствует назначению; метод и relation имеют достаточное основание; реальный доступ/публикация разрешены; relevant currentness проверена. Один успешный предикат не закрывает остальные. Outcome и limitations происходят из native owners, а не из общего усреднённого trust score.
 
-Verifier appointment/registry также разрешается и content-binds к нужному predicate, subject, purpose и версии правила. Проверка происхождения verifier не выводится из его собственного поля `independent=true`; нужен соответствующий non-producer provenance и компетентное назначение. Подпись устанавливает происхождение заявления, а не автоматически право подписанта решать любой вопрос. При отсутствии нужного verification path результат остаётся scoped candidate/limitation.
+Verifier appointment/registry, когда он требуется для данного утверждения, разрешается и content-binds к predicate, subject, purpose и версии правила. Проверка независимости не выводится из собственного поля `independent=true`: **если заявлена независимая валидация**, нужны соответствующий non-producer provenance и основание компетенции. По S0-K14 повтор тем же кодом допустим для проверки целостности/согласованности; сам по себе такой rebuild не доказывает правильность метода или научную валидность. Не нужен внешний appointment для каждого parser/hash/rebuild. Подпись устанавливает происхождение заявления, а не право подписанта решать любой вопрос. При отсутствии требуемого verification path результат остаётся scoped candidate/limitation.
 
 ## 6. Публикация и dependency enrollment
 

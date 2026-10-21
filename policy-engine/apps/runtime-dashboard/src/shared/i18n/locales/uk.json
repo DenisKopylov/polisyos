@@ -1675,6 +1675,48 @@
         "winnerShare": "Частка переможців",
         "vulnerableLosers": "Вразливі програвші"
       },
+      "hteOutcome": {
+        "title": "Гетерогенний ефект впливу",
+        "pointOnly": "Доступна лише точкова оцінка",
+        "intervalAvailable": "Доступний умовний інтервал",
+        "refused": "У виконанні відмовлено",
+        "authority": {
+          "candidate": "Результат-кандидат",
+          "refusal": "Відмова"
+        },
+        "point": "Обчислена точка",
+        "computedScope": "Обчислена цільова область",
+        "measureUnit": "Одиниця виміру",
+        "unitNotEstablished": "Одиницю не встановлено",
+        "requestedClaim": "Запитане твердження",
+        "requestedScope": "Запитана цільова область",
+        "requestedEstimand": "Запитуваний оцінюваний параметр",
+        "notEstablished": "Не встановлено",
+        "selectedRows": "Обчислено за вибраними рядками оцінювання: {count}",
+        "conditionalInterval": "Нативний довірчий інтервал середнього",
+        "conditionalIntervalDescription": "Умовний результат для вибраної моделі та рядків оцінювання. Він не підтверджує інтервал для популяції чи причинне твердження, придатне для публікації.",
+        "inferenceStatus": "Статус висновку",
+        "inferenceReason": "Причина статусу висновку",
+        "refusalStage": "Етап відмови",
+        "refusalReason": "Причина відмови",
+        "diagnosticCode": "Код діагностики",
+        "inferenceLimitsTitle": "Обмеження висновку",
+        "inferenceLimits": "Сам по собі інтервал не встановлює популяційне покриття, причинну ідентифікацію, переносимість або емпіричне калібрування.",
+        "provenance": "Метод і походження даних",
+        "method": "Метод",
+        "profile": "Профіль висновку",
+        "rowOrderDigest": "SHA-256 порядку вибраних рядків",
+        "selectedRowsDigest": "SHA-256 набору вибраних рядків",
+        "refs": {
+          "sourceData": "Вихідні дані",
+          "ownedAttempt": "Закріплена спроба",
+          "methodResult": "Результат методу",
+          "methodEvidence": "Свідчення виконання методу",
+          "invocationBasis": "Підстава виклику",
+          "inferenceBasis": "Підстава висновку",
+          "hteResult": "Результат HTE"
+        }
+      },
       "metricValidation": {
         "title": "Валідація метрик",
         "correction": "Корекція: {method}",

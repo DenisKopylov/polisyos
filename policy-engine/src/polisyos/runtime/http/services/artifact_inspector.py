@@ -19,12 +19,14 @@ from polisyos.common.logger import get_logger
 from polisyos.core import scan_secret_and_pii
 from polisyos.core.artifacts import (
     ArtifactRef,
+    CoreJsonManifestBoundedRead,
+    CoreJsonReadLimits,
     artifact_manifest_profile_sha256,
     artifact_ref_for_manifest,
-    read_core_json_artifact,
+    read_core_json_artifact_bounded,
     read_core_manifest_profile,
 )
-from polisyos.core.canon import content_hash
+from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
     ArtifactLineageView,
@@ -57,11 +59,11 @@ RedactionHook = Callable[[Any, PreviewMode], Any]
 _SENSITIVE_KIND_MARKERS = ("secret", "token", "credential", "password", "key_material")
 _REDACTED_PREVIEW = "[REDACTED]"
 _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES = 2_000_000
-_PROFILED_PAYLOAD_NOT_LOADED = object()
-
-
-class _InspectorPayloadOverLimitError(Exception):
-    """The exact selected payload exceeds a bounded diagnostic read."""
+INSPECTOR_JSON_MAX_DEPTH = 128
+INSPECTOR_JSON_MAX_ELEMENTS = 100_000
+INSPECTOR_MANIFEST_MAX_BYTES = 1_000_000
+INSPECTOR_BOUNDED_READ_POLICY_ID = "artifact-inspector-bounded-read@1"
+SCHEMA_INSPECTION_POLICY_ID = "artifact-schema-preview@1"
 
 
 logger = get_logger(__name__)
@@ -76,29 +78,26 @@ def _read_inspector_semantic_json(
     store: ArtifactStore,
     selected_ref: ArtifactRef,
     *,
-    raw_payload_bytes: bytes | None = None,
-    max_payload_bytes: int | None,
+    max_payload_bytes: int,
+    manifest_read: CoreJsonManifestBoundedRead | None = None,
 ) -> CanonicalProfileRead:
-    """Return only a value admitted by its exact selected Core profile."""
-    if max_payload_bytes is not None:
-        if raw_payload_bytes is None:
-            raise ValueError("bounded semantic reads require pre-fetched selected bytes")
-        selected_manifest, declaration = read_core_manifest_profile(
-            store,
-            selected_ref,
-            manifest_profile_sha256=selected_ref.manifest_profile_sha256,
-        )
-        if declaration.status != "declared":
-            raise CanonicalProfileRefusalError("canon_profile_not_verified")
-        if content_hash(raw_payload_bytes) != selected_manifest.artifact_id.hex:
-            raise CanonicalProfileRefusalError("canon_profile_selected_payload_identity_mismatch")
-        if len(raw_payload_bytes) > max_payload_bytes:
-            raise _InspectorPayloadOverLimitError
-    profiled = read_core_json_artifact(
+    """Read JSON under the fixed Core policy and exact bounded selected CAS view."""
+    if type(max_payload_bytes) is not int or max_payload_bytes < 1:
+        raise ValueError("inspector_json_read_limit_invalid")
+    bounded = read_core_json_artifact_bounded(
         store,
         selected_ref,
-        raw_payload_bytes=raw_payload_bytes,
+        limits=CoreJsonReadLimits(
+            max_bytes=max_payload_bytes,
+            max_depth=INSPECTOR_JSON_MAX_DEPTH,
+            max_elements=INSPECTOR_JSON_MAX_ELEMENTS,
+            max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+        ),
+        manifest_read=manifest_read,
     )
+    profiled = bounded.profile_read
+    if profiled.reader_policy_id != CORE_TAG_POLICY_ID:
+        raise CanonicalProfileRefusalError("canon_profile_reader_policy_mismatch")
     _ = profiled.value
     return profiled
 
@@ -627,7 +626,7 @@ class ArtifactInspectorService:
     ) -> None:
         self._store = store
         self._lineage_service = lineage_service
-        self._default_max_preview_bytes = max(default_max_preview_bytes, 1024)
+        self._default_max_preview_bytes = min(max(default_max_preview_bytes, 1024), 2_000_000)
         self._redaction_hooks = dict(redaction_hooks or {})
 
     def get_manifest_view(
@@ -715,19 +714,15 @@ class ArtifactInspectorService:
             return None
 
         selected_ref = _artifact_ref_for_manifest(selected_manifest)
-        raw = self._store.get_bytes(selected_ref)
         canon_read_status: CanonReadStatus = "not_evaluated"
         try:
             profiled = _read_inspector_semantic_json(
                 self._store,
                 selected_ref,
-                raw_payload_bytes=raw,
                 max_payload_bytes=_MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES,
             )
             payload = profiled.value
             canon_read_status = profiled.status
-        except _InspectorPayloadOverLimitError:
-            return None
         except CanonicalProfileRefusalError:
             raise
         except (
@@ -750,14 +745,15 @@ class ArtifactInspectorService:
         *,
         max_bytes: int | None = None,
         manifest: ArtifactManifest | None = None,
+        manifest_read: CoreJsonManifestBoundedRead | None = None,
         allow_candidate_predictive_diagnostic_surface: bool = False,
     ) -> ArtifactContentPreview:
         """Return a bounded, redacted content preview for an artifact payload.
 
-        JSON semantic decoding is bounded by the normalized preview limit using
-        the exact selected bytes, never by the manifest byte-size hint. Schema
-        top-level-key inspection has no existing route cap and remains explicitly
-        uncapped; raw and binary content keeps its existing byte representation.
+        JSON content and schema-key inspection use the exact selected Core
+        bounded-member reader with byte, depth, element, and manifest limits.
+        Over-limit JSON is an explicit typed refusal; raw and non-JSON content
+        keeps its existing byte representation.
 
         Args:
             artifact_id: Canonical CAS artifact identifier.
@@ -773,69 +769,51 @@ class ArtifactInspectorService:
         Raises:
             FileNotFoundError: If the artifact bytes or manifest sidecar do not
                 exist from CAS.
+            CanonicalProfileRefusalError: If the selected Core profile is invalid
+                or the JSON payload exceeds the bounded inspection policy.
         """
-        manifest = manifest or read_core_manifest_profile(self._store, artifact_id)[0]
+        manifest = manifest or (
+            manifest_read.manifest
+            if manifest_read is not None
+            else read_core_manifest_profile(self._store, artifact_id)[0]
+        )
         selected_ref = _artifact_ref_for_manifest(manifest)
         preview_limit = _normalize_preview_limit(
             max_bytes,
             default_value=self._default_max_preview_bytes,
         )
-        data = self._store.get_bytes(selected_ref)
+        is_json = _is_json_media_type(manifest.media_type)
+        canon_read_status: CanonReadStatus = "not_evaluated" if is_json else "not_applicable"
+        profiled_payload: Any = None
+        if is_json:
+            profiled = _read_inspector_semantic_json(
+                self._store,
+                selected_ref,
+                max_payload_bytes=preview_limit,
+                manifest_read=manifest_read,
+            )
+            data = profiled.raw_payload_bytes
+            profiled_payload = profiled.value
+            canon_read_status = profiled.status
+        else:
+            data = self._store.get_bytes(selected_ref)
         byte_size = len(data)
         truncated = byte_size > preview_limit
         preview_bytes = data[:preview_limit]
-        is_json = _is_json_media_type(manifest.media_type)
-        canon_read_status: CanonReadStatus = "not_evaluated" if is_json else "not_applicable"
-        profiled_payload: object = _PROFILED_PAYLOAD_NOT_LOADED
-        profile_decode_error: Exception | None = None
-
-        if is_json:
-            try:
-                profiled = _read_inspector_semantic_json(
-                    self._store,
-                    selected_ref,
-                    raw_payload_bytes=data,
-                    max_payload_bytes=preview_limit,
-                )
-                profiled_payload = profiled.value
-                canon_read_status = profiled.status
-            except _InspectorPayloadOverLimitError as exc:
-                profile_decode_error = exc
-            except CanonicalProfileRefusalError:
-                raise
-            except (
-                OverflowError,
-                RecursionError,
-                TypeError,
-                UnicodeDecodeError,
-                ValueError,
-            ) as exc:
-                profile_decode_error = exc
 
         mode: PreviewMode = "binary"
         preview: Any = None
 
-        if is_json and not truncated:
-            if profiled_payload is _PROFILED_PAYLOAD_NOT_LOADED:
-                logger.debug(
-                    "Failed to decode JSON artifact content preview for %s: %s",
-                    artifact_id,
-                    profile_decode_error,
-                )
-                text = _decode_text(preview_bytes)
-                if text is not None:
-                    mode = "text"
-                    preview = text
-            else:
-                mode = "json"
-                preview = profiled_payload
+        if is_json:
+            mode = "json"
+            preview = profiled_payload
         elif _is_text_media_type(manifest.media_type) or not truncated:
             text = _decode_text(preview_bytes)
             if text is not None:
                 mode = "text"
                 preview = text
 
-        if preview is None:
+        if mode != "json" and preview is None:
             mode = "binary"
             preview = preview_bytes.hex()
 
@@ -891,6 +869,7 @@ class ArtifactInspectorService:
         artifact_id: ArtifactID,
         *,
         manifest: ArtifactManifest | None = None,
+        manifest_read: CoreJsonManifestBoundedRead | None = None,
     ) -> ArtifactSchemaView:
         """Return schema metadata plus top-level JSON keys when available.
 
@@ -898,13 +877,19 @@ class ArtifactInspectorService:
             artifact_id: Canonical CAS artifact identifier.
 
         Returns:
-            A schema projection derived from the manifest and a best-effort
+            A schema projection derived from the manifest and a bounded
             inspection of JSON payload keys.
 
         Raises:
             FileNotFoundError: If the artifact manifest or bytes are missing.
+            CanonicalProfileRefusalError: If selected JSON exceeds the bounded
+                inspection policy or fails Core profile conformance.
         """
-        manifest = manifest or read_core_manifest_profile(self._store, artifact_id)[0]
+        manifest = manifest or (
+            manifest_read.manifest
+            if manifest_read is not None
+            else read_core_manifest_profile(self._store, artifact_id)[0]
+        )
         schema = manifest.artifact_schema
 
         selected_ref = _artifact_ref_for_manifest(manifest)
@@ -912,11 +897,15 @@ class ArtifactInspectorService:
         is_json = _is_json_media_type(manifest.media_type)
         canon_read_status: CanonReadStatus = "not_evaluated" if is_json else "not_applicable"
         if is_json:
+            schema_limit = _normalize_preview_limit(
+                None, default_value=self._default_max_preview_bytes
+            )
             try:
                 profiled = _read_inspector_semantic_json(
                     self._store,
                     selected_ref,
-                    max_payload_bytes=None,
+                    max_payload_bytes=schema_limit,
+                    manifest_read=manifest_read,
                 )
                 canon_read_status = profiled.status
                 if isinstance(profiled.value, dict):

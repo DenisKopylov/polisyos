@@ -50,9 +50,11 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 - `polisyos.common.text` provides pure shared whitespace normalization through
   `collapse_ws`; existing Lex consumers retain that same function object through
   the lazy root facade.
-- The canonical modules are the shared mechanics and strict selected-profile
-  readers. They do not attest producer identity or authority; Core and IR keep
-  their own profile-specific tags, exceptions, and admission rules.
+- The canonical modules own shared byte/profile mechanics. A verified
+  CanonicalProfileRead may name the fixed reader policy that materialized it;
+  core-tag-policy@1 and ir-tag-policy@1 remain separate owner identities.
+  This context does not attest a producer or establish schema, authority, or
+  currentness; Core and IR keep their distinct tags and admission rules. The reader identity is materialization context only and never a substitute for the caller's expected artifact contract.
 - Lazy facade exports from `src/polisyos/common/__init__.py` remain:
   `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
   `serialization`, `text`, `timestamps`.

@@ -5908,13 +5908,14 @@ def _resolve_authority_import_closure(
             source_index=source_index,
             visited=visited,
         )
-        if candidate.package_initializer_effect_unknown and (
-            candidate.binding_basis != "literal_getattr" or candidate.route is None
-        ):
+        if candidate.package_initializer_effect_unknown and candidate.route is None:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"unqualified package initializer route: {base}.{export_name}",
             )
+        # Discovery records a source candidate, not an authority admission.
+        # The later runtime projection binds the facade, provider, importer, and
+        # selected consumer object before this candidate can support a claim.
         return candidate.route
 
     def discover_route_chain(
@@ -8433,6 +8434,130 @@ def _literal_module_getattr_mapping_providers(
     return providers, members, module_providers, invalid, handled_getattrs
 
 
+def _literal_module_getattr_direct_providers(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    parameter_name: str,
+    *,
+    package_module_name: str | None,
+) -> dict[str, tuple[str, str]] | None:
+    """Resolve a complete finite-name ``import_module``/``getattr`` dispatch.
+
+    This grammar admits only top-level branches whose literal name domain loads
+    one source module and returns the attribute with the same selected name.
+    Any other executable statement, rebinding, dynamic target, or branch shape
+    leaves the whole dispatcher outside this source-only index.
+    """
+
+    if function.decorator_list:
+        return None
+    parameters = (
+        *function.args.posonlyargs,
+        *function.args.args,
+        *function.args.kwonlyargs,
+        *((function.args.vararg,) if function.args.vararg is not None else ()),
+        *((function.args.kwarg,) if function.args.kwarg is not None else ()),
+    )
+    if not parameters or parameters[0].arg != parameter_name:
+        return None
+    if any(
+        isinstance(node, ast.Name)
+        and node.id == parameter_name
+        and isinstance(node.ctx, (ast.Store, ast.Del))
+        for node in _source_scope_nodes(function.body)
+    ):
+        return None
+    imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
+    if not imported_functions and not imported_modules:
+        return None
+    if not _literal_builtin_name_unshadowed(tree, function, "getattr"):
+        return None
+
+    statements = list(function.body)
+    if (
+        statements
+        and isinstance(statements[0], ast.Expr)
+        and isinstance(statements[0].value, ast.Constant)
+        and type(statements[0].value.value) is str
+    ):
+        statements.pop(0)
+    providers: dict[str, tuple[str, str]] = {}
+    for statement in statements:
+        if isinstance(statement, ast.Raise):
+            exception = statement.exc
+            if not (
+                isinstance(exception, ast.Call)
+                and isinstance(exception.func, ast.Name)
+                and exception.func.id == "AttributeError"
+                and _literal_builtin_name_unshadowed(tree, function, "AttributeError")
+            ):
+                return None
+            continue
+        if not isinstance(statement, ast.If) or statement.orelse:
+            return None
+        names = _literal_getattr_dispatch_names(statement.test, parameter_name)
+        if not names or providers.keys() & names:
+            return None
+        branch = statement.body
+        if len(branch) != 2:
+            return None
+        assignment, returned = branch
+        if not (
+            isinstance(assignment, ast.Assign)
+            and len(assignment.targets) == 1
+            and isinstance(assignment.targets[0], ast.Name)
+            and isinstance(assignment.value, ast.Call)
+            and not assignment.value.keywords
+            and isinstance(returned, ast.Return)
+            and isinstance(returned.value, ast.Call)
+            and isinstance(returned.value.func, ast.Name)
+            and returned.value.func.id == "getattr"
+            and len(returned.value.args) == 2
+            and not returned.value.keywords
+            and isinstance(returned.value.args[0], ast.Name)
+            and returned.value.args[0].id == assignment.targets[0].id
+            and isinstance(returned.value.args[1], ast.Name)
+            and returned.value.args[1].id == parameter_name
+        ):
+            return None
+        load_call = assignment.value
+        callee = load_call.func
+        uses_import_module = bool(
+            (isinstance(callee, ast.Name) and callee.id in imported_functions)
+            or (
+                isinstance(callee, ast.Attribute)
+                and callee.attr == "import_module"
+                and isinstance(callee.value, ast.Name)
+                and callee.value.id in imported_modules
+            )
+        )
+        if not uses_import_module or not load_call.args:
+            return None
+        try:
+            target_module = ast.literal_eval(load_call.args[0])
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            return None
+        if type(target_module) is not str or not target_module:
+            return None
+        if target_module.startswith("."):
+            if (
+                len(load_call.args) != 2
+                or not isinstance(load_call.args[1], ast.Name)
+                or load_call.args[1].id != "__name__"
+                or package_module_name is None
+            ):
+                return None
+            try:
+                target_module = importlib.util.resolve_name(target_module, package_module_name)
+            except (ImportError, TypeError, ValueError):
+                return None
+        elif len(load_call.args) != 1:
+            return None
+        for name in names:
+            providers[name] = (target_module, name)
+    return providers or None
+
+
 def _literal_module_getattr_provider_index(
     tree: ast.Module,
     *,
@@ -8478,6 +8603,22 @@ def _literal_module_getattr_provider_index(
             continue
         parameter = parameters[0].arg
         imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
+        direct_providers = _literal_module_getattr_direct_providers(
+            tree,
+            function,
+            parameter,
+            package_module_name=package_module_name,
+        )
+        if direct_providers is not None:
+            for export_name, (provider_module, provider_symbol) in direct_providers.items():
+                providers.setdefault(export_name, set()).add(provider_module)
+                provider_symbols.setdefault(export_name, set()).add(provider_symbol)
+            handled_getattrs.update(
+                id(node)
+                for node in _source_scope_nodes(function.body)
+                if _dynamic_getattr_name(node, parameter)
+            )
+            continue
         mapped_providers, mapped_symbols, mapped_modules, mapped_invalid, mapped_getattrs = (
             _literal_module_getattr_mapping_providers(
                 tree,
@@ -8639,7 +8780,23 @@ def _source_facade_runtime_projection(
             )
             if not candidate.package_initializer_effect_unknown:
                 return candidate.route
-            if candidate.binding_basis != "literal_getattr" or candidate.route is None:
+            if candidate.route is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"unreconciled package initializer effect: {facade_name}.{export_name}",
+                )
+            if candidate.binding_basis == "direct":
+                route_kind, provider_name, _provider_symbol = candidate.route
+                if route_kind in {"module", "symbol"} and provider_name != facade_name:
+                    # A direct import from a separately source-owned provider is still
+                    # only a candidate here; runtime identity checks below must bind the
+                    # facade export and every selected importer to that exact provider.
+                    return candidate.route
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"unreconciled package initializer effect: {facade_name}.{export_name}",
+                )
+            if candidate.binding_basis != "literal_getattr":
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch",
                     f"unreconciled package initializer effect: {facade_name}.{export_name}",
@@ -8885,6 +9042,9 @@ def _source_facade_runtime_projection(
         )
         bindings_to_check: dict[tuple[str, str], tuple[str, str, bool]] = {}
         selected_importers: dict[tuple[str, str], set[tuple[str, str, str, str, str]]] = {}
+        function_import_routes: dict[
+            tuple[str, str], list[tuple[str, ast.ImportFrom, str, str, str, str]]
+        ] = {}
         for module_name, (_tree, provider_index, maps) in source_rows.items():
             if not maps:
                 continue
@@ -8942,7 +9102,8 @@ def _source_facade_runtime_projection(
                     target = resolve_source_target(module_name, export, raw_target)
                     bindings_to_check[(module_name, export)] = (*target, False)
 
-        module_value_bindings: list[tuple[str, str, str, str]] = []
+        module_value_bindings: list[tuple[str, str, str, str, tuple[tuple[str, str], ...]]] = []
+        module_source_route_owners: dict[tuple[str, str], set[tuple[str, str]]] = {}
         for module_name, (tree, _provider_index, _maps) in source_rows.items():
             package = (
                 module_name
@@ -9034,6 +9195,23 @@ def _source_facade_runtime_projection(
                                 "unsupported source-module import scope: "
                                 f"{module_name}.{local_name}",
                             )
+                        prior_binding = bindings_to_check.get((base, alias.name))
+                        bindings_to_check[(base, alias.name)] = (
+                            target_module,
+                            "<module>",
+                            scope_kind == "function_local"
+                            or (prior_binding[2] if prior_binding is not None else False),
+                        )
+                        if scope_kind == "function_local":
+                            selected_importers.setdefault((base, alias.name), set()).add(
+                                (
+                                    module_name,
+                                    local_name,
+                                    scope_kind,
+                                    scope_owner,
+                                    str(node.lineno),
+                                )
+                            )
                         if scope_kind == "function_local":
                             owner = function_nodes.get(scope_owner)
                             if owner is None or not _source_function_import_binding_is_unique(
@@ -9055,6 +9233,18 @@ def _source_facade_runtime_projection(
                             if target_path is None:
                                 raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
                             supplemental_modules[target_module] = target_path.as_posix()
+                            function_import_routes.setdefault(
+                                (module_name, scope_owner), []
+                            ).append(
+                                (
+                                    local_name,
+                                    node,
+                                    base,
+                                    alias.name,
+                                    target_module,
+                                    None,
+                                )
+                            )
                         continue
                     if target_symbol is None:
                         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
@@ -9068,6 +9258,28 @@ def _source_facade_runtime_projection(
                             "canonical_loaded_runtime_mismatch",
                             f"source facade map differs from binding: {base}.{alias.name}",
                         )
+                    if scope_kind not in {"module", "function_local"}:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unsupported selected import scope: {module_name}.{local_name}",
+                        )
+                    prior_binding = bindings_to_check.get((base, alias.name))
+                    bindings_to_check[(base, alias.name)] = (
+                        target_module,
+                        target_symbol,
+                        scope_kind == "function_local"
+                        or (prior_binding[2] if prior_binding is not None else False),
+                    )
+                    if scope_kind == "function_local":
+                        selected_importers.setdefault((base, alias.name), set()).add(
+                            (
+                                module_name,
+                                local_name,
+                                scope_kind,
+                                scope_owner,
+                                str(node.lineno),
+                            )
+                        )
                     if scope_kind == "function_local":
                         owner = function_nodes.get(scope_owner)
                         if owner is None or not _source_function_import_binding_is_unique(
@@ -9080,18 +9292,16 @@ def _source_facade_runtime_projection(
                                 "canonical_loaded_runtime_mismatch",
                                 f"unsupported local facade binding: {module_name}.{local_name}",
                             )
-                        bindings_to_check[(base, alias.name)] = (target_module, target_symbol, True)
-                        selected_importers.setdefault((base, alias.name), set()).add(
-                            (module_name, local_name, scope_kind, scope_owner, str(node.lineno))
+                        function_import_routes.setdefault((module_name, scope_owner), []).append(
+                            (
+                                local_name,
+                                node,
+                                base,
+                                alias.name,
+                                target_module,
+                                target_symbol,
+                            )
                         )
-                    elif scope_kind != "module":
-                        raise ConfidenceLedgerError(
-                            "canonical_loaded_runtime_mismatch",
-                            f"unsupported selected import scope: {module_name}.{local_name}",
-                        )
-                    # Module-scope imports are admitted only through the later
-                    # source-order transfer, which records the final live binding.
-                    # A deleted temporary alias is not a consumer binding.
 
         # Reconcile final module-level aliases from actual source transfer. A
         # temporary package alias may be deleted after its selected member has
@@ -9102,8 +9312,10 @@ def _source_facade_runtime_projection(
                 if Path(closure_by_name[module_name]).name == "__init__.py"
                 else module_name.rpartition(".")[0]
             )
-            scope_index, _function_nodes, _function_codes = runtime_scopes[module_name]
+            scope_index, function_nodes, function_codes = runtime_scopes[module_name]
             state: dict[str, tuple[str, str, str | None, str]] = {}
+            state_owners: dict[str, set[tuple[str, str]]] = {}
+            callable_state: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
             invalid_state: set[str] = set()
             deferred_global_reads: set[str] = set()
             for statement in tree.body:
@@ -9114,11 +9326,13 @@ def _source_facade_runtime_projection(
                         for alias in statement.names:
                             if alias.asname is None:
                                 continue
+                            callable_state.pop(alias.asname, None)
                             target_path = _repository_module_source(
                                 repo_root,
                                 alias.name,
                                 directory_entries=directory_entries,
                             )
+                            state_owners.pop(alias.asname, None)
                             if target_path is not None:
                                 state[alias.asname] = (
                                     "module",
@@ -9131,6 +9345,9 @@ def _source_facade_runtime_projection(
                                 state.pop(alias.asname, None)
                                 invalid_state.add(alias.asname)
                         continue
+                    for alias in statement.names:
+                        if alias.name != "*":
+                            callable_state.pop(alias.asname or alias.name, None)
                     base = _resolve_import_from_base(statement, package)
                     if base is None or base not in source_rows:
                         continue
@@ -9147,11 +9364,13 @@ def _source_facade_runtime_projection(
                             source_index=source_index,
                         )
                         if route is None:
+                            state_owners.pop(local_name, None)
                             if local_name in state:
                                 state.pop(local_name, None)
                                 invalid_state.add(local_name)
                             continue
                         route_kind, target_module, target_symbol = route
+                        state_owners[local_name] = {(base, alias.name)}
                         if route_kind == "external":
                             raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
                         if route_kind == "module":
@@ -9183,8 +9402,21 @@ def _source_facade_runtime_projection(
                     if len(targets) == 1 and isinstance(targets[0], ast.Name):
                         local_name = targets[0].id
                         resolved: tuple[str, str, str | None, str] | None = None
+                        resolved_owners: set[tuple[str, str]] = set()
+                        selected_calls = (
+                            {
+                                child.func.id
+                                for child in ast.walk(value)
+                                if isinstance(child, ast.Call)
+                                and isinstance(child.func, ast.Name)
+                                and function_import_routes.get((module_name, child.func.id))
+                            }
+                            if value is not None
+                            else set()
+                        )
                         if isinstance(value, ast.Name):
                             resolved = state.get(value.id)
+                            resolved_owners = set(state_owners.get(value.id, set()))
                         elif (
                             isinstance(value, ast.Attribute)
                             and isinstance(value.value, ast.Name)
@@ -9197,14 +9429,74 @@ def _source_facade_runtime_projection(
                                 value.attr,
                                 str(statement.lineno),
                             )
+                            resolved_owners = set(state_owners.get(value.value.id, set()))
+                        elif isinstance(value, ast.Call) and isinstance(value.func, ast.Name):
+                            route_rows = function_import_routes.get(
+                                (module_name, value.func.id),
+                                [],
+                            )
+                            source_owner = callable_state.get(value.func.id)
+                            if route_rows:
+                                proven_rows = [
+                                    row
+                                    for row in route_rows
+                                    if source_owner is not None
+                                    and _source_function_returns_imported_binding(
+                                        source_owner,
+                                        local_name=row[0],
+                                        import_node=row[1],
+                                    )
+                                ]
+                                if not value.args and not value.keywords and len(proven_rows) == 1:
+                                    _local, _import_node, base, export, provider, symbol = (
+                                        proven_rows[0]
+                                    )
+                                    resolved = (
+                                        "module" if symbol is None else "symbol",
+                                        provider,
+                                        symbol,
+                                        str(statement.lineno),
+                                    )
+                                    resolved_owners = {(base, export)}
+                                else:
+                                    raise ConfidenceLedgerError(
+                                        "canonical_loaded_runtime_mismatch",
+                                        "unsupported selected consumer call result: "
+                                        f"{module_name}.{local_name}",
+                                    )
+                        elif selected_calls:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                "unsupported selected consumer value flow: "
+                                f"{module_name}.{local_name}",
+                            )
+                        callable_state.pop(local_name, None)
                         if resolved is not None:
                             state[local_name] = resolved
+                            state_owners[local_name] = resolved_owners
                             invalid_state.discard(local_name)
                             continue
+                        state_owners.pop(local_name, None)
                         if local_name in state:
                             state.pop(local_name, None)
                             invalid_state.add(local_name)
                         continue
+                    selected_calls = (
+                        {
+                            child.func.id
+                            for child in ast.walk(value)
+                            if isinstance(child, ast.Call)
+                            and isinstance(child.func, ast.Name)
+                            and function_import_routes.get((module_name, child.func.id))
+                        }
+                        if value is not None
+                        else set()
+                    )
+                    if selected_calls:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unsupported selected consumer assignment: {module_name}",
+                        )
                     if any(
                         isinstance(child, ast.Name) and child.id in state
                         for child in ast.walk(statement)
@@ -9218,6 +9510,8 @@ def _source_facade_runtime_projection(
                     for target in statement.targets:
                         if isinstance(target, ast.Name):
                             state.pop(target.id, None)
+                            state_owners.pop(target.id, None)
+                            callable_state.pop(target.id, None)
                             invalid_state.discard(target.id)
                             if target.id in deferred_global_reads:
                                 raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
@@ -9235,8 +9529,17 @@ def _source_facade_runtime_projection(
                             and isinstance(child.ctx, ast.Load)
                         ):
                             deferred_global_reads.add(child.id)
+                    callable_state.pop(statement.name, None)
+                    if (
+                        isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+                        and not statement.decorator_list
+                        and function_nodes.get(statement.name) is statement
+                        and function_codes.get(statement.name) is not None
+                    ):
+                        callable_state[statement.name] = statement
                     if statement.name in state:
                         state.pop(statement.name, None)
+                        state_owners.pop(statement.name, None)
                         invalid_state.add(statement.name)
                     continue
                 if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant):
@@ -9263,8 +9566,41 @@ def _source_facade_runtime_projection(
                         f"module alias binding is unresolved: {module_name}",
                     )
             for local_name, binding in state.items():
+                final_owners = state_owners.get(local_name, set())
+                for facade_name, export_name in final_owners:
+                    route_binding = bindings_to_check.get((facade_name, export_name))
+                    if route_binding is None:
+                        continue
+                    route_provider, route_attribute, _route_selected = route_binding
+                    direct_consumer = route_provider == binding[1] and (
+                        (binding[0] == "module" and route_attribute == "<module>")
+                        or (binding[0] == "symbol" and binding[2] == route_attribute)
+                    )
+                    if direct_consumer:
+                        bindings_to_check[(facade_name, export_name)] = (
+                            route_provider,
+                            route_attribute,
+                            True,
+                        )
+                        selected_importers.setdefault((facade_name, export_name), set()).add(
+                            (
+                                module_name,
+                                local_name,
+                                "module",
+                                "<module>",
+                                binding[3],
+                            )
+                        )
                 if binding[0] == "module":
-                    module_value_bindings.append((module_name, local_name, binding[1], "<module>"))
+                    module_value_bindings.append(
+                        (
+                            module_name,
+                            local_name,
+                            binding[1],
+                            "<module>",
+                            tuple(sorted(final_owners)),
+                        )
+                    )
                 elif binding[0] == "symbol" and binding[2] is not None:
                     provider_path = _repository_module_source(
                         repo_root,
@@ -9280,6 +9616,7 @@ def _source_facade_runtime_projection(
                         binding[2],
                         True,
                     )
+                    module_source_route_owners[(module_name, local_name)] = set(final_owners)
                     selected_importers.setdefault((module_name, local_name), set()).add(
                         (module_name, local_name, "module_value", "<module>", binding[3])
                     )
@@ -9339,7 +9676,12 @@ def _source_facade_runtime_projection(
                 )
             provider_namespace = vars(provider_module)
             facade_namespace = vars(facade_module)
-            provider_value = provider_namespace.get(attribute, _STATIC_FACADE_UNKNOWN)
+            module_binding = attribute == "<module>"
+            provider_value = (
+                provider_module
+                if module_binding
+                else provider_namespace.get(attribute, _STATIC_FACADE_UNKNOWN)
+            )
             if provider_value is _STATIC_FACADE_UNKNOWN:
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch",
@@ -9352,13 +9694,15 @@ def _source_facade_runtime_projection(
                     f"cached source facade binding differs: {facade_name}.{export}",
                 )
             if selected:
-                try:
-                    observed = getattr(facade_module, export)
-                except Exception as exc:
-                    raise ConfidenceLedgerError(
-                        "canonical_loaded_runtime_mismatch",
-                        f"source facade lookup failed: {facade_name}.{export}",
-                    ) from exc
+                observed = facade_namespace.get(export, _STATIC_FACADE_UNKNOWN)
+                if observed is _STATIC_FACADE_UNKNOWN and not module_binding:
+                    try:
+                        observed = getattr(facade_module, export)
+                    except Exception as exc:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"source facade lookup failed: {facade_name}.{export}",
+                        ) from exc
                 if observed is not provider_value:
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
@@ -9464,19 +9808,24 @@ def _source_facade_runtime_projection(
                                 owner_binding,
                             )
                         )
-            checked_bindings.append(
-                {
-                    "attribute": attribute,
-                    "facade": facade_name,
-                    "export": export,
-                    "provider": provider_name,
-                    "provider_path": provider_path.as_posix(),
-                    "selected": "true" if selected else "false",
-                    "importers": selected_import_rows,
-                }
-            )
+            binding_row: dict[str, object] = {
+                "attribute": attribute,
+                "facade": facade_name,
+                "export": export,
+                "provider": provider_name,
+                "provider_path": provider_path.as_posix(),
+                "selected": "true" if selected else "false",
+                "importers": selected_import_rows,
+            }
+            source_routes = module_source_route_owners.get((facade_name, export), set())
+            if source_routes:
+                binding_row["source_routes"] = [
+                    {"facade": source_facade, "export": source_export}
+                    for source_facade, source_export in sorted(source_routes)
+                ]
+            checked_bindings.append(binding_row)
 
-        for importer_name, local_name, target_name, scope_owner in sorted(
+        for importer_name, local_name, target_name, scope_owner, source_routes in sorted(
             set(module_value_bindings)
         ):
             target_path = _repository_module_source(
@@ -9521,6 +9870,10 @@ def _source_facade_runtime_projection(
                     "provider_path": target_path.as_posix(),
                     "selected": "true",
                     "module_binding": "true",
+                    "source_routes": [
+                        {"facade": source_facade, "export": source_export}
+                        for source_facade, source_export in source_routes
+                    ],
                     "importers": [
                         {
                             "module": importer_name,
@@ -9790,6 +10143,77 @@ def _runtime_import_scope_index(
 
     walk(tree, scope_kind="module", owner=())
     return import_scopes, functions, function_codes
+
+
+def _source_function_returns_imported_binding(
+    owner: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    local_name: str,
+    import_node: ast.Import | ast.ImportFrom,
+) -> bool:
+    """Prove one bounded source-local value flow from import to function result.
+
+    Accepted bodies are a direct import followed by ``return local`` or one
+    undecorated, argument-only identity helper followed by ``return helper(local)``.
+    The analyzer never executes source functions; all other flow remains unknown.
+    """
+
+    if owner.decorator_list:
+        return False
+    body = list(owner.body)
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+        and (type(body[0].value.value) is str)
+    ):
+        body.pop(0)
+    if not body or body[0] is not import_node:
+        return False
+    if len(body) == 2 and isinstance(body[1], ast.Return):
+        result = body[1].value
+        return bool(isinstance(result, ast.Name) and result.id == local_name)
+    if len(body) != 3 or not isinstance(body[1], (ast.FunctionDef, ast.AsyncFunctionDef)):
+        return False
+    helper = body[1]
+    result = body[2]
+    if not (
+        isinstance(result, ast.Return)
+        and isinstance(result.value, ast.Call)
+        and isinstance(result.value.func, ast.Name)
+        and result.value.func.id == helper.name
+        and len(result.value.args) == 1
+        and not result.value.keywords
+        and isinstance(result.value.args[0], ast.Name)
+        and result.value.args[0].id == local_name
+        and not helper.decorator_list
+        and not helper.args.defaults
+        and not helper.args.kw_defaults
+        and not helper.args.kwonlyargs
+        and helper.args.vararg is None
+        and helper.args.kwarg is None
+        and len((*helper.args.posonlyargs, *helper.args.args)) == 1
+        and not getattr(helper, "type_params", ())
+        and all(
+            argument.annotation is None
+            for argument in (*helper.args.posonlyargs, *helper.args.args)
+        )
+        and helper.returns is None
+    ):
+        return False
+    helper_body = list(helper.body)
+    if (
+        helper_body
+        and isinstance(helper_body[0], ast.Expr)
+        and isinstance(helper_body[0].value, ast.Constant)
+        and type(helper_body[0].value.value) is str
+    ):
+        helper_body.pop(0)
+    if len(helper_body) != 1 or not isinstance(helper_body[0], ast.Return):
+        return False
+    parameter = (*helper.args.posonlyargs, *helper.args.args)[0].arg
+    helper_result = helper_body[0].value
+    return bool(isinstance(helper_result, ast.Name) and helper_result.id == parameter)
 
 
 def _source_function_import_binding_is_unique(
@@ -10374,9 +10798,9 @@ def _source_module_import_route_candidate(
     """Discover a source route candidate without asserting its loaded binding is authoritative.
 
     Callers that admit an authority route must separately reconcile the complete
-    source/runtime/code projection. An unknown package initializer may contribute
-    only a literal-getattr candidate; consumers must bind that candidate to the
-    exact source map and the live selected provider/importer objects.
+    source/runtime/code projection. An unknown package initializer neither qualifies
+    nor excludes a candidate by itself: the selected source provider and every live
+    facade/importer binding must be independently reconciled before admission.
     """
 
     key = (module_name, export_name)

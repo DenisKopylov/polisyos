@@ -25,6 +25,8 @@ logger = get_logger(__name__)
 CacheDegradationPolicy = Literal["warn", "raise"]
 
 if TYPE_CHECKING:
+    from .._integrity_ops import ArtifactBoundedManifestRead
+    from ..protocol import CoreJSONArtifactBoundedMemberAttempt
     from .config import ArtifactStoreConfig
 
 
@@ -42,6 +44,8 @@ class CachingArtifactStore:
     * **Writes**: write to local, then replicate to remote (if ``write_through``).
     * **Verify**: selector-free defaults use the durable owner; selected write-through views
       use a local hit only after durable-owner admission.
+    * **Strict bounded reads**: the exact selected ref is forwarded only to the
+      manifest owner. A local cache hit never substitutes for that owner's bounded receipt.
     """
 
     def __init__(
@@ -127,7 +131,8 @@ class CachingArtifactStore:
                 manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
                 if not self._manifest_input_views_match(manifest):
                     message = (
-                        "Local CAS cannot admit one or more input views for this remote artifact"
+                        "Local CAS cannot admit one or more input views "
+                        + "for this remote artifact"
                     )
                     if self._cache_population_failure_policy == "raise":
                         raise RuntimeError(message)
@@ -230,7 +235,14 @@ class CachingArtifactStore:
                 )
         except PermissionError:
             raise
-        except (FileNotFoundError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        except (
+            FileNotFoundError,
+            KeyError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
             logger.warning(
                 "Local artifact cache population failed for %s under policy=%s: %s",
                 artifact_label,
@@ -485,6 +497,101 @@ class CachingArtifactStore:
                 )
             return remote_ref
         return ref
+
+    def read_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        *,
+        max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
+    ) -> ArtifactBoundedManifestRead:
+        """Read a default or exact manifest only through the durable view owner.
+
+        A selector-free ArtifactID forwards the durable owner's default view. A supplied
+        profile selects exactly that sidecar. The local cache never supplies this receipt,
+        and unsupported durable owners refuse without calling an unbounded API.
+        """
+        if type(artifact_id) is ArtifactRef:
+            if (
+                type(artifact_id.manifest_profile_sha256) is not str
+                or re.fullmatch(r"sha256:[0-9a-f]{64}", artifact_id.manifest_profile_sha256) is None
+            ):
+                raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+            if (
+                manifest_profile_sha256 is not None
+                and manifest_profile_sha256 != artifact_id.manifest_profile_sha256
+            ):
+                raise ValueError("conflicting manifest profile selectors")
+            selected_profile = None
+        elif type(artifact_id) is ArtifactID:
+            selected_profile = manifest_profile_sha256
+            if selected_profile is not None and (
+                type(selected_profile) is not str
+                or re.fullmatch(r"sha256:[0-9a-f]{64}", selected_profile) is None
+            ):
+                raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+        else:
+            raise ValueError("bounded_manifest_read_requires_artifact_id_or_ref")
+        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
+            raise ValueError("max_manifest_bytes must be a positive integer")
+
+        owner = self._default_manifest_owner()
+        reader = getattr(owner, "read_raw_manifest_bytes_bounded", None)
+        if not callable(reader):
+            raise NotImplementedError("cache_manifest_owner_bounded_receipt_unavailable")
+        if selected_profile is None:
+            return reader(artifact_id, max_manifest_bytes=max_manifest_bytes)
+        if type(artifact_id) is ArtifactRef:
+            return reader(artifact_id, max_manifest_bytes=max_manifest_bytes)
+        return reader(
+            artifact_id,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=selected_profile,
+        )
+
+    def open_member_bounded(
+        self,
+        artifact_id: ArtifactRef,
+        member: Literal["blob"],
+        *,
+        max_manifest_bytes: int,
+        expected_manifest_sha256: str,
+        max_member_bytes: int,
+    ) -> CoreJSONArtifactBoundedMemberAttempt:
+        """Open the exact selected member only through its manifest owner.
+
+        This strict path preserves cache selection policy. It does not serve
+        bytes from the local cache when the durable owner lacks the bounded
+        member contract, and it never falls back to ``get_bytes``.
+        """
+        if (
+            type(artifact_id) is not ArtifactRef
+            or type(artifact_id.manifest_profile_sha256) is not str
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", artifact_id.manifest_profile_sha256) is None
+        ):
+            raise ValueError("bounded_member_read_requires_profile_qualified_ref")
+        if member != "blob":
+            raise ValueError("bounded_member_name_invalid")
+        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
+            raise ValueError("max_manifest_bytes must be a positive integer")
+        if type(max_member_bytes) is not int or max_member_bytes < 1:
+            raise ValueError("max_member_bytes must be a positive integer")
+        if (
+            type(expected_manifest_sha256) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", expected_manifest_sha256) is None
+        ):
+            raise ValueError("expected_manifest_sha256_invalid")
+        owner = self._default_manifest_owner()
+        reader = getattr(owner, "open_member_bounded", None)
+        if not callable(reader):
+            raise NotImplementedError("cache_manifest_owner_bounded_member_unavailable")
+        return reader(
+            artifact_id,
+            member,
+            max_manifest_bytes=max_manifest_bytes,
+            expected_manifest_sha256=expected_manifest_sha256,
+            max_member_bytes=max_member_bytes,
+        )
 
     def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:
         _aid, _profile_sha256, ref = artifact_reference_parts(artifact_id)

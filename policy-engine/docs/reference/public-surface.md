@@ -222,6 +222,8 @@ to_canonical_bytes
 
 #### `polisyos.common.canonical_profile`
 
+`CanonicalProfileRead.reader_policy_id` records the fixed decoder policy chosen by the contextual Core or IR owner. It is produced by the reader, is not persisted in historical manifests, and does not attest the producer, schema, authority, or currentness.
+
 - Source: `src/polisyos/common/canonical_profile.py`
 - Facade: `unresolved_exports`
 - Summary: Shared strict profile-conformance mechanics for persisted JSON.

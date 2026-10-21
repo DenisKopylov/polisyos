@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-import json
-
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
-from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.artifacts import CanonInfo, FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts.canonical_profile import (
+    CoreJsonReadBoundsRefusalError,
+    CoreJsonReadLimits,
+    read_core_json_artifact_bounded,
+)
+from polisyos.core.canon import to_canonical_bytes
+from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID, CanonSpec
 from polisyos.runtime.http.services.artifact_inspector import ArtifactInspectorService
 from polisyos.runtime.http.services.lineage import LineageService
 
@@ -24,13 +28,13 @@ def _authority_boundary() -> dict[str, object]:
 def test_redaction_hook_failure_fails_closed(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     ref = store.put_bytes(
-        json.dumps(
+        to_canonical_bytes(
             {
                 "authority_boundary": _authority_boundary(),
                 "value": "safe preview text",
             }
-        ).encode("utf-8"),
-        PutOptions(kind="test.preview", media_type="application/json"),
+        ),
+        PutOptions(kind="test.preview", media_type="application/json", canon=CanonInfo()),
     )
     service = ArtifactInspectorService(
         store=store,
@@ -45,7 +49,9 @@ def test_redaction_hook_failure_fails_closed(tmp_path) -> None:
     assert preview.preview == "[REDACTED]"
 
 
-def test_predictive_content_sidecar_requires_the_candidate_surface_opt_in(tmp_path) -> None:
+def test_predictive_content_sidecar_requires_the_candidate_surface_opt_in(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     payload = {
         "authority_boundary": _authority_boundary(),
@@ -146,11 +152,13 @@ def test_decision_packet_preview_adds_typed_sidecar(tmp_path) -> None:
             }
         ],
     }
+    spec = CanonSpec(forbid_floats=False)
     ref = store.put_bytes(
-        json.dumps(payload).encode("utf-8"),
+        to_canonical_bytes(payload, spec),
         PutOptions(
             kind="scientist.decision_packet",
             media_type="application/json",
+            canon=CanonInfo(forbid_floats=False),
         ),
     )
     service = ArtifactInspectorService(
@@ -169,3 +177,99 @@ def test_decision_packet_preview_adds_typed_sidecar(tmp_path) -> None:
     assert structured_effect.point == 0.23
     assert structured_effect.ci_95 == (0.12, 0.34)
     assert structured_effect.method == "analytic"
+
+
+def test_bounded_json_inspection_refuses_before_reading_over_cap_bytes(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = to_canonical_bytes({"large": "x" * 1_200})
+    ref = store.put_bytes(
+        payload,
+        PutOptions(
+            kind="test.bounded_preview",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.bounded_preview", version="1"),
+            canon=CanonInfo(),
+        ),
+        return_selected_profile=True,
+    )
+    manifest = store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+
+    class ReadSpy:
+        def __init__(self, target):
+            self.target = target
+            self.bounded_opens = 0
+            self.get_bytes_calls = 0
+
+        def __getattr__(self, name):
+            return getattr(self.target, name)
+
+        def open_member_bounded(self, *args, **kwargs):
+            self.bounded_opens += 1
+            return self.target.open_member_bounded(*args, **kwargs)
+
+        def get_bytes(self, selector):
+            self.get_bytes_calls += 1
+            return self.target.get_bytes(selector)
+
+    observed_store = ReadSpy(store)
+    service = ArtifactInspectorService(
+        store=observed_store,
+        lineage_service=LineageService(store=store),
+        default_max_preview_bytes=1024,
+    )
+
+    try:
+        service.get_content_preview(ref.artifact_id, max_bytes=1024, manifest=manifest)
+    except CoreJsonReadBoundsRefusalError as exc:
+        refusal = exc
+    else:
+        raise AssertionError("over-limit JSON was materialized")
+
+    assert refusal.code == "canon_profile_bounded_bytes_exceeded"
+    assert refusal.limit_name == "max_bytes"
+    assert refusal.observed_payload_bytes == 0
+    assert refusal.observed_payload_size == len(payload)
+    assert refusal.payload_integrity_verified is False
+    assert observed_store.bounded_opens == 1
+    assert observed_store.get_bytes_calls == 0
+
+
+def test_small_json_inspection_records_core_policy_and_uses_bounded_owner(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_bytes(
+        to_canonical_bytes({"value": "selected"}),
+        PutOptions(
+            kind="test.bounded_preview",
+            media_type="application/json",
+            schema=SchemaInfo(name="test.bounded_preview", version="1"),
+            canon=CanonInfo(),
+        ),
+        return_selected_profile=True,
+    )
+    service = ArtifactInspectorService(
+        store=store,
+        lineage_service=LineageService(store=store),
+        default_max_preview_bytes=1024,
+    )
+
+    preview = service.get_content_preview(ref.artifact_id)
+
+    assert preview.mode == "json"
+    assert preview.preview == {"value": "selected"}
+    assert preview.canon_read_status == "declared_bytes_conformant"
+    bounded = read_core_json_artifact_bounded(
+        store,
+        ref,
+        limits=CoreJsonReadLimits(
+            max_bytes=1024,
+            max_depth=128,
+            max_elements=100_000,
+            max_manifest_bytes=1_000_000,
+        ),
+    )
+    assert bounded.profile_read.reader_policy_id == CORE_TAG_POLICY_ID
+    assert ref.manifest_profile_sha256 is not None

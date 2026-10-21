@@ -17,6 +17,7 @@ from polisyos.common.canonical_profile import (
     parse_canonical_profile,
 )
 from polisyos.ir.model_layer.canon import (
+    IR_TAG_POLICY_ID,
     CanonSpec,
     CanonViolation,
     from_canonical_bytes,
@@ -283,6 +284,7 @@ def _get_json_artifact_with_bytes(
             make_spec=_make_ir_canon_spec,
             decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
             encode=_encode_ir_profiled_value,
+            reader_policy_id=IR_TAG_POLICY_ID,
         )
     except CanonicalProfileRefusalError as exc:
         code = {

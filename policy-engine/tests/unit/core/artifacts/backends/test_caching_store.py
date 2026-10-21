@@ -12,6 +12,11 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from polisyos.core.artifacts._integrity_ops import ArtifactIntegrityError
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
+from polisyos.core.artifacts.canonical_profile import (
+    CoreJsonReadBoundsRefusalError,
+    CoreJsonReadLimits,
+    read_core_json_artifact_bounded,
+)
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -26,6 +31,7 @@ from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.runtime.http.resilience import guard_runtime_cas
@@ -49,7 +55,9 @@ def test_cache_write_through_returns_remote_selected_profile(tmp_path: Path) -> 
     assert remote.get_manifest(ref).kind == "test.cache_profile"
 
 
-def test_cache_write_through_returns_remote_selected_profile_for_json(tmp_path: Path) -> None:
+def test_cache_write_through_returns_remote_selected_profile_for_json(
+    tmp_path: Path,
+) -> None:
     local = FileSystemCAS(tmp_path / "local-json")
     remote = FileSystemCAS(tmp_path / "remote-json")
     cached = CachingArtifactStore(remote=remote, local=local, write_through=True)
@@ -65,7 +73,120 @@ def test_cache_write_through_returns_remote_selected_profile_for_json(tmp_path: 
     assert remote.get_manifest(ref).kind == "test.cache_json_profile"
 
 
-def test_cache_refuses_unsupported_profile_owner_before_local_write(tmp_path: Path) -> None:
+def test_bounded_selected_json_forwards_only_to_the_manifest_owner(
+    tmp_path: Path,
+) -> None:
+    local = FileSystemCAS(tmp_path / "bounded-local")
+    remote_base = FileSystemCAS(tmp_path / "bounded-remote")
+
+    class BoundedOwnerSpy:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+            self.manifest_receipt_calls = 0
+            self.member_open_calls = 0
+            self.get_bytes_calls = 0
+
+        def __getattr__(self, name: str):
+            return getattr(self._target, name)
+
+        def read_raw_manifest_bytes_bounded(self, selected_ref, *, max_manifest_bytes):
+            self.manifest_receipt_calls += 1
+            return self._target.read_raw_manifest_bytes_bounded(
+                selected_ref,
+                max_manifest_bytes=max_manifest_bytes,
+            )
+
+        def open_member_bounded(self, selected_ref, member, **kwargs):
+            self.member_open_calls += 1
+            return self._target.open_member_bounded(selected_ref, member, **kwargs)
+
+        def get_bytes(self, selected_ref):
+            self.get_bytes_calls += 1
+            raise AssertionError("strict bounded reads must not call get_bytes")
+
+    remote = BoundedOwnerSpy(remote_base)
+    store = CachingArtifactStore(remote=remote, local=local, write_through=True)
+    raw = to_canonical_bytes({"value": "selected"})
+    selected_ref = store.put_bytes(
+        raw,
+        PutOptions(
+            kind="test.cache_bounded_json",
+            media_type="application/json",
+            canon=CoreCanonInfo(),
+        ),
+        return_selected_profile=True,
+    )
+
+    result = read_core_json_artifact_bounded(
+        store,
+        selected_ref,
+        limits=CoreJsonReadLimits(
+            max_bytes=1024,
+            max_depth=8,
+            max_elements=16,
+            max_manifest_bytes=4096,
+        ),
+    )
+
+    assert result.value == {"value": "selected"}
+    assert result.profile_read.reader_policy_id == "core-tag-policy@1"
+    assert remote.manifest_receipt_calls == 1
+    assert remote.member_open_calls == 1
+    assert remote.get_bytes_calls == 0
+
+
+def test_bounded_cache_refuses_when_durable_owner_lacks_receipts(
+    tmp_path: Path,
+) -> None:
+    local = FileSystemCAS(tmp_path / "bounded-unsupported-local")
+    remote_base = FileSystemCAS(tmp_path / "bounded-unsupported-remote")
+    raw = to_canonical_bytes({"value": "selected"})
+    options = PutOptions(
+        kind="test.cache_bounded_unavailable",
+        media_type="application/json",
+        canon=CoreCanonInfo(),
+    )
+    selected_ref = remote_base.put_bytes(raw, options, return_selected_profile=True)
+    local.put_bytes(raw, options, return_selected_profile=True)
+
+    class LegacyOwner:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self._target = target
+            self.get_bytes_calls = 0
+
+        def __getattr__(self, name: str):
+            if name in {"read_raw_manifest_bytes_bounded", "open_member_bounded"}:
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+        def get_bytes(self, selected):
+            self.get_bytes_calls += 1
+            return self._target.get_bytes(selected)
+
+    remote = LegacyOwner(remote_base)
+    store = CachingArtifactStore(remote=remote, local=local, write_through=True)
+
+    with pytest.raises(CoreJsonReadBoundsRefusalError) as refusal:
+        read_core_json_artifact_bounded(
+            store,
+            selected_ref,
+            limits=CoreJsonReadLimits(
+                max_bytes=1024,
+                max_depth=8,
+                max_elements=16,
+                max_manifest_bytes=4096,
+            ),
+        )
+
+    assert refusal.value.code == "canon_profile_bounded_manifest_unavailable"
+    assert refusal.value.source_usage_complete is False
+    assert remote.get_bytes_calls == 0
+    assert local.get_bytes(selected_ref) == raw
+
+
+def test_cache_refuses_unsupported_profile_owner_before_local_write(
+    tmp_path: Path,
+) -> None:
     class LegacyRemote:
         def put_bytes(self, data, opts):
             raise AssertionError("unsupported remote must not be called")
@@ -964,3 +1085,70 @@ class TestCachingArtifactStore:
         assert local.has_signature(pinned_ref) is False
         assert signature_reader.call_count == 1
         assert signature_reader.call_args.args[0] == pinned_ref
+
+
+def test_cache_bounded_default_manifest_uses_only_durable_owner(tmp_path, monkeypatch) -> None:
+    payload = b"same blob with independent durable and local defaults"
+    local = FileSystemCAS(tmp_path / "bounded-local")
+    remote = FileSystemCAS(tmp_path / "bounded-remote")
+    local.put_bytes(
+        payload,
+        PutOptions(
+            kind="cache.local-default",
+            media_type="application/json",
+            producer=ProducerInfo(component="tests.cache", version="local"),
+        ),
+    )
+    remote_ref = remote.put_bytes(
+        payload,
+        PutOptions(
+            kind="cache.durable-default",
+            media_type="application/json",
+            producer=ProducerInfo(component="tests.cache", version="durable"),
+        ),
+        return_selected_profile=True,
+    )
+    assert local.get_manifest(remote_ref.artifact_id).kind == "cache.local-default"
+    expected = remote.get_raw_manifest_bytes(remote_ref.artifact_id)
+    durable_reader = remote.read_raw_manifest_bytes_bounded
+    calls = 0
+
+    def observe_durable(selector, *, max_manifest_bytes, manifest_profile_sha256=None):
+        nonlocal calls
+        calls += 1
+        assert selector == remote_ref.artifact_id
+        assert manifest_profile_sha256 is None
+        return durable_reader(
+            selector,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+
+    monkeypatch.setattr(remote, "read_raw_manifest_bytes_bounded", observe_durable)
+    cached = CachingArtifactStore(remote=remote, local=local, write_through=True)
+    result = cached.read_raw_manifest_bytes_bounded(
+        remote_ref.artifact_id, max_manifest_bytes=len(expected)
+    )
+    assert calls == 1
+    assert result.raw_manifest_bytes == expected
+    assert result.usage.observed_manifest_selection_bytes == len(expected)
+    assert result.usage.observed_source_bytes == len(expected)
+
+
+def test_cache_bounded_default_manifest_refuses_unsupported_durable_owner(
+    tmp_path,
+) -> None:
+    local = FileSystemCAS(tmp_path / "bounded-local-hit")
+    local_ref = local.put_bytes(
+        b"local hit must not satisfy durable selection",
+        PutOptions(kind="cache.local-only", media_type="application/json"),
+    )
+
+    class UnsupportedRemote:
+        pass
+
+    cached = CachingArtifactStore(remote=UnsupportedRemote(), local=local, write_through=True)
+    with pytest.raises(
+        NotImplementedError, match="cache_manifest_owner_bounded_receipt_unavailable"
+    ):
+        cached.read_raw_manifest_bytes_bounded(local_ref.artifact_id, max_manifest_bytes=4096)

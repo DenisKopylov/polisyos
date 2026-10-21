@@ -22,7 +22,11 @@ from polisyos.core.canon import (
 from polisyos.core.canon import (
     to_canonical_bytes as core_to_canonical_bytes,
 )
+from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
 from polisyos.ir.artifacts.contracts import CanonInfo as IRCanonInfo
+from polisyos.ir.model_layer.canon import (
+    IR_TAG_POLICY_ID,
+)
 from polisyos.ir.model_layer.canon import (
     CanonViolation as IRCanonViolation,
 )
@@ -44,6 +48,7 @@ def _profiled_read(raw_payload: bytes, profile: CoreCanonInfo):
         decode=lambda data, max_depth: core_from_canonical_bytes(data, max_depth=max_depth),
         encode=lambda value, spec: core_to_canonical_bytes(value, spec),
         allow_profile_absent=False,
+        reader_policy_id=CORE_TAG_POLICY_ID,
     )
 
 
@@ -56,6 +61,7 @@ def test_shared_reader_round_trips_declared_profile_and_marks_absence() -> None:
     assert read.value == {"value": 1.5}
     assert read.raw_payload_bytes == raw
     assert read.status == "declared_bytes_conformant"
+    assert read.reader_policy_id == CORE_TAG_POLICY_ID
     absent = read_canonical_profiled_bytes(
         b"{}",
         core_to_canonical_bytes({"value": 2}),
@@ -64,8 +70,10 @@ def test_shared_reader_round_trips_declared_profile_and_marks_absence() -> None:
         decode=lambda data, max_depth: core_from_canonical_bytes(data, max_depth=max_depth),
         encode=lambda value, spec: core_to_canonical_bytes(value, spec),
         allow_profile_absent=True,
+        reader_policy_id=CORE_TAG_POLICY_ID,
     )
     assert absent.status == "profile_absent_unqualified_candidate"
+    assert absent.reader_policy_id == CORE_TAG_POLICY_ID
     assert absent.unqualified_candidate_value == {"value": 2}
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
         _ = absent.value
@@ -74,7 +82,10 @@ def test_shared_reader_round_trips_declared_profile_and_marks_absence() -> None:
 
 
 def test_canonical_profile_read_cannot_self_attest_by_construction() -> None:
-    from polisyos.common.canonical_profile import CanonicalProfileRead, require_declared_profile
+    from polisyos.common.canonical_profile import (
+        CanonicalProfileRead,
+        require_declared_profile,
+    )
 
     forged = CanonicalProfileRead(
         value={"authority": "unverified"},
@@ -113,6 +124,13 @@ def test_codec_facades_keep_distinct_tag_laws_and_exception_identity() -> None:
     with pytest.raises(IRCanonViolation, match="Unknown canonical _type"):
         ir_from_canonical_bytes(core_only)
     assert CoreCanonViolation is not IRCanonViolation
+    assert CORE_TAG_POLICY_ID == "core-tag-policy@1"
+    assert IR_TAG_POLICY_ID == "ir-tag-policy@1"
+    assert CORE_TAG_POLICY_ID != IR_TAG_POLICY_ID
+    array_digest = b'{"_type":"array_digest","value":"sha256:' + b"a" * 64 + b'"}'
+    assert core_from_canonical_bytes(array_digest)["_type"] == "array_digest"
+    with pytest.raises(IRCanonViolation, match="Unknown canonical _type"):
+        ir_from_canonical_bytes(array_digest)
 
     ir_raw = ir_to_canonical_bytes({"x": 1})
     assert ir_from_canonical_bytes(ir_raw) == {"x": 1}
@@ -168,14 +186,17 @@ def test_valid_unsupported_profile_is_raw_only_and_never_uses_a_codec_default() 
         decode=lambda data, max_depth: calls.append("decode")
         or core_from_canonical_bytes(data, max_depth=max_depth),
         encode=lambda value, spec: calls.append("encode") or core_to_canonical_bytes(value, spec),
+        reader_policy_id=CORE_TAG_POLICY_ID,
     )
     assert read.status == "declared_unknown_candidate"
+    assert read.reader_policy_id == CORE_TAG_POLICY_ID
     assert read.raw_only_candidate_bytes == payload
     assert calls == []
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
         _ = read.value
     with pytest.raises(
-        CanonicalProfileRefusalError, match="canon_profile_candidate_read_not_unqualified"
+        CanonicalProfileRefusalError,
+        match="canon_profile_candidate_read_not_unqualified",
     ):
         _ = read.unqualified_candidate_value
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):

@@ -4,7 +4,10 @@
 payload semantics rather than loading or registry composition. It contains:
 
 - `model_spec.py` for the Trinity `ModelSpec` "how" artifact.
-- `canon.py` for canonical JSON and content hashing helpers.
+- `canon.py` for canonical JSON and content hashing helpers. Its fixed
+  ir-tag-policy@1 decoder remains narrower than Core and refuses Core-only
+  tags such as array_digest.
+  IR profiled reads retain `ir-tag-policy@1` as reader context; it is not producer attestation.
 - `predicate.py`, `queries.py`, `types.py`, and `units.py` for shared model
   vocabulary used by governance, observation, analytics, and linker code.
 

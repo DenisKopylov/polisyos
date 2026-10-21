@@ -38,13 +38,17 @@ from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     MetricsRef,
     ProgramGraph,
     SimulationResult,
 )
-from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+from polisyos.core.registry import (
+    build_default_registry_bundle,
+    load_registry_bundle_content,
+)
 from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -71,7 +75,10 @@ from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
-from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
+from polisyos.runtime.http.resilience import (
+    BlockingDependencyGuard,
+    GuardedDependencyProxy,
+)
 
 
 class _Payload(BaseModel):
@@ -121,7 +128,18 @@ def _raw_profiled_json_store(root, payload: object, spec: CanonSpec):
     return store, ref, raw
 
 
-def test_core_json_facade_returns_only_profile_conformant_selected_values(tmp_path) -> None:
+def test_core_selected_profile_read_names_its_tag_policy(tmp_path) -> None:
+    store, ref, _raw = _profiled_json_store(tmp_path, {"value": 7})
+
+    read = read_core_json_artifact(store, ref)
+
+    assert read.reader_policy_id == CORE_TAG_POLICY_ID
+    assert read.status == "declared_bytes_conformant"
+
+
+def test_core_json_facade_returns_only_profile_conformant_selected_values(
+    tmp_path,
+) -> None:
     store, ref, raw = _profiled_json_store(tmp_path, {"value": 7})
 
     assert read_core_json_artifact_bytes(store, ref) == raw
@@ -306,7 +324,14 @@ def test_typed_core_reader_accepts_only_owner_supported_simulation_versions(
 
 
 @pytest.mark.parametrize(
-    ("payload_version", "manifest_name", "manifest_version", "kind", "media_type", "reason"),
+    (
+        "payload_version",
+        "manifest_name",
+        "manifest_version",
+        "kind",
+        "media_type",
+        "reason",
+    ),
     [
         pytest.param(
             "1.3",
@@ -379,7 +404,9 @@ def test_typed_core_reader_refuses_simulation_schema_contract_drift(
         validate_core_model_json_artifact(SimulationResult, store, ref)
 
 
-def test_typed_core_reader_refuses_a_different_selected_manifest_profile(tmp_path) -> None:
+def test_typed_core_reader_refuses_a_different_selected_manifest_profile(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "simulation-wrong-profile")
     result = _simulation_result_for_artifact_version("1.3")
     ref = _put_simulation_result_view(store, result)
@@ -425,7 +452,9 @@ def _program_graph_payload(*, payload_version: str = "0.2") -> ProgramGraph:
     )
 
 
-def test_typed_core_reader_preserves_program_graph_owner_version_mapping(tmp_path) -> None:
+def test_typed_core_reader_preserves_program_graph_owner_version_mapping(
+    tmp_path,
+) -> None:
     program_graph = _program_graph_payload()
     store, selected_ref = _put_program_graph_view(tmp_path, program_graph)
 
@@ -435,7 +464,9 @@ def test_typed_core_reader_preserves_program_graph_owner_version_mapping(tmp_pat
     assert selected_ref.manifest_profile_sha256 is not None
 
 
-def test_typed_core_reader_refuses_program_graph_payload_version_drift(tmp_path) -> None:
+def test_typed_core_reader_refuses_program_graph_payload_version_drift(
+    tmp_path,
+) -> None:
     store, selected_ref = _put_program_graph_view(
         tmp_path,
         _program_graph_payload(payload_version="0.3"),
@@ -448,7 +479,9 @@ def test_typed_core_reader_refuses_program_graph_payload_version_drift(tmp_path)
         validate_core_model_json_artifact(ProgramGraph, store, selected_ref)
 
 
-def test_typed_core_reader_refuses_unsupported_program_graph_manifest_version(tmp_path) -> None:
+def test_typed_core_reader_refuses_unsupported_program_graph_manifest_version(
+    tmp_path,
+) -> None:
     store, selected_ref = _put_program_graph_view(
         tmp_path,
         _program_graph_payload(),
@@ -750,7 +783,9 @@ def test_typed_core_reader_reifies_declared_types_after_both_writer_forms(
     assert read_core_json_artifact_bytes(store, ref) == raw
 
 
-def test_typed_core_reader_refuses_wrong_shape_and_selected_byte_drift(tmp_path) -> None:
+def test_typed_core_reader_refuses_wrong_shape_and_selected_byte_drift(
+    tmp_path,
+) -> None:
     source = _typed_core_payload(payload_bytes=b"readable")
     malformed = source.model_dump(mode="json", by_alias=True)
     malformed["row_ids"] = [3, True]
@@ -760,7 +795,8 @@ def test_typed_core_reader_refuses_wrong_shape_and_selected_byte_drift(tmp_path)
         validate_core_model_json_artifact(_TypedCorePayload, store, ref)
 
     with pytest.raises(
-        CanonicalProfileRefusalError, match="canon_profile_selected_payload_identity_mismatch"
+        CanonicalProfileRefusalError,
+        match="canon_profile_selected_payload_identity_mismatch",
     ):
         validate_core_model_json_artifact(
             _TypedCorePayload,
@@ -1129,7 +1165,9 @@ def test_nullable_model_branches_reify_nested_tuples_through_fresh_cas_reader(
     assert restored_nulls.nullable_note is None
 
 
-def test_nullable_model_branch_keeps_required_optional_fields_required(tmp_path) -> None:
+def test_nullable_model_branch_keeps_required_optional_fields_required(
+    tmp_path,
+) -> None:
     payload = _nullable_typed_core_envelope().model_dump(mode="json")
     payload.pop("population")
     _store, ref, _raw = _profiled_core_json_store(tmp_path, payload)

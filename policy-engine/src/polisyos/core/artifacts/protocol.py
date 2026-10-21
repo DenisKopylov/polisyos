@@ -362,11 +362,12 @@ class CoreJSONArtifactBoundedManifestReader(Protocol):
 
     def get_raw_manifest_bytes_bounded(
         self,
-        artifact_id: ArtifactRef,
+        artifact_id: ArtifactID | ArtifactRef,
         *,
         max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
     ) -> bytes:
-        """Read exact manifest bytes without materializing a value beyond the limit."""
+        """Read the default or exact manifest under a pre-allocation byte limit."""
         ...
 
 
@@ -395,11 +396,17 @@ class CoreJSONArtifactBoundedManifestReceiptReader(Protocol):
 
     def read_raw_manifest_bytes_bounded(
         self,
-        artifact_id: ArtifactRef,
+        artifact_id: ArtifactID | ArtifactRef,
         *,
         max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
     ) -> ArtifactBoundedManifestRead:
-        """Read selected manifest bytes with owner-measured transfers or typed refusal."""
+        """Read the default or exact manifest with owner-measured transfers.
+
+        An ArtifactID without a profile explicitly selects its default view. Supplying a
+        profile selects that exact sidecar without first resolving or falling back to the
+        default. ArtifactRef continues to mean its exact full selected view.
+        """
         ...
 
 

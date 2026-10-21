@@ -1,0 +1,60 @@
+id = "2026-10-21-e02-canonical-reader-context"
+title = "Bind canonical reads to their Core or IR reader policy"
+type = "changed"
+component = "core-cas"
+owner = "team-policyos-runtime"
+summary = "Canonical profile reads retain a fixed Core or IR tag-policy identity, and HTTP JSON inspection carries one owner-bounded default or exact-profile manifest selection into the Core reader."
+evidence = [
+  "src/polisyos/common/canonical_profile.py",
+  "src/polisyos/core/artifacts/protocol.py",
+  "src/polisyos/core/artifacts/store.py",
+  "src/polisyos/core/artifacts/backends/caching_store.py",
+  "src/polisyos/core/artifacts/canonical_profile.py",
+  "src/polisyos/core/canon/canon_json.py",
+  "src/polisyos/ir/artifacts/io.py",
+  "src/polisyos/ir/model_layer/canon.py",
+  "src/polisyos/runtime/http/routes/artifacts.py",
+  "src/polisyos/runtime/http/services/artifact_inspector.py",
+  "tests/unit/common/test_canonical_profile.py",
+  "tests/unit/core/artifacts/test_bounded_core_json_artifact.py",
+  "tests/unit/core/artifacts/test_selected_profile_core_json.py",
+  "tests/unit/core/artifacts/backends/test_caching_store.py",
+  "tests/unit/ir/test_canon_hardening.py",
+  "tests/unit/runtime/http/test_artifact_inspector_api.py",
+  "tests/unit/runtime/http/test_artifact_inspector_service.py",
+  "tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+]
+compatibility = "Reader context is additive and not persisted in manifest views. Semantic JSON previews now refuse over-limit or unsupported bounded-owner reads; raw and non-JSON paths keep existing byte behavior."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.common.canonical_profile.CanonicalProfileRead"
+migration = "No manifest rewrite or CAS readdressing. Writers continue to emit the selected profile; consumers should choose Core or IR from their artifact contract rather than infer it from payload tags."
+api = "CanonicalProfileRead adds reader_policy_id. Core and IR semantic readers set core-tag-policy@1 and ir-tag-policy@1. HTTP JSON content/schema inspection selects the default or exact profile by bounded owner receipt once, carries the sealed ref into the bounded Core reader, and returns typed refusals when limits or backend receipts are unavailable. Conditional GETs re-evaluate the existing route-purpose admission for the selected view before returning 304, so cached body reuse does not bypass current admission."
+limitations = "Reader identity does not attest producer origin, schema adequacy, authority, or currentness. Cached cloud backends do not yet provide bounded durable-owner manifest/member receipts and refuse semantic JSON inspection without using local bytes. Non-JSON preview and explicit raw paths retain existing whole-byte behavior when bounded receipts are unavailable."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/common/README.md",
+  "src/polisyos/core/artifacts/README.md",
+  "src/polisyos/ir/model_layer/README.md",
+  "docs/reference/api/artifacts.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "canonical-reader-context"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.common.canonical_profile.CanonicalProfileRead"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Profile reads retain their concrete Core or IR decoder identity, while selected HTTP JSON previews use bounded Core reads with typed backend and resource refusals."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/common/README.md",
+  "src/polisyos/core/artifacts/README.md",
+  "src/polisyos/ir/model_layer/README.md",
+  "docs/reference/api/artifacts.md",
+]
+runbook_docs = []

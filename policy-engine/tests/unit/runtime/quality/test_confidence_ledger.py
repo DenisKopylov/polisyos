@@ -2056,6 +2056,36 @@ def test_authority_import_closure_includes_core_lazy_profile_providers() -> None
     )
 
 
+def test_direct_importlib_getattr_dispatch_has_a_finite_source_provider_set(
+    tmp_path: Path,
+) -> None:
+    """Only a complete literal-name importlib dispatch contributes source providers."""
+
+    repo_root, facade_path = _write_import_module_pep562_closure_repo(
+        tmp_path / "direct-importlib-pep562-repo"
+    )
+    facade_source = facade_path.read_text(encoding="utf-8")
+    assert all(marker in facade_source for marker in ("__getattr__", "import_module", "getattr"))
+    entry = repo_root / "src/polisyos/entry.py"
+    entry.write_text("from polisyos.facade import One, Two\n", encoding="utf-8")
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo_root, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+    assert closure["polisyos.facade.provider_two"] == "src/polisyos/facade/provider_two.py"
+    assert "polisyos.facade.unreferenced" not in closure
+
+    dynamic_target = facade_source.replace(
+        'module = _load("polisyos.facade.provider_one")',
+        "module = _load(resolve_provider(name))",
+        1,
+    )
+    assert dynamic_target != facade_source
+    assert all(marker in dynamic_target for marker in ("__getattr__", "import_module", "getattr"))
+    facade_path.write_text(dynamic_target, encoding="utf-8")
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo_root, "polisyos.entry")
+
+
 def test_core_registry_source_resolution_covers_all_direct_and_lazy_exports() -> None:
     """The complete public registry export set resolves from source, not a name allowlist."""
 
@@ -7519,11 +7549,20 @@ def test_source_facade_projection_binds_selected_export_across_unrelated_initial
         "    return value\n",
         encoding="utf-8",
     )
-    (package_root / "entry.py").write_text(
+    selected_loader = (
         f"def load_selected():\n"
         f"    from polisyos.{package_name}.facade import One as local_selected\n"
         "    return local_selected\n"
-        "selected = load_selected()\n",
+    )
+    (package_root / "entry.py").write_text(
+        selected_loader + "selected = load_selected()\n",
+        encoding="utf-8",
+    )
+    (package_root / "opaque_entry.py").write_text(
+        selected_loader
+        + "def wrap(value):\n"
+        + "    return value\n"
+        + "selected = wrap(load_selected())\n",
         encoding="utf-8",
     )
 
@@ -7577,6 +7616,15 @@ assert vars(facade)["facade_compat"] is compat_alias
 assert entry.selected is provider.One
 assert entry.load_selected() is provider.One
 assert any(row["module"] == facade_name for row in json.loads(projection)["facades"])
+opaque_entry_name = f"polisyos.{package_name}.opaque_entry"
+opaque_closure = ledger._resolve_authority_import_closure(repo_root, opaque_entry_name)
+ledger._import_authority_closure_modules(opaque_closure)
+try:
+    ledger._source_facade_runtime_projection(repo_root, opaque_closure)
+except ledger.ConfidenceLedgerError as exc:
+    opaque_consumer = exc.code
+else:
+    raise AssertionError("opaque selected wrapper result was treated as source-bound")
 original_map = dict(facade._LAZY_EXPORTS)
 try:
     facade._LAZY_EXPORTS["One"] = (f"{facade_name}.missing", "One")
@@ -7600,7 +7648,15 @@ try:
         raise AssertionError("rebound consumer object was admitted")
 finally:
     entry.selected = original_selected
-print(json.dumps({"map_drift": map_drift, "consumer_rebind": consumer_rebind}))
+print(
+    json.dumps(
+        {
+            "map_drift": map_drift,
+            "consumer_rebind": consumer_rebind,
+            "opaque_consumer": opaque_consumer,
+        }
+    )
+)
 """
     environment = os.environ.copy()
     prior_pythonpath = environment.get("PYTHONPATH")
@@ -7628,6 +7684,7 @@ print(json.dumps({"map_drift": map_drift, "consumer_rebind": consumer_rebind}))
     assert json.loads(result.stdout) == {
         "map_drift": "canonical_loaded_runtime_mismatch",
         "consumer_rebind": "canonical_loaded_runtime_mismatch",
+        "opaque_consumer": "canonical_loaded_runtime_mismatch",
     }
 
 
@@ -8820,5 +8877,17 @@ print(json.dumps(observations, sort_keys=True, default=str))
     )
     assert module_binding["provider"] == f"polisyos.{package_name}.common.timestamps"
     assert module_binding["importers"][0]["scope"] == "module_value"
+    assert module_binding["importers"][0]["name"] == "parse_iso_date"
+    assert module_binding["source_routes"] == [
+        {
+            "facade": f"polisyos.{package_name}.common",
+            "export": "timestamps",
+        }
+    ]
+    assert all(
+        importer["name"] != "_common_timestamps"
+        for binding in observations["module_good"]["bindings"]
+        for importer in binding["importers"]
+    )
     assert observations["module_rebound"]["status"] == "refused"
     assert observations["module_rebound"]["code"] == "canonical_loaded_runtime_mismatch"

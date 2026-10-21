@@ -34,6 +34,7 @@ from polisyos.core.artifacts._integrity_ops import (
     ArtifactStoreReadUsage,
     _is_artifact_store_read_usage,
 )
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -51,6 +52,7 @@ from polisyos.core.canon import (
     from_canonical_bytes,
     to_canonical_bytes,
 )
+from polisyos.core.canon.canon_json import CORE_TAG_POLICY_ID
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
 
@@ -265,13 +267,14 @@ def _refusal_metadata(error: Exception) -> dict[str, str | None]:
 
 @dataclass(frozen=True, slots=True)
 class CoreJsonManifestBoundedRead:
-    """Immutable-byte carrier for one exact bounded manifest/profile selection."""
+    """Immutable-byte carrier for one bounded default or selected manifest view."""
 
-    _selected_ref: ArtifactRef | InputRef = dataclass_field(repr=False)
+    _selected_ref: ArtifactID | ArtifactRef | InputRef = dataclass_field(repr=False)
     raw_manifest_bytes: bytes
     max_manifest_bytes: int
     observed_manifest_bytes: int
     usage: ArtifactStoreReadUsage | None = dataclass_field(repr=False, compare=False)
+    _selected_profile_sha256: str | None = dataclass_field(default=None, repr=False, compare=False)
     _seal: _CoreJsonManifestBoundedReadSeal | None = dataclass_field(
         default=None, repr=False, compare=False
     )
@@ -309,6 +312,7 @@ class _CoreJsonManifestBoundedReadSeal:
     max_manifest_bytes: int
     observed_manifest_bytes: int
     usage: ArtifactStoreReadUsage | None
+    allow_profile_absent: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -642,17 +646,38 @@ def read_core_manifest_profile(
 
 def _read_core_manifest_profile_bounded(
     store: CoreJSONArtifactBoundedManifestReceiptReader,
-    selected_ref: ArtifactRef,
+    selected_ref: ArtifactRef | ArtifactID,
     *,
     max_manifest_bytes: int,
+    selected_profile_sha256: str | None = None,
+    allow_profile_absent: bool = False,
     limits: CoreJsonReadLimits | None = None,
 ) -> CoreJsonManifestBoundedRead:
-    """Read one exact selected manifest and require the filesystem-owner receipt."""
+    """Read default or exact selected manifest and require the owner receipt."""
     if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
         raise ValueError("max_manifest_bytes must be a positive integer")
-    if type(selected_ref) is not ArtifactRef:
+    if type(selected_ref) is ArtifactRef:
+        selected_ref = _revalidate_core_artifact_ref(selected_ref)
+        if (
+            selected_profile_sha256 is not None
+            and selected_profile_sha256 != selected_ref.manifest_profile_sha256
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
+        owner_selector: ArtifactID | ArtifactRef = selected_ref
+        owner_profile = None
+        normalized_profile = selected_ref.manifest_profile_sha256
+    elif type(selected_ref) is ArtifactID:
+        selected_ref = ArtifactID.model_validate(selected_ref.root)
+        if selected_profile_sha256 is not None and (
+            type(selected_profile_sha256) is not str
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", selected_profile_sha256) is None
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
+        owner_selector = selected_ref
+        owner_profile = selected_profile_sha256
+        normalized_profile = selected_profile_sha256
+    else:
         raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
-    selected_ref = _revalidate_core_artifact_ref(selected_ref)
     try:
         bounded_manifest_reader = getattr(store, "read_raw_manifest_bytes_bounded", None)
     except Exception as exc:
@@ -688,10 +713,14 @@ def _read_core_manifest_profile_bounded(
         ) from exc
 
     try:
-        result = bounded_manifest_reader(
-            selected_ref,
-            max_manifest_bytes=max_manifest_bytes,
-        )
+        if owner_profile is None:
+            result = bounded_manifest_reader(owner_selector, max_manifest_bytes=max_manifest_bytes)
+        else:
+            result = bounded_manifest_reader(
+                owner_selector,
+                max_manifest_bytes=max_manifest_bytes,
+                manifest_profile_sha256=owner_profile,
+            )
     except ArtifactBoundedManifestReadError as exc:
         usage = exc.usage if _is_artifact_store_read_usage(exc.usage) else None
         original = exc.original_exception
@@ -801,6 +830,8 @@ def _read_core_manifest_profile_bounded(
             max_manifest_bytes=max_manifest_bytes,
             limits=limits,
             usage=usage,
+            selected_profile_sha256=normalized_profile,
+            allow_profile_absent=allow_profile_absent,
         )
     except CoreJsonReadBoundsRefusalError:
         raise
@@ -1052,11 +1083,18 @@ def _revalidate_core_artifact_ref(selected_ref: ArtifactRef) -> ArtifactRef:
 
 
 def _core_manifest_selector_key(
-    selected_ref: ArtifactRef | InputRef,
+    selected_ref: ArtifactRef | InputRef | ArtifactID,
+    *,
+    selected_profile_sha256: str | None = None,
 ) -> tuple[str, ...]:
     """Return immutable identity fields for one exact bounded manifest selector."""
     if type(selected_ref) is ArtifactRef:
         selected = _revalidate_core_artifact_ref(selected_ref)
+        if (
+            selected_profile_sha256 is not None
+            and selected_profile_sha256 != selected.manifest_profile_sha256
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
         return (
             "artifact",
             str(selected.artifact_id),
@@ -1066,20 +1104,31 @@ def _core_manifest_selector_key(
         )
     if type(selected_ref) is InputRef:
         selected = _revalidate_core_input_ref(selected_ref)
-        return (
-            "input",
-            str(selected.artifact_id),
-            selected.manifest_profile_sha256,
-        )
+        if (
+            selected_profile_sha256 is not None
+            and selected_profile_sha256 != selected.manifest_profile_sha256
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
+        return ("input", str(selected.artifact_id), selected.manifest_profile_sha256)
+    if type(selected_ref) is ArtifactID:
+        selected = ArtifactID.model_validate(selected_ref.root)
+        if selected_profile_sha256 is not None and (
+            type(selected_profile_sha256) is not str
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", selected_profile_sha256) is None
+        ):
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
+        return ("artifact_id", str(selected), selected_profile_sha256 or "default")
     raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
 
 
 def _parse_core_manifest_profile_components(
     raw_manifest_bytes: bytes,
-    selected_ref: ArtifactRef | InputRef,
+    selected_ref: ArtifactRef | InputRef | ArtifactID,
     *,
     max_manifest_bytes: int,
     limits: CoreJsonReadLimits | None = None,
+    selected_profile_sha256: str | None = None,
+    allow_profile_absent: bool = False,
 ) -> tuple[ArtifactRef, ArtifactManifest, CanonicalProfileDeclaration]:
     """Resolve typed/profile components from one retained bounded byte string."""
     if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
@@ -1088,13 +1137,23 @@ def _parse_core_manifest_profile_components(
         selected_ref = _revalidate_core_artifact_ref(selected_ref)
         selected_id = selected_ref.artifact_id
         selected_profile = selected_ref.manifest_profile_sha256
+        if selected_profile_sha256 is not None and selected_profile_sha256 != selected_profile:
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
     elif type(selected_ref) is InputRef:
         selected_ref = _revalidate_core_input_ref(selected_ref)
         selected_id = selected_ref.artifact_id
         selected_profile = selected_ref.manifest_profile_sha256
+        if selected_profile_sha256 is not None and selected_profile_sha256 != selected_profile:
+            raise CanonicalProfileRefusalError("canon_profile_bounded_selection_invalid")
+    elif type(selected_ref) is ArtifactID:
+        selected_id = ArtifactID.model_validate(selected_ref.root)
+        selected_profile = selected_profile_sha256
     else:
         raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
-    if type(selected_profile) is not str or not selected_profile:
+    if selected_profile is not None and (
+        type(selected_profile) is not str
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", selected_profile) is None
+    ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
     if type(raw_manifest_bytes) is not bytes:
         raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_invalid")
@@ -1113,23 +1172,24 @@ def _parse_core_manifest_profile_components(
             observed_manifest_verification_bytes=0,
             source_usage_complete=True,
         )
-
     try:
         manifest = ArtifactManifest.model_validate_json(raw_manifest_bytes)
         declaration = parse_canonical_profile(
             raw_manifest_bytes,
             profile_model=CanonInfo,
-            allow_profile_absent=False,
+            allow_profile_absent=allow_profile_absent,
         )
     except CanonicalProfileRefusalError:
         raise
     except (TypeError, ValidationError) as exc:
         raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_invalid") from exc
-
     effective_ref = artifact_ref_for_manifest(manifest)
     if manifest.integrity.sha256 != selected_id.hex:
         raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
-    if artifact_manifest_profile_sha256(manifest) != selected_profile:
+    if (
+        selected_profile is not None
+        and artifact_manifest_profile_sha256(manifest) != selected_profile
+    ):
         raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
     if type(selected_ref) is ArtifactRef and effective_ref != selected_ref:
         raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
@@ -1138,41 +1198,52 @@ def _parse_core_manifest_profile_components(
 
 def _core_manifest_profile_from_bytes(
     raw_manifest_bytes: bytes,
-    selected_ref: ArtifactRef | InputRef,
+    selected_ref: ArtifactRef | InputRef | ArtifactID,
     *,
     max_manifest_bytes: int,
     limits: CoreJsonReadLimits | None = None,
     usage: ArtifactStoreReadUsage | None = None,
+    selected_profile_sha256: str | None = None,
+    allow_profile_absent: bool = False,
 ) -> CoreJsonManifestBoundedRead:
-    """Create a sealed metadata carrier from one selected raw byte sequence."""
-    _effective_ref, _manifest, _declaration = _parse_core_manifest_profile_components(
+    """Create a sealed metadata carrier from one bounded raw byte sequence."""
+    _parse_core_manifest_profile_components(
         raw_manifest_bytes,
         selected_ref,
         max_manifest_bytes=max_manifest_bytes,
         limits=limits,
+        selected_profile_sha256=selected_profile_sha256,
+        allow_profile_absent=allow_profile_absent,
     )
-    normalized_selector = (
-        _revalidate_core_artifact_ref(selected_ref)
-        if type(selected_ref) is ArtifactRef
-        else _revalidate_core_input_ref(selected_ref)
-    )
-    observed_manifest_bytes = len(raw_manifest_bytes)
+    if type(selected_ref) is ArtifactRef:
+        normalized: ArtifactID | ArtifactRef | InputRef = _revalidate_core_artifact_ref(
+            selected_ref
+        )
+    elif type(selected_ref) is InputRef:
+        normalized = _revalidate_core_input_ref(selected_ref)
+    else:
+        normalized = ArtifactID.model_validate(selected_ref.root)
+    observed = len(raw_manifest_bytes)
     result = CoreJsonManifestBoundedRead(
-        _selected_ref=normalized_selector,
+        _selected_ref=normalized,
         raw_manifest_bytes=raw_manifest_bytes,
         max_manifest_bytes=max_manifest_bytes,
-        observed_manifest_bytes=observed_manifest_bytes,
+        observed_manifest_bytes=observed,
         usage=usage,
+        _selected_profile_sha256=selected_profile_sha256,
     )
     object.__setattr__(
         result,
         "_seal",
         _CoreJsonManifestBoundedReadSeal(
-            selected_key=_core_manifest_selector_key(normalized_selector),
+            selected_key=_core_manifest_selector_key(
+                normalized, selected_profile_sha256=selected_profile_sha256
+            ),
             raw_manifest_bytes=raw_manifest_bytes,
             max_manifest_bytes=max_manifest_bytes,
-            observed_manifest_bytes=observed_manifest_bytes,
+            observed_manifest_bytes=observed,
             usage=usage,
+            allow_profile_absent=allow_profile_absent,
         ),
     )
     return result
@@ -1196,6 +1267,11 @@ def _verified_core_manifest_bounded_read(
         or bounded_read.observed_manifest_bytes != seal.observed_manifest_bytes
         or bounded_read.usage != seal.usage
         or (
+            bounded_read._selected_profile_sha256 is not None
+            and type(bounded_read._selected_profile_sha256) is not str
+        )
+        or type(seal.allow_profile_absent) is not bool
+        or (
             bounded_read.usage is not None and not _is_artifact_store_read_usage(bounded_read.usage)
         )
         or bounded_read.observed_manifest_bytes != len(bounded_read.raw_manifest_bytes)
@@ -1203,31 +1279,44 @@ def _verified_core_manifest_bounded_read(
         or bounded_read.observed_manifest_bytes > bounded_read.max_manifest_bytes
     ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_carrier_mismatch")
-    if _core_manifest_selector_key(bounded_read._selected_ref) != seal.selected_key:
+    if (
+        _core_manifest_selector_key(
+            bounded_read._selected_ref,
+            selected_profile_sha256=bounded_read._selected_profile_sha256,
+        )
+        != seal.selected_key
+    ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_carrier_mismatch")
     return _parse_core_manifest_profile_components(
         bounded_read.raw_manifest_bytes,
         bounded_read._selected_ref,
         max_manifest_bytes=bounded_read.max_manifest_bytes,
+        selected_profile_sha256=bounded_read._selected_profile_sha256,
+        allow_profile_absent=seal.allow_profile_absent,
     )
 
 
 def read_core_manifest_profile_bounded(
     store: CoreJSONArtifactBoundedManifestReceiptReader,
-    selected_ref: ArtifactRef,
+    selected_ref: ArtifactRef | ArtifactID,
     *,
     max_manifest_bytes: int,
+    manifest_profile_sha256: str | None = None,
+    allow_profile_absent: bool = False,
 ) -> CoreJsonManifestBoundedRead:
-    """Read one exact selected manifest/profile under its own metadata byte limit.
+    """Read default or exact selected manifest metadata under its byte limit.
 
-    This metadata-only route does not require payload limits or read payload
-    bytes. The backend must enforce the bound before returning or materializing
-    the selected raw sidecar.
+    An ArtifactID without a profile selects the owner's default view. Supplying a
+    profile selects that exact sidecar without default fallback. ArtifactRef retains
+    its complete exact selection. Profile absence is refused unless explicitly
+    allowed for candidate-only metadata inspection.
     """
     return _read_core_manifest_profile_bounded(
         store,
         selected_ref,
         max_manifest_bytes=max_manifest_bytes,
+        selected_profile_sha256=manifest_profile_sha256,
+        allow_profile_absent=allow_profile_absent,
     )
 
 
@@ -1281,6 +1370,7 @@ def _decode_core_payload_under_declaration(
         make_spec=_core_spec_from_profile,
         decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
         encode=_encode_core_profiled_value,
+        reader_policy_id=CORE_TAG_POLICY_ID,
     )
 
 
@@ -1305,6 +1395,7 @@ def read_core_json_artifact_bounded(
     selected_ref: ArtifactRef,
     *,
     limits: CoreJsonReadLimits,
+    manifest_read: CoreJsonManifestBoundedRead | None = None,
 ) -> CoreJsonArtifactBoundedRead:
     """Stream one exact selected Core JSON view without unbounded refusal drains.
 
@@ -1321,17 +1412,20 @@ def read_core_json_artifact_bounded(
     ):
         raise CanonicalProfileRefusalError("canon_profile_bounded_selection_required")
 
-    manifest_read = _read_core_manifest_profile_bounded(
-        store,
-        selected_ref,
-        max_manifest_bytes=limits.max_manifest_bytes,
-        limits=limits,
-    )
+    if manifest_read is None:
+        manifest_read = _read_core_manifest_profile_bounded(
+            store,
+            selected_ref,
+            max_manifest_bytes=limits.max_manifest_bytes,
+            limits=limits,
+        )
     try:
         typed_manifest = manifest_read.manifest
         declaration = manifest_read.declaration
         raw_manifest_bytes = manifest_read.raw_manifest_bytes
         effective_ref = manifest_read.effective_ref
+        if effective_ref != selected_ref:
+            raise CanonicalProfileRefusalError("canon_profile_selection_unverified")
     except CoreJsonReadBoundsRefusalError:
         raise
     except Exception as exc:
@@ -1349,6 +1443,8 @@ def read_core_json_artifact_bounded(
             failure_stage="selected_manifest_local_validation",
             **_refusal_metadata(exc),
         ) from exc
+    if declaration.status != "declared" or declaration.profile is None:
+        raise CanonicalProfileRefusalError("canon_profile_not_verified")
     observed_payload_bytes = 0
     source: Any | None = None
     member_attempt: object | None = None
@@ -2541,6 +2637,7 @@ def load_core_json_frame_records(
             make_spec=_core_spec_from_profile,
             decode=lambda raw, max_depth: from_canonical_bytes(raw, max_depth=max_depth),
             encode=_encode_core_profiled_value,
+            reader_policy_id=CORE_TAG_POLICY_ID,
         )
         values.append(require_declared_profile(read))
     return values

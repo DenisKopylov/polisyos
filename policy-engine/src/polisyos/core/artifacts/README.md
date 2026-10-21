@@ -57,6 +57,18 @@ without its blob, malformed or mismatched content, and filesystem status/read er
 refusals rather than being treated as absence. `get_manifest()` and `get_bytes()` preserve
 their typed failure behavior.
 
+`read_raw_manifest_bytes_bounded()` accepts a full `ArtifactRef` for its exact
+profile-qualified view, an `ArtifactID` for the owner-authorized default view, or
+an `ArtifactID` plus an explicit profile digest for that exact sidecar. The
+filesystem owner applies its existing ownership guard and no-follow regular-file
+preflight before allocating manifest bytes, and returns an immutable transfer
+receipt. An explicit digest never falls back to the default. Core's
+`read_core_manifest_profile_bounded()` parses only those bounded bytes and derives
+the full `ArtifactRef`; profileless metadata is available only through an explicit
+candidate inspection option, while Core semantic JSON reads still refuse it.
+Caching stores obtain this receipt only from their durable view owner, never from
+a local cache hit.
+
 The reader does not establish producer identity, tenant ownership, issuer authority, authenticity,
 or currentness from access to local files. It assumes a stable trusted CAS root and cooperating
 file-lock users; the path checks do not bind every ancestor through directory descriptors and do
@@ -187,6 +199,7 @@ profile digest; the Core owner parses those same raw bytes and derives the full
 effective reference, including kind and media type, from the selected manifest.
 Missing or malformed profiles refuse without falling back to a default view.
 Role-specific kind/media expectations remain the consumer's responsibility.
+`CachingArtifactStore` forwards this bounded selection and member stream only to its default manifest owner; it does not replace a missing durable-owner receipt with a local cache hit. The current cached S3/GCS owners do not expose that bounded receipt contract, so semantic JSON reads through them refuse before a full-byte fallback.
 The strict payload route parses typed and raw profile views from the same
 owner-read byte sequence, then passes its exact SHA-256 into
 open_member_bounded. The owner re-reads and verifies that exact profile, requires
@@ -196,6 +209,7 @@ aborts inside the context, so the owner closes without its ordinary drain-and-
 hash finish. Positive admission still requires complete size and digest
 verification plus the existing tagged decoder and canonical-profile round-trip.
 max_elements counts containers, scalar values, and object member names.
+The verified `CanonicalProfileRead` names its contextual decoder as `core-tag-policy@1`; this is a reader identity, not a producer claim or a persisted manifest field. Core keeps its recognized `array_digest` form distinct from IR admission and does not thereby validate an array descriptor or referenced array.
 
 Successful results and typed refusals expose
 observed_manifest_selection_bytes, observed_manifest_verification_bytes,
@@ -390,7 +404,7 @@ serializing records under the declared Core profile before calling put_bytes.
 
 ### Profiled Core JSON reads
 
-Use `load_core_json_artifact` or `validate_core_model_json_artifact` for semantic JSON values. These resolve the selected manifest, require a complete supported `CanonInfo`, and verify that the exact selected bytes round-trip under the Core codec before returning a value. The typed reader adapts the decoded value only through the requested Pydantic field schema, preserves Core-native tags, and performs terminal model validation with strict mode. Its union bridge reads direct model choices from Pydantic CoreSchema, selects a model only from a unique declared Literal tag or a unique required-key/extra-policy shape, and leaves final union-mode selection and validators to one terminal model validation. It supports both Core Python-mode writes and JSON-mode model dumps without changing the IR tag contract; unresolved ambiguous model mappings receive no inferred branch. `read_core_json_artifact_bytes` applies the same admission while preserving the original bytes for a downstream typed decoder. `load_core_json_frame_records` applies that check to every length-prefixed record after verifying the complete stored payload identity. Async callers use `aload_core_json_artifact`. Missing or malformed profiles are refusals; the Core-only tag policy remains separate from the IR codec facade.
+Use `load_core_json_artifact` or `validate_core_model_json_artifact` for semantic JSON values. These resolve the selected manifest, require a complete supported `CanonInfo`, and verify that the exact selected bytes round-trip under the Core codec before returning a value. The typed reader adapts the decoded value only through the requested Pydantic field schema, preserves Core-native tags, and performs terminal model validation with strict mode. Its union bridge reads direct model choices from Pydantic CoreSchema, selects a model only from a unique declared Literal tag or a unique required-key/extra-policy shape, and leaves final union-mode selection and validators to one terminal model validation. It supports both Core Python-mode writes and JSON-mode model dumps without changing the IR tag contract; unresolved ambiguous model mappings receive no inferred branch. `read_core_json_artifact_bytes` applies the same admission while preserving the original bytes for a downstream typed decoder. `load_core_json_frame_records` applies that check to every length-prefixed record after verifying the complete stored payload identity. Async callers use `aload_core_json_artifact`. Missing or malformed profiles are refusals; the fixed core-tag-policy@1 remains separate from ir-tag-policy@1. Its identifier is reader context, not a payload tag, manifest field, or producer attestation. HTTP schema/content semantic previews use Core's bounded selected-member reader and return the existing typed conflict when byte, depth, element, or selected-manifest limits are exceeded.
 
 For a resource-bounded read, call `read_core_json_artifact_bounded` with explicit payload and selected-manifest limits, then pass its result to `validate_core_model_bounded_read` when the consumer needs the same typed-artifact owner checks as `validate_core_model_json_artifact`. The carrier retains immutable selected raw manifest and payload bytes, exact limits, and measured counts. Its `profile_read` and `value` accessors decode a fresh Core value from those bytes; mutating a returned mapping cannot change a later typed validation. The bounded validator rebinds the carrier to the exact selected ref, manifest, canonical profile, payload digest, and recomputed measurements, then runs Core alias/tuple adaptation and strict model/schema validation without storage reads.
 

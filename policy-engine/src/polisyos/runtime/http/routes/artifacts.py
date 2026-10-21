@@ -16,8 +16,10 @@ from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactOwnershipError,
     ArtifactRef,
+    CoreJsonReadBoundsRefusalError,
     artifact_manifest_profile_sha256,
     read_core_manifest_profile,
+    read_core_manifest_profile_bounded,
     resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts.ids import ArtifactID
@@ -64,6 +66,12 @@ from polisyos.runtime.http.response_policies import (
 )
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.artifact_inspector import (
+    CORE_TAG_POLICY_ID,
+    INSPECTOR_BOUNDED_READ_POLICY_ID,
+    INSPECTOR_JSON_MAX_DEPTH,
+    INSPECTOR_JSON_MAX_ELEMENTS,
+    INSPECTOR_MANIFEST_MAX_BYTES,
+    SCHEMA_INSPECTION_POLICY_ID,
     ArtifactSurfaceAdmissionError,
 )
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
@@ -308,6 +316,15 @@ if router is not None:
                 exc,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
             ) from exc
+        _ensure_surface_admission_allowed(
+            view.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
+            surface="dashboard",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
+        )
         etag = build_artifact_etag(
             view.artifact_id,
             view.integrity_sha256,
@@ -327,15 +344,6 @@ if router is not None:
                 manifest_profile_sha256=view.manifest_profile_sha256,
             )
             return not_modified
-        _ensure_surface_admission_allowed(
-            view.model_dump(mode="json"),
-            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
-            surface="dashboard",
-            scope="dashboard/public/export packets",
-            artifact_store=ctx.store,
-            artifact_id=parsed_id,
-            artifact_ref=_artifact_ref_for_manifest(manifest),
-        )
         set_artifact_view_headers(
             response,
             etag=etag,
@@ -504,33 +512,50 @@ if router is not None:
         )
         route_ref = f"/api/v1/artifacts/{parsed_id}/content"
         try:
-            raw_manifest = _resolve_raw_artifact_manifest(
-                ctx.store,
-                parsed_id,
-                manifest_profile_sha256,
-            )
-            raw_representation = _prefers_raw_representation(
-                request,
-                media_type=raw_manifest.media_type,
-            )
-            manifest = (
-                raw_manifest
-                if raw_representation
-                else _resolve_artifact_manifest(
+            bounded_manifest_refusal: CoreJsonReadBoundsRefusalError | None = None
+            try:
+                manifest_read = read_core_manifest_profile_bounded(
                     ctx.store,
                     parsed_id,
-                    manifest_profile_sha256,
+                    max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                    allow_profile_absent=True,
                 )
+                manifest = manifest_read.manifest
+                declaration = manifest_read.declaration
+            except CoreJsonReadBoundsRefusalError as exc:
+                if exc.original_exception_type != "NotImplementedError":
+                    raise
+                bounded_manifest_refusal = exc
+                # Preserve raw/non-JSON metadata inspection when a backend has no
+                # bounded receipt port; JSON semantics still require the bounded path.
+                manifest_read = None
+                manifest = _resolve_raw_artifact_manifest(
+                    ctx.store, parsed_id, manifest_profile_sha256
+                )
+                declaration = None
+            raw_representation = _prefers_raw_representation(
+                request,
+                media_type=manifest.media_type,
             )
+            if not raw_representation and declaration is None:
+                if bounded_manifest_refusal is None:
+                    raise CanonicalProfileRefusalError("canon_profile_bounded_manifest_unavailable")
+                raise bounded_manifest_refusal
+            if not raw_representation and declaration is not None:
+                _require_json_artifact_profile(manifest, declaration)
             selected_ref = _artifact_ref_for_manifest(manifest)
             selected_profile = artifact_manifest_profile_sha256(manifest)
-            etag = build_artifact_etag(
-                str(parsed_id),
-                manifest.integrity.sha256,
-                "content",
-                selected_profile or "unqualified",
-            )
             if raw_representation:
+                etag = build_artifact_etag(
+                    str(parsed_id),
+                    manifest.integrity.sha256,
+                    "content",
+                    "raw-bytes@1",
+                    f"kind:{manifest.kind}",
+                    f"media-type:{manifest.media_type}",
+                    selected_profile or "unqualified",
+                )
                 payload = ctx.store.get_bytes(selected_ref)
                 _ensure_surface_admission_allowed(
                     payload,
@@ -584,9 +609,47 @@ if router is not None:
                 parsed_id,
                 max_bytes=max_bytes,
                 manifest=manifest,
+                manifest_read=manifest_read,
                 allow_candidate_predictive_diagnostic_surface=(
                     ctx.allow_candidate_predictive_diagnostic_surface
                 ),
+            )
+            reader_policy = (
+                CORE_TAG_POLICY_ID
+                if _is_json_artifact_media_type(manifest.media_type)
+                else "untyped-preview@1"
+            )
+            schema = manifest.artifact_schema
+            etag = build_artifact_etag(
+                str(parsed_id),
+                manifest.integrity.sha256,
+                "content",
+                "semantic-preview@1",
+                reader_policy,
+                f"kind:{manifest.kind}",
+                f"media-type:{manifest.media_type}",
+                f"schema:{schema.name if schema is not None else 'absent'}:"
+                f"{schema.version if schema is not None else 'absent'}",
+                INSPECTOR_BOUNDED_READ_POLICY_ID,
+                f"max-bytes:{view.max_bytes}",
+                f"max-depth:{INSPECTOR_JSON_MAX_DEPTH}",
+                f"max-elements:{INSPECTOR_JSON_MAX_ELEMENTS}",
+                f"max-manifest-bytes:{INSPECTOR_MANIFEST_MAX_BYTES}",
+                (
+                    "candidate-diagnostic:on"
+                    if ctx.allow_candidate_predictive_diagnostic_surface
+                    else "candidate-diagnostic:off"
+                ),
+                selected_profile or "unqualified",
+            )
+            _ensure_surface_admission_allowed(
+                view.model_dump(mode="json"),
+                artifact_ref_or_route=route_ref,
+                surface="dashboard",
+                scope="raw artifact content/download routes",
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+                artifact_ref=_artifact_ref_for_manifest(manifest),
             )
             not_modified = build_not_modified_response(
                 request.headers,
@@ -610,15 +673,6 @@ if router is not None:
                 exc,
                 artifact_ref_or_route=route_ref,
             ) from exc
-        _ensure_surface_admission_allowed(
-            view.model_dump(mode="json"),
-            artifact_ref_or_route=route_ref,
-            surface="dashboard",
-            scope="raw artifact content/download routes",
-            artifact_store=ctx.store,
-            artifact_id=parsed_id,
-            artifact_ref=_artifact_ref_for_manifest(manifest),
-        )
         set_artifact_view_headers(
             response,
             etag=etag,
@@ -785,12 +839,31 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = _resolve_artifact_manifest(
-                ctx.store,
-                parsed_id,
-                manifest_profile_sha256,
+            try:
+                manifest_read = read_core_manifest_profile_bounded(
+                    ctx.store,
+                    parsed_id,
+                    max_manifest_bytes=INSPECTOR_MANIFEST_MAX_BYTES,
+                    manifest_profile_sha256=manifest_profile_sha256,
+                    allow_profile_absent=True,
+                )
+                manifest = manifest_read.manifest
+                declaration = manifest_read.declaration
+            except CoreJsonReadBoundsRefusalError as exc:
+                if exc.original_exception_type != "NotImplementedError":
+                    raise
+                manifest = _resolve_raw_artifact_manifest(
+                    ctx.store, parsed_id, manifest_profile_sha256
+                )
+                if _is_json_artifact_media_type(manifest.media_type):
+                    raise exc
+                manifest_read = None
+                declaration = None
+            if declaration is not None:
+                _require_json_artifact_profile(manifest, declaration)
+            schema_view = ctx.artifacts.get_schema_view(
+                parsed_id, manifest=manifest, manifest_read=manifest_read
             )
-            schema_view = ctx.artifacts.get_schema_view(parsed_id, manifest=manifest)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
         except CanonicalProfileRefusalError as exc:
@@ -807,7 +880,28 @@ if router is not None:
             str(parsed_id),
             manifest.integrity.sha256,
             "schema",
+            SCHEMA_INSPECTION_POLICY_ID,
+            CORE_TAG_POLICY_ID,
+            INSPECTOR_BOUNDED_READ_POLICY_ID,
+            f"max-bytes:{min(max(ctx.max_preview_bytes, 1024), 2_000_000)}",
+            f"max-depth:{INSPECTOR_JSON_MAX_DEPTH}",
+            f"max-elements:{INSPECTOR_JSON_MAX_ELEMENTS}",
+            f"max-manifest-bytes:{INSPECTOR_MANIFEST_MAX_BYTES}",
+            (
+                f"schema:{schema_view.schema_name}:{schema_view.schema_version}"
+                if schema_view.schema_name is not None and schema_view.schema_version is not None
+                else "schema:absent"
+            ),
             schema_view.manifest_profile_sha256 or "unqualified",
+        )
+        _ensure_surface_admission_allowed(
+            schema_view.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
+            surface="dashboard",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
         )
         not_modified = build_not_modified_response(
             request.headers,
@@ -822,15 +916,6 @@ if router is not None:
                 manifest_profile_sha256=schema_view.manifest_profile_sha256,
             )
             return not_modified
-        _ensure_surface_admission_allowed(
-            schema_view.model_dump(mode="json"),
-            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
-            surface="dashboard",
-            scope="dashboard/public/export packets",
-            artifact_store=ctx.store,
-            artifact_id=parsed_id,
-            artifact_ref=_artifact_ref_for_manifest(manifest),
-        )
         set_artifact_view_headers(
             response,
             etag=etag,

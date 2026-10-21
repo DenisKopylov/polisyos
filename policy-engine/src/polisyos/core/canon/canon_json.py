@@ -22,6 +22,8 @@ from polisyos.common.canonical_profile import (
     _decode_and_reencode_profiled_bytes,
 )
 
+CORE_TAG_POLICY_ID = "core-tag-policy@1"
+
 _CANONICAL_TYPES = frozenset(
     {
         "array_digest",
@@ -108,6 +110,7 @@ def _validate_core_json_payload_conformance(data: bytes, spec: CanonSpec) -> Non
 
 
 __all__ = [
+    "CORE_TAG_POLICY_ID",
     "CanonSpec",
     "CanonViolation",
     "from_canonical_bytes",

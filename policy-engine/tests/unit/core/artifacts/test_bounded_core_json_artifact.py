@@ -2117,3 +2117,96 @@ def test_bounded_reader_rejects_malformed_selected_payload(tmp_path) -> None:
         )
 
     assert error.value.code == "canon_profile_payload_nonconformant"
+
+
+@pytest.mark.parametrize("read_only", [False, True], ids=["filesystem-cas", "readonly-cas"])
+def test_bounded_manifest_artifact_id_selects_default_and_exact_profile_without_fallback(
+    tmp_path, read_only: bool
+) -> None:
+    writer, ref, _raw = _profiled_store(tmp_path, {"value": 11})
+    store = FileSystemCAS.open_existing_read_only(writer.root) if read_only else writer
+    raw_manifest = store.get_raw_manifest_bytes(ref)
+
+    default = read_core_manifest_profile_bounded(
+        store, ref.artifact_id, max_manifest_bytes=len(raw_manifest)
+    )
+    assert default.effective_ref == ref
+    assert default.raw_manifest_bytes == raw_manifest
+    assert default.usage is not None
+    assert default.usage.observed_manifest_selection_bytes == len(raw_manifest)
+    assert default.usage.observed_manifest_verification_bytes == 0
+    assert default.usage.observed_payload_bytes == 0
+    assert default.observed_source_bytes == len(raw_manifest)
+
+    with pytest.raises(CoreJsonReadBoundsRefusalError) as missing_profile:
+        read_core_manifest_profile_bounded(
+            store,
+            ref.artifact_id,
+            manifest_profile_sha256="sha256:" + "f" * 64,
+            max_manifest_bytes=len(raw_manifest),
+        )
+    assert missing_profile.value.observed_manifest_selection_bytes == 0
+    assert missing_profile.value.observed_source_bytes == 0
+    assert missing_profile.value.original_exception_type == "FileNotFoundError"
+
+
+def test_bounded_default_manifest_limit_is_preallocation_and_removal_sensitive(
+    tmp_path, monkeypatch
+) -> None:
+    store, ref, _raw = _profiled_store(tmp_path, {"value": 13})
+    raw_manifest = store.get_raw_manifest_bytes(ref)
+    limit = len(raw_manifest) - 1
+
+    def assert_default_preflight_refusal() -> None:
+        with pytest.raises(CoreJsonReadBoundsRefusalError) as refusal:
+            read_core_manifest_profile_bounded(store, ref.artifact_id, max_manifest_bytes=limit)
+        assert refusal.value.code == "canon_profile_bounded_manifest_bytes_exceeded"
+        assert refusal.value.observed_manifest_bytes == len(raw_manifest)
+        assert refusal.value.observed_manifest_selection_bytes == 0
+        assert refusal.value.observed_source_bytes == 0
+
+    assert_default_preflight_refusal()
+
+    original = FileSystemCAS._read_cas_file_no_follow
+
+    def without_owner_preflight(self, path, **kwargs):
+        if kwargs.get("member") == "manifest":
+            kwargs["max_bytes"] = None
+        return original(self, path, **kwargs)
+
+    monkeypatch.setattr(FileSystemCAS, "_read_cas_file_no_follow", without_owner_preflight)
+    with pytest.raises(AssertionError):
+        assert_default_preflight_refusal()
+
+
+def test_profileless_json_metadata_is_candidate_only_and_never_enters_semantic_reader(
+    tmp_path, monkeypatch
+) -> None:
+    store = FileSystemCAS(tmp_path / "profileless-json-cas")
+    ref = store.put_bytes(
+        b'{"candidate":true}',
+        PutOptions(kind="test.profileless-json", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        read_core_manifest_profile_bounded(store, ref.artifact_id, max_manifest_bytes=4096)
+
+    metadata = read_core_manifest_profile_bounded(
+        store, ref.artifact_id, max_manifest_bytes=4096, allow_profile_absent=True
+    )
+    assert metadata.declaration.status == "absent"
+    assert metadata.effective_ref.artifact_id == ref.artifact_id
+
+    def payload_must_not_be_opened(*_args, **_kwargs):
+        raise AssertionError("profileless semantic JSON must refuse before opening its payload")
+
+    monkeypatch.setattr(store, "open_member_bounded", payload_must_not_be_opened)
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
+        read_core_json_artifact_bounded(
+            store,
+            metadata.effective_ref,
+            limits=CoreJsonReadLimits(
+                max_bytes=1024, max_depth=8, max_elements=32, max_manifest_bytes=4096
+            ),
+            manifest_read=metadata,
+        )

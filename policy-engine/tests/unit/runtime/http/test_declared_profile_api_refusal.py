@@ -23,7 +23,11 @@ from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     profile_bound_ref,
 )
-from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, CanonInfo, ProducerInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactAuthorityInfo,
+    CanonInfo,
+    ProducerInfo,
+)
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
 
@@ -952,7 +956,6 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(
 ) -> None:
     """Exercise typed refusal and representation behavior through the actual API routes."""
     app = runtime_api_env["app"]
-    context = app.state.runtime_api_ctx
     client = runtime_api_env["client"]
     store = runtime_api_env["app"].state.runtime_api_ctx.store
     report_bytes = to_canonical_bytes({"schema_version": "1.0"})
@@ -1144,7 +1147,10 @@ def test_inspector_refusal_family_preserves_raw_and_non_json_semantics(
     )
     assert json_suffix.manifest_profile_sha256 is not None
     suffix_path = f"/api/v1/artifacts/{json_suffix.artifact_id}"
-    for params in ({}, {"manifest_profile_sha256": json_suffix.manifest_profile_sha256}):
+    for params in (
+        {},
+        {"manifest_profile_sha256": json_suffix.manifest_profile_sha256},
+    ):
         for suffix in ("", "/content", "/schema"):
             response = _runtime_api_request(
                 runtime_api_env,
@@ -1336,182 +1342,145 @@ def test_predictive_diagnostic_decodes_actual_bytes_below_source_cap(
     assert encode_calls == [1]
 
 
-def test_content_preview_caps_actual_selected_bytes_before_codec(
-    runtime_api_env, monkeypatch
+def test_inspector_json_content_and_schema_use_bounded_owner_reads(
+    runtime_api_env,
 ) -> None:
-    """Actual truncated bytes never reach the shared decoder or encoder."""
-    import json
-
+    """Selected JSON is materialized only after exact bounded-owner verification."""
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-    from polisyos.core.artifacts import artifact_manifest_profile_sha256
-    from polisyos.core.artifacts import canonical_profile as core_profile
+    from polisyos.core.artifacts.canonical_profile import CoreJsonReadBoundsRefusalError
 
     limit = 1024
-    prefix = b'{"large":"'
-    suffix = b'"}'
-    large_payload = prefix + b"x" * (limit + 1 - len(prefix) - len(suffix)) + suffix
-    assert len(large_payload) == limit + 1
-    small_payload = to_canonical_bytes({"small": "selected bytes"})
-    large_ref = _put_inspector_profile_fixture(
+    payload = to_canonical_bytes({"large": "x" * 1_200})
+    ref = _put_inspector_profile_fixture(
         runtime_api_env,
-        kind="test.preview_cap_large",
+        kind="test.bounded_json_preview",
         media_type="application/json",
-        payload_bytes=large_payload,
-        schema=SchemaInfo(name="test.preview_cap_large", version="1"),
+        payload_bytes=payload,
+        schema=SchemaInfo(name="test.bounded_json_preview", version="1"),
         canon=CanonInfo(),
+        return_selected_profile=True,
     )
-    small_ref = _put_inspector_profile_fixture(
-        runtime_api_env,
-        kind="test.preview_cap_small",
-        media_type="application/json",
-        payload_bytes=small_payload,
-        schema=SchemaInfo(name="test.preview_cap_small", version="1"),
-        canon=CanonInfo(),
-    )
-    unknown_ref = _put_inspector_profile_fixture(
-        runtime_api_env,
-        kind="test.preview_cap_unknown",
-        media_type="application/json",
-        payload_bytes=large_payload,
-        schema=SchemaInfo(name="test.preview_cap_unknown", version="1"),
-        canon=CanonInfo(version="0.3.0"),
-    )
-
     context = runtime_api_env["app"].state.runtime_api_ctx
     service = context.artifacts
-    wrapped_store = service._store
+    wrapped = service._store
 
-    class UnderreportedManifestStore:
-        """Keep the selected sidecar profile while falsifying only its size hint."""
-
-        def __init__(self, wrapped):
-            self._wrapped = wrapped
-            self.payload_reads: dict[tuple[str, str | None], int] = {}
+    class BoundedReadSpy:
+        def __init__(self, target):
+            self._target = target
+            self.bounded_opens = 0
+            self.get_bytes_calls = 0
 
         def __getattr__(self, name):
-            return getattr(self._wrapped, name)
+            return getattr(self._target, name)
 
-        @staticmethod
-        def _underreport(manifest):
-            return manifest.model_copy(update={"byte_size": 1})
-
-        def get_manifest(self, selector):
-            return self._underreport(self._wrapped.get_manifest(selector))
-
-        def get_manifest_by_profile(self, artifact_id, manifest_profile_sha256):
-            resolver = getattr(self._wrapped, "get_manifest_by_profile", None)
-            manifest = (
-                resolver(artifact_id, manifest_profile_sha256)
-                if callable(resolver)
-                else self._wrapped.get_manifest(artifact_id)
-            )
-            selected = self._underreport(manifest)
-            if artifact_manifest_profile_sha256(selected) != manifest_profile_sha256:
-                raise FileNotFoundError("selected profile is unavailable")
-            return selected
-
-        def get_raw_manifest_bytes(self, selector, *, manifest_profile_sha256=None):
-            artifact_id = getattr(selector, "artifact_id", selector)
-            manifest = (
-                self.get_manifest(artifact_id)
-                if manifest_profile_sha256 is None
-                else self.get_manifest_by_profile(artifact_id, manifest_profile_sha256)
-            )
-            return json.dumps(
-                manifest.model_dump(mode="json", by_alias=True),
-                sort_keys=True,
-            ).encode("utf-8")
+        def open_member_bounded(self, *args, **kwargs):
+            self.bounded_opens += 1
+            return self._target.open_member_bounded(*args, **kwargs)
 
         def get_bytes(self, selector):
-            artifact_id = str(getattr(selector, "artifact_id", selector))
-            profile_sha256 = getattr(selector, "manifest_profile_sha256", None)
-            view_key = (artifact_id, profile_sha256)
-            self.payload_reads[view_key] = self.payload_reads.get(view_key, 0) + 1
-            return self._wrapped.get_bytes(selector)
+            self.get_bytes_calls += 1
+            return self._target.get_bytes(selector)
 
-    bounded_store = UnderreportedManifestStore(wrapped_store)
-    monkeypatch.setattr(service, "_store", bounded_store)
-    monkeypatch.setattr(
-        service, "_assert_surface_admission_allowed", lambda *_args, **_kwargs: None
-    )
+    spy = BoundedReadSpy(wrapped)
+    service._store = spy
+    manifest = spy.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
 
-    core_decode = core_profile.from_canonical_bytes
-    core_encode = core_profile.to_canonical_bytes
-
-    def codec_must_not_run(*_args, **_kwargs):
-        raise AssertionError("over-limit content preview entered Core canonical codec")
-
-    monkeypatch.setattr(core_profile, "from_canonical_bytes", codec_must_not_run)
-    monkeypatch.setattr(core_profile, "to_canonical_bytes", codec_must_not_run)
-    with tenant_scope(
-        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
-    ):
-        selected_large_manifest = bounded_store.get_manifest(large_ref)
-        assert selected_large_manifest.byte_size == 1
-        large_preview = service.get_content_preview(
-            large_ref.artifact_id,
+    with pytest.raises(CoreJsonReadBoundsRefusalError) as content_refusal:
+        service.get_content_preview(
+            ref.artifact_id,
             max_bytes=limit,
-            manifest=selected_large_manifest,
+            manifest=manifest,
         )
+    assert content_refusal.value.code == "canon_profile_bounded_bytes_exceeded"
+    assert content_refusal.value.limit_name == "max_bytes"
+    assert content_refusal.value.observed_payload_bytes == 0
+    assert content_refusal.value.observed_payload_size == len(payload)
+    assert content_refusal.value.payload_integrity_verified is False
 
-        selected_unknown_manifest = bounded_store.get_manifest(unknown_ref)
-        with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
-            service.get_content_preview(
-                unknown_ref.artifact_id,
-                max_bytes=limit,
-                manifest=selected_unknown_manifest,
-            )
+    with pytest.raises(CanonicalProfileRefusalError) as schema_refusal:
+        service.get_schema_view(ref.artifact_id, manifest=manifest)
+    assert schema_refusal.value.code == "canon_profile_bounded_bytes_exceeded"
+    assert spy.bounded_opens == 2
+    assert spy.get_bytes_calls == 0
 
-    assert large_preview.truncated is True
-    assert large_preview.size_bytes == limit + 1
-    assert large_preview.max_bytes == limit
-    assert large_preview.mode == "binary"
-    assert large_preview.canon_read_status == "not_evaluated"
-    assert large_preview.preview == large_payload[:limit].hex()
-    assert (
-        bounded_store.payload_reads[(str(large_ref.artifact_id), large_ref.manifest_profile_sha256)]
-        == 1
+
+def test_inspector_refuses_without_bounded_member_owner_instead_of_falling_back(
+    runtime_api_env,
+) -> None:
+    """A backend without the bounded member port never falls back to full get_bytes."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
+    payload = to_canonical_bytes({"value": "selected"})
+    ref = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.bounded_member_unavailable",
+        media_type="application/json",
+        payload_bytes=payload,
+        schema=SchemaInfo(name="test.bounded_member_unavailable", version="1"),
+        canon=CanonInfo(),
+        return_selected_profile=True,
     )
-    assert (
-        bounded_store.payload_reads[
-            (str(unknown_ref.artifact_id), unknown_ref.manifest_profile_sha256)
-        ]
-        == 1
+    service = runtime_api_env["app"].state.runtime_api_ctx.artifacts
+    wrapped = service._store
+
+    class NoBoundedMemberStore:
+        def __init__(self, target):
+            self._target = target
+            self.get_bytes_calls = 0
+
+        def __getattr__(self, name):
+            if name == "open_member_bounded":
+                raise AttributeError(name)
+            return getattr(self._target, name)
+
+        def get_bytes(self, selector):
+            self.get_bytes_calls += 1
+            return self._target.get_bytes(selector)
+
+    unavailable = NoBoundedMemberStore(wrapped)
+    service._store = unavailable
+    manifest = unavailable.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+
+    with pytest.raises(CanonicalProfileRefusalError) as refusal:
+        service.get_content_preview(ref.artifact_id, manifest=manifest)
+
+    assert refusal.value.code == "canon_profile_bounded_stream_unavailable"
+    assert unavailable.get_bytes_calls == 0
+
+
+def test_api_json_inspection_refuses_over_preview_limit(runtime_api_env) -> None:
+    context = runtime_api_env["app"].state.runtime_api_ctx
+    limit = min(max(context.max_preview_bytes, 1024), 2_000_000)
+    payload = to_canonical_bytes({"large": "x" * limit})
+    ref = _put_inspector_profile_fixture(
+        runtime_api_env,
+        kind="test.api_bounded_json_preview",
+        media_type="application/json",
+        payload_bytes=payload,
+        schema=SchemaInfo(name="test.api_bounded_json_preview", version="1"),
+        canon=CanonInfo(),
+        return_selected_profile=True,
+    )
+    path = f"/api/v1/artifacts/{ref.artifact_id}"
+    selected = {"manifest_profile_sha256": ref.manifest_profile_sha256}
+
+    content = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{path}/content",
+        params={**selected, "max_bytes": limit},
+    )
+    schema = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"{path}/schema",
+        params=selected,
     )
 
-    decode_calls: list[int] = []
-    encode_calls: list[int] = []
-
-    def observe_decode(raw, *args, **kwargs):
-        decode_calls.append(len(raw))
-        return core_decode(raw, *args, **kwargs)
-
-    def observe_encode(value, *args, **kwargs):
-        encode_calls.append(1)
-        return core_encode(value, *args, **kwargs)
-
-    monkeypatch.setattr(core_profile, "from_canonical_bytes", observe_decode)
-    monkeypatch.setattr(core_profile, "to_canonical_bytes", observe_encode)
-    with tenant_scope(
-        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
-    ):
-        selected_small_manifest = bounded_store.get_manifest(small_ref)
-        small_preview = service.get_content_preview(
-            small_ref.artifact_id,
-            max_bytes=limit,
-            manifest=selected_small_manifest,
-        )
-
-    assert small_preview.truncated is False
-    assert small_preview.mode == "json"
-    assert small_preview.preview == {"small": "selected bytes"}
-    assert small_preview.canon_read_status == "declared_bytes_conformant"
-    assert decode_calls == [len(small_payload)]
-    assert encode_calls
-    assert (
-        bounded_store.payload_reads[(str(small_ref.artifact_id), small_ref.manifest_profile_sha256)]
-        == 1
-    )
+    assert content.status_code == 409, content.text
+    assert content.json()["code"] == "canon_profile_bounded_bytes_exceeded"
+    assert schema.status_code == 409, schema.text
+    assert schema.json()["code"] == "canon_profile_bounded_bytes_exceeded"
 
 
 def test_action_selection_receipt_guard_survives_python_optimized_mode() -> None:

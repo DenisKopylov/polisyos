@@ -2453,68 +2453,52 @@ class FileSystemCAS:
         finally:
             os.close(descriptor)
 
-    @_transactional_read()
-    def get_raw_manifest_bytes_bounded(
+    def _read_raw_manifest_bytes_bounded_owned(
         self,
-        artifact_id: ArtifactRef,
+        artifact_id: ArtifactID | ArtifactRef | str,
         *,
         max_manifest_bytes: int,
-    ) -> bytes:
-        """Read exact selected manifest bytes without allocating beyond the policy limit."""
-        if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
-            raise ValueError("max_manifest_bytes must be a positive integer")
-        if (
-            type(artifact_id) is not ArtifactRef
-            or type(artifact_id.manifest_profile_sha256) is not str
-            or not artifact_id.manifest_profile_sha256
-        ):
-            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
-        aid, selected_profile, ref = _artifact_reference(artifact_id)
-        if selected_profile is None:
-            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
-        self._require_blob_owner(aid, operation="read_raw_manifest_bounded", ref=ref)
-        self._require_manifest_view_owner(
-            aid,
-            selected_profile,
-            operation="read_raw_manifest_bounded",
-            ref=ref,
-        )
-        manifest_path = self._manifest_path_for_ref(aid, selected_profile)
-        return self._read_cas_file_no_follow(
-            manifest_path,
-            member="manifest",
-            max_bytes=max_manifest_bytes,
-            raise_read_limit=True,
-        )
-
-    @_transactional_read()
-    def read_raw_manifest_bytes_bounded(
-        self,
-        artifact_id: ArtifactRef,
-        *,
-        max_manifest_bytes: int,
+        manifest_profile_sha256: str | None,
     ) -> ArtifactBoundedManifestRead:
-        """Read selected manifest bytes with an immutable owner transfer receipt."""
+        """Read one default or exact manifest through its guarded owner path."""
         if type(max_manifest_bytes) is not int or max_manifest_bytes < 1:
             raise ValueError("max_manifest_bytes must be a positive integer")
-        if (
-            type(artifact_id) is not ArtifactRef
-            or type(artifact_id.manifest_profile_sha256) is not str
-            or not artifact_id.manifest_profile_sha256
+        if type(artifact_id) is ArtifactRef:
+            aid, selected_profile, ref = _artifact_reference(artifact_id)
+            if type(selected_profile) is not str or not selected_profile:
+                raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+            if manifest_profile_sha256 is not None and manifest_profile_sha256 != selected_profile:
+                raise ValueError("conflicting manifest profile selectors")
+        else:
+            aid = ArtifactID.model_validate(artifact_id)
+            selected_profile = manifest_profile_sha256
+            ref = None
+        if selected_profile is not None and (
+            type(selected_profile) is not str
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", selected_profile) is None
         ):
-            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
-        aid, selected_profile, ref = _artifact_reference(artifact_id)
-        if selected_profile is None:
-            raise ValueError("bounded_manifest_read_requires_profile_qualified_ref")
+            raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+
         self._require_blob_owner(aid, operation="read_raw_manifest_bounded", ref=ref)
-        self._require_manifest_view_owner(
-            aid,
-            selected_profile,
-            operation="read_raw_manifest_bounded",
-            ref=ref,
-        )
+        if selected_profile is None:
+            self._require_default_manifest_access(
+                aid,
+                operation="read_raw_manifest_bounded_default",
+                ref=ref,
+            )
+            usage_stage = "default_manifest_transfer"
+            attempt_stage = "default_manifest_preflight"
+        else:
+            self._require_manifest_view_owner(
+                aid,
+                selected_profile,
+                operation="read_raw_manifest_bounded_selected",
+                ref=ref,
+            )
+            usage_stage = "selected_manifest_transfer"
+            attempt_stage = "selected_manifest_preflight"
         manifest_path = self._manifest_path_for_ref(aid, selected_profile)
-        attempt = _ArtifactStoreReadAttempt(stage="selected_manifest_preflight")
+        attempt = _ArtifactStoreReadAttempt(stage=attempt_stage)
         try:
             data = self._read_cas_file_no_follow(
                 manifest_path,
@@ -2523,7 +2507,7 @@ class FileSystemCAS:
                 raise_read_limit=True,
                 _read_attempt=attempt,
                 _usage_field="observed_manifest_selection_bytes",
-                _usage_stage="selected_manifest_transfer",
+                _usage_stage=usage_stage,
             )
         except Exception as exc:
             attempt.failed()
@@ -2534,6 +2518,36 @@ class FileSystemCAS:
             ) from exc
         attempt.succeeded()
         return ArtifactBoundedManifestRead(raw_manifest_bytes=data, usage=attempt.usage)
+
+    @_transactional_read(profile_argument_index=1)
+    def get_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Read bounded default or exact raw manifest bytes without unbounded allocation."""
+        return self._read_raw_manifest_bytes_bounded_owned(
+            artifact_id,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+        ).raw_manifest_bytes
+
+    @_transactional_read(profile_argument_index=1)
+    def read_raw_manifest_bytes_bounded(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
+    ) -> ArtifactBoundedManifestRead:
+        """Read default or exact manifest bytes with an immutable owner receipt."""
+        return self._read_raw_manifest_bytes_bounded_owned(
+            artifact_id,
+            max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
 
     @_transactional_read()
     def get_raw_manifest_bytes_bounded_for_input(
@@ -4234,7 +4248,8 @@ class FileSystemCAS:
             artifact_id = ArtifactID.model_validate(value)
             lock_ids[artifact_id.hex] = artifact_id
             prefix = (
-                f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}"
+                f"artifacts/sha256/{artifact_id.hex[:2]}/"
+                + f"{artifact_id.hex[2:4]}/{artifact_id.hex}"
             )
             blob = artifact_members.get(prefix + ".blob")
             if blob is None or blob.sha256 != artifact_id.hex:
@@ -4463,7 +4478,8 @@ class FileSystemCAS:
         for artifact_id in artifact_ids:
             artifact_members = staged_by_artifact[str(artifact_id)]
             prefix = (
-                f"artifacts/sha256/{artifact_id.hex[:2]}/{artifact_id.hex[2:4]}/{artifact_id.hex}"
+                f"artifacts/sha256/{artifact_id.hex[:2]}/"
+                + f"{artifact_id.hex[2:4]}/{artifact_id.hex}"
             )
             blob_member = f"{prefix}.blob"
             if blob_member not in artifact_members:
@@ -6236,14 +6252,16 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
 
     def get_raw_manifest_bytes_bounded(
         self,
-        artifact_id: ArtifactRef,
+        artifact_id: ArtifactID | ArtifactRef | str,
         *,
         max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
     ) -> bytes:
-        """Read exact selected manifest bytes under the explicit metadata bound."""
+        """Read bounded default or exact manifest bytes through the owner facade."""
         return self.__store.get_raw_manifest_bytes_bounded(
             artifact_id,
             max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
         )
 
     def get_raw_manifest_bytes_bounded_for_input(
@@ -6260,14 +6278,16 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
 
     def read_raw_manifest_bytes_bounded(
         self,
-        artifact_id: ArtifactRef,
+        artifact_id: ArtifactID | ArtifactRef | str,
         *,
         max_manifest_bytes: int,
+        manifest_profile_sha256: str | None = None,
     ) -> ArtifactBoundedManifestRead:
-        """Read selected manifest bytes and owner usage through the guarded facade."""
+        """Read default or exact manifest bytes and owner usage through the facade."""
         return self.__store.read_raw_manifest_bytes_bounded(
             artifact_id,
             max_manifest_bytes=max_manifest_bytes,
+            manifest_profile_sha256=manifest_profile_sha256,
         )
 
     def read_raw_manifest_bytes_bounded_for_input(

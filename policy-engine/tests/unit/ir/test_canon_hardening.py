@@ -14,6 +14,7 @@ from polisyos.ir.migrations.base import (
     register_migration,
 )
 from polisyos.ir.model_layer.canon import (
+    IR_TAG_POLICY_ID,
     CanonSpec,
     CanonViolation,
     content_hash,
@@ -61,6 +62,23 @@ def _fact_provenance() -> FactProvenance:
         license="cc0",
         raw_hash="sha256:" + "b" * 64,
     )
+
+
+def test_ir_tag_policy_is_distinct_and_rejects_core_array_digest() -> None:
+    from polisyos.core.canon.canon_json import (
+        CORE_TAG_POLICY_ID,
+    )
+    from polisyos.core.canon.canon_json import (
+        from_canonical_bytes as core_from_canonical_bytes,
+    )
+
+    assert CORE_TAG_POLICY_ID == "core-tag-policy@1"
+    assert IR_TAG_POLICY_ID == "ir-tag-policy@1"
+    assert CORE_TAG_POLICY_ID != IR_TAG_POLICY_ID
+    payload = b'{"_type":"array_digest","value":"sha256:' + b"a" * 64 + b'"}'
+    assert core_from_canonical_bytes(payload)["_type"] == "array_digest"
+    with pytest.raises(CanonViolation, match="Unknown canonical _type"):
+        from_canonical_bytes(payload)
 
 
 def test_unknown_canonical_type_is_rejected_on_decode_and_encode() -> None:

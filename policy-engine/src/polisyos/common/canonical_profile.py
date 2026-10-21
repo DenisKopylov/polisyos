@@ -10,7 +10,15 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, TypeVar, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    NoReturn,
+    Protocol,
+    TypeVar,
+    runtime_checkable,
+)
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
@@ -74,7 +82,8 @@ class CanonicalProfileRead:
     ``value`` is available only for a declared, byte-conformant profile. An
     explicitly requested unqualified legacy read is candidate-only and must use
     ``unqualified_candidate_value`` so callers cannot mistake it for verified
-    semantic input.
+    semantic input. ``reader_policy_id`` optionally records the concrete decoder
+    policy chosen by the reader; it is not producer attestation or authority.
     """
 
     _decoded_value: Any
@@ -82,6 +91,7 @@ class CanonicalProfileRead:
     status: CanonicalProfileStatus
     selected_artifact_id: str | None
     selected_manifest_profile_sha256: str | None
+    reader_policy_id: str | None
     _reader_validated: bool
 
     def __init__(
@@ -92,6 +102,7 @@ class CanonicalProfileRead:
         selected_artifact_id: str | None = None,
         selected_manifest_profile_sha256: str | None = None,
         *,
+        reader_policy_id: str | None = None,
         _validation_token: object | None = None,
     ) -> None:
         object.__setattr__(self, "_decoded_value", value)
@@ -101,6 +112,7 @@ class CanonicalProfileRead:
         object.__setattr__(
             self, "selected_manifest_profile_sha256", selected_manifest_profile_sha256
         )
+        object.__setattr__(self, "reader_policy_id", reader_policy_id)
         object.__setattr__(self, "_reader_validated", _validation_token is _VERIFIED_READ_TOKEN)
 
     @property
@@ -244,15 +256,25 @@ def decode_profiled_canonical_bytes(
     make_spec: Callable[[BaseModel], object],
     decode: Callable[[bytes, int], Any],
     encode: Callable[[Any, object], bytes],
+    reader_policy_id: str | None = None,
 ) -> CanonicalProfileRead:
-    """Decode and re-encode using the already validated selected declaration."""
+    """Decode using the caller-selected reader context after raw profile validation.
+
+    The optional reader policy identifies the concrete owner decoder; it is not
+    producer attestation or publication authority.
+    """
     if type(raw_payload_bytes) is not bytes:
         raise CanonicalProfileRefusalError("canon_profile_payload_bytes_invalid")
+    if reader_policy_id is not None and (
+        type(reader_policy_id) is not str or not reader_policy_id.strip()
+    ):
+        raise CanonicalProfileRefusalError("canon_profile_reader_policy_invalid")
     if declaration.status == "declared_unknown_candidate":
         return CanonicalProfileRead(
             value=None,
             raw_payload_bytes=raw_payload_bytes,
             status="declared_unknown_candidate",
+            reader_policy_id=reader_policy_id,
             _validation_token=_VERIFIED_READ_TOKEN,
         )
     if declaration.profile is None:
@@ -262,6 +284,7 @@ def decode_profiled_canonical_bytes(
             value=value,
             raw_payload_bytes=raw_payload_bytes,
             status="profile_absent_unqualified_candidate",
+            reader_policy_id=reader_policy_id,
             _validation_token=_VERIFIED_READ_TOKEN,
         )
 
@@ -278,6 +301,7 @@ def decode_profiled_canonical_bytes(
         value=value,
         raw_payload_bytes=raw_payload_bytes,
         status="declared_bytes_conformant",
+        reader_policy_id=reader_policy_id,
         _validation_token=_VERIFIED_READ_TOKEN,
     )
 
@@ -297,6 +321,7 @@ def _bind_selected_artifact_identity(
         status=read.status,
         selected_artifact_id=artifact_id,
         selected_manifest_profile_sha256=manifest_profile_sha256,
+        reader_policy_id=read.reader_policy_id,
         _validation_token=_VERIFIED_READ_TOKEN,
     )
 
@@ -310,8 +335,13 @@ def read_canonical_profiled_bytes(
     decode: Callable[[bytes, int], Any],
     encode: Callable[[Any, object], bytes],
     allow_profile_absent: bool,
+    reader_policy_id: str | None = None,
 ) -> CanonicalProfileRead:
-    """Parse, validate, decode, and verify a complete selected artifact view."""
+    """Parse and verify a selected view under an optional fixed reader identity.
+
+    The identity records which concrete codec policy materialized the value; it
+    does not establish the producer or the value's authority.
+    """
     declaration = parse_canonical_profile(
         raw_manifest_bytes,
         profile_model=profile_model,
@@ -324,6 +354,7 @@ def read_canonical_profiled_bytes(
         make_spec=make_spec,
         decode=decode,
         encode=encode,
+        reader_policy_id=reader_policy_id,
     )
 
 

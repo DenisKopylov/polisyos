@@ -1141,7 +1141,7 @@ def _owner_source_runtime_projection(
     except confidence_ledger.ConfidenceLedgerError as exc:
         raise OwnerProjectionError(
             "owner_source_runtime_binding_mismatch",
-            exc.code,
+            f"{exc.code}: {exc.detail}",
         ) from exc
     except (OSError, TypeError, ValueError, AttributeError, SyntaxError) as exc:
         raise OwnerProjectionError(

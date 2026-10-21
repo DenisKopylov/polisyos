@@ -2422,6 +2422,43 @@ def _stub_n13b_recomputation(
     )
 
 
+def test_n11_owner_projection_retains_nested_runtime_failure_detail(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The N11 wrapper preserves the runtime projection's typed cause and detail."""
+
+    from polisyos.runtime.quality import confidence_ledger
+
+    monkeypatch.setattr(adapter, "_owner_source_closure", lambda _root: ())
+    monkeypatch.setattr(
+        confidence_ledger,
+        "_import_authority_closure_modules",
+        lambda _closure: None,
+    )
+
+    def fail_projection(
+        _repo_root: Path,
+        _closure: tuple[tuple[str, str], ...],
+    ) -> tuple[str, tuple[tuple[str, str], ...]]:
+        raise confidence_ledger.ConfidenceLedgerError(
+            "source_oracle_divergence",
+            "selected provider identity did not match the live consumer",
+        )
+
+    monkeypatch.setattr(
+        confidence_ledger,
+        "_source_facade_runtime_projection",
+        fail_projection,
+    )
+    with pytest.raises(adapter.OwnerProjectionError) as failure:
+        adapter._owner_source_runtime_projection(POLICY_ENGINE_ROOT)
+
+    assert failure.value.code == "owner_source_runtime_binding_mismatch"
+    assert failure.value.detail == (
+        "source_oracle_divergence: selected provider identity did not match the live consumer"
+    )
+
+
 def test_n11_consumed_inputs_reconcile_complete_loaded_tools_closure(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

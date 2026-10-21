@@ -218,8 +218,8 @@ Return a preview of artifact content.
 - Response body: `ArtifactContentResponse`
   - `artifact`: `ArtifactContentPreview`
 - Notes:
-  - JSON and text payloads are decoded where possible.
-  - Binary payloads are previewed rather than fully streamed.
+  - JSON previews use the exact selected Core profile and bounded-member reader; over-limit JSON returns a typed 409 rather than a partial semantic value.
+  - Text, binary, and explicit raw-download paths retain their existing byte behavior and are not bounded by the JSON reader policy.
   - Redaction hooks may apply before content is returned.
 
 ```bash
@@ -389,9 +389,11 @@ its purpose. The HTTP route matrix follows the current route/service call chain:
 This table records existing gates; it does not change their purposes or introduce a
 new grant. A runtime-purpose refusal blocks the schema inspector before the
 separate dashboard route check, while render and export use their existing
-route-level dashboard and publication checks. Raw content is admitted before its
-conditional-response handling, so an authority refusal is not converted into a
-`304` response.
+route-level dashboard and publication checks. Conditional GETs resolve the
+selected view and evaluate the same route-purpose admission before returning a
+`304`; a cached body does not bypass the current admission decision. Raw content
+and download retain their existing artifact-purpose checks, and the manifest,
+semantic content, and schema views retain their dashboard-purpose checks.
 
 ### Writer-selected manifest profiles
 
@@ -418,7 +420,10 @@ its decoded value cannot enter authority, promotion, or issuer consumers. No sou
 currently supplies the original proof needed to authorize a historical profileless
 semantic read. Raw content
 negotiation continues to serve the exact selected bytes through its existing
-raw-response and authority gates without decoding them. Render and export
+raw-response and authority gates without decoding them. Raw and semantic content
+representations use distinct ETags; semantic ETags bind the selected profile,
+reader policy, schema context, and effective preview limit. Schema ETags also bind
+the bounded inspection policy and its configured byte limit. The filesystem CAS and its read-only facade support the bounded path. Default HTTP content and schema routes read the default or explicitly profile-selected manifest through the owner's bounded receipt exactly once, derive the full selected ref from those retained bytes, and carry the sealed selection into JSON payload/schema validation. The member owner then re-verifies the same manifest bytes as part of its bounded stream receipt. A profileless manifest may be inspected as untyped metadata or raw bytes, but JSON semantic admission refuses it. Cached S3/GCS stores preserve durable-owner selection, but their remote manifests and payloads lack a bounded receipt port; semantic JSON inspection therefore returns a typed bounded-manifest refusal instead of using a local cache hit or a full-byte fallback. Non-JSON previews and raw responses retain their existing whole-byte behavior when the bounded metadata receipt is unavailable. Render and export
 materialize the selected semantic view and retain its `canon_read_status` in the
 HTML response metadata and PDF/DOCX output packet. Predictive diagnostic
 reports are likewise reader-materialized and never raw-byte responses.
@@ -438,4 +443,4 @@ Artifact-inspector semantic views keep profile refusals typed across the whole s
 
 Predictive coverage diagnostics enforce the source-byte limit on the exact selected payload before Core canonical decoding. Manifest byte-size metadata is a preliminary hint; the decision uses the retrieved content length. Oversized inputs remain refused without semantic parsing.
 
-JSON content previews enforce the normalized preview byte limit against the exact selected payload before Core decoding; manifest byte_size is only a hint. The predictive-coverage diagnostic uses its existing 2,000,000-byte source limit. Schema-view top-level-key inspection has no existing payload cap and remains explicitly uncapped; this change does not claim that route is resource-bounded. Oversized JSON previews remain truncated binary previews without semantic parsing.
+JSON content previews and schema top-level-key inspection use the exact selected Core bounded-member reader. The byte limit is the normalized preview limit (default 64 KiB, clamped to 1 KiB–2 MB); Core also enforces depth, element, and raw-manifest caps before materializing a JSON value. Manifest `byte_size` is not trusted as a substitute for owner-reported size. An over-limit or unavailable bounded-member read returns HTTP 409 with its typed `canon_profile_bounded_*` refusal; the semantic JSON route does not fall back to an unbounded `get_bytes` call. The predictive-coverage diagnostic uses its existing 2,000,000-byte source limit through the same bounded Core path. The filesystem CAS and its read-only view provide the bounded-member seam. S3, GCS, and cached cloud stores do not yet implement the bounded selected-manifest/member receipt contract and refuse with `canon_profile_bounded_stream_unavailable` instead of transferring a whole JSON payload. Non-JSON preview and explicit raw-content/download paths still use their existing whole-byte APIs; they are not resource-bounded by this JSON change.

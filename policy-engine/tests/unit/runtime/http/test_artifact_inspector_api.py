@@ -17,12 +17,14 @@ from polisyos_tests_runtime_http_conftest import (
 )
 from pydantic import ValidationError
 
+import polisyos.runtime.http.routes.artifacts as artifact_routes
 from polisyos.core.artifacts import (
     PutOptions,
     SchemaInfo,
     artifact_manifest_profile_sha256,
     profile_bound_ref,
 )
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactRef,
@@ -166,7 +168,10 @@ def test_eval_safety_projection_is_informational_only(runtime_api_env) -> None:
         ),
     )
     _record_fixture_owner(
-        store, ref, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+        store,
+        ref,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
     )
     run_id = "R_eval-safety-artifact-inspector"
     with tenant_scope(
@@ -227,7 +232,9 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
     client = runtime_api_env["client"]
     artifact_id = runtime_api_env["binary_artifact_id"]
     response = _runtime_api_request(
-        runtime_api_env, client.get, f"/api/v1/artifacts/{artifact_id}/content?max_bytes=1024"
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{artifact_id}/content?max_bytes=1024",
     )
     assert response.status_code == 200
 
@@ -235,6 +242,25 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
     assert preview["artifact_id"] == artifact_id
     assert preview["truncated"] is True
     assert preview["max_bytes"] == 1024
+    content_with_larger_limit = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{artifact_id}/content",
+        params={"max_bytes": 2048},
+    )
+    raw_content = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{artifact_id}/content",
+        headers={"Accept": "application/octet-stream"},
+    )
+    assert content_with_larger_limit.status_code == 200, content_with_larger_limit.text
+    assert raw_content.status_code == 200, raw_content.text
+    assert content_with_larger_limit.headers["etag"] != response.headers["etag"]
+    assert raw_content.headers["etag"] not in {
+        response.headers["etag"],
+        content_with_larger_limit.headers["etag"],
+    }
 
     secret = _runtime_api_request(
         runtime_api_env,
@@ -254,7 +280,9 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
     )
 
 
-def test_current_inspector_emits_computed_status_for_content_and_schema(runtime_api_env) -> None:
+def test_current_inspector_emits_computed_status_for_content_and_schema(
+    runtime_api_env,
+) -> None:
     client = runtime_api_env["client"]
     artifact_id = runtime_api_env["binary_artifact_id"]
 
@@ -347,28 +375,44 @@ def test_artifact_inspector_resolves_exact_manifest_profile_for_all_views(
         runtime_api_env, client.get, selected_url("", second.manifest_profile_sha256)
     )
     first_preview = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("content", first.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("content", first.manifest_profile_sha256),
     )
     second_preview = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("content", second.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("content", second.manifest_profile_sha256),
     )
     first_schema = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("schema", first.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("schema", first.manifest_profile_sha256),
     )
     second_schema = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("schema", second.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("schema", second.manifest_profile_sha256),
     )
     first_lineage = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("lineage", first.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("lineage", first.manifest_profile_sha256),
     )
     second_lineage = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("lineage", second.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("lineage", second.manifest_profile_sha256),
     )
     first_download = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("download", first.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("download", first.manifest_profile_sha256),
     )
     second_download = _runtime_api_request(
-        runtime_api_env, client.get, selected_url("download", second.manifest_profile_sha256)
+        runtime_api_env,
+        client.get,
+        selected_url("download", second.manifest_profile_sha256),
     )
 
     assert first_manifest.status_code == second_manifest.status_code == 200
@@ -447,7 +491,10 @@ def test_artifact_inspector_resolves_exact_manifest_profile_for_all_views(
 
     for path, view in default_views.values():
         not_modified = _runtime_api_request(
-            runtime_api_env, client.get, path, headers={"If-None-Match": view.headers["etag"]}
+            runtime_api_env,
+            client.get,
+            path,
+            headers={"If-None-Match": view.headers["etag"]},
         )
         assert not_modified.status_code == 304
         for relation in profile_relations:
@@ -583,7 +630,9 @@ def test_artifact_inspector_resolves_exact_manifest_profile_for_all_views(
         assert selected_contributor.reason == "authority_purpose_forbidden"
 
 
-def test_selected_manifest_lineage_preserves_each_input_profile(runtime_api_env) -> None:
+def test_selected_manifest_lineage_preserves_each_input_profile(
+    runtime_api_env,
+) -> None:
     client = runtime_api_env["client"]
     store = runtime_api_env["app"].state.runtime_api_ctx.store
     producer = ProducerInfo(component="test.profile_lineage", version="1")
@@ -934,7 +983,10 @@ def test_unqualified_manifest_view_revalidates_cache_and_304_keeps_resolved_link
     assert resolved_profile.startswith("sha256:")
 
     default_not_modified = _runtime_api_request(
-        runtime_api_env, client.get, path, headers={"If-None-Match": default_view.headers["etag"]}
+        runtime_api_env,
+        client.get,
+        path,
+        headers={"If-None-Match": default_view.headers["etag"]},
     )
     assert default_not_modified.status_code == 304
     assert default_not_modified.headers["cache-control"] == "private, no-cache"
@@ -943,13 +995,18 @@ def test_unqualified_manifest_view_revalidates_cache_and_304_keeps_resolved_link
     assert parse_qs(urlsplit(href).query)["manifest_profile_sha256"] == [resolved_profile]
 
     selected = _runtime_api_request(
-        runtime_api_env, client.get, path, params={"manifest_profile_sha256": resolved_profile}
+        runtime_api_env,
+        client.get,
+        path,
+        params={"manifest_profile_sha256": resolved_profile},
     )
     assert selected.status_code == 200
     assert selected.headers["cache-control"] == "private, max-age=31536000, immutable"
 
 
-def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime_api_env) -> None:
+def test_selected_manifest_authority_controls_all_artifact_http_surfaces(
+    runtime_api_env,
+) -> None:
     runtime_context = runtime_api_env["app"].state.runtime_api_ctx
     store = runtime_context.store
     client = runtime_api_env["client"]
@@ -1013,6 +1070,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
     def persist_view_pair(
         label: str,
         *,
+        payload_label: str | None = None,
         default_denied: bool,
         selected_denied: bool,
         inline_denied: bool | None = None,
@@ -1021,7 +1079,7 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         selected_authority_link: ArtifactAuthorityInfo | None = None,
     ) -> tuple[ArtifactRef, ArtifactRef]:
         payload: dict[str, object] = {
-            "run_id": f"R_s3_profile_{label}",
+            "run_id": f"R_s3_profile_{payload_label or label}",
             "governance": {},
             "diagnostics_summary": {},
         }
@@ -1085,7 +1143,12 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         )
         return default_ref, selected_ref
 
-    def request_surfaces(ref: ArtifactRef, *, selected: bool) -> dict[str, Any]:
+    def request_surfaces(
+        ref: ArtifactRef,
+        *,
+        selected: bool,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
         artifact_id = str(ref.artifact_id)
         query = {"manifest_profile_sha256": ref.manifest_profile_sha256} if selected else {}
         render_body: dict[str, object] = {"genre": "expert_vysnovok"}
@@ -1095,35 +1158,57 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         export_query.update(query)
         base = f"/api/v1/artifacts/{artifact_id}"
         return {
-            "manifest": _runtime_api_request(runtime_api_env, client.get, base, params=query),
+            "manifest": _runtime_api_request(
+                runtime_api_env, client.get, base, params=query, headers=headers
+            ),
             "content": _runtime_api_request(
-                runtime_api_env, client.get, f"{base}/content", params=query
+                runtime_api_env,
+                client.get,
+                f"{base}/content",
+                params=query,
+                headers=headers,
             ),
             "content_raw": _runtime_api_request(
                 runtime_api_env,
                 client.get,
                 f"{base}/content",
                 params=query,
-                headers={"accept": "application/octet-stream"},
+                headers={"accept": "application/octet-stream", **(headers or {})},
             ),
             "lineage": _runtime_api_request(
-                runtime_api_env, client.get, f"{base}/lineage", params=query
+                runtime_api_env,
+                client.get,
+                f"{base}/lineage",
+                params=query,
+                headers=headers,
             ),
             "schema": _runtime_api_request(
-                runtime_api_env, client.get, f"{base}/schema", params=query
+                runtime_api_env,
+                client.get,
+                f"{base}/schema",
+                params=query,
+                headers=headers,
             ),
             "download": _runtime_api_request(
                 runtime_api_env,
                 client.get,
                 f"{base}/download",
                 params=query,
-                headers={"accept": "application/octet-stream"},
+                headers={"accept": "application/octet-stream", **(headers or {})},
             ),
             "render": _runtime_api_request(
-                runtime_api_env, client.post, f"{base}/render", json=render_body
+                runtime_api_env,
+                client.post,
+                f"{base}/render",
+                json=render_body,
+                headers=headers,
             ),
             "export": _runtime_api_request(
-                runtime_api_env, client.get, f"{base}/export", params=export_query
+                runtime_api_env,
+                client.get,
+                f"{base}/export",
+                params=export_query,
+                headers=headers,
             ),
         }
 
@@ -1217,6 +1302,36 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
                 )
                 assert denied_purpose in selected_contributor["may_not_use_for"]
 
+        conditional_selected_responses = request_surfaces(
+            selected_ref,
+            selected=True,
+            headers={"if-none-match": "*"},
+        )
+        conditional_routes = {
+            "manifest",
+            "content",
+            "content_raw",
+            "lineage",
+            "schema",
+            "download",
+        }
+        for route_name, conditional_response in conditional_selected_responses.items():
+            denied = route_name in denied_routes
+            expected_conditional_status = (
+                409 if denied else 304 if route_name in conditional_routes else 200
+            )
+            assert conditional_response.status_code == expected_conditional_status, (
+                denied_purpose,
+                "conditional",
+                route_name,
+                conditional_response.status_code,
+                conditional_response.text,
+            )
+            if denied:
+                decision = conditional_response.json()["extensions"]["authority_surface_decision"]
+                assert decision["purpose"] == denied_purpose
+                assert denied_purpose in decision["may_not_use_for"]
+
     selected_allows = persist_view_pair(
         "selected-raw-content-allows",
         default_denied=False,
@@ -1265,6 +1380,63 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         selected_raw_deny_304.json()["extensions"]["authority_surface_decision"]["purpose"]
         == "runtime_closeout_authority"
     )
+
+    _, cached_profile = persist_view_pair(
+        "json-cache-rotation-allowed",
+        payload_label="json-cache-rotation-shared-content",
+        default_denied=False,
+        selected_denied=False,
+    )
+    cached_profile_path = f"/api/v1/artifacts/{cached_profile.artifact_id}/content"
+    cached_profile_query = {"manifest_profile_sha256": cached_profile.manifest_profile_sha256}
+    cached_profile_response = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        cached_profile_path,
+        params=cached_profile_query,
+    )
+    assert cached_profile_response.status_code == 200
+    cached_profile_304 = _runtime_api_request(
+        runtime_api_env,
+        client.get,
+        cached_profile_path,
+        params=cached_profile_query,
+        headers={"if-none-match": cached_profile_response.headers["etag"]},
+    )
+    assert cached_profile_304.status_code == 304
+
+    _, current_denied_profile = persist_view_pair(
+        "json-cache-rotation-denied",
+        payload_label="json-cache-rotation-shared-content",
+        default_denied=False,
+        selected_denied=True,
+        selected_denied_purpose="dashboard_display",
+    )
+    assert current_denied_profile.artifact_id == cached_profile.artifact_id
+    assert current_denied_profile.manifest_profile_sha256 != (
+        cached_profile.manifest_profile_sha256
+    )
+    current_profile_query = {
+        "manifest_profile_sha256": current_denied_profile.manifest_profile_sha256
+    }
+    for if_none_match in ("*", cached_profile_response.headers["etag"]):
+        current_profile_response = _runtime_api_request(
+            runtime_api_env,
+            client.get,
+            cached_profile_path,
+            params=current_profile_query,
+            headers={"if-none-match": if_none_match},
+        )
+        assert current_profile_response.status_code == 409
+        assert current_profile_response.json()["code"] == ("authority_surface_admission_blocked")
+        decision = current_profile_response.json()["extensions"]["authority_surface_decision"]
+        assert decision["purpose"] == "dashboard_display"
+        selected_contributor = next(
+            row for row in decision["authority_contributors"] if row["basis"] == "selected_manifest"
+        )
+        assert selected_contributor["authority_boundary_ref"] == (
+            "boundary://json-cache-rotation-denied-selected"
+        )
 
     malformed_envelope = persist_view_pair(
         "selected-malformed-envelope",
@@ -1369,7 +1541,9 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         "boundary://inline-permits-selected-denies-selected"
     )
     default_inline_deny_response = _runtime_api_request(
-        runtime_api_env, client.get, f"/api/v1/artifacts/{default_inline_deny.artifact_id}/content"
+        runtime_api_env,
+        client.get,
+        f"/api/v1/artifacts/{default_inline_deny.artifact_id}/content",
     )
     assert default_inline_deny_response.status_code == 409
     default_inline_decision = default_inline_deny_response.json()["extensions"][
@@ -1421,3 +1595,46 @@ def test_selected_manifest_authority_controls_all_artifact_http_surfaces(runtime
         "runtime_closeout_authority"
         not in upgraded_contributors["selected_manifest"]["may_not_use_for"]
     )
+
+
+def test_default_json_content_and_schema_carry_one_bounded_manifest_selection(
+    runtime_api_env, monkeypatch
+) -> None:
+    artifact_id = runtime_api_env["workflow_report_artifact_id"]
+    client = runtime_api_env["client"]
+    expected_selector = ArtifactID.model_validate(artifact_id)
+    original_reader = artifact_routes.read_core_manifest_profile_bounded
+    calls: list[dict[str, object]] = []
+
+    def observe_bounded_selection(store, selector, **kwargs):
+        assert selector == expected_selector
+        calls.append(dict(kwargs))
+        return original_reader(store, selector, **kwargs)
+
+    def forbidden_legacy_resolution(*_args, **_kwargs):
+        raise AssertionError("HTTP default JSON inspection must use the bounded selector")
+
+    monkeypatch.setattr(
+        artifact_routes, "read_core_manifest_profile_bounded", observe_bounded_selection
+    )
+    monkeypatch.setattr(
+        artifact_routes, "_resolve_raw_artifact_manifest", forbidden_legacy_resolution
+    )
+    monkeypatch.setattr(artifact_routes, "_resolve_artifact_manifest", forbidden_legacy_resolution)
+
+    content = client.get(f"/api/v1/artifacts/{artifact_id}/content")
+    schema = client.get(f"/api/v1/artifacts/{artifact_id}/schema")
+    assert content.status_code == 200, content.text
+    assert schema.status_code == 200, schema.text
+    assert calls == [
+        {
+            "max_manifest_bytes": artifact_routes.INSPECTOR_MANIFEST_MAX_BYTES,
+            "manifest_profile_sha256": None,
+            "allow_profile_absent": True,
+        },
+        {
+            "max_manifest_bytes": artifact_routes.INSPECTOR_MANIFEST_MAX_BYTES,
+            "manifest_profile_sha256": None,
+            "allow_profile_absent": True,
+        },
+    ]

@@ -46329,5 +46329,80 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-econml-r6-reviewed-test-adoption-20261021-r1": {
+    "slice_base": "10fdd017ca2665648d1629fc729001ffdeb5f134",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py": {
+        "mode": "100644",
+        "operation": "update",
+        "postimage_bytes": 30024,
+        "postimage_sha256": "1dc97de9f86424949ff730703928d72f2bbb291736cb347ec8e68c68fddb55e8",
+        "preimage_bytes": 26938,
+        "preimage_sha256": "66e3b2c8bd839636822c34962fd72e69cb44ade09c4fa2af7b4b9be88d8b917d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-reviewed-postimage-reconstruction-20261021-r1/policy-engine/tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-reviewed-test-adoption-20261021-r1/source-application.json",
+      "sha256": "66b37156c377be12a86c0f1932658dfcc0e6c19b2333763a2d4b94aa39aee3f3"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-reviewed-test-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-vector-completeness-20261021-r1/manifest-r6.json",
+        "sha256": "917643e41d7992eb50e771ecc9dae4000d2191df26deac701069ac762d39ebaf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-vector-completeness-20261021-r1/proposed-unapplied-r6.patch",
+        "sha256": "19803b58de92dbe9bf508801107f2342585e8c549905c49505e3a5f70c874155"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-vector-completeness-20261021-r1/static-verification-r6.json",
+        "sha256": "8fca15945eb12171a4981b70d78e59ee16b4f49843ab01d5e8089085b8028135"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-econml-r6-vector-completeness-review-20261021-r2/review.json",
+        "sha256": "0b9d333a7401e572a2980621c2de76123dc5618092fd625fd5f41b3ca38f0645"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/request.json",
+        "sha256": "1779baf4a14e849d40cd6f06e52a6587e2863c2be68b257335781c03a9f4e51e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-raw-test-against-10fdd-two-whole-20261021-r1/actual/result.json",
+        "sha256": "b4e5fde228149c884b8ea52bd480c679718d0572c0d98c0dbbd553d0954b87a1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r5-reviewed-source-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "724d1dce9c029ebc8beb53f299606c1cafeac72752ea595e96b461b2ce08f1b2"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same optional-vector presence/absence assertion class, now widened across the whole three-field vector family rather than fixing stderr and then discovering lower CI. Test-only change; runtime guards are unchanged.",
+      "action": "Audit all three output vectors through presence/absence/malformed families."
+    },
+    "bounded_proof": "Independent delta source review plus actual pre-adoption full61 PASS; not G acceptance or global freeze.",
+    "limitations": [
+      "Test-only static candidate. No pytest/product import/fit ran in this author lane.",
+      "Root may run the complete adapter module against the actual current adapter before canonical adoption; full two-module cohort and later source-bound receipts remain separate.",
+      "No G acceptance or formal finding closure.",
+      "Pre-adoption RAW-test whole2 actual61 PASS is distinct from canonical post-adoption receipt. Nonblocking review note: empty output controls pin cardinality, not concrete list type. Legacy ATE interval fallback remains unqualified."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Canonical full two-module replay and same-fixture cold ForestDR witness at exact new source; full18 native SIGBUS remains unresolved.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

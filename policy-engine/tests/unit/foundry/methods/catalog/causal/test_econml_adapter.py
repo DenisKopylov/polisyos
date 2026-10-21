@@ -97,9 +97,19 @@ def test_extract_cate_from_estimator_uses_wald_fallback_for_ate_ci() -> None:
     assert np.isfinite(extracted["ate_ci_upper"])
     assert extracted["ate_ci_lower"] < extracted["ate"] < extracted["ate_ci_upper"]
     assert any("normal-Wald fallback" in warning for warning in extracted["warnings"])
-    assert extracted["cate_std_values"] == pytest.approx([0.1] * 50)
-    assert extracted["cate_ci_lower_values"] == []
-    assert extracted["cate_ci_upper_values"] == []
+    expected_row_half_width = NormalDist().inv_cdf(1.0 - 0.05 / 2.0) * std
+    row_stderr = np.asarray(extracted["cate_std_values"], dtype=float)
+    row_ci_lower = np.asarray(extracted["cate_ci_lower_values"], dtype=float)
+    row_ci_upper = np.asarray(extracted["cate_ci_upper_values"], dtype=float)
+    assert row_stderr.shape == (50,)
+    assert row_ci_lower.shape == (50,)
+    assert row_ci_upper.shape == (50,)
+    assert np.isfinite(row_stderr).all()
+    assert np.isfinite(row_ci_lower).all()
+    assert np.isfinite(row_ci_upper).all()
+    assert row_stderr == pytest.approx(std)
+    assert row_ci_lower == pytest.approx(cate - expected_row_half_width)
+    assert row_ci_upper == pytest.approx(cate + expected_row_half_width)
 
 
 def test_extract_cate_from_estimator_supports_population_summary_ci() -> None:
@@ -152,9 +162,16 @@ def test_extract_uses_pointwise_stderr_and_preserves_singleton_axes() -> None:
         rng=np.random.default_rng(13),
     )
 
-    assert extracted["cate_std_values"] == pytest.approx([0.1, 0.2, 0.3, 0.4])
-    assert extracted["cate_ci_lower_values"] == pytest.approx([0.0, 0.1, 0.2, 0.3])
-    assert extracted["cate_ci_upper_values"] == pytest.approx([0.4, 0.5, 0.6, 0.7])
+    expected_vectors = {
+        "cate_std_values": np.array([0.1, 0.2, 0.3, 0.4]),
+        "cate_ci_lower_values": np.array([0.0, 0.1, 0.2, 0.3]),
+        "cate_ci_upper_values": np.array([0.4, 0.5, 0.6, 0.7]),
+    }
+    for field_name, expected in expected_vectors.items():
+        observed = np.asarray(extracted[field_name], dtype=float)
+        assert observed.shape == (4,)
+        assert np.isfinite(observed).all()
+        assert observed == pytest.approx(expected)
 
 
 @pytest.mark.parametrize(
@@ -626,11 +643,74 @@ def test_extract_preserves_unknown_optional_vectors_without_std_point_substituti
         rng=np.random.default_rng(29),
     )
 
-    assert extracted["cate_std_values"] == []
-    assert extracted["cate_ci_lower_values"] == []
-    assert extracted["cate_ci_upper_values"] == []
+    for field_name in ("cate_std_values", "cate_ci_lower_values", "cate_ci_upper_values"):
+        assert np.asarray(extracted[field_name], dtype=float).shape == (0,)
     assert any("per-row standard errors" in warning for warning in extracted["warnings"])
     assert any("per-row CIs omitted" in warning for warning in extracted["warnings"])
+
+
+class _PointEstimateOnlyEstimator:
+    def __init__(self, cate: np.ndarray) -> None:
+        self._cate = np.asarray(cate, dtype=float)
+
+    def effect(self, x: np.ndarray) -> np.ndarray:
+        if x.shape[0] != self._cate.size:
+            raise ValueError("effect fixture row count must match the input")
+        return self._cate
+
+
+def test_extract_omits_per_row_vectors_when_inference_methods_are_absent() -> None:
+    x = np.ones((4, 2), dtype=float)
+    estimator = _PointEstimateOnlyEstimator(np.linspace(0.2, 0.5, 4))
+    extracted = extract_cate_from_estimator(
+        estimator,
+        x,
+        alpha=0.05,
+        feature_names=["x0", "x1"],
+        feature_importance_method="tree_based",
+        rng=np.random.default_rng(30),
+    )
+
+    for field_name in ("cate_std_values", "cate_ci_lower_values", "cate_ci_upper_values"):
+        assert np.asarray(extracted[field_name], dtype=float).shape == (0,)
+    assert any("does not provide effect_interval" in warning for warning in extracted["warnings"])
+    assert any(
+        "does not provide per-row standard errors" in warning for warning in extracted["warnings"]
+    )
+
+
+@pytest.mark.parametrize(
+    ("interval", "message"),
+    [
+        ((np.array([0.1, 0.2, 0.3]), np.full(4, 0.5)), "effect_interval.lower first dimension"),
+        (
+            (np.full(4, 0.1), np.array([0.5, np.nan, 0.5, 0.5])),
+            "effect_interval.upper must contain only finite values",
+        ),
+        (
+            (np.full((4, 2), 0.1), np.full(4, 0.5)),
+            "effect_interval.lower must represent one outcome",
+        ),
+        (
+            (np.full(4, 0.1), np.array(["bad"] * 4)),
+            "effect_interval.upper must contain numeric values",
+        ),
+    ],
+)
+def test_extract_rejects_present_malformed_per_row_confidence_intervals(
+    interval: object,
+    message: str,
+) -> None:
+    x = np.ones((4, 2), dtype=float)
+    with pytest.raises(ValueError, match=message):
+        extract_cate_from_estimator(
+            _InferenceShapeEstimator(np.linspace(0.2, 0.5, 4), np.full(4, 0.1), interval=interval),
+            x,
+            alpha=0.05,
+            feature_names=["x0", "x1"],
+            feature_importance_method="tree_based",
+            rng=np.random.default_rng(33),
+        )
 
 
 class _MalformedEffectEstimator(_DummyEstimator):

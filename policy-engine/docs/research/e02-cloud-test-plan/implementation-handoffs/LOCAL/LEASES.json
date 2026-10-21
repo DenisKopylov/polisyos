@@ -46073,5 +46073,81 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-g-choice-hte-inference-tracked-adoption-20261021-r1": {
+    "slice_base": "f708ca052262836f05a4e294935a81a37e72e31e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-hte-ate-inference-unavailable-20261021.md": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-g-choice-hte-ate-inference-unavailable-20261021-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-hte-ate-inference-unavailable-20261021.md",
+        "postimage_sha256": "f9a2aaf523b3300498821e3ba8cedc8611f288baef23ab9e64467ec8826dbf6c"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "80b890fdb39fde8348640f0ef64a91fe9bf7d20f752dfa10e29d00e5951e13f7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-g-choice-hte-ate-inference-unavailable-20261021-r2/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md",
+        "postimage_sha256": "2a105df3a28e03fc90a8183f193df0007711defe557fd46a5cbfb211e498b735"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-hte-inference-tracked-adoption-20261021-r1/source-application.json",
+      "sha256": "7b44ab6f0b9ee23561be6545bb9eb316f87c426593da43c18538008b71aab9fa"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-hte-inference-tracked-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-g-choice-hte-ate-inference-unavailable-20261021-r2/manifest.json",
+        "sha256": "13bc6284e723b543e6ef14114e35ffa667e02d633fe8f7838251412f334708b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-g-choice-hte-ate-inference-unavailable-20261021-r2/review.json",
+        "sha256": "4ea33a4905a4ba76afa0a01a1f3fb30a6f15c6225429225c162b8df076bcb50c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-g-choice-hte-ate-inference-unavailable-20261021-r2/proposal.patch",
+        "sha256": "05dbba15b560900eb2cb9afcdacc651e407f6a41b81b83a585f8ef854564f13d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-g-choice-hte-ate-inference-unavailable-20261021-r2/adoption-plan.md",
+        "sha256": "6fa2b763228f82620b2aa31fdd1837be6f29690588e25b962ac6d950e36bcae2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-choice-hte-ate-inference-unavailable-20261021-r3.md",
+        "sha256": "f9a2aaf523b3300498821e3ba8cedc8611f288baef23ab9e64467ec8826dbf6c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-shared-adapter-r3-plus-r4-r2-adoption-20261021-r2/implementation-readback.json",
+        "sha256": "31938fdb9cd3bb1161985636a376f29800dcc57ae30605b6858b8735f746f521"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Separate unresolved inference-basis semantics, not another EconML API repair.",
+      "action": "Supply concrete alternatives, migration/authority/time/status impacts and falsifiers for independent G decision; no new production semantics."
+    },
+    "bounded_proof": "Independent R3 packet review + exact two document hashes; no product verification is claimed.",
+    "limitations": [
+      "GO is for G decision packet only; neither code acceptance nor scientific interval qualification.",
+      "No HTEOutcome, ATEInferenceBasis artifact or changed status semantics are implemented by these documents.",
+      "Legacy fallback/guard remain unqualified after mechanical adapter repair. B31 remains held; no inference-calibration or production authority positive.",
+      "No remote publication asserted; ordinary candidate push still awaits native pre-push API regeneration."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "G considers the versioned outcome and content-bound inference basis; meanwhile run the unchanged cold witness and whole HTE/SCM consumer replay for mechanical repair.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

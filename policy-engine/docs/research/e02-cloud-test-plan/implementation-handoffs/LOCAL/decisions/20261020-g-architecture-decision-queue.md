@@ -40,6 +40,14 @@
 
 **Подробности.** `20261020-observational-http-input-g-question.md` и `.json` рядом — source-bound варианты, точные method/parser pins и вопросы G. Исходники: `LOCAL/raw/r4-http-readiness-76ea932f-20261020-r1/g-observational-http-input-architecture-question-20261020-r1.md@e0838cb15d5d9d206161acc484e3ea7c8e96bf074b50bfb3617bb6c08e96d310` и `.json@0c06cd45cff8b00d1e072186ad270eac36b8ec8491a6656ca73f7935f91809aa`.
 
+## AD-E02-04. HTE point estimate without supported population-ATE inference
+
+**Decision needed.** For the shared EconML HTE result family (CATE, DML, selected S/T/X, and ForestDR), choose whether a valid fitted point with no supported population-ATE interval becomes (A) a versioned `limited/inference_unavailable` point-only candidate with no ATE bounds and a typed content-bound inference-basis reference required for finite-interval success (recommended), (B) a typed refusal, or (C) a finite interval only for a named method/profile whose owner supplies and G accepts the inference law and scope. Cross-row CATE dispersion, finite fields, method names, warnings, and confidence-level labels do not establish a supported ATE interval.
+
+**Reuse and boundary.** Extend the existing *candidate* HTE Estimate/Refusal union with `EstimateLimited` and a content-bound inference-basis reference; give it a new HTE identity and preserve historical HTEResult v1 bytes/replay. Current CausalEffectReport cannot mean `inference_unavailable` without misusing its generic non-success statuses, and cannot satisfy the required HTE output slot alone. The decision covers four final shared-extractor producers, not the candidate-only scoring call. The real ForestDR witness is a real-backend synthetic-fixture adapter failure, not a no-inference runtime or production claim. B31 remains held; V4/V7 remain predictive-calibration routes.
+
+**Decision packet.** `g-choice-hte-ate-inference-unavailable-20261021.md` contains the source-bound B31 citation, HTE schema/caller crosswalk, reuse options, versioned inference-basis proposal, legacy interval-guard residual, migration, authority/time semantics, and falsifiers. G acceptance is false; this index entry closes no finding.
+
 ## Условный резерв: paged K_ref
 
 Пока не требуется выбирать новую representation. Сначала extend существующие DataForge/SKG/L3 owner readers до полного streaming с неизменными row/time/profile/hash semantics. Первый 19-path candidate находится на independent HOLD по отсутствующей composed parity/removal/source-replacement проверке и двум public-artifact companions; это engineering queue, не новая semantics. Старый actual served abort на 3 GiB не доказывает OOM и не доказывает, что полный map не помещается. Если после исправления и измерения остаётся именно floor полного immutable map/copy, тогда отдельный G choice: bounded eager budget либо paged immutable CAS view с новым consumer/iteration/hash/migration контрактом. Сейчас не выбирать pagination авансом.

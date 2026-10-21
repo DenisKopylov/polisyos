@@ -50035,5 +50035,88 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-prepared-removal-matched-control-owned-adoption-20261021-r1": {
+    "slice_base": "edf9da9dac3c663f6c5b5cd6418dce281390221a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "b1bb4aeec19a488b0b3c0e5e061437edb630103435c4e8e2ee5420595263787c",
+        "git_base_preimage_sha256": "895ea350a8de8325646a8286b5afe222a2e68d09091fc206da12ed3c97f1537e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/test.postimage.py",
+        "postimage_sha256": "fbdf46dc04331981bb64978d4ccd2797239c174957aa59744f126c239578ca17",
+        "postimage_bytes": 32025
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-matched-control-owned-adoption-20261021-r1/source-application.json",
+      "sha256": "a1c42f1cba75b06760dc3cc1df4bf53c4c4a37742d51df335216ed04d30289ae"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-matched-control-owned-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/manifest.json",
+        "sha256": "ecc517597a653c1027345e68a606639a487b46fa9ed69c829db85917d942fae2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/known-owned-applied-provenance.json",
+        "sha256": "d28335c9c285916e37b5ab4b0a6500f1d4be8616c9436dc2a1ce6ac5ea32916a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/known-owned-applied.postimage.py",
+        "sha256": "b1bb4aeec19a488b0b3c0e5e061437edb630103435c4e8e2ee5420595263787c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/proposed-matched-mutant-companion.patch",
+        "sha256": "62e88eccb414eec7538f2d24d44a8ad7a4ab3ce5ef85da5d8a97f652a93a3a07"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/complete-proposed-base.patch",
+        "sha256": "0ad5f249ad71a62f08deab2a4861fc2a6989d0aa5f95afb728a834fbea156c9b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-mutant-companion-independent-review-20261021-r1/review.json",
+        "sha256": "9bbbb93e79b113febc649f9cd952e6159c677d4a0ebc6fc4293e0801e818cdfa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-wrapper-branch-return-independent-review-20261021-r1/review.json",
+        "sha256": "0b37ea376d8d89261c3ccd51741c2b6ec1bfa7cce0567dd56bc0f84f9ee63c49"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-b22-current-launch-635413bcd1bd-20261021-r2/actual/result.json",
+        "sha256": "0c334fd81089c0fd02547715157d7eef6bd313f6e9d99393646ae30d17d453a8"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-prepared-removal-owned-return-preservation-and-mutant-proposal-20261021-r1/known-owned-applied-provenance.json",
+      "sha256": "d28335c9c285916e37b5ab4b0a6500f1d4be8616c9436dc2a1ce6ac5ea32916a"
+    },
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same branch-locality mutant object-identity class, second finding widened to both sibling leakage and tier-base invariance",
+      "falsifier": "Mutant preserves real journals/typed branches and declared scopes, shares only the writer list with the reader, verifies it is not the tier-base list; actual parallel sibling must observe failed write while committed base stays seed."
+    },
+    "bounded_proof": "Independent0b37ea return review plus9bbbb93e matched-mutant full sourceGO/nativeRuff; exact known-owned-applied provenance, preserved unique bytes, root guarded ordinary append-only commit and branch readback.",
+    "limitations": [
+      "Only a removal-control test companion; actual pytest is UNRUN after this repair.",
+      "One return was mistakenly written by the assigned agent to canonical rather than RAW; exact actor/preimage/postimage/diff corroborated and preserved, no reset/restore/rebase.",
+      "Root applies only independently reviewed matched-mutant companion and commits full coherent test delta plus required records.",
+      "PreparedB543=532P11F remains exact635413 actual; all13 selector routes62call positives do not close original criteria or unrun3removalprofiles.",
+      "No formal G acceptance or closure IDs."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual whole test_prepared_b_removal_controls.py plus separately frozen three property-removal profiles; require unchanged-base positive, actual parallel sibling leakage on property removal and matching journals, then source-qualified whole PreparedB composition after remaining reviewed companion fixes.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

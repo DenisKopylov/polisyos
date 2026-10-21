@@ -230,11 +230,18 @@ def test_branch_isolation_removal_leaks_to_real_parallel_sibling(
                         reader_nested = reader_branch.state.params["nested"]
                         if not isinstance(reader_nested, dict):
                             raise AssertionError("reader branch nested receiver must be a mapping")
-                        # Remove only sibling-locality for the writer's nested
-                        # receiver. Models, wrappers, journals, and scoped writes stay active.
+                        # Keep the tier base immutable while removing only the
+                        # sibling-locality of the writer's nested list receiver.
+                        # The reader's declared write path does not copy nested.
+                        reader_nested = dict(reader_nested)
+                        dict.__setitem__(reader_branch.state.params, "nested", reader_nested)
                         dict.__setitem__(reader_nested, "items", shared_items)
+                        assert reader_nested is not base_state.params["nested"]
+                        assert reader_nested["items"] is shared_items
+                        assert base_state.params["nested"]["items"] is not shared_items
                         writer_journals.append(writer_journal)
                         reader_journals.append(reader_journal)
+                return branch
 
             assert patcher is not None
             patcher.setattr(async_engine, "branch_state", share_writer_path_with_reader)

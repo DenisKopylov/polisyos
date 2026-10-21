@@ -1,0 +1,220 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "c05-c07-canonical-source-composition-20261021",
+  "source": {
+    "base": "7db753de1d7abfd4f460f7c7cec7ef1f454fd62c",
+    "candidate": "2df13887f2d06788c6a3fbb22e32bca5eac9e002",
+    "tree": "d1fc2155ced21a8c612ae2c9371b90bfd5b9f154",
+    "parents": [
+      "7db753de1d7abfd4f460f7c7cec7ef1f454fd62c"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-20261021-r1/implementation-readback.json",
+      "sha256": "70805e84976c3343ad0a828455b869f03f5239edd83d83072ff2853ca3ed7377"
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+        "sha256": "c301ea972d3e4957a91ff7f94e290c4df56a93960b41cedfe4ef3623c1816ef5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+        "sha256": "1f0e49771950320fe1ec5016f40b5616c8b76d39372a0a0959d745e579c667e4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
+        "sha256": "cce2d35c885368d53b5b2c36993739a98fabb6687666c168d061459bd876f9c1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "sha256": "f9d72d0f7ba35d29421bad5b25d1febba9a2f41bfaa45fa8b1c2a94e5141f0e2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/publish.py",
+        "sha256": "6b62cbf70ef1b3225e3f48a495fc80a815f6d08175d32e3f4ffc43038dacd2dd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/qc.py",
+        "sha256": "08f3587092106b1b46a943fadb361738a8af1dad082a50af6d00dcda14999492"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+        "sha256": "531bb7ce86dd23f7c575abf983054a07340a5393984ed24190447a89870c23e9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/quality.py",
+        "sha256": "4e1ba107841732c4c4901a6fa13f5cd2d5b4c1650449ccde798f8c0539fcc2c3"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/shadow.py",
+        "sha256": "aa2d9d20184e400b41ed10dff34bf0604b98b48deb9c5b8c9a815543b987029a"
+      },
+      {
+        "path": "policy-engine/tests/integration/data_forge_runtime/test_catalog_to_runtime_bridge.py",
+        "sha256": "ec7f07d4d2a7514403431d9d19372c9132b88871dc7600c3d66ac1a7624132ab"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_normalizer.py",
+        "sha256": "ad147c1c9b153647ea07a8c4019c945815b688d5c3bdd9fb7a6b1e050b60630a"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+        "sha256": "16f26a8c6f052ebbdc59d9db21b980f60a1a51e17f1cf4efe9e76af9221758d0"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+        "sha256": "2319ee5e9188713ab014a92f0f2dd42904738ebc8b2160a27a185d7838f7a0df"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/test_phase0c_non_lex_domain_split.py",
+        "sha256": "08e6d6200ecf08919746de52a0465342403646f1b413a63b07172cc2d7e08684"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/test_phase3_catalog_completion.py",
+        "sha256": "6153ffe43b132886e6b2cda50ba1d3f84c7210f5b7bfcc4a2f49729612912b47"
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+        "sha256": "5cf97c5ab3bd89c081a17c85bdf6b3a27db8cb469ac2091725b3a412726d70a7"
+      }
+    ]
+  },
+  "authored_source_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-report-basis-author-r3-20261021/R3-proposal-manifest.json",
+      "sha256": "311a06a00e0ec009198a335e265a2956856415ed9f8658e99a020fc6f1003191"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-ranking-order-companion-r1-20261021/companion-map-and-verification.json",
+      "sha256": "50d7fabf8c19c5dfed5f7d0dd10c7bf11087e10ab85d5695760d1881e1e05b81"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-format-independent-20261021-r1/assessment.md",
+      "sha256": "0e1ea3bf44934bd8882f16d91fe71a16723ce84bfb78e58fcf0ddf4c15e95129"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-ranking-order-companion-r1-independent-review-20261021/review-r1.json",
+      "sha256": "9e12b4ffb63dd34abe2c2b073eeb0a7cdbbda84f7f5785943a2a0912a5fe4516"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P03",
+      "P14",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Recompute report/QC readiness from native receipts and selected graph/profile inputs at publisher/fresh-reader intake; inference cannot outrank readiness tiers.",
+    "capability_boundary": "Focused canonical source composition; whole supplier/currentness/HTTP/installed consumers remain unverified."
+  },
+  "verification": {
+    "selected_input_profile_backend": "Existing local Python 3.14 venv and DuckDB; 3 mirrored unit modules with local fixtures; no network/prod writes; source SHA set is the committed footprint.",
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-20261021-r1/verification-r2/pytest-invocation.json",
+        "sha256": "160631d90f6a9fe814dfa235fc221aa824d9f4dcb5ea23196ea6ace23294850c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-20261021-r1/verification-r2/ruff-invocation.json",
+        "sha256": "787de29500472b3d75ce41ee3e198069a4f1b65b8ec8742a6beb375b1c566d4c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-20261021-r1/verification-r2/format-invocation.json",
+        "sha256": "8e3e007f974180c1c596b2ce3de0c81155f9d5ab6852c1b318b7c16b2f049b97"
+      }
+    ],
+    "pytest": {
+      "passed": 64,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 26.62,
+      "warnings": [
+        "Plugin autoload disabled; pytest.ini asyncio_mode and cache_dir options unused in this bounded run."
+      ],
+      "inputs": [
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_normalizer.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_store.py"
+      ]
+    },
+    "ruff": {
+      "python_inputs": 15,
+      "check": "PASS",
+      "format_check": "PASS",
+      "formatter_delta": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-20261021-r1/format-ast-equal-readback.json",
+        "sha256": "2dda24f92bf1c1d90d87948b8545cee2814ebaa87f4f4277ee7a8728ab9fc1e2"
+      }
+    },
+    "earlier_harness_result": {
+      "pytest_initial_exit": 4,
+      "cause": "Disabled plugin autoload conflicted with pytest.ini benchmark-storage option; no tests collected. Corrected by explicit addopts preserving importlib and strict-markers; full output retained.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-adoption-20261021-r1/pytest.stderr",
+        "sha256": "d413d6267ef99341c47972132ab3fde75179fe5225c942b899d1e99306ce23dc"
+      }
+    },
+    "producer_witness": {
+      "reference": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-report-basis-author-r3-20261021/R3-proposal-manifest.json",
+        "sha256": "311a06a00e0ec009198a335e265a2956856415ed9f8658e99a020fc6f1003191"
+      },
+      "pointer": "/verification/producer_chain",
+      "treatment": "Historical source-qualified R3 controlled World Bank metadata/native observation witness; source has since been composed and formatted. It is not a fresh canonical runtime receipt or live production currentness."
+    },
+    "adversarial_and_removal_controls": {
+      "references": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-report-basis-author-r3-20261021/R3-proposal-manifest.json",
+          "sha256": "311a06a00e0ec009198a335e265a2956856415ed9f8658e99a020fc6f1003191"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-ranking-order-companion-r1-20261021/companion-map-and-verification.json",
+          "sha256": "50d7fabf8c19c5dfed5f7d0dd10c7bf11087e10ab85d5695760d1881e1e05b81"
+        }
+      ],
+      "property": "Forged ready/QC flags and rehashed reports refuse; higher inference cannot defeat higher readiness across all three readiness-tier pairs. Ranking mutation changes the actual winner."
+    }
+  },
+  "consumer_surface": {
+    "implemented": "Catalog publisher and selected-profile report-basis reader; metric-binding selection and mirrored RetrievalService companions.",
+    "remaining": "Ordinary POST/N5/CAS/fresh GET and actual current authentic/installed serving chain must run on the final composed freeze."
+  },
+  "limitations": [
+    "13 distinct supplier blobs and G-only _resources.py preserved; all-13 runtime proof UNRUN.",
+    "Controlled 50 observation rows are 25 unique country-year points times two aliases; no extra independent evidence claim.",
+    "No external custody/currentness, issuer, calibration, law, qualifying production workload, native global green, or G acceptance established.",
+    "No P41 inherited disposition established; full native SOTA and installed/rebuilt-sdist wave remain UNRUN."
+  ],
+  "proposal_fields": {
+    "finding_level_outcome": "No new formal closures; original source proposals remain limited and require exact whole-criterion replay.",
+    "original_id_occurrence_proposals": {
+      "reference": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-c07-report-basis-author-r3-20261021/R3-proposal-manifest.json",
+        "sha256": "311a06a00e0ec009198a335e265a2956856415ed9f8658e99a020fc6f1003191"
+      },
+      "pointer": "/proposal_fields"
+    },
+    "G_adjudication": "not_adjudicated"
+  },
+  "closure_ids": [],
+  "capability_state": "verification_missing",
+  "receipt_qualification": {
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-q2-canonical-handoffs-independent-20261021-r1/assessment.md",
+      "sha256": "1f747240f3996507fee16f61014396c9f4a9e91c8e955b766f163f95ffaab826"
+    },
+    "scope": "Source identity and retained deciding outputs only; all final wording qualifications applied."
+  }
+}

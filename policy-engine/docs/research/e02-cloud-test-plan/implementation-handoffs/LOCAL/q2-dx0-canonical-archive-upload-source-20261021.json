@@ -1,0 +1,177 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "q2-dx0-canonical-archive-upload-source-20261021",
+  "source": {
+    "base": "2df13887f2d06788c6a3fbb22e32bca5eac9e002",
+    "candidate": "9cad4dfa4cdd879acd43415606a9f87467d222a1",
+    "tree": "4dc54baea08887a0412584b8e461bac075c1b399",
+    "parents": [
+      "2df13887f2d06788c6a3fbb22e32bca5eac9e002"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "input_R7_tree": "42740db8519701388094c45b40cd1b418fd668ac",
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/implementation-readback.json",
+      "sha256": "abc0724fae354b4855f89c34158820daf4bcb5a63e71c4e39596a4bd86c4df98"
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/ops/cloud/README.md",
+        "sha256": "f9b6923f883c6403ee44177d51808f4e0a03d28ca46a905b87b886755dfd1905",
+        "bytes": 1278
+      },
+      {
+        "path": "policy-engine/ops/cloud/gcp/package_repo.sh",
+        "sha256": "c919dde189aeed0455fc3e851a75f21f1dd936ec5194dfed4274caccc718cd6b",
+        "bytes": 11197
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_gcp_package_assets.py",
+        "sha256": "1f5dd847d95e0f79fbde3f48a7d0b01ccf41b40b12412b18b6646d29b398a87e",
+        "bytes": 28769
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py",
+        "sha256": "fce969bcc286442bc6d09fd6e8dfe946086e2ac74e069b4f0274d348cb26497f",
+        "bytes": 12385
+      }
+    ]
+  },
+  "authored_source_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-dx0-archive-wheel-chain-r7-20261021-r1/q2-dx0-packaging-source-handoff-r7.json",
+      "sha256": "8fd2958e96b7e9fdb79d1199412e8d9d4931a730489f36766951b808957ab1da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/q2-source-root-successor-readback-r5.json",
+      "sha256": "bb3b727f0430e3e33062c6633bc3b6db91dce0b7d1813106d6794324ac62026e"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-dx0-archive-wheel-chain-r7-20261021-r1/independent-review-q2-dx0-r7-current/independent-review.json",
+      "sha256": "348b311f841496c0f2ed299253b72909210a14a81b813544884948e974294060"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-root-independent-20261021-r1/review-r4.json",
+      "sha256": "1566158f4388d960dd3a805dba054bf78c181a0c71890d007136d6929d8d005f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-root-independent-20261021-r1/review-r5-delta.json",
+      "sha256": "9b2b604af454452e158ca357da9a7dca741cc751166e23455a9b64099ac8fed4"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P03",
+      "P07",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "property": "Archive bytes are selected committed Git blobs from the physical workspace root, with replacement refs disabled; configured wheel assets join that same tree; upload reads the opened archive through supported SDK stdin streaming.",
+    "divergent_case_repaired": "A nested script without its own Git repository inherited an otherwise valid parent repository and archived the parent source under the nested location. Exact root equality now refuses before output creation.",
+    "capability_boundary": "Source/fixture-chain implementation with exact source-bound local negatives; actual final archive/sdist/wheel/installed consumers and cloud upload remain unverified."
+  },
+  "behavior": [
+    "Require the actual physical Git top-level to equal the selected physical workspace root before archive creation.",
+    "Read manifest and archive payload from the exact committed Git tree with GIT_NO_REPLACE_OBJECTS=1 and top/literal pathspecs, preserving force-include resource paths.",
+    "Refuse uncommitted selected source, nonregular archive members, protected production_data force-include, and preexisting destination.",
+    "Create a new archive with no-clobber file descriptor; upload with gcloud storage cp - from that descriptor, avoiding path replacement and macOS spawn/descriptor alias behavior."
+  ],
+  "verification": {
+    "selected_input_profile_backend": "Existing Python 3.14 venv, local Git fixture repositories, tar/gzip and installed SDK source/routing probes; no network upload or production payload write.",
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/verification-r5/pytest-invocation.json",
+        "sha256": "e95afede852cdccc37e2f12cc6c9122d63d1c828e38b561c15e2f14f00fc0855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/verification-r5/ruff-invocation.json",
+        "sha256": "36ec5d0d3e73c0f74de0a14e24ed824b2e792b77bcbc477c9053f5d8c0a0075e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/verification-r5/format-invocation.json",
+        "sha256": "a693841375efff7e5fa5a8313cbc0bb868373ba19279649a5921370603a1bbae"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/verification-r5/bash-n-invocation.json",
+        "sha256": "f01204724979a7100087ff095888f562d69052564f56107101ae272ee9b13a70"
+      }
+    ],
+    "pytest": {
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 19,
+      "elapsed_seconds": 2.46,
+      "module": "tests/repo_quality/tools/test_gcp_package_assets.py",
+      "warnings": [
+        "Plugin autoload disabled; unused asyncio_mode/cache_dir pytest.ini options recorded."
+      ]
+    },
+    "ruff": {
+      "python_inputs": 2,
+      "check": "PASS",
+      "format_check": "PASS",
+      "ast_equal_final_test_format": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r7-adoption-20261021-r1/format-ast-equal-readback.json",
+        "sha256": "0857adaa0424ada407a98e33b2ba4ecdabbb8d005cf60804ab26253aa327ef05"
+      }
+    },
+    "bash_syntax": "PASS",
+    "real_chain": "Tiny committed Git source fixture -> exact-tree archive -> reopen member bytes; local mocked upload/actual SDK routing establishes descriptor-to-stdin path only.",
+    "adversarial_and_removal_controls": {
+      "reference": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-root-independent-20261021-r1/review-r4.json",
+        "sha256": "1566158f4388d960dd3a805dba054bf78c181a0c71890d007136d6929d8d005f"
+      },
+      "proof": "Independent old-R7 removal-positive produced one archive with valid ancestor committed bytes from a nested script; successor refuses before mkdir. Physical symlink alias to the actual workspace stays admissible.",
+      "other_controls": "Replacement refs, untracked root selection, nested caller cwd, committed source over replaced working bytes, and archive descriptor path swap are source-qualified in R7 and focused final tests."
+    },
+    "earlier_results": {
+      "R1": "6 passed / 1 failed: actual canonical nested-parent defect, fixed by root predicate.",
+      "R2": "7 passed / 1 failed plus Ruff PT007: stale nested-caller fixture contract and style companion.",
+      "R3": "9 passed; Ruff PT006, fixed.",
+      "R4": "9 passed and Ruff/baseline shell pass; final formatter delta followed.",
+      "treatment": "Complete outputs retained per verification-rN directories. They are not called passes for final source. R5 is the final deciding replay."
+    },
+    "identity_correction": "Earlier successor-readback candidate_tree field was the R7 input tree; R4/R5 explicitly distinguish input_tree from not_established uncommitted composed identity. Only actual implementation-readback candidate/tree identify the delivered successor. R7 byte-size fields are input sizes; source footprint above gives committed postimage byte sizes."
+  },
+  "consumer_surface": {
+    "implemented": "ops/cloud/gcp/package_repo.sh and local GCP/Hatch packaging tests and caller docs.",
+    "remaining": "Final committed source -> native archive -> rebuilt sdist -> exact installed wheel/resource consumers, canonical generated scanner proof and supported Linux worker."
+  },
+  "limitations": [
+    "No actual GCP upload, final repository archive/wheel/sdist install, full 135-plus-supplemental consumer replay, native SOTA green, or qualifying production run established.",
+    "Verification input/profile/backend freeze is not established; delivered code source is pinned at 9cad4dfa4cdd879acd43415606a9f87467d222a1. The 15 test/11 asset source pins require final coherent-source regeneration rather than old readiness.",
+    "No production data, manifests, descriptor hashes or external custody/currentness assertions changed.",
+    "Normal hook completion skipped unrelated checks; it is not Python/native green or G acceptance."
+  ],
+  "proposal_fields": {
+    "task_routes": [
+      "DX0",
+      "Q2"
+    ],
+    "status": "limited source implementation proposal; final consumer verification pending",
+    "finding_level_changes": [],
+    "G_adjudication": "not_adjudicated",
+    "next_check": "After coherent source freeze, regenerate canonical packaging/installed consumer inputs, run one native archive/sdist/wheel chain and exact installed behavior/resource/removal controls."
+  },
+  "closure_ids": [],
+  "capability_state": "verification_missing",
+  "receipt_qualification": {
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-q2-canonical-handoffs-independent-20261021-r1/assessment.md",
+      "sha256": "1f747240f3996507fee16f61014396c9f4a9e91c8e955b766f163f95ffaab826"
+    },
+    "scope": "Source identity and retained deciding outputs only; all final wording qualifications applied."
+  }
+}

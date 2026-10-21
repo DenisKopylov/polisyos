@@ -1743,6 +1743,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-fabric-n818-decision-admission-20261021.json",
       "sha256": "78f4002e8f1d2ea6f745a4ae6947abd391dd87af8271c61bc79e250a5b303518"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-c07-canonical-source-composition-20261021.json",
+      "sha256": "04386d3ab8c13eb4932b2b9e446c5470f41a9e4a3397b2042488d0df26fd7e98"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-dx0-canonical-archive-upload-source-20261021.json",
+      "sha256": "e799d5d1ab7ec3e7c6d2c90c85c9b2d4123cb0f42627b2d81201424a3b745612"
     }
   ],
   "canonical_denominator_recomputed": {

@@ -943,12 +943,22 @@ def _owner_consumed_input_set(
                 identity=_content_sha256({"member_id": member_id, "resolved_identity": identity}),
             )
         )
-    for module_name, relative_path in _owner_source_closure(repo_root):
+    runtime_projection_sha256, source_closure, source_hashes = _owner_source_runtime_projection(
+        repo_root
+    )
+    for module_name, relative_path in source_closure:
+        try:
+            source_hash = source_hashes[module_name]
+        except KeyError as exc:
+            raise OwnerProjectionError(
+                "owner_source_runtime_member_missing",
+                module_name,
+            ) from exc
         members.append(
             _resolved_consumed_member(
                 member_id=f"module:{module_name}",
                 member_kind="source",
-                identity=_file_sha256(repo_root / relative_path),
+                identity=source_hash,
             )
         )
     for name, declared_value in _declared_owner_environment().items():
@@ -977,7 +987,14 @@ def _owner_consumed_input_set(
             _resolved_consumed_member(
                 member_id="confidence-ledger-loaded-runtime",
                 member_kind="loader_binding",
-                identity=confidence_ledger._policy_engine_deployment_identity(repo_root),
+                identity=_content_sha256(
+                    {
+                        "confidence_ledger_deployment_identity": (
+                            confidence_ledger._policy_engine_deployment_identity(repo_root)
+                        ),
+                        "owner_source_runtime_projection_sha256": runtime_projection_sha256,
+                    }
+                ),
             ),
             _resolved_consumed_member(
                 member_id="governed-promotion-history",
@@ -1056,6 +1073,83 @@ def _resolved_consumed_member(
             "predicate_class": predicate_class,
         }
     )
+
+
+def _owner_source_runtime_projection(
+    repo_root: Path,
+) -> tuple[str, tuple[tuple[str, str], ...], dict[str, str]]:
+    """Reconcile every N11 source input with its loaded routes, code, and runtime."""
+
+    from polisyos.runtime.quality import confidence_ledger
+
+    analysis = confidence_ledger._IntegrityAnalysisContext()
+    token = confidence_ledger._ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        closure = _owner_source_closure(repo_root)
+        confidence_ledger._import_authority_closure_modules(closure)
+        facade_projection, supplemental = confidence_ledger._source_facade_runtime_projection(
+            repo_root,
+            closure,
+        )
+        closure_by_name = dict(closure)
+        for module_name, relative_path in supplemental:
+            if closure_by_name.get(module_name) != relative_path:
+                raise OwnerProjectionError(
+                    "owner_source_runtime_provider_outside_closure",
+                    module_name,
+                )
+        runtime_closure = confidence_ledger._combined_runtime_code_closure(
+            closure,
+            supplemental,
+        )
+        loaded_code_manifest, consistent = confidence_ledger._loaded_code_manifest(
+            repo_root,
+            runtime_closure,
+        )
+        if not consistent:
+            raise OwnerProjectionError("owner_source_runtime_code_mismatch")
+        analysis.assert_sources_unchanged()
+        loaded_rows = json.loads(loaded_code_manifest)
+        if type(loaded_rows) is not dict or set(loaded_rows) != set(closure_by_name):
+            raise OwnerProjectionError("owner_source_runtime_manifest_incomplete")
+        source_hashes: dict[str, str] = {}
+        for module_name, relative_path in closure:
+            row = loaded_rows.get(module_name)
+            if type(row) is not dict or row.get("relative_path") != relative_path:
+                raise OwnerProjectionError(
+                    "owner_source_runtime_manifest_mismatch",
+                    module_name,
+                )
+            source_hash = row.get("source_hash")
+            if not isinstance(source_hash, str) or not source_hash.startswith("sha256:"):
+                raise OwnerProjectionError(
+                    "owner_source_runtime_source_hash_missing",
+                    module_name,
+                )
+            source_hashes[module_name] = source_hash
+        runtime_projection_sha256 = _content_sha256(
+            {
+                "source_closure": closure,
+                "facade_runtime_projection": json.loads(facade_projection),
+                "loaded_code_manifest": loaded_rows,
+                "python_runtime_manifest": confidence_ledger._python_runtime_manifest(),
+            }
+        )
+        return runtime_projection_sha256, closure, source_hashes
+    except OwnerProjectionError:
+        raise
+    except confidence_ledger.ConfidenceLedgerError as exc:
+        raise OwnerProjectionError(
+            "owner_source_runtime_binding_mismatch",
+            exc.code,
+        ) from exc
+    except (OSError, TypeError, ValueError, AttributeError, SyntaxError) as exc:
+        raise OwnerProjectionError(
+            "owner_source_runtime_binding_mismatch",
+            type(exc).__name__,
+        ) from exc
+    finally:
+        confidence_ledger._ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
 
 def _owner_source_closure(repo_root: Path) -> tuple[tuple[str, str], ...]:

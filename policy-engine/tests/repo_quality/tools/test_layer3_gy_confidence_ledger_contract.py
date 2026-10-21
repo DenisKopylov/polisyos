@@ -5,7 +5,9 @@ import faulthandler
 import json
 import os
 import signal
+import sys
 import time
+import types
 from collections.abc import Callable, Iterator
 from contextlib import suppress
 from dataclasses import asdict, replace
@@ -2418,3 +2420,106 @@ def _stub_n13b_recomputation(
         "derive_n13b_acquisition_executor_contract",
         lambda **_kwargs: recomputed,
     )
+
+
+def test_n11_consumed_inputs_reconcile_complete_loaded_tools_closure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The N11 pre-fence binds exact source and loaded code for its whole owner closure."""
+
+    from polisyos.runtime.quality import confidence_ledger
+
+    catalog_path = tmp_path / "catalog.duckdb"
+    l5_path = tmp_path / "measurement_registry.json"
+    monkeypatch.setattr(adapter, "_owner_cache_fence_records", lambda *_args, **_kwargs: ())
+    original_runtime_projection = adapter._owner_source_runtime_projection
+    witnessed: list[tuple[str, tuple[tuple[str, str], ...], dict[str, str]]] = []
+
+    def capture_runtime_projection(
+        root: Path,
+    ) -> tuple[str, tuple[tuple[str, str], ...], dict[str, str]]:
+        result = original_runtime_projection(root)
+        witnessed.append(result)
+        return result
+
+    monkeypatch.setattr(adapter, "_owner_source_runtime_projection", capture_runtime_projection)
+    positive = adapter._owner_consumed_input_set(
+        POLICY_ENGINE_ROOT,
+        catalog_path=catalog_path,
+        l5_path=l5_path,
+    )
+    assert len(witnessed) == 1
+    runtime_projection_sha256, closure, source_hashes = witnessed[0]
+    closure_by_name = dict(closure)
+    assert closure_by_name["polisyos.fabric"] == "src/polisyos/fabric/__init__.py"
+    assert "tools" in {name.partition(".")[0] for name, _path in closure}
+    assert set(source_hashes) == set(closure_by_name)
+    source_member_names = {
+        member.member_id.removeprefix("module:")
+        for member in positive.members
+        if member.member_id.startswith("module:")
+    }
+    assert set(closure_by_name) == source_member_names
+    for module_name, relative_path in closure:
+        assert source_hashes[module_name] == adapter._file_sha256(
+            POLICY_ENGINE_ROOT / relative_path
+        )
+    ledger_identity = confidence_ledger._policy_engine_deployment_identity(POLICY_ENGINE_ROOT)
+    loader_binding = next(
+        member
+        for member in positive.members
+        if member.member_id == "confidence-ledger-loaded-runtime"
+    )
+    expected_loader_identity = adapter._content_sha256(
+        {
+            "confidence_ledger_deployment_identity": ledger_identity,
+            "owner_source_runtime_projection_sha256": runtime_projection_sha256,
+        }
+    )
+    assert loader_binding.declared_identity == expected_loader_identity
+    assert loader_binding.resolved_identity == expected_loader_identity
+
+    module_name = "tools.quality.validation.check_layer3_gy_confidence_ledger"
+    consumer = sys.modules[module_name]
+    original_consumer = consumer.build_live_contract
+    sibling_code = consumer.declared_outputs.__code__
+    rebound = types.FunctionType(
+        sibling_code,
+        original_consumer.__globals__,
+        name=original_consumer.__name__,
+        argdefs=original_consumer.__defaults__,
+        closure=original_consumer.__closure__,
+    )
+    rebound.__module__ = original_consumer.__module__
+    rebound.__qualname__ = original_consumer.__qualname__
+    rebound.__kwdefaults__ = original_consumer.__kwdefaults__
+    rebound.__annotations__ = original_consumer.__annotations__
+    monkeypatch.setattr(consumer, "build_live_contract", rebound)
+
+    source_hashes_after_rebind = {
+        relative_path: adapter._file_sha256(POLICY_ENGINE_ROOT / relative_path)
+        for relative_path in closure_by_name.values()
+    }
+    assert source_hashes_after_rebind == {
+        relative_path: source_hashes[module_name] for module_name, relative_path in closure
+    }
+    assert (
+        confidence_ledger._policy_engine_deployment_identity(POLICY_ENGINE_ROOT) == ledger_identity
+    )
+
+    cache_calls: list[tuple[object, ...]] = []
+
+    def forbidden_projection_cache(*args: object) -> object:
+        cache_calls.append(args)
+        raise AssertionError("rebound loaded consumer reached N11 projection derivation")
+
+    monkeypatch.setattr(adapter, "_load_owner_bundle_cached", forbidden_projection_cache)
+    with pytest.raises(adapter.OwnerProjectionError) as exc_info:
+        adapter.load_owner_bundle(
+            POLICY_ENGINE_ROOT,
+            catalog_path=catalog_path,
+            l5_path=l5_path,
+        )
+    assert exc_info.value.code == "owner_source_runtime_code_mismatch"
+    assert cache_calls == []

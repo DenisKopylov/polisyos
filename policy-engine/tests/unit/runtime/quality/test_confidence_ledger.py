@@ -2467,6 +2467,28 @@ def test_source_import_routes_prefer_bound_attributes_before_child_modules(
 
     directory_entries: dict[Path, frozenset[str]] = {}
     source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    fabric_candidate = ledger_module._source_module_import_route_candidate(
+        REPO_ROOT,
+        "polisyos.fabric",
+        "atomic_write_json",
+        directory_entries={},
+        source_index=ledger_module._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert fabric_candidate.route == (
+        "symbol",
+        "polisyos.fabric.io.atomic",
+        "atomic_write_json",
+    )
+    assert fabric_candidate.binding_basis == "literal_getattr"
+    assert fabric_candidate.package_initializer_effect_unknown is True
+    with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
+        ledger_module._source_module_import_route(
+            REPO_ROOT,
+            "polisyos.fabric",
+            "atomic_write_json",
+            directory_entries={},
+            source_index=ledger_module._AuthorityImportClosureSourceIndex({}, {}),
+        )
     direct_route = ledger_module._source_module_import_route(
         repo_root,
         f"{prefix}.direct_facade",
@@ -2501,6 +2523,17 @@ def test_source_import_routes_prefer_bound_attributes_before_child_modules(
     assert self_import_route == ("module", f"{prefix}.self_import_facade.Child", None)
     for name, scenario in initializer_cases.items():
         if scenario["expected"] == "refuse":
+            if name == "direct_unknown_initializer_facade":
+                candidate = ledger_module._source_module_import_route_candidate(
+                    repo_root,
+                    f"{prefix}.{name}",
+                    "X",
+                    directory_entries=directory_entries,
+                    source_index=source_index,
+                )
+                assert candidate.route == ("symbol", f"{prefix}.{name}", "X")
+                assert candidate.binding_basis == "direct"
+                assert candidate.package_initializer_effect_unknown is True
             with pytest.raises(ConfidenceLedgerError, match="package initializer namespace effect"):
                 ledger_module._source_module_import_route(
                     repo_root,
@@ -2550,7 +2583,6 @@ def test_source_import_routes_prefer_bound_attributes_before_child_modules(
     assert closure[f"{prefix}.self_import_facade.Child"] == (
         f"src/polisyos/{fixture_name}/self_import_facade/Child.py"
     )
-
     package_module = importlib.import_module("polisyos")
     monkeypatch.setattr(
         package_module,
@@ -7439,6 +7471,166 @@ else:
     }
 
 
+def test_source_facade_projection_binds_selected_export_across_unrelated_initializer_effects(
+    tmp_path: Path,
+) -> None:
+    """Source bytes, live maps, and the selected consumer jointly prove a lazy route."""
+
+    repo_root = tmp_path / "selected-source-binding-repo"
+    package_name = "_n17_source_binding_" + hashlib.sha256(str(tmp_path).encode()).hexdigest()[:12]
+    package_root = repo_root / "src" / "polisyos" / package_name
+    facade_root = package_root / "facade"
+    facade_root.mkdir(parents=True)
+    (repo_root / "pyproject.toml").write_text(
+        '[project]\nname = "selected-source-binding-fixture"\n', encoding="utf-8"
+    )
+    (repo_root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
+    (package_root / "__init__.py").write_text("", encoding="utf-8")
+    provider_name = f"polisyos.{package_name}.facade.provider"
+    (facade_root / "provider.py").write_text("class One:\n    pass\n", encoding="utf-8")
+    (facade_root / "__init__.py").write_text(
+        "import importlib\n"
+        "import sys\n"
+        "from types import ModuleType\n"
+        "class _LazyReexportModule(ModuleType):\n"
+        "    def __init__(self, alias_fqn, target_fqn):\n"
+        "        super().__init__(alias_fqn)\n"
+        "        self._target_fqn = target_fqn\n"
+        "    def __getattr__(self, name):\n"
+        "        target = importlib.import_module(self._target_fqn)\n"
+        "        return getattr(target, name)\n"
+        "_LAZY_EXPORTS = {\n"
+        f'    "One": ("{provider_name}", "One"),\n'
+        "}\n"
+        "def _install_compat_aliases():\n"
+        f'    alias_fqn = "polisyos.{package_name}.facade.facade_compat"\n'
+        f'    target_fqn = "{provider_name}"\n'
+        "    alias = _LazyReexportModule(alias_fqn, target_fqn)\n"
+        "    sys.modules[alias_fqn] = alias\n"
+        '    setattr(sys.modules[__name__], "facade_compat", alias)\n'
+        "_install_compat_aliases()\n"
+        "def __getattr__(name):\n"
+        "    if name not in _LAZY_EXPORTS:\n"
+        "        raise AttributeError(name)\n"
+        "    module_name, symbol_name = _LAZY_EXPORTS[name]\n"
+        "    module = importlib.import_module(module_name)\n"
+        "    value = getattr(module, symbol_name)\n"
+        "    globals()[name] = value\n"
+        "    return value\n",
+        encoding="utf-8",
+    )
+    (package_root / "entry.py").write_text(
+        f"def load_selected():\n"
+        f"    from polisyos.{package_name}.facade import One as local_selected\n"
+        "    return local_selected\n"
+        "selected = load_selected()\n",
+        encoding="utf-8",
+    )
+
+    script = r"""
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1])
+product_source = Path(sys.argv[2])
+candidate_source = Path(sys.argv[3])
+package_name = sys.argv[4]
+sys.path.insert(0, str(product_source))
+import polisyos
+polisyos.__path__.append(str(repo_root / "src" / "polisyos"))
+spec = importlib.util.spec_from_file_location("n17_candidate_ledger", candidate_source)
+ledger = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = ledger
+spec.loader.exec_module(ledger)
+entry_name = f"polisyos.{package_name}.entry"
+closure = ledger._resolve_authority_import_closure(repo_root, entry_name)
+tool_closure = ledger._resolve_authority_import_closure(
+    repo_root,
+    entry_name,
+    include_tools=True,
+)
+assert dict(tool_closure) == dict(closure)
+ledger._import_authority_closure_modules(closure)
+projection, _supplemental = ledger._source_facade_runtime_projection(repo_root, closure)
+facade_name = f"polisyos.{package_name}.facade"
+facade = sys.modules[facade_name]
+entry = sys.modules[entry_name]
+provider = sys.modules[f"{facade_name}.provider"]
+route_candidate = ledger._source_module_import_route_candidate(
+    repo_root,
+    facade_name,
+    "One",
+    directory_entries={},
+    source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+)
+assert route_candidate.package_initializer_effect_unknown is True
+assert route_candidate.binding_basis == "literal_getattr"
+assert route_candidate.route == ("symbol", f"{facade_name}.provider", "One")
+compat_alias = sys.modules[f"{facade_name}.facade_compat"]
+assert type(compat_alias).__name__ == "_LazyReexportModule"
+assert compat_alias._target_fqn == f"{facade_name}.provider"
+assert importlib.import_module(f"{facade_name}.facade_compat") is compat_alias
+assert compat_alias.One is provider.One
+assert vars(facade)["facade_compat"] is compat_alias
+assert entry.selected is provider.One
+assert entry.load_selected() is provider.One
+assert any(row["module"] == facade_name for row in json.loads(projection)["facades"])
+original_map = dict(facade._LAZY_EXPORTS)
+try:
+    facade._LAZY_EXPORTS["One"] = (f"{facade_name}.missing", "One")
+    try:
+        ledger._source_facade_runtime_projection(repo_root, closure)
+    except ledger.ConfidenceLedgerError as exc:
+        map_drift = exc.code
+    else:
+        raise AssertionError("selected map mutation was admitted")
+finally:
+    facade._LAZY_EXPORTS.clear()
+    facade._LAZY_EXPORTS.update(original_map)
+original_selected = entry.selected
+try:
+    entry.selected = object()
+    try:
+        ledger._source_facade_runtime_projection(repo_root, closure)
+    except ledger.ConfidenceLedgerError as exc:
+        consumer_rebind = exc.code
+    else:
+        raise AssertionError("rebound consumer object was admitted")
+finally:
+    entry.selected = original_selected
+print(json.dumps({"map_drift": map_drift, "consumer_rebind": consumer_rebind}))
+"""
+    environment = os.environ.copy()
+    prior_pythonpath = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(REPO_ROOT / "src"), prior_pythonpath) if value
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            script,
+            str(repo_root),
+            str(REPO_ROOT / "src"),
+            str(Path(ledger_module.__file__).resolve()),
+            package_name,
+        ],
+        cwd=REPO_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=90,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout) == {
+        "map_drift": "canonical_loaded_runtime_mismatch",
+        "consumer_rebind": "canonical_loaded_runtime_mismatch",
+    }
+
+
 def test_source_facade_projection_reconciles_full_core_contracts_map_and_fails_closed_on_mutation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -8099,8 +8291,14 @@ def test_core_contract_facade_missing_parser_row_fails_the_actual_provider_looku
 
     facade = REPO_ROOT / "src/polisyos/core/contracts/__init__.py"
     tree = ast.parse(facade.read_bytes(), filename=facade.relative_to(REPO_ROOT).as_posix())
-    original_indexer = ledger_module._literal_module_getattr_provider_index
-    complete = original_indexer(tree)
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    complete = ledger_module._source_module_provider_index(
+        REPO_ROOT,
+        "polisyos.core.contracts",
+        tree,
+        directory_entries={},
+        source_index=source_index,
+    )
     incomplete = ledger_module._LiteralModuleGetattrProviderIndex(
         providers_by_export=types.MappingProxyType(
             {
@@ -8112,12 +8310,21 @@ def test_core_contract_facade_missing_parser_row_fails_the_actual_provider_looku
         invalid_exports=complete.invalid_exports,
         provider_symbols_by_export=complete.provider_symbols_by_export,
         generated_mapping_dispatch=complete.generated_mapping_dispatch,
+        mapping_names=complete.mapping_names,
+        module_providers_by_export=complete.module_providers_by_export,
     )
     assert complete.generated_mapping_dispatch
+
+    def index_with_missing_source_row(
+        _tree: ast.Module,
+        **_kwargs: object,
+    ) -> ledger_module._LiteralModuleGetattrProviderIndex:
+        return incomplete
+
     monkeypatch.setattr(
         ledger_module,
         "_literal_module_getattr_provider_index",
-        lambda _tree: incomplete,
+        index_with_missing_source_row,
     )
 
     with pytest.raises(ConfidenceLedgerError, match="missing repository re-export binding"):
@@ -8126,7 +8333,7 @@ def test_core_contract_facade_missing_parser_row_fails_the_actual_provider_looku
             "polisyos.core.contracts",
             "CatalogRunProfile",
             directory_entries={},
-            source_index=ledger_module._AuthorityImportClosureSourceIndex({}, {}),
+            source_index=source_index,
         )
 
 
@@ -8246,7 +8453,15 @@ def test_core_contract_generated_facade_map_binds_every_export_to_source_owner()
 
     facade = REPO_ROOT / "src/polisyos/core/contracts/__init__.py"
     tree = ast.parse(facade.read_bytes(), filename=facade.relative_to(REPO_ROOT).as_posix())
-    provider_index = ledger_module._literal_module_getattr_provider_index(tree)
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    directory_entries: dict[Path, frozenset[str]] = {}
+    provider_index = ledger_module._source_module_provider_index(
+        REPO_ROOT,
+        "polisyos.core.contracts",
+        tree,
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
     assert provider_index.invalid_exports == frozenset()
     assert provider_index.providers_by_export["CatalogRunProfile"] == frozenset(
         {"polisyos.core.contracts.control"}
@@ -8266,8 +8481,11 @@ def test_core_contract_generated_facade_map_binds_every_export_to_source_owner()
         and isinstance(node.slice, ast.Name)
         and node.slice.id == parameter_name
     )
-    source_maps, invalid_maps = ledger_module._static_facade_mapping_values(tree, mapping_names)
+    source_maps, invalid_maps, namespace_effect_unknown = (
+        ledger_module._source_declared_facade_mapping_values(tree, mapping_names)
+    )
     assert invalid_maps == frozenset()
+    assert namespace_effect_unknown
     lazy_exports = source_maps["_LAZY_IMPORTS"]
     if not lazy_exports:
         pytest.fail("Core contracts source facade must expose its lazy export map")

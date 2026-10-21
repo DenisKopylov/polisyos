@@ -47823,5 +47823,132 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ds17-r4-qualified-source-runtime-adoption-20261021-r1": {
+    "slice_base": "e6c9a7ce785888c0c46c8bc330571aed0ce98174",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "be657c73af24e573e0c2c9c3e0663f68f26d9c8533f3a0983af7f3789db2324a",
+        "preimage_bytes": 578433,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/postimages/confidence_ledger.py",
+        "postimage_sha256": "c21949cec42c15bb4b363747cce3416c2bb806c7c2b5ec34f9dcd8e5235932ce",
+        "postimage_bytes": 588644
+      },
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "9c490bb37308e3fca53b61c1ab8af0b25b4780d57fa087b20ec7d1193b01e2e0",
+        "preimage_bytes": 331951,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/postimages/test_confidence_ledger.py",
+        "postimage_sha256": "58b98a8f10f153ca7bcee9b66ed4f89893b4fe42834bce00ce44e450dc0a7647",
+        "postimage_bytes": 340592
+      },
+      "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "4157235f0a4cf086f468fed80c8b58cc03f1801c5407cf6b6041e7a323faed82",
+        "preimage_bytes": 52778,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/postimages/layer3_gy_confidence_ledger_contract.py",
+        "postimage_sha256": "7c3f18cf30dced80753c1372d197770b0f3c1ec4e302674dd82d1bcb71d29690",
+        "postimage_bytes": 56734
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "79d1bcf084299226e960c12522e8c8b92747b0edbd8b5c82b6203306c36311a5",
+        "preimage_bytes": 83957,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/postimages/test_layer3_gy_confidence_ledger_contract.py",
+        "postimage_sha256": "1adbb1f2c2f009f561029149077c8bbde8d55908c8ea8476b2b9b9b9f688d985",
+        "postimage_bytes": 88304
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-r4-qualified-source-runtime-adoption-20261021-r1/source-application.json",
+      "sha256": "50bb80814ce5dadc80860eef9f42dd666e7e0b11255b4802ec122408fc7782e6"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-r4-qualified-source-runtime-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r3-qualified-route-20261021/manifest.json",
+        "sha256": "df56210f40524f9added96bdc22651edec07aef46a2ffd10a20c1b8126c15cad"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-selected-binding-r3-review-20261021-r1/review.json",
+        "sha256": "ff2e9a64d25d6c830fbb2ab138e412578824dfb31afed9e91c15154244ddbfa5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-selected-binding-r3-review-20261021-r1/review-metadata-correction.json",
+        "sha256": "76fe545bf17917a6e0f5911e1336d9272677744422baf76435c000a9e235e984"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-selected-binding-r2-review-20261021-r1/review.json",
+        "sha256": "2275b0f44b13773e4d365243d86d7d92b12725a337fc667de2f1e7c2deb16694"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r2-source-owner-final-20261021/manifest.json",
+        "sha256": "dd4c13052ada4a023a1dc1903bfed0c82695e9fcac4c1a61989bf420861150e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r3-qualified-route-20261021/qualified-route-r3-overlay.patch",
+        "sha256": "bff893d8c6c758fce592938d1f0cadec05ed41e4e2029110fa73f2636719b7c2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-source-binding-focused-864cd465d614-20261021-r1/actual/result.json",
+        "sha256": "9822f314c89ee1c1b5d606808897bef63fae93cd5520a94875b90c369856466d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/manifest.json",
+        "sha256": "1411482b374e396c74e22e53b6d235251ac8656d582ecb623c28901cc77a6022"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/r4-full-candidate.patch",
+        "sha256": "b0b1cc94637f61506460f6e859e1e9497af43fe58cfc53ebb629d7cc83a9fbcf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/r4-formatting-overlay.patch",
+        "sha256": "724d5f2fef1c3884c1b88a7f7c71cd023582b497561b47c26f7314b61997e02d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-selected-binding-prototype-r4-native-ruff-20261021/verification.json",
+        "sha256": "b577b31a09497d41ba046fa497e6222605c298b0cac474f85c3f8bcf3ecf3f85"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-selected-binding-r4-format-review-20261021-r1/review.json",
+        "sha256": "17174e5ba94db88693aaef3941abeda1c0e132cd7e25ff511b3ce3776ed84f03"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ds17-r3-qualified-source-runtime-adoption-20261021-r1/canonical-context-preflight.json",
+        "sha256": "975235df63efe608fc6722a64aacf3301cdc3fa9e6d710abd78728fe97c709c8"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same selected source/runtime identity class at whole selected-route scope",
+      "action": "Sourcecandidate vs qualifiedruntime distinction, fullN11consumedinputs recomputed, 16helper census and real runtime rebind/unknown-initializer controls; no wholePythonpurityclaim."
+    },
+    "bounded_proof": "R3wholepropertysourceGOff2e9a+R4formatonlyindependent17174e all8nativeRuffchecks; exactfourpre/postimages; rootgenericpreflightgatescheck/formatbeforemutation; actualbehaviorafteradoption.",
+    "limitations": [
+      "Independent sourceGOff2e9a only; actualfullfocused13prior8P5F doesnotqualifyR3.",
+      "Reviewer timestamp placeholder invalid; mandatory immutablemetadata correction retained, nocreationtimeauthority.",
+      "OfficialN11writer/generator/corruptdrift/Q2generatedinstalledconsumers remainUNRUN.",
+      "No Gclosure or opaque Python import purity capability.",
+      "R3 native preflight red and zero source writes retained; R4 AST-identical formatting plus stdlib import order only, no semantic inference from stylegreen."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Execute focused13 plus complete changed confidence-ledger/N11 modules; official writer to RAW, --check and corrupt-field drift controls; regenerate canonical derived owners only after real behavior passes and source freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

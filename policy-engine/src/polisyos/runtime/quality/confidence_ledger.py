@@ -5868,13 +5868,16 @@ def _resolve_authority_import_closure(
     *,
     include_tools: bool = False,
 ) -> tuple[tuple[str, str], ...]:
-    """Resolve one complete repository-local declared import closure.
+    """Discover a repository-local source import closure candidate.
 
-    Runtime mode follows repository-local static imports outside typing-only
-    arms plus source-declared PEP 562 re-exports. Literal dynamic targets are
-    source-owner inputs, not runtime modules, unless reached through a static
-    edge; owner/tool mode additionally sees literal dynamic imports and tools.
-    Both modes exclude typing-only arms.
+    This source-only set is not an authority admission. Runtime authority callers
+    must reconcile it against loaded modules, selected facade/provider/importer
+    objects, code, profile, and the shared source-integrity snapshot before use.
+    Runtime mode follows repository-local static imports outside typing-only arms
+    plus source-declared PEP 562 candidates. Literal dynamic targets are source
+    inputs, not runtime modules, unless reached through a static edge; owner/tool
+    mode additionally sees literal dynamic imports and tools. Both modes exclude
+    typing-only arms.
     """
 
     resolved: dict[str, Path] = {}
@@ -5890,6 +5893,29 @@ def _resolve_authority_import_closure(
             module_name,
             directory_entries=directory_entries,
         )
+
+    def candidate_route_for_closure(
+        base: str,
+        export_name: str,
+        *,
+        visited: frozenset[tuple[str, str]] = frozenset(),
+    ) -> tuple[str, str, str | None] | None:
+        candidate = _source_module_import_route_candidate(
+            repo_root,
+            base,
+            export_name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+            visited=visited,
+        )
+        if candidate.package_initializer_effect_unknown and (
+            candidate.binding_basis != "literal_getattr" or candidate.route is None
+        ):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"unqualified package initializer route: {base}.{export_name}",
+            )
+        return candidate.route
 
     def discover_route_chain(
         base: str,
@@ -5922,12 +5948,9 @@ def _resolve_authority_import_closure(
                     "canonical_loaded_runtime_mismatch",
                     f"cyclic source import route: {target_module}.{target_symbol}",
                 )
-            next_route = _source_module_import_route(
-                repo_root,
+            next_route = candidate_route_for_closure(
                 target_module,
                 target_symbol,
-                directory_entries=directory_entries,
-                source_index=source_index,
                 visited=visited_routes,
             )
             if next_route is None:
@@ -5954,7 +5977,13 @@ def _resolve_authority_import_closure(
         resolved[module_name] = relative
         package = module_name if relative.name == "__init__.py" else module_name.rpartition(".")[0]
         try:
-            source_bytes = (repo_root / relative).read_bytes()
+            analysis = _active_integrity_analysis()
+            source_path = repo_root / relative
+            source_bytes = (
+                analysis.source_bytes(source_path)
+                if analysis is not None
+                else source_path.read_bytes()
+            )
             tree = source_index.parse(source_bytes, filename=relative.as_posix())
         except (OSError, SyntaxError) as exc:
             raise ConfidenceLedgerError(
@@ -5986,13 +6015,7 @@ def _resolve_authority_import_closure(
                 for alias in node.names:
                     if alias.name == "*":
                         continue
-                    route = _source_module_import_route(
-                        repo_root,
-                        base,
-                        alias.name,
-                        directory_entries=directory_entries,
-                        source_index=source_index,
-                    )
+                    route = candidate_route_for_closure(base, alias.name)
                     if route is None:
                         continue
                     discover_route_chain(base, alias.name, route, discovered)
@@ -6104,11 +6127,18 @@ def _literal_module_getattr_provider(
             directory_entries=directory_entries,
             source_index=source_index,
         )
-        source_maps, _invalid_maps = _static_facade_mapping_values(
-            tree,
-            provider_index.mapping_names,
-            external_mappings=external_mappings,
+        source_maps, invalid_maps, _namespace_effect_unknown = (
+            _source_declared_facade_mapping_values(
+                tree,
+                provider_index.mapping_names,
+                external_mappings=external_mappings,
+            )
         )
+        if invalid_maps:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"unsupported source facade map: {module_name}",
+            )
         module_exports = provider_index.module_providers_by_export or {}
         for source_map in source_maps.values():
             raw_target = source_map.get(export_name, _STATIC_FACADE_UNKNOWN)
@@ -6189,6 +6219,11 @@ def _literal_module_getattr_provider(
             )
         provider, mapped_symbol = next(iter(mapped_targets))
         indexed_providers = provider_index.providers_by_export.get(export_name, frozenset())
+        if provider_index.generated_mapping_dispatch and not indexed_providers:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"missing repository re-export binding: {module_name}.{export_name}",
+            )
         if indexed_providers:
             normalized_providers: set[str] = set()
             for indexed_provider in indexed_providers:
@@ -6404,6 +6439,27 @@ def _literal_package_child_import_template(node: ast.AST, parameter_name: str) -
         and package_name.format_spec is None
         and isinstance(separator, ast.Constant)
         and separator.value == "."
+        and isinstance(export_name, ast.FormattedValue)
+        and isinstance(export_name.value, ast.Name)
+        and export_name.value.id == parameter_name
+        and export_name.conversion == -1
+        and export_name.format_spec is None
+    )
+
+
+def _literal_absolute_package_child_import_template(
+    node: ast.AST,
+    parameter_name: str,
+    package_module_name: str | None,
+) -> bool:
+    """Recognize a source-qualified ``<package>.<selected_name>`` child route."""
+
+    if package_module_name is None or not isinstance(node, ast.JoinedStr) or len(node.values) != 2:
+        return False
+    prefix, export_name = node.values
+    return bool(
+        isinstance(prefix, ast.Constant)
+        and prefix.value == f"{package_module_name}."
         and isinstance(export_name, ast.FormattedValue)
         and isinstance(export_name.value, ast.Name)
         and export_name.value.id == parameter_name
@@ -6882,13 +6938,14 @@ def _static_facade_mapping_values(
     *,
     external_mappings: Mapping[str, dict[str, object]] | None = None,
     scan_deferred_mapping_effects: bool = True,
+    separate_namespace_effects: bool = False,
 ) -> tuple[dict[str, dict[str, object]], frozenset[str]]:
     """Recompute bounded module-scope literal maps with expression-effect transfer.
 
     ``scan_deferred_mapping_effects`` keeps the full function-body escape scan for
-    provider maps. Namespace-effect callers can disable that residual scan because
-    ``execute`` already transfers module execution and definition-time expressions,
-    while lazy function bodies do not execute during package initialization.
+    provider maps. Source-owner projection can keep unknown module effects separate
+    from an exact selected map, provided the runtime consumer later reconciles the
+    live map and selected object references to this source projection.
     """
 
     values: dict[str, object] = {}
@@ -7007,9 +7064,13 @@ def _static_facade_mapping_values(
                 invalid.add(affected_name)
 
     def poison_all_maps() -> None:
-        """Mark every source-derived map unknown after an unmodeled expression effect."""
+        """Track unknown module effects separately from a selected source map."""
 
-        invalid.update(mapping_names)
+        namespace_guard = "__polisyos_static_namespace_effect_guard__"
+        if separate_namespace_effects and namespace_guard in mapping_names:
+            invalid.add(namespace_guard)
+        else:
+            invalid.update(mapping_names)
 
     def map_reaches_object(value: object, seen: set[int] | None = None) -> bool:
         """Return whether a mutable object is reachable from a tracked provider map."""
@@ -7460,6 +7521,46 @@ def _static_facade_mapping_values(
     return result, frozenset(invalid)
 
 
+_SOURCE_FACADE_NAMESPACE_EFFECT_GUARD = "__polisyos_static_namespace_effect_guard__"
+
+
+def _source_declared_facade_mapping_values(
+    tree: ast.Module,
+    mapping_names: frozenset[str],
+    *,
+    external_mappings: Mapping[str, dict[str, object]] | None = None,
+) -> tuple[dict[str, dict[str, object]], frozenset[str], bool]:
+    """Project selected map values from source while separating unrelated init effects.
+
+    These maps are declarations parsed from exact source bytes, not runtime evidence.
+    Consumers must reconcile the loaded map and selected provider/importer references
+    to this projection before accepting a source-owned binding.
+    """
+
+    watched_names = mapping_names | {
+        _SOURCE_FACADE_NAMESPACE_EFFECT_GUARD,
+        "__name__",
+        "__package__",
+    }
+    maps, invalid = _static_facade_mapping_values(
+        tree,
+        watched_names,
+        external_mappings=external_mappings,
+        separate_namespace_effects=True,
+    )
+    selected_maps = {name: maps[name] for name in mapping_names if name in maps}
+    invalid_maps = invalid & mapping_names
+    namespace_effect_unknown = bool(
+        invalid
+        & {
+            _SOURCE_FACADE_NAMESPACE_EFFECT_GUARD,
+            "__name__",
+            "__package__",
+        }
+    )
+    return selected_maps, frozenset(invalid_maps), namespace_effect_unknown
+
+
 def _source_imported_facade_mappings(
     repo_root: Path,
     module_name: str,
@@ -7519,7 +7620,10 @@ def _source_imported_facade_mappings(
         if len(provider_sites) != 1 or provider_sites[0][0] != "assignment":
             invalid.add(local_name)
             continue
-        maps, invalid_maps = _static_facade_mapping_values(provider_tree, frozenset({alias.name}))
+        maps, invalid_maps, _namespace_effect_unknown = _source_declared_facade_mapping_values(
+            provider_tree,
+            frozenset({alias.name}),
+        )
         provider_map = maps.get(alias.name)
         if alias.name in invalid_maps or type(provider_map) is not dict:
             invalid.add(local_name)
@@ -7559,6 +7663,11 @@ def _source_module_provider_index(
 ) -> _LiteralModuleGetattrProviderIndex:
     """Index a facade using exact source-owned finite maps, including direct imports."""
 
+    relative = _repository_module_source(
+        repo_root,
+        module_name,
+        directory_entries=directory_entries,
+    )
     mapping_names = _literal_module_getattr_mapping_names(tree)
     external_mappings: dict[str, dict[str, object]] = {}
     if mapping_names:
@@ -7570,7 +7679,13 @@ def _source_module_provider_index(
             directory_entries=directory_entries,
             source_index=source_index,
         )
-    return _literal_module_getattr_provider_index(tree, external_mappings=external_mappings)
+    return _literal_module_getattr_provider_index(
+        tree,
+        external_mappings=external_mappings,
+        package_module_name=(
+            module_name if relative is not None and relative.name == "__init__.py" else None
+        ),
+    )
 
 
 def _literal_mapping_import_call(
@@ -7614,6 +7729,7 @@ def _literal_module_getattr_mapping_providers(
     imported_functions: frozenset[str],
     imported_modules: frozenset[str],
     external_mappings: Mapping[str, dict[str, object]] | None = None,
+    package_module_name: str | None = None,
 ) -> tuple[dict[str, set[str]], dict[str, set[str]], dict[str, set[str]], set[str], set[int]]:
     """Bind source-map exports through bounded, provenance-preserving getter flow."""
 
@@ -7648,16 +7764,15 @@ def _literal_module_getattr_mapping_providers(
     # direct getters. The sentinel is watched by the same monotone transfer so
     # an opaque executed initializer cannot silently rebind import aliases or
     # the implicit package namespace used by a relative import.
-    namespace_effect_guard = "__polisyos_static_namespace_effect_guard__"
-    watched_names = mapping_names | {namespace_effect_guard, "__name__", "__package__"}
-    values_by_map, invalid_maps = _static_facade_mapping_values(
-        tree, watched_names, external_mappings=external_mappings
+    values_by_map, invalid_maps, namespace_effect_unknown = _source_declared_facade_mapping_values(
+        tree,
+        mapping_names,
+        external_mappings=external_mappings,
     )
-    namespace_effect_unknown = namespace_effect_guard in invalid_maps
     tables: dict[str, dict[str, object]] = {}
     invalid: set[str] = set()
-    if namespace_effect_unknown:
-        invalid.add("*")
+    # Unknown package effects do not poison every selected export. Routes that
+    # actually depend on implicit package context remain guarded below.
     for mapping_name in referenced_maps:
         table = values_by_map.get(mapping_name)
         if (
@@ -7733,6 +7848,7 @@ def _literal_module_getattr_mapping_providers(
     module_tag = object()
     attribute_tag = object()
     relative_child_tag = object()
+    absolute_child_tag = object()
     providers: dict[str, set[str]] = {}
     members: dict[str, set[str]] = {}
     module_providers: dict[str, set[str]] = {}
@@ -7768,7 +7884,7 @@ def _literal_module_getattr_mapping_providers(
                 and "__package__" not in module_bound_names
                 and "__name__" not in function_bound_names
                 and "__package__" not in function_bound_names
-                and namespace_effect_guard not in invalid_maps
+                and not namespace_effect_unknown
             ):
                 return _UNKNOWN_SOURCE_LITERAL
         elif len(node.args) != 1:
@@ -7799,10 +7915,8 @@ def _literal_module_getattr_mapping_providers(
                 return _UNKNOWN_SOURCE_LITERAL
             raw_target = parent
         elif type(selected) is str and not selected.startswith("."):
-            # The direct-literal form is the same bounded transfer as map rows;
-            # it is not a legacy fallback and still requires a source-bound loader.
-            if namespace_effect_unknown:
-                return _UNKNOWN_SOURCE_LITERAL
+            # An absolute source literal does not depend on package __name__ or
+            # __package__. The loaded map and consumer identity are reconciled later.
             return module_import_result(
                 node,
                 None,
@@ -7823,6 +7937,22 @@ def _literal_module_getattr_mapping_providers(
             # owner resolver binds it to this package initializer.
             handled_imports.add(id(node))
             return (module_tag, None, export_name, f".{export_name}", export_name)
+        elif (
+            is_tagged(selected, absolute_child_tag, 3)
+            and selected[2] == export_name
+            and len(node.args) == 1
+        ):
+            package_name = selected[1]
+            if type(package_name) is not str or not package_name:
+                return _UNKNOWN_SOURCE_LITERAL
+            handled_imports.add(id(node))
+            return (
+                module_tag,
+                None,
+                export_name,
+                f"{package_name}.{export_name}",
+                export_name,
+            )
         elif type(selected) is str and selected.startswith("."):
             # The package binding is shared by direct literals and imported map
             # values, so both routes require the same stable explicit package.
@@ -7878,6 +8008,12 @@ def _literal_module_getattr_mapping_providers(
                 and not namespace_effect_unknown
             ):
                 return (relative_child_tag, export_name)
+            if _literal_absolute_package_child_import_template(
+                node,
+                parameter_name,
+                package_module_name,
+            ):
+                return (absolute_child_tag, package_module_name, export_name)
             return _UNKNOWN_SOURCE_LITERAL
         if isinstance(node, ast.Constant):
             return node.value
@@ -8301,6 +8437,7 @@ def _literal_module_getattr_provider_index(
     tree: ast.Module,
     *,
     external_mappings: Mapping[str, dict[str, object]] | None = None,
+    package_module_name: str | None = None,
 ) -> _LiteralModuleGetattrProviderIndex:
     """Index PEP 562 providers through one bounded source-value transfer."""
 
@@ -8350,6 +8487,7 @@ def _literal_module_getattr_provider_index(
                 imported_functions,
                 imported_modules,
                 external_mappings,
+                package_module_name,
             )
         )
         for export_name, modules in mapped_providers.items():
@@ -8484,6 +8622,62 @@ def _source_facade_runtime_projection(
                     ) from exc
             return provider_name, attribute
 
+        def qualified_projection_route(
+            repo_root: Path,
+            facade_name: str,
+            export_name: str,
+            *,
+            directory_entries: dict[Path, frozenset[str]],
+            source_index: _AuthorityImportClosureSourceIndex,
+        ) -> tuple[str, str, str | None] | None:
+            candidate = _source_module_import_route_candidate(
+                repo_root,
+                facade_name,
+                export_name,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            )
+            if not candidate.package_initializer_effect_unknown:
+                return candidate.route
+            if candidate.binding_basis != "literal_getattr" or candidate.route is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"unreconciled package initializer effect: {facade_name}.{export_name}",
+                )
+            base_row = source_rows.get(facade_name)
+            if base_row is None:
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+            _base_tree, base_index, base_maps = base_row
+            qualified_targets: set[tuple[str, str, str | None]] = set()
+            module_exports = base_index.module_providers_by_export or {}
+            for source_map in base_maps.values():
+                if export_name not in source_map:
+                    continue
+                raw_target = source_map[export_name]
+                if export_name in module_exports:
+                    if type(raw_target) is not str:
+                        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    target_module = _package_bound_module_provider_target(
+                        raw_target,
+                        module_name=facade_name,
+                        module_source=Path(closure_by_name[facade_name]),
+                        export_name=export_name,
+                    )
+                    qualified_targets.add(("module", target_module, None))
+                else:
+                    target_module, target_symbol = resolve_source_target(
+                        facade_name,
+                        export_name,
+                        raw_target,
+                    )
+                    qualified_targets.add(("symbol", target_module, target_symbol))
+            if qualified_targets != {candidate.route}:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"literal source map does not uniquely bind route: {facade_name}.{export_name}",
+                )
+            return candidate.route
+
         for module_name, relative_path in closure:
             source_path = (repo_root / relative_path).resolve()
             try:
@@ -8512,10 +8706,14 @@ def _source_facade_runtime_projection(
                     directory_entries=directory_entries,
                     source_index=source_index,
                 )
-                maps, invalid_maps = _static_facade_mapping_values(
-                    tree, mapping_names, external_mappings=external_mappings
+                maps, invalid_maps, _namespace_effect_unknown = (
+                    _source_declared_facade_mapping_values(
+                        tree,
+                        mapping_names,
+                        external_mappings=external_mappings,
+                    )
                 )
-                if len(maps) != len(mapping_names):
+                if invalid_maps or len(maps) != len(mapping_names):
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
                         f"unsupported source facade map: {module_name}",
@@ -8814,7 +9012,7 @@ def _source_facade_runtime_projection(
                     if alias.name == "*":
                         continue
                     local_name = alias.asname or alias.name
-                    route = _source_module_import_route(
+                    route = qualified_projection_route(
                         repo_root,
                         base,
                         alias.name,
@@ -8941,7 +9139,7 @@ def _source_facade_runtime_projection(
                         if alias.name == "*":
                             continue
                         local_name = alias.asname or alias.name
-                        route = _source_module_import_route(
+                        route = qualified_projection_route(
                             repo_root,
                             base,
                             alias.name,
@@ -10119,6 +10317,21 @@ def _source_package_getattr_binding_is_unresolved(tree: ast.Module) -> bool:
     return "__getattr__" in _source_scope_bound_names(other_statements)
 
 
+@dataclass(frozen=True, slots=True)
+class _SourceModuleImportRouteCandidate:
+    """One source-discovered route that has not necessarily earned runtime authority."""
+
+    route: tuple[str, str, str | None] | None
+    binding_basis: Literal[
+        "direct",
+        "literal_getattr",
+        "child",
+        "unresolved",
+        "absent",
+    ]
+    package_initializer_effect_unknown: bool
+
+
 def _source_module_import_route(
     repo_root: Path,
     module_name: str,
@@ -10129,7 +10342,42 @@ def _source_module_import_route(
     visited: frozenset[tuple[str, str]] = frozenset(),
     skip_direct_binding: bool = False,
 ) -> tuple[str, str, str | None] | None:
-    """Resolve one Python fromlist name as a bound attribute before a child module."""
+    """Resolve a statically supported import route only when package effects are known."""
+
+    candidate = _source_module_import_route_candidate(
+        repo_root,
+        module_name,
+        export_name,
+        directory_entries=directory_entries,
+        source_index=source_index,
+        visited=visited,
+        skip_direct_binding=skip_direct_binding,
+    )
+    if candidate.package_initializer_effect_unknown:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"package initializer namespace effect is unresolved: {module_name}.{export_name}",
+        )
+    return candidate.route
+
+
+def _source_module_import_route_candidate(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+    skip_direct_binding: bool = False,
+) -> _SourceModuleImportRouteCandidate:
+    """Discover a source route candidate without asserting its loaded binding is authoritative.
+
+    Callers that admit an authority route must separately reconcile the complete
+    source/runtime/code projection. An unknown package initializer may contribute
+    only a literal-getattr candidate; consumers must bind that candidate to the
+    exact source map and the live selected provider/importer objects.
+    """
 
     key = (module_name, export_name)
     if key in visited and not skip_direct_binding:
@@ -10159,12 +10407,10 @@ def _source_module_import_route(
                 "canonical_loaded_runtime_mismatch",
                 module_source.as_posix(),
             ) from exc
-        if _source_package_initializer_effect_is_unknown(initializer_tree):
-            raise ConfidenceLedgerError(
-                "canonical_loaded_runtime_mismatch",
-                f"package initializer namespace effect is unresolved: {module_name}.{export_name}",
-            )
-
+    initializer_effect_unknown = bool(
+        initializer_tree is not None
+        and _source_package_initializer_effect_is_unknown(initializer_tree)
+    )
     direct = (
         None
         if skip_direct_binding
@@ -10178,17 +10424,19 @@ def _source_module_import_route(
         )
     )
     if direct is not None:
-        return direct
+        return _SourceModuleImportRouteCandidate(
+            route=direct,
+            binding_basis="direct",
+            package_initializer_effect_unknown=initializer_effect_unknown,
+        )
 
-    # A module-level hook is not absent merely because no local FunctionDef was indexed.
-    # Preserve Python's direct-attribute precedence above; when routing needs the hook or
-    # absence proof, only the existing local literal-provider form is represented.
     if initializer_tree is not None and _source_package_getattr_binding_is_unresolved(
         initializer_tree
     ):
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            f"package initializer namespace effect is unresolved: {module_name}.{export_name}",
+        return _SourceModuleImportRouteCandidate(
+            route=None,
+            binding_basis="unresolved",
+            package_initializer_effect_unknown=True,
         )
 
     provider = _literal_module_getattr_provider(
@@ -10207,7 +10455,13 @@ def _source_module_import_route(
         if relative is None:
             raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
         try:
-            source_bytes = (repo_root / relative).read_bytes()
+            analysis = _active_integrity_analysis()
+            source_path = repo_root / relative
+            source_bytes = (
+                analysis.source_bytes(source_path)
+                if analysis is not None
+                else source_path.read_bytes()
+            )
             tree = source_index.parse(source_bytes, filename=relative.as_posix())
         except (OSError, SyntaxError) as exc:
             raise ConfidenceLedgerError(
@@ -10237,33 +10491,41 @@ def _source_module_import_route(
                     "canonical_loaded_runtime_mismatch",
                     f"ambiguous module facade binding: {module_name}.{export_name}",
                 )
-            return "module", provider, None
-        symbols = (provider_index.provider_symbols_by_export or {}).get(
-            export_name,
-            frozenset({export_name}),
-        )
-        if len(symbols) != 1:
-            raise ConfidenceLedgerError(
-                "canonical_loaded_runtime_mismatch",
-                f"ambiguous source facade binding: {module_name}.{export_name}",
+            route = ("module", provider, None)
+        else:
+            symbols = (provider_index.provider_symbols_by_export or {}).get(
+                export_name,
+                frozenset({export_name}),
             )
-        route_kind = (
-            "symbol"
-            if _repository_module_source(
-                repo_root,
-                provider,
-                directory_entries=directory_entries,
+            if len(symbols) != 1:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"ambiguous source facade binding: {module_name}.{export_name}",
+                )
+            route_kind = (
+                "symbol"
+                if _repository_module_source(
+                    repo_root,
+                    provider,
+                    directory_entries=directory_entries,
+                )
+                is not None
+                else "external"
             )
-            is not None
-            else "external"
+            route = route_kind, provider, next(iter(symbols))
+        return _SourceModuleImportRouteCandidate(
+            route=route,
+            binding_basis="literal_getattr",
+            package_initializer_effect_unknown=initializer_effect_unknown,
         )
-        return route_kind, provider, next(iter(symbols))
 
-    module_source = _repository_module_source(
-        repo_root,
-        module_name,
-        directory_entries=directory_entries,
-    )
+    if initializer_effect_unknown:
+        return _SourceModuleImportRouteCandidate(
+            route=None,
+            binding_basis="unresolved",
+            package_initializer_effect_unknown=True,
+        )
+
     child_module = f"{module_name}.{export_name}"
     if (
         module_source is not None
@@ -10275,8 +10537,16 @@ def _source_module_import_route(
         )
         is not None
     ):
-        return "module", child_module, None
-    return None
+        return _SourceModuleImportRouteCandidate(
+            route=("module", child_module, None),
+            binding_basis="child",
+            package_initializer_effect_unknown=False,
+        )
+    return _SourceModuleImportRouteCandidate(
+        route=None,
+        binding_basis="absent",
+        package_initializer_effect_unknown=False,
+    )
 
 
 _READ_API_SURFACES_MODULE = "polisyos.data_forge.read_api.surfaces"

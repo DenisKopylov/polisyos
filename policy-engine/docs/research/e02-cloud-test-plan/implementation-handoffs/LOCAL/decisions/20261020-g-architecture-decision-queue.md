@@ -4,6 +4,12 @@
 
 Этот пакет выделяет подготовленные вопросы, над которыми G может работать параллельно с engineering. Он не переоткрывает уже выбранные D01–D08 исходного connected plan и не превращает каждую запись каталога `decisions/` в новую архитектурную развилку. Устаревшие UNRUN в ранних исходных записках ниже уточняются свежими, точно ограниченными результатами этого индекса.
 
+## Обновление 21 октября: принятые решения и оставшиеся предложения
+
+G опубликовал выбор AD01–03 в commit `b7adafe89423bc6906a5fb86c38e579a381ad2ee` (tree `3cf103b6e1b9a395bcb7f3f5803346f90ddc1370`); пакет включён обычным merge в candidate. [Финальные решения](../../../integration/architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md) и [порядок реализации](../../../integration/architecture-decisions-2026-10-20/04-implementation-and-verification.md) задают действующий контракт. Разделы AD-E02-01–03 ниже сохраняют исходные вопросы и прежние результаты как историю; они не являются повторным запросом выбора. Принятие архитектурного варианта не означает приёмку текущего авторского кода или formal closure. Реализация и composed verification продолжаются.
+
+HTE outcome/inference, CAN profile/law и B161 остаются отдельными предложениями в указанных пакетах. DS17 ниже — условный непринятый вопрос; обычное исправление source identity не ожидает его решения.
+
 ## AD-E02-01. Реальный выход метода → policy metric и unit
 
 **Нужное решение.** Как selected compiled program связывает точный method node/output slot с ObjectiveSpec/MetricSpec, единицей и допустимым преобразованием? Отдельно выбрать: узкий versioned adapter для точного соответствия Foundry Unit и IR Unit либо обязательный явный derivation law в compiled source для каждого преобразования. Совпадение имён и caller `metric_units` таким контрактом не являются.
@@ -61,3 +67,17 @@ CAN DTO null preservation, Core decoder, work-packet profile/presence, worker re
 Для каждого AD ID: выбранный вариант и rejected alternatives; точный contract/owner/schema/rule version; allowed/forbidden scope; status/authority/time semantics; migration/legacy window; minimum producer/consumer/public-surface footprint; acceptance + adversarial/removal signal; remaining genuine external inputs; integration/adjudication boundary. Это даст исполнителю достаточно конкретное решение для реализации без нового абстрактного круга вопросов.
 
 Pattern pass: P01/P02/P04/P05/P07/P08/P10/P29/P31/P32/P37/P38/P40. Target: один source-bound producer→artifact→bridge→consumer с проверяемым admission; незамкнутые policy metric и HTTP paths остаются `bridge_missing`/`verification_missing`/`surface_missing` в названной границе. Никакая строка этого decision packet не является formal closure.
+
+## B161 follow-up to the existing R8 question (same decision class)
+
+**Decision requested:** choose whether this route stays historical-max-only (B161 remains limited/held) or exposes a separate candidate current projection that may refine only through a real owner-produced, content-bound same-scope relation. Recommendation: retain history and independent risk; extend the existing uncertainty owner with a separate current projection only after the permitted profile/relation is supplied and the fresh consumer recomputes subject, value/estimand, inputs, procedure/profile, rule/version, and valid-time/currentness. This is a runtime/status choice; G does not invent the scientific law, independence, issuer, or currentness fact.
+
+Evidence: original B161 criterion `B_r19_original.md@9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5` lines 4165–4176; D04 `02-decisions.md@6c736256699df2d5283d4fca939a4d81f12a6af3a3a08c190eec08c2bc998701` lines 39–53; current routing-only evidence and falsifier are in [the B161 follow-up packet](b161-current-scoped-refinement-followup-20261021.md). The older R8 packet is local/untracked and absent from inspected G commit b7adafe; repository state cannot establish G received it. Append/resolve this one existing B161 question only if G has not already received/disposed it. Preserve B198; AD01–03 and pending CAN/HTE questions are unchanged. `G_acceptance=false`; no closure IDs.
+
+## Conditional DS17 source-identity/import-purity clarification (unassigned proposal)
+
+**Question only if supported by a cited ratified contract:** Does the DS17 owner require whole selected-module import purity as an authority property beyond its currently evidenced source-bound identity and declared-route contract? No reviewed DS17 source establishes that requirement. If no supporting citation is produced, mark this conditional clarification not required and continue the narrower source-identity repair as ordinary owner engineering.
+
+Proposal: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ds17-source-binding-vs-import-purity-proposal-20261021.md` (postimage SHA-256 `43dd342007fccaaa7c2b62cd3c368b5505f81c548613425f2d8242b32f0d9af9`). It recommends parsing route and summary expectations from exact selected source bytes, then comparing loaded maps, tuple rows/class/facade/module origins; the paired map-plus-tuple joint-mutation falsifier must refuse. Whole-module purity, if supported by a ratified requirement, is a separate higher-cost contract with its own complete selected-source denominator and adversarial effect grammar.
+
+This is unaccepted and non-blocking: owner engineering continues; no decision owner is inferred, no release gate is created, `G_acceptance=false`; no closure IDs.

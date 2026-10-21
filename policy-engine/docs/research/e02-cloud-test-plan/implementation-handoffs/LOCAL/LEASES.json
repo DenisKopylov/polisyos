@@ -46404,5 +46404,96 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-b161-ds17-g-proposals-tracked-adoption-20261021-r1": {
+    "slice_base": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b161-current-scoped-refinement-followup-20261021.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-ds17-queue-composed-postimages-20261021-r1/b161-current-scoped-refinement-followup-20261021.md",
+        "postimage_sha256": "54c38cecc1d58f037469179540a2f02c07dc4f7b670a313fdc70d07e9ea6383d",
+        "postimage_bytes": 5617,
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ds17-source-binding-vs-import-purity-proposal-20261021.md": {
+        "operation": "create",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-ds17-queue-composed-postimages-20261021-r1/ds17-source-binding-vs-import-purity-proposal-20261021.md",
+        "postimage_sha256": "43dd342007fccaaa7c2b62cd3c368b5505f81c548613425f2d8242b32f0d9af9",
+        "postimage_bytes": 10467,
+        "mode": "100644"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md": {
+        "operation": "update",
+        "preimage_sha256": "2a105df3a28e03fc90a8183f193df0007711defe557fd46a5cbfb211e498b735",
+        "preimage_bytes": 15392,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-ds17-queue-composed-postimages-20261021-r1/20261020-g-architecture-decision-queue.md",
+        "postimage_sha256": "bc5e140f15cff15eabb9fbe311a5b177202783fa641e89fea7dff75c2f8cf510",
+        "postimage_bytes": 19630,
+        "mode": "100644"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-ds17-g-proposals-tracked-adoption-20261021-r1/source-application.json",
+      "sha256": "af00918bfcc46b6e0ce1663e2e27873eebe3bdb1e90c2504918a24230e536713"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-ds17-g-proposals-tracked-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-ds17-queue-composed-postimages-20261021-r1/composition.json",
+        "sha256": "8b4e2b14808b81e5c636143d8f9034b6f0ac1418fa6f840f77d96dbb69631ab8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b161-ds17-composed-queue-review-20261021-r1/review.json",
+        "sha256": "e6083de5adbc92c634028331eff1a786d28fc939109c2c5aa5e6c97d40ce8315"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b161-g-followup-postimages-20261021-r1/postimages.json",
+        "sha256": "82e7763938afb22fbcd9adcd0a8530aae5465022e0f62fa7c28444df527a56cd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ds17-g-local-target-corrected-20261021-r1/postimages.json",
+        "sha256": "6201ee5f0f08c9f9b27e55ca82b3fda40b6731be441f40ce167b30d09e8d414f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b161-ds17-g-packet-review-20261021-r1/review.md",
+        "sha256": "72f21a3e4416a1358ac5c25b321d5e05162b2b24c8f60ea138e04cc4967b1629"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ds17-local-target-docreview-20261021-r1/review.md",
+        "sha256": "3d4ac4c9c2331b2cdf3e0bc7bb789597c5ddd1df6ba8b3a2218241849067212b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-econml-r6-reviewed-test-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "94365449f063f487fa8c864d138606cd5518ffd78cfe855e4e1f6a1bc643e6a3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same handoff-target/status class",
+      "action": "Compose both independently reviewed fragments with explicit GAD01\u201303 historical status."
+    },
+    "bounded_proof": "Independent exact three-postimage composition review, exact G ancestry/tree and links; no executable change.",
+    "limitations": [
+      "Documents only; no product/native/consumer PASS or formal finding closure.",
+      "B161 followup conditional on G not already having received/disposed old R8 through another channel; repository evidence does not establish that receipt.",
+      "DS17 sourceidentity repair continues as ordinary existing-contract engineering; no inventedAD05 or decisionowner.",
+      "G accepted architecture b7 does not accept author code; no global source/input/backend freeze."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "G may review bounded outstanding semantics; independent source author continues DS17 owner repair and Runtime/consumer composition; full implementation and receipts separately.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

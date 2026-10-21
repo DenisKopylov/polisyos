@@ -1,0 +1,36 @@
+id = "2026-10-21-e02-econml-shared-hte-adapter"
+title = "Bind EconML uncertainty and SHAP outputs to their result APIs"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Read per-row EconML stderr and optional ATE summary members through one scoped warning boundary, preserve unavailable diagnostics as absent, and use the estimator-native SHAP API with shape validation."
+evidence = [
+  "src/polisyos/foundry/methods/catalog/causal/_econml_adapter.py",
+  "src/polisyos/foundry/methods/catalog/causal/README.md",
+  "tests/unit/foundry/methods/catalog/causal/test_econml_adapter.py",
+  "tests/unit/foundry/methods/catalog/causal/test_forest_dr.py",
+]
+compatibility = "No HTEResult fields, method signatures, or estimator algorithms are added. Missing per-row inference is emitted as empty optional vectors already accepted by HTEResult; malformed, non-finite, negative-SE, misaligned, or ambiguous multi-output values now fail closed. Existing 1.0 and 1.1 ForestDR signatures remain unchanged."
+change_class = "internal"
+surface_classification = "internal: shared EconML adapter and existing HTEResult consumer; stable public facade unchanged"
+migration = "Consumers already accept empty cate_std_values and paired empty per-row CI lists. Callers receiving present malformed outputs must repair their inference provider; no values are padded, truncated, or zero-filled."
+api = "The adapter reads the EconML per-row stderr/pred_stderr protocol and routes ATE confidence-interval, pvalue, and mean-level standard-error access through one scoped warning boundary. ATE_OPTIONAL_SUMMARY_MEMBER_UNAVAILABLE records member/phase/exception type; access/call exceptions omit only that optional member and preserve any native interval already obtained, while CI access tries the next supported provider. Present malformed numerical returns still fail closed. It uses ForestDR's estimator-native nested shap_values result for the scalar outcome/treatment contract."
+limitations = "The source-bound native ForestDR cold fit on 2026-10-21 reached fit/effect/inference but failed strict HTEResult construction because the previous adapter converted absent std_point into non-finite rows. Its evidence does not validate this proposed repair. Default S/T/X runs without explicit bootstrap still have no native per-row inference. HTEResult also requires a finite ATE interval, so the existing fixed 1.96 CATE-variance normal-Wald fallback remains unratified and unqualified. The existing variance guard can widen or replace a valid native interval using the same fixed 1.96 multiplier; that resulting interval is likewise unqualified. Alpha is forwarded to native methods but does not alter the legacy fallback or widening multiplier. Missing optional ATE members stay absent; getter/call failures are warnings scoped to the member, phase, and exception type; malformed present p-values, standard errors, intervals, shapes, and numeric values remain fail-closed. The additive native SHAP path and corrected ForestDR fit still require an exact frozen-source runtime receipt. No causal identification, external validity, calibration, or publication authority is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-shared-econml-hte-diagnostics"
+change_class = "internal"
+impact = "compatible"
+surface = "internal: shared causal catalog adapter; stable Foundry facade unchanged"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Use EconML's pointwise stderr and native SHAP result APIs in the shared HTE adapter. Preserve absent diagnostics as omitted vectors and reject present malformed outputs; failures reading/calling optional ATE interval, p-value, or mean-SE members are scoped to that member and do not discard an already obtained interval. The existing fixed 1.96 fallback and variance-guard widening can produce an unqualified final interval, which remains explicit."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

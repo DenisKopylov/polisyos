@@ -132,7 +132,12 @@ def _install_forest_dr_pipeline_fakes(monkeypatch, *, fail_at: str | None = None
 
         def effect_inference(self, x):
             record("effect_inference")
-            return SimpleNamespace(std_point=np.full(x.shape[0], 0.1))
+            return SimpleNamespace(stderr=np.full(x.shape[0], 0.1))
+
+        def shap_values(self, x, *, feature_names=None, background_samples=100):
+            record("shap_values")
+            records["shap_args"] = (feature_names, background_samples)
+            return {"Y0": {"T0": SimpleNamespace(values=np.ones(x.shape, dtype=float))}}
 
         def ate_inference(self, x):
             record("ate_inference")
@@ -189,18 +194,6 @@ def _install_forest_dr_pipeline_fakes(monkeypatch, *, fail_at: str | None = None
         record("wrap")
         return original_wrap_output(report, warnings=warnings, extras=extras)
 
-    shap = ModuleType("shap")
-
-    class FakeTreeExplainer:
-        def __init__(self, model, *, data):
-            record("shap_explainer")
-
-        def shap_values(self, x):
-            record("shap_values")
-            return np.ones(x.shape, dtype=float)
-
-    shap.TreeExplainer = FakeTreeExplainer
-    monkeypatch.setitem(sys.modules, "shap", shap)
     monkeypatch.setattr(module, "build_hte_data", build_hte_data)
     monkeypatch.setattr(module, "extract_cate_from_estimator", extract_cate_from_estimator)
     monkeypatch.setattr(module, "build_cate_quantile_subgroups", build_subgroups)
@@ -221,6 +214,9 @@ def test_forest_dr_v11_thread_limit_covers_the_complete_producer(monkeypatch, fe
     assert records["estimator_params"]["n_jobs"] == 1
     assert result["hte_result"].econml_params["n_jobs"] == 1
     assert result["report"].method_params["n_jobs"] == 1
+    if feature_method == "shap":
+        assert result["hte_result"].feature_importances[0].method == "shap"
+        assert records["shap_args"] == (["x0", "x1", "x2", "x3"], 8)
     stages = [name for name, _active in events if name not in {"limit_enter", "limit_exit"}]
     assert stages == [
         "prepare_input",
@@ -231,7 +227,7 @@ def test_forest_dr_v11_thread_limit_covers_the_complete_producer(monkeypatch, fe
         "effect_interval",
         "effect_inference",
         "ate_inference",
-        *(["shap_explainer", "shap_values"] if feature_method == "shap" else []),
+        *(["shap_values"] if feature_method == "shap" else []),
         "subgroups",
         "hte_result",
         "report",

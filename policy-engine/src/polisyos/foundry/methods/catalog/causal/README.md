@@ -155,8 +155,35 @@ construction, fit, effect/inference extraction, feature-importance extraction,
 and report materialization. This is a cooperative limit for recognized native
 thread pools, not an operating-system CPU quota or a deployment-wide cap; the
 actual selected runtime must observe the effective pools during a real fit.
-The profile does not establish causal identification, external validity,
-scientific qualification, or publication authority.
+
+The shared EconML adapter reads per-observation uncertainty from the result
+object's `stderr`/`pred_stderr` protocol. It omits optional per-row intervals
+and standard errors when the estimator does not provide them, and refuses
+non-finite, misaligned, or multi-outcome values instead of padding or selecting
+a column. ATE p-values are invoked when exposed as methods. The shared adapter
+uses one scoped warning boundary for optional native ATE summary accessors and
+calls, including confidence-interval providers, p-values, and mean-level
+standard errors. A failing p-value or standard-error member is omitted without
+discarding an interval already obtained; a failing interval provider moves to
+the next supported provider and then to the existing unqualified fallback if
+none succeeds. `ATE_OPTIONAL_SUMMARY_MEMBER_UNAVAILABLE` warnings identify only
+the member, access or call phase, and exception type. Missing members remain
+absent without an error warning, while
+present malformed returned values still refuse. SHAP uses the
+estimator-native `shap_values` API and accepts one outcome/treatment
+explanation for this scalar HTE contract; unavailable or failed SHAP remains
+an explicit tree-based fallback, while malformed returned values refuse.
+
+When a native ATE interval is unavailable, the adapter retains the existing
+fixed 1.96 normal-Wald fallback. The existing variance guard may also widen or
+replace a valid native interval with a symmetric interval based on CATE
+dispersion and the same fixed multiplier. Both behaviors remain unqualified;
+the multiplier does not become alpha-specific through the selected confidence
+level, and neither behavior establishes a calibrated population confidence
+claim. The selected alpha is still passed to native interval methods.
+
+These adapter behaviors do not establish causal identification, external
+validity, scientific qualification, calibration, or publication authority.
 
 ### HTE observational input admission
 

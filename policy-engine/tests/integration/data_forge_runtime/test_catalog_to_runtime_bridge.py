@@ -36,7 +36,8 @@ def test_data_forge_catalog_fixture_source_contract_reaches_runtime_api(tmp_path
     )
     contract = next(item for item in contracts if item.id == replay["source_contract_id"])
 
-    assert readiness.consumer_ready is True
+    assert readiness.consumer_ready is False
+    assert readiness.shadow.report_basis_state == "not_established"
     assert bundle.source_by_id("worldbank").observation_count >= 1
     assert contract.source.connector_id == replay["connector_id"]
     assert contract.source.profile_id == replay["profile_id"]

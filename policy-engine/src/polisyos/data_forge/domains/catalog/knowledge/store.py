@@ -759,6 +759,11 @@ class DatasetCatalogStore:
                 bind_params.extend(allowed)
         if top_k is not None:
             bind_params.append(top_k)
+        metric_evidence_order = (
+            "COALESCE(b.metric_inference_confidence, 0.0) DESC, "
+            if "metric_inference_confidence" in self._table_columns("ds_metric_bindings")
+            else ""
+        )
         rows = self._fetch_dicts(
             f"SELECT {self._select_clause('ds_metric_bindings', _BINDING_COLUMNS, alias='b')}, "
             "COALESCE(ds.title, '') AS title "
@@ -771,6 +776,7 @@ class DatasetCatalogStore:
             "WHEN 'fetchable' THEN 1 "
             "ELSE 2 END ASC, "
             f"CASE WHEN {schema_exists_sql} THEN 0 ELSE 1 END ASC, "
+            f"{metric_evidence_order}"
             "b.confidence DESC, b.dataset_id ASC " + ("LIMIT ?" if top_k is not None else ""),
             bind_params,
         )

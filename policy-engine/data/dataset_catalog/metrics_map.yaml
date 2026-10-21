@@ -34,7 +34,7 @@ social_trust:
   sdmx_concepts: ["SOCIAL_TRUST"]
 institutional_quality:
   keywords: ["institutional quality", "rule of law", "government effectiveness", "corruption"]
-  worldbank_indicators: ["RL.EST", "GE.EST", "CC.EST"]
+  worldbank_indicators: ["GOV_WGI_RL.EST", "GOV_WGI_GE.EST", "GOV_WGI_CC.EST"]
 health_spending:
   keywords: ["health spending", "health expenditure", "medical expenditure"]
   worldbank_indicators: ["SH.XPD.CHEX.PC.CD"]

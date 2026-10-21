@@ -197,16 +197,20 @@ def test_catalog_source_asset_group_declares_per_source_dependency_order() -> No
 def test_catalog_shadow_bundle_exposes_source_summaries() -> None:
     bundle = load_catalog_shadow_bundle(CATALOG_BASELINE_ROOT)
 
-    assert bundle.readiness_summary.consumer_ready is True
-    assert bundle.readiness_summary.full_publish_ready is True
-    assert bundle.readiness_summary.publish_mode == "full-ready"
+    assert bundle.readiness_summary.consumer_ready is False
+    assert bundle.readiness_summary.full_publish_ready is False
+    assert bundle.readiness_summary.report_basis_state == "not_established"
+    assert bundle.readiness_summary.publish_mode is None
+    assert bundle.readiness_summary.declared_readiness["consumer_ready"] is True
     assert tuple(source.source_id for source in bundle.source_summaries) == (
         "eurostat",
         "worldbank",
     )
     assert bundle.source_by_id("eurostat").observation_count == 2
     assert bundle.artifact_by_relative_path("publish/consumer_readiness.json")
-    assert bundle.warnings == ()
+    assert any(
+        warning.startswith("catalog_report_basis_not_current:") for warning in bundle.warnings
+    )
 
 
 def test_catalog_readiness_package_loads_benchmark_qc_and_artifact_hashes() -> None:
@@ -217,8 +221,10 @@ def test_catalog_readiness_package_loads_benchmark_qc_and_artifact_hashes() -> N
     assert benchmark.metrics["benchmark_foundry_fitness_pct"] == 100.0
     assert qc.passed is True
     assert qc.metrics["datasets_with_metric_binding_pct"] == 100.0
-    assert package.consumer_ready is True
-    assert package.shadow.readiness_summary.full_publish_ready is True
+    assert package.consumer_ready is False
+    assert package.benchmark.report_basis_state == "not_established"
+    assert package.qc.report_basis_state == "not_established"
+    assert package.shadow.readiness_summary.full_publish_ready is False
     assert package.artifact_hashes["publish/consumer_readiness.json"] == (
         "b4a2feef436a28a005d016290b5aba7873c5f585f7ea436c358e87fac0fb6afa"
     )

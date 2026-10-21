@@ -120,14 +120,18 @@ def test_catalog_shadow_bundle_loads_without_legacy_dataset_imports() -> None:
     after = {name for name in sys.modules if name.startswith("polisyos.datasets")}
     assert after == before
     assert bundle.pipeline == "datasets"
-    assert bundle.consumer_ready is True
-    assert bundle.full_publish_ready is True
-    assert bundle.publish_mode == "full-ready"
+    assert bundle.consumer_ready is False
+    assert bundle.full_publish_ready is False
+    assert bundle.report_basis_state == "not_established"
+    assert bundle.publish_mode is None
+    assert bundle.readiness_summary.declared_readiness["consumer_ready"] is True
     assert bundle.table_counts["datasets"] == 2
     assert bundle.benchmark_metrics["benchmark_foundry_fitness_pct"] == 100.0
     assert bundle.readiness_summary.failed_readiness_checks == ()
-    assert bundle.source_by_id("worldbank")
+    assert bundle.source_by_id("worldbank").ready is False
     assert len(bundle.artifacts) == 5
     assert all(artifact.checksum_ok is True for artifact in bundle.artifacts)
     assert bundle.stage_manifests[0].stage == "publish"
-    assert bundle.warnings == ()
+    assert any(
+        warning.startswith("catalog_report_basis_not_current:") for warning in bundle.warnings
+    )

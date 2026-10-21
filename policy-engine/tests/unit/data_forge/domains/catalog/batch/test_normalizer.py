@@ -244,3 +244,50 @@ def test_normalize_to_dcat_handles_poland_open_data_catalog_row() -> None:
         record.distributions[0].source_locator == "https://api.dane.gov.pl/1.4/datasets/1/resources"
     )
     assert record.coverage.countries == ["POL"]
+
+
+def test_default_worldbank_metric_map_uses_current_government_indicator_ids() -> None:
+    from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
+    from polisyos.data_forge.domains.catalog.batch.normalizer import _map_metrics_with_method
+    from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
+
+    metrics_map = load_metrics_map(catalog_default_resource_path("metrics_map.yaml"))
+    current_ids = ["GOV_WGI_RL.EST", "GOV_WGI_GE.EST", "GOV_WGI_CC.EST"]
+    assert metrics_map["institutional_quality"]["worldbank_indicators"] == current_ids
+
+    for indicator_id in current_ids:
+        assert _map_metrics_with_method(
+            {"id": indicator_id, "title": "Unrelated indicator series"}, metrics_map
+        ) == [("institutional_quality", "code_match")]
+
+    for retired_id in ["RL.EST", "GE.EST", "CC.EST"]:
+        assert (
+            _map_metrics_with_method(
+                {"id": retired_id, "title": "Unrelated indicator series"}, metrics_map
+            )
+            == []
+        )
+
+    from polisyos.data_forge.domains.catalog.batch.normalizer import (
+        METRIC_INFERENCE_CONFIDENCE,
+    )
+
+    gdp_pairs = dict(
+        _map_metrics_with_method(
+            {"id": "NY.GDP.PCAP.PP.CD", "name": "GDP per capita, PPP"}, metrics_map
+        )
+    )
+    health_pairs = dict(
+        _map_metrics_with_method(
+            {
+                "id": "SH.XPD.CHEX.PC.CD",
+                "name": "Current health expenditure per capita (current US$)",
+            },
+            metrics_map,
+        )
+    )
+    assert gdp_pairs["gdp_per_capita"] == "code_match"
+    assert health_pairs["health_spending"] == "code_match"
+    assert health_pairs["gdp_per_capita"] == "heuristic"
+    assert METRIC_INFERENCE_CONFIDENCE[gdp_pairs["gdp_per_capita"]] == 0.95
+    assert METRIC_INFERENCE_CONFIDENCE[health_pairs["gdp_per_capita"]] == 0.55

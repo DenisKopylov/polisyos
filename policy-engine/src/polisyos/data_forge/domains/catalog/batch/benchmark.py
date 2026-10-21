@@ -103,6 +103,14 @@ class BenchmarkOutcome:
     metrics: dict[str, float | int]
 
 
+@dataclass(frozen=True)
+class BenchmarkEvaluation:
+    """Side-effect-free result of evaluating the selected catalog graph."""
+
+    report: dict[str, object]
+    metrics: dict[str, float | int]
+
+
 def readiness_thresholds_for_profile(run_profile: str) -> dict[str, float]:
     """Return benchmark readiness thresholds for a dataset run profile.
 
@@ -1311,13 +1319,17 @@ def _run_foundry_benchmark(
     return {"metrics": metric_results}, metrics
 
 
-def run_benchmark(
+def evaluate_benchmark(
     config: DatasetBatchConfig,
     *,
     suite: BenchmarkSuite = DEFAULT_BENCHMARK_SUITE,
-) -> BenchmarkOutcome:
-    """Run deterministic consumer benchmark suites and write JSON report."""
-    started_at = datetime.now(UTC).isoformat()
+) -> BenchmarkEvaluation:
+    """Recompute benchmark evidence from the selected catalog and its source basis.
+
+    This evaluator does not persist reports or stage manifests. The producer and
+    report-basis reader both use it, so a report receipt cannot replace
+    recomputation of the metrics it claims.
+    """
     thresholds = readiness_thresholds_for_profile(config.run_profile)
     graph = DatasetCatalogGraph(db_path=config.db_path, index_dir=config.index_dir)
     con = duckdb.connect(str(config.db_path), read_only=True)
@@ -1414,6 +1426,19 @@ def run_benchmark(
         },
     }
 
+    return BenchmarkEvaluation(report=report, metrics=metrics)
+
+
+def run_benchmark(
+    config: DatasetBatchConfig,
+    *,
+    suite: BenchmarkSuite = DEFAULT_BENCHMARK_SUITE,
+) -> BenchmarkOutcome:
+    """Run deterministic consumer benchmarks and persist the producer report."""
+    started_at = datetime.now(UTC).isoformat()
+    evaluation = evaluate_benchmark(config, suite=suite)
+    report = evaluation.report
+    metrics = evaluation.metrics
     config.benchmark_report_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
         json.dump(report, fh, ensure_ascii=False, indent=2)
@@ -1424,9 +1449,9 @@ def run_benchmark(
         status="ok",
         metrics={
             **metrics,
-            "rest_rows_by_source": rest_rows_by_source,
-            "rest_bytes_by_source": rest_bytes_by_source,
-            "history_budget_exceeded_sources": history_budget_exceeded_sources,
+            "rest_rows_by_source": report["rest_rows_by_source"],
+            "rest_bytes_by_source": report["rest_bytes_by_source"],
+            "history_budget_exceeded_sources": report["history_budget_exceeded_sources"],
             "source_publish_blocking": report["source_publish_blocking"],
         },
         artifacts=[config.benchmark_report_path],

@@ -6,6 +6,8 @@ import asyncio
 import time
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field, replace
+from datetime import datetime
+from math import isfinite
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -14,6 +16,7 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
     build_content_basis,
     build_output_inventory,
     fingerprint_paths,
+    hash_payload,
     load_json,
     save_stage_state,
     stage_can_skip,
@@ -54,9 +57,9 @@ _STAGE_RULE_VERSIONS = {
     "graph_load": "policyos.catalog.graph_load.v1",
     "graph_index": "policyos.catalog.graph_index.v1",
     "embed": "policyos.catalog.embed.v2",
-    "benchmark": "policyos.catalog.benchmark.v1",
-    "qc": "policyos.catalog.qc.v1",
-    "publish": "policyos.catalog.publish.v1",
+    "benchmark": "policyos.catalog.benchmark.v2",
+    "qc": "policyos.catalog.qc.v2",
+    "publish": "policyos.catalog.publish.v2",
 }
 
 
@@ -364,6 +367,18 @@ def _stage_input_basis(
             inputs = {**common_inputs, "benchmark_report": config.benchmark_report_path}
             settings["fail_fast_qc"] = config.fail_fast_qc
         else:
+            report_basis = current_catalog_report_basis(config)
+            settings["report_basis"] = {
+                key: report_basis.get(key)
+                for key in (
+                    "state",
+                    "reason",
+                    "digest",
+                    "evaluation_mode",
+                    "benchmark_stage",
+                    "qc_stage",
+                )
+            }
             inputs = {
                 **common_inputs,
                 "benchmark_report": config.benchmark_report_path,
@@ -394,9 +409,13 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
         "graph_index": [config.db_path],
         "core_sources_ingest": [config.manifests_dir / "core_sources_ingest.json"],
         "embed": [config.index_dir / "embedding_generation.json"],
-        "benchmark": [config.benchmark_report_path],
-        "qc": [config.qc_report_path],
-        "publish": [config.publish_manifest_path, config.consumer_readiness_path],
+        "benchmark": [config.benchmark_report_path, config.manifests_dir / "benchmark.json"],
+        "qc": [config.qc_report_path, config.manifests_dir / "qc.json"],
+        "publish": [
+            config.publish_manifest_path,
+            config.consumer_readiness_path,
+            config.manifests_dir / "publish.json",
+        ],
     }
     return mapping.get(stage, [])
 
@@ -688,6 +707,347 @@ def current_content_stage_receipt(
     }
 
 
+def _report_stage_manifest_is_bound(
+    config: DatasetBatchConfig,
+    stage: str,
+    report: Mapping[str, object],
+) -> tuple[bool, str]:
+    """Check that a native stage manifest names the exact report bytes."""
+    report_path = config.benchmark_report_path if stage == "benchmark" else config.qc_report_path
+    manifest_path = config.manifests_dir / f"{stage}.json"
+    manifest = load_json(manifest_path, default=None)
+    if not isinstance(manifest, dict):
+        return False, f"{stage}_stage_manifest_missing_or_malformed"
+    expected_status = "ok"
+    if stage == "qc":
+        expected_status = "ok" if report.get("passed") is True else "failed"
+    if (
+        manifest.get("kind") != "stage"
+        or manifest.get("stage") != stage
+        or manifest.get("status") != expected_status
+    ):
+        return False, f"{stage}_stage_manifest_identity_mismatch"
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, list) or len(artifacts) != 1 or not isinstance(artifacts[0], dict):
+        return False, f"{stage}_stage_manifest_artifact_set_mismatch"
+    artifact = artifacts[0]
+    artifact_path = artifact.get("path")
+    try:
+        exact_path = (
+            isinstance(artifact_path, str)
+            and Path(artifact_path).resolve() == report_path.resolve()
+        )
+        digest = sha256_file(report_path)
+    except (OSError, TypeError, ValueError):
+        return False, f"{stage}_stage_manifest_artifact_unreadable"
+    if not exact_path or artifact.get("sha256") != digest:
+        return False, f"{stage}_stage_manifest_artifact_mismatch"
+    metrics = manifest.get("metrics")
+    if not isinstance(metrics, dict):
+        return False, f"{stage}_stage_manifest_metrics_missing"
+    report_metrics = report.get("metrics")
+    if not isinstance(report_metrics, dict):
+        return False, f"{stage}_report_metrics_missing"
+    for name, value in report_metrics.items():
+        if metrics.get(name) != value:
+            return False, f"{stage}_stage_manifest_metrics_mismatch"
+    if stage == "qc" and metrics.get("passed") is not report.get("passed"):
+        return False, "qc_stage_manifest_passed_mismatch"
+    try:
+        started_at = datetime.fromisoformat(str(manifest.get("started_at")))
+        finished_at = datetime.fromisoformat(str(manifest.get("finished_at")))
+        report_generated_at = datetime.fromisoformat(str(report.get("generated_at")))
+    except (TypeError, ValueError):
+        return False, f"{stage}_stage_timestamp_malformed"
+    if (
+        started_at.tzinfo is None
+        or finished_at.tzinfo is None
+        or report_generated_at.tzinfo is None
+        or finished_at < started_at
+        or report_generated_at < started_at
+        or report_generated_at > finished_at
+    ):
+        return False, f"{stage}_report_timestamp_outside_producer_window"
+    return True, "current"
+
+
+def _finite_report_number(value: object) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool) and isfinite(float(value))
+
+
+def _report_semantic_payload(payload: Mapping[str, object]) -> dict[str, object]:
+    """Drop only the producer timestamp before comparing recomputed report content."""
+
+    def json_compatible(value: object) -> object:
+        if isinstance(value, Mapping):
+            return {str(key): json_compatible(item) for key, item in value.items()}
+        if isinstance(value, tuple | list):
+            return [json_compatible(item) for item in value]
+        return value
+
+    return {key: json_compatible(value) for key, value in payload.items() if key != "generated_at"}
+
+
+def _report_stage_state(
+    config: DatasetBatchConfig,
+    stage: str,
+) -> tuple[dict[str, object] | None, str, str]:
+    """Return one current producer receipt or its exact absent/stale state."""
+    receipt = current_content_stage_receipt(config, stage)
+    if receipt is not None:
+        state = str(receipt.get("state") or "not_established")
+        return receipt, state, str(receipt.get("reason") or f"{stage}_currentness_not_established")
+    saved_state = load_json(config.stage_state_path, default={})
+    saved_stage = saved_state.get(stage) if isinstance(saved_state, dict) else None
+    if isinstance(saved_stage, dict) and saved_stage.get("status") == "complete":
+        return None, "stale", f"{stage}_basis_or_output_drift"
+    return None, "not_established", f"{stage}_producer_receipt_absent"
+
+
+def _derive_catalog_readiness(
+    config: DatasetBatchConfig,
+    report_basis: Mapping[str, object],
+) -> dict[str, object]:
+    """Derive readiness once from an admitted producer report basis."""
+    from polisyos.data_forge.domains.catalog.batch.benchmark import (
+        readiness_thresholds_for_profile,
+    )
+
+    benchmark = report_basis.get("benchmark_payload")
+    qc = report_basis.get("qc_payload")
+    if (
+        report_basis.get("state") != "current"
+        or not isinstance(benchmark, dict)
+        or not isinstance(qc, dict)
+    ):
+        raise ValueError("a current benchmark/QC report basis is required")
+    metrics = benchmark.get("metrics")
+    source_preflight = benchmark.get("source_preflight")
+    source_rows = source_preflight.get("sources") if isinstance(source_preflight, dict) else None
+    if not isinstance(metrics, dict) or not isinstance(source_rows, list):
+        raise ValueError("the admitted benchmark report is incomplete")
+    thresholds = readiness_thresholds_for_profile(config.run_profile)
+    source_statuses = {
+        str(row["source"]): str(row["status"]) for row in source_rows if isinstance(row, dict)
+    }
+    blocking_specs = [
+        spec
+        for spec in config.load_registry().sources
+        if spec.enabled and spec.publish_blocking and spec.run_lane == "empirical"
+    ]
+    missing_statuses = sorted(
+        spec.name for spec in blocking_specs if spec.name not in source_statuses
+    )
+    if missing_statuses:
+        raise ValueError("missing blocking source statuses: " + ", ".join(missing_statuses))
+    evaluation_mode = str(report_basis["evaluation_mode"])
+    readiness = {
+        "qc_ready": qc.get("passed") is True,
+        "benchmark_ready": bool(metrics),
+        "search_ready": float(metrics["benchmark_search_top5_relevance_pct"])
+        >= thresholds["benchmark_search_top5_relevance_pct"],
+        "fetchability_ready": float(metrics["benchmark_retrieval_ready_pct"])
+        >= thresholds["benchmark_retrieval_ready_pct"],
+        "transportability_ready": float(metrics["benchmark_transport_ready_pct"])
+        >= thresholds["benchmark_transport_ready_pct"],
+        "foundry_ready": float(metrics["benchmark_foundry_fitness_pct"])
+        >= thresholds["benchmark_foundry_fitness_pct"],
+        "source_preflight_ready": float(metrics["benchmark_source_preflight_ready_pct"])
+        >= thresholds["benchmark_source_preflight_ready_pct"],
+        "evaluation_ready": evaluation_mode in {"core-ready", "full-ready"},
+        "equivalence_ready": (
+            float(metrics["benchmark_bulk_equivalence_mismatch_rate"]) <= 2.0
+            and int(metrics["benchmark_bulk_equivalence_blocking_sources_total"]) <= 0
+        ),
+    }
+    readiness["consumer_ready"] = all(readiness.values())
+    readiness["full_publish_ready"] = (
+        readiness["consumer_ready"] and evaluation_mode == "full-ready"
+    )
+    return {
+        "readiness": readiness,
+        "thresholds": thresholds,
+        "blocking_source_statuses": source_statuses,
+    }
+
+
+def current_catalog_report_basis(config: DatasetBatchConfig) -> dict[str, object]:
+    """Recompute the exact native benchmark and QC report basis for publication.
+
+    A report's own fields are admitted only when the canonical stage receipt is
+    current, its output inventory binds both report and producer manifest, and
+    report content agrees with that manifest and the selected producer config.
+    """
+    receipts: dict[str, dict[str, object]] = {}
+    for stage in ("benchmark", "qc"):
+        receipt, state, reason = _report_stage_state(config, stage)
+        if receipt is None or state != "current":
+            return {"state": state, "reason": reason, "stage": stage}
+        receipts[stage] = receipt
+
+    benchmark = load_json(config.benchmark_report_path, default=None)
+    qc = load_json(config.qc_report_path, default=None)
+    if not isinstance(benchmark, dict) or not isinstance(qc, dict):
+        return {"state": "not_established", "reason": "report_json_missing_or_malformed"}
+    expected_roots = {
+        "snapshot_root": str(config.snapshot_root),
+        "component_dir": str(config.component_dir),
+    }
+    if (
+        benchmark.get("kind") != "datasets_benchmark"
+        or benchmark.get("run_profile") != config.run_profile
+        or any(benchmark.get(name) != value for name, value in expected_roots.items())
+    ):
+        return {"state": "not_established", "reason": "benchmark_report_identity_mismatch"}
+    evaluation_mode = benchmark.get("evaluation_mode")
+    if evaluation_mode not in {"partial-eval", "full-eval", "core-ready", "full-ready"}:
+        return {
+            "state": "not_established",
+            "reason": "benchmark_evaluation_mode_missing_or_invalid",
+        }
+    from polisyos.data_forge.domains.catalog.batch.benchmark import (
+        readiness_thresholds_for_profile,
+    )
+
+    expected_thresholds = readiness_thresholds_for_profile(config.run_profile)
+    thresholds = benchmark.get("thresholds")
+    if not isinstance(thresholds, dict) or thresholds != expected_thresholds:
+        return {"state": "not_established", "reason": "benchmark_threshold_basis_mismatch"}
+    benchmark_metrics = benchmark.get("metrics")
+    if not isinstance(benchmark_metrics, dict):
+        return {"state": "not_established", "reason": "benchmark_metrics_missing"}
+    for metric in expected_thresholds:
+        value = benchmark_metrics.get(metric)
+        if not _finite_report_number(value) or not 0 <= float(value) <= 100:
+            return {"state": "not_established", "reason": f"benchmark_metric_invalid:{metric}"}
+    mismatch_rate = benchmark_metrics.get("benchmark_bulk_equivalence_mismatch_rate")
+    blocking_sources = benchmark_metrics.get("benchmark_bulk_equivalence_blocking_sources_total")
+    if not _finite_report_number(mismatch_rate) or float(mismatch_rate) < 0:
+        return {"state": "not_established", "reason": "benchmark_bulk_mismatch_metric_invalid"}
+    if type(blocking_sources) is not int or blocking_sources < 0:
+        return {"state": "not_established", "reason": "benchmark_blocking_source_count_invalid"}
+    preflight = benchmark.get("source_preflight")
+    source_rows = preflight.get("sources") if isinstance(preflight, dict) else None
+    if not isinstance(source_rows, list):
+        return {"state": "not_established", "reason": "benchmark_source_preflight_missing"}
+    source_statuses: dict[str, str] = {}
+    for row in source_rows:
+        if not isinstance(row, dict):
+            return {"state": "not_established", "reason": "benchmark_source_preflight_row_invalid"}
+        name, status = row.get("source"), row.get("status")
+        if (
+            not isinstance(name, str)
+            or not name.strip()
+            or not isinstance(status, str)
+            or not status.strip()
+        ):
+            return {
+                "state": "not_established",
+                "reason": "benchmark_source_preflight_identity_invalid",
+            }
+        if name in source_statuses:
+            return {"state": "not_established", "reason": "benchmark_source_preflight_duplicate"}
+        source_statuses[name] = status
+    blocking_specs = [
+        spec
+        for spec in config.load_registry().sources
+        if spec.enabled and spec.publish_blocking and spec.run_lane == "empirical"
+    ]
+    missing_statuses = sorted(
+        spec.name for spec in blocking_specs if spec.name not in source_statuses
+    )
+    if missing_statuses:
+        return {
+            "state": "not_established",
+            "reason": "benchmark_blocking_source_status_missing",
+            "missing_sources": missing_statuses,
+        }
+
+    if qc.get("scope") != "datasets" or qc.get("metrics") is None:
+        return {"state": "not_established", "reason": "qc_report_identity_or_metrics_missing"}
+    qc_metrics = qc.get("metrics")
+    checks = qc.get("checks")
+    if not isinstance(qc_metrics, dict) or not isinstance(checks, list) or not checks:
+        return {"state": "not_established", "reason": "qc_report_checks_missing_or_invalid"}
+    recomputed_qc_passed = True
+    for check in checks:
+        if not isinstance(check, dict) or not isinstance(check.get("passed"), bool):
+            return {"state": "not_established", "reason": "qc_check_shape_invalid"}
+        severity = check.get("severity")
+        if severity not in {"critical", "warning", "info"}:
+            return {"state": "not_established", "reason": "qc_check_severity_invalid"}
+        if not check["passed"] and severity == "critical":
+            recomputed_qc_passed = False
+    if type(qc.get("passed")) is not bool or qc.get("passed") is not recomputed_qc_passed:
+        return {"state": "not_established", "reason": "qc_passed_not_recomputed"}
+    if qc_metrics.get("qc_evaluation_mode") != evaluation_mode:
+        return {"state": "not_established", "reason": "qc_benchmark_mode_mismatch"}
+
+    from polisyos.data_forge.domains.catalog.batch.benchmark import evaluate_benchmark
+    from polisyos.data_forge.domains.catalog.batch.qc import evaluate_qc
+
+    recomputed_benchmark = evaluate_benchmark(config).report
+    if _report_semantic_payload(benchmark) != _report_semantic_payload(recomputed_benchmark):
+        return {
+            "state": "not_established",
+            "reason": "benchmark_report_not_recomputed_from_selected_catalog",
+        }
+    recomputed_qc = evaluate_qc(
+        config,
+        benchmark_report_payload=recomputed_benchmark,
+    ).to_dict()
+    if _report_semantic_payload(qc) != _report_semantic_payload(recomputed_qc):
+        return {
+            "state": "not_established",
+            "reason": "qc_report_not_recomputed_from_selected_catalog",
+        }
+
+    benchmark_bound, benchmark_reason = _report_stage_manifest_is_bound(
+        config,
+        "benchmark",
+        benchmark,
+    )
+    if not benchmark_bound:
+        return {"state": "not_established", "reason": benchmark_reason}
+    qc_bound, qc_reason = _report_stage_manifest_is_bound(config, "qc", qc)
+    if not qc_bound:
+        return {"state": "not_established", "reason": qc_reason}
+
+    stage_summaries = {
+        stage: {
+            "state": "current",
+            "input_basis_digest": receipts[stage].get("input_basis_digest"),
+            "output_inventory_digest": receipts[stage].get("output_inventory_digest"),
+        }
+        for stage in ("benchmark", "qc")
+    }
+    digest = hash_payload(
+        {
+            "schema_version": "policyos.catalog_report_basis.v1",
+            "run_profile": config.run_profile,
+            "stages": stage_summaries,
+            "evaluation_mode": evaluation_mode,
+        }
+    )
+    return {
+        "state": "current",
+        "reason": "recomputed_native_benchmark_and_qc_receipts",
+        "schema_version": "policyos.catalog_report_basis.v1",
+        "digest": digest,
+        "run_profile": config.run_profile,
+        "evaluation_mode": evaluation_mode,
+        "benchmark_stage": stage_summaries["benchmark"],
+        "qc_stage": stage_summaries["qc"],
+        "benchmark_payload": benchmark,
+        "qc_payload": qc,
+        "basis_predicates": {
+            "benchmark_metrics": "recomputed_from_selected_catalog_and_source_basis",
+            "qc_checks": "recomputed_from_selected_catalog_and_native_benchmark",
+            "qc_url_reachability": "recomputed_from_current_selected_distribution_urls",
+        },
+    }
+
+
 def current_catalog_publish_receipt(
     database_path: Path, *, run_profile: str | None = None
 ) -> dict[str, object]:
@@ -753,6 +1113,15 @@ def current_catalog_publish_receipt(
             "reason": "producer_consumer_profile_mismatch",
         }
     try:
+        report_basis = current_catalog_report_basis(config)
+        if report_basis.get("state") != "current":
+            state = str(report_basis.get("state") or "not_established")
+            reason = str(report_basis.get("reason") or "report_basis_not_current")
+            return {
+                "state": state,
+                "reason": f"catalog_report_basis_{reason}",
+                "report_basis_state": state,
+            }
         receipt = current_content_stage_receipt(config, "publish")
         if receipt is None:
             return {"state": "stale", "reason": "publish_basis_or_output_drift"}
@@ -762,6 +1131,36 @@ def current_catalog_publish_receipt(
                 "reason": receipt.get("reason")
                 or "publish_profile_input_currentness_not_established",
                 "profile_input_coverage_state": receipt.get("profile_input_coverage_state"),
+            }
+        derived = _derive_catalog_readiness(config, report_basis)
+        readiness_payload = load_json(config.consumer_readiness_path, default=None)
+        publish_payload = load_json(config.publish_manifest_path, default=None)
+        publish_extra = publish_payload.get("extra") if isinstance(publish_payload, dict) else None
+        declared_basis = (
+            readiness_payload.get("report_basis") if isinstance(readiness_payload, dict) else None
+        )
+        manifest_basis = (
+            publish_extra.get("report_basis") if isinstance(publish_extra, dict) else None
+        )
+        expected_readiness = derived["readiness"]
+        if (
+            not isinstance(readiness_payload, dict)
+            or readiness_payload.get("readiness") != expected_readiness
+            or not isinstance(declared_basis, dict)
+            or declared_basis.get("digest") != report_basis.get("digest")
+            or declared_basis.get("state") != "current"
+            or not isinstance(publish_extra, dict)
+            or publish_extra.get("consumer_ready") is not expected_readiness["consumer_ready"]
+            or publish_extra.get("full_publish_ready")
+            is not expected_readiness["full_publish_ready"]
+            or not isinstance(manifest_basis, dict)
+            or manifest_basis.get("digest") != report_basis.get("digest")
+            or manifest_basis.get("state") != "current"
+            or expected_readiness["consumer_ready"] is not True
+        ):
+            return {
+                "state": "stale",
+                "reason": "publish_readiness_basis_or_derivation_mismatch",
             }
         core = _current_core_output_receipt_state(config)
         if core.expected and core.reconciled_receipt is None:
@@ -812,6 +1211,18 @@ def current_catalog_publish_receipt(
                 "source_path": str(path),
                 "content_sha256": f"sha256:{digest}",
                 "byte_size": size,
+            },
+            "report_basis": {
+                key: report_basis[key]
+                for key in (
+                    "state",
+                    "schema_version",
+                    "digest",
+                    "run_profile",
+                    "evaluation_mode",
+                    "benchmark_stage",
+                    "qc_stage",
+                )
             },
         }
     except AttributeError, KeyError, OSError, TypeError, ValueError:

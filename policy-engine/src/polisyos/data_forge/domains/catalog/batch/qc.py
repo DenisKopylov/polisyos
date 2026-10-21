@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
-import random
 import urllib.request
 from csv import DictReader
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -22,7 +22,6 @@ from polisyos.data_forge.kernel.quality import (
     QCCheck,
     QCReport,
     evaluate_fail_fast,
-    write_qc_report,
 )
 
 if TYPE_CHECKING:
@@ -305,8 +304,44 @@ def _benchmark_metric_group(metric_name: str) -> str:
     return "catalog-health"
 
 
+def evaluate_qc(
+    config: DatasetBatchConfig,
+    *,
+    benchmark_report_payload: dict[str, object],
+) -> QCReport:
+    """Recompute QC evidence without writing reports or derived artifacts.
+
+    The canonical QC producer and report-basis admission both use the same
+    evaluator. External URL reachability remains a live read performed against
+    the URLs selected from the actual catalog graph.
+    """
+    return _evaluate_qc(
+        config,
+        benchmark_report_payload=benchmark_report_payload,
+        fail_fast=False,
+        persist_outputs=False,
+    )
+
+
 def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCReport:
-    """Evaluate dataset batch artifacts and emit a QC report with publish-blocking gates.
+    """Evaluate and persist dataset QC using the canonical benchmark report."""
+    report = _evaluate_qc(
+        config,
+        benchmark_report_payload=None,
+        fail_fast=fail_fast,
+        persist_outputs=True,
+    )
+    return report
+
+
+def _evaluate_qc(
+    config: DatasetBatchConfig,
+    *,
+    benchmark_report_payload: dict[str, object] | None,
+    fail_fast: bool | None,
+    persist_outputs: bool,
+) -> QCReport:
+    """Evaluate dataset artifacts with the shared producer/admission logic.
 
     Checks cover manifest parity, description quality, machine-readability, parser support,
     benchmark readiness thresholds, cross-source value consistency, and observation coverage.
@@ -319,7 +354,11 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
     smoke_like = _is_smoke_like_run(config)
     benchmark_payload: dict[str, object] = {}
     benchmark_metrics: dict[str, object] = {}
-    if config.benchmark_report_path.exists():
+    if benchmark_report_payload is not None:
+        benchmark_payload = benchmark_report_payload
+        if isinstance(benchmark_report_payload.get("metrics"), dict):
+            benchmark_metrics = benchmark_report_payload["metrics"]
+    elif config.benchmark_report_path.exists():
         with open(config.benchmark_report_path, encoding="utf-8") as fh:
             loaded_benchmark = json.load(fh)
         if isinstance(loaded_benchmark, dict):
@@ -562,7 +601,7 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         try:
             rows = con.execute(
                 "SELECT DISTINCT url FROM ds_distributions "
-                "WHERE url IS NOT NULL AND length(trim(url)) > 0 LIMIT 500"
+                "WHERE url IS NOT NULL AND length(trim(url)) > 0 ORDER BY url LIMIT 500"
             ).fetchall()
         finally:
             con.close()
@@ -572,8 +611,9 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
             for r in rows
             if isinstance(r[0], str) and r[0].startswith(("http://", "https://"))
         ]
-        random.seed(42)
-        sample = random.sample(urls, k=min(20, len(urls))) if urls else []
+        sample = (
+            sorted(urls, key=lambda url: sha256(url.encode("utf-8")).digest())[:20] if urls else []
+        )
         for url in sample:
             checked += 1
             if _url_is_reachable(url, timeout=10):
@@ -728,9 +768,10 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
                         year_range=config.resolved_year_window,
                     )
                     heatmap_path = _coverage_heatmap_path(config)
-                    heatmap_path.parent.mkdir(parents=True, exist_ok=True)
-                    with open(heatmap_path, "w", encoding="utf-8") as fh:
-                        json.dump(heatmap, fh, ensure_ascii=False, indent=2)
+                    if persist_outputs:
+                        heatmap_path.parent.mkdir(parents=True, exist_ok=True)
+                        with open(heatmap_path, "w", encoding="utf-8") as fh:
+                            json.dump(heatmap, fh, ensure_ascii=False, indent=2)
                     metrics["coverage_heatmap_path"] = str(heatmap_path)
                     cross_source_check = _check_cross_source_consistency(con)
                     if smoke_like or partial_eval:
@@ -984,14 +1025,24 @@ def run_qc(config: DatasetBatchConfig, *, fail_fast: bool | None = None) -> QCRe
         for group in sorted({check.group for check in checks if check.group})
     }
     report = QCReport(scope="datasets", checks=checks, metrics=metrics)
-    write_qc_report(config.qc_report_path, report)
-    write_stage_manifest(
-        manifest_path=config.manifests_dir / "qc.json",
-        stage="qc",
-        status="ok" if report.passed else "failed",
-        metrics={"passed": report.passed, **metrics},
-        artifacts=[config.qc_report_path],
-        started_at=started_at,
-    )
-    evaluate_fail_fast(report, fail_fast=config.fail_fast_qc if fail_fast is None else fail_fast)
+    if persist_outputs:
+        report_payload = report.to_dict()
+        report_payload["generated_at"] = datetime.now(UTC).isoformat()
+        config.qc_report_path.parent.mkdir(parents=True, exist_ok=True)
+        config.qc_report_path.write_text(
+            json.dumps(report_payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        write_stage_manifest(
+            manifest_path=config.manifests_dir / "qc.json",
+            stage="qc",
+            status="ok" if report.passed else "failed",
+            metrics={"passed": report.passed, **metrics},
+            artifacts=[config.qc_report_path],
+            started_at=started_at,
+        )
+        evaluate_fail_fast(
+            report,
+            fail_fast=config.fail_fast_qc if fail_fast is None else fail_fast,
+        )
     return report

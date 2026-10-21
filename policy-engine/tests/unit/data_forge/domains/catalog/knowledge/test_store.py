@@ -920,6 +920,96 @@ def test_resolve_metric_bindings_prefers_transport_ready_and_schema_ready() -> N
             store.close()
 
 
+def _seed_readiness_inference_candidates(
+    db_path: Path, *, higher_tier: str, lower_tier: str
+) -> tuple[str, str]:
+    """Create equal-schema, equal-generic-confidence metric candidates."""
+    candidates = (
+        ("higher-readiness", higher_tier, 0.05),
+        ("higher-inference", lower_tier, 0.99),
+    )
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute("DELETE FROM ds_metric_bindings WHERE metric_id = 'ranking_probe'")
+        for label, tier, inference_confidence in candidates:
+            dataset_id = f"ds-ranking-{label}-{tier}"
+            distribution_id = f"dist-ranking-{label}-{tier}"
+            con.execute(
+                "INSERT INTO ds_datasets "
+                "(id, title, execution_tier, preferred_distribution_id) VALUES (?, ?, ?, ?)",
+                [dataset_id, label, tier, distribution_id],
+            )
+            con.execute(
+                "INSERT INTO ds_distributions "
+                "(id, dataset_id, connector_type, source_locator, profile_id, "
+                "parser_supported, machine_readable, quality_score) "
+                "VALUES (?, ?, 'worldbank.wdi', ?, 'worldbank_wdi', TRUE, TRUE, 0.8)",
+                [distribution_id, dataset_id, label],
+            )
+            con.execute(
+                "INSERT INTO ds_metric_bindings "
+                "(metric_id, dataset_id, distribution_id, connector_id, profile_id, "
+                "request_dataset_id, confidence, metric_inference_confidence, "
+                "default_filters, execution_tier, source) "
+                "VALUES ('ranking_probe', ?, ?, 'worldbank.wdi', 'worldbank_wdi', ?, "
+                "0.5, ?, '{}', ?, 'ranking-order-test')",
+                [dataset_id, distribution_id, label, inference_confidence, tier],
+            )
+            con.execute(
+                "INSERT INTO ds_schema_profiles "
+                "(distribution_id, dataset_id, columns_json, inferred_time_column, "
+                "inferred_geography_column, inferred_value_columns, sample_row_count, "
+                "preview_sample_hash, inference_mode, parser_mode, format_notes_json) "
+                "VALUES (?, ?, '[]', 'year', 'country_code', ['value'], 1, 'hash', "
+                "'preview', 'preview', '{}')",
+                [distribution_id, dataset_id],
+            )
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+    return (
+        f"ds-ranking-higher-readiness-{higher_tier}",
+        f"ds-ranking-higher-inference-{lower_tier}",
+    )
+
+
+@pytest.mark.parametrize(
+    ("higher_tier", "lower_tier"),
+    [
+        ("transport_ready", "fetchable"),
+        ("fetchable", "catalog"),
+        ("transport_ready", "catalog"),
+    ],
+)
+def test_resolve_metric_bindings_keeps_readiness_ahead_of_inference(
+    higher_tier: str, lower_tier: str
+) -> None:
+    """Readiness wins across tier boundaries even when inference points lower."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = _build_test_db(tmpdir)
+        expected_ids = _seed_readiness_inference_candidates(
+            db_path, higher_tier=higher_tier, lower_tier=lower_tier
+        )
+        store = DatasetCatalogStore(db_path, Path(tmpdir))
+        try:
+            bindings = store.resolve_metric_bindings("ranking_probe", top_k=None)
+            assert [binding.catalog_dataset_id for binding in bindings] == list(expected_ids)
+            assert [binding.execution_tier for binding in bindings] == [
+                higher_tier,
+                lower_tier,
+            ]
+            assert [binding.metric_inference_confidence for binding in bindings] == [
+                pytest.approx(0.05),
+                pytest.approx(0.99),
+            ]
+            assert (
+                store.resolve_metric_bindings("ranking_probe", top_k=1)[0].catalog_dataset_id
+                == (expected_ids[0])
+            )
+        finally:
+            store.close()
+
+
 def test_find_by_variables() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = _build_test_db(tmpdir)
@@ -1149,3 +1239,115 @@ def test_open_store_rejects_same_size_mtime_database_replacement(tmp_path, reade
             reader(store)
     finally:
         store.close()
+
+
+@pytest.mark.parametrize("metric_id", ["gdp", "unemployment_rate"])
+def test_resolve_metric_bindings_ranks_inference_evidence_within_readiness_and_schema(
+    metric_id: str,
+) -> None:
+    """Specific metric evidence beats generic confidence after readiness and schema."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = _build_test_db(tmpdir)
+        candidates = [
+            ("schema-code", 0.95, 0.60, True),
+            ("schema-keyword", 0.75, 0.99, True),
+            ("schema-embedding", 0.65, 0.98, True),
+            ("schema-heuristic", 0.55, 0.97, True),
+            ("schema-no-evidence", 0.0, 1.00, True),
+            ("no-schema-code", 0.95, 0.90, False),
+        ]
+        con = duckdb.connect(str(db_path))
+        try:
+            con.execute("DELETE FROM ds_metric_bindings WHERE metric_id = ?", [metric_id])
+            for label, evidence, confidence, has_schema in candidates:
+                dataset_id = f"ds-{metric_id}-{label}"
+                distribution_id = f"dist-{metric_id}-{label}"
+                con.execute(
+                    "INSERT INTO ds_datasets "
+                    "(id, title, execution_tier, preferred_distribution_id) "
+                    "VALUES (?, ?, 'transport_ready', ?)",
+                    [dataset_id, label, distribution_id],
+                )
+                con.execute(
+                    "INSERT INTO ds_metric_bindings "
+                    "(metric_id, dataset_id, distribution_id, connector_id, profile_id, "
+                    "request_dataset_id, confidence, metric_inference_confidence, "
+                    "default_filters, execution_tier, source) "
+                    "VALUES (?, ?, ?, 'worldbank.wdi', 'worldbank_wdi', ?, ?, ?, '{}', "
+                    "'transport_ready', 'worldbank')",
+                    [
+                        metric_id,
+                        dataset_id,
+                        distribution_id,
+                        label,
+                        confidence,
+                        evidence,
+                    ],
+                )
+                if has_schema:
+                    con.execute(
+                        "INSERT INTO ds_schema_profiles "
+                        "(distribution_id, dataset_id, columns_json, inferred_time_column, "
+                        "inferred_geography_column, inferred_value_columns, sample_row_count, "
+                        "preview_sample_hash, inference_mode, parser_mode, format_notes_json) "
+                        "VALUES (?, ?, '[]', 'year', 'country_code', ['value'], 1, 'hash', "
+                        "'preview', 'preview', '{}')",
+                        [distribution_id, dataset_id],
+                    )
+            con.execute("CHECKPOINT")
+        finally:
+            con.close()
+
+        store = DatasetCatalogStore(db_path, Path(tmpdir))
+        try:
+            bindings = store.resolve_metric_bindings(metric_id, top_k=None)
+            expected_ids = [
+                f"ds-{metric_id}-schema-code",
+                f"ds-{metric_id}-schema-keyword",
+                f"ds-{metric_id}-schema-embedding",
+                f"ds-{metric_id}-schema-heuristic",
+                f"ds-{metric_id}-schema-no-evidence",
+                f"ds-{metric_id}-no-schema-code",
+            ]
+            assert [binding.catalog_dataset_id for binding in bindings] == expected_ids
+            assert [binding.metric_inference_confidence for binding in bindings] == pytest.approx(
+                [0.95, 0.75, 0.65, 0.55, 0.0, 0.95]
+            )
+            assert [
+                binding.catalog_dataset_id
+                for binding in store.resolve_metric_bindings(metric_id, top_k=3)
+            ] == expected_ids[:3]
+        finally:
+            store.close()
+
+
+def test_resolve_metric_bindings_reads_legacy_table_without_inference_column() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "legacy-metric-bindings.duckdb"
+        con = duckdb.connect(str(db_path))
+        try:
+            con.execute("CREATE TABLE ds_datasets (id VARCHAR, title VARCHAR)")
+            con.execute(
+                "CREATE TABLE ds_metric_bindings ("
+                "metric_id VARCHAR, dataset_id VARCHAR, distribution_id VARCHAR, "
+                "connector_id VARCHAR, profile_id VARCHAR, request_dataset_id VARCHAR, "
+                "confidence FLOAT, default_filters VARCHAR, execution_tier VARCHAR, source VARCHAR)"
+            )
+            con.execute("INSERT INTO ds_datasets VALUES ('ds-gdp', 'GDP per capita')")
+            con.execute(
+                "INSERT INTO ds_metric_bindings VALUES "
+                "('gdp', 'ds-gdp', 'dist-gdp', 'worldbank.wdi', 'worldbank_wdi', "
+                "'NY.GDP.PCAP.CD', 0.9, '{}', 'transport_ready', 'worldbank')"
+            )
+            con.execute("CHECKPOINT")
+        finally:
+            con.close()
+
+        store = DatasetCatalogStore(db_path, Path(tmpdir))
+        try:
+            bindings = store.resolve_metric_bindings("gdp", top_k=None)
+            assert bindings
+            assert bindings[0].request_dataset_id == "NY.GDP.PCAP.CD"
+            assert all(binding.metric_inference_confidence == 0.0 for binding in bindings)
+        finally:
+            store.close()

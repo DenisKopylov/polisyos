@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import cast
+from typing import Literal, cast
 
 from pydantic import Field
 
@@ -55,6 +55,9 @@ class CatalogReadinessSummary(DataForgeModel):
     consumer_ready: bool = False
     full_publish_ready: bool = False
     publish_mode: str | None = None
+    report_basis_state: Literal["current", "stale", "not_established"] = "not_established"
+    report_basis: dict[str, object] = Field(default_factory=dict)
+    declared_readiness: dict[str, object] = Field(default_factory=dict)
     readiness: dict[str, object] = Field(default_factory=dict)
     table_counts: dict[str, int] = Field(default_factory=dict)
     benchmark_metrics: dict[str, object] = Field(default_factory=dict)
@@ -70,6 +73,8 @@ class CatalogShadowBundle(DataForgeModel):
     consumer_ready: bool = False
     full_publish_ready: bool = False
     publish_mode: str | None = None
+    report_basis_state: Literal["current", "stale", "not_established"] = "not_established"
+    report_basis: dict[str, object] = Field(default_factory=dict)
     readiness: dict[str, object] = Field(default_factory=dict)
     table_counts: dict[str, int] = Field(default_factory=dict)
     benchmark_metrics: dict[str, object] = Field(default_factory=dict)
@@ -124,33 +129,84 @@ class CatalogShadowDiff(DataForgeModel):
 
 
 def load_catalog_shadow_bundle(root: str | Path) -> CatalogShadowBundle:
-    """Load a completed catalog output directory without importing legacy code."""
+    """Load a catalog output and recompute whether its report basis is current."""
     root_path = Path(root)
     manifest_path = root_path / "publish" / "manifest.json"
     manifest = _read_json(manifest_path)
     extra = _dict_value(manifest.get("extra"))
     consumer_readiness = _read_consumer_readiness(root_path, extra)
-    readiness = _dict_value(consumer_readiness.get("readiness"))
+    declared_readiness = _dict_value(consumer_readiness.get("readiness"))
+    readiness = dict(declared_readiness)
     table_counts = _int_dict(consumer_readiness.get("table_counts"))
     benchmark_metrics = _dict_value(consumer_readiness.get("benchmark_metrics"))
-    consumer_ready = _bool_value(extra.get("consumer_ready"), readiness.get("consumer_ready"))
-    full_publish_ready = _bool_value(
-        extra.get("full_publish_ready"),
-        readiness.get("full_publish_ready"),
+    database_path = root_path / "graph" / "dataset_catalog.duckdb"
+    if database_path.is_file():
+        from polisyos.data_forge.domains.catalog.batch.pipeline import (
+            current_catalog_publish_receipt,
+        )
+
+        current_receipt = current_catalog_publish_receipt(database_path)
+    else:
+        current_receipt = {
+            "state": "not_established",
+            "reason": "catalog_database_absent",
+        }
+    actual_report_basis = _dict_value(current_receipt.get("report_basis"))
+    readiness_basis = _dict_value(consumer_readiness.get("report_basis"))
+    manifest_basis = _dict_value(extra.get("report_basis"))
+    actual_digest = actual_report_basis.get("digest")
+    basis_current = (
+        current_receipt.get("state") == "current"
+        and actual_report_basis.get("state") == "current"
+        and isinstance(actual_digest, str)
+        and readiness_basis.get("state") == "current"
+        and readiness_basis.get("digest") == actual_digest
+        and manifest_basis.get("state") == "current"
+        and manifest_basis.get("digest") == actual_digest
     )
-    publish_mode = _optional_str(consumer_readiness.get("publish_mode"))
+    report_basis_state = (
+        "current"
+        if basis_current
+        else (
+            "stale"
+            if current_receipt.get("state") == "current"
+            else str(current_receipt.get("state") or "not_established")
+        )
+    )
+    if report_basis_state not in {"current", "stale", "not_established"}:
+        report_basis_state = "not_established"
+    declared_consumer_ready = _bool_value(
+        extra.get("consumer_ready"), declared_readiness.get("consumer_ready")
+    )
+    declared_full_publish_ready = _bool_value(
+        extra.get("full_publish_ready"), declared_readiness.get("full_publish_ready")
+    )
+    consumer_ready = basis_current and declared_consumer_ready
+    full_publish_ready = basis_current and declared_full_publish_ready
+    readiness["consumer_ready"] = consumer_ready
+    readiness["full_publish_ready"] = full_publish_ready
+    declared_publish_mode = _optional_str(consumer_readiness.get("publish_mode"))
+    publish_mode = declared_publish_mode if basis_current else None
     readiness_summary = CatalogReadinessSummary(
         consumer_ready=consumer_ready,
         full_publish_ready=full_publish_ready,
         publish_mode=publish_mode,
+        report_basis_state=report_basis_state,
+        report_basis=actual_report_basis,
+        declared_readiness=declared_readiness,
         readiness=readiness,
         table_counts=table_counts,
         benchmark_metrics=benchmark_metrics,
         failed_readiness_checks=_failed_readiness_checks(readiness),
     )
-    source_summaries = _source_summaries(consumer_readiness)
+    source_summaries = _source_summaries(consumer_readiness, basis_current=basis_current)
 
     warnings: list[str] = []
+    if not basis_current:
+        warnings.append(
+            "catalog_report_basis_not_current:"
+            + str(current_receipt.get("reason") or "declared_report_basis_unmatched")
+        )
     artifacts = tuple(
         _load_artifact(root_path, item, warnings)
         for item in _list_value(manifest.get("artifacts"))
@@ -164,6 +220,8 @@ def load_catalog_shadow_bundle(root: str | Path) -> CatalogShadowBundle:
         consumer_ready=consumer_ready,
         full_publish_ready=full_publish_ready,
         publish_mode=publish_mode,
+        report_basis_state=report_basis_state,
+        report_basis=actual_report_basis,
         readiness=readiness,
         table_counts=table_counts,
         benchmark_metrics=benchmark_metrics,
@@ -265,7 +323,11 @@ def _read_consumer_readiness(root: Path, extra: dict[str, object]) -> dict[str, 
     return _read_optional_json(_resolve_path(root, str(raw_path)))
 
 
-def _source_summaries(payload: dict[str, object]) -> tuple[CatalogSourceSummary, ...]:
+def _source_summaries(
+    payload: dict[str, object],
+    *,
+    basis_current: bool,
+) -> tuple[CatalogSourceSummary, ...]:
     summaries: list[CatalogSourceSummary] = []
     for item in _list_value(payload.get("source_summaries")):
         if not isinstance(item, dict):
@@ -283,7 +345,7 @@ def _source_summaries(payload: dict[str, object]) -> tuple[CatalogSourceSummary,
                 dataset_count=_non_negative_int(source.get("dataset_count")),
                 observation_count=_non_negative_int(source.get("observation_count")),
                 publish_blocking=_bool_value(source.get("publish_blocking")),
-                ready=_bool_value(source.get("ready")),
+                ready=basis_current and _bool_value(source.get("ready")),
                 warnings=tuple(str(value) for value in _list_value(source.get("warnings"))),
             )
         )

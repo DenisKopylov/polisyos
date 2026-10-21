@@ -9,7 +9,7 @@ from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
     _should_skip_stage,
-    current_catalog_publish_receipt,
+    current_catalog_report_basis,
     run_content_stage_with_receipt,
 )
 from polisyos.data_forge.domains.catalog.batch.publish import run_publish
@@ -40,7 +40,20 @@ def _write_test_registry(path: Path) -> None:
     )
 
 
-def _build_publish_fixture(config: DatasetBatchConfig) -> None:
+def _build_publish_fixture(
+    config: DatasetBatchConfig,
+    *,
+    distribution_url: str | None = None,
+) -> None:
+    distribution_fields: dict[str, object] = {
+        "id": "dist-gdp",
+        "connector_type": "worldbank.wdi",
+        "source_locator": "NY.GDP.PCAP.CD",
+        "parser_supported": True,
+        "machine_readable": True,
+    }
+    if distribution_url is not None:
+        distribution_fields["url"] = distribution_url
     build_graph(
         records=iter(
             [
@@ -53,15 +66,7 @@ def _build_publish_fixture(config: DatasetBatchConfig) -> None:
                     execution_tier="transport_ready",
                     polisyos_metrics=["gdp_per_capita"],
                     preferred_distribution_id="dist-gdp",
-                    distributions=[
-                        DistributionRecord(
-                            id="dist-gdp",
-                            connector_type="worldbank.wdi",
-                            source_locator="NY.GDP.PCAP.CD",
-                            parser_supported=True,
-                            machine_readable=True,
-                        )
-                    ],
+                    distributions=[DistributionRecord(**distribution_fields)],
                 )
             ]
         ),
@@ -145,6 +150,7 @@ def _build_publish_receipt_fixture(
     monkeypatch,
     *,
     profile_headers: dict[str, str] | None = None,
+    distribution_url: str | None = None,
 ) -> DatasetBatchConfig:
     """Build a publish fixture with an explicit effective source-profile set."""
     from polisyos.fabric.connectors.profiles.models import SourceProfile
@@ -166,16 +172,20 @@ def _build_publish_receipt_fixture(
 
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
-    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
-    _build_publish_fixture(config)
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snap",
+        registry_path=registry_path,
+        fail_fast_qc=False,
+    )
+    _build_publish_fixture(config, distribution_url=distribution_url)
     config.merged_records_path.write_text('{"title":"GDP"}\n', encoding="utf-8")
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
-    _write_qc_and_benchmark(config)
-    run_content_stage_with_receipt(config, "publish")
+    run_content_stage_with_receipt(config, "benchmark")
+    run_content_stage_with_receipt(config, "qc")
     return config
 
 
-def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
+def test_run_publish_refuses_present_but_unbound_reports_before_emission(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
@@ -186,95 +196,197 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     _write_qc_and_benchmark(config)
 
-    manifest_path = run_publish(config)
+    try:
+        run_publish(config)
+    except RuntimeError as exc:
+        assert "benchmark/QC report basis not_established" in str(exc)
+        assert "benchmark_producer_receipt_absent" in str(exc)
+    else:
+        raise AssertionError("Expected unbound report claims to be refused")
 
-    assert manifest_path.exists()
-    assert config.consumer_readiness_path.exists()
-
-    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
-        readiness_payload = json.load(fh)
-    with open(manifest_path, encoding="utf-8") as fh:
-        manifest_payload = json.load(fh)
-
-    assert readiness_payload["readiness"]["consumer_ready"] is True
-    assert manifest_payload["extra"]["consumer_ready"] is True
+    assert not config.consumer_readiness_path.exists()
+    assert not config.publish_manifest_path.exists()
+    assert not config.stage_state_path.exists()
 
 
-def test_run_publish_blocks_when_consumer_readiness_fails(tmp_path) -> None:
-    registry_path = tmp_path / "registry.yaml"
-    _write_test_registry(registry_path)
-    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
-    _build_publish_fixture(config)
-    _write_qc_and_benchmark(config, search=50.0)
+def test_run_publish_blocks_on_native_benchmark_and_qc_evidence_below_thresholds(
+    tmp_path, monkeypatch
+) -> None:
+    config = _build_publish_receipt_fixture(tmp_path, monkeypatch)
+    report_basis = current_catalog_report_basis(config)
+    assert report_basis["state"] == "current"
+    benchmark = report_basis["benchmark_payload"]
+    qc = report_basis["qc_payload"]
+    assert isinstance(benchmark, dict) and isinstance(qc, dict)
+    assert benchmark["evaluation_mode"] == "full-eval"
+    assert qc["passed"] is False
 
     try:
         run_publish(config)
     except RuntimeError as exc:
         assert "consumer readiness failed" in str(exc)
+        assert "qc_ready" in str(exc)
+        assert "search_ready" in str(exc)
     else:
-        raise AssertionError("Expected publish readiness gate to block")
+        raise AssertionError("Expected actual native reports to remain below readiness gates")
+
+    readiness = json.loads(config.consumer_readiness_path.read_text(encoding="utf-8"))
+    assert readiness["report_basis"]["digest"] == report_basis["digest"]
+    assert readiness["readiness"]["consumer_ready"] is False
+    assert not config.publish_manifest_path.exists()
+    assert "publish" not in json.loads(config.stage_state_path.read_text(encoding="utf-8"))
 
 
-def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> None:
-    registry_path = tmp_path / "registry.yaml"
-    _write_test_registry(registry_path)
-    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
-    _build_publish_fixture(config)
-    with open(config.qc_report_path, "w", encoding="utf-8") as fh:
-        json.dump(
-            {"scope": "datasets", "passed": True, "metrics": {}, "checks": []},
-            fh,
-            ensure_ascii=False,
-            indent=2,
-        )
-    with open(config.benchmark_report_path, "w", encoding="utf-8") as fh:
-        json.dump(
-            {
-                "kind": "datasets_benchmark",
-                "metrics": {
-                    "benchmark_search_top5_relevance_pct": 100.0,
-                    "benchmark_retrieval_ready_pct": 100.0,
-                    "benchmark_transport_ready_pct": 100.0,
-                    "benchmark_foundry_fitness_pct": 100.0,
-                    "benchmark_source_preflight_ready_pct": 100.0,
-                },
-                "thresholds": READINESS_THRESHOLDS,
-                "source_preflight": {"sources": []},
-            },
-            fh,
-            ensure_ascii=False,
-            indent=2,
-        )
+def test_publish_basis_refuses_a_forged_qc_passed_flag_even_when_stage_receipts_match(
+    tmp_path, monkeypatch
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.pipeline import _record_stage_completion
+    from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
+    config = _build_publish_receipt_fixture(tmp_path, monkeypatch)
+    qc_payload = json.loads(config.qc_report_path.read_text(encoding="utf-8"))
+    assert any(
+        check["severity"] == "critical" and check["passed"] is False
+        for check in qc_payload["checks"]
+    )
+    qc_payload["passed"] = True
+    config.qc_report_path.write_text(json.dumps(qc_payload, ensure_ascii=False, indent=2))
+    write_stage_manifest(
+        manifest_path=config.manifests_dir / "qc.json",
+        stage="qc",
+        status="ok",
+        metrics={"passed": True, **qc_payload["metrics"]},
+        artifacts=[config.qc_report_path],
+    )
+    _record_stage_completion(config, "qc")
+
+    report_basis = current_catalog_report_basis(config)
+    assert report_basis["state"] == "not_established"
+    assert report_basis["reason"] == "qc_passed_not_recomputed"
+
+
+def test_publish_basis_recomputes_forged_ready_reports_against_selected_graph(
+    tmp_path, monkeypatch
+) -> None:
+    from datetime import UTC, datetime
+
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        _record_stage_completion,
+        current_content_stage_receipt,
+    )
+    from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
+
+    config = _build_publish_receipt_fixture(tmp_path, monkeypatch)
+    benchmark = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+    qc = json.loads(config.qc_report_path.read_text(encoding="utf-8"))
+    now = datetime.now(UTC).isoformat()
+
+    # Model a fully forged but internally coherent report set: labels, metric
+    # values, critical checks, manifests, hashes, and stage-state inventories
+    # all agree. Admission must still derive the observed values from the
+    # selected DuckDB graph and its selected raw/source basis.
+    benchmark["generated_at"] = now
+    benchmark["evaluation_mode"] = "full-ready"
+    benchmark["metrics"].update(dict.fromkeys(READINESS_THRESHOLDS, 100.0))
+    benchmark["metrics"]["benchmark_bulk_equivalence_mismatch_rate"] = 0.0
+    benchmark["metrics"]["benchmark_bulk_equivalence_blocking_sources_total"] = 0
+    benchmark["source_preflight"]["sources"] = [
+        {"source": "worldbank", "status": "complete", "ready": True}
+    ]
+    config.benchmark_report_path.write_text(
+        json.dumps(benchmark, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    write_stage_manifest(
+        manifest_path=config.manifests_dir / "benchmark.json",
+        stage="benchmark",
+        status="ok",
+        metrics={
+            **benchmark["metrics"],
+            "rest_rows_by_source": benchmark.get("rest_rows_by_source", {}),
+            "rest_bytes_by_source": benchmark.get("rest_bytes_by_source", {}),
+            "history_budget_exceeded_sources": benchmark.get("history_budget_exceeded_sources", []),
+            "source_publish_blocking": benchmark.get("source_publish_blocking", {}),
+        },
+        artifacts=[config.benchmark_report_path],
+        started_at=now,
+    )
+    _record_stage_completion(config, "benchmark")
+
+    qc["generated_at"] = now
+    qc["passed"] = True
+    qc["metrics"]["qc_evaluation_mode"] = "full-ready"
+    qc["metrics"].update(benchmark["metrics"])
+    qc["metrics"]["benchmark_thresholds"] = READINESS_THRESHOLDS
+    for check in qc["checks"]:
+        check["passed"] = True
+        check["status"] = "passed"
+        threshold = check.get("threshold")
+        if isinstance(threshold, int | float) and not isinstance(threshold, bool):
+            check["value"] = threshold
+    config.qc_report_path.write_text(
+        json.dumps(qc, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    write_stage_manifest(
+        manifest_path=config.manifests_dir / "qc.json",
+        stage="qc",
+        status="ok",
+        metrics={"passed": True, **qc["metrics"]},
+        artifacts=[config.qc_report_path],
+        started_at=now,
+    )
+    _record_stage_completion(config, "qc")
+
+    assert current_content_stage_receipt(config, "benchmark") is not None
+    assert current_content_stage_receipt(config, "qc") is not None
+    report_basis = current_catalog_report_basis(config)
+    assert report_basis["state"] == "not_established"
+    assert report_basis["reason"] == "benchmark_report_not_recomputed_from_selected_catalog"
     try:
         run_publish(config)
     except RuntimeError as exc:
-        assert "missing blocking source statuses" in str(exc)
+        assert "benchmark/QC report basis not_established" in str(exc)
+        assert "benchmark_report_not_recomputed_from_selected_catalog" in str(exc)
     else:
-        raise AssertionError("Expected missing source status gate to block")
+        raise AssertionError("Expected graph-inconsistent ready reports to be refused")
+    assert not config.consumer_readiness_path.exists()
+    assert not config.publish_manifest_path.exists()
+
+    # Property-removal control: retain every forged report and matching
+    # receipt, but remove the semantic comparison. The same publisher must go
+    # green, proving the prior refusal depended on recomputation rather than
+    # report/manifest shape markers.
+    from polisyos.data_forge.domains.catalog.batch import pipeline as pipeline_module
+
+    with monkeypatch.context() as patcher:
+        patcher.setattr(pipeline_module, "_report_semantic_payload", lambda _payload: {})
+        removal_basis = current_catalog_report_basis(config)
+        assert removal_basis["state"] == "current"
+        run_publish(config)
+        readiness = json.loads(config.consumer_readiness_path.read_text(encoding="utf-8"))
+        assert readiness["readiness"]["consumer_ready"] is True
+        assert readiness["readiness"]["full_publish_ready"] is True
 
 
-def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:
+def test_run_publish_refuses_forged_core_ready_fields_without_native_receipts(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="core-ready")
 
-    manifest_path = run_publish(config)
-
-    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
-        readiness_payload = json.load(fh)
-    with open(manifest_path, encoding="utf-8") as fh:
-        manifest_payload = json.load(fh)
-
-    assert readiness_payload["readiness"]["consumer_ready"] is True
-    assert readiness_payload["readiness"]["full_publish_ready"] is False
-    assert readiness_payload["publish_mode"] == "core-ready"
-    assert manifest_payload["extra"]["evaluation_mode"] == "core-ready"
+    try:
+        run_publish(config)
+    except RuntimeError as exc:
+        assert "benchmark/QC report basis not_established" in str(exc)
+    else:
+        raise AssertionError("Expected forged core-ready mode to be refused")
+    assert not config.consumer_readiness_path.exists()
+    assert not config.publish_manifest_path.exists()
 
 
-def test_run_publish_blocks_partial_eval_even_if_thresholds_pass(tmp_path) -> None:
+def test_run_publish_refuses_partial_eval_reports_without_native_receipts(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
@@ -284,52 +396,99 @@ def test_run_publish_blocks_partial_eval_even_if_thresholds_pass(tmp_path) -> No
     try:
         run_publish(config)
     except RuntimeError as exc:
-        assert "consumer readiness failed" in str(exc)
+        assert "benchmark/QC report basis not_established" in str(exc)
     else:
-        raise AssertionError("Expected partial-eval publish to stay blocked")
+        raise AssertionError("Expected unbound partial-eval claims to be refused")
+    assert not config.consumer_readiness_path.exists()
 
 
-def test_publish_receipt_read_is_side_effect_free_and_detects_same_stat_drift(
+def test_report_basis_read_is_side_effect_free_and_detects_same_stat_drift(
     tmp_path, monkeypatch
 ) -> None:
     config = _build_publish_receipt_fixture(tmp_path, monkeypatch)
     registry_path = config.registry_path
     assert registry_path is not None
-    database_path = config.db_path
-    assert current_catalog_publish_receipt(database_path)["state"] == "current"
+    assert current_catalog_report_basis(config)["state"] == "current"
     from polisyos.data_forge.domains.catalog.batch import config as config_module
-    from polisyos.data_forge.domains.catalog.batch.config import (
-        DatasetBatchConfig as ConfigType,
-    )
-
-    stage = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
-    saved = stage["publish"]["input_basis"]["config"]["effective_producer_config"]
-    assert ConfigType.from_producer_config_snapshot(saved) is not None
-    assert (
-        ConfigType.from_producer_config_snapshot(
-            {k: v for k, v in saved.items() if k != "metrics_map_path"}
-        )
-        is None
-    )
-    assert ConfigType.from_producer_config_snapshot({**saved, "unexpected": True}) is None
 
     def fail(*_args, **_kwargs):
-        raise AssertionError("read-only receipt attempted a write")
+        raise AssertionError("read-only report basis attempted a write")
 
     with monkeypatch.context() as patcher:
         patcher.setattr(config_module, "ensure_dirs", fail)
         patcher.setattr(Path, "mkdir", fail)
         patcher.setattr(Path, "write_text", fail)
         patcher.setattr(Path, "write_bytes", fail)
-        assert current_catalog_publish_receipt(database_path)["state"] == "current"
+        assert current_catalog_report_basis(config)["state"] == "current"
     stat = registry_path.stat()
     original = registry_path.read_bytes()
     changed = original.replace(b"wave: A", b"wave: B", 1)
     assert changed != original and len(changed) == len(original)
     registry_path.write_bytes(changed)
     os.utime(registry_path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
-    assert json.loads(config.stage_state_path.read_text())["publish"]["status"] == "complete"
-    assert current_catalog_publish_receipt(config.db_path)["state"] == "stale"
+    assert json.loads(config.stage_state_path.read_text())["benchmark"]["status"] == "complete"
+    drifted = current_catalog_report_basis(config)
+    assert drifted["state"] == "stale"
+    assert drifted["reason"] == "benchmark_basis_or_output_drift"
+
+
+def test_qc_evaluator_reprobes_selected_distribution_url(tmp_path, monkeypatch) -> None:
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from threading import Thread
+
+    from polisyos.data_forge.domains.catalog.batch.qc import evaluate_qc
+
+    response_state = {"status": 200}
+
+    class ReachabilityHandler(BaseHTTPRequestHandler):
+        def do_HEAD(self) -> None:
+            self.send_response(response_state["status"])
+            self.end_headers()
+
+        def do_GET(self) -> None:
+            self.send_response(response_state["status"])
+            self.end_headers()
+
+        def log_message(self, _format: str, *args: object) -> None:
+            del _format, args
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ReachabilityHandler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        endpoint = f"http://127.0.0.1:{server.server_port}/dataset"
+        config = _build_publish_receipt_fixture(
+            tmp_path,
+            monkeypatch,
+            distribution_url=endpoint,
+        )
+        benchmark_payload = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+        reachable = evaluate_qc(
+            config,
+            benchmark_report_payload=benchmark_payload,
+        )
+        assert reachable.metrics["url_sample_checked"] == 1
+        assert reachable.metrics["url_sample_reachable_pct"] == 100.0
+
+        response_state["status"] = 503
+        unavailable = evaluate_qc(
+            config,
+            benchmark_report_payload=benchmark_payload,
+        )
+        assert unavailable.metrics["url_sample_checked"] == 1
+        assert unavailable.metrics["url_sample_reachable_pct"] == 0.0
+        reachable_check = next(
+            check for check in reachable.checks if check.name == "url_sample_reachability_pct"
+        )
+        unavailable_check = next(
+            check for check in unavailable.checks if check.name == "url_sample_reachability_pct"
+        )
+        assert reachable_check.passed is True
+        assert unavailable_check.passed is False
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
 
 
 def test_private_profile_values_keep_publish_receipt_not_established(
@@ -348,13 +507,12 @@ def test_private_profile_values_keep_publish_receipt_not_established(
     assert saved_profile is not None
     producer_signature = config.run_signature
 
-    first = current_catalog_publish_receipt(config.db_path)
+    first = current_catalog_report_basis(config)
     assert first["state"] == "not_established"
     assert first["reason"] == "profile_private_inputs_unversioned"
-    assert first["profile_input_coverage_state"] == "not_established"
     saved_stage = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
-    assert saved_stage["publish"]["status"] == "complete"
-    saved_config = saved_stage["publish"]["input_basis"]["config"]["effective_producer_config"]
+    assert saved_stage["benchmark"]["status"] == "complete"
+    saved_config = saved_stage["benchmark"]["input_basis"]["config"]["effective_producer_config"]
     assert saved_config["resolved_profile_input_coverage"]["profiles"] == {
         "worldbank_wdi": "excluded_present"
     }
@@ -375,12 +533,11 @@ def test_private_profile_values_keep_publish_receipt_not_established(
     assert private_fingerprint_b != private_fingerprint_a
     assert config.run_signature == producer_signature
 
-    second = current_catalog_publish_receipt(config.db_path)
+    second = current_catalog_report_basis(config)
     assert second["state"] == "not_established"
     assert second["reason"] == "profile_private_inputs_unversioned"
-    assert second["profile_input_coverage_state"] == "not_established"
     assert (
-        json.loads(config.stage_state_path.read_text(encoding="utf-8"))["publish"]["status"]
+        json.loads(config.stage_state_path.read_text(encoding="utf-8"))["benchmark"]["status"]
         == "complete"
     )
 
@@ -388,7 +545,7 @@ def test_private_profile_values_keep_publish_receipt_not_established(
     # profile inputs still leave its producer currentness not established.
     config.resume = True
     assert config.stage_state_path.is_file()
-    assert _should_skip_stage(config, "publish") is False
+    assert _should_skip_stage(config, "benchmark") is False
 
 
 def test_profile_input_coverage_binds_presence_without_persisting_values(

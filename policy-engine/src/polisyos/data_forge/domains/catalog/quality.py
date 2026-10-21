@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 
@@ -16,6 +17,7 @@ class CatalogBenchmarkReport(DataForgeModel):
     """Read-only summary of a catalog benchmark report."""
 
     path: str = Field(min_length=1)
+    report_basis_state: Literal["current", "stale", "not_established"] = "not_established"
     metrics: dict[str, object] = Field(default_factory=dict)
 
 
@@ -23,6 +25,7 @@ class CatalogQCReport(DataForgeModel):
     """Read-only summary of a catalog QC report."""
 
     path: str = Field(min_length=1)
+    report_basis_state: Literal["current", "stale", "not_established"] = "not_established"
     metrics: dict[str, object] = Field(default_factory=dict)
     passed: bool | None = None
     failed_checks: tuple[str, ...] = Field(default_factory=tuple)
@@ -40,14 +43,24 @@ class CatalogReadinessPackage(DataForgeModel):
     @property
     def consumer_ready(self) -> bool:
         """Return whether published catalog artifacts are ready for consumers."""
-        return self.shadow.consumer_ready and self.qc.passed is not False
+        return (
+            self.shadow.report_basis_state == "current"
+            and self.benchmark.report_basis_state == "current"
+            and self.qc.report_basis_state == "current"
+            and self.shadow.consumer_ready
+            and self.qc.passed is True
+        )
 
 
 def load_catalog_benchmark_report(path_or_root: str | Path) -> CatalogBenchmarkReport:
     """Load a catalog benchmark report without importing legacy code."""
     path = _resolve_report_path(path_or_root, "benchmark_report.json")
     payload = _read_json(path)
-    return CatalogBenchmarkReport(path=str(path), metrics=_dict_value(payload.get("metrics")))
+    return CatalogBenchmarkReport(
+        path=str(path),
+        report_basis_state=_report_basis_state(path),
+        metrics=_dict_value(payload.get("metrics")),
+    )
 
 
 def load_catalog_qc_report(path_or_root: str | Path) -> CatalogQCReport:
@@ -56,6 +69,7 @@ def load_catalog_qc_report(path_or_root: str | Path) -> CatalogQCReport:
     payload = _read_json(path)
     return CatalogQCReport(
         path=str(path),
+        report_basis_state=_report_basis_state(path),
         metrics=_dict_value(payload.get("metrics")),
         passed=_optional_bool(payload.get("passed")),
         failed_checks=_failed_checks(payload),
@@ -66,10 +80,23 @@ def load_catalog_readiness_package(root: str | Path) -> CatalogReadinessPackage:
     """Load catalog readiness, benchmark, QC, and artifact hashes."""
     root_path = Path(root)
     shadow = load_catalog_shadow_bundle(root_path)
+    report_basis_state = shadow.report_basis_state
+    benchmark_payload = _read_json(root_path / "benchmark_report.json")
+    qc_payload = _read_json(root_path / "qc_report.json")
     return CatalogReadinessPackage(
         root=str(root_path),
-        benchmark=load_catalog_benchmark_report(root_path),
-        qc=load_catalog_qc_report(root_path),
+        benchmark=CatalogBenchmarkReport(
+            path=str(root_path / "benchmark_report.json"),
+            report_basis_state=report_basis_state,
+            metrics=_dict_value(benchmark_payload.get("metrics")),
+        ),
+        qc=CatalogQCReport(
+            path=str(root_path / "qc_report.json"),
+            report_basis_state=report_basis_state,
+            metrics=_dict_value(qc_payload.get("metrics")),
+            passed=_optional_bool(qc_payload.get("passed")),
+            failed_checks=_failed_checks(qc_payload),
+        ),
         shadow=shadow,
         artifact_hashes={
             artifact.relative_path: artifact.observed_sha256
@@ -77,6 +104,20 @@ def load_catalog_readiness_package(root: str | Path) -> CatalogReadinessPackage:
             if artifact.observed_sha256 is not None
         },
     )
+
+
+def _report_basis_state(report_path: Path) -> str:
+    """Return current published producer basis for a report's output root."""
+    database_path = report_path.parent / "graph" / "dataset_catalog.duckdb"
+    if not database_path.is_file():
+        return "not_established"
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_catalog_publish_receipt,
+    )
+
+    receipt = current_catalog_publish_receipt(database_path)
+    state = str(receipt.get("state") or "not_established")
+    return state if state in {"current", "stale", "not_established"} else "not_established"
 
 
 def _resolve_report_path(path_or_root: str | Path, report_name: str) -> Path:

@@ -253,52 +253,6 @@ def _actual_scope_catalog(
     )
     config.merged_records_path.write_text('{"title":"Scoped GDP"}\n', encoding="utf-8")
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
-    config.qc_report_path.write_text(
-        json.dumps(
-            {
-                "scope": "datasets",
-                "passed": True,
-                "metrics": {
-                    "machine_readable_distribution_pct": 100.0,
-                    "parser_supported_distribution_pct": 100.0,
-                    "datasets_with_metric_binding_pct": 100.0,
-                    "datasets_with_schema_profile_pct": 100.0,
-                    "transport_ready_var_coverage_pct": 100.0,
-                    "execution_readiness_score_avg": 0.9,
-                },
-                "checks": [],
-            }
-        ),
-        encoding="utf-8",
-    )
-    config.benchmark_report_path.write_text(
-        json.dumps(
-            {
-                "kind": "datasets_benchmark",
-                "evaluation_mode": "full-ready",
-                "metrics": {
-                    "benchmark_search_top5_relevance_pct": 100.0,
-                    "benchmark_retrieval_ready_pct": 100.0,
-                    "benchmark_transport_ready_pct": 100.0,
-                    "benchmark_foundry_fitness_pct": 100.0,
-                    "benchmark_source_preflight_ready_pct": 100.0,
-                    "benchmark_bulk_equivalence_mismatch_rate": 0.0,
-                    "benchmark_bulk_equivalence_blocking_sources_total": 0,
-                },
-                "source_preflight": {
-                    "sources": [{"source": "worldbank", "status": "complete", "ready": True}]
-                },
-            }
-        ),
-        encoding="utf-8",
-    )
-    run_content_stage_with_receipt(config, "publish")
-    if profile_registry is not None:
-        state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
-        saved_profiles = state["publish"]["input_basis"]["config"]["effective_producer_config"][
-            "resolved_profile_input_coverage"
-        ]["profiles"]
-        assert saved_profiles == {"worldbank_wdi": "none"}
     return DatasetCatalogGraph(
         config.db_path,
         config.index_dir,
@@ -545,9 +499,9 @@ def test_catalog_resolution_keeps_country_and_year_compatible_candidate(
     finally:
         catalog.close()
 
-    assert len(outcome.fetch_plans) == 1
-    assert outcome.fetch_plans[0].date_start == "2025"
-    assert outcome.fetch_plans[0].date_end == "2025"
+    assert outcome.fetch_plans == []
+    assert len(outcome.candidates) == 1
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
     assert not any(item.startswith("catalog_scope_") for item in outcome.warnings)
 
 
@@ -615,7 +569,9 @@ def test_catalog_resolution_keeps_unknown_coverage_declared_unknown(tmp_path, mo
     finally:
         catalog.close()
 
-    assert len(outcome.fetch_plans) == 1
+    assert outcome.fetch_plans == []
+    assert len(outcome.candidates) == 1
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
     assert any(
         item.startswith("catalog_scope_unverified:scope_metric:") for item in outcome.warnings
     )
@@ -639,9 +595,9 @@ def test_catalog_resolution_does_not_default_malformed_time_scope(tmp_path, monk
     finally:
         catalog.close()
 
-    assert len(outcome.fetch_plans) == 1
-    assert outcome.fetch_plans[0].date_start == "not-a-date"
-    assert outcome.fetch_plans[0].date_end == "2025"
+    assert outcome.fetch_plans == []
+    assert len(outcome.candidates) == 1
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
     assert any(
         item.startswith("catalog_scope_unverified:scope_metric:") for item in outcome.warnings
     )
@@ -759,7 +715,9 @@ def test_catalog_resolution_keeps_partial_time_overlap_unverified(
     finally:
         catalog.close()
 
-    assert len(outcome.fetch_plans) == 1
+    assert outcome.fetch_plans == []
+    assert len(outcome.candidates) == 1
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
     assert any(
         item == "catalog_scope_unverified:scope_metric:time_coverage_partial_overlap"
         for item in outcome.warnings
@@ -1282,12 +1240,14 @@ def test_actual_catalog_route_uses_reconciled_binding_and_exact_dataset_reader(
     finally:
         catalog.close()
 
-    assert len(outcome.fetch_plans) == 1
-    assert outcome.fetch_plans[0].metadata["catalog_dataset_id"] == "catalog-scope"
+    assert outcome.fetch_plans == []
+    assert len(outcome.candidates) == 1
+    assert outcome.candidates[0].metadata["catalog_dataset_id"] == "catalog-scope"
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
     assert not any(item.startswith("catalog_scope_") for item in outcome.warnings)
 
 
-def test_actual_catalog_route_keeps_stale_rows_candidate_only_after_registry_drift(
+def test_unpublished_catalog_route_keeps_rows_candidate_only_after_registry_drift(
     tmp_path, monkeypatch
 ) -> None:
     profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
@@ -1300,8 +1260,6 @@ def test_actual_catalog_route_keeps_stale_rows_candidate_only_after_registry_dri
         assert changed != original and len(changed) == len(original)
         registry_path.write_bytes(changed)
         os.utime(registry_path, ns=(before.st_atime_ns, before.st_mtime_ns))
-        state = json.loads((tmp_path / "snapshot/datasets/manifests/stage_state.json").read_text())
-        assert state["publish"]["status"] == "complete"
         outcome = _resolve_scoped_need(
             tmp_path,
             catalog,
@@ -1317,8 +1275,8 @@ def test_actual_catalog_route_keeps_stale_rows_candidate_only_after_registry_dri
         catalog.close()
     assert outcome.fetch_plans == []
     assert len(outcome.candidates) == 1
-    assert outcome.candidates[0].metadata["source_currentness"] == "stale"
-    assert any(item.startswith("catalog_source_stale:") for item in outcome.warnings)
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
+    assert any(item.startswith("catalog_source_not_established:") for item in outcome.warnings)
 
 
 @pytest.mark.parametrize(
@@ -1942,16 +1900,16 @@ def test_retrieval_service_provider_bundle_builds_nested_components_without_sing
 
 def test_excluded_profile_value_change_is_not_current_or_reusable(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.data_forge.domains.catalog.batch.pipeline import (
         _should_skip_stage,
-        current_catalog_publish_receipt,
+        current_catalog_report_basis,
         current_content_stage_receipt,
     )
-    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
-    registry = SourceProfileRegistry.get_instance()
+    registry = _install_builtin_worldbank_profile_scope(monkeypatch)
     profile = registry.get("worldbank_wdi")
     assert profile is not None
     baseline = resolve_connection_config(profile)
@@ -1959,36 +1917,50 @@ def test_excluded_profile_value_change_is_not_current_or_reusable(
     assert baseline.auth_method is None
     assert not baseline.auth_credentials
 
-    profile_a = profile.model_copy(
-        update={"headers": {"X-PolicyOS-Fixture": "fixture-header-A"}}, deep=True
-    )
-    profile_b = profile.model_copy(
-        update={"headers": {"X-PolicyOS-Fixture": "fixture-header-B"}}, deep=True
-    )
     catalog = None
     try:
-        registry.register(profile_a, override=True)
-        catalog = _actual_scope_catalog(tmp_path)
-        stage_path = tmp_path / "snapshot/datasets/manifests/stage_state.json"
-        first_state = json.loads(stage_path.read_text(encoding="utf-8"))
-        assert first_state["publish"]["status"] == "complete"
-
-        registry.register(profile_b, override=True)
+        catalog = _actual_scope_catalog(tmp_path, profile_registry=registry)
         config = DatasetBatchConfig(
             snapshot_root=tmp_path / "snapshot",
             registry_path=tmp_path / "registry.yaml",
             resume=True,
+            fail_fast_qc=False,
         )
-        assert not _should_skip_stage(config, "publish")
-        assert current_content_stage_receipt(config, "publish")["state"] == ("not_established")
-        assert current_catalog_publish_receipt(config.db_path)["state"] == ("not_established")
+        run_content_stage_with_receipt(config, "benchmark")
+        run_content_stage_with_receipt(config, "qc")
+        baseline_basis = current_catalog_report_basis(config)
+        assert baseline_basis["state"] == "current"
 
-        run_content_stage_with_receipt(config, "publish")
-        completed_state = json.loads(stage_path.read_text(encoding="utf-8"))
-        assert completed_state["publish"]["status"] == "complete"
-        assert completed_state["publish"]["metadata"]["currentness_state"] == ("not_established")
-        assert "fixture-header-A" not in json.dumps(completed_state)
-        assert "fixture-header-B" not in json.dumps(completed_state)
+        profile_a = profile.model_copy(
+            update={"headers": {"X-PolicyOS-Fixture": "fixture-header-A"}}, deep=True
+        )
+        registry.register(profile_a, override=True)
+        assert not _should_skip_stage(config, "benchmark")
+        stale_basis = current_catalog_report_basis(config)
+        assert stale_basis["state"] == "stale"
+        benchmark_receipt = current_content_stage_receipt(config, "benchmark")
+        assert benchmark_receipt is None
+
+        with pytest.raises(RuntimeError, match="benchmark/QC report basis"):
+            run_content_stage_with_receipt(config, "publish")
+        assert not config.consumer_readiness_path.exists()
+        assert not config.publish_manifest_path.exists()
+
+        run_content_stage_with_receipt(config, "benchmark")
+        run_content_stage_with_receipt(config, "qc")
+        unversioned_basis = current_catalog_report_basis(config)
+        assert unversioned_basis["state"] == "not_established"
+        assert unversioned_basis["reason"] == "profile_private_inputs_unversioned"
+
+        profile_b = profile.model_copy(
+            update={"headers": {"X-PolicyOS-Fixture": "fixture-header-B"}}, deep=True
+        )
+        registry.register(profile_b, override=True)
+        assert not _should_skip_stage(config, "benchmark")
+        assert current_catalog_report_basis(config)["state"] == "not_established"
+        saved_state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
+        assert "fixture-header-A" not in json.dumps(saved_state)
+        assert "fixture-header-B" not in json.dumps(saved_state)
 
         outcome = _resolve_scoped_need(
             tmp_path,
@@ -2011,13 +1983,13 @@ def test_excluded_profile_value_change_is_not_current_or_reusable(
     assert any(item.startswith("catalog_source_not_established:") for item in outcome.warnings)
 
 
-def test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed(
+def test_profile_removal_does_not_promote_unpublished_catalog_rows(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
-    registry = SourceProfileRegistry.get_instance()
+    registry = _install_builtin_worldbank_profile_scope(monkeypatch)
     profile = registry.get("worldbank_wdi")
     assert profile is not None
     baseline = resolve_connection_config(profile)
@@ -2034,16 +2006,18 @@ def test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_he
             ),
             override=True,
         )
-        catalog = _actual_scope_catalog(tmp_path)
-        publish_config = json.loads(
-            (tmp_path / "snapshot/datasets/manifests/stage_state.json").read_text()
-        )["publish"]["input_basis"]["config"]["effective_producer_config"]
-        assert (
-            publish_config["resolved_profile_input_coverage"]["profiles"]["worldbank_wdi"]
-            == "excluded_present"
+        config_with_private_input = DatasetBatchConfig(
+            snapshot_root=tmp_path / "private-input-snapshot",
         )
+        from polisyos.data_forge.domains.catalog.batch.config import _producer_config_snapshot
+
+        profile_coverage = _producer_config_snapshot(config_with_private_input)[
+            "resolved_profile_input_coverage"
+        ]
+        assert profile_coverage["profiles"] == {"worldbank_wdi": "excluded_present"}
 
         registry.register(profile, override=True)
+        catalog = _actual_scope_catalog(tmp_path, profile_registry=registry)
         outcome = _resolve_scoped_need(
             tmp_path,
             catalog,
@@ -2061,8 +2035,8 @@ def test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_he
 
     assert outcome.fetch_plans == []
     assert len(outcome.candidates) == 1
-    assert outcome.candidates[0].metadata["source_currentness"] == "stale"
-    assert any(item.startswith("catalog_source_stale:") for item in outcome.warnings)
+    assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
+    assert any(item.startswith("catalog_source_not_established:") for item in outcome.warnings)
 
 
 def test_catalog_plan_requires_generation_profile_input_coverage(
@@ -2108,6 +2082,7 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
     from polisyos.data_forge.domains.catalog.batch.pipeline import (
         _should_skip_stage,
         current_catalog_publish_receipt,
+        current_catalog_report_basis,
         current_content_stage_receipt,
         run_dataset_pipeline_sync,
     )
@@ -2151,8 +2126,9 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
                     {"page": 1, "pages": 1, "per_page": "1000", "total": 1},
                     [
                         {
-                            "id": "NY.GDP.PCAP.CD",
+                            "id": "NY.GDP.PCAP.PP.CD",
                             "name": title,
+                            "sourceNote": "GDP gross domestic product per capita",
                             "source": {"value": "World Development Indicators"},
                         }
                     ],
@@ -2183,46 +2159,41 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
             "load_catalog_source_registry",
             lambda: catalog_registry.load_catalog_source_registry(registry_path),
         )
-        config = DatasetBatchConfig(
-            snapshot_root=tmp_path / "snapshot",
-            registry_path=registry_path,
-            run_profile="prod_core_blocking",
-            wave="B",
-            stages=frozenset({"harvest", "normalize", "merge_dedup", "graph_load", "publish"}),
-            resume=True,
-            max_datasets_per_source=10,
+        from polisyos.data_forge.domains.catalog._resources import (
+            catalog_default_resource_path,
         )
-        assert config.metrics_map_path is None
-        assert config.resolved_metrics_map_path.is_file()
 
-        # These are test-only publish prerequisites. They do not exercise the
-        # native benchmark/QC producers or assert empirical readiness.
-        config.qc_report_path.parent.mkdir(parents=True, exist_ok=True)
-        config.qc_report_path.write_text(
-            json.dumps({"scope": "datasets", "passed": True, "metrics": {}, "checks": []}),
-            encoding="utf-8",
+        default_metrics_path = catalog_default_resource_path("metrics_map.yaml")
+        assert default_metrics_path.is_file()
+        default_resource_config = DatasetBatchConfig(
+            snapshot_root=tmp_path / "default-resource-check"
         )
-        config.benchmark_report_path.write_text(
-            json.dumps(
-                {
-                    "kind": "datasets_benchmark",
-                    "evaluation_mode": "full-ready",
-                    "metrics": {
-                        "benchmark_search_top5_relevance_pct": 100.0,
-                        "benchmark_retrieval_ready_pct": 100.0,
-                        "benchmark_transport_ready_pct": 100.0,
-                        "benchmark_foundry_fitness_pct": 100.0,
-                        "benchmark_source_preflight_ready_pct": 100.0,
-                        "benchmark_bulk_equivalence_mismatch_rate": 0.0,
-                        "benchmark_bulk_equivalence_blocking_sources_total": 0,
-                    },
-                    "source_preflight": {
-                        "sources": [{"source": "worldbank", "status": "complete", "ready": True}]
-                    },
-                }
+        assert default_resource_config.metrics_map_path == default_metrics_path
+        assert default_resource_config.resolved_metrics_map_path == default_metrics_path
+        original_metrics_map = default_metrics_path.read_text(encoding="utf-8")
+        indicator_pair = 'worldbank_indicators: ["NY.GDP.PCAP.CD", "NY.GDP.PCAP.PP.CD"]'
+        assert original_metrics_map.count(indicator_pair) == 1
+        metrics_map_path = tmp_path / "metrics_map.yaml"
+        metrics_map_path.write_text(
+            original_metrics_map.replace(
+                indicator_pair, 'worldbank_indicators: ["NY.GDP.PCAP.CD"]', 1
             ),
             encoding="utf-8",
         )
+        config = DatasetBatchConfig(
+            snapshot_root=tmp_path / "snapshot",
+            registry_path=registry_path,
+            metrics_map_path=metrics_map_path,
+            run_profile="prod_core_blocking",
+            wave="B",
+            stages=frozenset(
+                {"harvest", "normalize", "merge_dedup", "graph_load", "benchmark", "qc"}
+            ),
+            resume=True,
+            max_datasets_per_source=1,
+            fail_fast_qc=False,
+        )
+        assert config.resolved_metrics_map_path == metrics_map_path.resolve()
 
         def _assert_harvest_inventory_matches_independent_oracle() -> None:
             receipt = current_content_stage_receipt(config, "harvest")
@@ -2266,17 +2237,25 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
             "normalize",
             "merge_dedup",
             "graph_load",
-            "publish",
+            "benchmark",
         }.issubset(set(unchanged_run.skipped_stages))
+        # QC deliberately re-runs because its readiness probes are volatile.
+        # The resulting reports still require bound producer receipts.
+        assert unchanged_run.metrics["qc_passed"] == 0
         assert served_routes == ["a"]
         _assert_harvest_inventory_matches_independent_oracle()
-        first_receipt = current_catalog_publish_receipt(
+        refreshed_basis = current_catalog_report_basis(config)
+        assert refreshed_basis["state"] == "current"
+        first_basis = current_catalog_report_basis(config)
+        assert first_basis["state"] == "current"
+        assert first_basis["evaluation_mode"] == "full-eval"
+        first_digest = first_basis["digest"]
+        first_inventory = first_basis["benchmark_stage"]["output_inventory_digest"]
+        publish_receipt = current_catalog_publish_receipt(
             config.db_path, run_profile=config.run_profile
         )
-        assert first_receipt["state"] == "current"
-        first_digest = first_receipt["input_basis_digest"]
-        first_inventory = first_receipt["output_inventory_digest"]
-        first_coverage = first_receipt["profile_input_coverage"]
+        assert publish_receipt["state"] == "not_established"
+        assert publish_receipt["reason"] == "publish_lineage_absent"
 
         def open_consumer(label: str) -> tuple[DatasetCatalogGraph, RetrievalService]:
             catalog = DatasetCatalogGraph(
@@ -2299,12 +2278,8 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
         catalog, warm_service = open_consumer("warm")
         try:
             initial = warm_service.resolve(request, run_profile=config.run_profile)
-            assert len(initial.fetch_plans) == 1
-            first_plan = initial.fetch_plans[0]
-            assert first_plan.connector_id == "worldbank.wdi"
-            assert first_plan.profile_id == "worldbank_wdi"
-            assert first_plan.metadata["catalog_title"] == "GDP per capita baseline"
-            first_dataset_id = first_plan.dataset_id
+            assert initial.fetch_plans == []
+            assert any("catalog_source_not_established" in warning for warning in initial.warnings)
 
             old_stat = registry_path.stat()
             write_registry(endpoint_after)
@@ -2315,32 +2290,36 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
             assert registry_path.read_bytes() != original_registry_bytes
             assert _should_skip_stage(config, "harvest") is False
 
+            stale_basis = current_catalog_report_basis(config)
+            assert stale_basis["state"] == "stale"
             stale_receipt = current_catalog_publish_receipt(
                 config.db_path, run_profile=config.run_profile
             )
-            assert stale_receipt["state"] == "stale"
+            assert stale_receipt["state"] == "not_established"
             stale = warm_service.resolve(request, run_profile=config.run_profile)
             assert stale.fetch_plans == []
-            assert any(item.startswith("catalog_source_stale:") for item in stale.warnings)
 
             # Removal control: if the currentness gate is removed, the warm
             # reader emits the stale baseline plan. This tests the property,
             # rather than a marker or exit code.
+            saved_stage_state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
+            saved_profile_coverage = saved_stage_state["qc"]["input_basis"]["config"][
+                "effective_producer_config"
+            ]["resolved_profile_input_coverage"]
+            assert saved_profile_coverage["profiles"] == {"worldbank_wdi": "none"}
             monkeypatch.setattr(
                 warm_service,
                 "_catalog_publish_admission",
                 lambda _catalog, _run_profile: (
                     "current",
                     "removed_currentness_gate_control",
-                    first_coverage,
+                    saved_profile_coverage,
                 ),
             )
             stale_without_gate = warm_service.resolve(request, run_profile=config.run_profile)
             assert len(stale_without_gate.fetch_plans) == 1
-            assert (
-                stale_without_gate.fetch_plans[0].metadata["catalog_title"]
-                == "GDP per capita baseline"
-            )
+            persisted_titles = {result.title for result in catalog.search_datasets("gdp", top_k=10)}
+            assert stale_without_gate.fetch_plans[0].metadata["catalog_title"] in persisted_titles
         finally:
             catalog.close()
 
@@ -2351,14 +2330,17 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
             "normalize",
             "merge_dedup",
             "graph_load",
-            "publish",
+            "benchmark",
+            "qc",
         }.intersection(second_run.skipped_stages)
+        second_basis = current_catalog_report_basis(config)
+        assert second_basis["state"] == "current"
+        assert second_basis["digest"] != first_digest
+        assert second_basis["benchmark_stage"]["output_inventory_digest"] != first_inventory
         second_receipt = current_catalog_publish_receipt(
             config.db_path, run_profile=config.run_profile
         )
-        assert second_receipt["state"] == "current"
-        assert second_receipt["input_basis_digest"] != first_digest
-        assert second_receipt["output_inventory_digest"] != first_inventory
+        assert second_receipt["state"] == "not_established"
 
         fresh_catalog = DatasetCatalogGraph(
             config.db_path,
@@ -2372,12 +2354,10 @@ def test_real_harvest_currentness_recomputes_and_fresh_catalog_consumer_sees_new
                 profiles=profile_registry,
             )
             fresh = fresh_service.resolve(request, run_profile=config.run_profile)
-            assert len(fresh.fetch_plans) == 1
-            final_plan = fresh.fetch_plans[0]
-            assert final_plan.connector_id == first_plan.connector_id
-            assert final_plan.profile_id == first_plan.profile_id
-            assert final_plan.dataset_id == first_dataset_id
-            assert final_plan.metadata["catalog_title"] == "GDP per capita revised"
+            assert fresh.fetch_plans == []
+            assert any("catalog_source_not_established" in warning for warning in fresh.warnings)
+            search_results = fresh_catalog.search_datasets("GDP per capita", top_k=10)
+            assert any("revised" in result.title.lower() for result in search_results)
         finally:
             fresh_catalog.close()
     finally:

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import duckdb
 
-from polisyos.data_forge.domains.catalog.batch.benchmark import readiness_thresholds_for_profile
 from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 from polisyos.data_forge.kernel.pipeline.manifests import (
     write_publish_manifest,
@@ -16,6 +15,7 @@ from polisyos.data_forge.kernel.pipeline.manifests import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
@@ -42,84 +42,34 @@ def _load_json(path: Path) -> dict[str, object]:
     return payload if isinstance(payload, dict) else {}
 
 
-def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path, dict[str, bool]]:
-    qc_payload = _load_json(config.qc_report_path)
-    benchmark_payload = _load_json(config.benchmark_report_path)
-    benchmark_metrics = (
-        benchmark_payload.get("metrics")
-        if isinstance(benchmark_payload.get("metrics"), dict)
-        else {}
-    )
-    evaluation_mode = (
-        str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
-    )
-    qc_passed = bool(qc_payload.get("passed")) if qc_payload else False
-    thresholds = readiness_thresholds_for_profile(config.run_profile)
-    source_preflight_payload = (
-        benchmark_payload.get("source_preflight")
-        if isinstance(benchmark_payload.get("source_preflight"), dict)
-        else {}
-    )
-    source_preflight_cases = (
-        source_preflight_payload.get("sources")
-        if isinstance(source_preflight_payload.get("sources"), list)
-        else []
-    )
-    blocking_specs = [
-        spec
-        for spec in config.load_registry().sources
-        if spec.enabled and spec.publish_blocking and spec.run_lane == "empirical"
-    ]
-    blocking_source_statuses = {
-        str(case.get("source") or ""): str(case.get("status") or "")
-        for case in source_preflight_cases
-        if isinstance(case, dict) and str(case.get("source") or "").strip()
-    }
-    missing_blocking_statuses = sorted(
-        spec.name for spec in blocking_specs if spec.name not in blocking_source_statuses
-    )
-    if missing_blocking_statuses:
-        raise RuntimeError(
-            "Dataset publish blocked: missing blocking source statuses "
-            f"({', '.join(missing_blocking_statuses)})"
-        )
+def _write_consumer_readiness_manifest(
+    config: DatasetBatchConfig,
+    report_basis: Mapping[str, object],
+) -> tuple[Path, dict[str, bool]]:
+    """Emit readiness only from the admitted canonical benchmark/QC report basis."""
+    qc_payload = report_basis.get("qc_payload")
+    benchmark_payload = report_basis.get("benchmark_payload")
+    if (
+        report_basis.get("state") != "current"
+        or not isinstance(qc_payload, dict)
+        or not isinstance(benchmark_payload, dict)
+    ):
+        raise RuntimeError("Dataset publish blocked: current benchmark/QC report basis required")
+    benchmark_metrics = benchmark_payload.get("metrics")
+    if not isinstance(benchmark_metrics, dict):
+        raise RuntimeError("Dataset publish blocked: admitted benchmark metrics are unavailable")
+    from polisyos.data_forge.domains.catalog.batch.pipeline import _derive_catalog_readiness
 
+    derived = _derive_catalog_readiness(config, report_basis)
+    readiness = derived["readiness"]
+    thresholds = derived["thresholds"]
+    blocking_source_statuses = derived["blocking_source_statuses"]
+    evaluation_mode = str(report_basis["evaluation_mode"])
     bulk_equivalence_mismatch_rate = float(
-        benchmark_metrics.get("benchmark_bulk_equivalence_mismatch_rate", 0.0) or 0.0
+        benchmark_metrics["benchmark_bulk_equivalence_mismatch_rate"]
     )
     bulk_equivalence_blocking_sources_total = int(
-        benchmark_metrics.get("benchmark_bulk_equivalence_blocking_sources_total", 0) or 0
-    )
-
-    readiness = {
-        "qc_ready": qc_passed,
-        "benchmark_ready": bool(benchmark_metrics),
-        "search_ready": float(
-            benchmark_metrics.get("benchmark_search_top5_relevance_pct", 0.0) or 0.0
-        )
-        >= thresholds["benchmark_search_top5_relevance_pct"],
-        "fetchability_ready": float(
-            benchmark_metrics.get("benchmark_retrieval_ready_pct", 0.0) or 0.0
-        )
-        >= thresholds["benchmark_retrieval_ready_pct"],
-        "transportability_ready": float(
-            benchmark_metrics.get("benchmark_transport_ready_pct", 0.0) or 0.0
-        )
-        >= thresholds["benchmark_transport_ready_pct"],
-        "foundry_ready": float(benchmark_metrics.get("benchmark_foundry_fitness_pct", 0.0) or 0.0)
-        >= thresholds["benchmark_foundry_fitness_pct"],
-        "source_preflight_ready": float(
-            benchmark_metrics.get("benchmark_source_preflight_ready_pct", 0.0) or 0.0
-        )
-        >= thresholds["benchmark_source_preflight_ready_pct"],
-        "evaluation_ready": evaluation_mode in {"core-ready", "full-ready"},
-        "equivalence_ready": (
-            bulk_equivalence_mismatch_rate <= 2.0 and bulk_equivalence_blocking_sources_total <= 0
-        ),
-    }
-    readiness["consumer_ready"] = all(readiness.values())
-    readiness["full_publish_ready"] = (
-        readiness["consumer_ready"] and evaluation_mode == "full-ready"
+        benchmark_metrics["benchmark_bulk_equivalence_blocking_sources_total"]
     )
 
     table_counts = {
@@ -153,6 +103,18 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
         ),
         "bulk_equivalence_mismatch_rate": bulk_equivalence_mismatch_rate,
         "bulk_equivalence_blocking_sources_total": bulk_equivalence_blocking_sources_total,
+        "report_basis": {
+            key: report_basis[key]
+            for key in (
+                "state",
+                "schema_version",
+                "digest",
+                "run_profile",
+                "evaluation_mode",
+                "benchmark_stage",
+                "qc_stage",
+            )
+        },
     }
     config.consumer_readiness_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.consumer_readiness_path, "w", encoding="utf-8") as fh:
@@ -162,8 +124,20 @@ def _write_consumer_readiness_manifest(config: DatasetBatchConfig) -> tuple[Path
 
 def run_publish(config: DatasetBatchConfig) -> Path:
     """Write publish manifest with final dataset artifacts and checksums."""
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_catalog_report_basis,
+    )
+
     started_at = datetime.now(UTC).isoformat()
-    consumer_readiness_path, readiness = _write_consumer_readiness_manifest(config)
+    report_basis = current_catalog_report_basis(config)
+    if report_basis.get("state") != "current":
+        state = str(report_basis.get("state") or "not_established")
+        reason = str(report_basis.get("reason") or "report_basis_not_current")
+        raise RuntimeError(f"Dataset publish blocked: benchmark/QC report basis {state} ({reason})")
+    consumer_readiness_path, readiness = _write_consumer_readiness_manifest(
+        config,
+        report_basis,
+    )
     if not readiness["consumer_ready"]:
         failed = sorted(name for name, passed in readiness.items() if not passed)
         raise RuntimeError(
@@ -194,10 +168,9 @@ def run_publish(config: DatasetBatchConfig) -> Path:
     rest_rows_by_source: dict[str, int] = {}
     rest_bytes_by_source: dict[str, int] = {}
     blocking_source_statuses: dict[str, str] = {}
-    if config.qc_report_path.exists():
-        with open(config.qc_report_path, encoding="utf-8") as fh:
-            qc_payload = json.load(fh)
-        metrics = qc_payload.get("metrics") if isinstance(qc_payload, dict) else {}
+    qc_payload = report_basis["qc_payload"]
+    if isinstance(qc_payload, dict):
+        metrics = qc_payload.get("metrics")
         if isinstance(metrics, dict):
             readiness_summary = {
                 key: metrics[key]
@@ -231,10 +204,8 @@ def run_publish(config: DatasetBatchConfig) -> Path:
                 str(key): int(value)
                 for key, value in (metrics.get("rest_bytes_by_source") or {}).items()
             }
-    benchmark_payload = _load_json(config.benchmark_report_path)
-    evaluation_mode = (
-        str(benchmark_payload.get("evaluation_mode") or "full-ready").strip() or "full-ready"
-    )
+    benchmark_payload = report_basis["benchmark_payload"]
+    evaluation_mode = str(report_basis["evaluation_mode"])
     source_preflight_payload = (
         benchmark_payload.get("source_preflight")
         if isinstance(benchmark_payload.get("source_preflight"), dict)
@@ -273,6 +244,18 @@ def run_publish(config: DatasetBatchConfig) -> Path:
             "consumer_ready": readiness["consumer_ready"],
             "full_publish_ready": readiness["full_publish_ready"],
             "evaluation_mode": evaluation_mode,
+            "report_basis": {
+                key: report_basis[key]
+                for key in (
+                    "state",
+                    "schema_version",
+                    "digest",
+                    "run_profile",
+                    "evaluation_mode",
+                    "benchmark_stage",
+                    "qc_stage",
+                )
+            },
             "embedding_generation": generation_metadata or {},
         },
     )

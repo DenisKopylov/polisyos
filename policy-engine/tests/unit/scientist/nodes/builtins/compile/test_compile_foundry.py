@@ -3,9 +3,11 @@ from __future__ import annotations
 from dataclasses import replace
 from unittest.mock import MagicMock, patch
 
+from polisyos.core.contracts.foundry import DerivedArtifact, MethodMetricBindingRequest
 from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_COMPILE_REPORT_REF,
 )
@@ -118,6 +120,7 @@ def test_compile_foundry_uses_branch_state_for_declared_outputs(
         "reports_index.link_report_ref",
         "artifacts_index.exec_plan_ref",
         "artifacts_index.lowered_ir_ref",
+        "artifacts_index.method_metric_binding_set_ref",
         "artifacts_index.program_graph_ref",
         "artifacts_index.slot_layout_ref",
         "artifacts_index.treasury_plan_ref",
@@ -126,3 +129,42 @@ def test_compile_foundry_uses_branch_state_for_declared_outputs(
     assert ARTIFACT_EXEC_PLAN_REF not in state.artifacts_index
     assert outcome.state.reports_index[REPORT_COMPILE_REPORT_REF] == compile_report_ref
     assert outcome.state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] == exec_plan_ref
+
+
+def test_compile_node_passes_explicit_metric_binding_and_stores_derived_ref(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    trinity_ref = artifact_ref_factory(kind="ir.trinity_bundle")
+    compile_report_ref = artifact_ref_factory(kind="foundry.compile_report")
+    exec_plan_ref = artifact_ref_factory(kind="foundry.exec_plan")
+    binding_set_ref = artifact_ref_factory(kind="foundry.method_metric_binding_set")
+    selection = MethodMetricBindingRequest(
+        objective_id="objective.employment",
+        node_id="method.outcome",
+        output_slot_id="employment_rate",
+    )
+
+    mock_foundry = MagicMock()
+    mock_result = MagicMock()
+    mock_result.ok = True
+    mock_result.compile_report_ref = compile_report_ref
+    mock_result.exec_plan_ref = exec_plan_ref
+    mock_result.derived_refs = [
+        DerivedArtifact(role="method_metric_binding_set", ref=binding_set_ref)
+    ]
+    mock_foundry.compile.return_value = mock_result
+
+    ctx = replace(execution_context, foundry=mock_foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.inputs[INPUT_TRINITY_BUNDLE_REF] = trinity_ref
+
+    outcome = CompileFoundryNode(method_metric_bindings=(selection,)).execute(ctx, state)
+
+    assert outcome.status == "ok"
+    request = mock_foundry.compile.call_args.args[1]
+    assert request.schema_version == "1.1"
+    assert request.method_metric_bindings == [selection]
+    assert outcome.state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] == binding_set_ref
+    assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in state.artifacts_index

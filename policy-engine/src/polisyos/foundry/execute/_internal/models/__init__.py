@@ -21,7 +21,15 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes as from_canonical_bytes
-from polisyos.core.contracts.foundry import ConstraintReportRef
+from polisyos.core.contracts.foundry import (
+    ConstraintReportRef,
+    ExecPlanRef,
+    MethodExecutionBundleRef,
+    MethodExecutionOccurrence,
+    MethodMetricBinding,
+    MethodMetricBindingSetRef,
+    ProgramGraphRef,
+)
 from polisyos.foundry.methods.exceptions import StatePathTraversalError
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
@@ -37,6 +45,7 @@ __all__ = [
     "ApplyArtifacts",
     "ExecuteArtifacts",
     "ExecutionStrictness",
+    "MethodExecutionCapture",
     "FailureCard",
     "FailureKind",
     "FailureSeverity",
@@ -111,11 +120,44 @@ class ExecuteArtifacts:
     constraint_report_ref: ConstraintReportRef | None = None
     constraint_hard_fail: bool = False
     environment_ref: EnvironmentManifestRef | None = None
+    method_metric_binding_set_ref: MethodMetricBindingSetRef | None = None
+    method_execution_bundle_ref: MethodExecutionBundleRef | None = None
     environment_fingerprint: str | None = None
     failure_cards: tuple[FailureCard, ...] = ()
     degradation_cards: tuple[FailureCard, ...] = ()
     is_degraded: bool = False
     provenance: dict[str, tuple[str, ...]] = field(default_factory=dict)
+
+
+@dataclass
+class MethodExecutionCapture:
+    """Mutable per-execute-session inventory shared across feedback iterations."""
+
+    program_graph_ref: ProgramGraphRef
+    exec_plan_ref: ExecPlanRef
+    method_metric_binding_set_ref: MethodMetricBindingSetRef
+    method_metric_bindings: tuple[MethodMetricBinding, ...] | None = None
+    occurrences: list[MethodExecutionOccurrence] = field(default_factory=list)
+    environment_manifest_ref: EnvironmentManifestRef | None = None
+    limitations: list[str] = field(default_factory=list)
+    invocation_count: int = 0
+    input_capture_bytes_used: int = 0
+    sidecar_bytes_used: int = 0
+    sidecar_refs_used: int = 0
+    method_execution_bundle_ref: MethodExecutionBundleRef | None = None
+
+    def begin_invocation(self) -> str:
+        """Allocate a stable invocation id unique within this captured run."""
+        self.invocation_count += 1
+        return f"graph-invocation.{self.invocation_count:06d}"
+
+    def replace_occurrence(self, occurrence: MethodExecutionOccurrence) -> None:
+        """Replace the planned row matching ``occurrence_id`` with its latest state."""
+        for index, existing in enumerate(self.occurrences):
+            if existing.occurrence_id == occurrence.occurrence_id:
+                self.occurrences[index] = occurrence
+                return
+        raise ValueError("method_execution_occurrence_not_predeclared")
 
 
 @dataclass(frozen=True)
@@ -166,7 +208,10 @@ def load_model(
     model_cls: type[_ModelT],
 ) -> _ModelT:
     """Load a typed artifact through its owner contract when one is declared."""
-    from polisyos.core.artifacts import load_core_json_artifact, validate_core_model_json_artifact
+    from polisyos.core.artifacts import (
+        load_core_json_artifact,
+        validate_core_model_json_artifact,
+    )
 
     if _has_complete_artifact_owner(model_cls):
         return validate_core_model_json_artifact(model_cls, store, ref)

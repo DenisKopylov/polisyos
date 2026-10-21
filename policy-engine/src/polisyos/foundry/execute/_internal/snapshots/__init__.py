@@ -4,18 +4,31 @@ from __future__ import annotations
 
 import dataclasses
 import hashlib
-from collections.abc import Iterable
+import math
+import struct
+from collections.abc import Iterable, Sequence
+from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from types import UnionType
-from typing import Any, Union, get_args, get_origin, get_type_hints
+from typing import Any, NoReturn, Protocol, Union, get_args, get_origin, get_type_hints
+from zipfile import ZIP_STORED, BadZipFile, ZipFile
 
 import jax
 import jax.numpy as jnp
 import numpy as np
 from pydantic import BaseModel
 
-from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
+from polisyos.core.artifacts import (
+    ArtifactMemberReadBoundsError,
+    ArtifactMemberReadIntegrityError,
+    ArtifactStore,
+    CoreJSONArtifactStore,
+    CoreJsonReadBoundsRefusalError,
+    CoreJsonReadLimits,
+    artifact_manifest_profile_sha256,
+    read_core_json_artifact_bounded,
+)
 from polisyos.core.artifacts import (
     require_return_selected_profile_writer as _require_return_selected_profile_writer,
 )
@@ -23,22 +36,580 @@ from polisyos.core.artifacts import (
     validate_return_selected_profile as _validate_return_selected_profile,
 )
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import CoreJSONArtifactBoundedMemberReader
 from polisyos.core.artifacts.store import ArtifactIntegrityError, PutOptions
-from polisyos.core.contracts.foundry import StateSnapshot
+from polisyos.core.contracts.foundry import StateSnapshot, StateSnapshotRef
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute._internal.models import artifact_input_ref, load_model
 
 __all__ = [
+    "BoundedStateSnapshotInputs",
+    "StateSnapshotInputReadUsage",
+    "StateSnapshotInputReadRefusal",
     "export_seed_state_npz",
     "import_seed_state_npz",
     "load_state_snapshot",
     "put_state_snapshot",
+    "read_state_snapshot_inputs_bounded",
 ]
 
 _SNAPSHOT_FORMAT_VERSION = "npz-v2"
 _SNAPSHOT_CODEC = "numpy-npz"
+_MAX_BOUNDED_INPUT_MANIFEST_BYTES = 64 * 1024
+_MAX_BOUNDED_INPUT_SNAPSHOT_BYTES = 256 * 1024
+_MAX_BOUNDED_INPUT_STATE_BLOB_BYTES = 5 * 1024 * 1024
+_MAX_BOUNDED_INPUT_ENTRIES = 32
+_MAX_BOUNDED_INPUT_ELEMENTS = 1_000_000
+
+
+class _BoundedStateSnapshotStore(
+    CoreJSONArtifactStore,
+    CoreJSONArtifactBoundedMemberReader,
+    Protocol,
+):
+    """Store surface required for bounded selected snapshot reads."""
+
+
+@dataclass(frozen=True, slots=True)
+class BoundedStateSnapshotInputs:
+    """Exact selected state input arrays resolved within explicit byte bounds."""
+
+    snapshot_ref: StateSnapshotRef
+    snapshot: StateSnapshot
+    snapshot_manifest: ArtifactManifest
+    state_blob_ref: ArtifactRef
+    arrays: tuple[tuple[str, np.ndarray], ...]
+    observed_snapshot_manifest_bytes: int
+    observed_snapshot_manifest_verification_bytes: int
+    observed_snapshot_payload_bytes: int
+    observed_blob_manifest_bytes: int
+    observed_blob_manifest_verification_bytes: int
+    observed_blob_bytes: int
+    observed_entries: int
+    observed_elements: int
+    snapshot_payload_integrity_verified: bool
+    state_blob_payload_integrity_verified: bool
+
+    @property
+    def usage(self) -> StateSnapshotInputReadUsage:
+        """Return the exact per-call selected-store byte measurements."""
+        return StateSnapshotInputReadUsage(
+            observed_snapshot_manifest_bytes=self.observed_snapshot_manifest_bytes,
+            observed_snapshot_manifest_verification_bytes=(
+                self.observed_snapshot_manifest_verification_bytes
+            ),
+            observed_snapshot_payload_bytes=self.observed_snapshot_payload_bytes,
+            observed_blob_manifest_bytes=self.observed_blob_manifest_bytes,
+            observed_blob_manifest_verification_bytes=(
+                self.observed_blob_manifest_verification_bytes
+            ),
+            observed_blob_bytes=self.observed_blob_bytes,
+            snapshot_payload_integrity_verified=self.snapshot_payload_integrity_verified,
+            state_blob_payload_integrity_verified=self.state_blob_payload_integrity_verified,
+        )
+
+    @property
+    def observed_source_bytes(self) -> int:
+        """Return all measured selected-store bytes used by this read."""
+        observed = self.usage.observed_source_bytes
+        if observed is None:
+            raise RuntimeError("successful_state_snapshot_read_has_unmeasured_source_bytes")
+        return observed
+
+    @property
+    def payload_integrity_verified(self) -> bool:
+        """Return whether both selected JSON and NPZ payloads passed integrity checks."""
+        return (
+            self.snapshot_payload_integrity_verified and self.state_blob_payload_integrity_verified
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class StateSnapshotInputReadUsage:
+    """Measured selected-store bytes for one bounded snapshot-input read."""
+
+    observed_snapshot_manifest_bytes: int | None
+    observed_snapshot_manifest_verification_bytes: int | None
+    observed_snapshot_payload_bytes: int | None
+    observed_blob_manifest_bytes: int | None
+    observed_blob_manifest_verification_bytes: int | None
+    observed_blob_bytes: int | None
+    snapshot_payload_integrity_verified: bool | None
+    state_blob_payload_integrity_verified: bool | None
+
+    @property
+    def observed_source_bytes(self) -> int | None:
+        """Sum attempted selected-store transfers, or None if any count is unknown."""
+        values = (
+            self.observed_snapshot_manifest_bytes,
+            self.observed_snapshot_manifest_verification_bytes,
+            self.observed_snapshot_payload_bytes,
+            self.observed_blob_manifest_bytes,
+            self.observed_blob_manifest_verification_bytes,
+            self.observed_blob_bytes,
+        )
+        if any(value is None for value in values):
+            return None
+        return sum(value for value in values if value is not None)
+
+    @property
+    def payload_integrity_verified(self) -> bool | None:
+        """Return True only when both payloads passed their owner integrity checks."""
+        flags = (
+            self.snapshot_payload_integrity_verified,
+            self.state_blob_payload_integrity_verified,
+        )
+        if any(flag is False for flag in flags):
+            return False
+        if all(flag is True for flag in flags):
+            return True
+        return None
+
+
+class StateSnapshotInputReadRefusal(ValueError):
+    """Typed refusal for a selected bounded input-state read."""
+
+    def __init__(
+        self,
+        reason: str,
+        *,
+        usage: StateSnapshotInputReadUsage | None = None,
+        observed_bytes: int | None = None,
+        limit_bytes: int = 0,
+    ) -> None:
+        super().__init__(reason)
+        self.reason = reason
+        self.observed_bytes = observed_bytes
+        self.limit_bytes = limit_bytes
+        self.usage = usage or StateSnapshotInputReadUsage(
+            None, None, None, None, None, None, None, None
+        )
+        self.observed_source_bytes = self.usage.observed_source_bytes
+        self.payload_integrity_verified = self.usage.payload_integrity_verified
+
+
+def _read_npz_entry_count(blob: bytes) -> int:
+    """Read the ZIP central-directory count from a size-bounded NPZ trailer."""
+    start = max(0, len(blob) - 65_557)
+    end_record = blob.rfind(b"PK\x05\x06", start)
+    if end_record < 0 or end_record + 22 > len(blob):
+        raise StateSnapshotInputReadRefusal("state_snapshot_npz_end_record_missing")
+    (
+        signature,
+        disk,
+        central_disk,
+        disk_entries,
+        total_entries,
+        central_size,
+        central_offset,
+        comment,
+    ) = struct.unpack_from("<4s4H2LH", blob, end_record)
+    if (
+        signature != b"PK\x05\x06"
+        or disk != 0
+        or central_disk != 0
+        or disk_entries != total_entries
+        or total_entries == 0xFFFF
+        or central_size == 0xFFFFFFFF
+        or central_offset == 0xFFFFFFFF
+        or end_record + 22 + comment != len(blob)
+        or central_offset + central_size > end_record
+    ):
+        raise StateSnapshotInputReadRefusal("state_snapshot_npz_layout_unsupported")
+    return total_entries
+
+
+def read_state_snapshot_inputs_bounded(
+    store: _BoundedStateSnapshotStore,
+    *,
+    snapshot_ref: StateSnapshotRef,
+    slot_ids: tuple[str, ...],
+    max_manifest_bytes: int,
+    max_snapshot_payload_bytes: int,
+    max_state_blob_bytes: int,
+    max_entries: int,
+    max_elements: int,
+) -> BoundedStateSnapshotInputs:
+    """Resolve exact numeric slots from a selected state snapshot before inflation.
+
+    Only flat, one-dimensional numeric input slots are accepted. The snapshot
+    JSON and NPZ blob are profile-checked and their actual sizes/counts are
+    measured before parsing or array allocation.
+    """
+    measured: dict[str, int | None] = {
+        "observed_snapshot_manifest_bytes": 0,
+        "observed_snapshot_manifest_verification_bytes": 0,
+        "observed_snapshot_payload_bytes": 0,
+        "observed_blob_manifest_bytes": 0,
+        "observed_blob_manifest_verification_bytes": 0,
+        "observed_blob_bytes": 0,
+    }
+    integrity: dict[str, bool | None] = {
+        "snapshot_payload_integrity_verified": None,
+        "state_blob_payload_integrity_verified": None,
+    }
+
+    def current_usage() -> StateSnapshotInputReadUsage:
+        return StateSnapshotInputReadUsage(**measured, **integrity)
+
+    def refuse(
+        reason: str,
+        *,
+        observed_bytes: int | None = None,
+        limit_bytes: int = 0,
+    ) -> NoReturn:
+        usage = current_usage()
+        measured_bytes = usage.observed_source_bytes
+        raise StateSnapshotInputReadRefusal(
+            reason,
+            usage=usage,
+            observed_bytes=observed_bytes if observed_bytes is not None else measured_bytes,
+            limit_bytes=limit_bytes,
+        )
+
+    bounds = (
+        max_manifest_bytes,
+        max_snapshot_payload_bytes,
+        max_state_blob_bytes,
+        max_entries,
+        max_elements,
+    )
+    if any(type(value) is not int or value < 1 for value in bounds):
+        raise ValueError("state_snapshot_input_read_bounds_must_be_positive_integers")
+    max_manifest_bytes = min(max_manifest_bytes, _MAX_BOUNDED_INPUT_MANIFEST_BYTES)
+    max_snapshot_payload_bytes = min(
+        max_snapshot_payload_bytes,
+        _MAX_BOUNDED_INPUT_SNAPSHOT_BYTES,
+    )
+    max_state_blob_bytes = min(max_state_blob_bytes, _MAX_BOUNDED_INPUT_STATE_BLOB_BYTES)
+    max_entries = min(max_entries, _MAX_BOUNDED_INPUT_ENTRIES)
+    max_elements = min(max_elements, _MAX_BOUNDED_INPUT_ELEMENTS)
+    if (
+        type(snapshot_ref) is not StateSnapshotRef
+        or snapshot_ref.manifest_profile_sha256 is None
+        or not slot_ids
+        or len(slot_ids) > 32
+        or any(
+            type(slot_id) is not str or not slot_id or not slot_id.replace("_", "").isalnum()
+            for slot_id in slot_ids
+        )
+        or len(set(slot_ids)) != len(slot_ids)
+    ):
+        refuse("state_snapshot_selected_input_contract_invalid")
+
+    limits = CoreJsonReadLimits(
+        max_bytes=max_snapshot_payload_bytes,
+        max_depth=16,
+        max_elements=max_entries * 16,
+        max_manifest_bytes=max_manifest_bytes,
+    )
+    measured.update(
+        {
+            "observed_snapshot_manifest_bytes": None,
+            "observed_snapshot_manifest_verification_bytes": None,
+            "observed_snapshot_payload_bytes": None,
+        }
+    )
+    try:
+        bounded = read_core_json_artifact_bounded(
+            store,
+            ArtifactRef.model_validate(snapshot_ref.model_dump(mode="python")),
+            limits=limits,
+        )
+    except CoreJsonReadBoundsRefusalError as exc:
+        measured.update(
+            {
+                "observed_snapshot_manifest_bytes": getattr(
+                    exc, "observed_manifest_selection_bytes", None
+                ),
+                "observed_snapshot_manifest_verification_bytes": getattr(
+                    exc, "observed_manifest_verification_bytes", None
+                ),
+                "observed_snapshot_payload_bytes": getattr(exc, "observed_payload_bytes", None),
+            }
+        )
+        integrity["snapshot_payload_integrity_verified"] = getattr(
+            exc, "payload_integrity_verified", False
+        )
+        refuse(
+            "state_snapshot_core_bounded_read_refused",
+            observed_bytes=getattr(exc, "observed_source_bytes", None),
+            limit_bytes=max_snapshot_payload_bytes,
+        )
+    except Exception as exc:
+        measured.update(
+            {
+                "observed_snapshot_manifest_bytes": getattr(
+                    exc, "observed_manifest_selection_bytes", None
+                ),
+                "observed_snapshot_manifest_verification_bytes": getattr(
+                    exc, "observed_manifest_verification_bytes", None
+                ),
+                "observed_snapshot_payload_bytes": getattr(exc, "observed_payload_bytes", None),
+            }
+        )
+        integrity["snapshot_payload_integrity_verified"] = getattr(
+            exc, "payload_integrity_verified", False
+        )
+        refuse("state_snapshot_core_bounded_read_failed")
+    measured.update(
+        {
+            "observed_snapshot_manifest_bytes": getattr(
+                bounded,
+                "observed_manifest_selection_bytes",
+                getattr(bounded, "observed_manifest_bytes", None),
+            ),
+            "observed_snapshot_manifest_verification_bytes": (
+                bounded.observed_manifest_verification_bytes
+            ),
+            "observed_snapshot_payload_bytes": bounded.observed_payload_bytes,
+        }
+    )
+    integrity["snapshot_payload_integrity_verified"] = bounded.payload_integrity_verified
+    if (
+        bounded.effective_ref.artifact_id != snapshot_ref.artifact_id
+        or bounded.effective_ref.kind != snapshot_ref.kind
+        or bounded.effective_ref.media_type != snapshot_ref.media_type
+        or bounded.effective_ref.manifest_profile_sha256 != snapshot_ref.manifest_profile_sha256
+        or bounded.manifest.kind != "foundry.state_snapshot"
+        or bounded.manifest.media_type != "application/json"
+        or bounded.manifest.artifact_schema
+        != SchemaInfo(name="polisyos.core.StateSnapshot", version="2.2.0")
+    ):
+        refuse("state_snapshot_manifest_identity_mismatch")
+    if not bounded.payload_integrity_verified:
+        integrity["snapshot_payload_integrity_verified"] = False
+        refuse("state_snapshot_payload_integrity_not_verified")
+    try:
+        snapshot = StateSnapshot.model_validate(bounded.value)
+    except Exception:
+        refuse("state_snapshot_payload_parse_failed")
+    if (
+        snapshot.schema_version != "2.2"
+        or snapshot.codec != _SNAPSHOT_CODEC
+        or snapshot.format_version != _SNAPSHOT_FORMAT_VERSION
+        or snapshot.lineage_inputs is None
+        or snapshot.entry_count != len(slot_ids)
+        or snapshot.state_ref.kind != "foundry.state_blob"
+        or snapshot.state_ref.media_type != "application/x-npz"
+        or snapshot.state_ref.manifest_profile_sha256 is None
+    ):
+        refuse("state_snapshot_payload_identity_mismatch")
+    expected_blob_edge = artifact_input_ref(snapshot.state_ref, role="state_blob")
+    if (
+        not snapshot.lineage_inputs
+        or snapshot.lineage_inputs[-1] != expected_blob_edge
+        or bounded.manifest.inputs != snapshot.lineage_inputs
+    ):
+        refuse("state_snapshot_blob_lineage_mismatch")
+
+    measured["observed_blob_manifest_bytes"] = None
+    try:
+        blob_manifest_bytes = store.get_raw_manifest_bytes_bounded(
+            snapshot.state_ref,
+            max_manifest_bytes=max_manifest_bytes,
+        )
+    except Exception as exc:
+        # ``observed_bytes`` on ArtifactReadBoundsError is the member's declared
+        # size, not the transfer count. Only Core's explicit ``bytes_read`` is
+        # admissible as usage; otherwise this attempted transfer is unknown.
+        measured["observed_blob_manifest_bytes"] = getattr(exc, "bytes_read", None)
+        refuse(
+            f"state_snapshot_blob_manifest_read_refused:{type(exc).__name__}",
+            observed_bytes=getattr(exc, "observed_source_bytes", None),
+            limit_bytes=max_manifest_bytes,
+        )
+    measured["observed_blob_manifest_bytes"] = len(blob_manifest_bytes)
+    try:
+        blob_manifest = ArtifactManifest.model_validate_json(blob_manifest_bytes)
+    except Exception:
+        refuse("state_snapshot_blob_manifest_parse_failed")
+    if (
+        blob_manifest.artifact_id != snapshot.state_ref.artifact_id
+        or blob_manifest.kind != "foundry.state_blob"
+        or blob_manifest.media_type != "application/x-npz"
+        or artifact_manifest_profile_sha256(blob_manifest)
+        != snapshot.state_ref.manifest_profile_sha256
+    ):
+        refuse("state_snapshot_blob_manifest_identity_mismatch")
+    expected_manifest_hash = hashlib.sha256(blob_manifest_bytes).hexdigest()
+    blob_bytes = bytearray()
+    blob_read_failure: str | None = None
+    measured["observed_blob_manifest_verification_bytes"] = None
+    measured["observed_blob_bytes"] = None
+    member: Any | None = None
+    try:
+        with store.open_member_bounded(
+            snapshot.state_ref,
+            "blob",
+            max_manifest_bytes=max_manifest_bytes,
+            expected_manifest_sha256=expected_manifest_hash,
+            max_member_bytes=max_state_blob_bytes,
+        ) as member:
+            observed_blob_size = member.member_size_bytes
+            while len(blob_bytes) < observed_blob_size:
+                chunk = member.read(min(1024 * 1024, observed_blob_size - len(blob_bytes)))
+                if not chunk:
+                    blob_read_failure = "state_snapshot_blob_truncated"
+                    break
+                blob_bytes.extend(chunk)
+            if len(blob_bytes) != observed_blob_size:
+                blob_read_failure = blob_read_failure or "state_snapshot_blob_truncated"
+            trailing = member.read(1)
+            if trailing:
+                blob_read_failure = "state_snapshot_blob_size_changed_during_read"
+        measured["observed_blob_manifest_verification_bytes"] = (
+            member.observed_manifest_verification_bytes
+        )
+        measured["observed_blob_bytes"] = member.observed_payload_bytes
+        integrity["state_blob_payload_integrity_verified"] = member.payload_integrity_verified
+        if blob_read_failure is not None:
+            refuse(
+                blob_read_failure,
+                observed_bytes=member.observed_payload_bytes,
+                limit_bytes=max_state_blob_bytes,
+            )
+        if not member.payload_integrity_verified:
+            refuse("state_snapshot_blob_integrity_not_verified")
+    except ArtifactMemberReadBoundsError as exc:
+        measured["observed_blob_manifest_verification_bytes"] = getattr(
+            exc, "observed_manifest_verification_bytes", None
+        )
+        measured["observed_blob_bytes"] = getattr(exc, "observed_payload_bytes", None)
+        integrity["state_blob_payload_integrity_verified"] = getattr(
+            exc, "payload_integrity_verified", False
+        )
+        refuse(
+            "state_snapshot_blob_bounded_read_refused",
+            observed_bytes=getattr(exc, "observed_source_bytes", None),
+            limit_bytes=max_state_blob_bytes,
+        )
+    except ArtifactMemberReadIntegrityError as exc:
+        measured["observed_blob_manifest_verification_bytes"] = getattr(
+            exc, "observed_manifest_verification_bytes", None
+        )
+        measured["observed_blob_bytes"] = getattr(exc, "observed_payload_bytes", None)
+        integrity["state_blob_payload_integrity_verified"] = getattr(
+            exc, "payload_integrity_verified", False
+        )
+        refuse(
+            "state_snapshot_blob_integrity_read_failed",
+            observed_bytes=getattr(exc, "observed_source_bytes", None),
+            limit_bytes=max_state_blob_bytes,
+        )
+    except StateSnapshotInputReadRefusal:
+        raise
+    except Exception as exc:
+        if member is not None:
+            measured["observed_blob_manifest_verification_bytes"] = getattr(
+                member, "observed_manifest_verification_bytes", None
+            )
+            measured["observed_blob_bytes"] = getattr(member, "observed_payload_bytes", None)
+            integrity["state_blob_payload_integrity_verified"] = getattr(
+                member, "payload_integrity_verified", False
+            )
+        refuse(f"state_snapshot_blob_read_failed:{type(exc).__name__}")
+
+    try:
+        entry_count = _read_npz_entry_count(bytes(blob_bytes))
+    except StateSnapshotInputReadRefusal as exc:
+        raise StateSnapshotInputReadRefusal(exc.reason, usage=current_usage()) from exc
+    if entry_count > max_entries:
+        refuse(
+            "state_snapshot_npz_entry_limit_exceeded",
+            observed_bytes=entry_count,
+            limit_bytes=max_entries,
+        )
+    arrays: list[tuple[str, np.ndarray]] = []
+    elements = 0
+    try:
+        with ZipFile(BytesIO(blob_bytes)) as archive:
+            infos = archive.infolist()
+            names = tuple(info.filename for info in infos)
+            expected_names = {f"{slot_id}.npy" for slot_id in slot_ids}
+            if (
+                len(infos) != entry_count
+                or len(set(names)) != len(names)
+                or set(names) != expected_names
+            ):
+                refuse("state_snapshot_npz_slot_inventory_mismatch")
+            arrays_by_name: dict[str, np.ndarray] = {}
+            for info in infos:
+                if info.compress_type != ZIP_STORED or info.file_size > max_state_blob_bytes:
+                    refuse(
+                        "state_snapshot_npz_entry_codec_or_size_unsupported",
+                        observed_bytes=info.file_size,
+                        limit_bytes=max_state_blob_bytes,
+                    )
+                with archive.open(info) as entry:
+                    version = np.lib.format.read_magic(entry)
+                    if version == (1, 0):
+                        shape, fortran_order, dtype = np.lib.format.read_array_header_1_0(
+                            entry, max_header_size=10_000
+                        )
+                    elif version == (2, 0):
+                        shape, fortran_order, dtype = np.lib.format.read_array_header_2_0(
+                            entry, max_header_size=10_000
+                        )
+                    else:
+                        refuse("state_snapshot_npz_npy_version_unsupported")
+                    shape = tuple(int(size) for size in shape)
+                    dtype = np.dtype(dtype)
+                    count = math.prod(shape) if shape else 1
+                    raw_size = count * dtype.itemsize
+                    if (
+                        len(shape) != 1
+                        or count <= 0
+                        or dtype.hasobject
+                        or dtype.kind not in {"i", "u", "f"}
+                        or fortran_order
+                        or count > max_elements - elements
+                        or raw_size > max_state_blob_bytes
+                        or entry.tell() + raw_size != info.file_size
+                    ):
+                        refuse(
+                            "state_snapshot_npz_array_shape_or_byte_limit_exceeded",
+                            observed_bytes=raw_size,
+                            limit_bytes=max_state_blob_bytes,
+                        )
+                    raw = entry.read(raw_size + 1)
+                    if len(raw) != raw_size:
+                        refuse("state_snapshot_npz_array_length_mismatch")
+                    array = np.frombuffer(raw, dtype=dtype).reshape(shape).copy(order="C")
+                    if dtype.kind == "f" and not np.isfinite(array).all():
+                        raise StateSnapshotInputReadRefusal("state_snapshot_npz_array_non_finite")
+                    array.setflags(write=False)
+                    arrays_by_name[info.filename[:-4]] = array
+                    elements += count
+            arrays = [(slot_id, arrays_by_name[slot_id]) for slot_id in slot_ids]
+    except (BadZipFile, OSError, EOFError, ValueError, TypeError) as exc:
+        if isinstance(exc, StateSnapshotInputReadRefusal):
+            raise StateSnapshotInputReadRefusal(exc.reason, usage=current_usage()) from exc
+        refuse("state_snapshot_npz_decode_failed")
+    usage = current_usage()
+    if usage.observed_source_bytes is None or usage.payload_integrity_verified is not True:
+        refuse("state_snapshot_input_read_measurement_or_integrity_not_established")
+    return BoundedStateSnapshotInputs(
+        snapshot_ref=snapshot_ref,
+        snapshot=snapshot,
+        snapshot_manifest=bounded.manifest,
+        state_blob_ref=snapshot.state_ref,
+        arrays=tuple(arrays),
+        observed_snapshot_manifest_bytes=usage.observed_snapshot_manifest_bytes,
+        observed_snapshot_manifest_verification_bytes=(
+            usage.observed_snapshot_manifest_verification_bytes
+        ),
+        observed_snapshot_payload_bytes=usage.observed_snapshot_payload_bytes,
+        observed_blob_manifest_bytes=usage.observed_blob_manifest_bytes,
+        observed_blob_manifest_verification_bytes=(usage.observed_blob_manifest_verification_bytes),
+        observed_blob_bytes=usage.observed_blob_bytes,
+        observed_entries=entry_count,
+        observed_elements=elements,
+        snapshot_payload_integrity_verified=True,
+        state_blob_payload_integrity_verified=True,
+    )
 
 
 class _SnapshotStateLayoutError(ValueError):

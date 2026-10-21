@@ -46908,5 +46908,334 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ad01-producer-r4-source-adoption-20261021-r1": {
+    "slice_base": "aeef94aea07cf32902505547c2099b9a2701775f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-20-foundry-method-metric-capture.toml": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/release-fragments/unreleased/2026-10-20-foundry-method-metric-capture.toml",
+        "postimage_sha256": "3dc3bf68834c7ca125b3a96f150bcce2241016d49849e7b448d7d0272415230a",
+        "postimage_bytes": 4662
+      },
+      "policy-engine/src/polisyos/core/contracts/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a62e963fe857bf8a9c14d3d5059141114676010e41cb8fc0877046eeebe73a83",
+        "preimage_bytes": 71226,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/core/contracts/__init__.py",
+        "postimage_sha256": "d99885c9c870de2fb353cf6364a14d9345f4bbae7ff4a2c085040a402d6b2ab2",
+        "postimage_bytes": 73398
+      },
+      "policy-engine/src/polisyos/core/contracts/foundry.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62",
+        "preimage_bytes": 70157,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/core/contracts/foundry.py",
+        "postimage_sha256": "9bf3f473499a87f335ab14e850cac2ed73209195ffba7758d1481d73807ff05f",
+        "postimage_bytes": 111929
+      },
+      "policy-engine/src/polisyos/foundry/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "f10a4fd6ba45b413454c6978f6b2375c6ba696b5360725df00c967b6d8dc2472",
+        "preimage_bytes": 16657,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/README.md",
+        "postimage_sha256": "a3ff00ae09401db36cd5a97bcd94730ec316a190c99d305dc2a51f000893d9ee",
+        "postimage_bytes": 20140
+      },
+      "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "74ecb692544668364065577d4a9c9eaabc1e93e33cb95af2b90c312c5990e358",
+        "preimage_bytes": 18476,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+        "postimage_sha256": "6459c4dfebde0c2933535ee2999d593d645267478088306bc94ca7b475ab4b96",
+        "postimage_bytes": 34328
+      },
+      "policy-engine/src/polisyos/foundry/execute/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "77e68b6990b3ea777e4964d4da46a31e92dd6fc0b2f2a37b3d0d5963922bac9b",
+        "preimage_bytes": 2509,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/__init__.py",
+        "postimage_sha256": "ad9505337619a59a0d9b35410d6e5a90fad05d0cf7060f89b2555e0397a6e70a",
+        "postimage_bytes": 3913
+      },
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "dbe0012274875f384dd8e0e9679dd4b287b342fe1886a175606a7c750842c505",
+        "preimage_bytes": 1673,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/_internal/graph/README.md",
+        "postimage_sha256": "17fb461cbb978c0325cf4fa9c18637b861e44c8a159268149a48187206f31d9d",
+        "postimage_bytes": 3163
+      },
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "ada451edc1a573159eade2a7b9e11bbcc113bc5489216b10f5b0a83de420c67d",
+        "preimage_bytes": 46831,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "postimage_sha256": "c15eb64337a474b08b985fde38c23d63717d875a58399ce9b3bfe6dbcafc62e3",
+        "postimage_bytes": 159459
+      },
+      "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "821cca45083e1168d100882614e969d03d92b43560c7463f46988e4502d378c2",
+        "preimage_bytes": 9631,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+        "postimage_sha256": "f95cc1d8efc52520c8d4c58de11de9e7ebd0685cf33c1460eda628cecf7450bd",
+        "postimage_bytes": 11397
+      },
+      "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "525bccb535ab6ea0ba0d988712c96be8a972b976203fd21eb10b731bb2ed6f84",
+        "preimage_bytes": 16710,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+        "postimage_sha256": "8f7b24f2509eb72b6ffa2998c2b4eceb6d2620a8174b21b3e9f8764f854dec05",
+        "postimage_bytes": 40997
+      },
+      "policy-engine/src/polisyos/foundry/execute/api.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "582576549b3d219d339234d9dc7818585b347a99a639a0905c6f62d4348bf006",
+        "preimage_bytes": 87715,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/api.py",
+        "postimage_sha256": "10bb9eebdfcaec1e0a224fcf77e36b461ce94ee2e52be5e10a8d27b22b7117d4",
+        "postimage_bytes": 103967
+      },
+      "policy-engine/src/polisyos/foundry/execute/executor.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db",
+        "preimage_bytes": 2305,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/execute/executor.py",
+        "postimage_sha256": "371d103e745e36cf7459ab530b5dbfc8b267256f426c9473273e6a991e2290b9",
+        "postimage_bytes": 2511
+      },
+      "policy-engine/src/polisyos/foundry/methods/exceptions.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "6527d5c39567ad678abb3a2aa8cc4cb569843adad9b9709a760d4da566c595e3",
+        "preimage_bytes": 18534,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/foundry/methods/exceptions.py",
+        "postimage_sha256": "b2e42f6445b5306c706206f247e06855c0137f2fa1c04a38cd831ad5002d1823",
+        "postimage_bytes": 18936
+      },
+      "policy-engine/src/polisyos/ir/api.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "19dab55bf6efb83ce2ce250310a91d40ec6e1c2da6534069d493f110f4aa7a5a",
+        "preimage_bytes": 62353,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/ir/api.py",
+        "postimage_sha256": "8884334fd5acd1b5ae6d8fb4ff59c1df408805157cda140cd4abf1f7698cf454",
+        "postimage_bytes": 66258
+      },
+      "policy-engine/src/polisyos/ir/kernel/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "1ea827e77bb71b5eb000ee779722020666460d495738bc07b99922058d61a5f2",
+        "preimage_bytes": 5081,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/ir/kernel/README.md",
+        "postimage_sha256": "ce80f8c94c1e4f9d9e572cea490d3de9e15075d091d9ea503b49489a52eeef4b",
+        "postimage_bytes": 6600
+      },
+      "policy-engine/src/polisyos/ir/kernel/method_metrics.py": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/ir/kernel/method_metrics.py",
+        "postimage_sha256": "c1752a2b3128ed1159ac5830e316f93e6865c2385e191d8c78760571ac435d0f",
+        "postimage_bytes": 46358
+      },
+      "policy-engine/src/polisyos/ir/kernel/metrics.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "95021b068bbf25c784556db0163a3c2bdabbb63659a2179acc44fbbcb7ffe65c",
+        "preimage_bytes": 21185,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/ir/kernel/metrics.py",
+        "postimage_sha256": "d727762ad2ebb3555542e1f2cfb78818fce5f316651b189f384ef4745240698f",
+        "postimage_bytes": 21585
+      },
+      "policy-engine/src/polisyos/runtime/quality/README.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "aa2cf70775de0c426232711253a51fb3d119e8c25c48c1258fe35ca2741db926",
+        "preimage_bytes": 84374,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/runtime/quality/README.md",
+        "postimage_sha256": "41767e49a49e4fbf0c14012ccf1c0ebeaf7525f3e9d679bf72c3b94ef32bd10f",
+        "postimage_bytes": 85294
+      },
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "93d5d4b20b989babab5101d986e0b11d5e3a158e9e2f997074db9c82324eacea",
+        "preimage_bytes": 176366,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "postimage_sha256": "b0d9a0fbdac2240c34333e50971daf0574b9e53ac7bd36ec1284bc27baef0762",
+        "postimage_bytes": 185377
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "9e2a60b09c6f0835344eb859db517f306fe4ede8e4284d76aff82817630e34b5",
+        "preimage_bytes": 7109,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+        "postimage_sha256": "cfe2402d00ef6cbe21bd2fec63d64e30eaada0c2702114c54f8a0e5f3925ed1f",
+        "postimage_bytes": 8224
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "3bc1fafd2e85bc8d0304d4e343287b210a04c2d528dfbc33f88fe2ad4bae0c3f",
+        "preimage_bytes": 28326,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+        "postimage_sha256": "b02558d5e09e9cba66cd09fb1fc397975a3e61d10ed7ffe48845c4eb9d88ae43",
+        "postimage_bytes": 30020
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/state_keys.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "d2cf26377a0ba6e2f5ae9164512391c1c619e2a97f72bb1dd5f7723094dfcd0d",
+        "preimage_bytes": 14880,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/state_keys.py",
+        "postimage_sha256": "c261dc257f37696289b6d51c78d215f3612328946c08b7f618c7f201f3f80ca0",
+        "postimage_bytes": 15112
+      },
+      "policy-engine/tests/unit/core/contracts/test_method_execution_contracts.py": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/core/contracts/test_method_execution_contracts.py",
+        "postimage_sha256": "e5ee2efa55d73fc5843cbc15c3f6491e7cfe04603774db19db2e39125b086da6",
+        "postimage_bytes": 9999
+      },
+      "policy-engine/tests/unit/foundry/facade/test_execution_source_bounded_admission.py": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/foundry/facade/test_execution_source_bounded_admission.py",
+        "postimage_sha256": "cb445eef389358da777954aa031ff6325979defc37a4e94af5c4c6b17d2a3e9c",
+        "postimage_bytes": 6607
+      },
+      "policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py",
+        "postimage_sha256": "7a6d296f578491de6fcc3e91f46ce1e8d246f0c4c0ab1163184240fd57f81883",
+        "postimage_bytes": 47422
+      },
+      "policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py",
+        "postimage_sha256": "1d923cf294230e350124d149c936eec4b2ad951b5a28623ac243c984466bdc03",
+        "postimage_bytes": 22529
+      },
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c2ad617dbfd03f07ec855ad73d91aa61c36b4c5f10b5891ce9352f28215a0909",
+        "preimage_bytes": 114228,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "postimage_sha256": "af3ea8de60301a4b1cd007c5667ae25b63e120f845b11f45565f1e9f38ca3570",
+        "postimage_bytes": 127083
+      },
+      "policy-engine/tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c3da7219ed1f11b880e2b965500896c8ce5a19397f2eb0bd0f221ba1f78b49ba",
+        "preimage_bytes": 5153,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+        "postimage_sha256": "a56608e36a696472aa82150b25b9d65c8fb65f69b7c81e2fe47562b913939cc1",
+        "postimage_bytes": 6940
+      },
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "afb3a692ce191c6fd0a8a914219510f35c99bada29d387323b8b0d5d6c5d5787",
+        "preimage_bytes": 22562,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/postimages/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py",
+        "postimage_sha256": "cfa9be6bb89f767ead66fcf1d942b9e911b9fd0df78b759ead23051e3f225aae",
+        "postimage_bytes": 25836
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-producer-r4-source-adoption-20261021-r1/source-application.json",
+      "sha256": "aea1395bae245e891457e6b132486151978793cf8831231c3f46bdc4c9d8d508"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-producer-r4-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/manifest.json",
+        "sha256": "7c25cc301a1b2e4ec0ad4788779642865737366758bb6f46595aa755b51239a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/patch.diff",
+        "sha256": "83e0cb5b90b01f5305e0c3116ba60b110bc4cffa6b5a08780a866c037c5d4ea8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-metric-capture-owner-20261021-r4/verification.json",
+        "sha256": "8d0e88cdd056bfc05f56ffea98951de7cde38175e97afd933fcde9a99e8952de"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-full-failure-reviewed-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "ed701fc598eb5e436356c395a1405d5866dbac2681365bb34b415124c514b640"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r8-two-whole-aeef94aea07c-20261021-r2/actual/result.json",
+        "sha256": "4f0a47e4840c477e699c602b007ad37bdcfa38771f8d1c2fa95ea78997427781"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r4-reviewed-receipt-transport-20261021-r1/independent-ad01-r3-full-source-review-20261021-r1.json",
+        "sha256": "710e46bc1d6b98b2d0d682cda5dc606d315c9eab56f8190cc9feb6c5878a5266"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r4-reviewed-receipt-transport-20261021-r1/independent-ad01-r4-delta-review-20261021-r1.json",
+        "sha256": "fd574831d6b5fffdc9305c9775b3522101df80634f203a2b841da9c482355c42"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "Same bounded source materialization and complete stable facade companion class",
+      "action": "Adopt full29 reviewed R4 postimages, retain real-current-Core errors and source-bound actual producer replay as mandatory subsequent checks."
+    },
+    "bounded_proof": "Independent full29 R3 source review plus exactR4deltaGO; native canonical Ruff check/format before/after all24Pythonfiles; exactbranch readback and full29preimages rechecked. Product replay separate.",
+    "limitations": [
+      "Independent fullR3 and R4delta sourceGO only; no product or globalG acceptance.",
+      "Current Core APIs are canonical; whole99 currently96P3F on aeef, repair of complete typed owner projection still pending. No Coregreen inferred.",
+      "Runtime/Scientist consumer/fence/GET composition and generated/installed consumer proofs remain UNRUN.",
+      "Exact currentCoreAPI composition review is separately running; this implementation boundary carries no runtime qualification.",
+      "No external law validity, issuer/permission, calibration, production currentness or formal finding closure.",
+      "Top-level RAW independent deciding reviews copied byte-for-byte only to satisfy the existing adopter input path contract; original paths/hashes remain in those receipts."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Reconcile current Core API review, batch any blocking dependency fix, then run all new contract/intake/metric/caller whole modules and genuine Runtime composition; regenerate public consumers and closeout gates after complete source/profile freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

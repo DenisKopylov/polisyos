@@ -8,21 +8,41 @@ import types
 from typing import Any
 
 __all__ = [
+    "BoundedStateSnapshotInputs",
     "ExecutionSourceAdmission",
     "ExecutionSourceAdmissionRefusal",
+    "BoundedExecutionSourceReader",
+    "ExecutionSourceBoundedReadRefusal",
     "ResolvedExecutionPosture",
+    "SnapshotStateInputReadRefusal",
+    "StateSnapshotInputReadUsage",
+    "StateSnapshotInputReadRefusal",
     "SnapshotStateLayoutError",
     "admit_execution_source",
+    "admit_execution_source_bounded",
     "execute",
     "get_state_path",
     "load_state_snapshot",
+    "read_state_snapshot_inputs_bounded",
     "resolve_execution_posture",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "BoundedStateSnapshotInputs": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "BoundedStateSnapshotInputs",
+    ),
     "ExecutionSourceAdmission": (
         "polisyos.foundry.execute.api",
         "ExecutionSourceAdmission",
+    ),
+    "BoundedExecutionSourceReader": (
+        "polisyos.foundry.execute.api",
+        "BoundedExecutionSourceReader",
+    ),
+    "ExecutionSourceBoundedReadRefusal": (
+        "polisyos.foundry.execute.api",
+        "ExecutionSourceBoundedReadRefusal",
     ),
     "ExecutionSourceAdmissionRefusal": (
         "polisyos.foundry.execute.api",
@@ -32,9 +52,25 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.execute.api",
         "ResolvedExecutionPosture",
     ),
+    "SnapshotStateInputReadRefusal": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "StateSnapshotInputReadRefusal",
+    ),
+    "StateSnapshotInputReadUsage": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "StateSnapshotInputReadUsage",
+    ),
+    "StateSnapshotInputReadRefusal": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "StateSnapshotInputReadRefusal",
+    ),
     "SnapshotStateLayoutError": (
         "polisyos.foundry.execute._internal.snapshots",
         "_SnapshotStateLayoutError",
+    ),
+    "admit_execution_source_bounded": (
+        "polisyos.foundry.execute.api",
+        "admit_execution_source_bounded",
     ),
     "admit_execution_source": (
         "polisyos.foundry.execute.api",
@@ -45,6 +81,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "load_state_snapshot": (
         "polisyos.foundry.execute._internal.snapshots",
         "load_state_snapshot",
+    ),
+    "read_state_snapshot_inputs_bounded": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "read_state_snapshot_inputs_bounded",
     ),
     "resolve_execution_posture": (
         "polisyos.foundry.execute.api",

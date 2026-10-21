@@ -7,6 +7,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
 
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
@@ -484,7 +485,11 @@ def _request(
         world_model_record=record,
         intervention_atoms=atoms,
         selected_outcomes=("firm_survival",),
-        baseline_state={"income_delta": 0.0, "balance_delta": 0.0, "firm_survival": 1.0},
+        baseline_state={
+            "income_delta": 0.0,
+            "balance_delta": 0.0,
+            "firm_survival": 1.0,
+        },
         horizon=HorizonSpec(start=0, end=3, step=1),
         engine_plan=(
             EnginePlan(
@@ -950,7 +955,9 @@ def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
     parsed = JointSimulationResult.model_validate(embedded)
     assert parsed.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
     verify_simulation_receipt(parsed.receipt, payload)
-    from polisyos.runtime.quality.generation_cycle import _n8_sampling_uncertainty_limitations
+    from polisyos.runtime.quality.generation_cycle import (
+        _n8_sampling_uncertainty_limitations,
+    )
 
     assert _n8_sampling_uncertainty_limitations(parsed) == frozenset(
         {"legacy_sampling_not_established", "legacy_interaction_not_established"}
@@ -1333,7 +1340,10 @@ def test_program_graph_plan_refuses_conflicting_shared_slot_before_execution(
         JointSimulationHorizonController().run(
             request.model_copy(update={"intervention_atoms": atoms})
         )
-        for atoms in (request.intervention_atoms, tuple(reversed(request.intervention_atoms)))
+        for atoms in (
+            request.intervention_atoms,
+            tuple(reversed(request.intervention_atoms)),
+        )
     )
 
     for result in results:
@@ -1418,6 +1428,323 @@ def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> 
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
 
+def test_program_graph_horizon_preserves_one_complete_method_capture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.artifacts.environment import (
+        CPUInfo,
+        EnvironmentManifest,
+        GPUInfo,
+        JAXInfo,
+        OSInfo,
+        PythonInfo,
+    )
+    from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+    from polisyos.core.contracts.foundry import (
+        MethodExecutionBundle,
+        MethodMetricBinding,
+        MethodMetricBindingSet,
+        MethodMetricBindingSetRef,
+    )
+    from polisyos.foundry.execute.executor import put_state_snapshot
+    from polisyos.foundry.methods.base import (
+        ComplexityClass,
+        ComputeBackend,
+        FidelityLevel,
+        MethodMetadata,
+        MethodSignature,
+        SlotSpec,
+        SlotType,
+        Unit,
+    )
+    from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
+    from polisyos.foundry.methods.registry import MethodRegistry as GraphMethodRegistry
+    from polisyos.ir.kernel.method_metrics import (
+        MethodMetricSourceUnit,
+        registered_method_metric_law_metadata,
+        registered_method_metric_unit_adapter_metadata,
+    )
+    from polisyos.ir.kernel.units import RateUnit
+
+    class _HorizonCaptureMethod:
+        signature: ClassVar[MethodSignature] = MethodSignature(
+            name="capture_scalar",
+            namespace="tests.horizon_method_capture",
+            version="1.0.0",
+            input_slots=frozenset(),
+            output_slots=frozenset(
+                {
+                    SlotSpec(
+                        name="result",
+                        slot_type=SlotType.SCALAR,
+                        unit=Unit(dimension="ratio", symbol="ratio"),
+                    )
+                }
+            ),
+            parameters=(),
+            fidelity=FidelityLevel.LOW,
+            complexity=ComplexityClass.O_1,
+            backend=ComputeBackend.NUMPY,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
+        )
+        metadata: ClassVar[MethodMetadata] = MethodMetadata(
+            description="Horizon capture test method"
+        )
+
+        @staticmethod
+        def pure_step(state: object, params: object) -> dict[str, float]:
+            return {"result": 0.25}
+
+    store = FileSystemCAS(tmp_path / "cas")
+
+    def put_json(payload: object, *, kind: str, schema_name: str, version: str) -> ArtifactRef:
+        return store.put_json(
+            payload,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(name=schema_name, version=version),
+            ),
+            return_selected_profile=True,
+        )
+
+    policy_ref = put_json(
+        {"candidate": "horizon-method-capture"},
+        kind="ir.trinity_bundle",
+        schema_name="test.horizon_policy",
+        version="1.0",
+    )
+    registry_ref = put_json(
+        {"registry": "horizon-test"},
+        kind="core.registry_bundle",
+        schema_name="test.horizon_registry",
+        version="1.0",
+    )
+    metric_registry_ref = put_json(
+        {"metrics": "horizon-test"},
+        kind="ir.metric_registry",
+        schema_name="test.horizon_metrics",
+        version="1.0",
+    )
+    units_registry_ref = put_json(
+        {"units": "horizon-test"},
+        kind="ir.units_registry",
+        schema_name="test.horizon_units",
+        version="1.0",
+    )
+    lowered_ref = store.put_json(
+        LoweredIR(ir_ref=policy_ref, mechanisms=[], constraints=[]),
+        PutOptions(
+            kind="foundry.lowered_ir",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.LoweredIR", version="0.2"),
+        ),
+        return_selected_profile=True,
+    )
+    signature = _HorizonCaptureMethod.signature
+    graph_ref = store.put_json(
+        ProgramGraph(
+            ir_ref=policy_ref,
+            lowered_ir_ref=LoweredIRRef.model_validate(lowered_ref.model_dump(mode="python")),
+            nodes=[
+                ProgramNode(
+                    node_id="capture_method",
+                    node_kind="method",
+                    method_fqn=signature.fqn,
+                    method_version=signature.version,
+                )
+            ],
+            edges=[],
+            entrypoints=["capture_method"],
+        ),
+        PutOptions(
+            kind="foundry.program_graph",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.ProgramGraph", version="0.2.0"),
+            inputs=[input_ref_from_artifact_ref(lowered_ref, role="lowered_ir")],
+        ),
+        return_selected_profile=True,
+    )
+    typed_graph_ref = ProgramGraphRef.model_validate(graph_ref.model_dump(mode="python"))
+    law_id, law_version, law_digest = registered_method_metric_law_metadata()
+    adapter_id, adapter_version, adapter_digest = registered_method_metric_unit_adapter_metadata()
+    binding = MethodMetricBinding(
+        binding_id="binding.horizon_capture_scalar",
+        objective_id="objective.horizon_capture_scalar",
+        metric_id="metric.horizon_capture_scalar",
+        node_id="capture_method",
+        method_fqn=signature.fqn,
+        method_version=signature.version,
+        method_abi_digest=signature.abi_digest(),
+        method_abi_digest_algorithm="blake2b",
+        method_build_digest=None,
+        method_build_digest_scope="unavailable",
+        output_slot_id="result",
+        output_shape="scalar",
+        source_unit=MethodMetricSourceUnit(dimension="ratio", symbol="ratio", scale=1.0),
+        target_unit=RateUnit(base="ratio"),
+        law_id=law_id,
+        law_version=law_version,
+        law_code_digest=law_digest,
+        adapter_id=adapter_id,
+        adapter_version=adapter_version,
+        adapter_code_digest=adapter_digest,
+        conversion_operation="unsupported",
+        availability="unavailable",
+        limitation="capture_test_does_not_assert_method_metric_law",
+    )
+    binding_set_ref = store.put_json(
+        MethodMetricBindingSet(
+            program_graph_ref=typed_graph_ref,
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry_ref,
+            metric_registry_ref=metric_registry_ref,
+            units_registry_ref=units_registry_ref,
+            bindings=[binding],
+        ),
+        PutOptions(
+            kind=MethodMetricBindingSet.ARTIFACT_KIND,
+            media_type=MethodMetricBindingSet.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=MethodMetricBindingSet.ARTIFACT_SCHEMA_NAME,
+                version=MethodMetricBindingSet.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(typed_graph_ref, role="program_graph"),
+                input_ref_from_artifact_ref(policy_ref, role="policy"),
+                input_ref_from_artifact_ref(registry_ref, role="registry_bundle"),
+                input_ref_from_artifact_ref(metric_registry_ref, role="metric_registry"),
+                input_ref_from_artifact_ref(units_registry_ref, role="units_registry"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    typed_binding_set_ref = MethodMetricBindingSetRef.model_validate(
+        binding_set_ref.model_dump(mode="python")
+    )
+    exec_plan_ref = store.put_json(
+        ExecPlan(program_ref=typed_graph_ref, order=["capture_method"]),
+        PutOptions(
+            kind="foundry.exec_plan",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.ExecPlan", version="0.2.0"),
+            inputs=[
+                input_ref_from_artifact_ref(typed_graph_ref, role="program_graph"),
+                input_ref_from_artifact_ref(
+                    typed_binding_set_ref,
+                    role="method_metric_bindings",
+                ),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    base_state = GlobalState.empty(n_agents=2, n_firms=1)
+    base_state = base_state.replace(
+        agents=base_state.agents.replace(
+            income=np.asarray([10.0, 20.0], dtype=np.float64),
+        )
+    )
+    base_ref = put_state_snapshot(
+        store,
+        state=base_state,
+        step=0,
+        return_selected_profile=True,
+    )
+    GraphMethodRegistry.get_instance().register(_HorizonCaptureMethod, override=True)
+    monkeypatch.setattr(
+        "polisyos.foundry.execute._internal.graph.capture_environment",
+        lambda **_kwargs: EnvironmentManifest(
+            cpu=CPUInfo(architecture="test", model_name="test-cpu", core_count=1, thread_count=1),
+            gpu=GPUInfo(),
+            os=OSInfo(system="test", release="1", version="test-os"),
+            python=PythonInfo(version="3.12.0", implementation="CPython", compiler="test"),
+            jax=JAXInfo(),
+        ),
+    )
+    plan = EnginePlan(
+        engine_kind="program_graph",
+        objective_ref="objective://horizon-method-capture",
+        eligibility_conditions=("acyclic", "state_transition"),
+        variable_map={"mean_income": "agents.income"},
+        program_store=store,
+        program_graph_ref=typed_graph_ref,
+        exec_plan_ref=exec_plan_ref,
+        program_base_state=base_state,
+        program_base_ref=base_ref,
+        mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+        slot_registry=DEFAULT_SLOT_REGISTRY,
+        merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
+        constraint_registry=ConstraintRegistry(constraints={}),
+    )
+    request = _request().model_copy(
+        update={
+            "horizon": HorizonSpec(start=0, end=1, step=1),
+            "engine_plan": (plan,),
+            "selected_outcomes": ("mean_income",),
+            "baseline_state": {"mean_income": 0.0},
+        }
+    )
+
+    try:
+        result = JointSimulationHorizonController().run(request)
+        joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+        rows = [point.engine_state["method_execution"] for point in joint.points]
+        assert [row["status"] for row in rows] == ["captured", "captured"]
+        assert all("simulation_result_ref" not in row for row in rows)
+        assert all(
+            row["method_metric_binding_set_ref"] == rows[0]["method_metric_binding_set_ref"]
+            for row in rows
+        )
+        assert all(
+            row["method_execution_bundle_ref"] == rows[0]["method_execution_bundle_ref"]
+            for row in rows
+        )
+        assert all(row["method_execution_bundle_ref"]["manifest_profile_sha256"] for row in rows)
+        occurrence_ids = [item["occurrence_id"] for row in rows for item in row["occurrences"]]
+        assert len(occurrence_ids) == len(set(occurrence_ids)) == 2
+        bundle = validate_core_model_json_artifact(
+            MethodExecutionBundle,
+            store,
+            ArtifactRef.model_validate(rows[0]["method_execution_bundle_ref"]),
+        )
+        assert len(bundle.occurrences) == 2
+        assert {item.invocation_id for item in bundle.occurrences} == {
+            "graph-invocation.000001",
+            "graph-invocation.000002",
+        }
+        assert [
+            source["occurrence_ids"] for source in joint.diagnostics["method_execution_sources"]
+        ] == [[item] for item in occurrence_ids]
+        verify_simulation_receipt(result.receipt, result.content_bound_payload())
+
+        def fail_dispatch(_state: object, _params: object) -> dict[str, float]:
+            raise ValueError("horizon method failure witness")
+
+        monkeypatch.setattr(_HorizonCaptureMethod, "pure_step", staticmethod(fail_dispatch))
+        with pytest.raises(MethodExecutionAbortError) as caught:
+            JointSimulationHorizonController().run(request)
+        failure_capture = caught.value.method_metric_horizon_capture
+        assert failure_capture["status"] == "failed"
+        assert failure_capture["method_metric_binding_set_ref"]["manifest_profile_sha256"]
+        assert failure_capture["method_execution_bundle_ref"]["manifest_profile_sha256"]
+        failed_bundle = validate_core_model_json_artifact(
+            MethodExecutionBundle,
+            store,
+            ArtifactRef.model_validate(failure_capture["method_execution_bundle_ref"]),
+        )
+        assert len(failed_bundle.occurrences) == 1
+        assert failed_bundle.occurrences[0].status == "failed"
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
 def _alternate_manifest_profile(
     store: FileSystemCAS,
     ref: ArtifactRef,
@@ -1446,7 +1773,9 @@ def _alternate_manifest_profile(
     )
 
 
-def test_served_program_graph_refuses_foreign_selected_manifest_profile(tmp_path: Path) -> None:
+def test_served_program_graph_refuses_foreign_selected_manifest_profile(
+    tmp_path: Path,
+) -> None:
     root = tmp_path / "cas"
     owner_store = FileSystemCAS(root).for_tenant("tenant-owner")
     foreign_store = FileSystemCAS(root).for_tenant("tenant-foreign")
@@ -2261,7 +2590,12 @@ def test_compatible_atom_permutation_preserves_real_outputs_after_fresh_cas_read
 @pytest.mark.parametrize(
     "producer_rows",
     ["empty", "short", "full", "producer-uses-wrong-dt"],
-    ids=("empty-refuses", "short-is-partial", "full-is-complete", "wrong-dt-is-limited"),
+    ids=(
+        "empty-refuses",
+        "short-is-partial",
+        "full-is-complete",
+        "wrong-dt-is-limited",
+    ),
 )
 def test_system_dynamics_grid_coverage_uses_real_rows_and_retains_limits(
     tmp_path: Path,
@@ -2535,7 +2869,15 @@ def test_finite_source_coordinate_requires_real_scalar_categories() -> None:
 
 @pytest.mark.parametrize(
     "time_control",
-    ["actual", "irregular", "repeated", "reordered", "missing", "malformed", "singleton"],
+    [
+        "actual",
+        "irregular",
+        "repeated",
+        "reordered",
+        "missing",
+        "malformed",
+        "singleton",
+    ],
 )
 def test_coupled_source_times_remain_candidate_through_fresh_cas_read(
     tmp_path: Path,

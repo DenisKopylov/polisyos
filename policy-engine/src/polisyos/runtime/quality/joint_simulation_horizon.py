@@ -16,16 +16,30 @@ from dataclasses import dataclass
 from typing import Any, Literal, Protocol
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    field_validator,
+    model_validator,
+)
 
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.execute.executor import (
     apply_state_delta,
     execute_program_graph,
+    new_method_execution_capture,
+    persist_method_execution_capture,
+    put_state_snapshot,
 )
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
-from polisyos.foundry.methods.catalog.simulation import ensure_simulation_methods_registered
+from polisyos.foundry.methods.catalog.simulation import (
+    ensure_simulation_methods_registered,
+)
+from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.ncm import NCMSpec  # Pydantic validates at runtime.
 from polisyos.pdc import gy_content_hash
@@ -566,7 +580,10 @@ def _validate_trajectory_sampling(trajectory: SimulationTrajectory) -> None:
         sample_effect_keys = set(summary.samples[0].effects)
         if sample_outcome_keys != set(point.outcomes) or sample_effect_keys != set(point.effect):
             raise ValueError("replication_summary_output_keys_mismatch")
-        for metric, aggregated in (("outcomes", point.outcomes), ("effects", point.effect)):
+        for metric, aggregated in (
+            ("outcomes", point.outcomes),
+            ("effects", point.effect),
+        ):
             for key, reported in aggregated.items():
                 observed = [float(getattr(sample, metric)[key]) for sample in summary.samples]
                 mean = float(np.mean(np.asarray(observed, dtype=float)))
@@ -920,6 +937,11 @@ def _aggregate_replicated_trajectory(
         "replication_seeds": list(seeds),
         "physical_run_ref": physical_run_ref,
     }
+    if any("method_execution_sources" in trajectory.diagnostics for trajectory in trajectories):
+        diagnostics["replication_method_execution_sources"] = [
+            trajectory.diagnostics.get("method_execution_sources", [])
+            for trajectory in trajectories
+        ]
     return first.model_copy(update={"points": tuple(points), "diagnostics": diagnostics})
 
 
@@ -2039,7 +2061,11 @@ class JointSimulationHorizonController:
                 (f"output_shape:{output_shape}",),
             )
         conditions = {item.strip().casefold() for item in plan.eligibility_conditions}
-        if temporal == "static" and conditions & {"multi_period", "dynamic_horizon", "dynamic_scm"}:
+        if temporal == "static" and conditions & {
+            "multi_period",
+            "dynamic_horizon",
+            "dynamic_scm",
+        }:
             return _unsupported(
                 plan,
                 "static_engine_cannot_ground_dynamic_horizon",
@@ -2097,24 +2123,130 @@ class JointSimulationHorizonController:
             replication_seed: int,
         ) -> SimulationTrajectory:
             current_state = plan.program_base_state
+            last_state_source_ref = plan.program_base_ref
             points: list[TrajectoryPoint] = []
             state_delta_refs: list[str] = []
             metrics_refs: list[str] = []
+            method_execution_capture = new_method_execution_capture(
+                plan.program_store,
+                program_ref=plan.program_graph_ref,
+                exec_plan_ref=plan.exec_plan_ref,
+            )
+            method_execution_steps: list[dict[str, Any]] = []
             for step in request.horizon.steps():
-                artifacts = execute_program_graph(
-                    plan.program_store,
-                    program_ref=plan.program_graph_ref,
-                    exec_plan_ref=plan.exec_plan_ref,
-                    base_state=current_state,
-                    mechanism_registry=plan.mechanism_registry,
-                    slot_registry=plan.slot_registry,
-                    merge_registry=plan.merge_registry,
-                    selector_field_registry=plan.selector_field_registry,
-                    constraint_registry=plan.constraint_registry,
-                    step=step,
-                    seed=int(replication_seed) + int(step),
-                    base_ref=plan.program_base_ref,
-                    parameter_overrides=_program_parameter_overrides(subset, plan),
+                prestate_ref = plan.program_base_ref
+                if method_execution_capture is not None:
+                    prestate_inputs = (
+                        [
+                            input_ref_from_artifact_ref(
+                                last_state_source_ref,
+                                role="horizon_prestate_source",
+                            )
+                        ]
+                        if isinstance(last_state_source_ref, ArtifactRef)
+                        and last_state_source_ref.manifest_profile_sha256 is not None
+                        else []
+                    )
+                    prestate_ref = put_state_snapshot(
+                        plan.program_store,
+                        state=current_state,
+                        step=step,
+                        inputs=prestate_inputs,
+                        return_selected_profile=True,
+                    )
+                first_occurrence_index = (
+                    len(method_execution_capture.occurrences)
+                    if method_execution_capture is not None
+                    else 0
+                )
+                try:
+                    artifacts = execute_program_graph(
+                        plan.program_store,
+                        program_ref=plan.program_graph_ref,
+                        exec_plan_ref=plan.exec_plan_ref,
+                        base_state=current_state,
+                        mechanism_registry=plan.mechanism_registry,
+                        slot_registry=plan.slot_registry,
+                        merge_registry=plan.merge_registry,
+                        selector_field_registry=plan.selector_field_registry,
+                        constraint_registry=plan.constraint_registry,
+                        step=step,
+                        seed=int(replication_seed) + int(step),
+                        base_ref=prestate_ref,
+                        parameter_overrides=_program_parameter_overrides(subset, plan),
+                        return_selected_profile=method_execution_capture is not None,
+                        method_execution_capture=method_execution_capture,
+                        method_input_state_source_ref=prestate_ref
+                        if method_execution_capture is not None
+                        else None,
+                        finalize_method_execution_capture=method_execution_capture is None,
+                    )
+                except MethodExecutionAbortError as exc:
+                    if method_execution_capture is not None:
+                        bundle_ref = (
+                            exc.method_execution_bundle_ref
+                            or persist_method_execution_capture(
+                                plan.program_store,
+                                method_execution_capture,
+                            )
+                        )
+                        invocation_id = (
+                            f"graph-invocation.{method_execution_capture.invocation_count:06d}"
+                        )
+                        current_invocation_occurrences = [
+                            item
+                            for item in method_execution_capture.occurrences
+                            if item.invocation_id == invocation_id
+                        ]
+                        method_execution_steps.append(
+                            {
+                                "step": step,
+                                "source_status": "failed",
+                                "prestate_ref": prestate_ref.model_dump(mode="json"),
+                                "occurrence_ids": [
+                                    item.occurrence_id for item in current_invocation_occurrences
+                                ],
+                            }
+                        )
+                        exception_occurrences = [
+                            {
+                                "occurrence_id": item.occurrence_id,
+                                "invocation_id": item.invocation_id,
+                                "node_id": item.node_id,
+                                "status": "skipped" if item.status == "planned" else item.status,
+                            }
+                            for item in method_execution_capture.occurrences
+                        ]
+                        binding_set_payload = (
+                            method_execution_capture.method_metric_binding_set_ref.model_dump(
+                                mode="json"
+                            )
+                        )
+                        exc.method_metric_horizon_capture = {
+                            "step": step,
+                            "status": "failed",
+                            "method_metric_binding_set_ref": binding_set_payload,
+                            "method_execution_bundle_ref": bundle_ref.model_dump(mode="json"),
+                            "invocation_id": invocation_id,
+                            "occurrences": exception_occurrences,
+                            "method_execution_sources": method_execution_steps,
+                        }
+                    raise
+                occurrence_rows = (
+                    method_execution_capture.occurrences[first_occurrence_index:]
+                    if method_execution_capture is not None
+                    else []
+                )
+                method_execution_steps.append(
+                    {
+                        "step": step,
+                        "prestate_ref": prestate_ref.model_dump(mode="json")
+                        if method_execution_capture is not None
+                        else None,
+                        "state_delta_ref": artifacts.state_delta_ref.model_dump(mode="json"),
+                        "metrics_ref": artifacts.metrics_ref.model_dump(mode="json"),
+                        "occurrence_ids": [item.occurrence_id for item in occurrence_rows],
+                    }
                 )
                 current_state = apply_state_delta(
                     plan.program_store,
@@ -2123,6 +2255,9 @@ class JointSimulationHorizonController:
                     slot_registry=plan.slot_registry,
                     merge_registry=plan.merge_registry,
                 )
+                last_state_source_ref = artifacts.state_delta_ref
+                state_delta_payload = artifacts.state_delta_ref.model_dump(mode="json")
+                metrics_payload = artifacts.metrics_ref.model_dump(mode="json")
                 state_delta_refs.append(str(artifacts.state_delta_ref.artifact_id))
                 metrics_refs.append(str(artifacts.metrics_ref.artifact_id))
                 outcomes = _program_graph_outcomes(
@@ -2141,9 +2276,48 @@ class JointSimulationHorizonController:
                         engine_state={
                             "state_delta_ref": state_delta_refs[-1],
                             "metrics_ref_produced": True,
+                            "state_delta_artifact_ref": state_delta_payload,
+                            "metrics_artifact_ref": metrics_payload,
                         },
                     )
                 )
+            method_execution_bundle_ref = None
+            binding_set_ref = None
+            if method_execution_capture is not None:
+                method_execution_bundle_ref = persist_method_execution_capture(
+                    plan.program_store,
+                    method_execution_capture,
+                )
+                binding_set_ref = method_execution_capture.method_metric_binding_set_ref
+                binding_set_payload = binding_set_ref.model_dump(mode="json")
+                bundle_payload = method_execution_bundle_ref.model_dump(mode="json")
+                occurrences_by_id = {
+                    item.occurrence_id: item for item in method_execution_capture.occurrences
+                }
+                for point, source in zip(points, method_execution_steps, strict=True):
+                    occurrence_rows = []
+                    for occurrence_id in source["occurrence_ids"]:
+                        occurrence = occurrences_by_id[occurrence_id]
+                        occurrence_rows.append(
+                            {
+                                "occurrence_id": occurrence.occurrence_id,
+                                "invocation_id": occurrence.invocation_id,
+                                "node_id": occurrence.node_id,
+                                "status": "skipped"
+                                if occurrence.status == "planned"
+                                else occurrence.status,
+                            }
+                        )
+                    point.engine_state["method_execution"] = {
+                        "status": "captured",
+                        "method_metric_binding_set_ref": binding_set_payload,
+                        "method_execution_bundle_ref": bundle_payload,
+                        "prestate_ref": source["prestate_ref"],
+                        "occurrences": occurrence_rows,
+                    }
+                    source["method_metric_binding_set_ref"] = binding_set_payload
+                    source["method_execution_bundle_ref"] = bundle_payload
+                    source["occurrences"] = occurrence_rows
             return SimulationTrajectory(
                 run_level=run_level,
                 atom_ids=tuple(atom.intervention_id for atom in subset),
@@ -2156,6 +2330,10 @@ class JointSimulationHorizonController:
                     "horizon_loop": True,
                     "state_delta_refs": state_delta_refs,
                     "metrics_ref_count": len(metrics_refs),
+                    "method_execution_sources": method_execution_steps,
+                    "method_execution_capture_status": "captured"
+                    if method_execution_capture is not None
+                    else "not_requested",
                     "requested_step_dispatch_status": "matched",
                     "time_alignment_status": "not_established",
                 },
@@ -2678,7 +2856,9 @@ def _entry_output_shape(
     return "unsupported"
 
 
-def _temporal_capability_for_output_shape(output_shape: EngineOutputShape) -> TemporalCapability:
+def _temporal_capability_for_output_shape(
+    output_shape: EngineOutputShape,
+) -> TemporalCapability:
     if output_shape == "static_point":
         return "static"
     if output_shape in {"time_series_trajectory", "program_state_trajectory"}:
@@ -2686,7 +2866,9 @@ def _temporal_capability_for_output_shape(output_shape: EngineOutputShape) -> Te
     return "unsupported"
 
 
-def _declared_entry_semantics(assumptions: Mapping[str, Any]) -> EquilibriumSemantics | None:
+def _declared_entry_semantics(
+    assumptions: Mapping[str, Any],
+) -> EquilibriumSemantics | None:
     declared = str(assumptions.get("joint_simulation_equilibrium_semantics", ""))
     if declared in {
         "none",
@@ -2702,7 +2884,9 @@ def _declared_entry_semantics(assumptions: Mapping[str, Any]) -> EquilibriumSema
     return None
 
 
-def _default_semantics_for_output_shape(output_shape: EngineOutputShape) -> EquilibriumSemantics:
+def _default_semantics_for_output_shape(
+    output_shape: EngineOutputShape,
+) -> EquilibriumSemantics:
     if output_shape == "static_point":
         return "static_SCM"
     if output_shape in {"time_series_trajectory", "program_state_trajectory"}:
@@ -3067,7 +3251,11 @@ def _coupled_source_time_trace(
         if queue_time is None:
             return None, "not_established", f"queue_source_time_malformed:{index}"
         if not math.isclose(transition, queue_time, rel_tol=0.0, abs_tol=1e-12):
-            return None, "not_established", f"coupled_queue_source_time_disagreement:{index}"
+            return (
+                None,
+                "not_established",
+                f"coupled_queue_source_time_disagreement:{index}",
+            )
 
         metric_queue = _finite_source_coordinate(row.get("queue/queue_length", _MISSING_OUTCOME))
         returned_queue = _finite_source_coordinate(queue_rows[index])
@@ -3543,7 +3731,9 @@ def _effect_for_outcome(
 _DERIVED_INTERACTION_SAMPLE_KEY = "derived_effect"
 
 
-def _scope_samples_by_seed(point: TrajectoryPoint) -> dict[int, ReplicationSample] | None:
+def _scope_samples_by_seed(
+    point: TrajectoryPoint,
+) -> dict[int, ReplicationSample] | None:
     summary = point.replication_sampling
     if summary is None:
         return None

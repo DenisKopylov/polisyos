@@ -1163,6 +1163,109 @@ KERNEL_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "MergeRuleRef": ("polisyos.ir.kernel.merge_rules", "MergeRuleRef"),
     "MergeRuleRegistry": ("polisyos.ir.kernel.merge_rules", "MergeRuleRegistry"),
     "MergeRuleSpec": ("polisyos.ir.kernel.merge_rules", "MergeRuleSpec"),
+    "MethodMetricBackendAttempt": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricBackendAttempt",
+    ),
+    "MethodMetricCapturedInputArray": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricCapturedInputArray",
+    ),
+    "MethodMetricExecutionContext": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricExecutionContext",
+    ),
+    "MethodMetricInputContext": ("polisyos.ir.kernel.method_metrics", "MethodMetricInputContext"),
+    "MethodMetricInputRole": ("polisyos.ir.kernel.method_metrics", "MethodMetricInputRole"),
+    "MethodMetricInputRoleContext": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricInputRoleContext",
+    ),
+    "MethodMetricParameterContext": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricParameterContext",
+    ),
+    "MethodMetricPredicateEvidence": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricPredicateEvidence",
+    ),
+    "MethodMetricSemanticContract": (
+        "polisyos.ir.kernel.method_metrics",
+        "MethodMetricSemanticContract",
+    ),
+    "MethodMetricSourceUnit": ("polisyos.ir.kernel.method_metrics", "MethodMetricSourceUnit"),
+    "RegisteredMethodMetricLawResult": (
+        "polisyos.ir.kernel.method_metrics",
+        "RegisteredMethodMetricLawResult",
+    ),
+    "RegisteredMethodMetricUnitAdapter": (
+        "polisyos.ir.kernel.method_metrics",
+        "RegisteredMethodMetricUnitAdapter",
+    ),
+    "RegisteredMethodMetricUnitResult": (
+        "polisyos.ir.kernel.method_metrics",
+        "RegisteredMethodMetricUnitResult",
+    ),
+    "METHOD_METRIC_DIRECT_OUTPUT_LAW_ID": (
+        "polisyos.ir.kernel.method_metrics",
+        "METHOD_METRIC_DIRECT_OUTPUT_LAW_ID",
+    ),
+    "METHOD_METRIC_DIRECT_OUTPUT_LAW_VERSION": (
+        "polisyos.ir.kernel.method_metrics",
+        "METHOD_METRIC_DIRECT_OUTPUT_LAW_VERSION",
+    ),
+    "METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID": (
+        "polisyos.ir.kernel.method_metrics",
+        "METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_ID",
+    ),
+    "METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_VERSION": (
+        "polisyos.ir.kernel.method_metrics",
+        "METHOD_METRIC_EX_ANTE_MEAN_CHANGE_LAW_VERSION",
+    ),
+    "METHOD_METRIC_UNIT_ADAPTER_ID": (
+        "polisyos.ir.kernel.method_metrics",
+        "METHOD_METRIC_UNIT_ADAPTER_ID",
+    ),
+    "METHOD_METRIC_UNIT_ADAPTER_VERSION": (
+        "polisyos.ir.kernel.method_metrics",
+        "METHOD_METRIC_UNIT_ADAPTER_VERSION",
+    ),
+    "apply_registered_direct_output_law": (
+        "polisyos.ir.kernel.method_metrics",
+        "apply_registered_direct_output_law",
+    ),
+    "apply_registered_ex_ante_mean_change_law": (
+        "polisyos.ir.kernel.method_metrics",
+        "apply_registered_ex_ante_mean_change_law",
+    ),
+    "apply_registered_method_metric_unit_adapter": (
+        "polisyos.ir.kernel.method_metrics",
+        "apply_registered_method_metric_unit_adapter",
+    ),
+    "registered_method_metric_input_unit_contract": (
+        "polisyos.ir.kernel.method_metrics",
+        "registered_method_metric_input_unit_contract",
+    ),
+    "registered_method_metric_law_metadata": (
+        "polisyos.ir.kernel.method_metrics",
+        "registered_method_metric_law_metadata",
+    ),
+    "registered_method_metric_law_metadata_for": (
+        "polisyos.ir.kernel.method_metrics",
+        "registered_method_metric_law_metadata_for",
+    ),
+    "registered_method_metric_semantics_match": (
+        "polisyos.ir.kernel.method_metrics",
+        "registered_method_metric_semantics_match",
+    ),
+    "registered_method_metric_unit_adapter_metadata": (
+        "polisyos.ir.kernel.method_metrics",
+        "registered_method_metric_unit_adapter_metadata",
+    ),
+    "resolve_registered_method_metric_unit_adapter": (
+        "polisyos.ir.kernel.method_metrics",
+        "resolve_registered_method_metric_unit_adapter",
+    ),
     "MetricRegistry": ("polisyos.ir.kernel.metrics", "MetricRegistry"),
     "MetricSpec": ("polisyos.ir.kernel.metrics", "MetricSpec"),
     "MoneyUnit": ("polisyos.ir.kernel.units", "MoneyUnit"),

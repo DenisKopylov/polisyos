@@ -8,10 +8,12 @@ import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from difflib import get_close_matches
+from typing import Literal
 
 from pydantic import Field, model_validator
 
 from .base import ID_PATTERN, KernelModel
+from .method_metrics import MethodMetricSemanticContract
 
 PRODUCTION_METRIC_TAXONOMY_VERSION = "2026.05.19"
 PRODUCTION_METRIC_CANONICALIZER = "production_metric_taxonomy.v1"
@@ -23,12 +25,13 @@ class MetricSpec(KernelModel):
     metric_id: str = Field(..., pattern=ID_PATTERN)
     unit_id: str | None = Field(None, pattern=ID_PATTERN)
     description: str | None = Field(None, max_length=200)
+    method_semantics: MethodMetricSemanticContract | None = None
 
 
 class MetricRegistry(KernelModel):
     """Registry of metric definitions that problem frames and compiled artifacts reference by id."""
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     metrics: dict[str, MetricSpec] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
 
@@ -39,6 +42,8 @@ class MetricRegistry(KernelModel):
                 raise ValueError("metric id must be a non-empty string")
             if key != spec.metric_id:
                 raise ValueError(f"metric id mismatch: '{key}' != '{spec.metric_id}'")
+            if spec.method_semantics is not None and self.schema_version != "1.1":
+                raise ValueError("method_metric_semantics_require_metric_registry_schema_1_1")
         return self
 
 
@@ -240,7 +245,12 @@ def _iter_metric_ids(value: object) -> Iterable[str]:
             raw = value.get(key)
             if isinstance(raw, str) and raw.strip():
                 yield raw.strip()
-        for nested_key in ("metrics", "expected_metrics", "outputs", "expected_outputs"):
+        for nested_key in (
+            "metrics",
+            "expected_metrics",
+            "outputs",
+            "expected_outputs",
+        ):
             nested = value.get(nested_key)
             yield from _iter_metric_ids(nested)
         return
@@ -475,7 +485,8 @@ DEFAULT_METRIC_REGISTRY = MetricRegistry(
             metric_id="government_balance", description="Government balance"
         ),
         "policy_value": MetricSpec(
-            metric_id="policy_value", description="Scalar policy value or objective score"
+            metric_id="policy_value",
+            description="Scalar policy value or objective score",
         ),
         "welfare": MetricSpec(metric_id="welfare", description="Aggregate welfare score"),
         "gdp_change": MetricSpec(metric_id="gdp_change", description="Change in GDP"),
@@ -500,7 +511,8 @@ DEFAULT_METRIC_REGISTRY = MetricRegistry(
             metric_id="employment_retention", description="Employment retention"
         ),
         "employment_retention_rate": MetricSpec(
-            metric_id="employment_retention_rate", description="Employment retention rate"
+            metric_id="employment_retention_rate",
+            description="Employment retention rate",
         ),
         "employment_stability": MetricSpec(
             metric_id="employment_stability", description="Employment stability"

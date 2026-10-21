@@ -10,6 +10,8 @@ from __future__ import annotations
 # Program-graph orchestrator
 from ._internal.graph import (
     execute_program_graph,
+    new_method_execution_capture,
+    persist_method_execution_capture,
 )
 
 # Models & low-level helpers
@@ -20,6 +22,7 @@ from ._internal.models import (
     FailureCard,
     FailureKind,
     FailureSeverity,
+    MethodExecutionCapture,
     artifact_id,
     get_state_path,
     load_model,
@@ -67,8 +70,11 @@ __all__ = [
     "FailureCard",
     "FailureKind",
     "FailureSeverity",
+    "MethodExecutionCapture",
     # graph orchestrator
     "execute_program_graph",
+    "new_method_execution_capture",
+    "persist_method_execution_capture",
     # patching / delta
     "apply_state_delta",
     "apply_patch_records",

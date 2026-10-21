@@ -1,0 +1,42 @@
+id = "2026-10-20-foundry-method-metric-capture"
+title = "Capture selected Foundry method-metric executions"
+type = "changed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Add versioned explicit method-metric binding selections, a registered model-relative candidate law, and selected-profile graph execution bundles with bounded whole-occurrence, prestate, and output-slot capture."
+evidence = [
+  "src/polisyos/core/contracts/foundry.py",
+  "src/polisyos/foundry/compile/trinity_compiler.py",
+  "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+  "src/polisyos/foundry/execute/api.py",
+  "src/polisyos/ir/kernel/method_metrics.py",
+  "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+  "src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+  "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+  "src/polisyos/runtime/quality/README.md",
+  "tests/unit/foundry/runtime/test_method_metric_capture.py",
+  "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+]
+compatibility = "CompileRequest 1.1 is required when explicit method metric bindings are selected; legacy CompileRequest 1.0 remains unchanged. ExecPlan remains schema 0.2.0 and carries the binding-set lineage only in its additive method_metric_bindings manifest edge. SimulationResult 1.4 payload remains unchanged; the actual execution bundle is linked by its selected manifest. New method outputs, binding sets, and execution bundles use selected-profile full refs."
+change_class = "python-public-api"
+surface_classification = "Foundry compile request and typed artifacts are versioned contracts; method metric semantics and observations are candidate-only internal evidence"
+migration = "No rewrite of existing ExecPlan or SimulationResult artifacts is required. A plan without a method_metric_bindings manifest edge keeps its prior execution behavior. Consumers must require the exact selected binding-set and bundle refs and must withhold observations when execution context or output precision cannot be established."
+api = "CompileRequest 1.1 accepts explicit method_metric_bindings. The compiler emits foundry.method_metric_binding_set v1.0 and attaches it to foundry.exec_plan through the method_metric_bindings manifest role. Graph execution emits foundry.method_output v1.0, foundry.method_execution_bundle v1.1, and metadata-only foundry.method_metric_input_capture v1.1; exact baseline/scenario values are retained once in a sparse selected StateSnapshot for the registered Ex-Ante law. Repeated graph and horizon invocations retain occurrence rows, bounded input identities, full returned-slot inventory, and exact selected manifest edges. The owner module also exposes a bounded source-admission facade and a bounded StateSnapshot input reader that reports both digest-bound manifest reads. Runtime projection admission and the Scientist observation consumer remain separate owner slices."
+limitations = "Only the exact registered Ex-Ante mean-change producer law is available; other numeric output remains unavailable unless a registered law proves its exact dispatch/input meaning. External representativeness, causal validity, empirical calibration, legal/publication permission, and authority remain separate not_established predicates. Runtime worker admission is a separate owner slice; its candidate-only legacy-shadow current-fence handoff is not part of this packet. Horizon aggregation preserves bundle and binding-set refs but emits no SimulationResult and is not Runtime projection eligible. Default WorkspaceLoop and registered S2 are not connected. Fresh aggregate-bounded admission, Runtime projection, and current-fence consumer remain unverified. Product imports/tests and canonical adoption are not performed by this RAW packet."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-method-metric-capture"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "versioned Foundry compile and artifact contracts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Explicit metric selection is opt-in through CompileRequest 1.1. Captured method outputs remain candidate evidence and are emitted only with exact binding, execution, dispatch-input, and selected-profile CAS lineage. Horizon aggregation carries those refs with its per-step occurrence inventory without synthesizing a SimulationResult."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []

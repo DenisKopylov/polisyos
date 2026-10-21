@@ -3,12 +3,24 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any, ClassVar, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.core.artifacts.registry import RegistryBundlePayload
+from polisyos.ir.kernel.method_metrics import MethodMetricSemanticContract, MethodMetricSourceUnit
+from polisyos.ir.kernel.units import UnitSpecType
 from polisyos.ir.registry.refs import WelfareBundleRef
 
 from ..artifacts.environment import EnvironmentManifestRef as EnvironmentManifestRef
@@ -18,6 +30,9 @@ from .scientist import FairnessAuditReportRef, MetricValidationReportRef
 from .uncertainty import UncertaintyEnvelopeRef
 
 _AttractorAnalysisMode = Literal["attractors", "continuation", "basin_map", "lyapunov"]
+
+# Shared intake bound for method-metric binding inventories.
+METHOD_METRIC_BINDING_LIMIT = 128
 
 
 def _default_attractor_analysis_modes() -> list[_AttractorAnalysisMode]:
@@ -185,6 +200,804 @@ class ExecutionEvidenceRef(ArtifactRef):
     media_type: str = "application/json"
 
 
+class MethodMetricBindingSetRef(ArtifactRef):
+    """Selected CAS reference for compiled method-to-objective bindings."""
+
+    kind: Literal["foundry.method_metric_binding_set"] = "foundry.method_metric_binding_set"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MethodExecutionBundleRef(ArtifactRef):
+    """Selected CAS reference for actual graph invocation and output capture."""
+
+    kind: Literal["foundry.method_execution_bundle"] = "foundry.method_execution_bundle"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MethodOutputRef(ArtifactRef):
+    """Selected JSON output payload for one method invocation and declared slot."""
+
+    kind: Literal["foundry.method_output"] = "foundry.method_output"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MethodMetricInputCaptureRef(ArtifactRef):
+    """Selected CAS reference for law-required actual method input values."""
+
+    kind: Literal["foundry.method_metric_input_capture"] = "foundry.method_metric_input_capture"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MethodArtifactOutputRef(ArtifactRef):
+    """Selected JSON sidecar output from one method invocation."""
+
+    kind: Literal["foundry.method_artifact_output"] = "foundry.method_artifact_output"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class MethodMetricBindingRequest(BaseModel):
+    """Explicit objective/node/slot selection for compile-time method metric binding."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    objective_id: StrictStr = Field(min_length=1)
+    node_id: StrictStr = Field(min_length=1)
+    output_slot_id: StrictStr = Field(min_length=1)
+
+
+class MethodMetricBinding(BaseModel):
+    """Exact selected objective, method ABI output, semantic contract, and unit law."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    binding_id: StrictStr = Field(min_length=1, max_length=256)
+    objective_id: StrictStr = Field(min_length=1, max_length=256)
+    metric_id: StrictStr = Field(min_length=1, max_length=256)
+    node_id: StrictStr = Field(min_length=1, max_length=256)
+    method_fqn: StrictStr = Field(min_length=1, max_length=512)
+    method_version: StrictStr = Field(min_length=1, max_length=128)
+    method_abi_digest: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    method_abi_digest_algorithm: Literal["blake2b"] = "blake2b"
+    method_build_digest: StrictStr | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    method_build_digest_scope: Literal["class_source_only", "unavailable"] = "unavailable"
+    output_slot_id: StrictStr = Field(min_length=1, max_length=256)
+    output_value_path: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=16)
+    output_contract_id: StrictStr | None = None
+    output_shape: Literal["scalar", "non_scalar", "unknown"] = "unknown"
+    semantics: MethodMetricSemanticContract | None = None
+    source_unit: MethodMetricSourceUnit
+    target_unit: UnitSpecType
+    law_id: StrictStr
+    law_version: StrictStr
+    law_code_digest: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adapter_id: StrictStr
+    adapter_version: StrictStr
+    adapter_code_digest: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    conversion_operation: Literal["identity", "ratio_to_percent", "percent_to_ratio", "unsupported"]
+    conversion_factor_numerator: StrictInt | None = None
+    conversion_factor_denominator: StrictInt | None = None
+    availability: Literal["available", "unavailable"]
+    limitation: StrictStr | None = None
+
+    @model_validator(mode="after")
+    def validate_binding(self) -> MethodMetricBinding:
+        if (self.method_build_digest is None) != (
+            self.method_build_digest_scope != "class_source_only"
+        ):
+            raise ValueError("method_metric_binding_build_identity_scope_mismatch")
+        if any(not segment.strip() for segment in self.output_value_path):
+            raise ValueError("method_metric_binding_output_value_path_must_be_non_empty")
+        if (
+            self.semantics is not None
+            and self.output_value_path != self.semantics.output_value_path
+        ):
+            raise ValueError("method_metric_binding_output_path_differs_from_semantics")
+        if self.availability == "available":
+            if (
+                self.semantics is None
+                or self.output_shape != "scalar"
+                or self.limitation is not None
+                or self.conversion_operation == "unsupported"
+                or self.conversion_factor_numerator is None
+                or self.conversion_factor_denominator is None
+                or self.conversion_factor_denominator <= 0
+                or self.method_build_digest is None
+            ):
+                raise ValueError("available_method_metric_binding_requires_complete_law")
+        elif not self.limitation:
+            raise ValueError("unavailable_method_metric_binding_requires_limitation")
+        return self
+
+
+class MethodMetricBindingSet(BaseModel):
+    """Compile-time binding set selected by an execution plan."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodMetricBindingSet"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.method_metric_binding_set"]] = (
+        "foundry.method_metric_binding_set"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    program_graph_ref: ProgramGraphRef
+    policy_ref: ArtifactRef
+    registry_bundle_ref: ArtifactRef
+    metric_registry_ref: ArtifactRef
+    units_registry_ref: ArtifactRef
+    bindings: list[MethodMetricBinding] = Field(
+        default_factory=list, max_length=METHOD_METRIC_BINDING_LIMIT
+    )
+
+    @model_validator(mode="after")
+    def validate_unique_bindings(self) -> MethodMetricBindingSet:
+        if len(self.bindings) > METHOD_METRIC_BINDING_LIMIT:
+            raise ValueError("method_metric_binding_inventory_exceeds_capture_limit")
+        ids = [item.binding_id for item in self.bindings]
+        selections = [
+            (item.objective_id, item.node_id, item.output_slot_id) for item in self.bindings
+        ]
+        output_selections = [(item.node_id, item.output_slot_id) for item in self.bindings]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate_method_metric_binding_id")
+        if len(selections) != len(set(selections)):
+            raise ValueError("duplicate_method_metric_binding_selection")
+        if len(output_selections) != len(set(output_selections)):
+            raise ValueError("duplicate_method_metric_selected_output_slot")
+        return self
+
+
+class MethodOutputPayload(BaseModel):
+    """One actual finite numeric method slot output, captured without coercion."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodOutputPayload"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.method_output"]] = "foundry.method_output"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    occurrence_id: StrictStr = Field(min_length=1)
+    invocation_id: StrictStr = Field(min_length=1)
+    node_id: StrictStr = Field(min_length=1)
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    value_path: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=16)
+    value: StrictInt | StrictFloat
+
+    @field_validator("value")
+    @classmethod
+    def finite_number(cls, value: float | int) -> float | int:
+        import math
+
+        if isinstance(value, bool) or (isinstance(value, float) and not math.isfinite(value)):
+            raise ValueError("method_output_requires_finite_numeric_scalar")
+        return value
+
+
+class MethodMetricInputCaptureSlot(BaseModel):
+    """Metadata for one law-required slot stored in its selected state snapshot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    slot_id: StrictStr = Field(min_length=1)
+    dtype: StrictStr = Field(min_length=1)
+    shape: tuple[StrictInt, ...] = Field(min_length=1, max_length=1)
+    value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    unit: MethodMetricSourceUnit
+
+    @model_validator(mode="after")
+    def validate_capture_layout(self) -> MethodMetricInputCaptureSlot:
+        if self.shape[0] <= 0:
+            raise ValueError("method_metric_input_capture_requires_nonempty_vector")
+        if self.dtype.lstrip("<>=|")[:1] not in {"i", "u", "f"}:
+            raise ValueError("method_metric_input_capture_requires_numeric_dtype")
+        return self
+
+
+class MethodMetricInputCapturePayload(BaseModel):
+    """One bounded metadata record over the actual sparse pre-dispatch state."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodMetricInputCapture"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.method_metric_input_capture"]] = (
+        "foundry.method_metric_input_capture"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.1"] = "1.1"
+    retention_purpose: Literal["registered_metric_recomputation_only"] = (
+        "registered_metric_recomputation_only"
+    )
+    program_graph_ref: ProgramGraphRef
+    exec_plan_ref: ExecPlanRef
+    method_metric_binding_set_ref: MethodMetricBindingSetRef
+    occurrence_id: StrictStr = Field(min_length=1)
+    invocation_id: StrictStr = Field(min_length=1)
+    node_id: StrictStr = Field(min_length=1)
+    prestate_identity_algorithm: Literal["policyos.method_dispatch_input_map.sha256.v1"]
+    prestate_identity_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+    pre_dispatch_state_ref: StateSnapshotRef
+    slots: tuple[MethodMetricInputCaptureSlot, ...] = Field(min_length=1, max_length=32)
+
+    @model_validator(mode="after")
+    def validate_capture(self) -> MethodMetricInputCapturePayload:
+        slot_ids = [item.slot_id for item in self.slots]
+        if len(slot_ids) != len(set(slot_ids)):
+            raise ValueError("duplicate_method_metric_input_capture_slot")
+        if any(len(item.slot_id) > 256 for item in self.slots):
+            raise ValueError("method_metric_input_capture_slot_id_exceeds_length_limit")
+        refs = (
+            self.program_graph_ref,
+            self.exec_plan_ref,
+            self.method_metric_binding_set_ref,
+            self.pre_dispatch_state_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("method_metric_input_capture_requires_selected_profile_lineage")
+        return self
+
+
+class MethodArtifactOutputPayload(BaseModel):
+    """JSON-compatible sidecar payload emitted in ``MethodResult.artifacts``."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodArtifactOutputPayload"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.method_artifact_output"]] = (
+        "foundry.method_artifact_output"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    occurrence_id: StrictStr = Field(min_length=1)
+    invocation_id: StrictStr = Field(min_length=1)
+    node_id: StrictStr = Field(min_length=1)
+    artifact_key: StrictStr = Field(min_length=1)
+    payload: dict[str, Any]
+
+
+class MethodExecutionOutputSlot(BaseModel):
+    """Status and optional selected output ref for one declared method slot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    status: Literal["captured", "unavailable", "not_emitted"]
+    output_ref: MethodOutputRef | None = None
+    limitation: StrictStr | None = Field(default=None, max_length=512)
+
+    @model_validator(mode="after")
+    def validate_output_slot(self) -> MethodExecutionOutputSlot:
+        if self.status == "captured":
+            if self.output_ref is None or self.limitation is not None:
+                raise ValueError("captured_method_output_requires_ref")
+        elif self.output_ref is not None or not self.limitation:
+            raise ValueError("uncaptured_method_output_requires_limitation_without_ref")
+        return self
+
+
+class MethodExecutionParameterValue(BaseModel):
+    """One resolved method parameter, its source, and exact JSON capture state."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: StrictStr = Field(min_length=1, max_length=256)
+    source: Literal[
+        "requested",
+        "signature_default",
+        "signature_default_unresolved",
+        "requested_unresolved",
+    ]
+    status: Literal["captured", "unsupported_codec"]
+    value: Any = None
+    value_sha256: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    limitation: StrictStr | None = None
+
+    @model_validator(mode="after")
+    def validate_parameter_capture(self) -> MethodExecutionParameterValue:
+        if self.status == "captured":
+            if (
+                self.value_sha256 is None
+                or self.limitation is not None
+                or self.source in {"requested_unresolved", "signature_default_unresolved"}
+            ):
+                raise ValueError("captured_method_parameter_requires_digest")
+        elif self.value_sha256 is not None or not self.limitation:
+            raise ValueError("unsupported_method_parameter_requires_limitation")
+        return self
+
+
+class MethodExecutionBackendAttempt(BaseModel):
+    """One exact dispatcher backend attempt copied from its emitted dispatch trace."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    backend: StrictStr = Field(min_length=1, max_length=128)
+    outcome: StrictStr = Field(min_length=1, max_length=128)
+
+
+class MethodExecutionInputSlot(BaseModel):
+    """Bounded content identity for a directly addressable method input slot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    status: Literal["captured", "not_established"]
+    value_sha256: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    runtime_type: StrictStr | None = None
+    runtime_shape: tuple[StrictInt, ...] | None = None
+    runtime_dtype: StrictStr | None = None
+    limitation: StrictStr | None = None
+
+    @model_validator(mode="after")
+    def validate_input_identity(self) -> MethodExecutionInputSlot:
+        if self.status == "captured":
+            if self.value_sha256 is None or self.limitation is not None:
+                raise ValueError("captured_method_input_slot_requires_digest")
+        elif self.value_sha256 is not None or not self.limitation:
+            raise ValueError("unestablished_method_input_slot_requires_limitation")
+        return self
+
+
+class MethodExecutionInputRole(BaseModel):
+    """Captured semantic role to actual method ABI input-slot mapping."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    role_id: StrictStr = Field(min_length=1, max_length=128)
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    value_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class MethodExecutionDispatchRecord(BaseModel):
+    """Whole invocation record at the graph-to-method dispatch boundary."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    outcome: Literal["not_run", "succeeded", "failed"]
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    dispatch_elapsed_ms: StrictFloat | None = Field(default=None, ge=0)
+    runner_wall_time_ms: StrictFloat | None = Field(default=None, ge=0)
+    runner_cpu_time_ms: StrictFloat | None = Field(default=None, ge=0)
+    runner_compile_time_ms: StrictFloat | None = Field(default=None, ge=0)
+    input_state_ref: StateSnapshotRef | None = None
+    input_state_relation: Literal["current_visible_state", "origin_only", "not_established"] = (
+        "not_established"
+    )
+    input_state_identity_algorithm: (
+        Literal["policyos.method_dispatch_input_map.sha256.v1"] | None
+    ) = None
+    input_state_identity_sha256: StrictStr | None = Field(
+        default=None,
+        pattern=r"^[0-9a-f]{64}$",
+    )
+    input_state_source_ref: StateSnapshotRef | None = None
+    method_metric_input_capture_ref: MethodMetricInputCaptureRef | None = None
+    method_metric_input_capture_status: Literal[
+        "captured", "not_established", "not_required", "not_started"
+    ] = "not_required"
+    method_metric_input_capture_limitation: StrictStr | None = None
+    input_state_status: Literal["captured", "not_established", "not_started"]
+    input_state_limitation: StrictStr | None = Field(default=None, max_length=512)
+    graph_input_ids: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+    signature_input_slot_ids: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+    signature_output_slot_ids: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=128)
+    signature_parameter_names: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+    signature_input_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    signature_input_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    signature_output_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    signature_output_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    signature_parameter_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    signature_parameter_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    input_slot_values: tuple[MethodExecutionInputSlot, ...] = Field(
+        default_factory=tuple, max_length=32
+    )
+    input_role_values: tuple[MethodExecutionInputRole, ...] = Field(
+        default_factory=tuple, max_length=32
+    )
+    parameter_values: tuple[MethodExecutionParameterValue, ...] = Field(
+        default_factory=tuple, max_length=32
+    )
+    parameter_resolution_status: Literal["captured", "not_established", "not_started"]
+    parameter_resolution_limitation: StrictStr | None = Field(default=None, max_length=512)
+    parameter_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    parameter_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    graph_input_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    graph_input_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    root_seed: StrictInt | None = None
+    step: StrictInt | None = None
+    method_key_words: tuple[StrictInt, ...] = ()
+    method_seed: StrictInt | None = None
+    reproducibility_seed: StrictInt | None = None
+    seed_status: Literal["reconciled", "mismatch", "not_established", "not_started"]
+    rng_state_status: Literal["key_captured", "runner_rng_state_not_retained", "not_started"]
+    requested_backend: StrictStr | None = None
+    selected_backend: StrictStr | None = None
+    actual_backend: StrictStr | None = None
+    backend_selection_reason: StrictStr | None = None
+    backend_identity_status: Literal["reconciled", "mismatch", "not_established", "not_started"]
+    backend_attempts: tuple[MethodExecutionBackendAttempt, ...] = ()
+    backend_trace_status: Literal["captured", "not_established", "not_started"]
+    fallback_status: Literal["fell_back", "not_fell_back", "not_established", "not_started"]
+    failure_type: StrictStr | None = Field(default=None, max_length=512)
+    failure_message_sha256: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    limitations: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+
+    @field_validator("limitations")
+    @classmethod
+    def validate_dispatch_limitation_lengths(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        if any(len(value) > 512 for value in values):
+            raise ValueError("method_execution_dispatch_limitation_exceeds_length_limit")
+        return values
+
+    @model_validator(mode="after")
+    def validate_dispatch_record(self) -> MethodExecutionDispatchRecord:
+        if self.input_state_status == "captured":
+            if (
+                self.input_state_identity_sha256 is None
+                or self.input_state_identity_algorithm
+                != "policyos.method_dispatch_input_map.sha256.v1"
+                or self.input_state_ref is None
+                or self.input_state_relation != "current_visible_state"
+                or self.input_state_limitation is not None
+            ):
+                raise ValueError("captured_method_prestate_requires_selected_content_identity")
+        elif (
+            self.input_state_identity_sha256 is not None
+            or self.input_state_identity_algorithm is not None
+        ):
+            raise ValueError("unestablished_method_prestate_cannot_have_content_identity")
+        if (
+            self.input_state_status != "captured"
+            and self.input_state_relation == "current_visible_state"
+        ):
+            raise ValueError("unselected_method_prestate_cannot_claim_current_visible_state")
+        if self.input_state_ref is not None and self.input_state_status != "captured":
+            raise ValueError("unestablished_method_prestate_cannot_have_selected_ref")
+        elif self.input_state_status == "not_established" and not self.input_state_limitation:
+            raise ValueError("unestablished_method_prestate_requires_limitation")
+        if self.method_metric_input_capture_status == "captured":
+            if (
+                self.method_metric_input_capture_ref is None
+                or self.method_metric_input_capture_limitation is not None
+            ):
+                raise ValueError("captured_method_metric_input_requires_selected_ref")
+        elif self.method_metric_input_capture_ref is not None:
+            raise ValueError("uncaptured_method_metric_input_cannot_have_selected_ref")
+        elif self.method_metric_input_capture_status == "not_established":
+            if not self.method_metric_input_capture_limitation:
+                raise ValueError("unestablished_method_metric_input_requires_limitation")
+        elif self.method_metric_input_capture_limitation is not None:
+            raise ValueError("method_metric_input_limitation_without_unestablished_status")
+        if self.outcome == "not_run":
+            if self.method_metric_input_capture_status not in {
+                "not_started",
+                "not_required",
+            }:
+                raise ValueError("not_run_method_metric_input_capture_has_runtime_status")
+        elif self.method_metric_input_capture_status == "not_started":
+            raise ValueError("dispatched_method_metric_input_capture_cannot_be_not_started")
+        if self.parameter_resolution_status == "not_established":
+            if not self.parameter_resolution_limitation:
+                raise ValueError("unestablished_method_parameters_require_limitation")
+            if (
+                self.parameter_inventory_observed_count is not None
+                and self.parameter_inventory_limit is None
+            ):
+                raise ValueError("bounded_parameter_inventory_requires_limit")
+        elif self.parameter_resolution_status == "captured":
+            if self.parameter_resolution_limitation is not None:
+                raise ValueError("captured_method_parameters_cannot_have_limitation")
+            if self.parameter_inventory_observed_count != len(self.parameter_values):
+                raise ValueError("captured_method_parameter_inventory_count_mismatch")
+            if any(
+                value.status != "captured"
+                or value.source in {"requested_unresolved", "signature_default_unresolved"}
+                for value in self.parameter_values
+            ):
+                raise ValueError("captured_method_parameters_require_captured_values")
+        input_slot_ids = [item.slot_id for item in self.input_slot_values]
+        role_ids = [item.role_id for item in self.input_role_values]
+        role_slot_ids = [item.slot_id for item in self.input_role_values]
+        parameter_names = [item.name for item in self.parameter_values]
+        if len(set(self.signature_input_slot_ids)) != len(self.signature_input_slot_ids):
+            raise ValueError("duplicate_method_execution_signature_input_slot")
+        if len(set(self.signature_parameter_names)) != len(self.signature_parameter_names):
+            raise ValueError("duplicate_method_execution_signature_parameter")
+        if len(set(parameter_names)) != len(parameter_names):
+            raise ValueError("duplicate_method_execution_parameter_value")
+        if len(input_slot_ids) != len(set(input_slot_ids)):
+            raise ValueError("duplicate_method_execution_input_slot_identity")
+        if len(set(self.signature_output_slot_ids)) != len(self.signature_output_slot_ids):
+            raise ValueError("duplicate_method_execution_signature_output_slot")
+        if len(role_ids) != len(set(role_ids)) or len(role_slot_ids) != len(set(role_slot_ids)):
+            raise ValueError("duplicate_method_execution_input_role_mapping")
+        if not set(input_slot_ids).issubset(set(self.signature_input_slot_ids)):
+            raise ValueError("method_execution_input_identity_not_in_signature")
+        if any(slot_id not in set(self.signature_input_slot_ids) for slot_id in role_slot_ids):
+            raise ValueError("method_execution_input_role_slot_not_in_signature")
+        input_digests = {item.slot_id: item.value_sha256 for item in self.input_slot_values}
+        if any(
+            input_digests.get(item.slot_id) != item.value_sha256 for item in self.input_role_values
+        ):
+            raise ValueError("method_execution_input_role_digest_mismatch")
+        if self.parameter_resolution_status == "captured" and set(parameter_names) != set(
+            self.signature_parameter_names
+        ):
+            raise ValueError("captured_method_parameters_must_cover_signature")
+        if self.outcome != "not_run" and set(input_slot_ids) != set(self.signature_input_slot_ids):
+            raise ValueError("dispatched_method_input_inventory_must_cover_signature")
+        if self.outcome == "not_run":
+            if self.started_at is not None or self.completed_at is not None:
+                raise ValueError("not_run_method_dispatch_cannot_have_timestamps")
+        else:
+            if self.started_at is None or self.completed_at is None:
+                raise ValueError("started_method_dispatch_requires_timestamps")
+            if self.completed_at < self.started_at:
+                raise ValueError("method_dispatch_end_precedes_start")
+        if self.outcome == "succeeded" and self.failure_type is not None:
+            raise ValueError("successful_method_dispatch_cannot_have_failure")
+        if self.outcome == "failed" and self.failure_type is None:
+            raise ValueError("failed_method_dispatch_requires_failure_type")
+        if self.backend_trace_status == "captured" and (
+            self.requested_backend is None
+            or self.selected_backend is None
+            or not self.backend_attempts
+        ):
+            raise ValueError("captured_method_backend_trace_requires_selection_and_attempts")
+        if self.seed_status == "reconciled" and (
+            self.method_seed is None or self.reproducibility_seed != self.method_seed
+        ):
+            raise ValueError("reconciled_method_seed_requires_matching_runner_seed")
+        if self.backend_trace_status == "not_started" and self.fallback_status != "not_started":
+            raise ValueError("not_started_method_backend_trace_requires_not_started_fallback")
+        return self
+
+
+class MethodExecutionReturnedSlot(BaseModel):
+    """Bounded inventory row for every declared or emitted method output slot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    slot_id: StrictStr = Field(min_length=1, max_length=256)
+    declared_by_signature: bool
+    declared_slot_type: StrictStr | None = Field(default=None, max_length=128)
+    declared_shape: tuple[StrictStr, ...] | None = Field(default=None, max_length=4)
+    returned: Literal["returned", "not_returned", "not_established"]
+    runtime_type: StrictStr | None = Field(default=None, max_length=512)
+    runtime_key_type: StrictStr | None = Field(default=None, max_length=512)
+    runtime_shape: tuple[StrictInt, ...] | None = None
+    runtime_shape_status: Literal["captured", "not_established", "not_returned"]
+    runtime_dtype: StrictStr | None = Field(default=None, max_length=128)
+    codec_status: Literal[
+        "json_scalar_supported", "unsupported_codec", "not_attempted", "not_returned"
+    ]
+    retention_status: Literal[
+        "selected_metric_output", "not_retained", "unsupported_codec", "not_emitted"
+    ]
+    limitation: StrictStr | None = Field(default=None, max_length=512)
+
+    @model_validator(mode="after")
+    def validate_returned_slot(self) -> MethodExecutionReturnedSlot:
+        if self.returned == "returned":
+            if self.runtime_type is None or self.runtime_shape_status == "not_returned":
+                raise ValueError("returned_method_slot_requires_runtime_identity")
+            if self.retention_status == "not_emitted":
+                raise ValueError("returned_method_slot_cannot_be_not_emitted")
+        elif self.returned == "not_returned":
+            if (
+                self.runtime_type is not None
+                or self.runtime_shape is not None
+                or self.runtime_dtype is not None
+                or self.runtime_shape_status != "not_returned"
+                or self.codec_status != "not_returned"
+                or self.retention_status != "not_emitted"
+            ):
+                raise ValueError("unreturned_method_slot_cannot_have_runtime_inventory")
+        elif self.runtime_shape_status == "not_returned" or self.codec_status == "not_returned":
+            raise ValueError("unestablished_method_slot_requires_unknown_capture_state")
+        if self.retention_status in {
+            "not_retained",
+            "unsupported_codec",
+            "not_emitted",
+        }:
+            if not self.limitation:
+                raise ValueError("uncaptured_returned_slot_requires_limitation")
+        elif self.limitation is not None:
+            raise ValueError("retained_selected_slot_cannot_have_limitation")
+        if (
+            self.retention_status == "unsupported_codec"
+            and self.codec_status != "unsupported_codec"
+        ):
+            raise ValueError("unsupported_method_slot_retention_requires_codec_failure")
+        return self
+
+
+class MethodExecutionArtifact(BaseModel):
+    """Status and optional selected ref for one MethodResult artifact entry."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    artifact_key: StrictStr = Field(min_length=1, max_length=256)
+    status: Literal["captured", "unavailable"]
+    artifact_ref: MethodArtifactOutputRef | None = None
+    limitation: StrictStr | None = Field(default=None, max_length=512)
+
+    @model_validator(mode="after")
+    def validate_artifact(self) -> MethodExecutionArtifact:
+        if self.status == "captured":
+            if self.artifact_ref is None or self.limitation is not None:
+                raise ValueError("captured_method_artifact_requires_ref")
+        elif self.artifact_ref is not None or not self.limitation:
+            raise ValueError("uncaptured_method_artifact_requires_limitation_without_ref")
+        return self
+
+
+class MethodExecutionOccurrence(BaseModel):
+    """One planned or actual node occurrence in one graph invocation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    occurrence_id: StrictStr = Field(min_length=1, max_length=512)
+    invocation_id: StrictStr = Field(min_length=1, max_length=64)
+    plan_index: StrictInt = Field(ge=0)
+    node_id: StrictStr = Field(min_length=1, max_length=256)
+    node_kind: Literal["method", "mechanism", "op", "unknown"]
+    status: Literal["planned", "succeeded", "failed", "skipped"]
+    method_fqn: StrictStr | None = Field(default=None, max_length=512)
+    method_version: StrictStr | None = Field(default=None, max_length=128)
+    method_abi_digest: StrictStr | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    method_abi_digest_algorithm: Literal["blake2b"] | None = None
+    method_build_digest: StrictStr | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    method_build_digest_scope: Literal["class_source_only", "unavailable"] | None = None
+    output_slots: list[MethodExecutionOutputSlot] = Field(default_factory=list, max_length=128)
+    returned_slots: list[MethodExecutionReturnedSlot] = Field(default_factory=list, max_length=128)
+    returned_slot_inventory_status: Literal["captured", "not_established", "not_started"] = (
+        "not_started"
+    )
+    returned_slot_inventory_limitation: StrictStr | None = Field(default=None, max_length=512)
+    returned_slot_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    returned_slot_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    artifact_inventory_status: Literal["captured", "not_established", "not_started"] = "not_started"
+    artifact_inventory_limitation: StrictStr | None = None
+    artifact_inventory_observed_count: StrictInt | None = Field(default=None, ge=0)
+    artifact_inventory_limit: StrictInt | None = Field(default=None, ge=1)
+    dispatch: MethodExecutionDispatchRecord | None = None
+    artifacts: list[MethodExecutionArtifact] = Field(default_factory=list, max_length=32)
+    limitations: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+
+    @field_validator("limitations")
+    @classmethod
+    def validate_limitation_lengths(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        if any(len(value) > 512 for value in values):
+            raise ValueError("method_execution_limitation_exceeds_length_limit")
+        return values
+
+    @model_validator(mode="after")
+    def validate_occurrence(self) -> MethodExecutionOccurrence:
+        expected = f"{self.invocation_id}:{self.plan_index}:{self.node_id}"
+        if self.occurrence_id != expected:
+            raise ValueError("method_execution_occurrence_id_mismatch")
+        if self.node_kind == "method":
+            if self.method_fqn is None:
+                raise ValueError("method_occurrence_requires_method_fqn")
+            if self.dispatch is None:
+                raise ValueError("method_occurrence_requires_dispatch_record")
+            if (
+                self.returned_slot_inventory_status == "not_established"
+                and not self.returned_slot_inventory_limitation
+            ):
+                raise ValueError("unestablished_method_slot_inventory_requires_limitation")
+            if self.returned_slot_inventory_status == "captured" and (
+                self.returned_slot_inventory_limitation is not None
+                or self.returned_slot_inventory_observed_count != len(self.returned_slots)
+            ):
+                raise ValueError("captured_method_slot_inventory_cannot_have_limitation")
+            if (
+                self.returned_slot_inventory_status == "not_established"
+                and self.returned_slot_inventory_observed_count is not None
+                and self.returned_slot_inventory_limit is None
+            ):
+                raise ValueError("bounded_returned_slot_inventory_requires_limit")
+            if self.artifact_inventory_status == "not_established":
+                if not self.artifact_inventory_limitation:
+                    raise ValueError("unestablished_method_artifact_inventory_requires_limitation")
+                if (
+                    self.artifact_inventory_observed_count is not None
+                    and self.artifact_inventory_limit is None
+                ):
+                    raise ValueError("bounded_method_artifact_inventory_requires_limit")
+            elif self.artifact_inventory_status == "captured":
+                if (
+                    self.artifact_inventory_limitation is not None
+                    or self.artifact_inventory_observed_count != len(self.artifacts)
+                ):
+                    raise ValueError("captured_method_artifact_inventory_count_mismatch")
+            if (self.method_abi_digest is None) != (self.method_abi_digest_algorithm is None):
+                raise ValueError("method_occurrence_abi_identity_requires_algorithm")
+            if (self.method_build_digest is None) != (
+                self.method_build_digest_scope != "class_source_only"
+            ):
+                raise ValueError("method_occurrence_build_identity_scope_mismatch")
+        elif (
+            self.output_slots
+            or self.returned_slots
+            or self.returned_slot_inventory_status != "not_started"
+            or self.returned_slot_inventory_limitation is not None
+            or self.returned_slot_inventory_observed_count is not None
+            or self.returned_slot_inventory_limit is not None
+            or self.dispatch is not None
+            or self.artifacts
+            or self.artifact_inventory_status != "not_started"
+            or self.artifact_inventory_limitation is not None
+            or self.artifact_inventory_observed_count is not None
+            or self.artifact_inventory_limit is not None
+        ):
+            raise ValueError("non_method_occurrence_cannot_have_method_outputs")
+        slot_ids = [item.slot_id for item in self.output_slots]
+        returned_slot_ids = [item.slot_id for item in self.returned_slots]
+        artifact_keys = [item.artifact_key for item in self.artifacts]
+        if len(slot_ids) != len(set(slot_ids)):
+            raise ValueError("duplicate_method_execution_output_slot")
+        if len(returned_slot_ids) != len(set(returned_slot_ids)):
+            raise ValueError("duplicate_method_execution_returned_slot")
+        if len(artifact_keys) != len(set(artifact_keys)):
+            raise ValueError("duplicate_method_execution_artifact_key")
+        return self
+
+
+class MethodExecutionBundle(BaseModel):
+    """Selected actual execution capture with complete occurrence inventory."""
+
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.MethodExecutionBundle"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.1"
+    ARTIFACT_KIND: ClassVar[Literal["foundry.method_execution_bundle"]] = (
+        "foundry.method_execution_bundle"
+    )
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.1"] = "1.1"
+    captured_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    program_graph_ref: ProgramGraphRef
+    exec_plan_ref: ExecPlanRef
+    method_metric_binding_set_ref: MethodMetricBindingSetRef
+    environment_manifest_ref: EnvironmentManifestRef | None = None
+    occurrences: list[MethodExecutionOccurrence] = Field(default_factory=list, max_length=128)
+    limitations: tuple[StrictStr, ...] = Field(default_factory=tuple, max_length=32)
+
+    @field_validator("limitations")
+    @classmethod
+    def validate_bundle_limitation_lengths(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        if any(len(value) > 512 for value in values):
+            raise ValueError("method_execution_bundle_limitation_exceeds_length_limit")
+        return values
+
+    @model_validator(mode="after")
+    def validate_occurrences(self) -> MethodExecutionBundle:
+        ids = [item.occurrence_id for item in self.occurrences]
+        positions = [(item.invocation_id, item.plan_index) for item in self.occurrences]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate_method_execution_occurrence_id")
+        if len(positions) != len(set(positions)):
+            raise ValueError("duplicate_method_execution_plan_position")
+        return self
+
+
 class AgentPolicyRef(ArtifactRef):
     """
     Typed reference to an AgentPolicyArtifact in CAS.
@@ -348,6 +1161,13 @@ class ProgramGraph(BaseModel):
     entrypoints: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
+    @model_validator(mode="after")
+    def validate_unique_nodes(self) -> ProgramGraph:
+        node_ids = [item.node_id for item in self.nodes]
+        if len(node_ids) != len(set(node_ids)):
+            raise ValueError("duplicate_program_graph_node_id")
+        return self
+
 
 class LoweredMechanism(BaseModel):
     """Lowered mechanism public type."""
@@ -506,7 +1326,7 @@ class CompileRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "1.1"] = "1.0"
 
     input_kind: Literal["auto", "trinity"] = "auto"
     policy_ref: ArtifactRef
@@ -517,6 +1337,15 @@ class CompileRequest(BaseModel):
     )
     validation_flags: FoundryValidationFlags = Field(default_factory=FoundryValidationFlags)
     return_selected_profile: bool = False
+    method_metric_bindings: list[MethodMetricBindingRequest] = Field(
+        default_factory=list, max_length=METHOD_METRIC_BINDING_LIMIT
+    )
+
+    @model_validator(mode="after")
+    def validate_method_metric_request_version(self) -> CompileRequest:
+        if self.method_metric_bindings and self.schema_version != "1.1":
+            raise ValueError("method_metric_bindings_require_compile_request_schema_1_1")
+        return self
 
     notes: list[str] = Field(default_factory=list)
 
@@ -1565,12 +2394,19 @@ class ExecuteResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     ok: bool
 
     simulation_result_ref: SimulationResultRef | None = None
+    method_execution_bundle_ref: MethodExecutionBundleRef | None = None
     derived_refs: list[DerivedArtifact] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_method_execution_result_version(self) -> ExecuteResult:
+        if self.method_execution_bundle_ref is not None and self.schema_version != "1.1":
+            raise ValueError("method_execution_bundle_requires_execute_result_schema_1_1")
+        return self
 
 
 class WelfareBoundReport(BaseModel):

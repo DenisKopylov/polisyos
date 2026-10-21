@@ -71,3 +71,26 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 ## Last updated
 
 `2026-10-14` (broken registry source link corrected; smoke-test date above is historical and was not rerun)
+
+## Candidate method metrics
+
+`metrics.py` can carry an optional method-metric semantic contract, while
+[`method_metrics.py`](./method_metrics.py) owns the exact typed execution context,
+the registered Ex-Ante mean-change law, and the narrow unit adapter. The generic
+direct-output helper is fail-closed and always unavailable. A compiled binding records
+the exact method ABI and selected output slot alongside population, axes,
+denominator, time role, and input-role declarations. The compiler checks the
+complete registered role-to-slot unit set against the actual method signature;
+a missing role, extra ABI input, or mismatched role unit leaves the binding
+unavailable. The law requires those semantics to reconcile with actual captured dispatch inputs, parameter
+resolution, prestate identity, seed, and backend; a semantic declaration by itself
+does not make an output available.
+
+The Ex-Ante law recomputes the paired scenario mean change from the exact captured
+baseline/scenario method inputs and withholds observations when the input values,
+prestate, actual graph-input mapping, method identity, dispatch context, or numeric
+representation cannot be reconciled. Unit conversion admits the exact registered
+scenario-delta identity only; dimensional resemblance is not a conversion rule.
+These records are candidate measurement evidence only. External representativeness,
+causal validity, empirical calibration, legal meaning, and publication authority
+remain separate and not established by this computation.

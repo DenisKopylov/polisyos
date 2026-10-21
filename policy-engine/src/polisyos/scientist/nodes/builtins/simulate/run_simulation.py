@@ -8,9 +8,16 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     ExecuteRequest,
@@ -21,7 +28,10 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.core.observability import get_metrics
 from polisyos.foundry.methods.catalog.causal.strategic import evaluate_strategic_hook
-from polisyos.ir.analytics.phase4_dynamics import Phase4DynamicsGate, Phase4DynamicsGateError
+from polisyos.ir.analytics.phase4_dynamics import (
+    Phase4DynamicsGate,
+    Phase4DynamicsGateError,
+)
 from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationProofBridgeArtifacts,
     build_simulation_proof_bridge_artifacts,
@@ -49,6 +59,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_INTERFACE_MAPPING_REF,
     ARTIFACT_LOWERED_IR_REF,
+    ARTIFACT_METHOD_EXECUTION_BUNDLE_REF,
+    ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
     ARTIFACT_METRICS_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_PROOF_BUNDLE_REF,
@@ -124,6 +136,11 @@ _SPEC = NodeSpec(
         "params.policy_candidate_schema",
         "params.lex_policy_bundle_input",
         "params.simulation_method",
+        "params.simulation_horizon",
+        "params.horizon",
+        "params.n_periods",
+        "params.regime_shift_forecast_bundle",
+        "params.regime_shift_forecast_bundle_ref",
         "params.strategic_scm",
         "params.strategic_payoff_tables",
         "params.macro_strategic_payoff_tables",
@@ -133,6 +150,8 @@ _SPEC = NodeSpec(
     state_writes=[
         f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
+        f"artifacts_index.{ARTIFACT_METHOD_EXECUTION_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_METHOD_METRIC_BINDING_SET_REF}",
         f"artifacts_index.{ARTIFACT_METRICS_REF}",
         f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
         f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
@@ -153,6 +172,8 @@ _SPEC = NodeSpec(
     ],
     produces=[
         ARTIFACT_SIMULATION_RESULT_REF,
+        ARTIFACT_METHOD_EXECUTION_BUNDLE_REF,
+        ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
         ARTIFACT_METRICS_REF,
         ARTIFACT_STATE_DELTA_REF,
         ARTIFACT_STATE_SNAPSHOT_REF,
@@ -215,6 +236,8 @@ class RunSimulationNode:
             write_paths=(
                 f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
                 f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
+                f"artifacts_index.{ARTIFACT_METHOD_EXECUTION_BUNDLE_REF}",
+                f"artifacts_index.{ARTIFACT_METHOD_METRIC_BINDING_SET_REF}",
                 f"artifacts_index.{ARTIFACT_METRICS_REF}",
                 f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
                 f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
@@ -234,6 +257,12 @@ class RunSimulationNode:
                 "params.strategic_response_source",
             ),
         ).state
+        for artifact_key in (
+            ARTIFACT_SIMULATION_RESULT_REF,
+            ARTIFACT_METHOD_EXECUTION_BUNDLE_REF,
+            ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
+        ):
+            new_state.artifacts_index.pop(artifact_key, None)
         materialized_artifacts = []
         runtime_events: list[NodeEvent] = []
 
@@ -243,7 +272,7 @@ class RunSimulationNode:
                 message="Foundry port is not configured",
             )
             metrics.record_slo_simulation_run("error", method=method)
-            return NodeOutcome(status="fail", state=state, error=error)
+            return NodeOutcome(status="fail", state=new_state, error=error)
 
         try:
             materialized = maybe_materialize_policy_override_bundle(ctx, new_state)
@@ -366,20 +395,34 @@ class RunSimulationNode:
                     NodeEvent(
                         level="warn",
                         code="simulation_result_payload_invalid",
-                        message="Simulation result payload could not be loaded for state snapshot bookkeeping",
+                        message=(
+                            "Simulation result payload could not be loaded "
+                            "for state snapshot bookkeeping"
+                        ),
                         attrs={"reason": str(exc)},
                     )
                 )
 
+        bundle_ref = getattr(result, "method_execution_bundle_ref", None)
+        if isinstance(bundle_ref, ArtifactRef):
+            new_state.artifacts_index[ARTIFACT_METHOD_EXECUTION_BUNDLE_REF] = bundle_ref
+            if bundle_ref not in artifacts:
+                artifacts.append(bundle_ref)
+
         run_manifest_updates: dict[str, object] = {}
         for item in result.derived_refs:
-            artifacts.append(item.ref)
+            if item.ref not in artifacts:
+                artifacts.append(item.ref)
             if item.role == "metrics":
                 new_state.artifacts_index[ARTIFACT_METRICS_REF] = item.ref
             elif item.role == "state_delta":
                 new_state.artifacts_index[ARTIFACT_STATE_DELTA_REF] = item.ref
             elif item.role == "constraint_report":
                 new_state.artifacts_index[ARTIFACT_CONSTRAINT_REPORT_REF] = item.ref
+            elif item.role == "method_metric_binding_set":
+                new_state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] = item.ref
+            elif item.role == "method_execution_bundle":
+                new_state.artifacts_index[ARTIFACT_METHOD_EXECUTION_BUNDLE_REF] = item.ref
             elif item.role == "environment_manifest":
                 new_state.artifacts_index[ARTIFACT_ENVIRONMENT_MANIFEST_REF] = item.ref
                 run_manifest_updates["environment_manifest_ref"] = item.ref
@@ -631,7 +674,9 @@ def _attach_simulation_proof_bridge(
     )
 
 
-def _simulation_proof_bridge_artifacts(output: SimulationProofBridgeArtifacts) -> list[ArtifactRef]:
+def _simulation_proof_bridge_artifacts(
+    output: SimulationProofBridgeArtifacts,
+) -> list[ArtifactRef]:
     return [
         _to_core_ref(output.bridge_ref),
         _to_core_ref(output.calibration_receipt_ref),

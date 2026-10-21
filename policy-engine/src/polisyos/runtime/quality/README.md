@@ -139,6 +139,18 @@ Boundary notes:
   physical origin and unit are not resolved. These candidate limitations are
   retained through N8 and the served observation. Replicate exceptions abort
   before aggregation and CAS persistence; no partial-attempt ledger is promised.
+- When a selected ExecPlan carries the compiled `method_metric_bindings` manifest
+  edge, the program-graph horizon shares one Foundry `MethodExecutionCapture`
+  across every step in a physical run. It snapshots each actual pre-dispatch
+  state, retains unique invocation/occurrence IDs and failure/skip status, then
+  persists one selected-profile execution bundle. Each trajectory point and its
+  diagnostics carry the full binding-set, bundle, prestate, state-delta, and
+  metrics refs plus the occurrence inventory; replicate aggregation retains the
+  per-replication source rows. This evidence path does not synthesize a
+  `SimulationResult`, so it cannot enter the Runtime graph-selection admission
+  that requires a real selected `foundry.simulation_result` ref. Its output is
+  still candidate simulation evidence and does not establish temporal alignment,
+  external calibration, causal validity, or authority.
 - Generic candidate-only N5 request custody uses a versioned Core canonical
   profile for the complete `JointSimulationRequest`. Request-binding v2 records
   the canonical profile identity and a typed digest; execution v3 persists the

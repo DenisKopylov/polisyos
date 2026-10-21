@@ -13,7 +13,11 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.selection.resolution import ResolutionPolicy, VersionConstraint
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.foundry.methods.selection.resolution import (
+        ResolutionPolicy,
+        VersionConstraint,
+    )
 
 
 class FoundryMethodError(PolicyOSError):
@@ -577,12 +581,16 @@ class MethodExecutionAbortError(FoundryMethodError):
 
     Attributes:
         card: The FailureCard that triggered the abort.
+        method_execution_bundle_ref: Selected diagnostic capture, when available.
+        method_metric_horizon_capture: Full-profile horizon capture context, when available.
     """
 
     default_category = ErrorCategory.FATAL
 
     def __init__(self, card: object) -> None:
         self.card = card
+        self.method_execution_bundle_ref: ArtifactRef | None = None
+        self.method_metric_horizon_capture: dict[str, Any] | None = None
         severity = getattr(card, "severity", "?")
         severity_str = getattr(severity, "value", str(severity))
         super().__init__(

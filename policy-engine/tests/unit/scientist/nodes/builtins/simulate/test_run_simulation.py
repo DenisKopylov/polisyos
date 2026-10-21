@@ -10,7 +10,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from polisyos.core.artifacts import CanonInfo
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -37,15 +39,21 @@ from polisyos.ir.registry.refs import (
 )
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
-from polisyos.scientist.nodes.builtins.simulate.run_simulation import _SPEC, RunSimulationNode
+from polisyos.scientist.nodes.builtins.simulate.run_simulation import (
+    _SPEC,
+    RunSimulationNode,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_EVIDENCE_BUNDLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_EXEC_PLAN_REF,
+    ARTIFACT_METHOD_EXECUTION_BUNDLE_REF,
+    ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_PROOF_BUNDLE_REF,
     ARTIFACT_SIMULATION_CALIBRATION_RECEIPT_REF,
     ARTIFACT_SIMULATION_PROOF_BRIDGE_REF,
+    ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_STATE_SNAPSHOT_REF,
     ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
     ARTIFACT_STRATEGIC_SCM_REF,
@@ -62,12 +70,24 @@ def test_fail_when_foundry_port_missing(execution_context, minimal_state, artifa
     state = minimal_state.model_copy(deep=True)
     state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = ref
     state.inputs[INPUT_INPUT_BINDINGS_REF] = bindings_ref
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = artifact_ref_factory(
+        kind="foundry.simulation_result"
+    )
+    state.artifacts_index[ARTIFACT_METHOD_EXECUTION_BUNDLE_REF] = artifact_ref_factory(
+        kind="foundry.method_execution_bundle"
+    )
+    state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] = artifact_ref_factory(
+        kind="foundry.method_metric_binding_set"
+    )
 
     # execution_context has foundry=None by default
     outcome = RunSimulationNode().execute(execution_context, state)
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_FOUNDATION_MISSING
+    assert ARTIFACT_SIMULATION_RESULT_REF not in outcome.state.artifacts_index
+    assert ARTIFACT_METHOD_EXECUTION_BUNDLE_REF not in outcome.state.artifacts_index
+    assert ARTIFACT_METHOD_METRIC_BINDING_SET_REF not in outcome.state.artifacts_index
 
 
 def test_run_simulation_spec_reads_performative_loop_spec() -> None:
@@ -181,7 +201,7 @@ def test_run_simulation_fails_closed_on_supplied_program_graph_with_wrong_owner(
 def test_fail_when_foundry_execute_returns_not_ok(
     execution_context, minimal_state, artifact_ref_factory
 ):
-    """When foundry.execute returns ok=False, node returns fail with ERROR_FOUNDRY_EXECUTE_FAILED."""
+    """Return fail when Foundry execute returns ``ok=False``."""
     mock_foundry = MagicMock()
     mock_result = MagicMock()
     mock_result.ok = False
@@ -201,6 +221,63 @@ def test_fail_when_foundry_execute_returns_not_ok(
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert outcome.error.code == node_errors.ERROR_FOUNDRY_EXECUTE_FAILED
+
+
+def test_failure_preserves_only_current_graph_capture_refs(
+    execution_context, minimal_state, artifact_ref_factory
+):
+    mock_foundry = MagicMock()
+    current_bundle_ref = artifact_ref_factory(kind="foundry.method_execution_bundle")
+    current_binding_set_ref = artifact_ref_factory(kind="foundry.method_metric_binding_set")
+    mock_foundry.execute.return_value = SimpleNamespace(
+        ok=False,
+        simulation_result_ref=None,
+        method_execution_bundle_ref=current_bundle_ref,
+        derived_refs=[
+            SimpleNamespace(role="method_metric_binding_set", ref=current_binding_set_ref),
+            SimpleNamespace(role="method_execution_bundle", ref=current_bundle_ref),
+        ],
+        notes=["strict_method_dispatch_failed"],
+    )
+
+    ctx = replace(execution_context, foundry=mock_foundry)
+    state = minimal_state.model_copy(deep=True)
+    state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = artifact_ref_factory(kind="foundry.exec_plan")
+    state.inputs[INPUT_INPUT_BINDINGS_REF] = artifact_ref_factory(kind="foundry.input_bindings")
+    state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = artifact_ref_factory(
+        kind="foundry.simulation_result"
+    )
+    state.artifacts_index[ARTIFACT_METHOD_EXECUTION_BUNDLE_REF] = artifact_ref_factory(
+        kind="foundry.method_execution_bundle"
+    )
+    state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] = artifact_ref_factory(
+        kind="foundry.method_metric_binding_set"
+    )
+
+    outcome = RunSimulationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert ARTIFACT_SIMULATION_RESULT_REF not in outcome.state.artifacts_index
+    assert outcome.state.artifacts_index[ARTIFACT_METHOD_EXECUTION_BUNDLE_REF] == current_bundle_ref
+    assert (
+        outcome.state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF]
+        == current_binding_set_ref
+    )
+
+
+def test_run_simulation_spec_declares_phase4_gate_cache_inputs() -> None:
+    required = {
+        "params.simulation_horizon",
+        "params.horizon",
+        "params.n_periods",
+        "params.regime_shift_forecast_bundle",
+        "params.regime_shift_forecast_bundle_ref",
+    }
+
+    assert required.issubset(set(_SPEC.state_reads))
+    assert f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}" in _SPEC.state_writes
+    assert f"artifacts_index.{ARTIFACT_METHOD_EXECUTION_BUNDLE_REF}" in _SPEC.state_writes
+    assert f"artifacts_index.{ARTIFACT_METHOD_METRIC_BINDING_SET_REF}" in _SPEC.state_writes
 
 
 def test_ok_when_foundry_execute_succeeds(execution_context, minimal_state, artifact_ref_factory):

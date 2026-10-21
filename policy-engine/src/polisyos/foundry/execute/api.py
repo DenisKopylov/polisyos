@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Protocol, TypeVar, cast
 
 import numpy as np
 from pydantic import BaseModel
@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from polisyos.core.artifacts import (
     ArtifactStore,
     RegistryBundlePayload,
+    artifact_manifest_profile_sha256,
     ensure_ir_artifact_store,
     resolve_manifest_by_profile,
     validate_core_model_json_artifact,
@@ -89,10 +90,13 @@ from polisyos.foundry.execute._internal.posture import (
 )
 from polisyos.foundry.execute.executor import (
     ExecuteArtifacts,
+    MethodExecutionCapture,
     apply_state_delta,
     apply_state_delta_and_snapshot,
     execute_program_graph,
     load_state_snapshot,
+    new_method_execution_capture,
+    persist_method_execution_capture,
     put_state_snapshot,
 )
 from polisyos.foundry.feedback import (
@@ -108,8 +112,11 @@ from polisyos.foundry.feedback import (
 from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
     MissingRuntimeMechanismSupportError,
 )
+from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
 from polisyos.ir import TrinityBundle
 from polisyos.ir.trinity import load_trinity_bundle_artifact
+
+_ModelT = TypeVar("_ModelT", bound=BaseModel)
 
 
 @dataclass(frozen=True)
@@ -148,6 +155,7 @@ class ExecutionSourceAdmission:
     basis: FoundryExecutionInputBasis | None = None
     basis_manifest: ArtifactManifest | None = None
     basis_inventory: tuple[InputRef, ...] | None = None
+    source_read_bytes: int | None = None
 
 
 class ExecutionSourceAdmissionRefusal(ValueError):
@@ -158,10 +166,170 @@ class ExecutionSourceAdmissionRefusal(ValueError):
         super().__init__(reason)
 
 
-def _selected_manifest(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManifest:
+class ExecutionSourceBoundedReadRefusal(ExecutionSourceAdmissionRefusal):
+    """A source admission stopped because its shared byte budget was exhausted."""
+
+    def __init__(
+        self,
+        reason: str,
+        *,
+        observed_bytes: int,
+        limit_bytes: int,
+    ) -> None:
+        if type(observed_bytes) is not int or observed_bytes < 0:
+            raise ValueError("execution_source_bounded_read_observed_bytes_invalid")
+        if type(limit_bytes) is not int or limit_bytes < 0:
+            raise ValueError("execution_source_bounded_read_limit_bytes_invalid")
+        self.observed_bytes = observed_bytes
+        self.limit_bytes = limit_bytes
+        super().__init__(reason)
+
+
+class BoundedExecutionSourceReader(Protocol):
+    """Read source artifacts through a shared, aggregate-bounded Core reader.
+
+    Every method must resolve the exact selected profile, verify the selected
+    manifest and payload integrity, and charge all bytes actually read to the
+    same server-owned budget. ``read_typed_model`` must use the normal strict
+    Core schema/profile validation path. A budget refusal must raise
+    ``ExecutionSourceBoundedReadRefusal``; this protocol has no unbounded
+    fallback.
+    """
+
+    def read_selected_manifest(self, ref: ArtifactRef) -> tuple[ArtifactManifest, int]:
+        """Read and verify one exact selected-profile artifact view."""
+
+    def read_edge_manifest(
+        self,
+        edge: InputRef,
+    ) -> tuple[ArtifactRef, ArtifactManifest, int]:
+        """Resolve and verify an exact edge to a full selected-profile ref."""
+
+    def read_typed_model(
+        self,
+        model: type[BaseModel],
+        ref: ArtifactRef,
+    ) -> tuple[ArtifactManifest, BaseModel, int, int]:
+        """Read a strict Core model and report observed manifest/payload bytes."""
+
+
+@dataclass
+class _BoundedExecutionSourceReadSession:
+    """Track actual reads while reusing one caller-owned bounded reader."""
+
+    reader: BoundedExecutionSourceReader
+    observed_bytes: int = 0
+
+    def add(self, count: int) -> None:
+        if type(count) is not int or count < 0:
+            raise TypeError("execution_source_reader_observed_bytes_invalid")
+        self.observed_bytes += count
+
+    def selected_manifest(self, ref: ArtifactRef) -> ArtifactManifest:
+        manifest, observed_bytes = self.reader.read_selected_manifest(ref)
+        self.add(observed_bytes)
+        _require_selected_manifest_identity(manifest, ref)
+        return manifest
+
+    def edge_ref_and_manifest(self, edge: InputRef) -> tuple[ArtifactRef, ArtifactManifest]:
+        ref, manifest, observed_bytes = self.reader.read_edge_manifest(edge)
+        self.add(observed_bytes)
+        if (
+            edge.manifest_profile_sha256 is None
+            or ref.artifact_id != edge.artifact_id
+            or ref.manifest_profile_sha256 != edge.manifest_profile_sha256
+            or manifest.artifact_id != ref.artifact_id
+            or manifest.kind != ref.kind
+            or manifest.media_type != ref.media_type
+            or artifact_manifest_profile_sha256(manifest) != edge.manifest_profile_sha256
+        ):
+            raise ValueError("execution_source_edge_profile_identity_mismatch")
+        return ref, manifest
+
+    def typed_model(self, model: type[_ModelT], ref: ArtifactRef) -> _ModelT:
+        manifest, value, manifest_bytes, payload_bytes = self.reader.read_typed_model(model, ref)
+        self.add(manifest_bytes)
+        self.add(payload_bytes)
+        _require_selected_manifest_identity(manifest, ref)
+        if not isinstance(value, model):
+            raise TypeError("execution_source_reader_typed_model_contract_mismatch")
+        return cast("_ModelT", value)
+
+
+def _method_execution_abort_result(
+    store: FileSystemCAS,
+    *,
+    capture: MethodExecutionCapture | None,
+    error: MethodExecutionAbortError,
+    notes: list[str] | None = None,
+) -> ExecuteResult:
+    """Surface a strict graph failure and its persisted capture without success aliasing."""
+    bundle_ref = getattr(error, "method_execution_bundle_ref", None)
+    if bundle_ref is None and capture is not None:
+        bundle_ref = capture.method_execution_bundle_ref
+    derived_refs = _persisted_method_metric_capture_refs(store, capture)
+    return ExecuteResult(
+        schema_version="1.1" if bundle_ref is not None else "1.0",
+        ok=False,
+        simulation_result_ref=None,
+        method_execution_bundle_ref=bundle_ref,
+        derived_refs=derived_refs,
+        notes=[
+            *(notes or []),
+            "method_execution_aborted",
+            f"method_execution_failure_type:{type(error).__module__}.{type(error).__qualname__}",
+        ],
+    )
+
+
+def _require_selected_manifest_identity(manifest: ArtifactManifest, ref: ArtifactRef) -> None:
+    """Require a returned manifest to match a complete selected artifact ref."""
+    if (
+        ref.manifest_profile_sha256 is None
+        or manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+    ):
+        raise ValueError("execution_source_manifest_selected_identity_mismatch")
+
+
+def _read_typed_model(
+    model: type[_ModelT],
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None,
+) -> _ModelT:
+    """Read with Core's owner validator or the required bounded Core facade."""
+    if read_session is None:
+        return validate_core_model_json_artifact(model, store, ref)
+    return read_session.typed_model(model, ref)
+
+
+def _read_registry_bundle_payload(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None,
+) -> RegistryBundlePayload:
+    """Keep the legacy loader while bounding the selected projection reader."""
+    if read_session is None:
+        return load_registry_bundle_payload(store, ref)
+    return read_session.typed_model(RegistryBundlePayload, ref)
+
+
+def _selected_manifest(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
+) -> ArtifactManifest:
     """Resolve one exact selected manifest and verify its payload bytes."""
     if ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_selected_profile_missing")
+    if read_session is not None:
+        return read_session.selected_manifest(ref)
     manifest = resolve_manifest_by_profile(store, ref.artifact_id, ref.manifest_profile_sha256)
     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
         raise ValueError("execution_source_manifest_contract_mismatch")
@@ -176,43 +344,54 @@ def _selected_ref_from_edge(
     role: str,
     *,
     expected_kind: str | None = None,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
 ) -> ArtifactRef:
     """Resolve a unique content-bound parent edge without falling back to the default view."""
-    parent_manifest = _selected_manifest(store, parent_ref)
+    parent_manifest = _selected_manifest(store, parent_ref, read_session=read_session)
     edges = [edge for edge in parent_manifest.inputs if edge.role == role]
     if len(edges) != 1:
         raise ValueError(f"execution_source_requires_one_edge:{role}")
     edge = edges[0]
     if edge.manifest_profile_sha256 is None:
         raise ValueError(f"execution_source_edge_profile_missing:{role}")
-    manifest = resolve_manifest_by_profile(store, edge.artifact_id, edge.manifest_profile_sha256)
+    if read_session is None:
+        manifest = resolve_manifest_by_profile(
+            store, edge.artifact_id, edge.manifest_profile_sha256
+        )
+        ref = ArtifactRef(
+            artifact_id=manifest.artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=edge.manifest_profile_sha256,
+        )
+    else:
+        ref, manifest = read_session.edge_ref_and_manifest(edge)
     if expected_kind is not None and manifest.kind != expected_kind:
         raise ValueError(f"execution_source_edge_kind_mismatch:{role}")
-    ref = ArtifactRef(
-        artifact_id=manifest.artifact_id,
-        kind=manifest.kind,
-        media_type=manifest.media_type,
-        manifest_profile_sha256=edge.manifest_profile_sha256,
-    )
-    _selected_manifest(store, ref)
+    _selected_manifest(store, ref, read_session=read_session)
     return ref
 
 
 def _execution_source_inventory(
     store: ArtifactStore,
     sources: list[tuple[str, ArtifactRef]],
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
 ) -> list[InputRef]:
     """Inventory exact selected source manifests and each complete direct edge set."""
     inventory: list[InputRef] = []
     for source_role, source_ref in sources:
-        manifest = _selected_manifest(store, source_ref)
+        manifest = _selected_manifest(store, source_ref, read_session=read_session)
         inventory.append(
             input_ref_from_artifact_ref(source_ref, role=f"basis.source.{source_role}")
         )
         for edge in manifest.inputs:
             if edge.manifest_profile_sha256 is None:
                 raise ValueError(f"execution_source_edge_profile_missing:{source_role}.{edge.role}")
-            resolve_manifest_by_profile(store, edge.artifact_id, edge.manifest_profile_sha256)
+            if read_session is None:
+                resolve_manifest_by_profile(store, edge.artifact_id, edge.manifest_profile_sha256)
+            else:
+                read_session.edge_ref_and_manifest(edge)
             inventory.append(
                 InputRef(
                     artifact_id=edge.artifact_id,
@@ -267,12 +446,20 @@ def _execution_input_basis_sources(
 def _execution_input_basis_inventory(
     store: ArtifactStore,
     basis: FoundryExecutionInputBasis,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
 ) -> list[InputRef]:
     """Recompute the exact basis inventory through the executor's source reader."""
-    return _execution_source_inventory(store, _execution_input_basis_sources(basis))
+    return _execution_source_inventory(
+        store,
+        _execution_input_basis_sources(basis),
+        read_session=read_session,
+    )
 
 
-def _execution_input_inventory_key(items: list[InputRef]) -> list[tuple[str, str, str | None]]:
+def _execution_input_inventory_key(
+    items: list[InputRef],
+) -> list[tuple[str, str, str | None]]:
     return sorted(
         (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in items
     )
@@ -294,6 +481,7 @@ def _require_execution_edge_ref(
     expected_ref: ArtifactRef,
     *,
     expected_kind: str,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
 ) -> ArtifactRef:
     """Resolve one exact selected parent edge and compare its complete child identity."""
     selected_ref = _selected_ref_from_edge(
@@ -301,6 +489,7 @@ def _require_execution_edge_ref(
         parent_ref,
         role,
         expected_kind=expected_kind,
+        read_session=read_session,
     )
     if _execution_ref_key(selected_ref) != _execution_ref_key(expected_ref):
         raise ValueError(f"execution_source_edge_payload_disagrees:{role}")
@@ -311,9 +500,11 @@ def _verify_execution_data_snapshot_edges(
     store: ArtifactStore,
     ref: ArtifactRef,
     snapshot: DataSnapshot,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
 ) -> None:
     """Reconcile the selected DataSnapshot fields with their exact CAS edges."""
-    manifest = _selected_manifest(store, ref)
+    manifest = _selected_manifest(store, ref, read_session=read_session)
     for role, raw_ref in (
         ("data_ref", snapshot.data_ref),
         ("uncertainty_envelope_ref", snapshot.uncertainty_envelope_ref),
@@ -331,12 +522,34 @@ def _verify_execution_data_snapshot_edges(
             role,
             raw_ref,
             expected_kind=raw_ref.kind,
+            read_session=read_session,
         )
+
+
+def _simulation_result_manifest(
+    store: ArtifactStore,
+    ref: SimulationResultRef,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None,
+) -> ArtifactManifest:
+    """Read the selected result manifest, isolating legacy profileless access."""
+    if read_session is not None:
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("execution_source_selected_profile_missing")
+        return read_session.selected_manifest(ref)
+    if ref.manifest_profile_sha256 is None:
+        manifest = store.get_manifest(ref)
+        if not store.verify(ref).ok:
+            raise ValueError("execution_source_manifest_integrity_failure")
+        return manifest
+    return _selected_manifest(store, ref)
 
 
 def _admit_execution_source(
     store: ArtifactStore,
     simulation_result_ref: SimulationResultRef,
+    *,
+    read_session: _BoundedExecutionSourceReadSession | None = None,
 ) -> ExecutionSourceAdmission:
     """Admit a result's explicit source mode and, when selected, its exact basis.
 
@@ -345,16 +558,18 @@ def _admit_execution_source(
     source inventory agree can select profiled replay. Legacy and feedback modes
     remain distinct, explicit outcomes.
     """
-    if simulation_result_ref.manifest_profile_sha256 is None:
-        simulation_manifest = store.get_manifest(simulation_result_ref)
-        if not store.verify(simulation_result_ref).ok:
-            raise ValueError("execution_source_manifest_integrity_failure")
-    else:
-        simulation_manifest = _selected_manifest(store, simulation_result_ref)
+    simulation_manifest = _simulation_result_manifest(
+        store,
+        simulation_result_ref,
+        read_session=read_session,
+    )
     if simulation_manifest.kind != SimulationResult.ARTIFACT_KIND:
         raise ValueError("execution_source_simulation_result_kind_mismatch")
-    simulation_result = validate_core_model_json_artifact(
-        SimulationResult, store, simulation_result_ref
+    simulation_result = _read_typed_model(
+        SimulationResult,
+        store,
+        simulation_result_ref,
+        read_session=read_session,
     )
     roles = [item.role for item in simulation_manifest.inputs]
     if len(roles) != len(set(roles)):
@@ -375,6 +590,7 @@ def _admit_execution_source(
             simulation_result_ref=simulation_result_ref,
             simulation_result=simulation_result,
             simulation_manifest=simulation_manifest,
+            source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
         )
 
     if simulation_result_ref.manifest_profile_sha256 is None:
@@ -397,16 +613,18 @@ def _admit_execution_source(
             "artifact.feedback_result_ref",
             feedback_ref,
             expected_kind="foundry.feedback_result",
+            read_session=read_session,
         )
-        validate_core_model_json_artifact(FeedbackSolveResult, store, feedback_ref)
+        _read_typed_model(FeedbackSolveResult, store, feedback_ref, read_session=read_session)
         feedback_config_ref = _selected_ref_from_edge(
             store,
             simulation_result_ref,
             "input.feedback_config_ref",
             expected_kind=FeedbackConfig.ARTIFACT_KIND,
+            read_session=read_session,
         )
-        feedback_config = validate_core_model_json_artifact(
-            FeedbackConfig, store, feedback_config_ref
+        feedback_config = _read_typed_model(
+            FeedbackConfig, store, feedback_config_ref, read_session=read_session
         )
         if feedback_config.mode != "fixed_point":
             raise ValueError("execution_source_feedback_config_does_not_match_refusal_mode")
@@ -415,6 +633,7 @@ def _admit_execution_source(
             simulation_result_ref=simulation_result_ref,
             simulation_result=simulation_result,
             simulation_manifest=simulation_manifest,
+            source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
         )
 
     if (
@@ -436,14 +655,19 @@ def _admit_execution_source(
         or basis_edge.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
     ):
         raise ValueError("execution_source_basis_ref_differs_from_exact_result_edge")
-    basis_manifest = _selected_manifest(store, basis_ref)
+    basis_manifest = _selected_manifest(store, basis_ref, read_session=read_session)
     expected_basis_schema = SchemaInfo(
         name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME,
         version=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_VERSION,
     )
     if basis_manifest.artifact_schema != expected_basis_schema:
         raise ValueError("execution_source_basis_schema_mismatch")
-    basis = validate_core_model_json_artifact(FoundryExecutionInputBasis, store, basis_ref)
+    basis = _read_typed_model(
+        FoundryExecutionInputBasis,
+        store,
+        basis_ref,
+        read_session=read_session,
+    )
 
     fields_set = basis.request_fields_set
     if fields_set != tuple(sorted(set(fields_set))) or set(fields_set) - set(
@@ -495,12 +719,14 @@ def _admit_execution_source(
         simulation_result_ref,
         "exec_plan",
         expected_kind=ExecPlan.ARTIFACT_KIND,
+        read_session=read_session,
     )
     source_bindings_ref = _selected_ref_from_edge(
         store,
         simulation_result_ref,
         "input.input_bindings_ref",
         expected_kind="foundry.input_bindings",
+        read_session=read_session,
     )
     if _execution_ref_key(source_plan_ref) != _execution_ref_key(
         basis.exec_plan_ref
@@ -523,13 +749,14 @@ def _admit_execution_source(
             simulation_result_ref,
             "parameter_override_bundle",
             expected_kind=ParameterOverrideBundle.ARTIFACT_KIND,
+            read_session=read_session,
         )
         if _execution_ref_key(source_override_ref) != _execution_ref_key(
             basis.request.parameter_override_bundle_ref
         ):
             raise ValueError("execution_source_basis_override_differs_from_result_input")
 
-    exec_plan = validate_core_model_json_artifact(ExecPlan, store, basis.exec_plan_ref)
+    exec_plan = _read_typed_model(ExecPlan, store, basis.exec_plan_ref, read_session=read_session)
     if _execution_ref_key(exec_plan.program_ref) != _execution_ref_key(basis.program_graph_ref):
         raise ValueError("execution_source_basis_graph_differs_from_exec_plan")
     _require_execution_edge_ref(
@@ -538,8 +765,11 @@ def _admit_execution_source(
         "program_graph",
         basis.program_graph_ref,
         expected_kind=ProgramGraph.ARTIFACT_KIND,
+        read_session=read_session,
     )
-    graph = validate_core_model_json_artifact(ProgramGraph, store, basis.program_graph_ref)
+    graph = _read_typed_model(
+        ProgramGraph, store, basis.program_graph_ref, read_session=read_session
+    )
     if _execution_ref_key(graph.ir_ref) != _execution_ref_key(basis.trinity_bundle_ref):
         raise ValueError("execution_source_basis_trinity_differs_from_program_graph")
     _require_execution_edge_ref(
@@ -548,6 +778,7 @@ def _admit_execution_source(
         "ir",
         basis.trinity_bundle_ref,
         expected_kind=basis.trinity_bundle_ref.kind,
+        read_session=read_session,
     )
     _require_execution_edge_ref(
         store,
@@ -555,6 +786,7 @@ def _admit_execution_source(
         "registry_bundle",
         basis.compile_registry_ref,
         expected_kind="core.registry_bundle",
+        read_session=read_session,
     )
 
     _require_execution_edge_ref(
@@ -563,10 +795,14 @@ def _admit_execution_source(
         "policy_candidate",
         basis.candidate_ref,
         expected_kind="scientist.policy_design.candidate",
+        read_session=read_session,
     )
 
-    bindings = validate_core_model_json_artifact(
-        FoundryInputBindings, store, basis.input_bindings_ref
+    bindings = _read_typed_model(
+        FoundryInputBindings,
+        store,
+        basis.input_bindings_ref,
+        read_session=read_session,
     )
     if bindings.bound_state_snapshot_ref is None or (
         _execution_ref_key(bindings.data_snapshot_ref)
@@ -585,6 +821,7 @@ def _admit_execution_source(
         "input.data_snapshot_ref",
         basis.data_snapshot_ref,
         expected_kind=DataSnapshot.ARTIFACT_KIND,
+        read_session=read_session,
     )
     _require_execution_edge_ref(
         store,
@@ -592,6 +829,7 @@ def _admit_execution_source(
         "input.registry_bundle_ref",
         basis.binding_registry_ref,
         expected_kind="core.registry_bundle",
+        read_session=read_session,
     )
     _require_execution_edge_ref(
         store,
@@ -599,6 +837,7 @@ def _admit_execution_source(
         "artifact.bound_state_snapshot_ref",
         basis.bound_state_snapshot_ref,
         expected_kind="foundry.state_snapshot",
+        read_session=read_session,
     )
     _require_execution_edge_ref(
         store,
@@ -606,6 +845,7 @@ def _admit_execution_source(
         "input.data_snapshot_ref",
         bindings.data_snapshot_ref,
         expected_kind=DataSnapshot.ARTIFACT_KIND,
+        read_session=read_session,
     )
     _require_execution_edge_ref(
         store,
@@ -613,18 +853,29 @@ def _admit_execution_source(
         "input.bound_state_snapshot_ref",
         bindings.bound_state_snapshot_ref,
         expected_kind="foundry.state_snapshot",
+        read_session=read_session,
     )
     for registry_ref, declared_members in (
         (basis.binding_registry_ref, basis.binding_registry_members),
         (basis.compile_registry_ref, basis.compile_registry_members),
         (basis.runtime_registry_ref, basis.runtime_registry_members),
     ):
-        if load_registry_bundle_payload(store, registry_ref) != declared_members:
+        if (
+            _read_registry_bundle_payload(
+                store,
+                registry_ref,
+                read_session=read_session,
+            )
+            != declared_members
+        ):
             raise ValueError("execution_source_basis_registry_members_disagree")
 
     if basis.request.feedback_config_ref is not None:
-        feedback_config = validate_core_model_json_artifact(
-            FeedbackConfig, store, basis.request.feedback_config_ref
+        feedback_config = _read_typed_model(
+            FeedbackConfig,
+            store,
+            basis.request.feedback_config_ref,
+            read_session=read_session,
         )
         if feedback_config.mode != "off":
             raise ValueError("execution_source_feedback_basis_uncomposed")
@@ -649,16 +900,29 @@ def _admit_execution_source(
 
     if basis.data_snapshot_ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_data_snapshot_profile_missing")
-    data_snapshot = validate_core_model_json_artifact(DataSnapshot, store, basis.data_snapshot_ref)
-    _verify_execution_data_snapshot_edges(store, basis.data_snapshot_ref, data_snapshot)
+    data_snapshot = _read_typed_model(
+        DataSnapshot,
+        store,
+        basis.data_snapshot_ref,
+        read_session=read_session,
+    )
+    _verify_execution_data_snapshot_edges(
+        store,
+        basis.data_snapshot_ref,
+        data_snapshot,
+        read_session=read_session,
+    )
     if data_snapshot.data_ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_data_snapshot_state_profile_missing")
 
     if basis.parameter_override_bundle_ref is None:
         expected_overrides = None
     else:
-        override_payload = validate_core_model_json_artifact(
-            ParameterOverrideBundle, store, basis.parameter_override_bundle_ref
+        override_payload = _read_typed_model(
+            ParameterOverrideBundle,
+            store,
+            basis.parameter_override_bundle_ref,
+            read_session=read_session,
         )
         expected_overrides = {
             str(node_id): dict(values)
@@ -683,14 +947,16 @@ def _admit_execution_source(
             role,
             output_ref,
             expected_kind=output_ref.kind,
+            read_session=read_session,
         )
     state_delta_ref = _selected_ref_from_edge(
         store,
         simulation_result_ref,
         "state_delta",
         expected_kind=StateDelta.ARTIFACT_KIND,
+        read_session=read_session,
     )
-    state_delta = validate_core_model_json_artifact(StateDelta, store, state_delta_ref)
+    state_delta = _read_typed_model(StateDelta, store, state_delta_ref, read_session=read_session)
     if _execution_ref_key(state_delta.base_ref) != _execution_ref_key(
         basis.base_state_snapshot_ref
     ):
@@ -702,12 +968,13 @@ def _admit_execution_source(
             "execution_input_basis",
             basis_ref,
             expected_kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+            read_session=read_session,
         )
-    metrics = validate_core_model_json_artifact(Metrics, store, metrics_ref)
+    metrics = _read_typed_model(Metrics, store, metrics_ref, read_session=read_session)
     if metrics.values.get("step") != basis.effective_step:
         raise ValueError("execution_source_metrics_step_differs_from_basis")
 
-    expected_inventory = _execution_input_basis_inventory(store, basis)
+    expected_inventory = _execution_input_basis_inventory(store, basis, read_session=read_session)
     if _execution_input_inventory_key(basis_manifest.inputs) != _execution_input_inventory_key(
         expected_inventory
     ):
@@ -721,6 +988,7 @@ def _admit_execution_source(
         basis=basis,
         basis_manifest=basis_manifest,
         basis_inventory=tuple(expected_inventory),
+        source_read_bytes=(read_session.observed_bytes if read_session is not None else None),
     )
 
 
@@ -740,6 +1008,52 @@ def admit_execution_source(
     except ValueError as exc:
         # Only plain owner reason strings become admission refusals. Preserve
         # typed storage and payload-validation errors as their original classes.
+        if type(exc) is not ValueError:
+            raise
+        raise ExecutionSourceAdmissionRefusal(str(exc)) from exc
+
+
+def admit_execution_source_bounded(
+    store: ArtifactStore,
+    simulation_result_ref: SimulationResultRef,
+    *,
+    reader: BoundedExecutionSourceReader,
+) -> ExecutionSourceAdmission:
+    """Recompute source admission through one required aggregate-bounded reader.
+
+    Unlike the compatibility entry point, this method requires a fully selected
+    SimulationResult profile and routes every manifest, edge, and typed payload
+    read through the supplied Core reader. The same source-basis predicate and
+    refusal reasons are used by both entry points; this method has no
+    profileless or unbounded fallback.
+
+    Args:
+        store: The configured artifact store. It is not used as a fallback
+            reader; the supplied reader owns all source bytes and budget checks.
+        simulation_result_ref: The exact selected-profile SimulationResult.
+        reader: A server-owned reader that charges every actual read against a
+            shared aggregate byte budget.
+
+    Returns:
+        The recomputed source admission, including aggregate observed read bytes.
+
+    Raises:
+        ExecutionSourceAdmissionRefusal: If the selected result does not pass
+            the existing source admission predicate.
+        ExecutionSourceBoundedReadRefusal: If aggregate reader budget is spent.
+    """
+    if simulation_result_ref.manifest_profile_sha256 is None:
+        raise ExecutionSourceAdmissionRefusal("execution_source_selected_profile_missing")
+    read_session = _BoundedExecutionSourceReadSession(reader=reader)
+    try:
+        return _admit_execution_source(
+            store,
+            simulation_result_ref,
+            read_session=read_session,
+        )
+    except ExecutionSourceAdmissionRefusal:
+        raise
+    except ValueError as exc:
         if type(exc) is not ValueError:
             raise
         raise ExecutionSourceAdmissionRefusal(str(exc)) from exc
@@ -936,6 +1250,18 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
 
     exec_plan = _load_model(store, request.exec_plan_ref, ExecPlan)
+    method_execution_capture = new_method_execution_capture(
+        store,
+        program_ref=exec_plan.program_ref,
+        exec_plan_ref=request.exec_plan_ref,
+    )
+    if method_execution_capture is not None:
+        request = request.model_copy(
+            update={
+                "exec_plan_ref": method_execution_capture.exec_plan_ref,
+                "return_selected_profile": True,
+            }
+        )
     posture = resolve_execution_posture(exec_plan, request.exec_config)
     current_step = int(getattr(base_state, "step", 0))
     execution_notes = [*resolved_state.notes, *posture.notes]
@@ -987,6 +1313,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
                 parameter_overrides=parameter_overrides,
                 parameter_override_inputs=parameter_override_inputs,
                 feedback_config=feedback_config,
+                method_execution_capture=method_execution_capture,
             )
     if request.return_selected_profile:
         execution_input_basis_ref = _build_execution_input_basis(
@@ -1019,12 +1346,33 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             welfare_bound_mode=request.welfare_bound_mode,
             execution_input_basis_ref=execution_input_basis_ref,
             return_selected_profile=request.return_selected_profile,
+            method_execution_capture=method_execution_capture,
+            finalize_method_execution_capture=True,
+        )
+    except MethodExecutionAbortError as exc:
+        return _method_execution_abort_result(
+            store,
+            capture=method_execution_capture,
+            error=exc,
         )
     except MissingRuntimeMechanismSupportError as exc:
+        failed_refs: list[DerivedArtifact] = []
+        bundle_ref = None
+        if method_execution_capture is not None:
+            bundle_ref = persist_method_execution_capture(store, method_execution_capture)
+            failed_refs = [
+                DerivedArtifact(
+                    role="method_metric_binding_set",
+                    ref=method_execution_capture.method_metric_binding_set_ref,
+                ),
+                DerivedArtifact(role="method_execution_bundle", ref=bundle_ref),
+            ]
         return ExecuteResult(
+            schema_version="1.1" if bundle_ref is not None else "1.0",
             ok=False,
             simulation_result_ref=None,
-            derived_refs=[],
+            method_execution_bundle_ref=bundle_ref,
+            derived_refs=failed_refs,
             notes=[
                 f"missing_runtime_mechanism_support:{exc.mech_type}",
                 str(exc),
@@ -1100,6 +1448,13 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
     ]
     sim_inputs.extend(resolved_state.input_refs)
     sim_inputs.extend(parameter_override_inputs)
+    if exec_artifacts.method_execution_bundle_ref is not None:
+        sim_inputs.append(
+            input_ref_from_artifact_ref(
+                exec_artifacts.method_execution_bundle_ref,
+                role="method_execution",
+            )
+        )
     if execution_input_basis_ref is not None:
         sim_inputs.append(
             input_ref_from_artifact_ref(execution_input_basis_ref, role="execution_input_basis")
@@ -1125,6 +1480,7 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             if request.return_selected_profile
             else SimulationResultRef(artifact_id=sim_result_ref.artifact_id)
         ),
+        method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
         derived_refs=derived_refs,
         notes=execution_notes,
     )
@@ -1180,6 +1536,7 @@ def _execute_with_feedback(
     parameter_overrides: dict[str, dict[str, object]] | None,
     parameter_override_inputs: list[InputRef],
     feedback_config: FeedbackConfig,
+    method_execution_capture: MethodExecutionCapture | None = None,
 ) -> ExecuteResult:
     initial_feedback_state = _build_initial_feedback_state(base_state, feedback_config)
     prepared = prepare_feedback_config(
@@ -1205,6 +1562,8 @@ def _execute_with_feedback(
             base_state=injected_state,
             parameter_overrides=merged_overrides,
             feedback_config=feedback_config,
+            method_execution_capture=method_execution_capture,
+            method_input_state_source_ref=resolved_state.state_snapshot_ref,
         )
         return evaluation.map_evaluation
 
@@ -1213,11 +1572,21 @@ def _execute_with_feedback(
             prepared=prepared,
             evaluate_map=evaluate_feedback_map,
         )
+    except MethodExecutionAbortError as exc:
+        return _method_execution_abort_result(
+            store,
+            capture=method_execution_capture,
+            error=exc,
+            notes=["feedback_mode:fixed_point"],
+        )
     except MissingRuntimeMechanismSupportError as exc:
         return ExecuteResult(
             ok=False,
             simulation_result_ref=None,
-            derived_refs=[],
+            derived_refs=_persisted_method_metric_capture_refs(
+                store,
+                method_execution_capture,
+            ),
             notes=[
                 *execution_notes,
                 "feedback_mode:fixed_point",
@@ -1229,7 +1598,10 @@ def _execute_with_feedback(
         return ExecuteResult(
             ok=False,
             simulation_result_ref=None,
-            derived_refs=[],
+            derived_refs=_persisted_method_metric_capture_refs(
+                store,
+                method_execution_capture,
+            ),
             notes=[
                 *execution_notes,
                 "feedback_mode:fixed_point",
@@ -1338,6 +1710,7 @@ def _execute_with_feedback(
             ok=False,
             simulation_result_ref=None,
             derived_refs=[
+                *_persisted_method_metric_capture_refs(store, method_execution_capture),
                 *feedback_artifacts,
                 DerivedArtifact(role="feedback_result", ref=feedback_result_ref),
             ],
@@ -1421,6 +1794,15 @@ def _execute_with_feedback(
             observed_range_bundle_ref=request.observed_range_bundle_ref,
             welfare_bound_mode=request.welfare_bound_mode,
             return_selected_profile=request.return_selected_profile,
+            method_execution_capture=method_execution_capture,
+            finalize_method_execution_capture=True,
+        )
+    except MethodExecutionAbortError as exc:
+        return _method_execution_abort_result(
+            store,
+            capture=method_execution_capture,
+            error=exc,
+            notes=["feedback_mode:fixed_point"],
         )
     except MissingRuntimeMechanismSupportError as exc:
         feedback_result_ref = _persist_feedback_result(
@@ -1454,6 +1836,7 @@ def _execute_with_feedback(
             ok=False,
             simulation_result_ref=None,
             derived_refs=[
+                *_persisted_method_metric_capture_refs(store, method_execution_capture),
                 *feedback_artifacts,
                 DerivedArtifact(role="feedback_result", ref=feedback_result_ref),
             ],
@@ -1593,6 +1976,13 @@ def _execute_with_feedback(
     ]
     sim_inputs.extend(resolved_state.input_refs)
     sim_inputs.extend(parameter_override_inputs)
+    if exec_artifacts.method_execution_bundle_ref is not None:
+        sim_inputs.append(
+            input_ref_from_artifact_ref(
+                exec_artifacts.method_execution_bundle_ref,
+                role="method_execution",
+            )
+        )
     if request.feedback_config_ref is not None:
         sim_inputs.append(
             input_ref_from_artifact_ref(
@@ -1636,9 +2026,27 @@ def _execute_with_feedback(
             if request.return_selected_profile
             else SimulationResultRef(artifact_id=sim_result_ref.artifact_id)
         ),
+        method_execution_bundle_ref=exec_artifacts.method_execution_bundle_ref,
         derived_refs=derived_refs,
         notes=feedback_notes,
     )
+
+
+def _persisted_method_metric_capture_refs(
+    store: FileSystemCAS,
+    capture: MethodExecutionCapture | None,
+) -> list[DerivedArtifact]:
+    """Persist refs-only graph evidence after a feedback failure with actual invocations."""
+    if capture is None or capture.invocation_count == 0:
+        return []
+    bundle_ref = persist_method_execution_capture(store, capture)
+    return [
+        DerivedArtifact(
+            role="method_metric_binding_set",
+            ref=capture.method_metric_binding_set_ref,
+        ),
+        DerivedArtifact(role="method_execution_bundle", ref=bundle_ref),
+    ]
 
 
 def _run_feedback_iteration(
@@ -1652,6 +2060,8 @@ def _run_feedback_iteration(
     base_state: GlobalState,
     parameter_overrides: dict[str, dict[str, object]] | None,
     feedback_config: FeedbackConfig,
+    method_execution_capture: MethodExecutionCapture | None = None,
+    method_input_state_source_ref: ArtifactRef | None = None,
 ) -> _FeedbackExecutionEvaluation:
     exec_artifacts = execute_program_graph(
         store,
@@ -1671,6 +2081,10 @@ def _run_feedback_iteration(
         parameter_override_bundle_ref=request.parameter_override_bundle_ref,
         observed_range_bundle_ref=request.observed_range_bundle_ref,
         welfare_bound_mode="off",
+        return_selected_profile=method_execution_capture is not None,
+        method_execution_capture=method_execution_capture,
+        method_input_state_source_ref=method_input_state_source_ref,
+        finalize_method_execution_capture=False,
     )
     final_state = apply_state_delta(
         store,
@@ -1824,6 +2238,20 @@ def _build_standard_derived_refs(
     if exec_artifacts.environment_ref is not None:
         derived_refs.append(
             DerivedArtifact(role="environment_manifest", ref=exec_artifacts.environment_ref)
+        )
+    if exec_artifacts.method_metric_binding_set_ref is not None:
+        derived_refs.append(
+            DerivedArtifact(
+                role="method_metric_binding_set",
+                ref=exec_artifacts.method_metric_binding_set_ref,
+            )
+        )
+    if exec_artifacts.method_execution_bundle_ref is not None:
+        derived_refs.append(
+            DerivedArtifact(
+                role="method_execution_bundle",
+                ref=exec_artifacts.method_execution_bundle_ref,
+            )
         )
     derived_refs.extend(
         DerivedArtifact(role=role, ref=ref) for role, ref in exec_artifacts.derived_artifacts

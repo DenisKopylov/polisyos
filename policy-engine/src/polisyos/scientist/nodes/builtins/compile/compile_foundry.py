@@ -5,16 +5,23 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     FoundryCompileConfig,
     FoundryValidationFlags,
+    MethodMetricBindingRequest,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EXEC_PLAN_REF,
     ARTIFACT_LOWERED_IR_REF,
+    ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
     ARTIFACT_PROGRAM_GRAPH_REF,
     ARTIFACT_SLOT_LAYOUT_REF,
     ARTIFACT_TREASURY_PLAN_REF,
@@ -54,6 +61,7 @@ _SPEC = NodeSpec(
         f"reports_index.{REPORT_LINK_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_EXEC_PLAN_REF}",
         f"artifacts_index.{ARTIFACT_LOWERED_IR_REF}",
+        f"artifacts_index.{ARTIFACT_METHOD_METRIC_BINDING_SET_REF}",
         f"artifacts_index.{ARTIFACT_PROGRAM_GRAPH_REF}",
         f"artifacts_index.{ARTIFACT_SLOT_LAYOUT_REF}",
         f"artifacts_index.{ARTIFACT_TREASURY_PLAN_REF}",
@@ -63,6 +71,7 @@ _SPEC = NodeSpec(
         REPORT_LINK_REPORT_REF,
         ARTIFACT_EXEC_PLAN_REF,
         ARTIFACT_LOWERED_IR_REF,
+        ARTIFACT_METHOD_METRIC_BINDING_SET_REF,
         ARTIFACT_PROGRAM_GRAPH_REF,
         ARTIFACT_SLOT_LAYOUT_REF,
         ARTIFACT_TREASURY_PLAN_REF,
@@ -81,6 +90,7 @@ class CompileFoundryNode:
 
     compile_config: FoundryCompileConfig = field(default_factory=FoundryCompileConfig)
     validation_flags: FoundryValidationFlags = field(default_factory=FoundryValidationFlags)
+    method_metric_bindings: tuple[MethodMetricBindingRequest, ...] = ()
 
     @property
     def spec(self) -> NodeSpec:
@@ -91,13 +101,26 @@ class CompileFoundryNode:
             return self
         config = self.compile_config.model_copy(deep=False)
         flags = self.validation_flags.model_copy(deep=False)
+        method_metric_bindings = self.method_metric_bindings
         for key, value in params.items():
+            if key == "method_metric_bindings":
+                if not isinstance(value, (list, tuple)):
+                    raise ValueError("method_metric_bindings_must_be_a_list_or_tuple")
+                method_metric_bindings = tuple(
+                    MethodMetricBindingRequest.model_validate(item) for item in value
+                )
+                continue
             if key in config.model_fields:
                 setattr(config, key, value)
                 continue
             if key in flags.model_fields:
                 setattr(flags, key, value)
-        return replace(self, compile_config=config, validation_flags=flags)
+        return replace(
+            self,
+            compile_config=config,
+            validation_flags=flags,
+            method_metric_bindings=method_metric_bindings,
+        )
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if ctx.foundry is None:
@@ -130,11 +153,13 @@ class CompileFoundryNode:
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
 
         request = CompileRequest(
+            schema_version="1.1" if self.method_metric_bindings else "1.0",
             input_kind="trinity",
             policy_ref=policy_ref,
             registry_bundle_ref=registry_ref,
             compile_config=self.compile_config,
             validation_flags=self.validation_flags,
+            method_metric_bindings=list(self.method_metric_bindings),
             return_selected_profile=True,
         )
 
@@ -152,6 +177,8 @@ class CompileFoundryNode:
                 new_state.artifacts_index[ARTIFACT_PROGRAM_GRAPH_REF] = item.ref
             elif role == "lowered_ir":
                 new_state.artifacts_index[ARTIFACT_LOWERED_IR_REF] = item.ref
+            elif role == "method_metric_binding_set":
+                new_state.artifacts_index[ARTIFACT_METHOD_METRIC_BINDING_SET_REF] = item.ref
             elif role == "exec_plan":
                 new_state.artifacts_index[ARTIFACT_EXEC_PLAN_REF] = item.ref
             elif role == "link_report":

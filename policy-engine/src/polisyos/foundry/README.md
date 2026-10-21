@@ -296,3 +296,47 @@ metadata.
 - [docs/reference/foundry/observability-reproducibility.md](../../../docs/reference/foundry/observability-reproducibility.md)
 - [docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md](../../../docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md)
 - [tests/unit/foundry/README.md](../../../tests/unit/foundry/README.md)
+
+## Candidate method-metric execution capture
+
+A versioned `CompileRequest` may select explicit objective/node/output-slot
+bindings. The compiler persists those bindings as
+`foundry.method_metric_binding_set` and attaches the full selected ref to the
+existing `foundry.exec_plan` manifest under `method_metric_bindings`; the
+`ExecPlan` payload version is unchanged. During execution, a shared capture
+records each planned and actual method occurrence, including repeated feedback
+invocations, dispatch reconciliation, bounded input/prestate identities, output
+slot inventory, and selected scalar output payloads. The resulting
+`foundry.method_execution_bundle` links the binding set, plan, graph, environment
+manifest when captured, and each output/sidecar by exact selected-profile edges.
+`SimulationResult` 1.4 remains unchanged.
+
+The existing 128-row method binding ceiling is enforced at all intake boundaries. `CompileRequest` constrains the collection during strict model validation, and the compiler rechecks its raw list length before any objective, node, selection, or uniqueness traversal. Persisted binding sets use Core `read_core_json_artifact_bounded` with a 1 MiB payload cap, a 32,768-element lexical cap, a depth cap of 16, and a 64 KiB manifest cap. The exact decoded `bindings` array is counted before typed Pydantic materialization, then the model retains its own 128-row defense. No oversized set is truncated or accepted by an unbounded fallback.
+
+The capture is source evidence for a candidate observation. It does not establish
+that the metric meaning is causally valid or that a policy is admissible,
+publishable, or institutionally authorized. Environment capture occurs before
+dispatch and is not proof of the actual backend for every invocation; dispatch
+identity is recorded separately and stays not-established when it cannot be
+reconciled. The RunSimulation node carries full selected-profile graph refs in its existing
+`ExperimentState.artifacts_index` bridge, but the Runtime current-fence handoff and
+Scientist projection consumer remain separate owner slices. Every binding-bearing
+`execute_program_graph` call auto-creates or joins the shared capture. The
+source-enumerated callers preserve the refs through the public ExecuteResult,
+RunSimulation state bridge, horizon trajectory rows, and AD02's LocalBackend
+JobResult companion. The Runtime legacy-shadow current-fence handoff and
+Scientist projection consumer remain separate owner slices. Default
+WorkspaceLoop and registered S2 remain unconnected.
+
+The bounded source-admission entry point is
+`polisyos.foundry.execute.admit_execution_source_bounded`, exported from the stable `polisyos.foundry.execute` facade with `BoundedExecutionSourceReader` and `ExecutionSourceBoundedReadRefusal`. It reuses the
+existing source-basis predicate and requires one server-owned
+`BoundedExecutionSourceReader` for every selected manifest, lineage edge, and
+typed payload read. The admission reports its aggregate observed read bytes and
+propagates a typed refusal when the shared budget is exhausted. Its edge reader
+must use Core's selected `InputRef` resolver
+`read_core_input_manifest_profile_bounded`; no profileless/default fallback is
+available on this path. The legacy `admit_execution_source` API keeps its prior
+compatibility behavior. Runtime admission, candidate projection, and a real
+Core-backed bounded-reader replay are separate verification work; this package
+does not claim them complete.

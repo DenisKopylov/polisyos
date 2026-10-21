@@ -25,3 +25,27 @@ and the [canonical salt owner](../../../compile/randomization.py).
 Native compiler/CAS/state-consumer tests and independent word-order/selected-view
 controls establish bounded synthetic determinism. They do not establish family
 state activation, general randomness quality or economic validity on real data.
+
+## Method-metric capture
+
+When the selected ExecPlan manifest contains one `method_metric_bindings` edge,
+the graph executor reconciles that edge with the binding-set payload and its
+program-graph, policy, registry, metric-registry, and units-registry edges before
+dispatch. It records all plan positions and invocation outcomes. One
+`MethodExecutionCapture` can be carried across repeated graph calls so feedback
+iterations and terminal execution retain distinct occurrence IDs in one
+bundle. Selected scalar outputs and JSON sidecars are written once to CAS;
+non-selected values are inventoried by bounded type/shape/codec metadata without
+retaining their array contents. Unsupported or unbounded values remain explicitly
+unavailable.
+
+The selected bundle and output refs preserve their manifest profiles. A
+pre-dispatch environment manifest is recorded separately from the actual
+per-dispatch backend trace. Any binding-bearing graph call creates or joins the
+same capture mechanism. The public Foundry API carries one capture across
+feedback iterations and terminal execution; the program-graph horizon carries
+one capture across each physical run and preserves full selected-profile refs
+and occurrence inventories in its trajectory rows. The existing LocalBackend
+consumer retains producer artifacts, while AD02 owns the JobResult projection.
+The default WorkspaceLoop and registered S2 routes do not call this graph
+producer, and no policy-authority claim follows from the capture.

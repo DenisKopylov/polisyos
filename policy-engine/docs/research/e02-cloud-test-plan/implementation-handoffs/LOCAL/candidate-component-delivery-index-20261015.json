@@ -1760,6 +1760,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-hte-can-runtime-canonical-checkpoint-20261022-r2.json",
       "sha256": "cb75a8cb6545b2ee0bcf45831a434ad472ebf58eb93bf7c1fb436ab01f717c88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-profile-denominator-g-decision-20261022.md",
+      "sha256": "a72772408c750c113ce49080ffe1a4c9dc8b63dafcf3195442901e65d9b5ba59"
     }
   ],
   "canonical_denominator_recomputed": {

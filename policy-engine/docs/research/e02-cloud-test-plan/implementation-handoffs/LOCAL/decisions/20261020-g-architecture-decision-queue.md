@@ -1,3 +1,5 @@
+> Current selection update (2026-10-21): G selected AD04 (HTE), AD05 (CAN), and AD06 (B161) in commit `798bd1ab9646378f49fd127b3f04ebe71aca67d2`. These questions no longer await architectural choice. Use [the current index](20261021-g-pending-questions.md) and [the source-qualified intake](../g-architecture-798bd1ab-intake-20261021.json); the original research and prior decisions below are retained as history. PAG/conditional transport remains pending its own choice. Code acceptance and formal closures remain with G.
+
 # E02: актуальные архитектурные вопросы для G, 20 октября 2026
 
 Авторский пакет выбора контракта. Это не приёмка кода и не adjudication findings. `G_acceptance=false`, `closure_ids=[]`. Исходный candidate: `codex/e02-unified-local-20261009`, commit `fe046fefbb06fc3dcaf259766f048a6defed58ea`, tree `c664005a5a930f91a7e05bc25e13c376dccdeabb`, parent `76ea932f6c2188980ae506f6855e14e77005dd0f`. Global source/input/backend freeze ещё не выполнен.

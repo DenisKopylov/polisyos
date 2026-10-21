@@ -1,0 +1,480 @@
+{
+  "schema": "policyos.e02.g_architecture_decision_intake.v1",
+  "record_id": "g-architecture-798bd1ab-intake-20261021",
+  "recorded_on": "2026-10-21",
+  "status": "selected_by_G_for_implementation; independent code acceptance remains open",
+  "source_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "3a812b02fde8e745125ce303b5df4438ca46df83",
+    "tree": "38ef6c6efe9c60adcbe9167c282c3a28d3746de2",
+    "parents": [
+      "54540e245bdf8341230231a927a4cb2040d9dee4"
+    ],
+    "subject": "fix(core): project typed bounded-owner refusals across member axes",
+    "tracked_worktree_status": "clean at entry; ahead 161, no tracked changes",
+    "untracked_state": "untracked local/research artifacts existed and were preserved",
+    "global_source_freeze": false,
+    "G_commit_is_in_candidate_ancestry": false
+  },
+  "G_decision_source": {
+    "commit": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+    "tree": "957fddc0fb2d6bc32fc34932427b5e9c7aae1930",
+    "parents": [
+      "15d70de867e4d0ac15b198386c103bdd0900b546"
+    ],
+    "subject": "docs(e02): select HTE, canonical reader and scoped refinement decisions",
+    "remote_tracking_ref": "origin/codex/e02-integration",
+    "remote_ref_observed": "798bd1ab9646378f49fd127b3f04ebe71aca67d2",
+    "scope": "exact commit only; later G changes require separate review",
+    "changed_paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/04-hte-point-and-inference.md",
+        "git_blob": "d3b29f661428c931aa6fda77c697ab586bdefacb",
+        "bytes": 21345,
+        "sha256": "c1de3c28491d9f64934072e09713eb613e9f8e0c495b2e73ecacb09209c74e5e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/05-canonical-profile-and-context.md",
+        "git_blob": "72263bd36853ac5aa7b8a38da3f1ed8ee234a31c",
+        "bytes": 11187,
+        "sha256": "87e986797c982fc33a059b344196536d1c6afdcab373f1f4b2a87cb55310210d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/06-current-scoped-uncertainty.md",
+        "git_blob": "7e7400540d2c3ffa74a8ceadb43ef97672b19f99",
+        "bytes": 16140,
+        "sha256": "d11342cb05f1351b79ed8773de61d700f832e7795633a8b861fbafbb6c3a7900"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/07-implementation-handoff.md",
+        "git_blob": "d04c4ea9a584c7a0ed759b403dde39cc0b25ffa2",
+        "bytes": 12099,
+        "sha256": "bb4bd6e5e92d009d28707a9530188189ef0c29da48fafaa0b865134a795026af"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/08-research-and-critical-review.md",
+        "git_blob": "941a6e73cc9ffb64a8e7034c3370c328215bbd01",
+        "bytes": 11485,
+        "sha256": "ddf84156907abb908fb69ed259b4c66822736dd417fc102ae6ffb0a799f3348c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/README.md",
+        "git_blob": "ca6c41e12ea48ebb1b67b7df1fa3bfe217780f10",
+        "bytes": 6727,
+        "sha256": "323259bd460f9a1609d40ad5c89575d2878cc8e6eea3b69bd45490185c69be84"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/inputs.json",
+        "git_blob": "460e131742f27953fca0e67bbade4199b104d012",
+        "bytes": 3210,
+        "sha256": "a2b897f694ab05c980666e1180732655a2c9f1babc3096f4a8f08708104aa852"
+      }
+    ],
+    "code_acceptance": false,
+    "closure_ids": []
+  },
+  "prior_G_decisions": {
+    "commit": {
+      "commit": "b7adafe89423bc6906a5fb86c38e579a381ad2ee",
+      "tree": "3cf103b6e1b9a395bcb7f3f5803346f90ddc1370",
+      "parents": [
+        "93d6aa62a8d236667fdf322a5fc17962523b185e"
+      ],
+      "subject": "docs(e02): finalize architecture decisions for unified implementation"
+    },
+    "final_decisions_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md",
+    "pin": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md",
+      "git_blob": "9d9e09fc84cee10c27ece0c3953f2a6af0975d59",
+      "bytes": 24170,
+      "sha256": "4eb1e7e966194f424d0cc1ab57e91fd664a1534367bf776d07895741b5d8939b"
+    },
+    "b7_is_ancestor_of_798": true,
+    "disposition": "AD01-03 remain selected; not reopened."
+  },
+  "inputs": {
+    "source_head": {
+      "commit": "2536eb6dbc946ce5000d2b2da246d7e071b037fc",
+      "tree": "7b7c1078e056a38d7b07de56abcfa95cae279a90",
+      "parents": [
+        "aeef94aea07cf32902505547c2099b9a2701775f"
+      ],
+      "subject": "feat(foundry): capture bounded method inputs and candidate metrics"
+    },
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/inputs.json",
+      "git_blob": "460e131742f27953fca0e67bbade4199b104d012",
+      "bytes": 3210,
+      "sha256": "a2b897f694ab05c980666e1180732655a2c9f1babc3096f4a8f08708104aa852"
+    },
+    "five_inputs_checked_at_2536": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md",
+        "git_blob": "ddb95fc96b4eea7257211953b1dba3b6d8d4b28a",
+        "bytes": 19630,
+        "sha256": "bc5e140f15cff15eabb9fbe311a5b177202783fa641e89fea7dff75c2f8cf510",
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-hte-ate-inference-unavailable-20261021.md",
+        "git_blob": "bfe6baf4ec4559837b27263e4cfb85c30d4e054c",
+        "bytes": 22854,
+        "sha256": "f9a2aaf523b3300498821e3ba8cedc8611f288baef23ab9e64467ec8826dbf6c",
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/econml-shared-adapter-and-serial-forestdr-source-runtime-20261021.json",
+        "git_blob": "00a4519b49a4d357b8d7ce856038f58893460759",
+        "bytes": 34193,
+        "sha256": "f3f95671710821dde4a917d46513f94b8866cd8e4bd4e8e637cb1c065b8d3bf4",
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-current-witness-g-followup-20261021.json",
+        "git_blob": "3d8cff0c6bfdff803c723b9a714a9a03ab668294",
+        "bytes": 10107,
+        "sha256": "b48157c9c8cfa6dcbba7f0312044d004776e6c55bd2a74c88848b036629dd282",
+        "matches_declared": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b161-current-scoped-refinement-followup-20261021.md",
+        "git_blob": "9e7459507728ec9bb1158c3a9220149ac8547ce6",
+        "bytes": 5617,
+        "sha256": "54c38cecc1d58f037469179540a2f02c07dc4f7b670a313fdc70d07e9ea6383d",
+        "matches_declared": true
+      }
+    ],
+    "all_match": true,
+    "source_frames": {
+      "HTE": {
+        "commit": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+        "tree": "a77079ad3fe9569e819a79502c76d0f72e1a3c62",
+        "parents": [
+          "10fdd017ca2665648d1629fc729001ffdeb5f134"
+        ],
+        "subject": "test(foundry): verify complete EconML optional vector contract"
+      },
+      "CAN": {
+        "commit": "ee2a5d9e508060c6348ce3e1a02511a99a5cf177",
+        "tree": "01c92c1674064b8c3d38f6a020edb6b529c43bd5",
+        "parents": [
+          "f33220822489e3243a556d3ce908d5ee6f652447"
+        ],
+        "subject": "feat(foundry): prepare bounded selected HTE observational inputs"
+      },
+      "CAN_preparation": {
+        "commit": "c1bdda3576d81bb9b5ccd55e7e2df0a1a4738a83",
+        "tree": "10f714d54a2518f68e3622e271b4a1b271be027d",
+        "parents": [
+          "9956d2d7e6da0ce64e187180ad817188c75d2508"
+        ],
+        "subject": "test(foundry): exercise selected HTE inputs and real native SCM fixture"
+      },
+      "B161": {
+        "commit": "566d194402dec721d162cff83b4bf2d16442d52e",
+        "tree": "d242c6a1c3dcc1c69d0d11cac4051056d398da98",
+        "parents": [
+          "185a0f327199d75d06410f9bc841131e0bf33b1e"
+        ],
+        "subject": "docs(e02): retain reviewed full-ID metadata and next-check corrigendum"
+      }
+    },
+    "qualification": "Historical inputs only, not current source acceptance or a global freeze."
+  },
+  "current_path_deltas": {
+    "HTE": {
+      "frame": "80f7c18f1295e3d2ecbee7625e52cdcbacca97f2",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+          "git_blob": "09500900fbfa6f45d7c619c42f4453f2f759c29b",
+          "bytes": 8224,
+          "sha256": "cfe2402d00ef6cbe21bd2fec63d64e30eaada0c2702114c54f8a0e5f3925ed1f",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+          "git_blob": "08e85fc66c39a7bc6e64bc8e63bded6d2d15a023",
+          "bytes": 30020,
+          "sha256": "b02558d5e09e9cba66cd09fb1fc397975a3e61d10ed7ffe48845c4eb9d88ae43",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/state_keys.py",
+          "git_blob": "e548e1c7146086fe524ae01679e5109bb8fe7152",
+          "bytes": 15112,
+          "sha256": "c261dc257f37696289b6d51c78d215f3612328946c08b7f618c7f201f3f80ca0",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/data_plane/test_hte_observational_input.py",
+          "git_blob": "6602fc16df4f79efd1fb7158eaec3a4b7b192de8",
+          "bytes": 39268,
+          "sha256": "5652d3bdca765049fdf9f0886966d1ffc4024006ea8bbbd19d239ab25c305255",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py",
+          "git_blob": "39711d2d02c6ca00faf946911943847c8c4f160e",
+          "bytes": 7998,
+          "sha256": "e8e5d90240b4b7d85b8d5c069f29e2076027f3ef1bf97e4de95ff14752eb1e1c",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_queries_node.py",
+          "git_blob": "e890cb04f8f264edd3f47acaa75ff1060252249f",
+          "bytes": 4539,
+          "sha256": "f1586aef56877263efbd1a0bcd4ae03b4172def296596d5ef5ee3d7e17659b2f",
+          "changed_since_frame": true
+        }
+      ]
+    },
+    "CAN": {
+      "frame": "ee2a5d9e508060c6348ce3e1a02511a99a5cf177",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+          "git_blob": "bb8ba18f848cfb05425276dc8eb676976de8c26d",
+          "bytes": 32250,
+          "sha256": "4a2db6126c34df1d6a6903541d2c0bdd29e30c65452c326a43ed9a7419713bd9",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "git_blob": "e686a6ad4fc536b274ac254efa22f68c2353366f",
+          "bytes": 13078,
+          "sha256": "910d79c146b59baa4ca2b35086dd4c48322b787d2e69a705b5b81457e3c88f93",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "git_blob": "d02787381d9077219b36941ccee8674bc2746e5f",
+          "bytes": 16363,
+          "sha256": "a21d484f2f861b4e6e160b84e5aeeb06f9c37c75c12ce8f9a35c1d26d4ec7d32",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+          "git_blob": "d066a0de0cfbe91fa5d99c150a3f7bbe1bb8f275",
+          "bytes": 108521,
+          "sha256": "c0d552e7a6459d173035d68eb574f62e9b3f85a52f57c28c58d601a11b2a0834",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+          "git_blob": "e0f6f0967f6b52e3d631f3fd00c78d7d85bdf89e",
+          "bytes": 24189,
+          "sha256": "b6bb3e6db116ff21a9ea8d2173fc19082cdf9941e329f43fe5f276747f2ad1d2",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "git_blob": "9a78765a3b99ef36fed4902c2d3c39f1e22ac0fe",
+          "bytes": 271394,
+          "sha256": "897a33dfe917179ec479d756eae2b7404eaa5dee22efa4f6792146a0806e830c",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py",
+          "git_blob": "fd2c372fb01634ef3c6d4baab765205e9206ed7e",
+          "bytes": 77769,
+          "sha256": "6412ada122422c3de86bf430ecdb528257e5b4df4bc1833d6a3ee491c099683c",
+          "changed_since_frame": true
+        }
+      ]
+    },
+    "B161": {
+      "frame": "566d194402dec721d162cff83b4bf2d16442d52e",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/method_metrics.py",
+          "git_blob": "496b2ccc6c893a0eb997b5cc5ccc571c15c10e6a",
+          "bytes": 46358,
+          "sha256": "c1752a2b3128ed1159ac5830e316f93e6865c2385e191d8c78760571ac435d0f",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/kernel/metrics.py",
+          "git_blob": "c610a7eef65118aac4d1e00d50d62d4820a97936",
+          "bytes": 21585,
+          "sha256": "d727762ad2ebb3555542e1f2cfb78818fce5f316651b189f384ef4745240698f",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py",
+          "git_blob": "53a1e71f4d3c7d903bd504970e64111dfc49b867",
+          "bytes": 47422,
+          "sha256": "7a6d296f578491de6fcc3e91f46ce1e8d246f0c4c0ab1163184240fd57f81883",
+          "changed_since_frame": true
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py",
+          "git_blob": "e817cc5e0ae723c3de8435b5fd8ee7d25ef175ae",
+          "bytes": 22529,
+          "sha256": "1d923cf294230e350124d149c936eec4b2ad951b5a28623ac243c984466bdc03",
+          "changed_since_frame": true
+        }
+      ]
+    }
+  },
+  "core_R9_entry_delta": {
+    "commit": "3a812b02fde8e745125ce303b5df4438ca46df83",
+    "parent": "54540e245bdf8341230231a927a4cb2040d9dee4",
+    "paths": [
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "policy-engine/tests/unit/core/artifacts/test_bounded_core_json_artifact.py"
+    ],
+    "qualification": "Bounded owner error/read-usage delta in current Core reader path; compose AD05 on top; this intake did not run its tests."
+  },
+  "selected_decisions": {
+    "AD04_HTE": {
+      "selected": true,
+      "contract": "HTEOutcome v1.0: point_estimate, interval_estimate, or refusal; HTEPointEstimate and ATEInferenceBasis v1.0.",
+      "profile": "econml_native_mean_over_selected_x@1.0, exact researched EconML 0.17.0 with concrete estimator/config entries and exact selected evaluation rows/attempt.",
+      "method_ABIs": [
+        "causal.hte.causal_forest@2.0.0",
+        "causal.hte.double_ml@2.0.0",
+        "causal.hte.meta_learner@2.0.0",
+        "causal.hte.forest_dr@2.0.0"
+      ],
+      "limits": [
+        "selected-row conditional interval is not population coverage, identification, post-selection validity, calibration, or publication authority",
+        "no CATE-dispersion interval, zero-filled SE, or legacy unqualified widening/recentering",
+        "preserve old versions/bytes and ForestDR n_jobs=1"
+      ],
+      "signals": "UNRUN here; real four producers, owned attempt, CAS, consumer/surface and removal controls remain."
+    },
+    "AD05_CAN_LA021_1": {
+      "selected": true,
+      "contract": "Shared canonical bytes/profile/hash mechanics with strict contextual Core and IR policies; Core acceptance and IR refusal of identical array_digest bytes is intentional.",
+      "limits": [
+        "preserve absent/null/malformed distinctions and raw declaration/content binding",
+        "cache binds view/schema/purpose/reader policy/epoch",
+        "no CAS rewrite, broadened IR tags, producer origin/currentness/authority inferred from digest"
+      ],
+      "signals": "UNRUN here; current Core bounded-reader/R9 work must be composed."
+    },
+    "AD06_B161": {
+      "selected": true,
+      "contract": "Only unassessed_to_assessed_same_basis@1.0, typed Search basis/observation v2.0 and SearchUncertaintyRefinement v1.0; separate history, current-per-obligation projection, and other constraints.",
+      "routing": "relative_interval_halfwidth_routing@1.0, candidate scheduling only; retain raw quantities/ratio or overflow; zero reference scale makes score unavailable while assessment remains assessed.",
+      "limits": [
+        "numeric 1.0 is not unknown without typed predecessor",
+        "no lowering assessed values, min/latest, averaging incompatible risks, or score as probability/confidence/calibration/authority",
+        "live currentness distinct from as-of projection"
+      ],
+      "signals": "UNRUN here; task-owned unassessed producer, selected method result, same-basis verification, CAS/ticket conflicts and actual Search/public consumers remain."
+    }
+  },
+  "writer_leases": [
+    {
+      "writer": "HTE queries agent",
+      "scope": "HTE outcome/profile and four actual final HTE producer/extractor families plus tests; preserve current compile/simulation/state-key AD01 paths and coordinate one output slot."
+    },
+    {
+      "writer": "CAN core agent",
+      "scope": "Core/IR contextual readers, raw-profile distinctions, refusal path and tests; build on current Core bounded-reader/R9 delta; common codec/facade/registry stay root-serialized."
+    },
+    {
+      "writer": "B161 metric agent",
+      "scope": "Search uncertainty basis/observation/relation/current projection and actual Search consumers/tests; do not absorb root-owned AD01 method_metrics/metrics paths."
+    },
+    {
+      "writer": "root, serialized",
+      "scope": "shared facades/registries, runtime/public DTOs, schemas/migrations, generators/locks, API/browser/export surfaces, common persistence, generated docs, full consumer census."
+    }
+  ],
+  "still_open_G_questions": [
+    {
+      "question": "PAG legal permission/relation and migration",
+      "status": "unresolved; 798 explicitly decides neither allow nor block. User-reported facts and consumer migration remain under verification. Do not infer protected authority/publication; independent candidate-grade work may proceed without that assertion."
+    },
+    {
+      "question": "Conditional transport diagnostics R4",
+      "status": "pending independent G choice; not implied by AD04-06. Proposal recommends typed candidate diagnostics inside existing persisted result, protected outer outcome UNSUPPORTED/NONE/false. Prior bounded replay was 7 PASS / 1 FAIL with manually specified SCMs and did not establish legal relation or owner-approved graph."
+    }
+  ],
+  "parked_not_blocking": [
+    {
+      "item": "DS17 import-purity clarification",
+      "status": "not an active G request. Continue source identity/runtime reconciliation; reopen only if an exact ratified whole-module purity rule is produced and shown to conflict."
+    },
+    {
+      "item": "Assessed-to-assessed update law",
+      "status": "outside AD06 first-assessment choice. Raise only for a concrete consumer criterion, method-valid relation, alternatives, migration and falsifier."
+    }
+  ],
+  "verification_boundary": {
+    "reviewed": "exact seven G additions, five historical input hashes, ancestry and source-frame-to-current path deltas/ownership intersections.",
+    "not_run": [
+      "tests",
+      "imports",
+      "installs",
+      "builds",
+      "numerical fits",
+      "production reads",
+      "composed replay"
+    ],
+    "historical_witnesses_not_promoted": [
+      "HTE 80f7 is not current composed or inference-law acceptance",
+      "CAN ee2a is not current composed acceptance",
+      "B161 566d is not a runtime receipt"
+    ],
+    "formal_G_acceptance": false,
+    "formal_E02_closure": false,
+    "closure_ids": [],
+    "independent_G_adjudication": true
+  },
+  "current_pending_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261021-g-pending-questions.md",
+    "git_blob": "1bb585188c9d73bd033ce0ce39b1c70db95f4d06",
+    "bytes": 5108,
+    "sha256": "6d2b2901d47cbd452bdedf2e0d78b3eca36b15e93bd62e38a874ff88ea3ae4a4"
+  },
+  "conditional_transport_sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-conditional-transport-diagnostics-20261021.md",
+      "git_blob": "bc3f8657d9b8e3169c65055f36ee5300e9e4b9ce",
+      "bytes": 21089,
+      "sha256": "45c15676ef9dd76171b86af43bbb5b1110964217a65a5b6f2f24886d0fb3c090"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/g-choice-conditional-transport-diagnostics-20261021.json",
+      "git_blob": "bc2c0f4807f31324a8888f5ca1f69ea841a903d1",
+      "bytes": 44575,
+      "sha256": "f93238a3d431b1abb4e7d429288121310fb4ed4f6c3b8b43aaec9e7a6fc2178a"
+    }
+  ],
+  "tracked_ready_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-architecture-798bd1ab-intake-20261021.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261021-g-pending-questions.md"
+  ],
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P14",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P40_bucket_rule": "For each implementation-review escape, classify it as a new class or the same class one level deeper. At the second finding of a class, stop instance repairs: widen the mechanism to the full quantity/property or state a bounded residual and run its falsifier. Once a bounded residual is explicit, another example of that class is evidence for the limitation, not another repair round. Do not turn an architecture selection or shared task route into an automatic finding closure.",
+    "intake_finding_status": "No source-code escape or E02 finding closure is adjudicated by this architecture intake."
+  },
+  "revision": {
+    "packet_revision": "R2",
+    "supersedes": "g-architecture-798bd1ab-intake-20261021-r1",
+    "reason": "Added the explicit P40 bucket rule before source handoff; R1 remains immutable and is not the selected handoff."
+  }
+}

@@ -47513,5 +47513,85 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-g798-selected-architecture-intake-adoption-20261021-r1": {
+    "slice_base": "3a812b02fde8e745125ce303b5df4438ca46df83",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/g-architecture-798bd1ab-intake-20261021.json": {
+        "operation": "create",
+        "mode": "100644",
+        "preimage_sha256": null,
+        "preimage_bytes": 0,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-architecture-798bd1ab-intake-20261021-r3/postimages/g-architecture-798bd1ab-intake-20261021.json",
+        "postimage_sha256": "d8b41d80908f82b418a5bd563cf14c978d0d943003726e9eb92a0a4a0ec62bef",
+        "postimage_bytes": 23075
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261021-g-pending-questions.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "6d2b2901d47cbd452bdedf2e0d78b3eca36b15e93bd62e38a874ff88ea3ae4a4",
+        "preimage_bytes": 5108,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g798-selected-architecture-companions-20261021-r1/20261021-g-pending-questions.md",
+        "postimage_sha256": "d604ad2f372840a774b1a06dc38b10d9cf058873b2ffd311f7dd9ee4c7f09e81",
+        "postimage_bytes": 6018
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/20261020-g-architecture-decision-queue.md": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "e98ebb4659bf5cb048fd95436475e6d52d12715a6a0e6a7956ae4a6ccb84860d",
+        "preimage_bytes": 20014,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g798-selected-architecture-companions-20261021-r1/20261020-g-architecture-decision-queue.md",
+        "postimage_sha256": "4b56ff8482152f213f81a8f41ddf3549c240171e4569f6b9034665aaa45a8afa",
+        "postimage_bytes": 20538
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g798-selected-architecture-intake-adoption-20261021-r1/source-application.json",
+      "sha256": "fa846dc9e61e758486f75b4a35cd61b761c1fcf6cd2b9767b41fc173619d0818"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g798-selected-architecture-intake-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-architecture-798bd1ab-intake-20261021-r3/receipt.json",
+        "sha256": "3609790fe72020f615138b1bac98081fc82ca96c6f35656cff34cb8564956df8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-architecture-798bd1ab-intake-20261021-r3/postimages/g-architecture-798bd1ab-intake-20261021.json",
+        "sha256": "d8b41d80908f82b418a5bd563cf14c978d0d943003726e9eb92a0a4a0ec62bef"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-architecture-798bd1ab-intake-20261021-r3/postimages/20261021-g-pending-questions.md",
+        "sha256": "23721b838d20d8cf8b780afe73278eed39a838bd32c49ed4667b6be2ddad63bf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-post-b7-docs-delta-analysis-20261021-r1/review.json",
+        "sha256": "729ab1f0a55e85607edbed73e226ec53495aa42182fe47e264f681ab4d2a3013"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "No product escape adjudicated in documentation intake",
+      "action": "HTE/CAN/B161 actualmechanismauthorsparallel withonecanonicalwriter; independentreviews/actualconsumers required."
+    },
+    "bounded_proof": "Root fetch/ls-remote798exact; independent seven-doc/fiveinput/fullsource reconciliation3609790f plusrootGitblob reread. Native product tests not applicable to architecture-record-only delta.",
+    "limitations": [
+      "Architecture selection only, no product code acceptance/closure; sourcefreeze false.",
+      "No merge/import of other post-b7Gdeltas; exactGdocuments available via verifiedGitobjects and immutablelinks.",
+      "PAG/conditionaltransport separateGchoice, externalfacts not manufactured; DS17ordinaryrepair proceeds."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Implement AD04/05/06 with actual owned origin, fourHTEABI/currentselectors, contextualCAN and B161realfirstassessment/currenthistory, API/browser/generated companions; independentreviewthenactualcomposedfreeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

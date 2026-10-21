@@ -1,14 +1,42 @@
-# E02: вопросы к G, актуальный вход 21 октября 2026
+# E02: Active architecture questions for G
 
-Это авторские предложения для выбора контракта, не ратификация, приёмка кода или formal closure. `G_acceptance=false`, `closure_ids=[]`. Source при подготовке: candidate `2536eb6dbc946ce5000d2b2da246d7e071b037fc`, tree `7b7c1078e056a38d7b07de56abcfa95cae279a90`; полного source/input/backend freeze ещё нет. AD01–03 уже приняты G в `b7adafe89423bc6906a5fb86c38e579a381ad2ee` и реализуются, повторного решения по ним не требуется.
+**Candidate entry:** branch codex/e02-unified-local-20261009, commit 3a812b02fde8e745125ce303b5df4438ca46df83, tree 38ef6c6efe9c60adcbe9167c282c3a28d3746de2, parent 54540e245bdf8341230231a927a4cb2040d9dee4. This is an entry snapshot, not a global source freeze. The exact G architecture source is commit 798bd1ab9646378f49fd127b3f04ebe71aca67d2, tree 957fddc0fb2d6bc32fc34932427b5e9c7aae1930, parent 15d70de867e4d0ac15b198386c103bdd0900b546.
 
-- **Новый вопрос: conditional transport diagnostics при неизвестной legal relation.** [Пакет R4](g-choice-conditional-transport-diagnostics-20261021.md), [source/evidence receipt](g-choice-conditional-transport-diagnostics-20261021.json). Рекомендация: typed candidate diagnostic внутри existing persisted result; внешний protected outcome остаётся `UNSUPPORTED/NONE/false`. Предлагаемые result/report версии 2.2/1.1, оба public facade, migration/readers-before-writers, 33 rollout paths и falsifiers перечислены для выбора G. Независимый review: `raw/independent-causal-query-candidate-authority-r4-delta-review-20261021-r1/receipt.json@c6106f2b3dd1a63b3d279a3c86c08806e49d1430a0948c8efbb1154665aa2329`, `GO_FOR_TRACKED_G_PROPOSAL` только. Реальный bounded node/runner/CAS replay — 7 PASS / 1 FAIL; SCM вручную задана, юридическая relation и owner-approved graph не установлены. B31/B33/B161/B214 не закрыты.
-- **HTE при доступной точке и отсутствии supported population-ATE inference.** [Варианты и migration](g-choice-hte-ate-inference-unavailable-20261021.md). Выбрать versioned point-only limited outcome, отказ либо отдельный method/profile-specific inference law с настоящим basis. После исходной записки mechanical adapter исправлен: [актуальный source/runtime receipt](../econml-shared-adapter-and-serial-forestdr-source-runtime-20261021.json) отдельно фиксирует 61 PASS canonical adapter/ForestDR cases и 1 PASS real cold fit на source `80f7c18f1295e3d2ecbee7625e52cdcbacca97f2`. Это исторически ограниченный backend witness; он не ратифицирует legacy CI guard, calibration или B31 и не является current composed green.
-- **CAN / LA-021-1: одна accepted-tag grammar или общие mechanics с contextual Core/IR tag policies.** [Существующий вопрос и bounded witnesses](../can-profile-law-current-witness-g-followup-20261021.json). Рекомендуется reuse общих byte/profile/hash mechanics при строгих contextual allowlists; universal tag-family law потребует отдельной versioned semantics/migration. G не создаёт historical producer attestation, issuer или currentness своим архитектурным выбором.
-- **B161: current same-scope refinement при сохранённой истории и независимом риске.** [Follow-up существующего вопроса](b161-current-scoped-refinement-followup-20261021.md). Выбрать historical-max-only либо отдельную candidate current projection с owner-produced same-scope relation. Допустимый refinement profile/relation и его основания не выдумываются. B198 сохраняется.
+This index separates selected architecture from code acceptance and formal finding adjudication. code_acceptance=false; closure_ids=[].
 
-[Полный исторический индекс](20261020-g-architecture-decision-queue.md) сохраняет прежние вопросы и принятые AD01–03. Условное [DS17 clarification](ds17-source-binding-vs-import-purity-proposal-20261021.md) требует ответа только при наличии ссылки на ratified требование whole-module import purity. Обычное исправление source identity / runtime reconciliation продолжается без нового архитектурного выбора.
+## Decisions selected by G
 
-Для каждого действительно открытого вопроса нужен выбранный вариант, contract/schema/rule owner и версия, статус/authority/time semantics, legacy migration, producer/consumer/surface footprint и acceptance/removal check; настоящий внешний law/issuer/custody/currentness input остаётся отдельным фактом. Передача — committed Git packet; integration publication и formal adjudication сохраняются за G.
+AD01–03 remain the selections in b7adafe89423bc6906a5fb86c38e579a381ad2ee; commit 798 is a descendant and does not reopen them.
 
-Pattern pass: P05/P07/P08/P29/P31/P32/P35/P37/P38/P40. Этот индекс адресует reviewed packets и их точные границы, не переносит task PASS в finding closures и не означает native green.
+AD04 selects a versioned HTE outcome that preserves a computed point when supported inference is unavailable, and permits an interval only under the registered econml_native_mean_over_selected_x@1.0 profile bound to exact evaluation rows and the producer attempt. That interval remains backend/model-conditional; it does not establish population coverage, causal identification, post-selection validity, calibration, or publication authority. The new path must refuse synthetic CATE-dispersion intervals, zero-filled uncertainty, and the legacy unqualified widening fallback.
+
+AD05 selects shared canonical byte/profile/hash mechanics with strict Core and IR reader policies. It is intentional for Core to accept a value with its recognized array_digest tag while IR rejects it. This selection does not broaden IR tags, rewrite CAS identities, or infer raw profile content, producer attestation, or currentness from a digest.
+
+AD06 selects only the first typed unassessed-to-assessed transition for the same frozen uncertainty basis. Search keeps immutable history, a per-obligation current projection, and other active constraints separately. The relative interval half-width profile is a candidate-work routing score only. It is not probability, calibration, causal assurance, or authority; it cannot lower an already assessed observation.
+
+These are architecture choices for implementation. AD04–06 do not accept current code and do not close LA-021, B161, or any other finding. The actual source, producer, persistence bridge, consumer, public surface, tests, removal controls, and composed replay still require independent review.
+
+## Questions that remain open
+
+1. **PAG legal permission/relation and consumer migration.** G's 798 package explicitly makes no allow-or-block determination. The user-reported legal facts and migration of consumers are still being verified. Keep protected authority and publication unavailable until the relevant genuine source evidence is verified. This does not block independent candidate-grade implementation that does not assert that legal relation.
+
+2. **Conditional transport diagnostics.** The R4 proposal remains pending an independent G choice and is not implied by AD04–06. It proposes a typed candidate diagnostic within the existing persisted result while the outer protected outcome remains UNSUPPORTED/NONE/false. Its bounded replay reported 7 PASS / 1 FAIL with manually specified SCMs; it did not establish a legal relation or an owner-approved graph. See g-choice-conditional-transport-diagnostics-20261021.md and its same-basename JSON receipt.
+
+## Parked clarifications, not blockers
+
+DS17 is not an active G request. Ordinary source-identity and runtime reconciliation proceeds. Reopen the whole-module import-purity clarification only if an exact ratified rule is produced and shown to conflict with implementation.
+
+AD06 does not choose a universal law for later assessed-to-assessed updates. Do not implement one without a concrete consumer criterion, method-valid relation, alternatives, migration impact, and falsifier. AD04 does not choose population-ATE coverage or transport validity. AD05 does not choose universal Core/IR tag grammar or facade interchangeability. Missing issuer, permission, custody, source-currentness, calibration, and production-prevalence facts remain unestablished inputs, not facts created by these decisions.
+
+## Implementation ownership and evidence boundary
+
+Three mechanism lanes may proceed in parallel: the HTE queries owner for the HTE contract and actual producer family; the CAN Core owner for contextual readers and refusals; and the B161 metric owner for Search uncertainty and current projection. Root serializes shared facades/registries, runtime and public DTOs, schema migrations, generators/lockfiles, API/browser surfaces, generated documentation, and the complete consumer census. Current AD01 method-metric paths remain root-owned. Each lane must reconcile against the entry source in the companion intake receipt and preserve already committed source.
+
+The 798 package is documentation-only. No product tests, imports, installs, builds, fits, production reads, or composed replay were run for this intake. G's architecture selection, independent source/code acceptance, integration publication, and formal finding adjudication remain separate.
+
+
+## Pattern pass and P40 bucket rule
+
+Relevant patterns are P01/P02 (producer and bridge reality), P04/P05 (status and authority boundaries), P07/P08 (replay and time semantics), P10/P14 (semantic adequacy and evidence independence), P27/P29/P31/P32 (owner boundaries, behavioral proof and class-level repair), P35/P37/P38 (complete denominators and gate predicates), P40 (bucket before repair), and P41 (provenance of red gates).
+
+For each implementation-review escape, classify it as a new class or the same class one level deeper. At the second finding of a class, stop instance repairs: widen the mechanism to the full quantity/property or state a bounded residual and run its falsifier. Once a bounded residual is explicit, another example of that class is evidence for the limitation, not another repair round. This architecture intake records no code finding closure.

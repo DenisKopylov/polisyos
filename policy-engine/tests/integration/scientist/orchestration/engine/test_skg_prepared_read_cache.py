@@ -1685,6 +1685,69 @@ def test_workflow_executor_bypasses_cache_if_source_generation_changes_during_mi
     assert not any(event.get("event") == "NODE_CACHE_STORE" for event in events)
 
 
+def test_workflow_executor_rebinds_changed_live_source_during_cache_miss(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A live same-path replacement is read fresh and never stored under the old key."""
+    from polisyos.scientist.orchestration.engine import executor as executor_module
+    from polisyos.scientist.orchestration.engine.idempotency import (
+        compute_idempotency_key as real_compute_idempotency_key,
+    )
+
+    db_path = tmp_path / "skg-between-key-and-query.duckdb"
+    _seed_skg(db_path)
+    store = FileSystemCAS(tmp_path / "cas")
+    graph_ref = persist_causal_graph_model(
+        _ensure_ir_artifact_store(store),
+        CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+    )
+    initial_state = ExperimentState(
+        run_id="R_skg_between_key_and_query_rebind",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "us-2025",
+                "countries": ["US"],
+                "publication_year": 2025,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "domain": "fiscal",
+            "skg_db_path": str(db_path),
+        },
+    )
+
+    def compute_then_replace_selected_row(**kwargs: Any) -> str:
+        key = real_compute_idempotency_key(**kwargs)
+        replacement = tmp_path / "skg-between-key-and-query-replacement.duckdb"
+        _seed_skg(replacement)
+        _set_skg_value(replacement, 2.6)
+        os.replace(replacement, db_path)
+        return key
+
+    monkeypatch.setattr(
+        executor_module,
+        "compute_idempotency_key",
+        compute_then_replace_selected_row,
+    )
+    context, registry = _build_run_context(store, initial_state.run_id)
+    result = WorkflowExecutor(context, registry).execute(_workflow(), initial_state)
+
+    assert result.report.status == "ok"
+    assert _resolved_value(store, result.state) == 2.6
+    bundle_ref = result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    bundle = load_context_adaptive_parameter_bundle(_ensure_ir_artifact_store(store), bundle_ref)
+    assert bundle.selected_skg_source is not None
+    assert bundle.selected_skg_source.source_sha256 == _file_sha256(db_path)
+    events = _trace_events(context)
+    assert any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 5
+        for event in events
+    )
+    assert not any(event.get("event") == "NODE_CACHE_STORE" for event in events)
+
+
 def test_build_literature_prior_recomputes_existing_output_from_changed_prepared_source(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

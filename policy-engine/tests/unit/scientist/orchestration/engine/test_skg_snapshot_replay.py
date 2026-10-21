@@ -872,14 +872,40 @@ def test_timeout_worker_v2_roundtrips_persisted_access_scope_and_owner_ref(
         assert worker_meta["run"]["owner_snapshot_ref"] == run._owner_snapshot_ref.model_dump(
             mode="json", by_alias=True, exclude_none=False
         )
-        worker_ctx = _build_timeout_worker_context(worker_meta)
+        unreceipted_worker_ctx = _build_timeout_worker_context(worker_meta)
+        assert unreceipted_worker_ctx.run.access_scope == scope
+        assert unreceipted_worker_ctx.run.dispatch_binding is None
+
+        with tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id):
+            with _access_scope_context(scope):
+                task = retry_module._build_spawn_timeout_task(
+                    ResolveParametersNode(),
+                    ctx,
+                    state,
+                    alias="resolve",
+                    dispatch_params={},
+                )
+                _capability, parent_binding = retry_module._bind_spawn_timeout_dispatch(
+                    ctx, task, expected_run_id=state.run_id
+                )
+                worker_ctx = _build_timeout_worker_context(
+                    task.context_meta,
+                    invocation_id=task.worker_invocation_id,
+                    dispatch_sha256=task.worker_dispatch_sha256,
+                )
+
         assert worker_ctx.run.access_scope == scope
         worker_binding = worker_ctx.run.dispatch_binding
         assert worker_binding is not None
+        assert worker_binding == parent_binding
+        assert worker_binding.run_id == state.run_id
+        assert worker_binding.invocation_id == task.worker_invocation_id
+        assert worker_binding.dispatch_sha256 == task.worker_dispatch_sha256
         assert (
             worker_binding.owner_snapshot_ref.model_dump(
                 mode="json", by_alias=True, exclude_none=False
             )
+            == task.context_meta["run"]["owner_snapshot_ref"]
             == worker_meta["run"]["owner_snapshot_ref"]
         )
 

@@ -1311,11 +1311,6 @@ class WorkflowExecutor:
                                 state=state,
                                 bind_params=cache_bind_params,
                             )
-                            set_span_attribute(
-                                span,
-                                "polisyos.node.idempotency_key_prefix",
-                                cache_key[:16],
-                            )
                     except (CanonViolation, ValueError, TypeError) as exc:
                         cache_bypass_reason = _CACHE_BYPASS_KEY_ERROR
                         self._ctx.logger.warning(
@@ -1333,6 +1328,43 @@ class WorkflowExecutor:
                         )
                 else:
                     cache_bypass_reason = _CACHE_BYPASS_DISABLED
+
+                # A live source may be replaced after preparation/key calculation.
+                # Re-open once from the current path and disable this invocation's
+                # key so fresh output cannot be read or stored under the old digest.
+                # An explicitly selected retained replay remains fail-closed.
+                if (
+                    prepared_read is not None
+                    and replay_source_ref is None
+                    and not prepared_read.source_generation_matches()
+                ):
+                    prepared_read.close()
+                    try:
+                        rebound_read = node.prepare_cache_input(
+                            _node_facing_context(self._ctx), state
+                        )
+                    except Exception as exc:
+                        raise RetainedSKGSnapshotError(
+                            "retained_skg_live_source_rebind_failed"
+                        ) from exc
+                    if rebound_read is None:
+                        raise RetainedSKGSnapshotError("retained_skg_live_source_rebind_failed")
+                    if not rebound_read.source_generation_matches():
+                        rebound_read.close()
+                        raise RetainedSKGSnapshotError("retained_skg_live_source_rebind_unstable")
+                    prepared_read = rebound_read
+                    node_resources.callback(prepared_read.close)
+                    node_context = replace(self._ctx, prepared_skg_read=prepared_read)
+                    cache_key = None
+                    if cache_bypass_reason is None:
+                        cache_bypass_reason = _CACHE_BYPASS_PREPARED_READ
+
+                if cache_key is not None:
+                    set_span_attribute(
+                        span,
+                        "polisyos.node.idempotency_key_prefix",
+                        cache_key[:16],
+                    )
 
                 if cache_bypass_reason is not None:
                     self._ctx.run.emit(

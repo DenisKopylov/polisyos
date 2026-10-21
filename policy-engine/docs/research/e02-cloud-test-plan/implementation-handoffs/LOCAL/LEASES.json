@@ -50849,5 +50849,96 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-b61-live-generation-rebind-source-adoption-20261021-r1": {
+    "slice_base": "880c238d834fa311195f40dcd50c627b0a719b9a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a5374da0a9b7ecff6fc02a615e13dde3dabc54492925fc6d57da81c944f705e0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/overlay-src/polisyos/scientist/orchestration/engine/executor.py",
+        "postimage_sha256": "d7259a40435046884979f12b86ab96eac6cfe4a4646465ef84c42e1b8ba9c158",
+        "postimage_bytes": 99782
+      },
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "29deed6f474a25791b55a01c6c0bfa7766f897b4b72e2ad75b03a550db8eb668",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/overlay-tests/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "postimage_sha256": "3e0baadf51a32d7afb2b92974e58d2949bb8ac62e5da5d2332d9a9c6c7f5e45d",
+        "postimage_bytes": 86432
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "6b897fc30e517bb60e9fed3dbcc5de15038d89c58e90b93ef6f0a8f31dcfa439",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/overlay-tests/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "postimage_sha256": "f47fc0d5a67edd6c3cc36a419aa3670804d4f81f68ff08f1b9db8cc13a14b7c4",
+        "postimage_bytes": 90589
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-live-generation-rebind-source-adoption-20261021-r1/source-application.json",
+      "sha256": "3d0530452cb054a4e9078de0d32c4005dd903df666655af8614ced44fd483618"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-live-generation-rebind-source-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/patch-manifest.json",
+        "sha256": "66b2056918406ddb0ef718e344333b1fb5142064f8dff99130ba209a5f6597a4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/proposed-r2.patch",
+        "sha256": "79d5cff00cb303e23ccf29f2b658975710a45bb0dd3387ab342ce7cb3bfe8dd2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/b61-live-generation-rebind-r2-frozen-packet.md",
+        "sha256": "de4da44bbbcc948c5202fe0cee7b4fb97bb539d460cede6e34735da83572b377"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-live-generation-rebind-r2-20261021/native-ruff-stdin.txt",
+        "sha256": "9cb20f5efd54efc2fe66b985c6709a234f3945f75b491137eda864d5a8f35b8b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-live-generation-rebind-r2-review-20261021-r1/review.json",
+        "sha256": "89d522cb03e49d8d2208e4b844bf76e73335e0608fa2042c70b9041070ea27dc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-live-generation-rebind-r2-review-20261021-r1/manifest.json",
+        "sha256": "5b70a72742b74e6847f08888fd4288e02bfb17e1df9da95de806c01c21f5a063"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b61-runtime-import-repair-review-20261021-r1/review.json",
+        "sha256": "85141afaa3009bf52837ee0b33b91fce7531d91fbb9142a18934c725ad5f5a70"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "SAME source-byte/cache-binding class one level deeper, widened at shared live prepared-reader pre-query boundary instead of mtime-onlytestpatch.",
+      "residual": "Operational bytes/read lineage only; externalissuer/custody/currentness/scientificadequacy/causalauthority notestablished.",
+      "test_repair": "Unreceiptedworkercontext retainsno binding; trueparent-issuedspawn taskidentities/ownerrefroundtrip verified. ActualRuntimeguardunchanged."
+    },
+    "bounded_proof": "Independent89d522cbfullmechanismreviewandactual4targetedcaseswithrealDB/CAS/currentmoduleorigins plus exactsource/preimage/sourceboundnativechecks.",
+    "limitations": [
+      "Independenttargeted4 tests PASS; author3PASS andnative6checks. Theyarenot full70-case orglobalE02receipts.",
+      "Allprior70-case outputsretained; unsafeoverlayrunnerprocessfailures notgreen/inherited; separatedirectpytest6casecleanreceipts linkedbyfrozenpacket.",
+      "Actualadoptedcanonicalpostchange targetedreplay and finalcomposedfull70 freeze remainpending; no Gcodeacceptance orB61closure.",
+      "No source-dataowner, issuer, permission, externalcurrentness orcausaladequacyfactinvented; no scientificcontractchange."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Separateimplementationreceipt andcurrentcanonicaltargetedreplay; then finalsource/input/profile/backendfrozenB61fullcohort+PreparedB/Runtimecomposed consumers with removal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

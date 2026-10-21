@@ -1585,7 +1585,7 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         method_build_digest_scope="unavailable",
         output_slot_id="result",
         output_shape="scalar",
-        source_unit=MethodMetricSourceUnit(dimension="ratio", symbol="ratio", scale=1.0),
+        source_unit=MethodMetricSourceUnit(dimension="ratio", symbol="ratio", scale=1),
         target_unit=RateUnit(base="ratio"),
         law_id=law_id,
         law_version=law_version,

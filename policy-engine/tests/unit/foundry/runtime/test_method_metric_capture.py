@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from types import SimpleNamespace
 from typing import ClassVar
 
@@ -100,6 +100,12 @@ from polisyos.ir.kernel.method_metrics import (
 )
 from polisyos.ir.kernel.metrics import MetricRegistry, MetricSpec
 from polisyos.ir.kernel.units import GenericUnit, RateUnit, UnitsRegistry
+
+
+@dataclass(frozen=True)
+class _NamedSnapshotInputs:
+    baseline: np.ndarray
+    scenario: np.ndarray
 
 
 def _put_owned(
@@ -464,15 +470,43 @@ def test_signature_default_is_captured_as_effective_method_parameter() -> None:
         signature=SimpleNamespace(parameters=(ParameterSpec(name="rate", default=0.25),))
     )
 
-    values, limitation = _method_parameter_values(node, method_class)
+    values, limitation, observed_count, inventory_limit = _method_parameter_values(
+        node, method_class
+    )
 
     assert limitation is None
-    assert len(values) == 1
+    assert observed_count == len(values) == 1
+    assert inventory_limit == 32
     assert values[0].name == "rate"
     assert values[0].source == "signature_default"
     assert values[0].status == "captured"
     assert values[0].value == 0.25
     assert values[0].value_sha256 is not None
+
+
+def test_non_method_occurrence_omits_method_inventory_even_with_selection() -> None:
+    declared_slot = next(iter(_ReturnsMetricScalar.signature.output_slots))
+    planned_method_slots = graph_module._planned_returned_slots(_ReturnsMetricScalar)
+    assert planned_method_slots[0].declared_slot_type == declared_slot.slot_type.name
+
+    occurrence = graph_module._planned_method_occurrence(
+        occurrence_id="graph-invocation.000001:0:mechanism.one",
+        invocation_id="graph-invocation.000001",
+        plan_index=0,
+        node=SimpleNamespace(node_kind="mechanism", method_params={}),
+        node_id="mechanism.one",
+        method_identity=None,
+        method_class=_ReturnsMetricScalar,
+        selected_slot_ids=("result",),
+        metric_input_capture_required=True,
+    )
+
+    assert occurrence.node_kind == "mechanism"
+    assert occurrence.output_slots == []
+    assert occurrence.returned_slots == []
+    assert occurrence.returned_slot_inventory_status == "not_started"
+    assert occurrence.returned_slot_inventory_limit is None
+    assert occurrence.dispatch is None
 
 
 def test_method_input_state_requires_exact_graph_id_to_abi_slot_join() -> None:
@@ -791,11 +825,18 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
     writer_occurrence, occurrence = bundle.occurrences
     assert writer_occurrence.node_id == "prestate_writer"
     assert writer_occurrence.status == "succeeded"
+    assert writer_occurrence.output_slots == []
+    assert writer_occurrence.returned_slots == []
+    assert writer_occurrence.returned_slot_inventory_status == "not_started"
+    assert writer_occurrence.returned_slot_inventory_limit is None
+    assert writer_occurrence.dispatch is None
+    assert writer_occurrence.artifacts == []
     assert occurrence.node_id == "ex_ante_node"
     assert occurrence.dispatch is not None
     assert occurrence.dispatch.method_metric_input_capture_status == "captured"
     assert occurrence.dispatch.input_role_values[0].value_sha256
     assert {row.slot_id for row in occurrence.returned_slots} == {"result"}
+    assert all(row.declared_slot_type == SlotType.SCALAR.name for row in occurrence.returned_slots)
     output = validate_core_model_json_artifact(
         MethodOutputPayload,
         store,
@@ -952,6 +993,9 @@ def test_ex_ante_graph_capture_persists_actual_inputs_and_bound_output(
     assert stripped_occurrence.output_slots[0].status == "not_emitted"
     assert stripped_occurrence.output_slots[0].output_ref is None
     assert stripped_occurrence.returned_slot_inventory_status == "captured"
+    assert all(
+        row.declared_slot_type == SlotType.SCALAR.name for row in stripped_occurrence.returned_slots
+    )
     assert stripped_occurrence.artifact_inventory_status == "not_established"
     assert stripped_occurrence.artifact_inventory_observed_count == 33
     assert stripped_occurrence.artifact_inventory_limit == 32
@@ -993,10 +1037,10 @@ def test_snapshot_refusal_usage_uses_transferred_bytes_not_member_size(
     snapshot_ref = StateSnapshotRef.model_validate(
         put_state_snapshot(
             store,
-            state={
-                "baseline": np.asarray([1.0, 2.0]),
-                "scenario": np.asarray([2.0, 4.0]),
-            },
+            state=_NamedSnapshotInputs(
+                baseline=np.asarray([1.0, 2.0]),
+                scenario=np.asarray([2.0, 4.0]),
+            ),
             step=0,
             return_selected_profile=True,
         ).model_dump(mode="python")
@@ -1077,7 +1121,10 @@ def test_snapshot_json_refusal_does_not_treat_declared_size_as_transfer_usage(
     snapshot_ref = StateSnapshotRef.model_validate(
         put_state_snapshot(
             store,
-            state={"baseline": np.asarray([1.0]), "scenario": np.asarray([2.0])},
+            state=_NamedSnapshotInputs(
+                baseline=np.asarray([1.0]),
+                scenario=np.asarray([2.0]),
+            ),
             step=0,
             return_selected_profile=True,
         ).model_dump(mode="python")

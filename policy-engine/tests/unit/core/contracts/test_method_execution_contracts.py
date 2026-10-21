@@ -12,8 +12,10 @@ from polisyos.core.contracts import (
 )
 from polisyos.core.contracts.foundry import (
     CompileRequest,
+    ExecPlanRef,
     ExecuteResult,
     MethodExecutionBundle,
+    MethodExecutionBundleRef,
     MethodExecutionDispatchRecord,
     MethodExecutionOccurrence,
     MethodExecutionReturnedSlot,
@@ -22,6 +24,7 @@ from polisyos.core.contracts.foundry import (
     MethodMetricBindingSet,
     MethodMetricBindingSetRef,
     MethodOutputPayload,
+    ProgramGraphRef,
 )
 from polisyos.foundry.execute._internal.graph import _returned_slot_inventory_row
 from polisyos.ir.kernel.method_metrics import (
@@ -37,6 +40,22 @@ def _ref(kind: str, suffix: str) -> ArtifactRef:
         kind=kind,
         media_type="application/json",
         manifest_profile_sha256="sha256:" + "f" * 64,
+    )
+
+
+def _program_graph_ref(suffix: str) -> ProgramGraphRef:
+    return ProgramGraphRef.model_validate(
+        _ref("foundry.program_graph", suffix).model_dump(mode="python")
+    )
+
+
+def _exec_plan_ref(suffix: str) -> ExecPlanRef:
+    return ExecPlanRef.model_validate(_ref("foundry.exec_plan", suffix).model_dump(mode="python"))
+
+
+def _method_execution_bundle_ref(suffix: str) -> MethodExecutionBundleRef:
+    return MethodExecutionBundleRef.model_validate(
+        _ref("foundry.method_execution_bundle", suffix).model_dump(mode="python")
     )
 
 
@@ -83,6 +102,8 @@ def _dispatch(*, outcome: str = "not_run") -> MethodExecutionDispatchRecord:
         outcome=outcome,
         input_state_status="not_started",
         parameter_resolution_status="captured",
+        parameter_inventory_observed_count=0,
+        parameter_inventory_limit=32,
         seed_status="not_started",
         rng_state_status="not_started",
         backend_identity_status="not_started",
@@ -111,7 +132,7 @@ def _occurrence(
 
 
 def test_binding_set_rejects_duplicate_binding_identity() -> None:
-    graph_ref = _ref("foundry.program_graph", "1")
+    graph_ref = _program_graph_ref("1")
     registry_ref = _ref("core.registry_bundle", "2")
     binding = _binding()
 
@@ -136,7 +157,7 @@ def test_binding_set_rejects_same_output_slot_selected_for_two_metrics() -> None
     )
     with pytest.raises(ValidationError, match="duplicate_method_metric_selected_output_slot"):
         MethodMetricBindingSet(
-            program_graph_ref=_ref("foundry.program_graph", "1"),
+            program_graph_ref=_program_graph_ref("1"),
             policy_ref=_ref("ir.trinity_bundle", "3"),
             registry_bundle_ref=_ref("core.registry_bundle", "2"),
             metric_registry_ref=_ref("ir.metric_registry", "4"),
@@ -163,7 +184,7 @@ def test_method_metric_binding_intake_rejects_more_than_128_rows() -> None:
 
     with pytest.raises(ValidationError, match="at most 128 items"):
         MethodMetricBindingSet(
-            program_graph_ref=_ref("foundry.program_graph", "1"),
+            program_graph_ref=_program_graph_ref("1"),
             policy_ref=_ref("ir.trinity_bundle", "3"),
             registry_bundle_ref=_ref("core.registry_bundle", "2"),
             metric_registry_ref=_ref("ir.metric_registry", "4"),
@@ -178,8 +199,8 @@ def test_capture_contract_preserves_repeated_method_occurrences() -> None:
     )
     occurrences = [_occurrence(), _occurrence("graph-invocation.000002")]
     bundle = MethodExecutionBundle(
-        program_graph_ref=_ref("foundry.program_graph", "1"),
-        exec_plan_ref=_ref("foundry.exec_plan", "7"),
+        program_graph_ref=_program_graph_ref("1"),
+        exec_plan_ref=_exec_plan_ref("7"),
         method_metric_binding_set_ref=binding_set_ref,
         occurrences=occurrences,
         limitations=("loaded_method_entrypoint_digest_is_not_transitive_build_provenance",),
@@ -191,8 +212,8 @@ def test_capture_contract_preserves_repeated_method_occurrences() -> None:
     ]
     with pytest.raises(ValidationError, match="duplicate_method_execution_occurrence_id"):
         MethodExecutionBundle(
-            program_graph_ref=_ref("foundry.program_graph", "1"),
-            exec_plan_ref=_ref("foundry.exec_plan", "7"),
+            program_graph_ref=_program_graph_ref("1"),
+            exec_plan_ref=_exec_plan_ref("7"),
             method_metric_binding_set_ref=binding_set_ref,
             occurrences=[occurrences[0], occurrences[0]],
         )
@@ -238,7 +259,7 @@ def test_output_payload_preserves_integer_precision_and_rejects_boolean() -> Non
 
 
 def test_failed_capture_refs_do_not_claim_simulation_success() -> None:
-    bundle_ref = _ref("foundry.method_execution_bundle", "8")
+    bundle_ref = _method_execution_bundle_ref("8")
     result = ExecuteResult(
         schema_version="1.1",
         ok=False,

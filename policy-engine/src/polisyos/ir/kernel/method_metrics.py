@@ -257,16 +257,17 @@ class MethodMetricExecutionContext(KernelModel):
                 raise ValueError("captured_method_metric_prestate_requires_digest")
         elif self.prestate_identity_sha256 is not None:
             raise ValueError("unestablished_method_metric_prestate_cannot_have_digest")
-        if self.backend_identity_status == "reconciled" and (
-            self.actual_backend is None
-            or not self.actual_backend.strip()
-            or self.selected_backend != self.actual_backend
-            or self.backend_trace_status != "captured"
-            or self.backend_attempts[-1].backend != self.actual_backend
-            or self.requested_backend is None
-            or not self.requested_backend.strip()
-        ):
-            raise ValueError("reconciled_method_metric_backend_requires_identity")
+        if self.backend_identity_status == "reconciled":
+            if (
+                self.actual_backend is None
+                or not self.actual_backend.strip()
+                or self.selected_backend != self.actual_backend
+                or self.backend_trace_status != "captured"
+                or self.backend_attempts[-1].backend != self.actual_backend
+                or self.requested_backend is None
+                or not self.requested_backend.strip()
+            ):
+                raise ValueError("reconciled_method_metric_backend_requires_identity")
         elif self.actual_backend is not None:
             raise ValueError("unreconciled_method_metric_backend_cannot_have_identity")
         if self.seed_status == "reconciled" and (

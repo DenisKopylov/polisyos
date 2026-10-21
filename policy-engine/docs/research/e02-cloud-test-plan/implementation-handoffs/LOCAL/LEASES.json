@@ -47593,5 +47593,169 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-ad01-six-path-r3-repair-adoption-20261021-r1": {
+    "slice_base": "15dd3d9bc42f41734ac6633bed0022eb66e0da0e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c15eb64337a474b08b985fde38c23d63717d875a58399ce9b3bfe6dbcafc62e3",
+        "preimage_bytes": 159459,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/postimages/policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "postimage_sha256": "cd2e6bf9e8c05fa1d9484459a9bbdebb4e60427e0165def68701d0558e300836",
+        "postimage_bytes": 159741
+      },
+      "policy-engine/src/polisyos/ir/kernel/method_metrics.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "c1752a2b3128ed1159ac5830e316f93e6865c2385e191d8c78760571ac435d0f",
+        "preimage_bytes": 46358,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/postimages/policy-engine/src/polisyos/ir/kernel/method_metrics.py",
+        "postimage_sha256": "bfa2d7a507dfa2a38ec3c9cb7edfe76ebaed504005b4140d21e2eee819deef2a",
+        "postimage_bytes": 46406
+      },
+      "policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "7a6d296f578491de6fcc3e91f46ce1e8d246f0c4c0ab1163184240fd57f81883",
+        "preimage_bytes": 47422,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/postimages/policy-engine/tests/unit/foundry/runtime/test_method_metric_capture.py",
+        "postimage_sha256": "41a8b0b66ae6af930e7fc2576b2652717cfd0b21c2d956ebfbe957760b3113b9",
+        "postimage_bytes": 49363
+      },
+      "policy-engine/tests/unit/core/contracts/test_method_execution_contracts.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "e5ee2efa55d73fc5843cbc15c3f6491e7cfe04603774db19db2e39125b086da6",
+        "preimage_bytes": 9999,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/postimages/policy-engine/tests/unit/core/contracts/test_method_execution_contracts.py",
+        "postimage_sha256": "53e0ce20169d981121faed55a88274a11e12d1668ca5e09bf4e564a17351cc7a",
+        "postimage_bytes": 10608
+      },
+      "policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "1d923cf294230e350124d149c936eec4b2ad951b5a28623ac243c984466bdc03",
+        "preimage_bytes": 22529,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/postimages/policy-engine/tests/unit/ir/kernel/test_method_metric_contracts.py",
+        "postimage_sha256": "cf7d21e1ab5cebfb25172a6503accb0f9bd9b368c287c3e9329262962db2b6fb",
+        "postimage_bytes": 26672
+      },
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "af3ea8de60301a4b1cd007c5667ae25b63e120f845b11f45565f1e9f38ca3570",
+        "preimage_bytes": 127083,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/postimages/policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "postimage_sha256": "2120151b9b3683829131bc2434f859fa9a984a4c6300003cd49282097d8e4a87",
+        "postimage_bytes": 127081
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-six-path-r3-repair-adoption-20261021-r1/source-application.json",
+      "sha256": "eca5d9923324ed0b122a6302219e9ea05ef9918fa5d2d1c2e8094dcace757f31"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-six-path-r3-repair-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/manifest.json",
+        "sha256": "16be69f016fd8c672e8eef657c099730bd8509a10675267075008573214eaeae"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/repair.patch",
+        "sha256": "1deae0bb697ac1ddf3b2542f37f626295cbd8f82afee3f589e01df70ac5f4d9b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/base.json",
+        "sha256": "f1f1c698244e9ffc5047a4071794f7b39c1295bcee08faaec89647ac35f4d1a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/repair-design.md",
+        "sha256": "b48c4f18156ece2aa516d9abdeda6453a281569ef9172ddd7aebe5726322f346"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/failure-classification.json",
+        "sha256": "3f1cb1e5a4c1b94332f920ebba83e700a46b9b714db4520bc884a8fadc7c146b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/static-verification.json",
+        "sha256": "64774ea0fefdd1403a2eba7b252499f4914bd8ce5ea25682d16ba86967840fc0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r2/test-readiness.json",
+        "sha256": "a53b572141737fbc90681865207fd918fac757679bb9a845b790ca8459241d38"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r2-review-transport-20261021-r1/review.json",
+        "sha256": "77856f2861ef686c216b124892fab4f67dfed1934598a32c8280018995b5d05f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-r4-seven-whole-2536eb6dbc94-20261021-r1/actual/result.json",
+        "sha256": "e6da688fb56bc01dca7a94afbbbcd0e313c37e4349eedff33a6d43f47cb70582"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-r9-two-changed-paths-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "ecc027886414f19ff6b299bdacda50b977e19b064c8d82e607b8ee1b3dd24bc1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/manifest.json",
+        "sha256": "556261cb4825440b40f6b92f1d818ebfd3e689769eeae0793b4db6df644418ff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-ad01-r3-format-delta-review-20261021-r1/review.json",
+        "sha256": "193edd4feb42fdaf222352a13907b9d1c31171a7907b4669f0ffad4b628907c5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ad01-six-path-r2-repair-adoption-20261021-r1/canonical-context-preflight.json",
+        "sha256": "e234f44ef4ec6c9b0fda37c9f56cd9507ac7693e7678fb8a9459d144d73786c3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g798-selected-architecture-intake-adoption-20261021-r1/implementation-readback.json",
+        "sha256": "d3a67c46d21a5fe37fae9e646478df16632328030fc014662edddabc57eba5da"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/repair.patch",
+        "sha256": "c521f2ce5cc7d48263f9d36681f281dccfe36dfe05199d3454bed03308e539d5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/static-verification.json",
+        "sha256": "be859cefc53dd15da6cce9a36297052d2f963b6835367c4e449251687ba028ed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/failure-classification.json",
+        "sha256": "3f1cb1e5a4c1b94332f920ebba83e700a46b9b714db4520bc884a8fadc7c146b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ad01-r4-seven-whole-failure-repair-20261021-r3/test-readiness.json",
+        "sha256": "5ddde555fd74f354d4ec8a5435313da1df9d73e867395249f40527c6149a69b6"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same provider-premise class one level deeper handled generically",
+      "action": "Adopt complete6-pathR2 once, preserve7+10validator matrix and full7-module replay."
+    },
+    "bounded_proof": "R1full/R2delta77856f plusR3AST-identical two-testformatdelta independent193edd4; rootfullnativeformat/checkbeforeapply and branchblobreadback. No earlier runtime adopted by declaration.",
+    "limitations": [
+      "IndependentsourceGO77856f\u2026 only; current actual pre-repair119=96PASS23FAIL not R2 runtime.",
+      "CoreR9separate99PASS at3a812 not AD01 proof.",
+      "No causal law, institutional authority or finding closure by capture status.",
+      "Root R2 native format-preflight refusal preserved before source mutation; R3 only two AST-identical formatting companions, four other postimages unchanged. Independent manifest clean wording narrowed to tracked/target paths; unrelated untracked artifacts preserved."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run all seven canonical AD01 modules on adopted composition with exact origins/phases/collection and producer/property removals. No filter or test suppression.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

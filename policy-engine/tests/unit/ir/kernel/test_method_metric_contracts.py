@@ -207,6 +207,115 @@ def test_equal_dimensions_do_not_authorize_unregistered_unit_conversion() -> Non
     assert conversion.limitation == "unit_relation_not_registered"
 
 
+@pytest.mark.parametrize(
+    ("identity_status", "actual_backend", "accepted"),
+    [
+        ("reconciled", "cpu", True),
+        ("reconciled", None, False),
+        ("reconciled", "gpu", False),
+        ("mismatch", None, True),
+        ("mismatch", "cpu", False),
+        ("not_established", None, True),
+        ("not_established", "gpu", False),
+    ],
+)
+def test_backend_identity_status_and_observed_identity_matrix(
+    identity_status: str, actual_backend: str | None, accepted: bool
+) -> None:
+    payload = _execution_context().model_dump(mode="python")
+    payload["backend_identity_status"] = identity_status
+    payload["actual_backend"] = actual_backend
+
+    if accepted:
+        context = MethodMetricExecutionContext.model_validate(payload)
+        assert context.backend_identity_status == identity_status
+        assert context.actual_backend == actual_backend
+    else:
+        refusal = (
+            "reconciled_method_metric_backend_requires_identity"
+            if identity_status == "reconciled"
+            else "unreconciled_method_metric_backend_cannot_have_identity"
+        )
+        with pytest.raises(ValueError, match=refusal):
+            MethodMetricExecutionContext.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    ("provider_updates", "expected_refusal"),
+    [
+        pytest.param(
+            {"requested_backend": None},
+            "captured_method_metric_backend_trace_is_incomplete",
+            id="requested-backend-absent",
+        ),
+        pytest.param(
+            {"requested_backend": " "},
+            "reconciled_method_metric_backend_requires_identity",
+            id="requested-backend-blank",
+        ),
+        pytest.param(
+            {"selected_backend": None},
+            "captured_method_metric_backend_trace_is_incomplete",
+            id="selected-backend-absent",
+        ),
+        pytest.param(
+            {
+                "selected_backend": "gpu",
+                "backend_attempts": ({"backend": "gpu", "outcome": "success"},),
+            },
+            "reconciled_method_metric_backend_requires_identity",
+            id="selected-backend-differs-from-actual-with-valid-trace",
+        ),
+        pytest.param(
+            {
+                "backend_trace_status": "not_established",
+                "backend_attempts": (),
+                "fallback_status": "not_established",
+            },
+            "reconciled_method_metric_backend_requires_identity",
+            id="backend-trace-not-established-with-matching-identity",
+        ),
+        pytest.param(
+            {"backend_attempts": ()},
+            "captured_method_metric_backend_trace_is_incomplete",
+            id="captured-trace-terminal-attempt-absent",
+        ),
+        pytest.param(
+            {"backend_attempts": ({"backend": "gpu", "outcome": "success"},)},
+            "captured_method_metric_backend_trace_is_incomplete",
+            id="captured-trace-terminal-backend-disagrees-with-selected",
+        ),
+        pytest.param(
+            {"backend_attempts": ({"backend": "cpu", "outcome": "failed"},)},
+            "captured_method_metric_backend_trace_is_incomplete",
+            id="captured-trace-terminal-attempt-not-successful",
+        ),
+        pytest.param(
+            {"actual_backend": None},
+            "reconciled_method_metric_backend_requires_identity",
+            id="actual-backend-absent",
+        ),
+        pytest.param(
+            {
+                "actual_backend": " ",
+                "selected_backend": " ",
+                "backend_attempts": ({"backend": " ", "outcome": "success"},),
+            },
+            "reconciled_method_metric_backend_requires_identity",
+            id="actual-backend-blank-with-other-identity-fields-matching",
+        ),
+    ],
+)
+def test_reconciled_backend_identity_rejects_each_provider_premise_independently(
+    provider_updates: dict[str, object], expected_refusal: str
+) -> None:
+    payload = _execution_context().model_dump(mode="python")
+    payload.update(provider_updates)
+
+    with pytest.raises(ValueError, match=expected_refusal):
+        MethodMetricExecutionContext.model_validate(payload)
+
+
 def test_direct_output_law_never_infers_meaning_from_complete_caller_context() -> None:
     semantics = _semantic_contract(
         input_roles=(

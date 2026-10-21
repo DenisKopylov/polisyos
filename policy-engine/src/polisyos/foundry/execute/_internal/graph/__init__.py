@@ -1450,6 +1450,13 @@ def _failed_method_dispatch_record(
     )
 
 
+def _declared_method_slot_type_name(slot: Any | None) -> str | None:
+    """Encode a declared slot type with its stable ABI enum identity."""
+    if slot is None:
+        return None
+    return slot.slot_type.name
+
+
 def _planned_returned_slots(
     method_class: type[Any] | None,
 ) -> list[MethodExecutionReturnedSlot]:
@@ -1463,7 +1470,7 @@ def _planned_returned_slots(
         MethodExecutionReturnedSlot(
             slot_id=slot.name,
             declared_by_signature=True,
-            declared_slot_type=slot.slot_type.value,
+            declared_slot_type=_declared_method_slot_type_name(slot),
             declared_shape=tuple(str(dimension)[:128] for dimension in slot.shape[:4]),
             returned="not_returned",
             runtime_shape_status="not_returned",
@@ -1588,7 +1595,7 @@ def _planned_method_occurrence(
             status="not_emitted",
             limitation="method_invocation_not_completed",
         )
-        for slot_id in selected_slot_ids
+        for slot_id in (selected_slot_ids if node_kind == "method" else ())
     ]
     dispatch = (
         _planned_method_dispatch(
@@ -1602,7 +1609,9 @@ def _planned_method_occurrence(
     )
     returned_slots = _planned_returned_slots(method_class) if node_kind == "method" else []
     declared_output_count = (
-        None if method_class is None else len(method_class.signature.output_slots)
+        None
+        if node_kind != "method" or method_class is None
+        else len(method_class.signature.output_slots)
     )
     returned_inventory_status = (
         "not_established"
@@ -1631,7 +1640,9 @@ def _planned_method_occurrence(
             else None
         ),
         returned_slot_inventory_observed_count=declared_output_count,
-        returned_slot_inventory_limit=_MAX_METHOD_RETURNED_SLOTS,
+        returned_slot_inventory_limit=(
+            _MAX_METHOD_RETURNED_SLOTS if node_kind == "method" else None
+        ),
         dispatch=dispatch,
         limitations=tuple(limitations),
     )
@@ -1740,7 +1751,7 @@ def _returned_slot_inventory_row(
     return MethodExecutionReturnedSlot(
         slot_id=slot_id,
         declared_by_signature=declared_slot is not None,
-        declared_slot_type=(None if declared_slot is None else declared_slot.slot_type.value),
+        declared_slot_type=_declared_method_slot_type_name(declared_slot),
         declared_shape=(
             None
             if declared_slot is None
@@ -2012,9 +2023,7 @@ def _capture_method_outputs(
                 MethodExecutionReturnedSlot(
                     slot_id=slot_id,
                     declared_by_signature=declared_slot is not None,
-                    declared_slot_type=(
-                        None if declared_slot is None else declared_slot.slot_type.value
-                    ),
+                    declared_slot_type=_declared_method_slot_type_name(declared_slot),
                     declared_shape=(
                         None
                         if declared_slot is None

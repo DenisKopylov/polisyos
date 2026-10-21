@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import io
-from collections.abc import Mapping
-from contextlib import AbstractContextManager
 from datetime import UTC, datetime
 from importlib import import_module
 from pathlib import Path
-from typing import Protocol, SupportsIndex, SupportsInt, cast
+from typing import TYPE_CHECKING, Protocol, SupportsIndex, SupportsInt, cast
 from urllib.parse import urlparse
 
 import aiohttp
@@ -19,6 +17,10 @@ from polisyos.fabric.connectors.base import ConnectionConfig, _safe_local_path
 from polisyos.fabric.connectors.contracts import infer_schema
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.ir.connectors import DataVersion, VersionStrategy
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from contextlib import AbstractContextManager
 
 
 class _RemoteBinaryReader(Protocol):
@@ -173,17 +175,19 @@ async def read_location_bytes(
 
     transport_headers = _strip_internal_headers(dict(config.headers), prefixes=prefixes)
     timeout = aiohttp.ClientTimeout(total=config.timeout_seconds)
-    async with aiohttp.ClientSession(timeout=timeout) as session:
-        async with session.get(url, headers=transport_headers) as response:
-            response.raise_for_status()
-            data = await read_bounded_response_body(
-                response,
-                connector_id="files.location",
-                url=url,
-                max_response_bytes=max_bytes,
-                max_decompressed_bytes=max_bytes,
-            )
-            return data, dict(response.headers)
+    async with (
+        aiohttp.ClientSession(timeout=timeout) as session,
+        session.get(url, headers=transport_headers) as response,
+    ):
+        response.raise_for_status()
+        data = await read_bounded_response_body(
+            response,
+            connector_id="files.location",
+            url=url,
+            max_response_bytes=max_bytes,
+            max_decompressed_bytes=max_bytes,
+        )
+        return data, dict(response.headers)
 
 
 def dataframe_from_bytes(

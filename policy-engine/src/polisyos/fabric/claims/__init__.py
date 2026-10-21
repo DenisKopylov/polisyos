@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from .errors import (
     ClaimNotReadyError,
@@ -20,6 +20,9 @@ from .types import (
     ClaimNormalizeOptions,
     ClaimNormalizeResult,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 try:
     from .conflicts import (

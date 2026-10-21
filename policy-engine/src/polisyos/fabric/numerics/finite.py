@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Buffer
-from typing import SupportsFloat, SupportsIndex, cast
+from typing import TYPE_CHECKING, SupportsFloat, SupportsIndex, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Buffer
 
 __all__ = [
     "ensure_finite_float",

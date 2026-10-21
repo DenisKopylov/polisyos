@@ -7,15 +7,21 @@ import json
 import math
 import re
 from collections import defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from .contract import DataContract
 from .providers import resolve_catalog_providers
 from .source_bindings import SourceBinding
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _STOPWORDS = {
@@ -244,7 +250,7 @@ def _canonical_contract_payload(contract: DataContract) -> dict[str, object]:
 def _resolve_profile_payloads(
     bindings: Sequence[SourceBinding],
     *,
-    source_profiles: Any | None = None,
+    source_profiles: SourceProfileRegistry | None = None,
 ) -> dict[str, dict[str, object]]:
     if not any(binding.profile_id for binding in bindings):
         return {}

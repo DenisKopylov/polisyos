@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from math import isfinite
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import (
@@ -21,6 +21,24 @@ from polisyos.core.observability import (
 )
 
 logger = get_logger(__name__)
+
+
+class _CacheStatsProvider(Protocol):
+    """Minimal statistics surface consumed from optional cache stores."""
+
+    def stats(self) -> object: ...
+
+
+class _CursorInventory(Protocol):
+    """Minimal cursor inventory surface consumed by health reporting."""
+
+    def list_cursors(self) -> Sequence[object]: ...
+
+
+class _RetrievalStatsProvider(Protocol):
+    """Minimal retrieval statistics surface consumed by health reporting."""
+
+    def get_index_stats(self) -> object: ...
 
 
 @dataclass(frozen=True)
@@ -464,16 +482,16 @@ class FabricHealthSnapshot:
 
 def build_fabric_health_snapshot(
     *,
-    registry: Any | None = None,
-    cache_store: Any | None = None,
+    registry: object | None = None,
+    cache_store: object | None = None,
     fact_log_root: Path | None = None,
-    cursor_store: Any | None = None,
-    retrieval_service: Any | None = None,
+    cursor_store: object | None = None,
+    retrieval_service: object | None = None,
     sli_observations: Mapping[FabricSLIName | str, float | FabricSLIObservation]
     | Sequence[FabricSLIObservation]
     | None = None,
     alert_sink: AlertSink | None = None,
-    metrics: Any | None = None,
+    metrics: object | None = None,
 ) -> FabricHealthSnapshot:
     """Aggregate connector/cache/world/data-plane/retrieval health into one snapshot."""
     sink = alert_sink or NoOpAlertSink()
@@ -526,7 +544,7 @@ def build_fabric_health_snapshot(
     return snapshot
 
 
-def _connector_health_component(registry: Any | None) -> HealthComponentSnapshot | None:
+def _connector_health_component(registry: object | None) -> HealthComponentSnapshot | None:
     if registry is None:
         return None
     entries = list(getattr(getattr(registry, "_connectors", None), "values", lambda: [])())
@@ -554,7 +572,7 @@ def _connector_health_component(registry: Any | None) -> HealthComponentSnapshot
     )
 
 
-def _cache_health_component(cache_store: Any | None) -> HealthComponentSnapshot | None:
+def _cache_health_component(cache_store: object | None) -> HealthComponentSnapshot | None:
     if cache_store is None:
         return None
     reasons: list[str] = []
@@ -562,7 +580,7 @@ def _cache_health_component(cache_store: Any | None) -> HealthComponentSnapshot 
     if details["closed"]:
         reasons.append("cache store is closed")
     try:
-        stats = cache_store.stats()
+        stats = cast("_CacheStatsProvider", cache_store).stats()
     except Exception as exc:
         reasons.append(f"cache stats unavailable: {exc}")
     else:
@@ -603,13 +621,13 @@ def _world_health_component(fact_log_root: Path | None) -> HealthComponentSnapsh
     )
 
 
-def _data_plane_health_component(cursor_store: Any | None) -> HealthComponentSnapshot | None:
+def _data_plane_health_component(cursor_store: object | None) -> HealthComponentSnapshot | None:
     if cursor_store is None:
         return None
     reasons: list[str] = []
     details: dict[str, Any] = {}
     try:
-        cursors = cursor_store.list_cursors()
+        cursors = cast("_CursorInventory", cursor_store).list_cursors()
     except Exception as exc:
         reasons.append(f"cursor store unavailable: {exc}")
         cursors = []
@@ -622,13 +640,13 @@ def _data_plane_health_component(cursor_store: Any | None) -> HealthComponentSna
     )
 
 
-def _retrieval_health_component(retrieval_service: Any | None) -> HealthComponentSnapshot | None:
+def _retrieval_health_component(retrieval_service: object | None) -> HealthComponentSnapshot | None:
     if retrieval_service is None:
         return None
     reasons: list[str] = []
     details: dict[str, Any] = {}
     try:
-        stats = retrieval_service.get_index_stats()
+        stats = cast("_RetrievalStatsProvider", retrieval_service).get_index_stats()
     except Exception as exc:
         reasons.append(f"retrieval index unavailable: {exc}")
     else:
@@ -681,7 +699,7 @@ def _slo_health_component(
 def _record_health_metrics(
     snapshot: FabricHealthSnapshot,
     *,
-    metrics: Any | None = None,
+    metrics: object | None = None,
 ) -> None:
     resolved_metrics = metrics if metrics is not None else _default_metrics()
     if resolved_metrics is None:

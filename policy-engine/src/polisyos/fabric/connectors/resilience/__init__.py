@@ -307,7 +307,7 @@ def apply_resilience[T](
                 await limiter.acquire()
             return await func(*call_args, **call_kwargs)
 
-        async def _retry_call(*call_args: object, **call_kwargs: Any) -> T:
+        async def _retry_call(*call_args: object, **call_kwargs: object) -> T:
             if retry_policy is None:
                 return await _rate_limited_call(*call_args, **call_kwargs)
             return await retry_policy.execute(

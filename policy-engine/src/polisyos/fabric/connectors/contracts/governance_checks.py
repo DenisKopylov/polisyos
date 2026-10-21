@@ -10,6 +10,7 @@ from .schema import SchemaVersion
 
 if TYPE_CHECKING:
     from .contract import ConnectorSchemaContract
+    from .schema import SchemaVersion
 
 __all__ = [
     "ContractGovernanceEvaluation",

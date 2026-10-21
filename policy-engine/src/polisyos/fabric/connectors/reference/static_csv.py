@@ -36,9 +36,8 @@ from __future__ import annotations
 import asyncio
 import io
 import time
-from collections.abc import Mapping
 from datetime import UTC, datetime
-from typing import Any, ClassVar, TypedDict
+from typing import TYPE_CHECKING, Any, ClassVar, TypedDict
 
 import aiohttp
 import pandas as pd
@@ -74,6 +73,9 @@ from polisyos.ir.connectors import (
     VersionStrategy,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 def _bool_from_header(value: str | None, default: bool = True) -> bool:

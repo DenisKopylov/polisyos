@@ -187,8 +187,10 @@ def render_scorecards_markdown(scorecards: Sequence[SourceScorecard]) -> str:
     """Render a compact scorecard table."""
 
     lines = [
-        "| Source contract | Window | Freshness | Reliability | Schema drift | Quality | Replay | Overall | Status |",
-        "| --------------- | ------ | --------- | ----------- | ------------ | ------- | ------ | ------- | ------ |",
+        "| Source contract | Window | Freshness | Reliability | "
+        "Schema drift | Quality | Replay | Overall | Status |",
+        "| --------------- | ------ | --------- | ----------- | "
+        "------------ | ------- | ------ | ------- | ------ |",
     ]
     for scorecard in sorted(scorecards, key=lambda item: item.source_contract_id):
         metrics = {metric.name: metric for metric in scorecard.metrics}

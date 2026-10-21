@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
-from datetime import datetime
 from enum import Enum
 from functools import total_ordering
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import pandas as pd
 
@@ -22,7 +21,18 @@ from polisyos.fabric.quality.safety import quote_sql_identifier, validate_sql_id
 
 logger = get_logger(__name__)
 
+
+class _CatalogLookup(Protocol):
+    """Optional catalogue lookup methods consumed by cached quality reads."""
+
+    def get_contract(self, metric_id: str) -> object: ...
+
+    def get(self, metric_id: str) -> object: ...
+
+
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from polisyos.core.observability import MetricsRegistry
     from polisyos.fabric.connectors.quality.report import DataQualityReport
 
@@ -550,7 +560,8 @@ def compute_quality_from_duckdb(
             null_checks = " + ".join(
                 [f"CASE WHEN {col} IS NULL THEN 1 ELSE 0 END" for col in quoted_columns]
             )
-            # Every dynamic token here is a validated, quoted identifier; no values are interpolated.
+            # Every dynamic token is a validated, quoted identifier; no values are
+            # interpolated.
             null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name  # noqa: S608
             total_nulls = conn.execute(null_count_query).fetchone()[0] or 0
             non_finite_cells = 0
@@ -606,7 +617,7 @@ def compute_quality_from_duckdb(
 
 def get_cached_quality_indicators(
     metric_id: str,
-    catalog_registry: Any,
+    catalog_registry: object | None,
 ) -> QualityIndicators | None:
     """
     Retrieve pre-computed quality indicators from catalog metadata.
@@ -619,7 +630,7 @@ def get_cached_quality_indicators(
     contract = None
     if hasattr(catalog_registry, "get_contract"):
         try:
-            contract = catalog_registry.get_contract(metric_id)
+            contract = cast("_CatalogLookup", catalog_registry).get_contract(metric_id)
         except (TypeError, ValueError, KeyError, AttributeError):
             logger.debug(
                 "Failed to get_contract for metric %s",
@@ -629,7 +640,7 @@ def get_cached_quality_indicators(
             return None
     elif hasattr(catalog_registry, "get"):
         try:
-            contract = catalog_registry.get(metric_id)
+            contract = cast("_CatalogLookup", catalog_registry).get(metric_id)
         except (TypeError, ValueError, KeyError, AttributeError):
             logger.debug(
                 "Failed to get contract for metric %s",

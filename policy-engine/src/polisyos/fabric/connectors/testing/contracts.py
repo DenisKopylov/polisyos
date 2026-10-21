@@ -13,9 +13,8 @@ from __future__ import annotations
 
 import re
 import string
-from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 import pandas as pd
 
@@ -25,13 +24,41 @@ from polisyos.fabric.connectors.contracts.schema import (
     SchemaType,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+
+_RandomValue = TypeVar("_RandomValue")
+
+
+class _RandomSource(Protocol):
+    def random(self) -> float: ...
+
+    def choice(self, seq: Sequence[_RandomValue]) -> _RandomValue: ...
+
+    def randint(self, a: int, b: int) -> int: ...
+
+    def uniform(self, a: float, b: float) -> float: ...
+
+    def choices(
+        self,
+        population: Sequence[_RandomValue],
+        weights: Sequence[float] | None = None,
+        *,
+        cum_weights: Sequence[float] | None = None,
+        k: int = 1,
+    ) -> list[_RandomValue]: ...
+
+
 # ---------------------------------------------------------------------------
 # Contract violation exception
 # ---------------------------------------------------------------------------
 
 
+# AD-E02-FABRIC-N818-01 v1: preserve only the selected existing exception identities.
+# this is an N818 compatibility rationale, not an exception-class or waiver framework.
+# Decision path: `policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
 @dataclass
-class ContractViolation(Exception):
+class ContractViolation(Exception):  # noqa: N818 -- connector-testing facade and harness retain this exact exception name
     """
     Structured exception for schema contract failures.
 
@@ -135,7 +162,7 @@ def generate_dataframe_for_schema(
 # ---------------------------------------------------------------------------
 
 
-def _inject_nulls(df: pd.DataFrame, col: str, rate: float, rng: Any) -> None:
+def _inject_nulls(df: pd.DataFrame, col: str, rate: float, rng: _RandomSource) -> None:
     """Replace ~rate fraction of values in col with NaN."""
     mask = [rng.random() < rate for _ in range(len(df))]
     df.loc[mask, col] = None
@@ -168,7 +195,7 @@ def _apply_schema_dtypes(df: pd.DataFrame, schema: DataSchema) -> None:
             df[fspec.name] = df[fspec.name].astype("object")
 
 
-def _generate_column(fspec: FieldSpec, n: int, rng: Any) -> list[Any]:
+def _generate_column(fspec: FieldSpec, n: int, rng: _RandomSource) -> list[Any]:
     """Dispatch to the correct generator based on data_type."""
     dispatch: dict[SchemaType, Callable[[], list[Any]]] = {
         SchemaType.INT8: lambda: _gen_int(fspec, n, rng, lo=-128, hi=127),
@@ -196,7 +223,7 @@ def _generate_column(fspec: FieldSpec, n: int, rng: Any) -> list[Any]:
     return generator()
 
 
-def _gen_int(fspec: FieldSpec, n: int, rng: Any, lo: int, hi: int) -> list[int]:
+def _gen_int(fspec: FieldSpec, n: int, rng: _RandomSource, lo: int, hi: int) -> list[int]:
     """Generate integers respecting bounds from FieldSpec."""
     min_val, max_val = fspec.bounds
     effective_lo = int(min_val) if min_val is not None else lo
@@ -207,7 +234,7 @@ def _gen_int(fspec: FieldSpec, n: int, rng: Any, lo: int, hi: int) -> list[int]:
     return [rng.randint(effective_lo, effective_hi) for _ in range(n)]
 
 
-def _gen_float(fspec: FieldSpec, n: int, rng: Any) -> list[float]:
+def _gen_float(fspec: FieldSpec, n: int, rng: _RandomSource) -> list[float]:
     """Generate floats respecting bounds from FieldSpec."""
     min_val, max_val = fspec.bounds
     lo = min_val if min_val is not None else -1e6
@@ -215,7 +242,7 @@ def _gen_float(fspec: FieldSpec, n: int, rng: Any) -> list[float]:
     return [round(rng.uniform(lo, hi), 6) for _ in range(n)]
 
 
-def _gen_string(fspec: FieldSpec, n: int, rng: Any) -> list[str]:
+def _gen_string(fspec: FieldSpec, n: int, rng: _RandomSource) -> list[str]:
     """
     Generate strings.
 
@@ -237,7 +264,7 @@ def _gen_string(fspec: FieldSpec, n: int, rng: Any) -> list[str]:
     return results
 
 
-def _gen_category(fspec: FieldSpec, n: int, rng: Any) -> list[str]:
+def _gen_category(fspec: FieldSpec, n: int, rng: _RandomSource) -> list[str]:
     """
     Generate categorical values.
 
@@ -250,7 +277,7 @@ def _gen_category(fspec: FieldSpec, n: int, rng: Any) -> list[str]:
     return _gen_string(fspec, n, rng)
 
 
-def _gen_datetime(n: int, rng: Any) -> list[str]:
+def _gen_datetime(n: int, rng: _RandomSource) -> list[str]:
     """Generate ISO-8601 datetime strings spanning 2020-2025."""
     import datetime as _dt
 
@@ -259,7 +286,7 @@ def _gen_datetime(n: int, rng: Any) -> list[str]:
     return [(base + _dt.timedelta(seconds=rng.uniform(0, span))).isoformat() for _ in range(n)]
 
 
-def _gen_date(n: int, rng: Any) -> list[str]:
+def _gen_date(n: int, rng: _RandomSource) -> list[str]:
     """Generate ISO-8601 date strings spanning 2020-2025."""
     import datetime as _dt
 
@@ -268,7 +295,7 @@ def _gen_date(n: int, rng: Any) -> list[str]:
     return [(base + _dt.timedelta(days=rng.randint(0, span))).isoformat() for _ in range(n)]
 
 
-def _expand_simple_pattern(pattern: str, max_len: int, rng: Any) -> str:
+def _expand_simple_pattern(pattern: str, max_len: int, rng: _RandomSource) -> str:
     """
     Best-effort expansion of simple regex patterns.
 

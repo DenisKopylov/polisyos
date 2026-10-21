@@ -20,10 +20,10 @@ from polisyos.core.contracts.control import FetchPlan
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
-from .providers import RetrievalProviders
-
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
+
+    from .providers import RetrievalProviders
 
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _PRODUCER = core_artifacts.ProducerInfo(
@@ -97,7 +97,7 @@ def _bind_plan(catalog: object, plan: FetchPlan) -> catalog_api.CatalogFetchBind
         raise FabricFetchCustodyError("catalog_fetch_target_not_admitted") from exc
 
 
-def _encode_payload(data: Any) -> tuple[bytes, str, str]:
+def _encode_payload(data: object) -> tuple[bytes, str, str]:
     import pandas as pd
     import pyarrow as pa
 
@@ -115,7 +115,7 @@ def _encode_payload(data: Any) -> tuple[bytes, str, str]:
     return canon.to_canonical_bytes(data, spec=_CANON), _JSON, "canonical_json"
 
 
-def _decode_payload(data: bytes, encoding: str) -> Any:
+def _decode_payload(data: bytes, encoding: str) -> object:
     if encoding == "canonical_json":
         return canon.from_canonical_bytes(data)
     import pyarrow as pa

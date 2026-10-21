@@ -42,9 +42,9 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import AsyncIterator, Iterable, Mapping
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import aiohttp
 import pandas as pd
@@ -86,6 +86,9 @@ from polisyos.ir.connectors import (
     VersionStrategy,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
 
 logger = get_logger(__name__)
 

@@ -8,10 +8,9 @@ dataclass that wrap SchemaInference for common use cases.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Protocol, cast
 
 import pandas as pd
 
@@ -24,6 +23,9 @@ from polisyos.fabric.connectors.contracts.schema import (
 from polisyos.fabric.numerics.finite import is_finite_number
 
 from ._inference_config import InferenceConfig, SchemaHints
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 from ._inference_engine import SchemaInference
 
 logger = get_logger(__name__)
@@ -173,7 +175,8 @@ def validate_dataframe_against_schema(
             empty_count = int((values == "").sum())
             if empty_count:
                 errors.append(
-                    f"Field '{field.name}' has {empty_count} empty {field.semantic_type.value} values"
+                    f"Field '{field.name}' has {empty_count} empty "
+                    f"{field.semantic_type.value} values"
                 )
 
         if field.allowed_values is not None:
@@ -202,7 +205,8 @@ def validate_dataframe_against_schema(
             if too_long.any():
                 count = int(too_long.sum())
                 errors.append(
-                    f"Field '{field.name}' has {count} values exceeding max_length {field.max_length}"
+                    f"Field '{field.name}' has {count} values exceeding max_length "
+                    f"{field.max_length}"
                 )
 
         completeness = 1.0 - column_values.isna().mean()
@@ -211,7 +215,8 @@ def validate_dataframe_against_schema(
             and completeness < schema.required_completeness
         ):
             errors.append(
-                f"Field '{field.name}' completeness {completeness:.1%} below required {schema.required_completeness:.1%}"
+                f"Field '{field.name}' completeness {completeness:.1%} below required "
+                f"{schema.required_completeness:.1%}"
             )
 
     return errors
@@ -243,7 +248,8 @@ def coerce_dataframe_to_schema(
             normalized = SchemaInference._normalize_column_name(column_name)
             if normalized in normalized_map:
                 warnings.append(
-                    f"Column '{column_name}' normalized to '{normalized}' conflicts with '{normalized_map[normalized]}'"
+                    f"Column '{column_name}' normalized to '{normalized}' conflicts with "
+                    f"'{normalized_map[normalized]}'"
                 )
                 continue
             normalized_map[normalized] = column_name
@@ -346,7 +352,7 @@ def _coerce_boolean(series: pd.Series) -> pd.Series:
         "f": False,
     }
 
-    def _to_bool(value: Any) -> Any:
+    def _to_bool(value: object) -> bool | type(pd.NA):
         if pd.isna(value):
             return pd.NA
         if isinstance(value, bool):

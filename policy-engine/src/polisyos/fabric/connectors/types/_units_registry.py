@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import threading
-from collections.abc import Iterator, Mapping
+from collections.abc import Mapping
 from decimal import Decimal, InvalidOperation, localcontext
 from types import MappingProxyType
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from ._units_base import STANDARD_UNITS, BaseUnit
 from ._units_core import Unit
 from ._units_errors import UnitParseError
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 __all__ = [
     "UnitRegistry",

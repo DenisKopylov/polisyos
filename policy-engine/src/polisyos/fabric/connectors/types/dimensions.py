@@ -25,9 +25,12 @@ Example:
 from __future__ import annotations
 
 import threading
-from collections.abc import Iterator, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 __all__ = [
     "BaseDimension",
@@ -55,7 +58,7 @@ class DimensionError(Exception):
 class IncompatibleDimensionsError(DimensionError):
     """Raised when operations require compatible dimensions but receive incompatible ones."""
 
-    def __init__(self, dim1: Dimension, dim2: Dimension, operation: str = "operation"):
+    def __init__(self, dim1: Dimension, dim2: Dimension, operation: str = "operation") -> None:
         self.dim1 = dim1
         self.dim2 = dim2
         self.operation = operation

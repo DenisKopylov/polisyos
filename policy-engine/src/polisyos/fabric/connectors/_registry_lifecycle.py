@@ -4,17 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import inspect
-from _thread import RLock as RLockType
-from collections import OrderedDict
-from collections.abc import Awaitable, Callable, Sequence
-from concurrent.futures import Future
 from functools import wraps
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.core.registry import GenericRegistry
 from polisyos.fabric.connectors._registry_errors import (
     ConnectorAlreadyRegisteredError,
     ConnectorConfigError,
@@ -26,7 +21,13 @@ from polisyos.fabric.connectors._registry_models import (
 )
 
 if TYPE_CHECKING:
+    from _thread import RLock as RLockType
+    from collections import OrderedDict
+    from collections.abc import Awaitable, Callable, Sequence
+    from concurrent.futures import Future
+
     from polisyos.core.observability import MetricsRegistry
+    from polisyos.core.registry import GenericRegistry
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
         FetchResult,
@@ -311,7 +312,8 @@ class RegistryLifecycleMixin:
             raise ConnectorConfigError(
                 connector_id=entry.fqid,
                 reason=(
-                    f"Connector entry {detail} differs from its registry-owned registration binding; "
+                    f"Connector entry {detail} differs from its registry-owned registration "
+                    "binding; "
                     "re-register to replace the selected connector"
                 ),
             )
@@ -1038,7 +1040,7 @@ class RegistryLifecycleMixin:
                 )
 
                 @wraps(original_fetch)
-                async def _wrapped_fetch(*args: Any, **kwargs: Any) -> FetchResult[Any]:
+                async def _wrapped_fetch(*args: object, **kwargs: object) -> FetchResult[Any]:
                     try:
                         result = await original_fetch(*args, **kwargs)
                     except Exception:
@@ -1051,7 +1053,9 @@ class RegistryLifecycleMixin:
                 if callable(original_fetch_with_receipt):
 
                     @wraps(original_fetch_with_receipt)
-                    async def _wrapped_fetch_with_receipt(*args: Any, **kwargs: Any) -> object:
+                    async def _wrapped_fetch_with_receipt(
+                        *args: object, **kwargs: object
+                    ) -> object:
                         try:
                             receipt_result = original_fetch_with_receipt(*args, **kwargs)
                             if not inspect.isawaitable(receipt_result):

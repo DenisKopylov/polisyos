@@ -147,11 +147,10 @@ class ProcessingGuaranteeContract(BaseModel):
     @model_validator(mode="after")
     def _validate_guarantee_claim(self) -> ProcessingGuaranteeContract:
         guarantee = ProcessingGuarantee(self.guarantee)
-        if guarantee == ProcessingGuarantee.EXACTLY_ONCE_NARROW:
-            if self.atomicity_proof is None or not self.atomicity_proof.complete:
-                raise ValueError(
-                    "exactly_once_narrow requires atomic input/state/output proof refs"
-                )
+        if guarantee == ProcessingGuarantee.EXACTLY_ONCE_NARROW and (
+            self.atomicity_proof is None or not self.atomicity_proof.complete
+        ):
+            raise ValueError("exactly_once_narrow requires atomic input/state/output proof refs")
         if (
             guarantee
             in {
@@ -161,9 +160,11 @@ class ProcessingGuaranteeContract(BaseModel):
             and not self.idempotency.enabled
         ):
             raise ValueError(f"{guarantee.value} requires idempotency/dedupe policy")
-        if guarantee == ProcessingGuarantee.EFFECTIVELY_ONCE:
-            if self.idempotency.replay_retention_days <= 0:
-                raise ValueError("effectively_once requires replay retention")
+        if (
+            guarantee == ProcessingGuarantee.EFFECTIVELY_ONCE
+            and self.idempotency.replay_retention_days <= 0
+        ):
+            raise ValueError("effectively_once requires replay retention")
         return self
 
     @property
@@ -247,10 +248,13 @@ def classify_cdc_schema_change(
 def processing_contract_snapshot(contract: ProcessingGuaranteeContract) -> dict[str, Any]:
     """Return a JSON-friendly processing contract snapshot."""
 
-    return _canonical_metadata_payload(contract.model_dump(mode="json"))
+    snapshot = _canonical_metadata_payload(contract.model_dump(mode="json"))
+    if not isinstance(snapshot, dict):
+        raise TypeError("processing contract JSON snapshot must be an object")
+    return snapshot
 
 
-def _canonical_metadata_payload(value: Any) -> Any:
+def _canonical_metadata_payload(value: object) -> object:
     """Convert floats to stable strings for cursor metadata canonical JSON."""
 
     if isinstance(value, float):

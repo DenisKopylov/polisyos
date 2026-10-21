@@ -250,13 +250,18 @@ class AggregationTransform(DataTransform):
             }
 
         time_collapsing = False
-        if grouper_grain is not None:
-            if source_grain is None or grouper_grain.is_coarser_than(source_grain):
-                time_collapsing = True
+        if grouper_grain is not None and (
+            source_grain is None or grouper_grain.is_coarser_than(source_grain)
+        ):
+            time_collapsing = True
 
-        if not time_collapsing and source_grain and target_grain:
-            if target_grain.is_coarser_than(source_grain):
-                time_collapsing = True
+        if (
+            not time_collapsing
+            and source_grain
+            and target_grain
+            and target_grain.is_coarser_than(source_grain)
+        ):
+            time_collapsing = True
 
         return time_collapsing, {
             "time_dimension": time_dim,
@@ -354,7 +359,7 @@ class AggregationTransform(DataTransform):
 # =============================================================================
 
 
-def _freq_to_granularity(freq: Any) -> TimeGranularity | None:
+def _freq_to_granularity(freq: object | None) -> TimeGranularity | None:
     if freq is None:
         return None
     rule_code = getattr(freq, "rule_code", None)

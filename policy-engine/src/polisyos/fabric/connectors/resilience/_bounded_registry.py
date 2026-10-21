@@ -5,10 +5,10 @@ from __future__ import annotations
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable
-from typing import Generic, TypeVar
+from typing import TYPE_CHECKING
 
-T = TypeVar("T")
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def _monotonic() -> float:
@@ -19,7 +19,7 @@ class BoundedResourceRegistryCapacityError(RuntimeError):
     """Raised when all bounded registry slots carry mandatory live state."""
 
 
-class BoundedResourceRegistry(Generic[T]):
+class BoundedResourceRegistry[T]:
     """LRU + TTL registry that never discards live resilience state.
 
     ``max_items`` bounds the number of quiescent lookup entries and the number

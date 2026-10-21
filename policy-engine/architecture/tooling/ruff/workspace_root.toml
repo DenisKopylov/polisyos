@@ -375,7 +375,6 @@ extend-exclude = ["policy-engine/docs/archive/**", "policy-engine/docs/research/
 "policy-engine/src/polisyos/fabric/**" = [
   "ANN",
   "E501",
-  "N818",
   "SIM102",
   "SIM117",
   "TC001",

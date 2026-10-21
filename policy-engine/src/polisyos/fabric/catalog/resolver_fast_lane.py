@@ -358,7 +358,8 @@ class FastLaneResolver:
                             }
                         ],
                         "search_explanations": [
-                            "Semantic and lexical catalog search missed; binding registry wildcard fallback applied."
+                            "Semantic and lexical catalog search missed; "
+                            "binding registry wildcard fallback applied."
                         ],
                         "matched_alias": query,
                     },

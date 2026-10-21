@@ -6,17 +6,18 @@ import importlib
 import json
 import math
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.cache.policy import (
     PolicyRegistry,
     SmartExpiryPolicy,
@@ -58,21 +59,50 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEntity,
 )
 from polisyos.fabric.provenance.lineage import FabricLineageTracker
-from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from polisyos.core.artifacts import RootedArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors import RawHTTPResponseObserver
+    from polisyos.fabric.connectors.base import SourceConnectorInstance
     from polisyos.fabric.connectors.cache import CacheFetchReceipt
+    from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
 logger = get_logger(__name__)
-TransformPipelineFactory = Callable[[], Any]
+
+
+class _TransformResult(Protocol):
+    """Output attributes consumed from an allowlisted transform pipeline."""
+
+    data: object
+    warnings: list[str]
+
+
+class _TransformStage(Protocol):
+    """Stage metadata consumed when a pipeline supports isolated retries."""
+
+    name: str
+    transform: object
+
+
+class _CompiledTransformPipeline(Protocol):
+    """Compiled stage inventory consumed by the ingestion safety check."""
+
+    stages: list[_TransformStage]
+
+
+class _TransformPipeline(Protocol):
+    """Minimum pipeline behavior used by connector ingestion."""
+
+    def compile(self) -> _CompiledTransformPipeline: ...
+
+    def apply(self, data: object, context: object | None = None) -> _TransformResult: ...
+
+
+TransformPipelineFactory = Callable[[], _TransformPipeline]
 PreTransformFetchResultSink = Callable[[str, str, FetchRequest, FetchResult[Any]], None]
 RawFetchResultSink = PreTransformFetchResultSink
 _TRANSFORM_PIPELINE_REGISTRY: dict[str, TransformPipelineFactory] = {}
@@ -110,22 +140,27 @@ def _optional_bool(value: object) -> bool | None:
     raise ValueError(f"Expected bool-compatible value, got {value!r}")
 
 
-def _bool_with_default(value: object, *, default: bool) -> bool:
-    parsed = _optional_bool(value)
-    return default if parsed is None else parsed
-
-
 def _coerce_filter_map(value: object) -> dict[str, list[str]]:
-    if not isinstance(value, dict):
-        return {}
+    if not isinstance(value, Mapping):
+        raise ValueError("connector manifest field 'filters' must be a mapping")
+
+    def _is_filter_scalar(item: object) -> bool:
+        return type(item) in (str, int, bool) or (type(item) is float and math.isfinite(item))
+
     normalized: dict[str, list[str]] = {}
     for key, raw_values in value.items():
-        if not isinstance(key, str):
-            continue
+        if not isinstance(key, str) or not key.strip():
+            raise ValueError("connector manifest filter keys must be non-empty strings")
+        if raw_values is None:
+            raise ValueError(f"connector manifest filter {key!r} must not be null")
         if isinstance(raw_values, list):
+            if any(not _is_filter_scalar(item) for item in raw_values):
+                raise ValueError(f"connector manifest filter {key!r} has an invalid value")
             normalized[key] = [str(item) for item in raw_values]
-        elif raw_values is not None:
+        elif _is_filter_scalar(raw_values):
             normalized[key] = [str(raw_values)]
+        else:
+            raise ValueError(f"connector manifest filter {key!r} has an invalid value")
     return normalized
 
 
@@ -171,10 +206,11 @@ class DatasetFetchSpec:
 
     @classmethod
     def from_mapping(cls, raw: Mapping[str, object]) -> DatasetFetchSpec:
+        filters = _coerce_filter_map(raw["filters"]) if "filters" in raw else {}
         return cls(
             connector_id=_require_text(raw, "connector_id"),
             dataset_id=_require_text(raw, "dataset_id"),
-            filters=_coerce_filter_map(raw.get("filters")),
+            filters=filters,
             date_start=_optional_text(raw.get("date_start")),
             date_end=_optional_text(raw.get("date_end")),
             retryable=_optional_bool(raw.get("retryable")),
@@ -210,27 +246,36 @@ class ConnectorManifestSpec:
 
     @classmethod
     def from_mapping(cls, raw: Mapping[str, object]) -> ConnectorManifestSpec:
-        raw_datasets = raw.get("datasets")
-        if raw_datasets is None:
+        if "datasets" not in raw:
             datasets: list[DatasetFetchSpec] = []
-        elif isinstance(raw_datasets, list):
-            datasets = [
-                DatasetFetchSpec.from_mapping(dataset)
-                for dataset in raw_datasets
-                if isinstance(dataset, dict)
-            ]
         else:
-            raise ValueError("connector manifest 'datasets' must be a list of mappings")
+            raw_datasets = raw["datasets"]
+            if not isinstance(raw_datasets, list):
+                raise ValueError("connector manifest 'datasets' must be a list of mappings")
+            datasets = []
+            for index, dataset in enumerate(raw_datasets):
+                if not isinstance(dataset, Mapping):
+                    raise ValueError(
+                        f"connector manifest 'datasets' entries must be mappings (index {index})"
+                    )
+                datasets.append(DatasetFetchSpec.from_mapping(dataset))
 
         retry_policy = raw.get("retry_policy")
-        normalized_retry_policy = dict(retry_policy) if isinstance(retry_policy, dict) else None
+        if retry_policy is not None and not isinstance(retry_policy, Mapping):
+            raise ValueError("connector manifest field 'retry_policy' must be a mapping")
+        normalized_retry_policy = dict(retry_policy) if isinstance(retry_policy, Mapping) else None
+        if "allow_local_transform_dag" in raw:
+            allow_local_transform_dag = _optional_bool(raw["allow_local_transform_dag"])
+            if allow_local_transform_dag is None:
+                raise ValueError(
+                    "connector manifest field 'allow_local_transform_dag' must be boolean"
+                )
+        else:
+            allow_local_transform_dag = False
         return cls(
             datasets=datasets,
             transform_dag=_optional_text(raw.get("transform_dag")),
-            allow_local_transform_dag=_bool_with_default(
-                raw.get("allow_local_transform_dag"),
-                default=False,
-            ),
+            allow_local_transform_dag=allow_local_transform_dag,
             cache_policy=_optional_text(raw.get("cache_policy")),
             retry_policy=normalized_retry_policy,
         )
@@ -249,7 +294,7 @@ class ConnectorManifestSpec:
         return payload
 
 
-def _canon_scalar(value: Any) -> Any:
+def _canon_scalar(value: object) -> object:
     """Convert non-canonical scalars (e.g. float) to canonical-friendly values."""
     if isinstance(value, float):
         return str(value)
@@ -265,24 +310,34 @@ def _load_manifest_file(path: Path) -> dict[str, Any]:
     return cast("dict[str, Any]", data)
 
 
-def _normalize_connector_manifest(
-    manifest: dict[str, Any] | Path | str | ConnectorManifestSpec,
-) -> ConnectorManifestSpec:
-    if isinstance(manifest, ConnectorManifestSpec):
-        return manifest
+def _connector_manifest_mapping(
+    manifest: Mapping[str, object] | Path | str,
+) -> Mapping[str, object]:
+    """Load one manifest mapping and validate its optional document wrapper."""
     if isinstance(manifest, (str, Path)):
         path = Path(manifest)
         if not path.exists():
             raise FileNotFoundError(f"Connector manifest not found: {path}")
-        raw = _load_manifest_file(path)
-        if isinstance(raw.get("connector_manifest"), dict):
-            raw = raw["connector_manifest"]
-    elif isinstance(manifest, dict):
+        raw: Mapping[str, object] = _load_manifest_file(path)
+    elif isinstance(manifest, Mapping):
         raw = manifest
     else:
-        raise TypeError("connector_manifest must be a dict, Path, str, or ConnectorManifestSpec")
+        raise TypeError("connector_manifest must be a mapping, Path, or str")
 
-    return ConnectorManifestSpec.from_mapping(raw)
+    if "connector_manifest" in raw:
+        wrapped = raw["connector_manifest"]
+        if not isinstance(wrapped, Mapping):
+            raise ValueError("connector manifest field 'connector_manifest' must be a mapping")
+        raw = wrapped
+    return raw
+
+
+def _normalize_connector_manifest(
+    manifest: Mapping[str, object] | Path | str | ConnectorManifestSpec,
+) -> ConnectorManifestSpec:
+    if isinstance(manifest, ConnectorManifestSpec):
+        return manifest
+    return ConnectorManifestSpec.from_mapping(_connector_manifest_mapping(manifest))
 
 
 def _build_cache_registry(policy_spec: str | None) -> PolicyRegistry:
@@ -317,15 +372,15 @@ def register_transform_pipeline(name: str, builder: TransformPipelineFactory) ->
     _TRANSFORM_PIPELINE_REGISTRY[key] = builder
 
 
-def _validate_transform_pipeline_instance(pipeline: Any) -> Any:
+def _validate_transform_pipeline_instance(pipeline: object) -> _TransformPipeline:
     from polisyos.fabric.connectors.transform.pipeline import TransformPipeline
 
     if not isinstance(pipeline, TransformPipeline):
         raise TypeError("transform_dag must produce a TransformPipeline instance")
-    return pipeline
+    return cast("_TransformPipeline", pipeline)
 
 
-def _load_local_transform_pipeline(transform_dag: str) -> Any:
+def _load_local_transform_pipeline(transform_dag: str) -> _TransformPipeline:
     import importlib.util
 
     path = Path(transform_dag)
@@ -351,7 +406,7 @@ def _load_transform_pipeline(
     transform_dag: str | None,
     *,
     allow_local_trust: bool = False,
-) -> Any | None:
+) -> _TransformPipeline | None:
     if not transform_dag:
         return None
 
@@ -380,7 +435,7 @@ def _load_transform_pipeline(
     )
 
 
-def _build_identity_transform_pipeline() -> Any:
+def _build_identity_transform_pipeline() -> _TransformPipeline:
     from polisyos.fabric.connectors.transform.pipeline import TransformPipeline
 
     return TransformPipeline()
@@ -389,7 +444,7 @@ def _build_identity_transform_pipeline() -> Any:
 register_transform_pipeline("identity", _build_identity_transform_pipeline)
 
 
-def _pipeline_supports_row_isolation(pipeline: Any) -> bool:
+def _pipeline_supports_row_isolation(pipeline: _TransformPipeline | None) -> bool:
     if pipeline is None:
         return False
     try:
@@ -412,7 +467,7 @@ def _persist_quarantine_entry(
     source: str,
     reason: str,
     severity: str,
-    raw_payload: Any,
+    raw_payload: object,
     schema_version: str | None,
     traceback_class: str | None,
     trace_id: str,
@@ -441,7 +496,7 @@ def _persist_quarantine_entry(
 
 
 def _rows_from_payload(
-    payload: Any,
+    payload: object,
 ) -> tuple[list[Any] | None, str | None, list[str] | None]:
     if _is_dataframe_like(payload):
         rows = cast("Any", payload).to_dict(orient="records")
@@ -453,7 +508,7 @@ def _rows_from_payload(
     return None, None, None
 
 
-def _rows_to_payload(kind: str, rows: list[Any], columns: list[str] | None) -> Any:
+def _rows_to_payload(kind: str, rows: list[Any], columns: list[str] | None) -> object:
     if kind == "dataframe":
         pandas_module = importlib.import_module("pandas")
         return cast("Any", pandas_module).DataFrame(rows, columns=columns)
@@ -557,7 +612,7 @@ def _sanitize_fetch_result(
 
 def _apply_transform_pipeline(
     result: FetchResult[Any],
-    pipeline: Any | None,
+    pipeline: _TransformPipeline | None,
     *,
     connector_id: str,
     dataset_id: str,
@@ -681,10 +736,10 @@ def _parse_optional_datetime(value: str | None) -> datetime | None:
 def _sync_fetch(
     registry: _BatchConnectorRegistry,
     connector_id: str,
-    connector: Any,
+    connector: SourceConnectorInstance[Any],
     request: FetchRequest,
     *,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
 ) -> FetchResult[Any]:
@@ -728,10 +783,10 @@ def _sync_fetch(
 def _sync_fetch_with_receipt(
     registry: _BatchConnectorRegistry,
     connector_id: str,
-    connector: Any,
+    connector: SourceConnectorInstance[Any],
     request: FetchRequest,
     *,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | None = None,
     cas_store: RootedArtifactStore | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
@@ -977,7 +1032,7 @@ def run_connectors_ingestion(
     source: str,
     license_name: str,
     cas_root: Path | None = Path(".polisyos/cas"),
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | None = None,
     registry: ConnectorRegistry | None = None,
     tracer: PolicyOSTracer | None = None,
     metrics: MetricsRegistry | None = None,

@@ -52,6 +52,7 @@ from polisyos.fabric.quality.processing_guarantees import (
     BackpressureStrategy,
     CDCSchemaCompatibility,
     OutOfOrderHandling,
+    OutOfOrderPolicy,
     ProcessingGuaranteeContract,
     classify_cdc_schema_change,
     processing_contract_snapshot,
@@ -177,7 +178,10 @@ class StreamOwnerConflictError(RuntimeError):
         )
 
 
-class StreamDedupeUnsupported(RuntimeError):
+# AD-E02-FABRIC-N818-01 v1: preserve only the selected existing exception identities.
+# this is an N818 compatibility rationale, not an exception-class or waiver framework.
+# Decision path: `policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
+class StreamDedupeUnsupported(RuntimeError):  # noqa: N818 -- stream oracles assert this typed refusal name
     """Refuse unsupported event-key or persisted ingestion-horizon semantics."""
 
 
@@ -191,7 +195,7 @@ class _DedupeHorizon:
 
     def __init__(
         self, scope: tuple[str, str, str], fields: tuple[str, ...], seconds: int, cap: int
-    ):
+    ) -> None:
         self.scope = scope
         self.fields = fields
         self.seconds = seconds
@@ -223,7 +227,7 @@ class _DedupeHorizon:
             "entries": {key: at.isoformat() for key, at in self.entries.items()},
         }
 
-    def restore(self, state: Any, now: datetime) -> None:
+    def restore(self, state: object, now: datetime) -> None:
         if (
             not isinstance(state, dict)
             or type(state.get("version")) is not int
@@ -374,7 +378,7 @@ def normalize_connection_config(
 
 
 async def iter_record_batches(
-    payload: Any,
+    payload: object,
     *,
     batch_size: int,
 ) -> AsyncIterator[list[dict[str, Any]]]:
@@ -788,44 +792,43 @@ class StreamingSourceSession:
             )
         ):
             startup_task.cancel()
-        async with self._close_lock:
-            async with self._subscribe_lock:
-                if self._registry is not None and self._registry.stream_owner_is_invalidated(
-                    self._owner_lease
-                ):
-                    return
-                if self._closed and not self._cleanup_pending:
-                    self._release_stream_owner()
-                    return
-                try:
-                    if (
-                        self.handle is not None
-                        and isinstance(self.connector, _StreamCloser)
-                        and not self._stream_close_complete
-                        and not self._cleanup_pending
-                    ):
-                        await self.connector.close_stream(self.handle)
-                        self._stream_close_complete = True
-
-                    if self.handle is not None:
-                        await self.pool.release(self.handle)
-                        self.connector = None
-                        self.handle = None
-                    await self.pool.close_all()
-                except BaseException as exc:
-                    # Failure and cancellation leave this exact pool under an
-                    # owner so cleanup can retry after the consumer unwinds.
-                    self._closed = False
-                    self._cleanup_pending = True
-                    self._retain_cleanup_owner(exc)
-                    raise
-                self._closed = True
-                self._cleanup_pending = False
-                self.connector = None
-                self.handle = None
-                self._generator = None
-                self._subscription = None
+        async with self._close_lock, self._subscribe_lock:
+            if self._registry is not None and self._registry.stream_owner_is_invalidated(
+                self._owner_lease
+            ):
+                return
+            if self._closed and not self._cleanup_pending:
                 self._release_stream_owner()
+                return
+            try:
+                if (
+                    self.handle is not None
+                    and isinstance(self.connector, _StreamCloser)
+                    and not self._stream_close_complete
+                    and not self._cleanup_pending
+                ):
+                    await self.connector.close_stream(self.handle)
+                    self._stream_close_complete = True
+
+                if self.handle is not None:
+                    await self.pool.release(self.handle)
+                    self.connector = None
+                    self.handle = None
+                await self.pool.close_all()
+            except BaseException as exc:
+                # Failure and cancellation leave this exact pool under an
+                # owner so cleanup can retry after the consumer unwinds.
+                self._closed = False
+                self._cleanup_pending = True
+                self._retain_cleanup_owner(exc)
+                raise
+            self._closed = True
+            self._cleanup_pending = False
+            self.connector = None
+            self.handle = None
+            self._generator = None
+            self._subscription = None
+            self._release_stream_owner()
 
     async def _reconnect(self) -> None:
         if self.handle is not None:
@@ -1105,7 +1108,7 @@ class StreamWindowAccumulator:
             "refs": list(self._refs_for_row(row)),
         }
 
-    def _restore_row_entries(self, entries: Any) -> list[dict[str, Any]]:
+    def _restore_row_entries(self, entries: object) -> list[dict[str, Any]]:
         if not isinstance(entries, list):
             raise TypeError("row entries must be a list")
         rows: list[dict[str, Any]] = []
@@ -1118,7 +1121,7 @@ class StreamWindowAccumulator:
         return rows
 
     @staticmethod
-    def _parse_state_timestamp(value: Any) -> datetime | None:
+    def _parse_state_timestamp(value: object) -> datetime | None:
         if value is None:
             return None
         return parse_datetime_utc(str(value), what="stream operator timestamp")
@@ -1367,7 +1370,7 @@ def _estimate_row_bytes(row: object) -> int:
     return len(json.dumps(row, sort_keys=True, default=str).encode("utf-8"))
 
 
-def _validate_stream_refs(refs: Any) -> tuple[str, ...]:
+def _validate_stream_refs(refs: object) -> tuple[str, ...]:
     if not isinstance(refs, list | tuple):
         raise TypeError("row contributor refs must be a list")
     if any(not isinstance(ref, str) or not ref for ref in refs):
@@ -1426,7 +1429,7 @@ def _stream_operator_state(
 
 
 def _restore_stream_operator_state(
-    state: Any,
+    state: object,
     *,
     accumulator: StreamWindowAccumulator,
     ordering_state: _StreamOrderingState,
@@ -1931,7 +1934,7 @@ def _effective_processing_contract(
 def _apply_out_of_order_policy(
     rows: list[dict[str, Any]],
     *,
-    policy: Any,
+    policy: OutOfOrderPolicy,
     state: _StreamOrderingState,
 ) -> tuple[list[dict[str, Any]], list[str], int, int, int]:
     if not rows:
@@ -2106,7 +2109,7 @@ def _admit_stream_capacity(
 
 
 def _admit_restored_operator_state(
-    state: Any,
+    state: object,
     *,
     options: StreamRuntimeOptions,
     contract: ProcessingGuaranteeContract,
@@ -2153,7 +2156,7 @@ def _admit_restored_operator_state(
             )
 
 
-def _admit_stream_input(payload: Any, options: StreamRuntimeOptions) -> None:
+def _admit_stream_input(payload: object, options: StreamRuntimeOptions) -> None:
     """Bound the returned source payload before runtime batch materialization.
 
     Source allocation before returning the payload is outside this boundary.

@@ -8,6 +8,7 @@ from polisyos.ir.connectors import FetchResult
 
 if TYPE_CHECKING:
     from polisyos.fabric.connectors.contracts import CoercionResult, SchemaRegistry
+    from polisyos.ir.connectors import FetchResult
 
 
 def validate_fetch_result_against_schema(

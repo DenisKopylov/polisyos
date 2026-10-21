@@ -9,10 +9,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -29,6 +27,10 @@ from polisyos.fabric.evidence.non_data_acquisition import (
     NonDataRequest,
     demand_hash,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from pathlib import Path
 
 WIRE_FIELDS = (
     "case_id",
@@ -371,17 +373,27 @@ class _MutationRuntime(NonDataAcquisitionRuntime):
     mutant: str | None = None
     row_count = 0
 
-    def _owners_accept(self, **kwargs: Any) -> bool:
+    def _owners_accept(
+        self,
+        *,
+        demand: Mapping[str, Any],
+        candidate: Mapping[str, Any],
+        context: AcquisitionEvaluationContext,
+    ) -> bool:
         if self.mutant == MUTANTS[1]:
             return True
-        return super()._owners_accept(**kwargs)
+        return super()._owners_accept(demand=demand, candidate=candidate, context=context)
 
     def _admit(self, request: NonDataRequest, at: datetime) -> tuple[Any, ...]:
         result = super()._admit(request, at)
         shape, candidate, context, _ = result
-        if self.mutant == MUTANTS[3] and candidate is not None and context is not None:
-            if context.requested_use.population_ref != candidate.ceiling.population_ref:
-                return shape, None, None, ("ceiling_refused",)
+        if (
+            self.mutant == MUTANTS[3]
+            and candidate is not None
+            and context is not None
+            and context.requested_use.population_ref != candidate.ceiling.population_ref
+        ):
+            return shape, None, None, ("ceiling_refused",)
         return result
 
     def _result(

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.core.artifacts import RootedArtifactStore
 from polisyos.core.artifacts.backends.config import (
@@ -14,8 +14,15 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import MetricsRegistry, PolicyOSTracer, get_metrics, get_tracer
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, SourceConnectorValue
 from polisyos.fabric.connectors.registry import ConnectorEntry, ConnectorRegistry
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors._registry_models import _ConnectorRegistrationBinding
+    from polisyos.fabric.connectors.base import (
+        ConnectionConfig,
+        ConnectionHandle,
+        SourceConnectorValue,
+    )
 from polisyos.fabric.storage.tenant_cas import (
     TenantSidecarScope,
     tenant_scoped_cas_root,
@@ -107,7 +114,7 @@ class _BatchConnectorRegistry(Protocol):
         version: str | None = None,
         *,
         enable_cache: bool = True,
-        _registration_binding: Any | None = None,
+        _registration_binding: _ConnectorRegistrationBinding | None = None,
     ) -> SourceConnectorValue[Any]: ...
 
     def get_entry(self, connector_id: str) -> ConnectorEntry: ...
@@ -117,7 +124,7 @@ class _BatchConnectorRegistry(Protocol):
         connector_id: str,
         config: ConnectionConfig | None = None,
         *,
-        _registration_binding: Any | None = None,
+        _registration_binding: _ConnectorRegistrationBinding | None = None,
     ) -> ConnectionHandle: ...
 
     async def _get_connection_with_live_permit(

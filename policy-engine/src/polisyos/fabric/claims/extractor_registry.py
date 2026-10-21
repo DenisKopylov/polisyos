@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.components import (
@@ -21,8 +21,10 @@ from polisyos.core.components import (
 from polisyos.core.components.ids import SemVer
 from polisyos.core.registry.generic import GenericRegistry
 from polisyos.fabric.claims.errors import ClaimUnsupportedExtractorError
-from polisyos.fabric.claims.types import ChunkContext, ClaimCandidate, ClaimExtractOptions
-from polisyos.ir.world.doc import DocMeta
+
+if TYPE_CHECKING:
+    from polisyos.fabric.claims.types import ChunkContext, ClaimCandidate, ClaimExtractOptions
+    from polisyos.ir.world.doc import DocMeta
 
 logger = get_logger(__name__)
 

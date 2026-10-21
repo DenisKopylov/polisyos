@@ -6,7 +6,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
@@ -561,7 +561,15 @@ def _parse_optional_datetime(value: str | None) -> datetime | None:
     return parsed
 
 
-def _extract_rows(payload: Any, *, max_rows: int) -> list[dict[str, Any]]:
+class _FrameLike(Protocol):
+    """Small dataframe-like surface used to extract a bounded row preview."""
+
+    def head(self, count: int) -> _FrameLike: ...
+
+    def to_dict(self, *, orient: str) -> object: ...
+
+
+def _extract_rows(payload: object, *, max_rows: int) -> list[dict[str, Any]]:
     if max_rows <= 0:
         return []
     if payload is None:
@@ -569,7 +577,8 @@ def _extract_rows(payload: Any, *, max_rows: int) -> list[dict[str, Any]]:
     # pandas is optional; avoid hard dependency.
     if hasattr(payload, "head") and hasattr(payload, "to_dict"):
         try:
-            head = payload.head(max_rows)
+            frame = cast("_FrameLike", payload)
+            head = frame.head(max_rows)
             rows = head.to_dict(orient="records")
             if isinstance(rows, list):
                 return [row for row in rows if isinstance(row, dict)]

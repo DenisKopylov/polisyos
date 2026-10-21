@@ -207,7 +207,7 @@ class ExploreLaneDiscovery:
         return cast("str | None", profiles[0].profile_id)
 
     @staticmethod
-    def _descriptor_match_score(*, need: DataNeed, descriptor: Any) -> float:
+    def _descriptor_match_score(*, need: DataNeed, descriptor: object) -> float:
         metric_query = need.metric.strip().lower()
         tokens = [
             token for token in metric_query.replace(".", " ").replace("_", " ").split() if token

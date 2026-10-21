@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Protocol, TypedDict
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 import pandas as pd
 
@@ -31,6 +30,10 @@ from polisyos.ir.world.quality import QualityReport
 from polisyos.ir.world.trust import TrustAssessment
 
 from .errors import WorldArtifactReadError, WorldMaterializationError, WorldMergeConflict
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from datetime import datetime
 
 
 class _ProjectionQueryResult(Protocol):

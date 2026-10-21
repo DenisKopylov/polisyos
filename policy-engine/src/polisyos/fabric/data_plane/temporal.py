@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 UTC = UTC
 DEFAULT_MAX_CLOCK_SKEW = timedelta(minutes=5)
@@ -39,7 +38,7 @@ def ensure_aware_utc(value: datetime, *, what: str = "datetime") -> datetime:
     return value.astimezone(UTC)
 
 
-def parse_datetime_utc(value: Any, *, what: str = "datetime") -> datetime:
+def parse_datetime_utc(value: datetime | str, *, what: str = "datetime") -> datetime:
     """Parse ISO-8601 or datetime values into a UTC-aware datetime."""
     if isinstance(value, datetime):
         return ensure_aware_utc(value, what=what)

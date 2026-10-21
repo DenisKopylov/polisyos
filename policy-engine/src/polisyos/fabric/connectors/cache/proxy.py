@@ -9,6 +9,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 from polisyos.fabric.connectors.base import ConnectionHandle
+from polisyos.ir.connectors import ConnectorMetadataSpec, DataVersion
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
@@ -79,7 +80,7 @@ class CachingConnectorProxy[DataT]:
         return self._connector.capabilities
 
     @property
-    def metadata(self) -> Any:
+    def metadata(self) -> ConnectorMetadataSpec:
         return self._connector.metadata
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
@@ -133,7 +134,7 @@ class CachingConnectorProxy[DataT]:
         self,
         handle: ConnectionHandle,
         dataset_id: str,
-        cached_version: Any,
+        cached_version: DataVersion,
     ) -> FreshnessResult:
         return await self._connector.check_freshness(handle, dataset_id, cached_version)
 
@@ -271,7 +272,7 @@ class CachingConnectorProxy[DataT]:
         total = self._hits + self._misses
         return self._hits / total if total > 0 else 0.0
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> object:
         return getattr(self._connector, name)
 
     def _record_metrics(self, status: str, latency_seconds: float | None) -> None:

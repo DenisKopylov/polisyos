@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 
 from polisyos.core.registry.generic import GenericRegistry
 from polisyos.fabric.identity.manifest import DatasetManifest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ManifestRegistry:
@@ -40,7 +43,8 @@ class ManifestRegistry:
             raise ValueError(f"Missing DatasetManifest for '{dataset_name}' in {self.curated_dir}")
         if manifest.reconciliation and manifest.reconciliation.status != "pass":
             raise ValueError(
-                f"Dataset '{dataset_name}' marked unusable: reconciliation {manifest.reconciliation.status}"
+                f"Dataset '{dataset_name}' marked unusable: reconciliation "
+                f"{manifest.reconciliation.status}"
             )
         return manifest
 

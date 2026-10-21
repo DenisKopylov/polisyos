@@ -11,7 +11,6 @@ import math
 import re
 from datetime import date, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
-from typing import Any
 
 from polisyos.fabric._internal.numeric_parsing import parse_decimal_text
 from polisyos.fabric.data_plane.temporal import (
@@ -88,7 +87,7 @@ def _int_fits_in_float(value: int, float_bits: int) -> bool:
 
 
 def coerce_to_int(
-    value: Any,
+    value: object,
     target_bits: int,
     signed: bool,
     policy: CoercionPolicy,
@@ -207,7 +206,7 @@ def coerce_to_int(
 
 
 def coerce_to_float(
-    value: Any,
+    value: object,
     target_bits: int,
     policy: CoercionPolicy,
 ) -> CoercionResult:
@@ -245,30 +244,29 @@ def coerce_to_float(
         if not math.isfinite(value):
             return CoercionResult.fail("float", target_type, f"value {value} must be finite")
         # Check for narrowing
-        if target_bits < 64:
+        if target_bits < 64 and target_bits == 32:
             # For float64 -> float32, check if value fits
-            if target_bits == 32:
-                import struct
+            import struct
 
-                try:
-                    # Round-trip through float32
-                    f32 = struct.unpack("f", struct.pack("f", value))[0]
-                    if f32 != value and policy == CoercionPolicy.STRICT:
-                        return CoercionResult.fail(
-                            "float64", target_type, f"value {value} loses precision in float32"
-                        )
-                    if f32 != value:
-                        return CoercionResult.ok(
-                            f32,
-                            "float64",
-                            target_type,
-                            precision_loss=True,
-                            warnings=[f"precision loss: {value} -> {f32}"],
-                        )
-                except (struct.error, OverflowError):
+            try:
+                # Round-trip through float32
+                f32 = struct.unpack("f", struct.pack("f", value))[0]
+                if f32 != value and policy == CoercionPolicy.STRICT:
                     return CoercionResult.fail(
-                        "float64", target_type, f"value {value} overflows float32"
+                        "float64", target_type, f"value {value} loses precision in float32"
                     )
+                if f32 != value:
+                    return CoercionResult.ok(
+                        f32,
+                        "float64",
+                        target_type,
+                        precision_loss=True,
+                        warnings=[f"precision loss: {value} -> {f32}"],
+                    )
+            except (struct.error, OverflowError):
+                return CoercionResult.fail(
+                    "float64", target_type, f"value {value} overflows float32"
+                )
         return CoercionResult.ok(value, "float", target_type)
 
     # From Decimal
@@ -319,7 +317,7 @@ def coerce_to_float(
 
 
 def coerce_to_decimal(
-    value: Any,
+    value: object,
     policy: CoercionPolicy,
 ) -> CoercionResult:
     """Coerce a value to Decimal type."""
@@ -373,7 +371,7 @@ def coerce_to_decimal(
 # =============================================================================
 
 
-def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
+def coerce_to_boolean(value: object, policy: CoercionPolicy) -> CoercionResult:
     """Coerce a value to boolean type."""
     source_type = type(value).__name__
 
@@ -429,7 +427,7 @@ def coerce_to_boolean(value: Any, policy: CoercionPolicy) -> CoercionResult:
 # =============================================================================
 
 
-def coerce_to_string(value: Any, policy: CoercionPolicy) -> CoercionResult:
+def coerce_to_string(value: object, policy: CoercionPolicy) -> CoercionResult:
     """Coerce a value to string type."""
     source_type = type(value).__name__
 
@@ -445,7 +443,7 @@ def coerce_to_string(value: Any, policy: CoercionPolicy) -> CoercionResult:
 # =============================================================================
 
 
-def coerce_to_date(value: Any, policy: CoercionPolicy) -> CoercionResult:
+def coerce_to_date(value: object, policy: CoercionPolicy) -> CoercionResult:
     """Coerce a value to date type."""
     source_type = type(value).__name__
 
@@ -523,7 +521,7 @@ def coerce_to_date(value: Any, policy: CoercionPolicy) -> CoercionResult:
 # =============================================================================
 
 
-def coerce_to_datetime(value: Any, policy: CoercionPolicy) -> CoercionResult:
+def coerce_to_datetime(value: object, policy: CoercionPolicy) -> CoercionResult:
     """Coerce a value to datetime type."""
     source_type = type(value).__name__
 

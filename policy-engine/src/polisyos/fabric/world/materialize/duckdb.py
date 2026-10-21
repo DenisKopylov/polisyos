@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import json
 import uuid
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import duckdb
 import pandas as pd
 
 from polisyos.common.logger import get_logger
@@ -26,6 +25,10 @@ from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.predicates import WORLD_REL_PREFIX
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    import duckdb
+
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
 from .errors import (

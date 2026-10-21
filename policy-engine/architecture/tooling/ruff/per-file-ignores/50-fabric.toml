@@ -5,7 +5,6 @@
 "src/polisyos/fabric/**" = [
   "ANN",
   "E501",
-  "N818",
   "SIM102",
   "SIM117",
   "TC001",

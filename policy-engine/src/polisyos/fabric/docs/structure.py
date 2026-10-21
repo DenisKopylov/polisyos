@@ -8,11 +8,10 @@ extractors can cite document spans deterministically.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterator
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -30,7 +29,6 @@ from polisyos.fabric.world import (
     validate_doc_meta_ids,
     write_world_fact_segment,
 )
-from polisyos.ir.loading import Fact
 from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import (
@@ -43,6 +41,11 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import doc_fragment_id, world_event_id_from_payload
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from polisyos.ir.loading import Fact
 
 from .errors import DocNotReadyError, DocValidationError
 from .types import DocStructureOptions, DocStructureResult
@@ -166,9 +169,12 @@ def _build_anchors(text: str, *, options: DocStructureOptions) -> list[_Document
 
     filtered: list[_DocumentAnchor] = []
     for anchor in anchors:
-        if anchor["anchor_kind"] == "section" and not anchor.get("_full_doc"):
-            if anchor["offset_end"] - anchor["offset_start"] < options.min_section_chars:
-                continue
+        if (
+            anchor["anchor_kind"] == "section"
+            and not anchor.get("_full_doc")
+            and anchor["offset_end"] - anchor["offset_start"] < options.min_section_chars
+        ):
+            continue
         filtered.append(anchor)
     return filtered
 

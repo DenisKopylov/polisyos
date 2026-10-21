@@ -7,11 +7,13 @@ import tracemalloc
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.data_plane.cursor_store import CursorStore
 from polisyos.fabric.data_plane.orchestrator import (
     ExecutionBackend,
@@ -25,6 +27,8 @@ from polisyos.fabric.data_plane.streaming import (
     StreamRuntimeOptions,
     process_stream_dataset,
 )
+from polisyos.fabric.ingestion import ConnectorManifestSpec
+from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world import (
     WorldMaterializationPolicy,
     WorldMaterializeStats,
@@ -71,11 +75,11 @@ class FabricBenchmarkReport:
 def benchmark_partitioned_ingestion(
     *,
     plan: PartitionedIngestionPlan,
-    connector_manifest: Any,
+    connector_manifest: dict[str, Any] | Path | str | ConnectorManifestSpec,
     source: str,
     license_name: str,
-    cas_root: Any,
-    connection_config: Any | None = None,
+    cas_root: Path,
+    connection_config: ConnectionConfig | dict[str, Any] | None = None,
     produce_snapshot: bool = True,
     backend: ExecutionBackend | str = "local_async",
     partition_handler: Callable[[Any], IngestionResult] | None = None,
@@ -141,7 +145,7 @@ async def benchmark_stream_processing(
     cursor_store: CursorStore,
     sanitize_rows: Callable[..., tuple[list[dict[str, Any]], list[str], int]],
     runtime_options: StreamRuntimeOptions | None = None,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | dict[str, Any] | None = None,
 ) -> tuple[StreamDatasetRunResult, FabricBenchmarkReport]:
     """Run one event-driven stream and capture throughput/memory baseline."""
 
@@ -198,7 +202,7 @@ async def benchmark_stream_processing(
 
 def benchmark_world_materialization(
     *,
-    db: Any,
+    db: SimulationDB,
     cas: FileSystemCAS,
     fact_manifests: Sequence[Any],
     refresh_policy: WorldMaterializationPolicy | None = None,
@@ -390,7 +394,7 @@ def _latency_quantiles_from_samples(samples_ms: Sequence[float]) -> dict[str, fl
     return {"p50": _quantile(0.50), "p95": _quantile(0.95), "p99": _quantile(0.99)}
 
 
-def _count_query_units(result: Any) -> int:
+def _count_query_units(result: object) -> int:
     if result is None:
         return 0
     if hasattr(result, "shape"):

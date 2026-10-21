@@ -62,6 +62,8 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
         ConnectionHandle,

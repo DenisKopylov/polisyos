@@ -440,7 +440,7 @@ def _catalog_requirement_leaf_paths(
 
 def _catalog_projection_refusal(
     reason_code: str,
-    **details: Any,
+    **details: object,
 ) -> dict[str, Any]:
     return {
         "schema_version": CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION,

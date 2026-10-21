@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
-from typing import Any
 
 import pandas as pd
 
@@ -22,7 +21,7 @@ logger = get_logger(__name__)
 FRESHNESS_SOURCE_TIMESTAMP_MISSING = "freshness:source_timestamp_missing"
 
 
-def safe_int(value: Any) -> int | None:
+def safe_int(value: object) -> int | None:
     """Safe int helper."""
     if value is None:
         return None
@@ -32,7 +31,7 @@ def safe_int(value: Any) -> int | None:
         return None
 
 
-def safe_float(value: Any) -> float | None:
+def safe_float(value: object) -> float | None:
     """Safe float helper."""
     if value is None:
         return None

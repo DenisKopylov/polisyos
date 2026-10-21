@@ -424,9 +424,8 @@ class FieldSpec(BaseModel):
         2. Data types must be coercible
         3. Units must match if both specified
         """
-        if self.semantic_type and other.semantic_type:
-            if self.semantic_type != other.semantic_type:
-                return False
+        if self.semantic_type and other.semantic_type and self.semantic_type != other.semantic_type:
+            return False
 
         if self.additivity and other.additivity and self.additivity != other.additivity:
             return False
@@ -434,11 +433,9 @@ class FieldSpec(BaseModel):
         if self.unit and other.unit and self.unit.unit_id != other.unit.unit_id:
             return False
 
-        if not self.data_type.is_compatible_with(other.data_type):
-            if not other.data_type.is_compatible_with(self.data_type):
-                return False
-
-        return True
+        return self.data_type.is_compatible_with(other.data_type) or (
+            other.data_type.is_compatible_with(self.data_type)
+        )
 
     @property
     def stable_id(self) -> str:
@@ -456,12 +453,11 @@ class FieldSpec(BaseModel):
                 f"Cannot widen fields with conflicting units: {self.unit} vs {other.unit}"
             )
 
-        if self.semantic_type and other.semantic_type:
-            if self.semantic_type != other.semantic_type:
-                raise ValueError(
-                    "Cannot widen fields with conflicting semantic types: "
-                    f"{self.semantic_type} vs {other.semantic_type}"
-                )
+        if self.semantic_type and other.semantic_type and self.semantic_type != other.semantic_type:
+            raise ValueError(
+                "Cannot widen fields with conflicting semantic types: "
+                f"{self.semantic_type} vs {other.semantic_type}"
+            )
 
         if self.additivity and other.additivity and self.additivity != other.additivity:
             raise ValueError(

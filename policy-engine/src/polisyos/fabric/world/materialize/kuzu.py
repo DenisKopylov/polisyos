@@ -8,16 +8,20 @@ import re
 import shutil
 import tempfile
 from collections import defaultdict, deque
-from collections.abc import Callable, Hashable, Mapping, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 from numbers import Integral
 from pathlib import Path
-from typing import Any, Literal, Protocol, TypeGuard
+from typing import TYPE_CHECKING, Literal, Protocol, TypeGuard
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.io.db import SimulationDB
 
 from .errors import WorldKuzuNotAvailable, WorldMaterializationError, WorldSchemaError
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Hashable, Mapping
+
 
 logger = get_logger(__name__)
 
@@ -240,7 +244,8 @@ class WorldGraphSnapshot:
         ).fetchall()
         edge_rows = db.conn.execute(
             """
-            SELECT source_id, target_id, kind, predicate_id, tx_time, valid_time, confidence, weight, event_id
+            SELECT source_id, target_id, kind, predicate_id, tx_time, valid_time,
+                   confidence, weight, event_id
             FROM world.world_edges
             ORDER BY source_id, target_id, kind
             """
@@ -344,7 +349,11 @@ def build_world_kuzu_policy_impact_query(
     query = f"""
         MATCH path = (seed:WorldNode)-[:WorldEdge*1..{hops}]->(neighbor:WorldNode)
         WHERE seed.id = $node_id
-          AND (neighbor.kind CONTAINS 'policy' OR neighbor.kind CONTAINS 'impact' OR neighbor.kind CONTAINS 'domain')
+          AND (
+              neighbor.kind CONTAINS 'policy'
+              OR neighbor.kind CONTAINS 'impact'
+              OR neighbor.kind CONTAINS 'domain'
+          )
         RETURN path
     """
     return query.strip(), {"node_id": node_id}
@@ -484,7 +493,7 @@ def query_world_policy_impact(
 
 
 def query_world_kuzu_entity_neighborhood(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int = 2,
@@ -502,7 +511,7 @@ def query_world_kuzu_entity_neighborhood(
 
 
 def query_world_kuzu_source_overlap(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int = 2,
@@ -533,7 +542,7 @@ def query_world_kuzu_source_overlap(
 
 
 def query_world_kuzu_origin_trace(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int = 2,
@@ -565,7 +574,7 @@ def query_world_kuzu_origin_trace(
 
 
 def query_world_kuzu_conflict_neighborhood(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int = 2,
@@ -591,7 +600,7 @@ def query_world_kuzu_conflict_neighborhood(
 
 
 def query_world_kuzu_policy_impact(
-    kuzu_conn: Any,
+    kuzu_conn: _KuzuConnection,
     node_id: str,
     *,
     max_hops: int = 3,

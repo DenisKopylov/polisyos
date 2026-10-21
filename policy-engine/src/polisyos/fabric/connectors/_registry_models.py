@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import threading
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
@@ -11,6 +10,8 @@ from typing import TYPE_CHECKING, Any
 from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
         HealthStatus,

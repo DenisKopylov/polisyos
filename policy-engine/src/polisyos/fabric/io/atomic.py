@@ -8,7 +8,6 @@ import os
 import tempfile
 from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any
 
 try:  # pragma: no cover - exercised on POSIX CI/dev hosts
     import fcntl
@@ -91,7 +90,7 @@ def atomic_write_text(
 
 def atomic_write_json(
     path: Path,
-    payload: Any,
+    payload: object,
     *,
     validate_tmp: Callable[[Path], None] | None = None,
 ) -> None:

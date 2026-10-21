@@ -11,7 +11,7 @@ import re
 from dataclasses import asdict
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.world import (
@@ -22,7 +22,6 @@ from polisyos.fabric.world import (
 )
 from polisyos.ir.kernel.base import ID_PATTERN, reject_floats_deep
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
-from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.event import (
     EventKind,
     ProvActivityType,
@@ -49,6 +48,9 @@ from .types import (
     ClaimExtractResult,
 )
 from .world_events import build_claims_world_event, persist_claims_world_event
+
+if TYPE_CHECKING:
+    from polisyos.ir.world.doc import DocMeta
 
 _ID_RE = re.compile(ID_PATTERN)
 

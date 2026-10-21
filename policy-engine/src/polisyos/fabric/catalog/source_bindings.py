@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import json
 import threading
-from collections.abc import Iterable
 from fnmatch import fnmatchcase
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -14,6 +14,9 @@ from polisyos.common.logger import get_logger
 from polisyos.fabric.io.atomic import atomic_write_text
 
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class SourceBinding(BaseModel):

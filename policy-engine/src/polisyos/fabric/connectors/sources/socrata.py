@@ -343,13 +343,11 @@ class SocrataConnector(HTTPConnectorBase[pd.DataFrame]):
 
         # Time range
         if request.date_start is not None:
-            where_clauses.append(
-                f":updated_at >= {escape_soql_literal(request.date_start.strftime('%Y-%m-%dT%H:%M:%S'))}"
-            )
+            start_timestamp = request.date_start.strftime("%Y-%m-%dT%H:%M:%S")
+            where_clauses.append(f":updated_at >= {escape_soql_literal(start_timestamp)}")
         if request.date_end is not None:
-            where_clauses.append(
-                f":updated_at <= {escape_soql_literal(request.date_end.strftime('%Y-%m-%dT%H:%M:%S'))}"
-            )
+            end_timestamp = request.date_end.strftime("%Y-%m-%dT%H:%M:%S")
+            where_clauses.append(f":updated_at <= {escape_soql_literal(end_timestamp)}")
 
         # Incremental
         if request.incremental_since is not None:

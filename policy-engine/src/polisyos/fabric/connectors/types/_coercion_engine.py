@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Callable
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from ._coercion_errors import CoercionError, PrecisionLossWarning
 from ._coercion_policies import (
@@ -72,18 +72,15 @@ def get_coercion_path(source_type: str, target_type: str) -> list[str] | None:
         return [source_type, target_type]
 
     # Integer widening
-    if (
-        (
-            source_info.category == DataTypeCategory.INTEGER
-            and target_info.category == DataTypeCategory.INTEGER
-        )
+    integer_widening = (
+        source_info.category == DataTypeCategory.INTEGER
+        and target_info.category == DataTypeCategory.INTEGER
         and source_info.bits
         and target_info.bits
         and target_info.bits >= source_info.bits
-    ):
-        # Check sign compatibility
-        if source_info.signed or not target_info.signed:
-            return [source_type, target_type]
+    )
+    if integer_widening and (source_info.signed or not target_info.signed):
+        return [source_type, target_type]
 
     # Integer to float (always possible)
     if (
@@ -117,13 +114,17 @@ def get_coercion_path(source_type: str, target_type: str) -> list[str] | None:
         return [source_type, target_type]
 
     # Date/datetime conversions
-    if source_info.category == DataTypeCategory.DATE:
-        if target_info.category == DataTypeCategory.DATETIME:
-            return [source_type, target_type]
+    if (
+        source_info.category == DataTypeCategory.DATE
+        and target_info.category == DataTypeCategory.DATETIME
+    ):
+        return [source_type, target_type]
 
-    if source_info.category == DataTypeCategory.DATETIME:
-        if target_info.category == DataTypeCategory.DATE:
-            return [source_type, target_type]
+    if (
+        source_info.category == DataTypeCategory.DATETIME
+        and target_info.category == DataTypeCategory.DATE
+    ):
+        return [source_type, target_type]
 
     # No known path
     return None
@@ -153,7 +154,7 @@ class TypeCoercion:
     # Coercion function registry
     _COERCERS: ClassVar[dict[str, Callable[..., CoercionResult]]] = {}
 
-    def __init__(self, policy: CoercionPolicy = CoercionPolicy.STRICT):
+    def __init__(self, policy: CoercionPolicy = CoercionPolicy.STRICT) -> None:
         """
         Initialize the type coercer.
 
@@ -164,7 +165,7 @@ class TypeCoercion:
 
     def coerce(
         self,
-        value: Any,
+        value: object,
         source_type: str,
         target_type: str,
     ) -> CoercionResult:
@@ -231,12 +232,12 @@ class TypeCoercion:
 
 
 def safe_cast(
-    value: Any,
+    value: object,
     target_type: str,
     *,
     policy: CoercionPolicy = CoercionPolicy.STRICT,
     source_type: str | None = None,
-) -> Any:
+) -> object:
     """
     Safely cast a value to a target type.
 
@@ -276,7 +277,7 @@ def safe_cast(
 
 
 def can_safely_cast(
-    value: Any,
+    value: object,
     target_type: str,
     *,
     policy: CoercionPolicy = CoercionPolicy.STRICT,

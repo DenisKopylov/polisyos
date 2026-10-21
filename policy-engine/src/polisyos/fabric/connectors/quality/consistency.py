@@ -11,13 +11,15 @@ Checks:
 from __future__ import annotations
 
 import re
-from typing import Any
 
 import pandas as pd
 
+from polisyos.fabric.connectors.contracts.schema import DataSchema as _DataSchema
 from polisyos.fabric.numerics.finite import ensure_probability, is_finite_number
 
 from .report import ConsistencyResult, RuleViolation
+
+DataSchema = _DataSchema
 
 SEVERITY_WEIGHTS = {"error": 1.0, "warning": 0.6, "info": 0.3}
 
@@ -32,7 +34,7 @@ class ConsistencyChecker:
     def check_consistency(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
         *,
         full_data: pd.DataFrame | None = None,
     ) -> ConsistencyResult:
@@ -66,7 +68,7 @@ class ConsistencyChecker:
     def _check_bounds(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
     ) -> tuple[list[RuleViolation], float]:
         violations: list[RuleViolation] = []
         penalty = 0.0
@@ -130,7 +132,7 @@ class ConsistencyChecker:
     def _check_categorical(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
     ) -> tuple[list[RuleViolation], float]:
         violations: list[RuleViolation] = []
         penalty = 0.0
@@ -172,7 +174,7 @@ class ConsistencyChecker:
     def _check_patterns(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
     ) -> tuple[list[RuleViolation], float]:
         violations: list[RuleViolation] = []
         penalty = 0.0
@@ -228,7 +230,7 @@ class ConsistencyChecker:
     def _check_data_types(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
     ) -> tuple[list[RuleViolation], float]:
         violations: list[RuleViolation] = []
         penalty = 0.0

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from . import ingestion as _ingestion_module
 from .ingestion import (
     ConnectorManifestSpec,
@@ -30,7 +28,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     value = getattr(_ingestion_module, name)
     globals()[name] = value
     return value

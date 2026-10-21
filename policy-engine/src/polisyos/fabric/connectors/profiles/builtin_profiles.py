@@ -633,7 +633,9 @@ BUILTIN_PROFILES: list[SourceProfile] = [
     SourceProfile(
         profile_id="stream_jsonl_demo",
         display_name="JSONL Stream Demo",
-        description="Scaffold profile for streaming/event connectors backed by newline-delimited JSON",
+        description=(
+            "Scaffold profile for streaming/event connectors backed by newline-delimited JSON"
+        ),
         connector_family="stream",
         base_url="file:///tmp/polisyos-stream.jsonl",
         headers={"X-Stream-ChunkSize": "100", "X-Stream-Topic": "demo-events"},

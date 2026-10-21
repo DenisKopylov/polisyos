@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import importlib.util as _importlib_util
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from polisyos.fabric.world.store import (
     SEGMENTS_INDEX_NAME,
@@ -50,6 +50,9 @@ from polisyos.fabric.world.write import (
     WorldSnapshotWriteRequest,
     write_world_snapshot,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 _MATERIALIZE_EXPORTS: tuple[type[object] | Callable[..., object], ...]
 

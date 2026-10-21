@@ -9,12 +9,14 @@ admission verifier in ``non_data_acquisition`` remains a separate port.
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Literal, Self
+from typing import TYPE_CHECKING, Literal, Self
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 
 class _StrictModel(BaseModel):

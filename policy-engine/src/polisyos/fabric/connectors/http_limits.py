@@ -2,16 +2,35 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+from typing import Protocol
 
 from polisyos.core import scan_secret_and_pii
 from polisyos.fabric.connectors.types import FetchError
 
+
+class _HTTPHeaders(Protocol):
+    def get(self, key: str, default: str | None = None, /) -> str | None: ...
+
+
+class _BeforeClassification(Protocol):
+    def __call__(self, payload: bytes, /) -> None: ...
+
+
+class _OnProgress(Protocol):
+    def __call__(self, byte_count: int, /) -> None: ...
+
+
+class _HTTPResponse(Protocol):
+    headers: _HTTPHeaders
+    content: object
+
+    async def read(self) -> bytes: ...
+
+
 DEFAULT_READ_CHUNK_SIZE = 64 * 1024
 
 
-def _safe_int(value: Any) -> int | None:
+def _safe_int(value: object) -> int | None:
     if value is None:
         return None
     try:
@@ -21,15 +40,15 @@ def _safe_int(value: Any) -> int | None:
 
 
 async def read_bounded_response_body(
-    response: Any,
+    response: _HTTPResponse,
     *,
     connector_id: str,
     url: str,
     max_response_bytes: int | None,
     max_decompressed_bytes: int | None,
     chunk_size: int = DEFAULT_READ_CHUNK_SIZE,
-    before_classification: Callable[[bytes], None] | None = None,
-    on_progress: Callable[[int], None] | None = None,
+    before_classification: _BeforeClassification | None = None,
+    on_progress: _OnProgress | None = None,
 ) -> bytes:
     """Read an aiohttp-style response body with explicit byte ceilings."""
 

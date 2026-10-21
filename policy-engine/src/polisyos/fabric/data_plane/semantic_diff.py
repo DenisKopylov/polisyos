@@ -242,7 +242,7 @@ def _row_key(row: Mapping[str, Any], key_fields: Sequence[str]) -> str:
     return "|".join(f"{field}={row.get(field)!r}" for field in key_fields)
 
 
-def _as_float(value: Any) -> float | None:
+def _as_float(value: bool | int | float | str | None) -> float | None:
     if isinstance(value, bool) or value is None:
         return None
     if isinstance(value, (int, float)):

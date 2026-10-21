@@ -11,10 +11,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.world.conflict import (
-    ConflictResolutionCandidate,
-    ConflictSetResolution,
-)
+from polisyos.ir.world.conflict import ConflictResolutionCandidate, ConflictSetResolution
 
 
 def _as_score(value: str) -> float:

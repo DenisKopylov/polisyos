@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -157,10 +157,10 @@ class FreshnessChecker:
     def check_freshness(
         self,
         dataset_id: str,
-        metadata: Any | None,
+        metadata: object | None,
         fetched_at: datetime,
         last_updated: datetime | None = None,
-        metrics: Any | None = None,
+        metrics: object | None = None,
     ) -> FreshnessStatus:
         now = utc_now()
 
@@ -254,7 +254,7 @@ class FreshnessChecker:
             )
         return freshness
 
-    def _get_policy(self, dataset_id: str, metadata: Any | None) -> FreshnessPolicy:
+    def _get_policy(self, dataset_id: str, metadata: object | None) -> FreshnessPolicy:
         if dataset_id in self._dataset_policies:
             return self._dataset_policies[dataset_id]
 
@@ -268,7 +268,7 @@ class FreshnessChecker:
 
         return DEFAULT_POLICIES["daily"]
 
-    def _infer_schedule(self, dataset_id: str, metadata: Any | None) -> str:
+    def _infer_schedule(self, dataset_id: str, metadata: object | None) -> str:
         schedule_hint = None
         if metadata is not None:
             schedule_hint = _normalize_schedule(getattr(metadata, "schedule", None))
@@ -314,7 +314,7 @@ def _normalize_schedule(value: str | None) -> str | None:
     return None
 
 
-def _has_streaming_capability(metadata: Any | None) -> bool:
+def _has_streaming_capability(metadata: object | None) -> bool:
     if metadata is None:
         return False
     caps = getattr(metadata, "capabilities", None)
@@ -332,7 +332,7 @@ def _has_streaming_capability(metadata: Any | None) -> bool:
     return False
 
 
-def _extract_update_interval(metadata: Any | None) -> timedelta | None:
+def _extract_update_interval(metadata: object | None) -> timedelta | None:
     if metadata is None:
         return None
 

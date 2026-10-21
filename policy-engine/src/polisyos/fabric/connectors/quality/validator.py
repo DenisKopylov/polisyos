@@ -7,24 +7,41 @@ comprehensive quality reports.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
 
 import pandas as pd
 
 from polisyos.common.logger import get_logger
-from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
+from polisyos.core.evaluation import (
+    ThresholdBand,
+    ThresholdMapper,
+    WeightedScorer,
+    WeightedScoreResult,
+)
+from polisyos.fabric.connectors.contracts import DataSchema
 from polisyos.fabric.data_plane.tabular import require_dataframe
 from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
-from polisyos.ir.connectors import QualityTier
+from polisyos.ir.connectors import FetchResult, QualityTier
 
 from .completeness import CompletenessAnalyzer, SamplingStrategy
 from .consistency import ConsistencyChecker
 from .freshness import FreshnessChecker, FreshnessPolicy
-from .report import DataQualityReport
+from .report import (
+    CompletenessResult,
+    ConsistencyResult,
+    DataQualityReport,
+    FreshnessStatus,
+    RuleViolation,
+)
 from .statistics import (
+    AnomalyReport,
+    DriftReport,
+    QualityContract,
+    QualityContractFailure,
+    QualityContractResult,
     QualityTrendPoint,
     build_quality_trend_report,
     detect_anomalies,
@@ -98,7 +115,7 @@ class QualityScorer:
 
     def compute_breakdown(
         self,
-        freshness_status: Any,
+        freshness_status: FreshnessStatus,
         completeness_score: float,
         consistency_score: float,
         *,
@@ -106,7 +123,7 @@ class QualityScorer:
         anomaly_score: float | None = None,
         drift_score: float | None = None,
         contract_score: float | None = None,
-    ) -> Any:
+    ) -> WeightedScoreResult:
         from .report import FreshnessLevel
 
         freshness_scores = {
@@ -153,7 +170,7 @@ class QualityScorer:
 
     def compute_score(
         self,
-        freshness_status: Any,
+        freshness_status: FreshnessStatus,
         completeness_score: float,
         consistency_score: float,
         *,
@@ -197,14 +214,23 @@ class DataQualityValidator:
 
     def validate(
         self,
-        fetch_result: Any,
-        schema: Any,
+        fetch_result: FetchResult[object],
+        schema: DataSchema,
         *,
-        baseline_data: Any | None = None,
-        quality_contract: str | Path | dict[str, Any] | None = None,
-        trend_history: list[Any] | tuple[Any, ...] | None = None,
+        baseline_data: object | None = None,
+        quality_contract: str | Path | Mapping[str, object] | QualityContract | None = None,
+        trend_history: Sequence[object] | None = None,
         enable_isolation_forest: bool = False,
     ) -> DataQualityReport:
+        if not isinstance(fetch_result, FetchResult):
+            raise TypeError("fetch_result must be an IR FetchResult")
+        if not isinstance(schema, DataSchema):
+            raise TypeError("schema must be a Fabric DataSchema")
+        if quality_contract is not None and not isinstance(
+            quality_contract, (str, Path, Mapping, QualityContract)
+        ):
+            raise TypeError("quality_contract must be text, a path, a mapping, or QualityContract")
+
         try:
             data = self._extract_dataframe(fetch_result)
             sampled_data, was_sampled = self._maybe_sample(data)
@@ -369,7 +395,7 @@ class DataQualityValidator:
             logger.exception("Quality validation failed: %s", exc)
             return self._create_error_report(fetch_result, schema, str(exc))
 
-    def _extract_dataframe(self, fetch_result: Any) -> pd.DataFrame:
+    def _extract_dataframe(self, fetch_result: FetchResult[object]) -> pd.DataFrame:
         return require_dataframe(
             fetch_result.data,
             allow_dict=True,
@@ -394,7 +420,11 @@ class DataQualityValidator:
 
         return sampled_data, was_sampled
 
-    def _check_freshness(self, fetch_result: Any, schema: Any) -> Any:
+    def _check_freshness(
+        self,
+        fetch_result: FetchResult[object],
+        schema: DataSchema,
+    ) -> FreshnessStatus:
         try:
             metadata = getattr(fetch_result, "metadata", None)
             if metadata is None:
@@ -414,7 +444,7 @@ class DataQualityValidator:
             )
         except Exception as exc:
             logger.warning("Freshness check failed: %s", exc)
-            from .report import FreshnessLevel, FreshnessStatus
+            from .report import FreshnessLevel
 
             return FreshnessStatus(
                 level=FreshnessLevel.STALE,
@@ -430,10 +460,10 @@ class DataQualityValidator:
     def _check_completeness(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
         *,
         time_series: pd.Series | None,
-    ) -> Any:
+    ) -> CompletenessResult:
         try:
             return self.completeness_analyzer.analyze(
                 data=data,
@@ -443,8 +473,6 @@ class DataQualityValidator:
             )
         except Exception as exc:
             logger.warning("Completeness check failed: %s", exc)
-            from .report import CompletenessResult
-
             return CompletenessResult(
                 score=0.5,
                 field_completeness={},
@@ -457,10 +485,10 @@ class DataQualityValidator:
     def _check_consistency(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: DataSchema,
         *,
         full_data: pd.DataFrame | None,
-    ) -> Any:
+    ) -> ConsistencyResult:
         try:
             return self.consistency_checker.check_consistency(
                 data=data,
@@ -469,16 +497,14 @@ class DataQualityValidator:
             )
         except Exception as exc:
             logger.warning("Consistency check failed: %s", exc)
-            from .report import ConsistencyResult
-
             return ConsistencyResult(score=0.5, violations=[], penalty=0.0)
 
     def _compute_quality_indicators(
         self,
         data: pd.DataFrame,
         dataset_id: str,
-        fetch_result: Any,
-    ) -> Any:
+        fetch_result: FetchResult[object],
+    ) -> object | None:
         try:
             from polisyos.fabric.quality.quality import compute_quality_indicators
 
@@ -497,13 +523,13 @@ class DataQualityValidator:
 
     def _generate_warnings(
         self,
-        freshness_status: Any,
-        completeness_result: Any,
-        consistency_result: Any,
+        freshness_status: FreshnessStatus,
+        completeness_result: CompletenessResult,
+        consistency_result: ConsistencyResult,
         *,
-        anomaly_report: Any | None = None,
-        drift_report: Any | None = None,
-        contract_result: Any | None = None,
+        anomaly_report: AnomalyReport | None = None,
+        drift_report: DriftReport | None = None,
+        contract_result: QualityContractResult | None = None,
     ) -> list[str]:
         warnings: list[str] = []
 
@@ -536,8 +562,8 @@ class DataQualityValidator:
 
     def _create_error_report(
         self,
-        fetch_result: Any,
-        schema: Any,
+        fetch_result: FetchResult[object],
+        schema: DataSchema,
         error_message: str,
     ) -> DataQualityReport:
         from .report import FreshnessLevel, FreshnessStatus
@@ -569,7 +595,7 @@ class DataQualityValidator:
         )
 
     @staticmethod
-    def _resolve_source_id(fetch_result: Any) -> str | None:
+    def _resolve_source_id(fetch_result: FetchResult[object]) -> str | None:
         metadata = getattr(fetch_result, "metadata", None)
         if metadata is not None:
             for attr_name in ("source_id", "source", "connector_id"):
@@ -583,9 +609,7 @@ class DataQualityValidator:
         return None
 
     @staticmethod
-    def _contract_failure_to_violation(failure: Any) -> Any:
-        from .report import RuleViolation
-
+    def _contract_failure_to_violation(failure: QualityContractFailure) -> RuleViolation:
         return RuleViolation(
             rule_type=f"quality_contract:{failure.rule_id}",
             field_name=failure.field_name,
@@ -597,8 +621,12 @@ class DataQualityValidator:
         )
 
     @staticmethod
-    def _schedule_hint_from_schema(schema: Any) -> str | None:
-        granularity = getattr(schema, "time_granularity", None)
+    def _schedule_hint_from_schema(schema: DataSchema) -> str | None:
+        granularity = (
+            schema.time_granularity
+            if isinstance(schema, DataSchema)
+            else getattr(schema, "time_granularity", None)
+        )
         if granularity is None:
             return None
         mapping = {
@@ -618,22 +646,29 @@ class DataQualityValidator:
         return mapping.get(str(value).lower())
 
     @staticmethod
-    def _extract_time_series(data: pd.DataFrame, schema: Any) -> pd.Series | None:
+    def _extract_time_series(data: pd.DataFrame, schema: DataSchema) -> pd.Series | None:
         def series_for_column(name: object) -> pd.Series | None:
             if not isinstance(name, str) or name not in data.columns:
                 return None
             selected = data[name]
             if not isinstance(selected, pd.Series):
                 raise ValueError(
-                    f"Quality time field {name!r} is ambiguous because its label selects multiple columns"
+                    f"Quality time field {name!r} is ambiguous because its label "
+                    "selects multiple columns"
                 )
             return selected
 
-        time_series = series_for_column(getattr(schema, "time_dimension", None))
+        declared_time_dimension = (
+            schema.time_dimension
+            if isinstance(schema, DataSchema)
+            else getattr(schema, "time_dimension", None)
+        )
+        time_series = series_for_column(declared_time_dimension)
         if time_series is not None:
             return time_series
 
-        for field in schema.fields:
+        fields = schema.fields if isinstance(schema, DataSchema) else getattr(schema, "fields", ())
+        for field in fields:
             field_name = getattr(field, "name", None)
             if not isinstance(field_name, str):
                 continue

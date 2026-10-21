@@ -10,7 +10,7 @@ import re
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
@@ -28,7 +28,6 @@ from polisyos.fabric.world import (
     validate_doc_meta_ids,
     write_world_fact_segment,
 )
-from polisyos.ir.loading import Fact
 from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import (
@@ -44,6 +43,9 @@ from polisyos.ir.world.ids import doc_fragment_id, world_event_id_from_payload
 
 from .errors import DocNotReadyError, DocValidationError
 from .types import DocChunkOptions, DocChunkResult
+
+if TYPE_CHECKING:
+    from polisyos.ir.loading import Fact
 
 _CHUNKS_SCHEMA = SchemaInfo(name="fabric.doc.chunks", version="1.0")
 

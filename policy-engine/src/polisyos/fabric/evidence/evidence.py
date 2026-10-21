@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from polisyos.core.artifacts import ArtifactStore
+from typing import TYPE_CHECKING
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -13,8 +14,12 @@ from polisyos.core.contracts.fabric import (
     ProvenanceCoreRefModel,
 )
 from polisyos.fabric.provenance.core import ProvenanceCoreGraph, ProvenanceCoreRef
-from polisyos.fabric.quality.quality import QualityIndicators
 from polisyos.fabric.security import DataClassification, RetentionScope, resolve_artifact_governance
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.fabric.connectors.federation.types import CompositionStrategy, MergeLogEntry
+    from polisyos.fabric.quality.quality import QualityIndicators
 
 
 class EvidencePayloadError(ValueError):
@@ -180,8 +185,8 @@ def persist_evidence_bundle(
 def build_composite_evidence_bundle(
     *,
     source_bundles: list[EvidenceBundle],
-    composition_strategy,
-    merge_log: list,
+    composition_strategy: CompositionStrategy,
+    merge_log: list[MergeLogEntry],
     store: FileSystemCAS,
     composed_by: str = "FederationEngine",
     deterministic: bool = True,

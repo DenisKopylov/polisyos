@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnector
@@ -17,6 +17,12 @@ from polisyos.ir.connectors import ConnectorCapability, DataVersion
 from .store import ConnectorCacheStore
 
 logger = get_logger(__name__)
+
+
+class _ConnectorRegistry(Protocol):
+    def get(self, connector_id: str) -> SourceConnector[Any]: ...
+
+    async def get_connection(self, connector_id: str) -> ConnectionHandle: ...
 
 
 class InvalidationStrategy(str, Enum):
@@ -131,7 +137,7 @@ class InvalidationOrchestrator:
     def __init__(
         self,
         cache: ConnectorCacheStore,
-        registry: Any,
+        registry: _ConnectorRegistry,
         trigger: InvalidationTrigger | None = None,
     ) -> None:
         self._cache = cache

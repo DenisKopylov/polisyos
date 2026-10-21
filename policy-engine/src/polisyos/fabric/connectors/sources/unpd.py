@@ -290,13 +290,16 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
             token = os.getenv("POLISYOS_UNPD_API_TOKEN", "").strip()
         if not token:
             raise FetchError(
-                message="UNPD API token is required (set POLISYOS_UNPD_API_TOKEN or auth_credentials.token)",
+                message=(
+                    "UNPD API token is required (set POLISYOS_UNPD_API_TOKEN "
+                    "or auth_credentials.token)"
+                ),
                 connector_id=UNPDConnector.connector_id,
             )
         return {"Authorization": f"Bearer {token}"}
 
     @staticmethod
-    def _extract_rows(body: Any, *, indicator_id: str, location_id: str) -> list[dict[str, Any]]:
+    def _extract_rows(body: object, *, indicator_id: str, location_id: str) -> list[dict[str, Any]]:
         records = body.get("data", []) if isinstance(body, dict) else []
         if not isinstance(records, list):
             records = []

@@ -11,17 +11,19 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.canon import content_hash as compute_content_hash
 from polisyos.fabric.numerics.finite import ensure_probability
 from polisyos.fabric.quality.safety import validate_sql_identifier
-from polisyos.ir.kernel.units import UnitRef
 
 from ._schema_field import SCHEMA_ID_PATTERN, FieldSpec, SchemaVersion, make_schema_id
 from ._schema_types import GeoGranularity, TimeGranularity
+
+if TYPE_CHECKING:
+    from polisyos.ir.kernel.units import UnitRef
 
 __all__ = [
     "DataSchema",

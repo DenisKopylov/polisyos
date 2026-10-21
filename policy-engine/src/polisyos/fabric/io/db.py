@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import threading
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import duckdb
 import pandas as pd
@@ -15,10 +15,26 @@ if TYPE_CHECKING:
     from polisyos.core.security import DuckDBLegacyBackend
 
 
+class _AgentState(Protocol):
+    """JAX-compatible agent arrays consumed by the bulk snapshot writer."""
+
+    size: int
+    age: object
+    income: object
+    savings: object
+    is_employed: object
+
+
+class _ModelDumpable(Protocol):
+    """Record object with the serialization method required by the DB adapter."""
+
+    def model_dump(self) -> dict[str, object]: ...
+
+
 class SimulationDB:
     """Simulation DB public type."""
 
-    def __init__(self, db_path: str = "data/databases/simulation.duckdb"):
+    def __init__(self, db_path: str = "data/databases/simulation.duckdb") -> None:
         self.db_path = db_path
         self._lock = threading.RLock()
         self._closed = False
@@ -115,7 +131,7 @@ class SimulationDB:
         self.conn.execute("INSERT INTO macro_history SELECT * FROM df")
         logger.info(f"💾 Saved {len(df)} macro records.")
 
-    def save_agents(self, run_id: str, step: int, agents_state: Any) -> None:
+    def save_agents(self, run_id: str, step: int, agents_state: object) -> None:
         """
         Сохранение среза агентов.
         ВНИМАНИЕ: Это тяжелая операция (1 млн строк).
@@ -124,17 +140,18 @@ class SimulationDB:
         self._ensure_open()
         # 1. Конвертируем JAX массивы в Numpy (CPU) -> Pandas
         # JAX массивы ленивые, здесь мы их реально вычисляем
-        n_agents = agents_state.size
+        state = cast("_AgentState", agents_state)
+        n_agents = state.size
 
         df = pd.DataFrame(
             {
                 "run_id": [run_id] * n_agents,
                 "step": [step] * n_agents,
                 "agent_id": range(n_agents),
-                "age": agents_state.age,  # JAX сам конвертирует в numpy при доступе
-                "income": agents_state.income,
-                "savings": agents_state.savings,
-                "is_employed": agents_state.is_employed,
+                "age": state.age,  # JAX сам конвертирует в numpy при доступе
+                "income": state.income,
+                "savings": state.savings,
+                "is_employed": state.is_employed,
             }
         )
 
@@ -168,9 +185,9 @@ class SimulationDB:
 
         return DuckDBLegacyBackend(self)
 
-    def save_run_record(self, record: Any) -> None:
+    def save_run_record(self, record: object) -> None:
         self._ensure_open()
-        payload = record.model_dump()
+        payload = cast("_ModelDumpable", record).model_dump()
         generator = payload.pop("generator", {})
         library_versions = json.dumps(payload.pop("library_versions", {}))
         flags = json.dumps(payload.pop("flags", {}))

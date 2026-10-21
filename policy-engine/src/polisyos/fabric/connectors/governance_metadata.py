@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 from polisyos.ir.connectors import ConnectorMetadataSpec
 
@@ -94,5 +93,5 @@ def validate_connector_governance_metadata(
     )
 
 
-def _non_empty(value: Any) -> bool:
+def _non_empty(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())

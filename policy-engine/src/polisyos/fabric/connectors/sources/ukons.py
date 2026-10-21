@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import json
 import time
-from collections.abc import AsyncIterator, Iterable
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pandas as pd
 
@@ -28,6 +28,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class UKONSConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -235,7 +238,7 @@ def _extract_dataset_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return []
 
 
-def _extract_dimensions(value: Any) -> dict[str, str]:
+def _extract_dimensions(value: object) -> dict[str, str]:
     if isinstance(value, dict):
         return {str(key): str(raw) for key, raw in value.items() if raw is not None}
     if isinstance(value, list):

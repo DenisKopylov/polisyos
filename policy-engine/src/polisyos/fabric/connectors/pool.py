@@ -25,6 +25,7 @@ from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.fabric.connectors.base import (
+    SourceConnectorValue,
     require_connector_owner,
     validate_connector_owner_id,
 )
@@ -32,12 +33,7 @@ from polisyos.fabric.connectors.base import (
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from polisyos.fabric.connectors.base import (
-        ConnectionConfig,
-        ConnectionHandle,
-        HealthStatus,
-        SourceConnectorValue,
-    )
+    from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, HealthStatus
     from polisyos.fabric.connectors.resilience import CircuitBreaker
 
 logger = get_logger(__name__)

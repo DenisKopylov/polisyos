@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import TYPE_CHECKING, cast
@@ -14,6 +13,7 @@ from polisyos.ir.connectors import ConnectorCapability
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from typing import Any as _Any
 
     from polisyos.fabric.connectors.base import SourceConnector

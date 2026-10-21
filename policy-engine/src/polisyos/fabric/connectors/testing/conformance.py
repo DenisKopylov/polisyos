@@ -8,7 +8,8 @@ from typing import Any, ClassVar
 
 from polisyos.fabric.connectors.base import SourceConnector
 from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
-from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, SourceContract
+from polisyos.fabric.connectors.contracts.contract import ConnectorSchemaContract
+from polisyos.fabric.connectors.contracts.source_contract import SourceContract
 from polisyos.fabric.connectors.governance_metadata import (
     validate_connector_governance_metadata,
 )
@@ -335,14 +336,15 @@ def _validate_processing_guarantee(
 ) -> None:
     processing = contract.processing
     guarantee = ProcessingGuarantee(processing.guarantee)
-    if guarantee == ProcessingGuarantee.EXACTLY_ONCE_NARROW:
-        if processing.atomicity_proof is None or not processing.atomicity_proof.complete:
-            issues.append(
-                ConformanceIssue(
-                    "processing_guarantee",
-                    "exactly_once_narrow requires atomic input/state/output proof",
-                )
+    if guarantee == ProcessingGuarantee.EXACTLY_ONCE_NARROW and (
+        processing.atomicity_proof is None or not processing.atomicity_proof.complete
+    ):
+        issues.append(
+            ConformanceIssue(
+                "processing_guarantee",
+                "exactly_once_narrow requires atomic input/state/output proof",
             )
+        )
     if guarantee in {
         ProcessingGuarantee.AT_LEAST_ONCE_WITH_DEDUPE,
         ProcessingGuarantee.EFFECTIVELY_ONCE,

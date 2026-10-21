@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from decimal import Decimal
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -23,7 +22,6 @@ from polisyos.fabric.world import (
     stable_world_provenance_v1,
 )
 from polisyos.ir.world.abi import EdgeKind, NodeKind
-from polisyos.ir.world.claim import Claim
 from polisyos.ir.world.conflict import ConflictKind, ConflictSet
 from polisyos.ir.world.event import (
     EventKind,
@@ -35,6 +33,12 @@ from polisyos.ir.world.ids import conflict_set_id_from_key
 from ..world_events import build_claims_world_event, persist_claims_world_event
 from .key import compare_v1, conflict_key_v1
 from .types import ConflictDetectOptions, ConflictDetectResult
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from decimal import Decimal
+
+    from polisyos.ir.world.claim import Claim
 
 
 def _query_claim_artifacts_from_db(db: SimulationDB, claim_ids: Iterable[str]) -> dict[str, str]:

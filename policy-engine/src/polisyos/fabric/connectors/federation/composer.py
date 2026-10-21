@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import heapq
 import json
-from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
@@ -18,6 +17,7 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
+from polisyos.core.observability import PolicyOSTracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 from polisyos.fabric.connectors.federation.types import (
@@ -37,7 +37,10 @@ from polisyos.fabric.connectors.federation.types import (
 from polisyos.fabric.numerics.finite import is_finite_number
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     from polisyos.core.observability import PolicyOSTracer
+    from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 
 
 logger = get_logger(__name__)
@@ -81,19 +84,28 @@ def _fresh_internal_name(columns: Iterable[Any], prefix: str) -> str:
     return candidate
 
 
-def _is_missing_scalar(value: Any) -> bool:
+def _is_missing_scalar(value: object) -> bool:
     """Return whether a scalar value is a pandas missing value."""
+    if not pd.api.types.is_scalar(value):
+        return False
     try:
         return bool(pd.isna(value))
     except (TypeError, ValueError):
         return False
 
 
-def _lineage_map(value: Any) -> dict[str, SourceMetadata | None]:
+def _lineage_map(value: object) -> _LineageMap:
     """Copy one internal per-row lineage map without exposing it to callers."""
-    if isinstance(value, dict):
-        return dict(value)
-    return {}
+    if value is None or _is_missing_scalar(value):
+        return {}
+    if not isinstance(value, dict):
+        raise TypeError("connector lineage maps must be dictionaries")
+    if not all(
+        isinstance(key, str) and (metadata is None or isinstance(metadata, SourceMetadata))
+        for key, metadata in value.items()
+    ):
+        raise TypeError("connector lineage maps require string keys and source metadata values")
+    return dict(value)
 
 
 @dataclass
@@ -196,8 +208,8 @@ class DataComposer:
         self,
         conflict_resolver: ConflictResolver,
         *,
-        tracer: Any | None = None,
-    ):
+        tracer: PolicyOSTracer | None = None,
+    ) -> None:
         """
         Initialize composer with a conflict resolver.
 
@@ -719,7 +731,8 @@ class DataComposer:
         for key in key_columns:
             if key not in result_df.columns:
                 raise SchemaIncompatibilityError(
-                    f"Key column '{key}' not found in primary source {primary_metadata.connector_id}"
+                    f"Key column '{key}' not found in primary source "
+                    f"{primary_metadata.connector_id}"
                 )
 
         all_columns = set(result_df.columns)
@@ -1148,7 +1161,7 @@ class DataComposer:
         return resolved, chosen_lineage_values
 
     @staticmethod
-    def _values_equal(left: Any, right: Any) -> bool:
+    def _values_equal(left: object, right: object) -> bool:
         """Compare scalar cells without leaking pandas' NA sentinel."""
         try:
             comparison = left == right
@@ -1182,14 +1195,14 @@ class DataComposer:
 
         return _unique_preserve_order([k for k in keys if k])
 
-    def _row_key_from_group(self, key_columns: list[str], key_values: Any) -> dict[str, Any]:
+    def _row_key_from_group(self, key_columns: list[str], key_values: object) -> dict[str, object]:
         if len(key_columns) == 1:
             return {key_columns[0]: key_values}
         if not isinstance(key_values, tuple):
             return {key_columns[0]: key_values}
         return dict(zip(key_columns, key_values, strict=False))
 
-    def _row_key_from_index(self, key_columns: list[str], index_value: Any) -> dict[str, Any]:
+    def _row_key_from_index(self, key_columns: list[str], index_value: object) -> dict[str, object]:
         if len(key_columns) == 1:
             return {key_columns[0]: index_value}
         if isinstance(index_value, tuple):

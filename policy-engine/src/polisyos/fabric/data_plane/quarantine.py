@@ -8,7 +8,7 @@ import uuid
 from collections import OrderedDict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -49,6 +49,12 @@ def _default_metrics() -> MetricsRegistry:
 
 
 @runtime_checkable
+class _ToDictLike(Protocol):
+    """Dynamically discovered ``to_dict`` serializer used for connector payloads."""
+
+    def to_dict(self, *args: object, **kwargs: object) -> object: ...
+
+
 class IndexedArtifactStore(Protocol):
     """Artifact store protocol with read access to its local root path."""
 
@@ -175,19 +181,19 @@ def _artifact_ref_from_str(value: str) -> ArtifactID:
     return ArtifactID.model_validate(value)
 
 
-def _json_payload(value: Any) -> Any:
+def _json_payload(value: object) -> object:
     if hasattr(value, "to_dict"):
         try:
-            return value.to_dict(orient="records")
+            return cast("_ToDictLike", value).to_dict(orient="records")
         except TypeError:
-            return value.to_dict()
+            return cast("_ToDictLike", value).to_dict()
     return value
 
 
 def _put_payload_artifact(
     store: IndexedArtifactStore,
     *,
-    payload: Any,
+    payload: object,
     kind: str = "fabric.quarantine_payload",
     media_type: str = "application/json",
     schema_version: str = "1.0",
@@ -215,7 +221,7 @@ def persist_quarantine_record(
     store: IndexedArtifactStore,
     *,
     record: QuarantineRecord,
-    raw_payload: Any | None = None,
+    raw_payload: object | None = None,
     input_artifact_ids: Sequence[str] = (),
     metrics: MetricsRegistry | None = None,
 ) -> ArtifactRef:
@@ -324,7 +330,7 @@ def load_quarantine_record(
 def load_quarantine_payload(
     store: IndexedArtifactStore,
     raw_payload_ref: str | None,
-) -> Any | None:
+) -> object | bytes | None:
     """Load the raw payload artifact referenced by one quarantine record."""
     from polisyos.core.artifacts import load_core_json_artifact
 

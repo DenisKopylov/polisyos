@@ -8,7 +8,7 @@ import math
 import time
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime as _datetime
 from typing import Any, ClassVar, Protocol, TypeVar, cast
 
 import aiohttp
@@ -39,7 +39,17 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.ir.connectors import QualityTier, ResilienceInfo
+from polisyos.ir.connectors import (
+    QualityTier as _QualityTier,
+)
+from polisyos.ir.connectors import (
+    ResilienceInfo as _ResilienceInfo,
+)
+
+# These runtime aliases keep public postponed annotations resolvable by get_type_hints.
+datetime = _datetime
+QualityTier = _QualityTier
+ResilienceInfo = _ResilienceInfo
 
 # Retain this module alias so get_type_hints resolves postponed method annotations.
 DataT = TypeVar("DataT")

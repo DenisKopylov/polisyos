@@ -41,17 +41,21 @@ from __future__ import annotations
 import base64
 import json
 import time
-from collections.abc import Iterable
 from dataclasses import MISSING, dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from polisyos.core.canon import content_hash
+from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.fabric.io.atomic import atomic_write_text
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
 
 _MAX_RECORDED_FIXTURE_BYTES = 50 * 1024 * 1024
 
@@ -156,7 +160,7 @@ class SimulatorFixture:
 # ---------------------------------------------------------------------------
 
 
-def _normalize_params(params: Any) -> list[tuple[str, str]]:
+def _normalize_params(params: object) -> list[tuple[str, str]]:
     """Normalize query params into a sorted list of (key, value) tuples."""
     if params is None:
         return []
@@ -181,7 +185,7 @@ def _normalize_params(params: Any) -> list[tuple[str, str]]:
     return sorted(items)
 
 
-def _canonicalize_url(url: str, params: Any | None = None) -> str:
+def _canonicalize_url(url: str, params: object | None = None) -> str:
     """Return a canonical URL with sorted query params."""
     parsed = urlparse(url)
     query_items = list(parse_qsl(parsed.query, keep_blank_values=True))
@@ -191,7 +195,7 @@ def _canonicalize_url(url: str, params: Any | None = None) -> str:
     return urlunparse(parsed._replace(query=query))
 
 
-def _canonical_body(kwargs: dict[str, Any]) -> tuple[str, bytes]:
+def _canonical_body(kwargs: dict[str, object]) -> tuple[str, bytes]:
     """Return (body_kind, body_bytes) with deterministic encoding."""
     if "json" in kwargs and kwargs["json"] is not None:
         body_obj = kwargs["json"]
@@ -285,7 +289,7 @@ class APISimulator:
         fixture_root: Path | None = None,
         connector_id: str = "unknown",
         dataset_id: str | None = None,
-        schema: Any | None = None,
+        schema: DataSchema | None = None,
         max_call_log_entries: int = 10_000,
     ) -> None:
         self.mode = mode
@@ -326,7 +330,7 @@ class APISimulator:
         self._patch.start()
         return self
 
-    async def __aexit__(self, *exc: Any) -> None:
+    async def __aexit__(self, *exc: object) -> None:
         """Remove the patch and restore normal aiohttp behaviour."""
         if self._patch:
             self._patch.stop()
@@ -340,8 +344,8 @@ class APISimulator:
         self,
         method: str,
         url: str,
-        **kwargs: Any,
-    ) -> Any:
+        **kwargs: object,
+    ) -> _MockResponse:
         """
         Central dispatcher -- routes to the appropriate mode handler.
 
@@ -380,7 +384,7 @@ class APISimulator:
         """Resolve the fixture file path for a given request hash."""
         return self.fixture_root / self.connector_id / self.dataset_id / f"{req_hash}.json"
 
-    async def _replay(self, method: str, url: str, req_hash: str) -> Any:
+    async def _replay(self, method: str, url: str, req_hash: str) -> _MockResponse:
         """
         Serve a response from a pre-recorded fixture.
 
@@ -407,7 +411,9 @@ class APISimulator:
     # RECORD mode
     # ------------------------------------------------------------------
 
-    async def _record(self, method: str, url: str, req_hash: str, **kwargs: Any) -> Any:
+    async def _record(
+        self, method: str, url: str, req_hash: str, **kwargs: object
+    ) -> _MockResponse:
         """
         Proxy the real request, capture the response, and write a fixture.
 
@@ -419,17 +425,19 @@ class APISimulator:
         if self._orig_request is None:
             raise RuntimeError("APISimulator missing original _request; did you enter context?")
 
-        async with aiohttp.ClientSession() as session:
-            async with self._orig_request(session, method, url, **kwargs) as resp:
-                body_bytes = await read_bounded_response_body(
-                    resp,
-                    connector_id="api_simulator.record",
-                    url=url,
-                    max_response_bytes=_MAX_RECORDED_FIXTURE_BYTES,
-                    max_decompressed_bytes=_MAX_RECORDED_FIXTURE_BYTES,
-                )
-                headers = dict(resp.headers)
-                status = resp.status
+        async with (
+            aiohttp.ClientSession() as session,
+            self._orig_request(session, method, url, **kwargs) as resp,
+        ):
+            body_bytes = await read_bounded_response_body(
+                resp,
+                connector_id="api_simulator.record",
+                url=url,
+                max_response_bytes=_MAX_RECORDED_FIXTURE_BYTES,
+                max_decompressed_bytes=_MAX_RECORDED_FIXTURE_BYTES,
+            )
+            headers = dict(resp.headers)
+            status = resp.status
 
         # Persist fixture
         fixture = SimulatorFixture(
@@ -453,7 +461,7 @@ class APISimulator:
     # SYNTHETIC mode
     # ------------------------------------------------------------------
 
-    def _synthetic(self, method: str, url: str, req_hash: str) -> Any:
+    def _synthetic(self, method: str, url: str, req_hash: str) -> _MockResponse:
         """
         Generate a random response body that conforms to self.schema.
 
@@ -524,14 +532,14 @@ class _MockResponse:
     async def read(self) -> bytes:
         return self._body
 
-    async def json(self, **kwargs: Any) -> Any:
+    async def json(self, **kwargs: object) -> object:
         return json.loads(self._body.decode("utf-8"))
 
-    async def text(self, **kwargs: Any) -> str:
+    async def text(self, **kwargs: object) -> str:
         return self._body.decode("utf-8")
 
     async def __aenter__(self) -> _MockResponse:
         return self
 
-    async def __aexit__(self, *_: Any) -> None:
+    async def __aexit__(self, *_: object) -> None:
         pass

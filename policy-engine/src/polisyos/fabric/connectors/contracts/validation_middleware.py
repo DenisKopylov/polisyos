@@ -8,7 +8,6 @@ import threading
 import time
 from collections import OrderedDict
 from collections.abc import AsyncIterator
-from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
 
 import pandas as pd
@@ -28,19 +27,21 @@ from polisyos.fabric.connectors.base import (
 )
 from polisyos.fabric.connectors.types import SchemaError, ValidationResult
 from polisyos.fabric.data_plane.temporal import FutureTimestampError, ensure_aware_utc, utc_age
-from polisyos.ir.connectors import ConnectorCapability, DataVersion
+from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, DataVersion
 
 from .contract import ConnectorSchemaContract
 from .contract_registry import ContractRegistry
 from .inference import validate_dataframe_against_schema
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from polisyos.fabric.connectors.types import DataChunk, DatasetDescriptor, FreshnessResult
     from polisyos.ir.connectors import DataVersion
 
+
 logger = get_logger(__name__)
 
-DataT = TypeVar("DataT")
 ValidationMode = Literal["strict", "warn", "disabled"]
 
 
@@ -70,6 +71,9 @@ class FetchResultContractValidation(BaseModel):
         elif not self.errors:
             raise ValueError("missing contract identity requires an explicit refusal")
         return self
+
+
+DataT = TypeVar("DataT")
 
 
 class ContractValidatingProxy(Generic[DataT]):
@@ -106,7 +110,7 @@ class ContractValidatingProxy(Generic[DataT]):
         return self._connector.capabilities
 
     @property
-    def metadata(self) -> Any:
+    def metadata(self) -> ConnectorMetadataSpec:
         return self._connector.metadata
 
     async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
@@ -305,7 +309,8 @@ class ContractValidatingProxy(Generic[DataT]):
             and result.completeness < contract.min_completeness
         ):
             errors.append(
-                f"completeness {result.completeness:.3f} below minimum {contract.min_completeness:.3f}"
+                f"completeness {result.completeness:.3f} below minimum "
+                f"{contract.min_completeness:.3f}"
             )
 
         if not contract.field_completeness:
@@ -388,5 +393,5 @@ class ContractValidatingProxy(Generic[DataT]):
             ]
         return []
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> object:
         return getattr(self._connector, name)

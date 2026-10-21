@@ -48,7 +48,7 @@ class MetricPrefix(Enum):
     BN = ("Bn", Decimal("1e9"))  # Billion (US)
     TN = ("Tn", Decimal("1e12"))  # Trillion
 
-    def __init__(self, symbol: str, factor: Decimal):
+    def __init__(self, symbol: str, factor: Decimal) -> None:
         self._symbol = symbol
         self._factor = factor
 

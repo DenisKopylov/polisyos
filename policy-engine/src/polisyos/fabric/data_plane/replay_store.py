@@ -86,7 +86,7 @@ class ReplayStore:
             canon_spec=CanonSpec(forbid_floats=False),
         )
 
-    def load_record_session(self, artifact_id: Any) -> RecordSession:
+    def load_record_session(self, artifact_id: str | ArtifactRef) -> RecordSession:
         """Load a RecordSession from CAS by artifact ID."""
         from polisyos.core.artifacts import load_core_json_artifact
 

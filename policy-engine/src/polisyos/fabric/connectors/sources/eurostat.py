@@ -8,6 +8,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
+import aiohttp as _aiohttp
 import pandas as pd
 from defusedxml import ElementTree as ET
 
@@ -37,6 +38,8 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+aiohttp = _aiohttp
 
 
 class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -465,7 +468,7 @@ class EurostatConnector(HTTPConnectorBase[pd.DataFrame]):
 
     async def _request_raw(
         self,
-        session: Any,
+        session: aiohttp.ClientSession,
         url: str,
         *,
         params: dict[str, str],

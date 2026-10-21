@@ -58,7 +58,7 @@ def _slug(value: str) -> str:
     return normalized or "unknown"
 
 
-def _stable_suffix(*parts: Any) -> str:
+def _stable_suffix(*parts: object) -> str:
     payload = json.dumps(parts, sort_keys=True, ensure_ascii=True, default=str)
     return truncated_hash(payload, length=12)
 

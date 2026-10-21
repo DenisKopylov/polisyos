@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any, NamedTuple, Protocol
+from typing import TYPE_CHECKING, Any, NamedTuple, Protocol
 
 from polisyos.core.components import (
     ComponentEntry,
@@ -14,8 +13,12 @@ from polisyos.core.components import (
 )
 
 from ._registry_errors import ConnectorAlreadyRegisteredError
-from .base import ConnectionConfig, SourceConnector
 from .capabilities import validate_protocol_compliance
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from .base import ConnectionConfig, SourceConnector
 
 
 class BootstrapTarget(Protocol):

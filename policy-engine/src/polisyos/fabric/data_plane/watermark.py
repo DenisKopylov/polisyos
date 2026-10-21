@@ -21,7 +21,7 @@ class WatermarkPolicy(ABC):
     def watermark_type(self) -> WatermarkType: ...
 
     @abstractmethod
-    def extract(self, result: Any) -> str | None:
+    def extract(self, result: object) -> str | None:
         """Extract watermark value from fetch result. None if not available."""
         ...
 
@@ -33,7 +33,7 @@ class TimestampWatermark(WatermarkPolicy):
     def watermark_type(self) -> WatermarkType:
         return WatermarkType.TIMESTAMP
 
-    def extract(self, result: Any) -> str | None:
+    def extract(self, result: object) -> str | None:
         ts = getattr(result, "source_updated_at", None) or getattr(result, "fetched_at", None)
         if ts is not None:
             return str(ts.isoformat())
@@ -47,7 +47,7 @@ class ETagWatermark(WatermarkPolicy):
     def watermark_type(self) -> WatermarkType:
         return WatermarkType.ETAG
 
-    def extract(self, result: Any) -> str | None:
+    def extract(self, result: object) -> str | None:
         version = getattr(result, "version", None)
         if version is not None and getattr(version, "strategy", None) == VersionStrategy.ETAG:
             return str(version.value)
@@ -61,7 +61,7 @@ class RevisionWatermark(WatermarkPolicy):
     def watermark_type(self) -> WatermarkType:
         return WatermarkType.REVISION
 
-    def extract(self, result: Any) -> str | None:
+    def extract(self, result: object) -> str | None:
         version = getattr(result, "version", None)
         if version is not None and getattr(version, "strategy", None) == VersionStrategy.REVISION:
             return str(version.value)
@@ -75,7 +75,7 @@ class OffsetWatermark(WatermarkPolicy):
     def watermark_type(self) -> WatermarkType:
         return WatermarkType.OFFSET
 
-    def extract(self, result: Any) -> str | None:
+    def extract(self, result: object) -> str | None:
         row_count = getattr(result, "row_count", None)
         if row_count is not None:
             return str(row_count)
@@ -89,7 +89,7 @@ class SchemaWatermark(WatermarkPolicy):
     def watermark_type(self) -> WatermarkType:
         return WatermarkType.SCHEMA
 
-    def extract(self, result: Any) -> str | None:
+    def extract(self, result: object) -> str | None:
         schema_id = getattr(result, "schema_id", None)
         schema_version = getattr(result, "schema_version", None)
         if schema_id and schema_version:

@@ -6,8 +6,6 @@ subsystem to signal conversion failures and potential precision loss.
 
 from __future__ import annotations
 
-from typing import Any
-
 __all__ = [
     "CoercionError",
     "PrecisionLossWarning",
@@ -19,11 +17,11 @@ class CoercionError(ValueError):
 
     def __init__(
         self,
-        value: Any,
+        value: object,
         source_type: str,
         target_type: str,
         reason: str,
-    ):
+    ) -> None:
         self.value = value
         self.source_type = source_type
         self.target_type = target_type
@@ -42,11 +40,11 @@ class PrecisionLossWarning(UserWarning):
 
     def __init__(
         self,
-        value: Any,
+        value: object,
         source_type: str,
         target_type: str,
         description: str,
-    ):
+    ) -> None:
         self.value = value
         self.source_type = source_type
         self.target_type = target_type

@@ -26,9 +26,8 @@ from __future__ import annotations
 import asyncio
 import inspect
 import json
-from collections.abc import AsyncIterator, Hashable
 from datetime import UTC, datetime
-from typing import Any, ClassVar, TypeGuard
+from typing import TYPE_CHECKING, Any, ClassVar, TypeGuard
 
 import pytest
 
@@ -43,6 +42,11 @@ from polisyos.fabric.connectors.base import (
 from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
 from polisyos.fabric.connectors.contracts.schema import DataSchema
 from polisyos.fabric.connectors.testing.contracts import assert_schema_compliance
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Hashable
+
+
 from polisyos.ir.connectors import (
     ConnectorCapability,
     DataVersion,
@@ -106,7 +110,7 @@ def _sorted_records_by_pk(
     return records
 
 
-def _stable_hash(data: Any, schema: DataSchema | None = None) -> str:
+def _stable_hash(data: object, schema: DataSchema | None = None) -> str:
     """
     Produce a deterministic SHA-256 fingerprint for arbitrary data.
 
@@ -130,9 +134,13 @@ def _stable_hash(data: Any, schema: DataSchema | None = None) -> str:
     except ImportError:  # pragma: no cover
         payload = data
 
-    if isinstance(payload, list) and all(isinstance(item, dict) for item in payload):
-        if schema and schema.primary_key:
-            payload = _sorted_records_by_pk(payload, schema.primary_key)
+    if (
+        isinstance(payload, list)
+        and all(isinstance(item, dict) for item in payload)
+        and schema
+        and schema.primary_key
+    ):
+        payload = _sorted_records_by_pk(payload, schema.primary_key)
 
     canonical = json.dumps(payload, sort_keys=True, default=str)
     return content_hash(canonical)
@@ -159,7 +167,7 @@ _CAPABILITY_METHODS: dict[ConnectorCapability, str] = {
 }
 
 
-def _is_async_capability_method(method: Any, *, method_name: str) -> bool:
+def _is_async_capability_method(method: object, *, method_name: str) -> bool:
     if inspect.iscoroutinefunction(method):
         return True
     return bool(

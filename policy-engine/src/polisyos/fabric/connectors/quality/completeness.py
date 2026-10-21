@@ -11,7 +11,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 import pandas as pd
 
@@ -23,6 +26,20 @@ from .report import CompletenessResult, RuleViolation
 logger = get_logger(__name__)
 
 SEVERITY_WEIGHTS = {"error": 1.0, "warning": 0.6, "info": 0.3}
+
+
+class _TemporalFieldType(Protocol):
+    def is_temporal(self) -> bool: ...
+
+
+class _CompletenessField(Protocol):
+    name: str
+    semantic_type: object
+    data_type: _TemporalFieldType
+
+
+class _CompletenessSchema(Protocol):
+    fields: Sequence[_CompletenessField]
 
 
 @dataclass
@@ -52,7 +69,7 @@ class CompletenessAnalyzer:
     def analyze(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: _CompletenessSchema,
         expected_row_count: int | None = None,
         *,
         time_series: pd.Series | None = None,
@@ -128,7 +145,8 @@ class CompletenessAnalyzer:
                         field_name=None,
                         severity=severity,
                         message=(
-                            f"Low coverage: {len(data)} / {expected_row_count} rows ({coverage:.1%})"
+                            f"Low coverage: {len(data)} / {expected_row_count} rows "
+                            f"({coverage:.1%})"
                         ),
                         expected=expected_row_count,
                         actual=len(data),
@@ -142,23 +160,23 @@ class CompletenessAnalyzer:
             avg_completeness = 0.0
 
         required_completeness = getattr(schema, "required_completeness", None)
-        if required_completeness is not None:
-            if avg_completeness < required_completeness:
-                gap = required_completeness - avg_completeness
-                severity = "warning" if gap <= 0.1 else "error"
-                violations.append(
-                    RuleViolation(
-                        rule_type="completeness",
-                        field_name=None,
-                        severity=severity,
-                        message=(
-                            f"Overall completeness {avg_completeness:.1%} < required {required_completeness:.1%}"
-                        ),
-                        expected=required_completeness,
-                        actual=avg_completeness,
-                    )
+        if required_completeness is not None and avg_completeness < required_completeness:
+            gap = required_completeness - avg_completeness
+            severity = "warning" if gap <= 0.1 else "error"
+            violations.append(
+                RuleViolation(
+                    rule_type="completeness",
+                    field_name=None,
+                    severity=severity,
+                    message=(
+                        f"Overall completeness {avg_completeness:.1%} < required "
+                        f"{required_completeness:.1%}"
+                    ),
+                    expected=required_completeness,
+                    actual=avg_completeness,
                 )
-                penalty += gap * SEVERITY_WEIGHTS[severity]
+            )
+            penalty += gap * SEVERITY_WEIGHTS[severity]
 
         score = ensure_probability(
             avg_completeness - penalty, what="completeness score", clamp=True
@@ -180,7 +198,7 @@ class CompletenessAnalyzer:
     def _check_null_percentage(
         self,
         data: pd.DataFrame,
-        schema: Any,
+        schema: _CompletenessSchema,
         field_completeness: dict[str, float],
     ) -> tuple[list[RuleViolation], float, bool]:
         violations: list[RuleViolation] = []
@@ -240,7 +258,8 @@ class CompletenessAnalyzer:
                         field_name=field.name,
                         severity=severity,
                         message=(
-                            f"Completeness {actual_completeness:.1%} < expected {expected_completeness:.1%}"
+                            f"Completeness {actual_completeness:.1%} < expected "
+                            f"{expected_completeness:.1%}"
                         ),
                         expected=expected_completeness,
                         actual=actual_completeness,
@@ -254,7 +273,7 @@ class CompletenessAnalyzer:
         self,
         data: pd.DataFrame,
         time_field: str,
-        schema: Any,
+        schema: _CompletenessSchema,
         time_series: pd.Series | None,
     ) -> list[DateGap]:
         gaps: list[DateGap] = []
@@ -293,7 +312,7 @@ class CompletenessAnalyzer:
         return gaps
 
     @staticmethod
-    def _get_frequency(schema: Any, time_values: pd.Series) -> str | None:
+    def _get_frequency(schema: _CompletenessSchema, time_values: pd.Series) -> str | None:
         granularity = getattr(schema, "time_granularity", None)
         if granularity is not None:
             try:
@@ -334,7 +353,7 @@ class CompletenessAnalyzer:
         return "YS"
 
     @staticmethod
-    def _has_time_dimension(schema: Any) -> bool:
+    def _has_time_dimension(schema: _CompletenessSchema) -> bool:
         if getattr(schema, "time_dimension", None):
             return True
         for field in schema.fields:
@@ -347,7 +366,7 @@ class CompletenessAnalyzer:
         return False
 
     @staticmethod
-    def _get_time_field(schema: Any) -> str | None:
+    def _get_time_field(schema: _CompletenessSchema) -> str | None:
         time_dimension = getattr(schema, "time_dimension", None)
         if isinstance(time_dimension, str) and time_dimension:
             return time_dimension

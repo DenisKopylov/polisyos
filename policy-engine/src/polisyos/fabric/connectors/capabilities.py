@@ -6,11 +6,9 @@ import ast
 import dis
 import inspect
 import textwrap
-from collections.abc import Awaitable, Callable, Coroutine
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
-    Any,
     Concatenate,
     ParamSpec,
     Protocol,
@@ -22,13 +20,14 @@ from typing import (
 from polisyos.ir.connectors import ConnectorCapability
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Coroutine
+
     from polisyos.fabric.connectors.base import SourceConnector
 
 
 P = ParamSpec("P")
 R = TypeVar("R")
 ConnectorT = TypeVar("ConnectorT", bound="_CapabilitySubject")
-ConnectorDataT = TypeVar("ConnectorDataT")
 
 
 class _CapabilitySubject(Protocol):
@@ -272,7 +271,7 @@ def validate_protocol_compliance(
     return violations
 
 
-def _is_async_callable(method: Any, *, method_name: str | None = None) -> bool:
+def _is_async_callable(method: Callable[..., object], *, method_name: str | None = None) -> bool:
     if inspect.iscoroutinefunction(method):
         return True
     return bool(
@@ -280,7 +279,7 @@ def _is_async_callable(method: Any, *, method_name: str | None = None) -> bool:
     )
 
 
-def _is_protocol_stub(method: Any) -> bool:
+def _is_protocol_stub(method: Callable[..., object]) -> bool:
     """Check if a method body is effectively a stub."""
     unwrapped = inspect.unwrap(method)
     try:
@@ -332,7 +331,7 @@ def _is_protocol_stub(method: Any) -> bool:
     return False
 
 
-def _is_empty_return_stub(method: Any) -> bool:
+def _is_empty_return_stub(method: Callable[..., object]) -> bool:
     try:
         instructions = [
             instruction
@@ -374,7 +373,7 @@ def _is_baseconnector_default(connector_class: type[object], method_name: str) -
     return impl is base_impl
 
 
-def check_capability_at_runtime(
+def check_capability_at_runtime[ConnectorDataT](
     connector: SourceConnector[ConnectorDataT],
     required: ConnectorCapability,
 ) -> bool:
@@ -383,7 +382,7 @@ def check_capability_at_runtime(
     return bool(caps & required)
 
 
-def get_missing_capabilities(
+def get_missing_capabilities[ConnectorDataT](
     connector: SourceConnector[ConnectorDataT],
     required: ConnectorCapability,
 ) -> list[ConnectorCapability]:

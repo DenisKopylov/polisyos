@@ -1,7 +1,8 @@
 """
 CKANResourceConnector — downloads actual data resources from CKAN packages.
 
-Handles CSV, JSON, spreadsheets, and ZIP-wrapped tabular resources from CKAN portals. The dataset_id format is
+Handles CSV, JSON, spreadsheets, and ZIP-wrapped tabular resources from CKAN portals. \
+The dataset_id format is
 ``{package_id}/{resource_id}`` or a direct resource URL.
 """
 
@@ -227,7 +228,10 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
         parts = dataset_id.split("/", 1)
         if len(parts) != 2:
             raise FetchError(
-                message=f"Invalid dataset_id format: expected 'package_id/resource_id', got '{dataset_id}'",
+                message=(
+                    "Invalid dataset_id format: expected 'package_id/resource_id', "
+                    f"got '{dataset_id}'"
+                ),
                 connector_id=self.connector_id,
                 dataset_id=dataset_id,
             )
@@ -447,7 +451,9 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
     ) -> pd.DataFrame:
         if max_rows is not None and len(frame) > max_rows:
             raise FetchError(
-                message=f"{fmt.upper()} resource exceeds safe row limit ({len(frame)} > {max_rows})",
+                message=(
+                    f"{fmt.upper()} resource exceeds safe row limit ({len(frame)} > {max_rows})"
+                ),
                 connector_id=CKANResourceConnector.connector_id,
             )
         return frame

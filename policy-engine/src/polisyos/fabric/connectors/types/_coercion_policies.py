@@ -155,7 +155,7 @@ class CoercionResult:
     @classmethod
     def ok(
         cls,
-        value: Any,
+        value: object,
         source_type: str,
         target_type: str,
         *,

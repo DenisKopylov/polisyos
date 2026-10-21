@@ -1356,7 +1356,7 @@ def _rows_equivalent(left: Mapping[Hashable, Any], right: Mapping[Hashable, Any]
     return all(_normalize_row_value(left[key]) == _normalize_row_value(right[key]) for key in left)
 
 
-def _normalize_row_value(value: Any) -> Any:
+def _normalize_row_value(value: object) -> object:
     if pd.isna(value):
         return None
     if isinstance(value, pd.Timestamp):

@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.audit.prov_json import ProvJsonConverter
 from polisyos.fabric.data_plane.temporal import ensure_aware_utc
-from polisyos.fabric.provenance.core import (
-    ProvenanceActivity,
-    ProvenanceAgent,
-    ProvenanceCoreGraph,
-    ProvenanceEdge,
-    ProvenanceEntity,
-)
+from polisyos.fabric.provenance.core import ProvenanceCoreGraph
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from polisyos.fabric.provenance.core import (
+        ProvenanceActivity,
+        ProvenanceAgent,
+        ProvenanceEdge,
+        ProvenanceEntity,
+    )
 
 PROV_CONTEXT = {
     "@context": {

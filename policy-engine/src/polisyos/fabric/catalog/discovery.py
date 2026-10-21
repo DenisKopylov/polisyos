@@ -715,7 +715,8 @@ def _entry_text(contract: SourceContract, profile: SourceProfile | None) -> str:
         contract.semantics.domain,
         " ".join(contract.semantics.canonical_ids),
         " ".join(
-            f"{metric.metric_id} {metric.description} {metric.unit or ''} {metric.canonical_field or ''}"
+            f"{metric.metric_id} {metric.description} {metric.unit or ''} "
+            f"{metric.canonical_field or ''}"
             for metric in contract.semantics.metric_definitions
         ),
         contract.quality.contract_ref,

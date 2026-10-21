@@ -43,10 +43,10 @@ class DuckDBStorageAdapter(StoragePort):
     def save_macro(self, data: list[dict[str, Any]]) -> None:
         self._db.save_macro(data)
 
-    def save_agents(self, run_id: str, step: int, agents_state: Any) -> None:
+    def save_agents(self, run_id: str, step: int, agents_state: object) -> None:
         self._db.save_agents(run_id, step, agents_state)
 
-    def save_run_record(self, record: Any) -> None:
+    def save_run_record(self, record: object) -> None:
         self._db.save_run_record(record)
 
     def query_table(

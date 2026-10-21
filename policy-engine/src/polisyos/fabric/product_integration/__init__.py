@@ -3,9 +3,15 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from typing import Any
+from typing import Any, Protocol, SupportsFloat, cast
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class _ModelDumpable(Protocol):
+    """Pydantic-like source accepted at the product integration boundary."""
+
+    def model_dump(self, *, mode: str) -> object: ...
 
 
 class FabricProductEvidencePath(BaseModel):
@@ -43,7 +49,7 @@ class FabricProductEvidencePath(BaseModel):
 
 
 def evidence_path_from_fabric_decision_data(
-    decision_data: Mapping[str, Any] | Any,
+    decision_data: object,
     *,
     citation_label: str | None = None,
     source_trust_tier: str | None = None,
@@ -103,25 +109,25 @@ def evidence_paths_from_fabric_decision_data(
     )
 
 
-def _mapping(value: Any) -> dict[str, Any]:
+def _mapping(value: object) -> dict[str, Any]:
     if isinstance(value, Mapping):
         return dict(value)
     if hasattr(value, "model_dump"):
-        payload = value.model_dump(mode="json")
+        payload = cast("_ModelDumpable", value).model_dump(mode="json")
         return dict(payload) if isinstance(payload, Mapping) else {}
     return {}
 
 
-def _optional_float(value: Any) -> float | None:
+def _optional_float(value: object) -> float | None:
     if value is None:
         return None
     try:
-        return float(value)
+        return float(cast("SupportsFloat | str", value))
     except (TypeError, ValueError):
         return None
 
 
-def _optional_str(value: Any) -> str | None:
+def _optional_str(value: object) -> str | None:
     if value is None:
         return None
     rendered = str(value).strip()

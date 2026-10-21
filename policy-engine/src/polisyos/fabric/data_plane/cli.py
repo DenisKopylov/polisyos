@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.fabric.data_plane.quarantine import (
+    IndexedArtifactStore,
     build_quarantine_report,
     list_quarantine_records,
     reprocess_quarantine_records,
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
-def _build_store(root: str) -> Any:
+def _build_store(root: str) -> IndexedArtifactStore:
     return build_artifact_store(
         ArtifactStoreConfig(
             backend="filesystem",

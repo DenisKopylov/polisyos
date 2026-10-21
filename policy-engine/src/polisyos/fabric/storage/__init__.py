@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.fabric.storage.port import StoragePort
 from polisyos.fabric.storage.tenant_cas import (
@@ -29,7 +29,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     if name == "DuckDBStorageAdapter":
         from polisyos.fabric.storage.duckdb_adapter import DuckDBStorageAdapter
 

@@ -79,7 +79,7 @@ WAVE13_REQUIRED_SOURCE_FACETS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-def _text(value: Any) -> str:
+def _text(value: object) -> str:
     return str(value or "").strip()
 
 
@@ -97,20 +97,20 @@ def _source_kind(source: dict[str, Any]) -> str:
     return _text(source.get("source_kind") or source.get("kind") or source.get("evidence_kind"))
 
 
-def _status_pass(value: Any) -> bool:
+def _status_pass(value: object) -> bool:
     if not isinstance(value, dict):
         return False
     status = _text(value.get("status") or value.get("quality_status")).casefold()
     return status in {"pass", "passed", "ok", "success"}
 
 
-def _status_value(value: Any) -> str:
+def _status_value(value: object) -> str:
     if not isinstance(value, dict):
         return ""
     return _text(value.get("status") or value.get("quality_status")).casefold()
 
 
-def _optional_text(value: Any) -> str | None:
+def _optional_text(value: object) -> str | None:
     text = _text(value)
     return text or None
 
@@ -1191,7 +1191,7 @@ def _first_ref(payload: Mapping[str, Any], *keys: str) -> str | None:
     return None
 
 
-def _refs_from_value(value: Any) -> tuple[str, ...]:
+def _refs_from_value(value: object) -> tuple[str, ...]:
     if value is None:
         return ()
     if isinstance(value, str):
@@ -1219,7 +1219,7 @@ def _refs_from_value(value: Any) -> tuple[str, ...]:
     return (text,) if text else ()
 
 
-def _rows_from(value: Any) -> tuple[Mapping[str, Any], ...]:
+def _rows_from(value: object) -> tuple[Mapping[str, Any], ...]:
     if isinstance(value, Mapping):
         return (value,)
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
@@ -1227,7 +1227,7 @@ def _rows_from(value: Any) -> tuple[Mapping[str, Any], ...]:
     return ()
 
 
-def _facet_present(value: Any) -> bool:
+def _facet_present(value: object) -> bool:
     if isinstance(value, str):
         return bool(value.strip())
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
@@ -1235,7 +1235,7 @@ def _facet_present(value: Any) -> bool:
     return value is not None
 
 
-def _json_like(value: Any) -> Any:
+def _json_like(value: object) -> object:
     if isinstance(value, Mapping):
         return {str(key): _json_like(item) for key, item in value.items()}
     if isinstance(value, tuple):

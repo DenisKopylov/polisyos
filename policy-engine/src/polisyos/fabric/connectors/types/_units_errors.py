@@ -16,7 +16,7 @@ __all__ = [
 class UnitParseError(ValueError):
     """Raised when a unit string cannot be parsed."""
 
-    def __init__(self, unit_str: str, reason: str = ""):
+    def __init__(self, unit_str: str, reason: str = "") -> None:
         self.unit_str = unit_str
         self.reason = reason
         msg = f"Cannot parse unit '{unit_str}'"
@@ -33,7 +33,7 @@ class UnitConversionError(ValueError):
         source: Unit,
         target: Unit,
         reason: str = "incompatible dimensions",
-    ):
+    ) -> None:
         self.source = source
         self.target = target
         self.reason = reason

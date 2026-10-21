@@ -10,43 +10,88 @@ Provides:
 from __future__ import annotations
 
 import math
-from dataclasses import replace
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, TypedDict, cast
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
-from polisyos.fabric.connectors.base import ConnectionHandle
-from polisyos.fabric.connectors.registry import ConnectorEntry
+from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
 )
+from polisyos.fabric.data_plane.streaming import StreamRuntimeOptions
+from polisyos.fabric.ingestion import ConnectorManifestSpec
 from polisyos.fabric.ingestion.ingestion_providers import (
     IngestionDependencies,
     _BatchConnectorRegistry,
     _BatchIngestionDependencies,
     _BatchIngestionDependenciesView,
 )
-from polisyos.ir.connectors import ConnectorCapability, DataVersion, FetchRequest, VersionStrategy
+from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
+from polisyos.ir.connectors import (
+    ConnectorCapability,
+    DataVersion,
+    FetchRequest,
+    FetchResult,
+    VersionStrategy,
+)
+
+ConnectorManifestInput = Mapping[str, object] | Path | str | ConnectorManifestSpec
+
+
+class _ArgumentNotProvided:
+    """Sentinel that keeps omitted proxy arguments distinct from explicit defaults."""
+
+
+_ARGUMENT_NOT_PROVIDED = _ArgumentNotProvided()
+
+
+class _RegistryGetKwargs(TypedDict, total=False):
+    enable_cache: bool
+    _registration_binding: object | None
+
+
+class _RegistryConnectionKwargs(TypedDict, total=False):
+    _registration_binding: object | None
+
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+    from polisyos.core.contracts.fabric import EvidenceBundleRef
+    from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnectorValue
     from polisyos.fabric.connectors.contracts import DataSchema
+    from polisyos.fabric.connectors.registry import ConnectorEntry
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.streaming import StreamSchemaBinding
-    from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
 
 logger = get_logger(__name__)
 
 
 class RecordModeCaptureError(RuntimeError):
     """Raised when recorded ingestion fails without retrying through a live path."""
+
+
+@dataclass(frozen=True)
+class _LegacyStreamDatasetResult:
+    """Typed result shared by the legacy streaming persistence adapters."""
+
+    chunk_refs: list[ArtifactRef]
+    window_refs: list[ArtifactRef]
+    cdc_event_refs: list[ArtifactRef]
+    warnings: list[str]
+    rows_emitted: int
+    chunks_processed: int
+    quarantined_rows: int
+    final_cursor_ref: str | None
 
 
 _VERSION_STRATEGY_BY_WATERMARK: dict[WatermarkType, VersionStrategy] = {
@@ -74,6 +119,9 @@ def _resolve_mode_sidecar_scope(
     """Resolve tenant-local sidecar paths as invocation context, not provider state."""
     from polisyos.fabric.ingestion.ingestion_providers import resolve_ingestion_sidecar_scope
 
+    if sidecar_scope is not None and not isinstance(sidecar_scope, TenantSidecarScope):
+        raise TypeError("sidecar_scope must be a TenantSidecarScope")
+
     return resolve_ingestion_sidecar_scope(
         Path(cas_root),
         sidecar_scope=sidecar_scope,
@@ -99,9 +147,9 @@ def _resolve_mode_store(
 async def _persist_streaming_manifest_async(
     *,
     store: ArtifactStore,
-    manifest_payload: dict[str, Any],
-    source_refs: list[Any],
-) -> Any:
+    manifest_payload: dict[str, object],
+    source_refs: list[ArtifactRef],
+) -> ArtifactRef:
     from polisyos.core.artifacts.async_store import ensure_async_artifact_store
     from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -125,10 +173,10 @@ async def _persist_streaming_manifest_async(
 async def _persist_streaming_snapshot_async(
     *,
     store: ArtifactStore,
-    snapshot_payload: dict[str, Any],
-    manifest_ref: Any,
-    evidence_ref: Any,
-) -> Any:
+    snapshot_payload: dict[str, object],
+    manifest_ref: ArtifactRef,
+    evidence_ref: EvidenceBundleRef,
+) -> ArtifactRef:
     from polisyos.core.artifacts.async_store import ensure_async_artifact_store
     from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -160,7 +208,7 @@ def _looks_metric_field(field_name: str) -> bool:
     )
 
 
-def _non_finite_fields(row: dict[str, Any]) -> list[str]:
+def _non_finite_fields(row: Mapping[str, object]) -> list[str]:
     fields: list[str] = []
     for key, value in row.items():
         if isinstance(value, bool) or value is None or not isinstance(value, (int, float)):
@@ -176,7 +224,7 @@ class _CursorAwareConnector:
 
     def __init__(
         self,
-        connector: Any,
+        connector: SourceConnectorValue[object],
         connector_id: str,
         cursor_versions: dict[tuple[str, str], DataVersion],
     ) -> None:
@@ -184,15 +232,15 @@ class _CursorAwareConnector:
         self._connector_id = connector_id
         self._cursor_versions = cursor_versions
 
-    def fetch(self, handle: Any, request: Any) -> Any:
+    async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[object]:
         """Fetch with the stored version when the request has no cursor."""
         if isinstance(request, FetchRequest) and request.incremental_since is None:
             version = self._cursor_versions.get((self._connector_id, request.dataset_id))
             if version is not None:
                 request = replace(request, incremental_since=version)
-        return self._connector.fetch(handle, request)
+        return await self._connector.fetch(handle, request)
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> object:
         return getattr(self._connector, name)
 
 
@@ -207,40 +255,78 @@ class _CursorAwareRegistry:
         self._registry = registry
         self._cursor_versions = cursor_versions
 
-    def get(self, connector_id: str, *args: Any, **kwargs: Any) -> Any:
-        """Resolve and wrap one connector from the underlying registry."""
-        connector = self._registry.get(connector_id, *args, **kwargs)
-        return _CursorAwareConnector(
+    def get(
+        self,
+        connector_id: str,
+        version: str | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+        *,
+        enable_cache: bool | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+        _registration_binding: object | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+    ) -> SourceConnectorValue[object]:
+        """Resolve and wrap one connector, preserving supplied argument presence."""
+        kwargs: _RegistryGetKwargs = {}
+        if enable_cache is not _ARGUMENT_NOT_PROVIDED:
+            kwargs["enable_cache"] = cast("bool", enable_cache)
+        if _registration_binding is not _ARGUMENT_NOT_PROVIDED:
+            kwargs["_registration_binding"] = cast("object | None", _registration_binding)
+
+        if version is _ARGUMENT_NOT_PROVIDED:
+            connector = self._registry.get(connector_id, **kwargs)
+        else:
+            connector = self._registry.get(connector_id, cast("str | None", version), **kwargs)
+        wrapped = _CursorAwareConnector(
             connector,
-            str(connector_id),
+            connector_id,
             self._cursor_versions,
         )
+        return cast("SourceConnectorValue[object]", wrapped)
 
-    def get_entry(self, *args: Any, **kwargs: Any) -> ConnectorEntry:
+    def get_entry(self, connector_id: str) -> ConnectorEntry:
         """Return the original registered entry without changing its owner."""
-        return self._registry.get_entry(*args, **kwargs)
+        return self._registry.get_entry(connector_id)
 
-    async def get_connection(self, *args: Any, **kwargs: Any) -> ConnectionHandle:
-        """Forward connection acquisition to the registry that owns the pool."""
-        return await self._registry.get_connection(*args, **kwargs)
+    async def get_connection(
+        self,
+        connector_id: str,
+        config: ConnectionConfig | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+        *,
+        _registration_binding: object | None | _ArgumentNotProvided = _ARGUMENT_NOT_PROVIDED,
+    ) -> ConnectionHandle:
+        """Forward acquisition while preserving explicit default-valued arguments."""
+        kwargs: _RegistryConnectionKwargs = {}
+        if _registration_binding is not _ARGUMENT_NOT_PROVIDED:
+            kwargs["_registration_binding"] = cast("object | None", _registration_binding)
+
+        if config is _ARGUMENT_NOT_PROVIDED:
+            return await self._registry.get_connection(connector_id, **kwargs)
+        return await self._registry.get_connection(
+            connector_id,
+            cast("ConnectionConfig | None", config),
+            **kwargs,
+        )
 
     async def _get_connection_with_live_permit(
         self,
-        *args: Any,
-        **kwargs: Any,
+        connector_id: str,
+        config: ConnectionConfig | None,
+        *,
+        dataset_id: str,
+        permit: object,
     ) -> ConnectionHandle:
         """Forward live-permit acquisition to the exact registry owner."""
-        return await self._registry._get_connection_with_live_permit(*args, **kwargs)
+        return await self._registry._get_connection_with_live_permit(
+            connector_id, config, dataset_id=dataset_id, permit=permit
+        )
 
-    async def release_connection(self, *args: Any, **kwargs: Any) -> None:
+    async def release_connection(self, connector_id: str, handle: ConnectionHandle) -> None:
         """Release through the registry that acquired the handle."""
-        await self._registry.release_connection(*args, **kwargs)
+        await self._registry.release_connection(connector_id, handle)
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> object:
         return getattr(self._registry, name)
 
 
-def _connector_supports_incremental(connector: Any) -> bool:
+def _connector_supports_incremental(connector: object) -> bool:
     """Return whether a connector declares the incremental fetch capability."""
     capabilities = getattr(connector, "capabilities", None)
     if capabilities is None:
@@ -286,7 +372,7 @@ def _parse_timestamp_value(value: str) -> datetime | None:
 
 def _admit_incremental_version(
     *,
-    connector: Any,
+    connector: object,
     strategy: VersionStrategy,
     value: str,
     timestamp: datetime,
@@ -307,7 +393,7 @@ def _admit_incremental_version(
         return None
 
 
-def _cursor_version(cursor: CursorState, connector: Any) -> DataVersion | None:
+def _cursor_version(cursor: CursorState, connector: object) -> DataVersion | None:
     """Reject legacy timestamp cursors until provenance/epoch is contract-bound."""
     strategy = _VERSION_STRATEGY_BY_WATERMARK.get(cursor.watermark_type)
     if strategy is None:
@@ -341,11 +427,11 @@ def _cursor_aware_dependencies(
 def _resolve_dataset_connectors(
     dependencies: IngestionDependencies | None,
     datasets: list[tuple[str, str]],
-) -> dict[tuple[str, str], Any]:
+) -> dict[tuple[str, str], object]:
     """Resolve connector instances used by cursor capability admission."""
     if dependencies is None:
         return {}
-    resolved: dict[tuple[str, str], Any] = {}
+    resolved: dict[tuple[str, str], object] = {}
     for connector_id, dataset_id in datasets:
         try:
             resolved[(connector_id, dataset_id)] = dependencies.registry.get(connector_id)
@@ -359,52 +445,40 @@ def _resolve_dataset_connectors(
     return resolved
 
 
-def _cursor_result_ref(value: Any) -> str | None:
+def _cursor_result_ref(value: object) -> str | None:
     """Return an artifact id from a fetch or aggregate evidence reference."""
     artifact_id = getattr(value, "artifact_id", None)
     return str(artifact_id) if artifact_id is not None else None
 
 
 def _complete_source_boundary(
-    fetch_result: Any,
+    fetch_result: FetchResult[object],
     watermark_type: WatermarkType,
 ) -> tuple[VersionStrategy, str, datetime] | None:
     """Return a source-backed complete boundary, never a local fetch time."""
-    if bool(getattr(fetch_result, "has_more", False)):
+    if fetch_result.has_more or fetch_result.next_page_token is not None:
         return None
-    if getattr(fetch_result, "next_page_token", None) is not None:
+    if not math.isfinite(fetch_result.completeness) or fetch_result.completeness != 1.0:
         return None
-
-    completeness = getattr(fetch_result, "completeness", None)
-    if completeness is not None:
-        try:
-            coverage = float(completeness)
-        except (TypeError, ValueError):
-            return None
-        if not math.isfinite(coverage) or coverage != 1.0:
-            return None
-    if getattr(fetch_result, "is_complete", True) is False:
+    if not fetch_result.is_complete:
         return None
 
     strategy = _VERSION_STRATEGY_BY_WATERMARK.get(watermark_type)
     if strategy is None:
         return None
     if strategy is VersionStrategy.TIMESTAMP:
-        source_updated_at = getattr(fetch_result, "source_updated_at", None)
-        if not (
-            isinstance(source_updated_at, datetime)
-            and source_updated_at.tzinfo is not None
-            and source_updated_at.utcoffset() is not None
+        source_timestamp = fetch_result.source_updated_at
+        if (
+            source_timestamp is None
+            or source_timestamp.tzinfo is None
+            or source_timestamp.utcoffset() is None
         ):
             return None
-        source_timestamp = source_updated_at
-        version = getattr(fetch_result, "version", None)
-        if getattr(version, "strategy", None) is not VersionStrategy.TIMESTAMP:
+        version = fetch_result.version
+        if version.strategy is not VersionStrategy.TIMESTAMP:
             return None
-        version_value = getattr(version, "value", None)
-        version_timestamp = getattr(version, "timestamp", None)
-        if not isinstance(version_value, str) or not isinstance(version_timestamp, datetime):
-            return None
+        version_value = version.value
+        version_timestamp = version.timestamp
         parsed_version_value = _parse_timestamp_value(version_value)
         if parsed_version_value is None:
             return None
@@ -417,23 +491,19 @@ def _complete_source_boundary(
             return None
         return strategy, source_timestamp.isoformat(), source_timestamp
 
-    version = getattr(fetch_result, "version", None)
-    if getattr(version, "strategy", None) is not strategy:
+    version = fetch_result.version
+    if version.strategy is not strategy:
         return None
-    value = getattr(version, "value", None)
-    timestamp = getattr(version, "timestamp", None)
-    if not isinstance(value, str) or not isinstance(timestamp, datetime):
-        return None
-    return strategy, value, timestamp
+    return strategy, version.value, version.timestamp
 
 
 def _save_confirmed_cursors(
     *,
     cursor_store: CursorStore,
-    connectors: dict[tuple[str, str], Any],
+    connectors: dict[tuple[str, str], object],
     datasets: list[tuple[str, str]],
-    confirmed_results: dict[tuple[str, str], Any],
-    result: Any,
+    confirmed_results: dict[tuple[str, str], FetchResult[object]],
+    result: IngestionResult,
 ) -> None:
     """Keep cursor promotion fail-closed until evidence binding is available.
 
@@ -452,15 +522,15 @@ def _save_confirmed_cursors(
 
 def run_batch_incremental(
     *,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
-) -> Any:
+) -> IngestionResult:
     """Run ingestion in batch_incremental mode.
 
     1. For each dataset, look up latest cursor via CursorStore.
@@ -469,6 +539,7 @@ def run_batch_incremental(
     4. Extract watermarks from results and save new cursors.
     5. Return IngestionResult with cursor_ref.
     """
+    datasets = _extract_datasets(connector_manifest)
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
 
@@ -479,7 +550,6 @@ def run_batch_incremental(
     )
     cursor_store = CursorStore(store, index_root=invocation_scope.cursor_index_root)
 
-    datasets = _extract_datasets(connector_manifest)
     dataset_connectors = _resolve_dataset_connectors(effective_input_dependencies, datasets)
     cursor_versions: dict[tuple[str, str], DataVersion] = {}
     for connector_id, dataset_id in datasets:
@@ -499,13 +569,13 @@ def run_batch_incremental(
                 cursor.watermark_value,
             )
 
-    confirmed_results: dict[tuple[str, str], Any] = {}
+    confirmed_results: dict[tuple[str, str], FetchResult[object]] = {}
 
     def _capture_result(
         connector_id: str,
         dataset_id: str,
-        request: Any,
-        fetch_result: Any,
+        request: FetchRequest,
+        fetch_result: FetchResult[object],
     ) -> None:
         del request
         confirmed_results[(str(connector_id), str(dataset_id))] = fetch_result
@@ -547,15 +617,15 @@ def run_batch_incremental(
 
 def run_record_mode(
     *,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
-) -> tuple[Any, str]:
+) -> tuple[IngestionResult, str]:
     """Run ingestion with HTTP recording enabled.
 
     1. Create APISimulator in RECORD mode with a temp fixture_root.
@@ -575,12 +645,12 @@ def run_record_mode(
         make_record_session,
     )
 
+    datasets = _extract_datasets(connector_manifest)
     effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
     invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
     session_id = uuid.uuid4().hex
 
     # Extract connector/dataset info for the session metadata
-    datasets = _extract_datasets(connector_manifest)
     connector_datasets = [{"connector_id": ds[0], "dataset_id": ds[1]} for ds in datasets]
 
     with tempfile.TemporaryDirectory(prefix="polisyos_record_") as tmpdir:
@@ -601,7 +671,7 @@ def run_record_mode(
         # so any HTTP calls during ingestion are intercepted.
         # Note: APISimulator is async context manager. Since ingestion uses
         # run_coro_sync internally, we wrap in our own async context.
-        async def _record_ingestion() -> Any:
+        async def _record_ingestion() -> EvidenceBundleRef | None:
             async with simulator:
                 from polisyos.fabric.ingestion import run_connectors_ingestion
 
@@ -629,7 +699,6 @@ def run_record_mode(
             raise RecordModeCaptureError("record_mode_capture_failed") from exc
 
         # Build result from evidence_ref
-        from polisyos.fabric.data_plane.orchestrator import IngestionResult
 
         datasets_fetched = len(datasets)
         result = IngestionResult(
@@ -660,16 +729,16 @@ def run_record_mode(
 
 def run_replay_mode(
     *,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
     replay_ref: str,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
-) -> Any:
+) -> IngestionResult:
     """Run ingestion using recorded HTTP responses (no network).
 
     1. Load RecordSession from CAS via replay_ref.
@@ -682,6 +751,7 @@ def run_replay_mode(
     from polisyos.core.artifacts import ArtifactID
     from polisyos.fabric.data_plane.replay_store import ReplayStore
 
+    datasets = _extract_datasets(connector_manifest)
     effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
     invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
     store = _resolve_mode_store(
@@ -703,7 +773,6 @@ def run_replay_mode(
             SimulatorMode,
         )
 
-        datasets = _extract_datasets(connector_manifest)
         first_connector_id = datasets[0][0] if datasets else "unknown"
         first_dataset_id = datasets[0][1] if datasets else "unknown"
 
@@ -714,7 +783,7 @@ def run_replay_mode(
             dataset_id=first_dataset_id,
         )
 
-        async def _replay_ingestion() -> Any:
+        async def _replay_ingestion() -> EvidenceBundleRef | None:
             async with simulator:
                 from polisyos.fabric.ingestion import run_connectors_ingestion
 
@@ -731,8 +800,6 @@ def run_replay_mode(
 
         evidence_ref = run_coro_sync(_replay_ingestion())
 
-        from polisyos.fabric.data_plane.orchestrator import IngestionResult
-
         result = IngestionResult(
             evidence_bundle_ref=evidence_ref,
             datasets_fetched=len(datasets),
@@ -747,19 +814,19 @@ def run_replay_mode(
 
 
 def _sanitize_stream_rows(
-    rows: Any,
+    rows: object,
     *,
     connector_id: str,
     dataset_id: str,
-    store: Any,
+    store: ArtifactStore,
     chunk_index: int,
     schema: DataSchema | None = None,
     schema_binding: StreamSchemaBinding | None = None,
-) -> tuple[list[dict[str, Any]], list[str], int]:
+) -> tuple[list[dict[str, object]], list[str], int]:
     if not isinstance(rows, list):
         rows = [rows]
 
-    valid_rows: list[dict[str, Any]] = []
+    valid_rows: list[dict[str, object]] = []
     warnings: list[str] = []
     quarantined = 0
     if schema is None:
@@ -777,7 +844,7 @@ def _sanitize_stream_rows(
     schema_version = str(schema.version) if schema else "1.0"
     for row_index, row in enumerate(rows):
         reason: str | None = None
-        context: dict[str, Any] = {
+        context: dict[str, object] = {
             "chunk_index": chunk_index,
             "row_index": row_index,
         }
@@ -862,7 +929,7 @@ def _sanitize_stream_rows(
 
 def _bind_stream_sanitizer(
     schema_binding: StreamSchemaBinding | None,
-) -> Callable[..., tuple[list[dict[str, Any]], list[str], int]]:
+) -> Callable[..., tuple[list[dict[str, object]], list[str], int]]:
     """Bind one admitted schema without changing custom sanitizer call shape."""
     schema = getattr(schema_binding, "schema", None)
 
@@ -873,7 +940,7 @@ def _bind_stream_sanitizer(
         dataset_id: str,
         store: ArtifactStore,
         chunk_index: int,
-    ) -> tuple[list[dict[str, Any]], list[str], int]:
+    ) -> tuple[list[dict[str, object]], list[str], int]:
         return _sanitize_stream_rows(
             rows,
             schema=schema,
@@ -889,15 +956,15 @@ def _bind_stream_sanitizer(
 
 def run_streaming_windowed(
     *,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
-) -> Any:
+) -> IngestionResult:
     return run_coro_sync(
         _run_streaming_windowed_async(
             connector_manifest=connector_manifest,
@@ -914,15 +981,15 @@ def run_streaming_windowed(
 
 async def _run_streaming_windowed_async(
     *,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: Any | None = None,
+    connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
-) -> Any:
+) -> IngestionResult:
     """Run ingestion in streaming_windowed mode.
 
     This mode uses an event-driven runtime with:
@@ -932,9 +999,11 @@ async def _run_streaming_windowed_async(
     - per-record quarantine for poison messages;
     - CDC schema-change artifacts when stream schema drifts.
     """
+    datasets, manifest_mapping = _normalize_mode_manifest(connector_manifest)
+    _stream_runtime_options_from_manifest(manifest_mapping)
+
     from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
     from polisyos.fabric.data_plane.cursor_store import CursorStore
-    from polisyos.fabric.data_plane.orchestrator import IngestionResult
     from polisyos.fabric.data_plane.streaming import (
         _resolve_stream_schema_binding,
         process_stream_dataset,
@@ -947,10 +1016,9 @@ async def _run_streaming_windowed_async(
         Path(cas_root), ingestion_dependencies, sidecar_scope=invocation_scope
     )
     cursor_store = CursorStore(store, index_root=invocation_scope.cursor_index_root)
-    datasets = _extract_datasets(connector_manifest)
     connector_registry = ingestion_dependencies.registry
 
-    source_refs: list[Any] = []
+    source_refs: list[ArtifactRef] = []
     warnings: list[str] = []
     total_chunks = 0
     total_rows = 0
@@ -961,7 +1029,7 @@ async def _run_streaming_windowed_async(
 
     for ds_connector_id, ds_dataset_id in datasets:
         runtime_options = _stream_runtime_options_from_manifest(
-            connector_manifest,
+            manifest_mapping,
             dataset_id=ds_dataset_id,
         )
         schema_binding = _resolve_stream_schema_binding(
@@ -1090,30 +1158,42 @@ async def _run_streaming_windowed_async(
 
 
 def _stream_runtime_options_from_manifest(
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     *,
     dataset_id: str | None = None,
-) -> Any:
-    from polisyos.fabric.data_plane.streaming import StreamRuntimeOptions
+) -> StreamRuntimeOptions:
     from polisyos.fabric.data_plane.watermark import WindowPolicy
 
-    raw_streaming: dict[str, Any] = {}
-    if isinstance(connector_manifest, dict):
-        raw_streaming = dict(connector_manifest.get("streaming", {}) or {})
+    if isinstance(connector_manifest, ConnectorManifestSpec):
+        manifest_mapping: Mapping[str, object] = {}
+    elif isinstance(connector_manifest, Mapping):
+        manifest_mapping = connector_manifest
     else:
-        value = getattr(connector_manifest, "streaming", None)
-        if isinstance(value, dict):
-            raw_streaming = dict(value)
+        from polisyos.fabric.ingestion.ingestion import _connector_manifest_mapping
 
-    raw_window = dict(raw_streaming.get("window", {}) or {})
-    if not raw_window and isinstance(connector_manifest, dict):
-        raw_window = dict(connector_manifest.get("streaming_window", {}) or {})
+        manifest_mapping = _connector_manifest_mapping(connector_manifest)
+
+    raw_streaming_value = manifest_mapping.get("streaming", {})
+    if "streaming" in manifest_mapping and not isinstance(raw_streaming_value, Mapping):
+        raise ValueError("connector manifest field 'streaming' must be a mapping")
+    raw_streaming = dict(raw_streaming_value) if isinstance(raw_streaming_value, Mapping) else {}
+
+    raw_window_value = raw_streaming.get("window", {})
+    if "window" in raw_streaming and not isinstance(raw_window_value, Mapping):
+        raise ValueError("connector manifest field 'streaming.window' must be a mapping")
+    nested_window = dict(raw_window_value) if isinstance(raw_window_value, Mapping) else {}
+
+    legacy_window_value = manifest_mapping.get("streaming_window", {})
+    if "streaming_window" in manifest_mapping and not isinstance(legacy_window_value, Mapping):
+        raise ValueError("connector manifest field 'streaming_window' must be a mapping")
+    legacy_window = dict(legacy_window_value) if isinstance(legacy_window_value, Mapping) else {}
+    raw_window = nested_window or legacy_window
 
     strategy_raw = str(raw_window.get("strategy", "tumbling")).strip().lower()
     try:
         strategy = WindowStrategy(strategy_raw)
-    except ValueError:
-        strategy = WindowStrategy.TUMBLING
+    except ValueError as exc:
+        raise ValueError(f"unsupported streaming window strategy: {strategy_raw!r}") from exc
 
     window_policy = WindowPolicy(
         strategy=strategy,
@@ -1145,7 +1225,7 @@ def _stream_runtime_options_from_manifest(
 def _connector_is_registered(
     connector_id: str,
     *,
-    registry: Any | None = None,
+    registry: _BatchConnectorRegistry | None = None,
 ) -> bool:
     try:
         resolved_registry = _resolve_connector_registry(registry=registry)
@@ -1157,14 +1237,12 @@ def _connector_is_registered(
 
 def _run_legacy_stream_dataset(
     *,
-    store: Any,
+    store: ArtifactStore,
     connector_id: str,
     dataset_id: str,
-    chunks: list[dict[str, Any]],
+    chunks: list[dict[str, object]],
     schema_binding: StreamSchemaBinding | None = None,
-) -> Any:
-    from types import SimpleNamespace
-
+) -> _LegacyStreamDatasetResult:
     from polisyos.fabric.connectors.types import DataChunk
     from polisyos.fabric.data_plane.streaming import persist_stream_chunk
 
@@ -1207,7 +1285,7 @@ def _run_legacy_stream_dataset(
             )
         )
 
-    return SimpleNamespace(
+    return _LegacyStreamDatasetResult(
         chunk_refs=chunk_refs,
         window_refs=[],
         cdc_event_refs=[],
@@ -1221,14 +1299,12 @@ def _run_legacy_stream_dataset(
 
 async def _run_legacy_stream_dataset_async(
     *,
-    store: Any,
+    store: ArtifactStore,
     connector_id: str,
     dataset_id: str,
-    chunks: list[dict[str, Any]],
+    chunks: list[dict[str, object]],
     schema_binding: StreamSchemaBinding | None = None,
-) -> Any:
-    from types import SimpleNamespace
-
+) -> _LegacyStreamDatasetResult:
     from polisyos.core.artifacts.async_store import ensure_async_artifact_store
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -1292,7 +1368,7 @@ async def _run_legacy_stream_dataset_async(
             )
         )
 
-    return SimpleNamespace(
+    return _LegacyStreamDatasetResult(
         chunk_refs=chunk_refs,
         window_refs=[],
         cdc_event_refs=[],
@@ -1306,14 +1382,14 @@ async def _run_legacy_stream_dataset_async(
 
 async def _run_legacy_stream_dataset_from_fetch_async(
     *,
-    store: Any,
+    store: ArtifactStore,
     connector_id: str,
     dataset_id: str,
-    connector_manifest: Any,
-    connection_config: Any | None,
-    registry: Any | None = None,
+    connector_manifest: ConnectorManifestInput,
+    connection_config: ConnectionConfig | dict[str, object] | None,
+    registry: _BatchConnectorRegistry | None = None,
     schema_binding: StreamSchemaBinding | None = None,
-) -> Any:
+) -> _LegacyStreamDatasetResult:
     chunks = await _fetch_stream_for_dataset_async(
         connector_id=connector_id,
         dataset_id=dataset_id,
@@ -1330,39 +1406,62 @@ async def _run_legacy_stream_dataset_from_fetch_async(
     )
 
 
-def _extract_datasets(connector_manifest: Any) -> list[tuple[str, str]]:
-    """Extract (connector_id, dataset_id) pairs from a manifest."""
-    datasets: list[tuple[str, str]] = []
-    raw: Any = []
-    if hasattr(connector_manifest, "datasets"):
-        raw = connector_manifest.datasets
-    elif isinstance(connector_manifest, dict):
-        raw = connector_manifest.get("datasets", [])
+def _normalize_mode_manifest(
+    connector_manifest: ConnectorManifestInput,
+) -> tuple[list[tuple[str, str]], Mapping[str, object]]:
+    """Validate one manifest and return its dataset identities and raw options."""
+    from polisyos.fabric.ingestion.ingestion import _connector_manifest_mapping
 
-    for ds in raw:
-        if isinstance(ds, dict):
-            connector_id = ds.get("connector_id", "")
-            dataset_id = ds.get("dataset_id", "")
-        else:
-            connector_id = getattr(ds, "connector_id", "")
-            dataset_id = getattr(ds, "dataset_id", "")
-        connector_id = str(connector_id or "")
-        dataset_id = str(dataset_id or "")
-        if connector_id and dataset_id:
-            datasets.append((connector_id, dataset_id))
+    if isinstance(connector_manifest, ConnectorManifestSpec):
+        spec = connector_manifest
+        raw_manifest: Mapping[str, object] = {}
+    elif isinstance(connector_manifest, (Mapping, Path, str)):
+        raw_manifest = _connector_manifest_mapping(connector_manifest)
+        spec = ConnectorManifestSpec.from_mapping(raw_manifest)
+    elif hasattr(connector_manifest, "datasets"):
+        raw_datasets = connector_manifest.datasets
+        if not isinstance(raw_datasets, list):
+            raise ValueError("connector manifest 'datasets' must be a list of mappings")
+        normalized_datasets: list[Mapping[str, object]] = []
+        for index, dataset in enumerate(raw_datasets):
+            if isinstance(dataset, Mapping):
+                normalized_datasets.append(dataset)
+                continue
+            connector_id = getattr(dataset, "connector_id", None)
+            dataset_id = getattr(dataset, "dataset_id", None)
+            if not isinstance(connector_id, str) or not connector_id.strip():
+                raise ValueError(f"connector manifest dataset {index} has invalid connector_id")
+            if not isinstance(dataset_id, str) or not dataset_id.strip():
+                raise ValueError(f"connector manifest dataset {index} has invalid dataset_id")
+            normalized_datasets.append({"connector_id": connector_id, "dataset_id": dataset_id})
+        spec = ConnectorManifestSpec.from_mapping({"datasets": normalized_datasets})
+        raw_manifest = {
+            field: getattr(connector_manifest, field)
+            for field in ("streaming", "streaming_window")
+            if hasattr(connector_manifest, field)
+        }
+    else:
+        raise TypeError("connector_manifest must be a mapping, Path, str, or ConnectorManifestSpec")
+
+    return [(dataset.connector_id, dataset.dataset_id) for dataset in spec.datasets], raw_manifest
+
+
+def _extract_datasets(connector_manifest: ConnectorManifestInput) -> list[tuple[str, str]]:
+    """Extract dataset pairs through the shared manifest intake validator."""
+    datasets, _ = _normalize_mode_manifest(connector_manifest)
     return datasets
 
 
 def _resolve_connector_registry(
     *,
-    registry: Any | None = None,
-) -> Any:
+    registry: _BatchConnectorRegistry | None = None,
+) -> _BatchConnectorRegistry:
     if registry is not None:
         return registry
     return _default_connector_registry()
 
 
-def _default_connector_registry() -> Any:
+def _default_connector_registry() -> _BatchConnectorRegistry:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
     return ConnectorRegistry.get_instance()
@@ -1372,23 +1471,22 @@ async def _fetch_stream_for_dataset_async(
     *,
     connector_id: str,
     dataset_id: str,
-    connector_manifest: Any,
-    connection_config: Any | None,
-    registry: Any | None = None,
-) -> list[dict[str, Any]]:
+    connector_manifest: ConnectorManifestInput,
+    connection_config: ConnectionConfig | dict[str, object] | None,
+    registry: _BatchConnectorRegistry | None = None,
+) -> list[dict[str, object]]:
     """Fetch stream chunks for a single dataset without nesting a sync bridge."""
     del connector_manifest
     try:
         resolved_registry = _resolve_connector_registry(registry=registry)
-        entry = cast("Any", resolved_registry.get_entry(connector_id))
+        entry = resolved_registry.get_entry(connector_id)
         if entry is None:
             logger.warning("streaming_windowed: connector %s not found", connector_id)
             return []
 
-        connector_cls = entry.connector_cls
-        connector = connector_cls()
+        connector = resolved_registry.get(connector_id)
 
-        capabilities = cast("Any", entry.metadata.capabilities)
+        capabilities = connector.capabilities
         if not (capabilities & ConnectorCapability.STREAMING):
             logger.info(
                 "streaming_windowed: connector %s doesn't support streaming, "
@@ -1397,16 +1495,18 @@ async def _fetch_stream_for_dataset_async(
             )
             return []
 
-        handle = await connector.connect(connection_config)
+        from polisyos.fabric.data_plane.streaming import normalize_connection_config
+
+        handle = await connector.connect(normalize_connection_config(connection_config))
         try:
             from polisyos.ir.connectors import FetchRequest
 
             request = FetchRequest(dataset_id=dataset_id)
-            chunks: list[dict[str, Any]] = []
+            chunks: list[dict[str, object]] = []
             stream = await resolve_async_iterator(connector.fetch_stream(handle, request))
             async for chunk in stream:
                 data = chunk.data
-                rows: list[Any] = []
+                rows: list[object] = []
                 if hasattr(data, "to_dict"):
                     rows = await run_blocking_async(
                         data.to_dict,
@@ -1441,16 +1541,16 @@ def _fetch_stream_for_dataset(
     *,
     connector_id: str,
     dataset_id: str,
-    connector_manifest: Any,
-    connection_config: Any | None,
-    registry: Any | None = None,
-) -> list[dict[str, Any]]:
+    connector_manifest: ConnectorManifestInput,
+    connection_config: ConnectionConfig | dict[str, object] | None,
+    registry: _BatchConnectorRegistry | None = None,
+) -> list[dict[str, object]]:
     """Fetch stream chunks for a single dataset.
 
     Returns a list of chunk dicts with keys: chunk_index, row_count,
     is_first, is_last, data (list of row dicts).
     """
-    result: list[dict[str, Any]] = run_coro_sync(
+    result: list[dict[str, object]] = run_coro_sync(
         _fetch_stream_for_dataset_async(
             connector_id=connector_id,
             dataset_id=dataset_id,

@@ -81,7 +81,7 @@ class ConfigurationError(ConnectorError):
         message: str,
         connector_id: str | None = None,
         field: str | None = None,
-        value: Any = None,
+        value: object | None = None,
         expected: str | None = None,
     ) -> None:
         self.field = field
@@ -219,9 +219,6 @@ class CatalogRegistrySchemaError(SchemaError):
 # ============================================================================
 
 
-DataT = TypeVar("DataT")
-
-
 class FreshnessStatus(str, Enum):
     """Status of cached data freshness check."""
 
@@ -277,6 +274,9 @@ class DatasetDescriptor:
     # Additional metadata
     tags: tuple[str, ...] = ()
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+DataT = TypeVar("DataT")
 
 
 @dataclass(frozen=True, slots=True)

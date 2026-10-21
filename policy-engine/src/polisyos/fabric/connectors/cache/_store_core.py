@@ -12,7 +12,8 @@ import hashlib
 import json
 import threading
 import time
-from typing import TYPE_CHECKING, Any, TypeVar
+from datetime import datetime as _datetime
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
@@ -67,6 +68,8 @@ if TYPE_CHECKING:
         FetchResult,
     )
 
+datetime = _datetime
+
 __all__ = [
     "ConnectorCacheStore",
     "verify_selected_cache_payload_ref",
@@ -75,10 +78,9 @@ __all__ = [
 logger = get_logger(__name__)
 
 _SELECTED_CACHE_KEY_PREFIX = "fabric.connector_cache.selected-source.v1:"
-ResultDataT = TypeVar("ResultDataT")
 
 
-def verify_selected_cache_payload_ref(
+def verify_selected_cache_payload_ref[ResultDataT](
     cas_store: RootedArtifactStore,
     payload_ref: ArtifactRef,
     *,
@@ -678,7 +680,7 @@ class ConnectorCacheStore:
             raise ValueError("derived_cache_payload_profile_unavailable")
         return payload_ref
 
-    def invalidate(self, strategy: str | Any = "soft_mark", **filters: Any) -> int:
+    def invalidate(self, strategy: str = "soft_mark", **filters: str | datetime | None) -> int:
         self._ensure_open()
         strategy_value = getattr(strategy, "value", strategy)
         with self._tracer.start_as_current_span(
@@ -703,7 +705,7 @@ class ConnectorCacheStore:
             self._update_cache_gauges()
             return len(cache_keys)
 
-    def hard_delete(self, **filters: Any) -> int:
+    def hard_delete(self, **filters: str | datetime | None) -> int:
         return self.invalidate(strategy="hard_delete", **filters)
 
     def invalidate_by_schema_hash(
@@ -959,8 +961,8 @@ class ConnectorCacheStore:
         self._record_latency(operation, latency)
         self._update_cache_gauges()
 
-    def _metric_labels(self, **extra: Any) -> dict[str, Any]:
-        labels: dict[str, Any] = {"namespace": self._namespace, **extra}
+    def _metric_labels(self, **extra: str) -> dict[str, str]:
+        labels: dict[str, str] = {"namespace": self._namespace, **extra}
         if self._tenant_id:
             labels["tenant_id"] = self._tenant_id
         return labels

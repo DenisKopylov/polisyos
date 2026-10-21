@@ -49,7 +49,8 @@ allowed-confusables = [
 # ignores are intentionally left empty.
 
 [lint.flake8-type-checking]
-runtime-evaluated-base-classes = ["pydantic.BaseModel", "tools.quality.validation.acquisition_contract_support._StrictModel"]
+runtime-evaluated-base-classes = ["pydantic.BaseModel", "polisyos.ir.kernel.base.KernelModel", "tools.quality.validation.acquisition_contract_support._StrictModel"]
+runtime-evaluated-decorators = ["typing.runtime_checkable"]
 
 [lint.isort]
 known-first-party = ["polisyos"]
@@ -421,7 +422,6 @@ known-first-party = ["polisyos"]
 "src/polisyos/fabric/**" = [
   "ANN",
   "E501",
-  "N818",
   "SIM102",
   "SIM117",
   "TC001",

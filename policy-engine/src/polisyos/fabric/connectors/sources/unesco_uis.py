@@ -244,7 +244,7 @@ class UNESCOUISConnector(HTTPConnectorBase[pd.DataFrame]):
         return min(years), max(years)
 
     @staticmethod
-    def _extract_rows(body: Any, *, indicator_id: str) -> list[dict[str, Any]]:
+    def _extract_rows(body: object, *, indicator_id: str) -> list[dict[str, Any]]:
         records = body.get("records", []) if isinstance(body, dict) else []
         if not isinstance(records, list):
             records = []
@@ -281,7 +281,7 @@ class UNESCOUISConnector(HTTPConnectorBase[pd.DataFrame]):
         return iso_map.get(normalized, normalized)
 
 
-def _year_to_datetime(value: Any) -> datetime | None:
+def _year_to_datetime(value: object) -> datetime | None:
     year = safe_int(value)
     if year is None:
         return None

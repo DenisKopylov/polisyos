@@ -11,10 +11,8 @@ judge these outputs without reusing this implementation as its oracle.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import datetime
 from enum import StrEnum
-from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
@@ -32,6 +30,10 @@ from polisyos.fabric.evidence.ceiling_relations import (
     evaluate_ceiling,
 )
 from polisyos.fabric.io.atomic import file_lock
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from pathlib import Path
 
 _DIGEST = r"^sha256:[0-9a-f]{64}$"
 _CANDIDATE_KIND = "fabric.non_data_acquisition.candidate"

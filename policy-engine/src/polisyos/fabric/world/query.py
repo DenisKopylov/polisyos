@@ -8,7 +8,7 @@ document/claim ingestion, then this module exposes the materialized result table
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from contextlib import AbstractContextManager, contextmanager, nullcontext
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,6 +46,8 @@ from polisyos.ir.world.predicates import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from polisyos.fabric.io.db import SimulationDB
 else:
     try:  # pragma: no cover - import guard for environments without duckdb
@@ -83,6 +85,21 @@ class _TenantScopeProvider(Protocol):
     def tenant_scope(self, tenant_id: str) -> AbstractContextManager[None]: ...
 
 
+class _DuckDBResult(Protocol):
+    """Result operations consumed from a DuckDB execution cursor."""
+
+    def fetchall(self) -> list[tuple[Any, ...]]: ...
+
+    def fetchdf(self) -> pd.DataFrame: ...
+
+
+class _WorldSnapshotSource(Protocol):
+    """Snapshot fields required to open its read-only query backend."""
+
+    storage_adapter: str
+    snapshot_path: str | Path
+
+
 class _DuckDBSnapshotBackend:
     backend_kind = "duckdb_snapshot"
     placeholder = "?"
@@ -93,7 +110,7 @@ class _DuckDBSnapshotBackend:
 
         self._conn = duckdb.connect(str(db_path), read_only=True)
 
-    def execute(self, sql: str, params: Sequence[Any] | None = None) -> Any:
+    def execute(self, sql: str, params: Sequence[Any] | None = None) -> _DuckDBResult:
         return self._conn.execute(sql, list(params or ()))
 
     def fetchall(self, sql: str, params: Sequence[Any] | None = None) -> list[tuple[Any, ...]]:
@@ -478,7 +495,7 @@ def _resolve_tenant_scope(
     return db.tenant_scope(row_policy.tenant_id)
 
 
-def _open_snapshot_backend(snapshot: Any) -> _DuckDBSnapshotBackend:
+def _open_snapshot_backend(snapshot: _WorldSnapshotSource) -> _DuckDBSnapshotBackend:
     adapter = get_world_snapshot_adapter(str(snapshot.storage_adapter))
     if adapter.adapter_name == "duckdb_native_file_copy":
         return _DuckDBSnapshotBackend(Path(snapshot.snapshot_path))
@@ -725,7 +742,8 @@ def _apply_column_classification_policy(
     if len(requested) == 1 and requested[0] == "*":
         if allowed is None:
             raise WorldQueryError(
-                "Wildcard column access requires allowed_columns when column_classification is present"
+                "Wildcard column access requires allowed_columns when "
+                "column_classification is present"
             )
         candidate_columns = tuple(sorted(allowed)) if allowed is not None else ("*",)
     else:

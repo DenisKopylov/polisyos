@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlparse
 
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.sources._file_common import parse_file_config
 from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 from polisyos.fabric.connectors.types import ValidationIssue, ValidationResult, ValidationSeverity
@@ -17,6 +17,9 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.base import ConnectionHandle
 
 
 class ObjectStorageConnector(FileTabularConnector):

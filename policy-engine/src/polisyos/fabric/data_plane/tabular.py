@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Protocol, cast
 
 import pandas as pd
 
 __all__ = ["payload_to_dataframe", "require_dataframe"]
 
 
+class _PandasConvertible(Protocol):
+    """Narrow connector payloads that expose the pandas conversion contract."""
+
+    def to_pandas(self) -> object: ...
+
+
 def payload_to_dataframe(
-    payload: Any,
+    payload: object,
     *,
     allow_dict: bool = False,
 ) -> pd.DataFrame | None:
@@ -22,13 +28,13 @@ def payload_to_dataframe(
     if allow_dict and isinstance(payload, dict):
         return pd.DataFrame(payload)
     if hasattr(payload, "to_pandas"):
-        converted = payload.to_pandas()
+        converted = cast("_PandasConvertible", payload).to_pandas()
         return converted if isinstance(converted, pd.DataFrame) else pd.DataFrame(converted)
     return None
 
 
 def require_dataframe(
-    payload: Any,
+    payload: object,
     *,
     allow_dict: bool = False,
     label: str = "payload",

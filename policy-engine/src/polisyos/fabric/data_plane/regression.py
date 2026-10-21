@@ -9,9 +9,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Protocol
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactManifest
+
+
+class _ArtifactManifestReader(Protocol):
+    """Minimal CAS read surface needed for deterministic hash comparison."""
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest: ...
 
 
 class RegressionIssueCategory(str, Enum):
@@ -92,9 +103,9 @@ def compare_ingestion_runs(
 
 
 def compare_artifact_hashes(
-    store: Any,
-    record_ref: Any,
-    replay_ref: Any,
+    store: _ArtifactManifestReader,
+    record_ref: ArtifactID | ArtifactRef | str,
+    replay_ref: ArtifactID | ArtifactRef | str,
     *,
     label: str = "artifact",
 ) -> list[str]:

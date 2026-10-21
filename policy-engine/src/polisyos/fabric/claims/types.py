@@ -35,7 +35,7 @@ class ClaimExtractOptions:
 
 @dataclass(frozen=True)
 class ClaimNormalizeOptions:
-    """Canonicalization controls for predicates, units, numeric values, and invalid-claim handling."""
+    """Controls for predicate, unit, numeric, and invalid-claim canonicalization."""
 
     normalize_units: bool = True
     normalize_predicates: bool = True

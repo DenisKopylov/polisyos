@@ -79,7 +79,7 @@ class TemporalAggregationError(ValueError):
         temporal_type: TemporalType,
         attempted_method: AggregationMethod,
         reason: str,
-    ):
+    ) -> None:
         self.variable_name = variable_name
         self.temporal_type = temporal_type
         self.attempted_method = attempted_method
@@ -460,12 +460,14 @@ class TemporalVariable:
         self._allowed_aggregations = self.temporal_type.get_allowed_aggregations()
 
         # Validate default aggregation
-        if self.default_aggregation is not None:
-            if self.default_aggregation not in self._allowed_aggregations:
-                raise ValueError(
-                    f"Invalid default aggregation '{self.default_aggregation.value}' "
-                    f"for temporal type '{self.temporal_type.value}'"
-                )
+        if (
+            self.default_aggregation is not None
+            and self.default_aggregation not in self._allowed_aggregations
+        ):
+            raise ValueError(
+                f"Invalid default aggregation '{self.default_aggregation.value}' "
+                f"for temporal type '{self.temporal_type.value}'"
+            )
 
     @property
     def can_sum_over_time(self) -> bool:

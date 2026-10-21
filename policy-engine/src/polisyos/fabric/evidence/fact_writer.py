@@ -5,8 +5,7 @@ from __future__ import annotations
 import json
 import time
 from decimal import Decimal
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
@@ -22,8 +21,11 @@ from polisyos.ir.loading.fact_log import (
     utc_tx_time,
 )
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
-def _sanitize_value(value: Any) -> str | int | bool | Decimal | None:
+
+def _sanitize_value(value: object) -> str | int | bool | Decimal | None:
     if value is None or (isinstance(value, float) and (pd.isna(value) or pd.isnull(value))):
         return None
     if isinstance(value, (bool, int, Decimal, str)):
@@ -38,9 +40,9 @@ def _fact_from_payload(
     *,
     subject_id: str,
     predicate_id: str,
-    object_value: Any = None,
+    object_value: object | None = None,
     target_id: str | None = None,
-    valid_time: Any = None,
+    valid_time: object | None = None,
     provenance: FactProvenance,
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,
@@ -65,9 +67,9 @@ def build_fact(
     *,
     subject_id: str,
     predicate_id: str,
-    object_value: Any = None,
+    object_value: object | None = None,
     target_id: str | None = None,
-    valid_time: Any = None,
+    valid_time: object | None = None,
     provenance: FactProvenance,
     trust_policy_id: str | None = None,
     legal: FactLegal | None = None,

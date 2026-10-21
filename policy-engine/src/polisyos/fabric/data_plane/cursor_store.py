@@ -35,7 +35,10 @@ class CursorStoreError(ValueError):
     """Raised when the cursor index cannot be safely loaded or persisted."""
 
 
-class CursorStoreConflict(CursorStoreError):
+# AD-E02-FABRIC-N818-01 v1: preserve only the selected existing exception identities.
+# this is an N818 compatibility rationale, not an exception-class or waiver framework.
+# Decision path: `policy-engine/docs/research/e02-cloud-test-plan/integration/architecture-decisions-2026-10-21/09-fabric-exception-identities.md`.
+class CursorStoreConflict(CursorStoreError):  # noqa: N818 -- streaming compensation catches this exact conflict type
     """Raised when a conditional cursor/checkpoint update finds newer state."""
 
 

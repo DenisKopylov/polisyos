@@ -15,6 +15,7 @@ from polisyos.core.observability import get_metrics
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
     from polisyos.fabric.connectors.base import ConnectionHandle, FetchRequest, SourceConnector
+    from polisyos.fabric.connectors.cache.invalidation import _ConnectorRegistry
 
     from .store import CacheMetadata, ConnectorCacheStore
 
@@ -68,7 +69,7 @@ class PrefetchScheduler:
     def __init__(
         self,
         cache: ConnectorCacheStore,
-        registry: Any,
+        registry: _ConnectorRegistry,
         prefetch_window_minutes: int = 30,
         scheduler_interval_seconds: int = 300,
         max_in_flight_per_connector: int = 2,

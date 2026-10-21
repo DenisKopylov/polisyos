@@ -9,8 +9,8 @@ This registry coexists with ManifestRegistry:
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 
@@ -20,6 +20,9 @@ from polisyos.core.registry.generic import GenericRegistry
 
 from .binding import MetricBinding
 from .contract import DataContract, DataContractCollection
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class ContractNotFoundError(PolicyOSError):

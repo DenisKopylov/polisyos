@@ -406,7 +406,7 @@ class WVSConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _extract_rows(
-        payload: Any,
+        payload: object,
         *,
         indicator_id: str,
         fallback_country: str | None = None,

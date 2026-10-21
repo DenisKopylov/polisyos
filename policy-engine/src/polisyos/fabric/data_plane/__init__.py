@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import importlib
-from typing import Any
 
 __all__ = [
     "AppendOnlyEvidenceJournal",
@@ -255,7 +254,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     try:
         module_name, attr = _LAZY_IMPORTS[name]
     except KeyError as exc:

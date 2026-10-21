@@ -11,7 +11,7 @@ import re
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from numbers import Integral, Real
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.fabric.connectors.contracts import SchemaType
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.contracts import FieldSpec
 
 
-def _type_member(value: Any, kind: SchemaType) -> bool:
+def _type_member(value: object, kind: SchemaType) -> bool:
     name = kind.value
     if name.startswith(("int", "uint")):
         if isinstance(value, bool) or not isinstance(value, Integral):
@@ -48,7 +48,12 @@ def _type_member(value: Any, kind: SchemaType) -> bool:
                 isinstance(value, str) and date.fromisoformat(value) is not None
             )
         if kind in (SchemaType.DATETIME, SchemaType.TIMESTAMP_TZ):
-            parsed = value if isinstance(value, datetime) else datetime.fromisoformat(value)
+            if isinstance(value, datetime):
+                parsed = value
+            elif isinstance(value, str):
+                parsed = datetime.fromisoformat(value)
+            else:
+                return False
             return kind == SchemaType.DATETIME or parsed.utcoffset() is not None
         if kind == SchemaType.TIME:
             return isinstance(value, time) or (
@@ -61,7 +66,7 @@ def _type_member(value: Any, kind: SchemaType) -> bool:
     return False
 
 
-def _json_member(value: Any) -> bool:
+def _json_member(value: object) -> bool:
     if value is None or isinstance(value, str | bool | int):
         return True
     if isinstance(value, float):
@@ -73,7 +78,7 @@ def _json_member(value: Any) -> bool:
     return False
 
 
-def field_value_violation(value: Any, field: FieldSpec) -> str | None:
+def field_value_violation(value: object, field: FieldSpec) -> str | None:
     """Return the actual field violation, without modifying its source value.
 
     Missing fields and nullability belong to the schema-level caller. Present
@@ -83,26 +88,37 @@ def field_value_violation(value: Any, field: FieldSpec) -> str | None:
         return "schema_type_mismatch"
     if field.data_type.is_numeric() or field.data_type == SchemaType.DECIMAL:
         if isinstance(value, Decimal):
+            numeric_value: Decimal | Real = value
             finite = value.is_finite()
-        else:
+        elif isinstance(value, Real):
+            numeric_value = value
             try:
                 finite = math.isfinite(value)
             except OverflowError:
                 finite = False
+        else:
+            return "schema_type_mismatch"
         if not finite:
             return "schema_non_finite"
         if field.bounds:
             low, high = field.bounds
-            if (low is not None and value < low) or (high is not None and value > high):
+            if (low is not None and numeric_value < low) or (
+                high is not None and numeric_value > high
+            ):
                 return "schema_bounds_violation"
     if field.data_type == SchemaType.ARRAY and field.element_type is not None:
+        if not isinstance(value, list | tuple):
+            return "schema_type_mismatch"
         if any(not _type_member(item, field.element_type) for item in value):
             return "schema_element_type_mismatch"
         if any(isinstance(item, Real) and not math.isfinite(item) for item in value):
             return "schema_non_finite"
     if field.pattern and isinstance(value, str) and re.fullmatch(field.pattern, value) is None:
         return "schema_pattern_violation"
-    if field.max_length is not None and isinstance(value, str | bytes | list | tuple):
-        if len(value) > field.max_length:
-            return "schema_length_violation"
+    if (
+        field.max_length is not None
+        and isinstance(value, str | bytes | list | tuple)
+        and len(value) > field.max_length
+    ):
+        return "schema_length_violation"
     return None

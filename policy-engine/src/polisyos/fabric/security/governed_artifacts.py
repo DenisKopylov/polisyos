@@ -98,11 +98,13 @@ def _enforce_encryption_requirement(
         return
     if decision_mode == EncryptionMode.ENVELOPE and not encrypted_at_rest:
         raise ArtifactGovernanceError(
-            f"{scope.value} retention policy requires verified at-rest encryption for governed writes"
+            f"{scope.value} retention policy requires verified at-rest encryption "
+            "for governed writes"
         )
     if decision_mode == EncryptionMode.FIELD_LEVEL and not field_level_encrypted:
         raise ArtifactGovernanceError(
-            f"{scope.value} retention policy requires verified field-level encryption for governed writes"
+            f"{scope.value} retention policy requires verified field-level encryption "
+            "for governed writes"
         )
 
 

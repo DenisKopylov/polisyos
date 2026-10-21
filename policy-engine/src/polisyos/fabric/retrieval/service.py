@@ -1892,7 +1892,8 @@ class RetrievalService:
                 row["_plan_admission_reason"] = plan_reason
                 if not plan_allowed and warnings is not None and source_currentness == "current":
                     warnings.append(
-                        f"catalog_profile_not_admitted:{row.get('profile_id') or 'unknown'!s}:{plan_reason}"
+                        f"catalog_profile_not_admitted:{row.get('profile_id') or 'unknown'!s}:"
+                        f"{plan_reason}"
                     )
                 if not self._has_explicit_scope(need):
                     selectable_rows.append(row)

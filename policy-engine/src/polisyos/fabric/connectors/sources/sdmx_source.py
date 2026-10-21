@@ -708,7 +708,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             issues.append(
                 ValidationIssue(
                     severity=ValidationSeverity.ERROR,
-                    message="SDMX base URL is required (provide via ConnectionConfig.url or profile)",
+                    message=(
+                        "SDMX base URL is required (provide via ConnectionConfig.url or profile)"
+                    ),
                     field="url",
                 )
             )

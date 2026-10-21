@@ -320,11 +320,10 @@ class NormalizationTransform(DataTransform):
                 raise TransformError(
                     f"Cannot safely cast {series.name} to int: non-finite values present"
                 )
-            if series.dtype in ("float", "float64"):
-                if not (numeric.dropna() % 1 == 0).all():
-                    raise TransformError(
-                        f"Cannot safely cast {series.name} to int: would lose decimal places"
-                    )
+            if series.dtype in ("float", "float64") and not (numeric.dropna() % 1 == 0).all():
+                raise TransformError(
+                    f"Cannot safely cast {series.name} to int: would lose decimal places"
+                )
             return numeric.astype("Int64")
         if target_dtype in ("float", "float64"):
             numeric = pd.to_numeric(series, errors="coerce")

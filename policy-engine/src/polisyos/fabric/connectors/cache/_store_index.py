@@ -12,8 +12,7 @@ import sqlite3
 import threading
 from datetime import datetime
 from pathlib import Path
-from types import TracebackType
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.core.artifacts import ArtifactID
 from polisyos.ir.connectors import DataVersion
@@ -25,6 +24,11 @@ from ._store_models import (
     _ts_to_dt,
     _utc_now,
 )
+
+if TYPE_CHECKING:
+    from datetime import datetime
+    from pathlib import Path
+    from types import TracebackType
 
 __all__ = [
     "CacheIndex",
@@ -187,7 +191,12 @@ class CacheIndex:
             self._conn.execute(
                 """
                 INSERT OR REPLACE INTO cache_entries (
-                    cache_key, request_key, source_scope_fingerprint, query_key, connector_id, dataset_id,
+                    cache_key,
+                    request_key,
+                    source_scope_fingerprint,
+                    query_key,
+                    connector_id,
+                    dataset_id,
                     cached_at, expires_at, policy_id,
                     payload_artifact_id, payload_media_type, payload_manifest_profile_sha256,
                     payload_size_bytes,
@@ -295,7 +304,7 @@ class CacheIndex:
             ).fetchall()
         return [self._row_to_entry(row) for row in rows]
 
-    def list_by_filters(self, **filters: Any) -> list[str]:
+    def list_by_filters(self, **filters: str | datetime | None) -> list[str]:
         clauses = []
         params: list[Any] = []
 
@@ -312,7 +321,8 @@ class CacheIndex:
             clauses.append("policy_id = ?")
             params.append(filters["policy_id"])
 
-        # Date range intersection: (start is null or start <= end_filter) and (end is null or end >= start_filter)
+        # Date-range intersection: start is null or start <= end_filter, and end is null or
+        # end >= start_filter.
         date_start = filters.get("date_start")
         date_end = filters.get("date_end")
         if date_start is not None or date_end is not None:
@@ -351,7 +361,8 @@ class CacheIndex:
         with self._lock:
             self._ensure_open()
             row = self._conn.execute(
-                "SELECT COUNT(*) AS count, SUM(payload_size_bytes) AS total, MIN(cached_at) AS oldest FROM cache_entries"
+                "SELECT COUNT(*) AS count, SUM(payload_size_bytes) AS total, "
+                "MIN(cached_at) AS oldest FROM cache_entries"
             ).fetchone()
         if row is None:
             return 0, 0, None

@@ -1,4 +1,5 @@
-"""Curated source contracts that pin external provider schemas to internal connector expectations."""
+"""Curated source contracts that pin external provider schemas to internal \
+connector expectations."""
 
 from __future__ import annotations
 

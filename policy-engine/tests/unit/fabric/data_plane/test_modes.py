@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from types import SimpleNamespace
-from typing import Any
+import json
+from pathlib import Path
+from types import MappingProxyType, SimpleNamespace
+from typing import Any, cast
 
 import pytest
 
@@ -19,6 +21,360 @@ from polisyos.fabric.connectors.contracts import (
 
 def _fake_evidence_ref() -> SimpleNamespace:
     return SimpleNamespace(artifact_id=SimpleNamespace(hex="evidence-ref"))
+
+
+def test_cursor_aware_registry_preserves_omitted_and_explicit_arguments() -> None:
+    """Default-valued arguments retain presence when forwarded to the owner."""
+    from polisyos.fabric.data_plane.modes import _CursorAwareRegistry
+    from polisyos.fabric.ingestion.ingestion_providers import _BatchConnectorRegistry
+
+    get_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+    connection_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+    connector = SimpleNamespace(fetch=lambda *_args, **_kwargs: None)
+
+    class RecordingRegistry:
+        def get(self, *args: object, **kwargs: object) -> object:
+            get_calls.append((args, dict(kwargs)))
+            return connector
+
+        async def get_connection(self, *args: object, **kwargs: object) -> object:
+            connection_calls.append((args, dict(kwargs)))
+            return object()
+
+    proxy = _CursorAwareRegistry(cast("_BatchConnectorRegistry", RecordingRegistry()), {})
+    proxy.get("omitted")
+    proxy.get(
+        "explicit-defaults",
+        None,
+        enable_cache=True,
+        _registration_binding=None,
+    )
+    proxy.get(
+        "explicit-keyword-defaults",
+        version=None,
+        enable_cache=True,
+        _registration_binding=None,
+    )
+    binding = object()
+    proxy.get(
+        "non-defaults",
+        "v2",
+        enable_cache=False,
+        _registration_binding=binding,
+    )
+
+    connection_config = object()
+
+    async def _get_connections() -> None:
+        await proxy.get_connection("omitted")
+        await proxy.get_connection("explicit-defaults", None, _registration_binding=None)
+        await proxy.get_connection(
+            "explicit-keyword-defaults", config=None, _registration_binding=None
+        )
+        await proxy.get_connection("non-defaults", connection_config, _registration_binding=binding)
+
+    asyncio.run(_get_connections())
+
+    assert get_calls == [
+        (("omitted",), {}),
+        (("explicit-defaults", None), {"enable_cache": True, "_registration_binding": None}),
+        (
+            ("explicit-keyword-defaults", None),
+            {"enable_cache": True, "_registration_binding": None},
+        ),
+        (("non-defaults", "v2"), {"enable_cache": False, "_registration_binding": binding}),
+    ]
+    assert connection_calls == [
+        (("omitted",), {}),
+        (("explicit-defaults", None), {"_registration_binding": None}),
+        (("explicit-keyword-defaults", None), {"_registration_binding": None}),
+        (("non-defaults", connection_config), {"_registration_binding": binding}),
+    ]
+
+
+def test_cursor_aware_registry_keeps_narrow_sibling_defaults_compatible() -> None:
+    """Omitted defaults work with narrow registries while explicit values remain supplied."""
+    from polisyos.fabric.data_plane.modes import _CursorAwareRegistry
+    from polisyos.fabric.ingestion.ingestion_providers import _BatchConnectorRegistry
+
+    connector = SimpleNamespace(fetch=lambda *_args, **_kwargs: None)
+
+    class NarrowSiblingRegistry:
+        def get(self, connector_id: str) -> object:
+            del connector_id
+            return connector
+
+        async def get_connection(self, connector_id: str) -> object:
+            del connector_id
+            return object()
+
+    proxy = _CursorAwareRegistry(cast("_BatchConnectorRegistry", NarrowSiblingRegistry()), {})
+    proxy.get("sibling")
+    asyncio.run(proxy.get_connection("sibling"))
+
+    with pytest.raises(TypeError):
+        proxy.get("sibling", enable_cache=True)
+    with pytest.raises(TypeError):
+        asyncio.run(proxy.get_connection("sibling", None))
+
+
+def test_manifest_dataset_absence_and_explicit_empty_are_valid() -> None:
+    from polisyos.fabric.ingestion import ConnectorManifestSpec
+
+    assert ConnectorManifestSpec.from_mapping({}).datasets == []
+    assert ConnectorManifestSpec.from_mapping({"datasets": []}).datasets == []
+
+
+@pytest.mark.parametrize(
+    "manifest",
+    [
+        {"datasets": None},
+        {"datasets": ({"connector_id": "c", "dataset_id": "d"},)},
+        {"datasets": [None]},
+        {"datasets": [{"connector_id": "c"}]},
+        {"datasets": [{"connector_id": "c", "dataset_id": "d", "filters": None}]},
+        {"datasets": [{"connector_id": "c", "dataset_id": "d", "filters": []}]},
+        {"datasets": [{"connector_id": "c", "dataset_id": "d"}], "retry_policy": []},
+        {
+            "datasets": [{"connector_id": "c", "dataset_id": "d"}],
+            "allow_local_transform_dag": None,
+        },
+    ],
+)
+def test_manifest_parser_rejects_present_malformed_datasets(manifest: object) -> None:
+    from polisyos.fabric.ingestion import ConnectorManifestSpec
+
+    with pytest.raises(ValueError, match="connector manifest"):
+        ConnectorManifestSpec.from_mapping(manifest)  # type: ignore[arg-type]
+
+
+def test_manifest_dataset_mapping_carriers_use_one_parser(tmp_path: Path) -> None:
+    from polisyos.fabric.data_plane.modes import _extract_datasets
+    from polisyos.fabric.ingestion import ConnectorManifestSpec
+
+    payload = {"datasets": [{"connector_id": " c ", "dataset_id": " d "}]}
+    expected = [("c", "d")]
+    mapping = MappingProxyType({"datasets": [MappingProxyType(payload["datasets"][0])]})
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(payload), encoding="utf-8")
+    spec = ConnectorManifestSpec.from_mapping(payload)
+
+    assert _extract_datasets(mapping) == expected
+    assert _extract_datasets(manifest_path) == expected
+    assert _extract_datasets(str(manifest_path)) == expected
+    assert _extract_datasets(spec) == expected
+
+    manifest_path.write_text('{"datasets": null}', encoding="utf-8")
+    with pytest.raises(ValueError, match="datasets"):
+        _extract_datasets(manifest_path)
+    with pytest.raises(ValueError, match="datasets"):
+        _extract_datasets(str(manifest_path))
+
+
+def test_manifest_wrapper_rejects_present_non_mapping() -> None:
+    from polisyos.fabric.ingestion.ingestion import _normalize_connector_manifest
+
+    for invalid_wrapper in (None, []):
+        with pytest.raises(ValueError, match="connector_manifest"):
+            _normalize_connector_manifest({"connector_manifest": invalid_wrapper})
+
+
+def test_manifest_accepts_valid_optional_filter_and_retry_values() -> None:
+    from polisyos.fabric.ingestion import ConnectorManifestSpec
+
+    spec = ConnectorManifestSpec.from_mapping(
+        {
+            "datasets": [
+                {
+                    "connector_id": "c",
+                    "dataset_id": "d",
+                    "filters": {"year": 2024},
+                }
+            ],
+            "retry_policy": None,
+            "allow_local_transform_dag": "false",
+        }
+    )
+    assert spec.datasets[0].filters == {"year": ["2024"]}
+    assert spec.retry_policy is None
+    assert spec.allow_local_transform_dag is False
+
+
+@pytest.mark.parametrize(
+    "manifest",
+    [
+        {"streaming": None},
+        {"streaming": []},
+        {"streaming": {"window": None}, "streaming_window": {"strategy": "count"}},
+        {"streaming_window": None},
+        {"streaming": {"window": {"strategy": "not-a-window"}}},
+    ],
+)
+def test_streaming_runtime_options_reject_present_malformed_metadata(
+    manifest: dict[str, object],
+) -> None:
+    from polisyos.fabric.data_plane.modes import _stream_runtime_options_from_manifest
+
+    with pytest.raises(ValueError):
+        _stream_runtime_options_from_manifest(manifest)
+
+
+def test_streaming_runtime_options_keep_absent_and_valid_window_semantics() -> None:
+    from polisyos.core.contracts.cursor import WindowStrategy
+    from polisyos.fabric.data_plane.modes import _stream_runtime_options_from_manifest
+
+    assert (
+        _stream_runtime_options_from_manifest({}).window_policy.strategy == WindowStrategy.TUMBLING
+    )
+    assert (
+        _stream_runtime_options_from_manifest(
+            {"streaming_window": {"strategy": "count", "size": 5}}
+        ).window_policy.size
+        == 5
+    )
+
+
+@pytest.mark.parametrize("mode", ["batch", "record", "replay", "streaming"])
+def test_ingestion_modes_refuse_malformed_manifest_before_setup(
+    mode: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.fabric.data_plane import modes
+
+    def _setup_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("malformed input reached setup before manifest validation")
+
+    monkeypatch.setattr(modes, "_resolve_ingestion_dependencies", _setup_must_not_run)
+    if mode == "streaming":
+        monkeypatch.setattr(modes, "run_coro_sync", asyncio.run)
+
+    mode_call = {
+        "batch": modes.run_batch_incremental,
+        "record": modes.run_record_mode,
+        "replay": modes.run_replay_mode,
+        "streaming": modes.run_streaming_windowed,
+    }[mode]
+    kwargs: dict[str, object] = {
+        "connector_manifest": {"datasets": None},
+        "source": "test",
+        "license_name": "MIT",
+        "cas_root": tmp_path / ".polisyos",
+    }
+    if mode == "replay":
+        kwargs["replay_ref"] = "invalid-replay-ref"
+
+    with pytest.raises(ValueError, match="datasets"):
+        mode_call(**kwargs)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("mode", ["batch", "record", "replay", "streaming"])
+def test_ingestion_modes_refuse_structured_filter_before_setup(
+    mode: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.fabric.data_plane import modes
+
+    def _setup_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("malformed filter reached setup before manifest validation")
+
+    monkeypatch.setattr(modes, "_resolve_ingestion_dependencies", _setup_must_not_run)
+    if mode == "streaming":
+        monkeypatch.setattr(modes, "run_coro_sync", asyncio.run)
+
+    mode_call = {
+        "batch": modes.run_batch_incremental,
+        "record": modes.run_record_mode,
+        "replay": modes.run_replay_mode,
+        "streaming": modes.run_streaming_windowed,
+    }[mode]
+    kwargs: dict[str, object] = {
+        "connector_manifest": {
+            "datasets": [
+                {
+                    "connector_id": "test.connector",
+                    "dataset_id": "raw.dataset",
+                    "filters": {"country": {"nested": "value"}},
+                }
+            ]
+        },
+        "source": "test",
+        "license_name": "MIT",
+        "cas_root": tmp_path / ".polisyos",
+    }
+    if mode == "replay":
+        kwargs["replay_ref"] = "invalid-replay-ref"
+
+    with pytest.raises(ValueError, match="filter"):
+        mode_call(**kwargs)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("mode", ["batch", "record", "replay", "streaming"])
+@pytest.mark.parametrize("json_number", ["NaN", "Infinity", "-Infinity", "1e9999"])
+@pytest.mark.parametrize("container", ["scalar", "list"])
+def test_ingestion_modes_refuse_non_finite_json_filters_before_setup(
+    mode: str,
+    json_number: str,
+    container: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.fabric.data_plane import modes
+
+    def _setup_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("non-finite filter reached setup before manifest validation")
+
+    monkeypatch.setattr(modes, "_resolve_ingestion_dependencies", _setup_must_not_run)
+    if mode == "streaming":
+        monkeypatch.setattr(modes, "run_coro_sync", asyncio.run)
+
+    mode_call = {
+        "batch": modes.run_batch_incremental,
+        "record": modes.run_record_mode,
+        "replay": modes.run_replay_mode,
+        "streaming": modes.run_streaming_windowed,
+    }[mode]
+    filter_value = f"[{json_number}]" if container == "list" else json_number
+    manifest_path = tmp_path / "non-finite-filter.json"
+    manifest_path.write_text(
+        '{"datasets":[{"connector_id":"test.connector",'
+        f'"dataset_id":"raw.dataset","filters":{{"year":{filter_value}}}'
+        "}]}",
+        encoding="utf-8",
+    )
+    kwargs: dict[str, object] = {
+        "connector_manifest": manifest_path,
+        "source": "test",
+        "license_name": "MIT",
+        "cas_root": tmp_path / ".polisyos",
+    }
+    if mode == "replay":
+        kwargs["replay_ref"] = "invalid-replay-ref"
+
+    with pytest.raises(ValueError, match="filter"):
+        mode_call(**kwargs)  # type: ignore[arg-type]
+
+
+def test_streaming_mode_refuses_malformed_metadata_before_setup(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.fabric.data_plane import modes
+
+    def _setup_must_not_run(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("malformed metadata reached setup before validation")
+
+    monkeypatch.setattr(modes, "_resolve_ingestion_dependencies", _setup_must_not_run)
+    monkeypatch.setattr(modes, "run_coro_sync", asyncio.run)
+
+    with pytest.raises(ValueError, match="streaming"):
+        modes.run_streaming_windowed(
+            connector_manifest={"datasets": [], "streaming": None},
+            source="test",
+            license_name="MIT",
+            cas_root=tmp_path / ".polisyos",
+        )
 
 
 class _NoopSimulator:
@@ -853,3 +1209,77 @@ def test_stream_sanitizer_keeps_non_finite_metric_guard_across_batch_sizes(
 
     assert observed == {1: (["ok"], 1), 3: (["ok"], 1)}
     assert quarantine_reasons == ["non_finite_metric", "non_finite_metric"]
+
+
+def test_fetch_stream_uses_registry_owned_connector_instance() -> None:
+    """The streaming helper fetches through the selected registry owner."""
+    import asyncio
+
+    from polisyos.fabric.connectors.types import DataChunk
+    from polisyos.fabric.data_plane.modes import _fetch_stream_for_dataset_async
+    from polisyos.ir.connectors import ConnectorCapability
+
+    events: list[tuple[str, object]] = []
+    handle = object()
+
+    class SelectedConnector:
+        capabilities = ConnectorCapability.STREAMING
+
+        async def connect(self, config: object | None) -> object:
+            events.append(("connect", config))
+            return handle
+
+        def fetch_stream(self, actual_handle: object, request: object):
+            events.append(("fetch_stream", actual_handle))
+
+            async def _chunks():
+                yield DataChunk(
+                    data=[{"value": 3}],
+                    chunk_index=4,
+                    row_count=1,
+                    is_first=True,
+                    is_last=True,
+                )
+
+            return _chunks()
+
+        async def disconnect(self, actual_handle: object) -> None:
+            events.append(("disconnect", actual_handle))
+
+    selected = SelectedConnector()
+
+    class Registry:
+        def get(self, connector_id: str) -> SelectedConnector:
+            events.append(("get", connector_id))
+            return selected
+
+        def get_entry(self, connector_id: str) -> object:
+            events.append(("get_entry", connector_id))
+            return object()
+
+    result = asyncio.run(
+        _fetch_stream_for_dataset_async(
+            connector_id="owner.stream",
+            dataset_id="events",
+            connector_manifest={},
+            connection_config=None,
+            registry=Registry(),
+        )
+    )
+
+    assert result == [
+        {
+            "chunk_index": 4,
+            "row_count": 1,
+            "is_first": True,
+            "is_last": True,
+            "data": [{"value": 3}],
+        }
+    ]
+    assert events == [
+        ("get_entry", "owner.stream"),
+        ("get", "owner.stream"),
+        ("connect", None),
+        ("fetch_stream", handle),
+        ("disconnect", handle),
+    ]

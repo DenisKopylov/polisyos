@@ -11,11 +11,18 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Iterable, Mapping
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.runtime import LineageRef as RuntimeLineageRef
+from polisyos.core.contracts.runtime import QuantityValue as RuntimeQuantityValue
+from polisyos.core.contracts.runtime import TemporalRef as RuntimeTemporalRef
+from polisyos.core.contracts.runtime import TemporalScope as RuntimeTemporalScope
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 DecisionDataKind = Literal["quantity", "authored_text", "fact", "event", "claim"]
 TypedGapState = Literal[
@@ -28,6 +35,53 @@ TypedGapState = Literal[
 QualityStatus = Literal["passed", "warning", "failed", "unknown_quality"]
 LineageStatus = Literal["verified", "pending", "disputed", "untraced"]
 ReplayStatus = Literal["replayable", "non_replayable", "unknown"]
+
+
+class _RuntimeTemporalScopeLike(Protocol):
+    @property
+    def valid_at(self) -> datetime | None: ...
+
+    @property
+    def tx_at(self) -> datetime | None: ...
+
+    @property
+    def snapshot_id(self) -> str | None: ...
+
+    @property
+    def branch(self) -> str | None: ...
+
+    @property
+    def scenario_id(self) -> str | None: ...
+
+
+class _SourceFieldPolicyLike(Protocol):
+    @property
+    def field_id(self) -> str: ...
+
+    @property
+    def classification(self) -> str: ...
+
+    @property
+    def pii_tier(self) -> str: ...
+
+    @property
+    def tenant_scope(self) -> str: ...
+
+    @property
+    def redaction(self) -> str: ...
+
+    @property
+    def policy_ref(self) -> str | None: ...
+
+
+class _SourceContractSecurityLike(Protocol):
+    @property
+    def field_policies(self) -> Sequence[_SourceFieldPolicyLike]: ...
+
+
+class _SourceContractLike(Protocol):
+    @property
+    def security(self) -> _SourceContractSecurityLike: ...
 
 
 def _utc(value: datetime | None) -> datetime | None:
@@ -65,7 +119,16 @@ class TemporalRef(BaseModel):
         return _utc(value)
 
     @classmethod
-    def from_runtime_scope(cls, scope: Any | None) -> TemporalRef | None:
+    def from_runtime_scope(
+        cls,
+        scope: (
+            RuntimeTemporalScope
+            | RuntimeTemporalRef
+            | _RuntimeTemporalScopeLike
+            | Mapping[str, object]
+            | None
+        ),
+    ) -> TemporalRef | None:
         """Project Runtime `TemporalScope` / `TemporalRef` objects into Fabric."""
         if scope is None:
             return None
@@ -159,40 +222,36 @@ class AccessRef(BaseModel):
 
     @model_validator(mode="after")
     def _validate_restricted_policy(self) -> AccessRef:
-        if self.classification == "restricted" or self.redaction != "none":
-            if not self.policy_ref:
-                raise ValueError("restricted access requires policy_ref")
+        if (
+            self.classification == "restricted" or self.redaction != "none"
+        ) and not self.policy_ref:
+            raise ValueError("restricted access requires policy_ref")
         return self
 
 
 def access_ref_from_source_field_policy(
-    source_contract: Any,
+    source_contract: _SourceContractLike | None,
     *,
     field_id: str,
 ) -> AccessRef:
     """Resolve a Fabric access ref from a SourceContract field policy."""
 
-    security = getattr(source_contract, "security", None)
-    policies = tuple(getattr(security, "field_policies", ()) or ())
-    selected = next(
-        (policy for policy in policies if getattr(policy, "field_id", None) == field_id),
-        None,
-    )
+    if source_contract is None:
+        return AccessRef()
+    policies = tuple(source_contract.security.field_policies)
+    selected = next((policy for policy in policies if policy.field_id == field_id), None)
     if selected is None:
-        selected = next(
-            (policy for policy in policies if getattr(policy, "field_id", None) == "*"),
-            None,
-        )
+        selected = next((policy for policy in policies if policy.field_id == "*"), None)
     if selected is None and policies:
         selected = policies[0]
     if selected is None:
         return AccessRef()
     return AccessRef(
-        classification=str(selected.classification),
-        pii_tier=str(selected.pii_tier),
-        tenant_scope=str(selected.tenant_scope),
+        classification=selected.classification,
+        pii_tier=selected.pii_tier,
+        tenant_scope=selected.tenant_scope,
         redaction=selected.redaction,
-        policy_ref=getattr(selected, "policy_ref", None),
+        policy_ref=selected.policy_ref,
     )
 
 
@@ -348,23 +407,29 @@ class FabricDecisionDataResponse(BaseModel):
 
 
 def from_runtime_quantity(
-    quantity: Any,
+    quantity: RuntimeQuantityValue,
     *,
     index: int,
     source_contract: SourceContractRef,
-    temporal_scope: Any | None,
+    temporal_scope: (
+        RuntimeTemporalScope
+        | RuntimeTemporalRef
+        | _RuntimeTemporalScopeLike
+        | Mapping[str, object]
+        | None
+    ),
     access: AccessRef | None = None,
     owner: str = "@fabric-owners",
 ) -> FabricDecisionData:
     """Build a Fabric trust envelope from a Runtime `QuantityValue` instance."""
     time = TemporalRef.from_runtime_scope(temporal_scope) or TemporalRef.from_runtime_scope(
-        getattr(quantity, "time", None)
+        quantity.time
     )
     if time is None:
         now = datetime.now(UTC).replace(microsecond=0)
         time = TemporalRef(valid_at=now, tx_at=now)
 
-    lineage = _lineage_from_runtime(getattr(quantity, "lineage", None), owner=owner)
+    lineage = _lineage_from_runtime(quantity.lineage, owner=owner)
     quality, quality_gaps = _quality_for_runtime_quantity(quantity, lineage=lineage)
     replay, replay_gaps = _replay_for_runtime_lineage(lineage)
     gaps = [
@@ -372,14 +437,14 @@ def from_runtime_quantity(
         *quality_gaps,
         *replay_gaps,
     ]
-    metric_id = getattr(quantity, "metric_id", None) or f"quantity_{index}"
-    unit = UnitRef.model_validate(_model_dump(getattr(quantity, "unit", None)) or {"code": "1"})
+    metric_id = quantity.metric_id or f"quantity_{index}"
+    unit = UnitRef.model_validate(_model_dump(quantity.unit) or {"code": "1"})
     value = FabricQuantityValue(
-        point=getattr(quantity, "point", None),
+        point=quantity.point,
         unit=unit,
         semantic_type=str(metric_id),
         metric_id=str(metric_id),
-        label=getattr(quantity, "label", None),
+        label=quantity.label,
     )
     return FabricDecisionData(
         id=f"fabric_decision_data:{metric_id}",
@@ -393,25 +458,29 @@ def from_runtime_quantity(
         replay=replay,
         gaps=gaps,
         metadata={
-            "quantity_class": getattr(quantity, "quantity_class", "decision"),
+            "quantity_class": quantity.quantity_class,
             "runtime_metric_id": metric_id,
         },
     )
 
 
 def from_runtime_quantities(
-    quantities: Iterable[Any],
+    quantities: Iterable[RuntimeQuantityValue],
     *,
     source_contract: SourceContractRef,
-    temporal_scope: Any | None = None,
-    access_resolver: Callable[[Any, int], AccessRef | None] | None = None,
+    temporal_scope: (
+        RuntimeTemporalScope
+        | RuntimeTemporalRef
+        | _RuntimeTemporalScopeLike
+        | Mapping[str, object]
+        | None
+    ) = None,
+    access_resolver: Callable[[RuntimeQuantityValue, int], AccessRef | None] | None = None,
     owner: str = "@fabric-owners",
 ) -> list[FabricDecisionData]:
     """Project decision-class Runtime quantities into Fabric trust envelopes."""
     decision_quantities = [
-        quantity
-        for quantity in quantities
-        if getattr(quantity, "quantity_class", "decision") == "decision"
+        quantity for quantity in quantities if quantity.quantity_class == "decision"
     ]
     return [
         from_runtime_quantity(
@@ -449,7 +518,7 @@ def coverage_from_decision_data(
     )
 
 
-def to_runtime_quantity_value(data: FabricDecisionData) -> Any:
+def to_runtime_quantity_value(data: FabricDecisionData) -> RuntimeQuantityValue:
     """Convert a Fabric quantity envelope to the Runtime `QuantityValue` contract."""
     if not isinstance(data.value, FabricQuantityValue):
         raise TypeError("only quantity FabricDecisionData can convert to QuantityValue")
@@ -499,9 +568,9 @@ def to_runtime_quantity_value(data: FabricDecisionData) -> Any:
 
 
 def fabric_fact_to_quantity_value(
-    fact: Mapping[str, Any] | Any,
+    fact: Mapping[str, object] | BaseModel,
     *,
-    unit: UnitRef | Mapping[str, Any] | None = None,
+    unit: UnitRef | Mapping[str, object] | None = None,
     semantic_type: str | None = None,
 ) -> FabricQuantityValue:
     """Map a Fabric fact payload into a serializable quantity value."""
@@ -519,7 +588,7 @@ def fabric_fact_to_quantity_value(
     )
 
 
-def fabric_claim_to_authored_text(claim: Mapping[str, Any] | Any) -> AuthoredText:
+def fabric_claim_to_authored_text(claim: Mapping[str, object] | BaseModel) -> AuthoredText:
     """Map a Fabric claim payload into authored text with semantic identity."""
     payload = _model_dump(claim)
     text = _first_present(payload, "text", "claim_text", "body", "description")
@@ -529,7 +598,7 @@ def fabric_claim_to_authored_text(claim: Mapping[str, Any] | Any) -> AuthoredTex
     return AuthoredText(text=str(text), semantic_type=_as_optional_str(semantic_type))
 
 
-def fabric_event_to_authored_text(event: Mapping[str, Any] | Any) -> AuthoredText:
+def fabric_event_to_authored_text(event: Mapping[str, object] | BaseModel) -> AuthoredText:
     """Map a Fabric event payload into authored text for provenance UI surfaces."""
     payload = _model_dump(event)
     text = _first_present(payload, "description", "label", "event_type", "type")
@@ -539,7 +608,7 @@ def fabric_event_to_authored_text(event: Mapping[str, Any] | Any) -> AuthoredTex
     return AuthoredText(text=str(text), semantic_type=_as_optional_str(semantic_type))
 
 
-def _lineage_from_runtime(runtime_lineage: Any | None, *, owner: str) -> LineageRef:
+def _lineage_from_runtime(runtime_lineage: RuntimeLineageRef | None, *, owner: str) -> LineageRef:
     if runtime_lineage is None:
         return LineageRef(
             id="untraced",
@@ -594,11 +663,11 @@ def _lineage_from_runtime(runtime_lineage: Any | None, *, owner: str) -> Lineage
 
 
 def _quality_for_runtime_quantity(
-    quantity: Any,
+    quantity: RuntimeQuantityValue,
     *,
     lineage: LineageRef,
 ) -> tuple[QualityRef, list[TypedGap]]:
-    metric_id = str(getattr(quantity, "metric_id", None) or "quantity")
+    metric_id = str(quantity.metric_id or "quantity")
     if lineage.status == "untraced":
         remediation = f"policyos://fabric-decision-data/quality/{metric_id}"
         return (
@@ -659,7 +728,7 @@ def _gaps_for_lineage(lineage: LineageRef) -> list[TypedGap]:
     ]
 
 
-def _model_dump(value: Any) -> dict[str, Any]:
+def _model_dump(value: object) -> dict[str, Any]:
     if value is None:
         return {}
     if hasattr(value, "model_dump"):
@@ -673,7 +742,7 @@ def _model_dump(value: Any) -> dict[str, Any]:
     }
 
 
-def _first_present(payload: Mapping[str, Any], *keys: str) -> Any | None:
+def _first_present(payload: Mapping[str, Any], *keys: str) -> object | None:
     for key in keys:
         value = payload.get(key)
         if value is not None:
@@ -681,7 +750,7 @@ def _first_present(payload: Mapping[str, Any], *keys: str) -> Any | None:
     return None
 
 
-def _as_optional_str(value: Any | None) -> str | None:
+def _as_optional_str(value: object | None) -> str | None:
     return None if value is None else str(value)
 
 

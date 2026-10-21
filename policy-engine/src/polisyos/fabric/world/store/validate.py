@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import re
-from decimal import Decimal
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
 from polisyos.ir.loading.fact_log import Fact
@@ -34,6 +34,10 @@ from polisyos.ir.world.quality import QualityReport
 from polisyos.ir.world.trust import TrustAssessment
 
 from .errors import WorldFactError, WorldIDError
+
+if TYPE_CHECKING:
+    from decimal import Decimal
+
 
 _ID_RE = re.compile(ID_PATTERN)
 _ARTIFACT_RE = re.compile(ARTIFACT_ID_PATTERN)
@@ -145,9 +149,8 @@ def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -
             raise WorldFactError("world attribute facts must not set target_id")
         if fact.object_value is None:
             raise WorldFactError("world attribute facts require object_value")
-        if fact.predicate_id.startswith("world."):
-            if fact.predicate_id not in _ALLOWED_WORLD_ATTRS:
-                raise WorldFactError(f"unsupported world attribute predicate '{fact.predicate_id}'")
+        if fact.predicate_id.startswith("world.") and fact.predicate_id not in _ALLOWED_WORLD_ATTRS:
+            raise WorldFactError(f"unsupported world attribute predicate '{fact.predicate_id}'")
         if fact.predicate_id == WORLD_KIND:
             value = _enum_value(fact.object_value)
             if value not in {kind.value for kind in NodeKind}:

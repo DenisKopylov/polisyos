@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlparse
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
     import duckdb
 
 from polisyos.core.canon import content_hash
@@ -311,7 +313,10 @@ class SQLQueryConnector(BaseConnector[Any]):
                 ValidationIssue(
                     severity=ValidationSeverity.WARNING,
                     field="headers",
-                    message="X-SQL-Query or X-SQL-Table should be set; dataset_id will be used otherwise",
+                    message=(
+                        "X-SQL-Query or X-SQL-Table should be set; "
+                        "dataset_id will be used otherwise"
+                    ),
                 )
             )
         return ValidationResult(

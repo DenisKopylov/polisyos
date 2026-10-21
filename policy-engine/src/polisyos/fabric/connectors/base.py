@@ -20,7 +20,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Generic,
     Protocol,
     TypeVar,
     runtime_checkable,
@@ -75,11 +74,11 @@ def _safe_local_path(location: str, *, scheme: str) -> Path:
 DataT = TypeVar("DataT")
 
 
-def _freeze_mapping(value: Mapping[str, Any]) -> Mapping[str, Any]:
+def _freeze_mapping(value: Mapping[str, object]) -> Mapping[str, object]:
     return MappingProxyType({str(key): _freeze_nested(item) for key, item in value.items()})
 
 
-def _freeze_nested(value: Any) -> Any:
+def _freeze_nested(value: object) -> object:
     if isinstance(value, Mapping):
         return _freeze_mapping(value)
     if isinstance(value, list):
@@ -97,22 +96,22 @@ class ConnectionState:
     __slots__ = ("_data", "_lock")
 
     def __init__(self) -> None:
-        self._data: dict[str, Any] = {}
+        self._data: dict[str, object] = {}
         self._lock = threading.RLock()
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: object = None) -> object:
         with self._lock:
             return self._data.get(key, default)
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: object) -> None:
         with self._lock:
             self._data[key] = value
 
-    def setdefault(self, key: str, default: Any) -> Any:
+    def setdefault(self, key: str, default: object) -> object:
         with self._lock:
             return self._data.setdefault(key, default)
 
-    def pop(self, key: str, default: Any = None) -> Any:
+    def pop(self, key: str, default: object = None) -> object:
         with self._lock:
             return self._data.pop(key, default)
 
@@ -120,7 +119,7 @@ class ConnectionState:
         with self._lock:
             self._data.clear()
 
-    def snapshot(self) -> Mapping[str, Any]:
+    def snapshot(self) -> Mapping[str, object]:
         with self._lock:
             return _freeze_mapping(self._data)
 
@@ -294,20 +293,20 @@ class ConnectionHandle:
         return delta.total_seconds()
 
     @property
-    def state(self) -> Mapping[str, Any]:
+    def state(self) -> Mapping[str, object]:
         """Immutable snapshot of runtime state for diagnostics and read-only inspection."""
         return self._state.snapshot()
 
-    def get_state(self, key: str, default: Any = None) -> Any:
+    def get_state(self, key: str, default: object = None) -> object:
         return self._state.get(key, default)
 
-    def set_state(self, key: str, value: Any) -> None:
+    def set_state(self, key: str, value: object) -> None:
         self._state.set(key, value)
 
-    def setdefault_state(self, key: str, default: Any) -> Any:
+    def setdefault_state(self, key: str, default: object) -> object:
         return self._state.setdefault(key, default)
 
-    def pop_state(self, key: str, default: Any = None) -> Any:
+    def pop_state(self, key: str, default: object = None) -> object:
         return self._state.pop(key, default)
 
     def clear_state(self) -> None:
@@ -391,7 +390,7 @@ class DatasetCapabilitySnapshot(BaseModel):
 
     @field_validator("version_hint", mode="before")
     @classmethod
-    def _normalize_version_hint(cls, value: Any) -> str:
+    def _normalize_version_hint(cls, value: object) -> str:
         if value is None:
             return ""
         text = str(value).strip()
@@ -399,7 +398,7 @@ class DatasetCapabilitySnapshot(BaseModel):
 
     @field_validator("allowed_positions", mode="before")
     @classmethod
-    def _freeze_allowed_positions(cls, value: Any) -> Mapping[str, tuple[str, ...]]:
+    def _freeze_allowed_positions(cls, value: object) -> Mapping[str, tuple[str, ...]]:
         if value is None:
             return MappingProxyType({})
         if not isinstance(value, Mapping):
@@ -563,7 +562,7 @@ def require_connector_owner(
 # ============================================================================
 
 
-class BaseConnector(Generic[DataT]):
+class BaseConnector[DataT]:
     """Shared connector helpers for capability checks and default dataset descriptions."""
 
     connector_id: ClassVar[str] = "base.connector"

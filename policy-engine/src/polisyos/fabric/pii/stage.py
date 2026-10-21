@@ -76,7 +76,8 @@ class PIIDetectionStage:
         )
 
         logger.info(
-            "PII scan completed: entities=%d max_severity=%s sampled=%s sample_rate=%.2f duration_ms=%.2f",
+            "PII scan completed: entities=%d max_severity=%s sampled=%s "
+            "sample_rate=%.2f duration_ms=%.2f",
             scan.total_entities_found,
             scan.max_severity.value,
             scan.sampled,

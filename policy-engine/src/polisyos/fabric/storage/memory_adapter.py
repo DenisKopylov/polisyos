@@ -28,7 +28,7 @@ class InMemoryStorageAdapter(StoragePort):
         else:
             self._tables["macro_history"] = pd.concat([existing, frame], ignore_index=True)
 
-    def save_agents(self, run_id: str, step: int, agents_state: Any) -> None:
+    def save_agents(self, run_id: str, step: int, agents_state: object) -> None:
         row = {"run_id": run_id, "step": step, "agents_state": agents_state}
         frame = pd.DataFrame([row])
         existing = self._tables.get("agents_snapshot")
@@ -37,7 +37,7 @@ class InMemoryStorageAdapter(StoragePort):
         else:
             self._tables["agents_snapshot"] = pd.concat([existing, frame], ignore_index=True)
 
-    def save_run_record(self, record: Any) -> None:
+    def save_run_record(self, record: object) -> None:
         self._run_records.append(record)
 
     def query_table(

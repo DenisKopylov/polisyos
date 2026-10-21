@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from array import array
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
@@ -12,7 +13,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
 from polisyos.fabric.connectors.cache.store import ConnectorCacheStore
 from polisyos.fabric.ingestion import IngestionDependencies, run_connectors_ingestion
-from polisyos.fabric.ingestion.ingestion import _sync_fetch
+from polisyos.fabric.ingestion.ingestion import _coerce_filter_map, _sync_fetch
 from polisyos.ir.connectors import (
     DataVersion,
     FetchRequest,
@@ -56,9 +57,18 @@ class _Registry:
         assert connector_id == "test.connector"
         return self.connector
 
+    def get_entry(self, connector_id: str) -> object:
+        assert connector_id == "test.connector"
+        return SimpleNamespace(default_config=ConnectionConfig(url="https://example.test"))
+
 
 class _Metrics:
     pass
+
+
+class _StringifyingFilter:
+    def __str__(self) -> str:
+        return "must-not-become-filter-data"
 
 
 def _raw_result() -> FetchResult[list[dict[str, int]]]:
@@ -369,3 +379,144 @@ def test_sync_fetch_removes_http_observer_from_handle_when_fetch_fails() -> None
 
     assert observer not in handle.state.values()
     assert release_calls == 1
+
+
+def test_run_connectors_ingestion_distinguishes_empty_from_malformed_manifest() -> None:
+    for manifest in ({}, {"datasets": []}):
+        assert (
+            run_connectors_ingestion(
+                connector_manifest=manifest,
+                source="test",
+                license_name="MIT",
+                cas_root=None,
+            )
+            is None
+        )
+
+    with pytest.raises(ValueError, match="datasets"):
+        run_connectors_ingestion(
+            connector_manifest={"datasets": None},
+            source="test",
+            license_name="MIT",
+            cas_root=None,
+        )
+
+
+def test_filter_map_preserves_supported_scalar_and_multi_value_coercions() -> None:
+    assert _coerce_filter_map(
+        {
+            "country": ["US", 2024, False],
+            "year": 2020,
+            "ratio": 1.5,
+            "empty": [],
+        }
+    ) == {
+        "country": ["US", "2024", "False"],
+        "year": ["2020"],
+        "ratio": ["1.5"],
+        "empty": [],
+    }
+
+
+@pytest.mark.parametrize(
+    "filter_value",
+    [
+        pytest.param(float("nan"), id="nan"),
+        pytest.param(float("inf"), id="positive-infinity"),
+        pytest.param(float("-inf"), id="negative-infinity"),
+        pytest.param(1e9999, id="overflowed-exponent"),
+    ],
+)
+def test_filter_map_refuses_non_finite_float_scalars(filter_value: float) -> None:
+    with pytest.raises(ValueError, match="invalid value"):
+        _coerce_filter_map({"year": filter_value})
+
+
+@pytest.mark.parametrize(
+    "filter_item",
+    [
+        pytest.param(float("nan"), id="nan"),
+        pytest.param(float("inf"), id="positive-infinity"),
+        pytest.param(float("-inf"), id="negative-infinity"),
+        pytest.param(1e9999, id="overflowed-exponent"),
+    ],
+)
+def test_filter_map_refuses_non_finite_float_items(filter_item: float) -> None:
+    with pytest.raises(ValueError, match="invalid value"):
+        _coerce_filter_map({"year": [filter_item]})
+
+
+@pytest.mark.parametrize(
+    "filter_value",
+    [
+        pytest.param({"nested": "value"}, id="mapping"),
+        pytest.param(("one", "two"), id="tuple"),
+        pytest.param({"one", "two"}, id="set"),
+        pytest.param(array("i", [1, 2]), id="array"),
+        pytest.param(_StringifyingFilter(), id="arbitrary-stringifiable-object"),
+    ],
+)
+def test_filter_map_refuses_non_scalar_filter_values(filter_value: object) -> None:
+    with pytest.raises(ValueError, match="invalid value"):
+        _coerce_filter_map({"country": filter_value})
+
+
+@pytest.mark.parametrize(
+    "filter_item",
+    [
+        pytest.param({"nested": "value"}, id="mapping"),
+        pytest.param(["nested"], id="list"),
+        pytest.param(("one", "two"), id="tuple"),
+        pytest.param({"one", "two"}, id="set"),
+        pytest.param(array("i", [1, 2]), id="array"),
+        pytest.param(_StringifyingFilter(), id="arbitrary-stringifiable-object"),
+    ],
+)
+def test_filter_map_refuses_non_scalar_items_in_multi_value_filter(
+    filter_item: object,
+) -> None:
+    with pytest.raises(ValueError, match="invalid value"):
+        _coerce_filter_map({"country": [filter_item]})
+
+
+@pytest.mark.parametrize(
+    "filter_value",
+    [
+        pytest.param({"nested": "value"}, id="mapping"),
+        pytest.param(("one", "two"), id="tuple"),
+        pytest.param({"one", "two"}, id="set"),
+        pytest.param(array("i", [1, 2]), id="array"),
+        pytest.param(_StringifyingFilter(), id="arbitrary-stringifiable-object"),
+        pytest.param([["nested"]], id="nested-list"),
+    ],
+)
+def test_run_connectors_ingestion_refuses_structured_filter_values_before_noop(
+    filter_value: object,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = {
+        "datasets": [
+            {
+                "connector_id": "test.connector",
+                "dataset_id": "raw.dataset",
+                "filters": {"country": filter_value},
+            }
+        ]
+    }
+
+    def _unexpected_fetch(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        pytest.fail("connector fetch began before malformed filters were refused")
+
+    monkeypatch.setattr("polisyos.fabric.ingestion.ingestion._sync_fetch", _unexpected_fetch)
+
+    with pytest.raises(ValueError, match="filter"):
+        run_connectors_ingestion(
+            connector_manifest=manifest,
+            source="test",
+            license_name="MIT",
+            cas_root=None,
+            connection_config=ConnectionConfig(url="https://example.test"),
+            dependencies=_dependencies(tmp_path / "cas"),
+        )

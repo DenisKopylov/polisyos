@@ -318,7 +318,8 @@ class MetricSearcher:
                     matched_alias=alias,
                     route="lexical",
                     explanations=(
-                        f"Lexical fallback matched alias '{alias}' with similarity {similarity:.2f}.",
+                        f"Lexical fallback matched alias '{alias}' with "
+                        f"similarity {similarity:.2f}.",
                     ),
                     score_breakdown={"lexical": similarity, "semantic": 0.0},
                 )

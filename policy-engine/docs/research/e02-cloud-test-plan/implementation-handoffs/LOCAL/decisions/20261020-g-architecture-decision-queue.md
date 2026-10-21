@@ -6,6 +6,8 @@
 
 ## Обновление 21 октября: принятые решения и оставшиеся предложения
 
+Актуальный короткий вход, включая новый independently reviewed conditional-transport вопрос и свежую HTE runtime оговорку: [вопросы к G от 21 октября](20261021-g-pending-questions.md). Старые source/runtime утверждения ниже остаются историческими в их pinned frame.
+
 G опубликовал выбор AD01–03 в commit `b7adafe89423bc6906a5fb86c38e579a381ad2ee` (tree `3cf103b6e1b9a395bcb7f3f5803346f90ddc1370`); пакет включён обычным merge в candidate. [Финальные решения](../../../integration/architecture-decisions-2026-10-20/06-final-decisions-and-solo-review.md) и [порядок реализации](../../../integration/architecture-decisions-2026-10-20/04-implementation-and-verification.md) задают действующий контракт. Разделы AD-E02-01–03 ниже сохраняют исходные вопросы и прежние результаты как историю; они не являются повторным запросом выбора. Принятие архитектурного варианта не означает приёмку текущего авторского кода или formal closure. Реализация и composed verification продолжаются.
 
 HTE outcome/inference, CAN profile/law и B161 остаются отдельными предложениями в указанных пакетах. DS17 ниже — условный непринятый вопрос; обычное исправление source identity не ожидает его решения.

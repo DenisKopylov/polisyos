@@ -1,0 +1,858 @@
+{
+  "receipt_schema": "policyos.raw-diagnostic-receipt.v1",
+  "title": "Proposed candidate diagnostics under legal authority refusal, R4",
+  "created_on": "2026-10-21",
+  "packet_status": "raw_decision_candidate_for_independent_review",
+  "workspace": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2536eb6dbc946ce5000d2b2da246d7e071b037fc",
+    "tree": "7b7c1078e056a38d7b07de56abcfa95cae279a90",
+    "r1_replay_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "864cd465d61468f6677f4188c58245479e2f6ae8",
+      "tree": "d858f9dd877e2f5d77dff16ee09a5077cb0e9950"
+    },
+    "comparison_base": "864cd465d61468f6677f4188c58245479e2f6ae8",
+    "tracked_source_and_control_test_changes_between_replay_base_and_packet_head": [
+      "policy-engine/src/polisyos/ir/api.py"
+    ],
+    "note": "R4 is an additive raw decision candidate. R3 decision and receipt are preserved unchanged; this packet binds the complete facade/migration rollout companions and the full R1 actual-output directory. The worktree contains unrelated root-owned advances and RAW artifacts; no clean-tree claim is made.",
+    "changed_path_notes": [
+      {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "classification": "root-owned unrelated addition since R1 replay base; adds method-metric exports under ir.kernel and no transportability export change; current bytes are pinned in source_and_schema_pins"
+      }
+    ]
+  },
+  "scope": {
+    "product_source_writes": false,
+    "product_test_writes": false,
+    "tests_run_in_this_turn": false,
+    "imports_or_heavy_fits_in_this_turn": false,
+    "production_payload_census": false,
+    "legal_positive_relation_established": false,
+    "source_trained_gcm_established": false,
+    "b33_owner_model_bridge_closed": false,
+    "formal_e02_closure_claimed": false,
+    "formal_G_decision_made": false,
+    "r4_public_migration_inventory_added": true,
+    "r1_actual_directory_inventory_pinned": true
+  },
+  "decision_artifact": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-candidate-authority-split-20261021-r4/decision.md",
+    "sha256": "45c15676ef9dd76171b86af43bbb5b1110964217a65a5b6f2f24886d0fb3c090"
+  },
+  "review_inputs": {
+    "r2_held_unchanged": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-candidate-authority-split-20261021-r2/decision.md",
+        "sha256": "e67f6755f8b9da0907dcdbf0ac0446b2e49d64a77e2c513188d06e90a1422761"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-candidate-authority-split-20261021-r2/receipt.json",
+        "sha256": "4be0b4befc2a11ddb4b7fda2e7c1e6fbfb224947976cf9e9c333718e50119904"
+      }
+    ],
+    "independent_r2_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-causal-query-candidate-authority-review-20261021-r1/review.md",
+        "sha256": "89d78d209f003ec820ba3139f4f1c4e1e4c0da994a212aed69c3e7a3ff230c38"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-causal-query-candidate-authority-review-20261021-r1/receipt.json",
+        "sha256": "07f4c51b55b7dfdc7f8cf0e1e18a220a56d15ce226ee194330ea089b4ed14d6e"
+      }
+    ],
+    "r1_test_repair_candidate": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/receipt.json",
+        "sha256": "0e5aa262209ccc4794b3e14709bf5ae52988e34a01a94eef11af14182e7891d4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/causal-query-tests.patch",
+        "sha256": "23d96ed622e26a9b6b420db34568b56a535daa00a3ccfa8cfb62b970ff482ed8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_phase14_causal_ensemble_e2e.py",
+        "sha256": "e8e5d90240b4b7d85b8d5c069f29e2076027f3ef1bf97e4de95ff14752eb1e1c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_run_causal_queries_node.py",
+        "sha256": "f1586aef56877263efbd1a0bcd4ae03b4172def296596d5ef5ee3d7e17659b2f"
+      }
+    ],
+    "r3_held_unchanged": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-candidate-authority-split-20261021-r3/decision.md",
+        "sha256": "e5f7d9de91ec1c4728a30eea917d5cbd9fcaf8d541b19bfda8154f97100568c9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-candidate-authority-split-20261021-r3/receipt.json",
+        "sha256": "50c5a465a5040fd81c026f688ed1673f85b5f183e54f211b765eaa76bdbe3581"
+      }
+    ],
+    "independent_r3_delta_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-causal-query-candidate-authority-r3-delta-review-20261021-r1/review.md",
+        "sha256": "c2871f6b3add308983f67accde7d7ae597e6a5ffaee4710479f35adcd3e3144d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-causal-query-candidate-authority-r3-delta-review-20261021-r1/receipt.json",
+        "sha256": "7a780d3a4753add9e0d4b6b286427f907a3b3bf028bc03a378055a834bfc6f3e"
+      }
+    ],
+    "r3_issuance_custody": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-issued-artifact-custody-20261021-r1/runtime-r11-and-causal-r3-intake.json",
+        "sha256": "8ea46e61bd8a20e59ab560ef8162689d919ad5246e04668cebc5c293b8d6911a"
+      }
+    ]
+  },
+  "r1_actual_replay": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/request.json",
+      "sha256": "726e4ad3de2e7cfc6da69462c2eef83df194aa717d8f4909fd6710bbb638a4f3"
+    },
+    "invocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/invocation.json",
+      "sha256": "8f7715d2a719377a898ddc590e0859fb60017c4e9bd4f7f6c1879c469102cb91"
+    },
+    "result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/result.json",
+      "sha256": "8754c87af78477e7f3e8de7a8547676e8346b5e6fd31e68524a502d908392d4a"
+    },
+    "pytest_xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/pytest.xml",
+      "sha256": "45ae06ad54539ccebb0e022da5558233ab57af5c509a81201a8e5514fd9d2689"
+    },
+    "pytest_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/pytest.stdout.txt",
+      "sha256": "ed2b4f671bcd094be07001b98ccbbceebd7107268199c0311239229bba0a4722"
+    },
+    "source_before": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/source-before.json",
+      "sha256": "b91152001c93e54d9fd5b581e3194fa9a423b57b20456e299cc156497175d972"
+    },
+    "source_after": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/source-after.json",
+      "sha256": "b91152001c93e54d9fd5b581e3194fa9a423b57b20456e299cc156497175d972"
+    },
+    "frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "864cd465d61468f6677f4188c58245479e2f6ae8",
+      "tree": "d858f9dd877e2f5d77dff16ee09a5077cb0e9950"
+    },
+    "selectors": [
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_phase14_causal_ensemble_e2e.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_run_causal_queries_node.py",
+      "tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py"
+    ],
+    "postimage_test_pins": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_phase14_causal_ensemble_e2e.py",
+        "sha256": "e8e5d90240b4b7d85b8d5c069f29e2076027f3ef1bf97e4de95ff14752eb1e1c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/causal-query-current-cohort-repair-20261021-r1/postimages/test_run_causal_queries_node.py",
+        "sha256": "f1586aef56877263efbd1a0bcd4ae03b4172def296596d5ef5ee3d7e17659b2f"
+      }
+    ],
+    "tracked_preimages_not_selected": [
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py",
+        "sha256": "98e6a8b1dd961baf1f68d721a6ab27ee2ad06c6684a05a9e2641555e4fcc34cf",
+        "role": "tracked preimage; not selected in R1 replay"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_queries_node.py",
+        "sha256": "3e9a343911e62b87148c1748eb6eccb408201ab12fe30e73ea40293a26faa69d",
+        "role": "tracked preimage; not selected in R1 replay"
+      }
+    ],
+    "selected_tracked_control": {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py",
+      "sha256": "7290e2202e702ba42a35d1aff84e26f67ca8204e72fb3bf90338e9b7669f963f"
+    },
+    "outcome": {
+      "collected": 8,
+      "passed": 7,
+      "failed": 1,
+      "skipped": 0,
+      "failure": "test_phase14_causal_ensemble_full_e2e_acceptance",
+      "failing_assertion": "updated_report.transport_result.id_confidence_under_pag is not None",
+      "query_node_persistence_test": "passed",
+      "source_unchanged": true,
+      "G_acceptance": false
+    },
+    "execution_interpretation": "Real registered GCMQuery/run_job/node route with CAS persistence/reload; manually authored SCMs (fitted=False, fit_method=manual). No run_job monkeypatch, JobResult fake, fitted empirical basis, owner graph proof, or legal relation.",
+    "actual_output_directory_inventory": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/cases.jsonl",
+        "sha256": "8bf006714382870812b0e06bc6878b9f6c1534a9f5f2f1dae2cf778177db46ec",
+        "file_type": "jsonl"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/collection.json",
+        "sha256": "886d91c03fdef35df7ad80896587b97b5694b35a392ed4b87437e2aa8f65a416",
+        "file_type": "json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/controller-events.jsonl",
+        "sha256": "39f5b773c5e3c27f55ad51f12280773dc602e5e5f6650629cadb9beb4dfa193d",
+        "file_type": "jsonl"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/invocation.json",
+        "sha256": "8f7715d2a719377a898ddc590e0859fb60017c4e9bd4f7f6c1879c469102cb91",
+        "file_type": "json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/origins.json",
+        "sha256": "f6b7fbbd688d3e8ae286312030deabad981c3361d43d3c84f85278983b52ce68",
+        "file_type": "json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/phase-output.jsonl",
+        "sha256": "81682baf2e2211ba82093d84d872a2cc8a9c29395bbf71ab96c31c9075016ee4",
+        "file_type": "jsonl"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/process-tree.jsonl",
+        "sha256": "7aa176f56bfac32b0168cc6cbef071fe08b468960fd0df3026c1a97781fabb9b",
+        "file_type": "jsonl"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/pytest.stderr.txt",
+        "sha256": "f6f27d6ae9fde2dfcb037c59f77821e563dfc65d4d9a1b407d3494904ed31fdc",
+        "file_type": "txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/pytest.stdout.txt",
+        "sha256": "ed2b4f671bcd094be07001b98ccbbceebd7107268199c0311239229bba0a4722",
+        "file_type": "txt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/pytest.xml",
+        "sha256": "45ae06ad54539ccebb0e022da5558233ab57af5c509a81201a8e5514fd9d2689",
+        "file_type": "xml"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/result.json",
+        "sha256": "8754c87af78477e7f3e8de7a8547676e8346b5e6fd31e68524a502d908392d4a",
+        "file_type": "json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/sandbox.sb",
+        "sha256": "7fb397164ab60d1e482787e45589d2d292cba760513b6cfca9691a0c152de4b0",
+        "file_type": "sb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/source-after.json",
+        "sha256": "b91152001c93e54d9fd5b581e3194fa9a423b57b20456e299cc156497175d972",
+        "file_type": "json"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/source-before.json",
+        "sha256": "b91152001c93e54d9fd5b581e3194fa9a423b57b20456e299cc156497175d972",
+        "file_type": "json"
+      }
+    ],
+    "actual_output_directory_inventory_summary": {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual",
+      "direct_file_count": 14,
+      "file_type_counts": {
+        "json": 6,
+        "jsonl": 4,
+        "sb": 1,
+        "txt": 2,
+        "xml": 1
+      },
+      "enumeration": "complete direct-child file walk; no subdirectories present"
+    },
+    "runtime_origin_evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-causal-query-real-producer-raw-three-whole-864cd465d614-20261021-r1/actual/origins.json",
+      "sha256": "f6b7fbbd688d3e8ae286312030deabad981c3361d43d3c84f85278983b52ce68",
+      "role": "observed runtime-origin evidence for the actual R1 pytest process",
+      "requested_runtime_module_count": 6,
+      "requested_runtime_module_origins": [
+        {
+          "module": "polisyos.core.artifacts",
+          "source_path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "source_sha256": "910d79c146b59baa4ca2b35086dd4c48322b787d2e69a705b5b81457e3c88f93",
+          "loaded": true,
+          "resolved_origin": "policy-engine/src/polisyos/core/artifacts/__init__.py"
+        },
+        {
+          "module": "polisyos.foundry.methods.catalog.causal.gcm_query",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+          "source_sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+          "loaded": true,
+          "resolved_origin": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+        },
+        {
+          "module": "polisyos.ir.analytics.causal",
+          "source_path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+          "source_sha256": "8d9f455691fa394e6c36013821bd3f95be8bd93de2c2abaa898ddd1b28fb6264",
+          "loaded": true,
+          "resolved_origin": "policy-engine/src/polisyos/ir/analytics/causal.py"
+        },
+        {
+          "module": "polisyos.scientist.compute.runner",
+          "source_path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "source_sha256": "5d39da588953d1f2ea517cb845c7a2cb8be5c456796758c8a1864270354b0876",
+          "loaded": true,
+          "resolved_origin": "policy-engine/src/polisyos/scientist/compute/runner.py"
+        },
+        {
+          "module": "polisyos.scientist.nodes.builtins.causal.run_causal_ensemble",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+          "source_sha256": "ab7f728f358f77396f41f57916a806badd3dfc9ffdf2d1a30b12f55d315038b6",
+          "loaded": true,
+          "resolved_origin": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py"
+        },
+        {
+          "module": "polisyos.scientist.nodes.builtins.causal.run_causal_queries",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+          "source_sha256": "0cedf70070ff9799ecb9372583130dd6e2b8a9bfc237ea6c13f26797a10de0c3",
+          "loaded": true,
+          "resolved_origin": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py"
+        }
+      ],
+      "source_hashes_match_current": true,
+      "evidence_kind": "actual runtime import-origin observations, not caller-supplied request metadata"
+    }
+  },
+  "r2_corrections": {
+    "test_binding": "R1 selected the two pinned RAW postimages plus the tracked ensemble-node test, not the tracked Phase 14/query preimages.",
+    "worker_frame": "Actual postimages contain no run_job/monkeypatch/JobResult/fake-worker helper; the GCMQuery method ran through the normal registry/runner path on manual unfitted SCM fixtures.",
+    "b161": "Early unknown from UncertaintyEnvelope.merge_max may dominate later same-scope refinement; preserve historical and independent risk. Not source-weight recomputation and not exercised by this fixture.",
+    "b214": "Known reverse direction is mishandled; arbitrary PAG/CPDAG projection can produce a cyclic DAG without revalidation. Not all-PAG confidence semantics.",
+    "r2_artifact": "R2 decision/receipt remain immutable and are superseded for review by this R3 packet."
+  },
+  "consumer_adoption_set": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "role": "producer/orchestration; preserve exact outer refusal and bind selected graph/context refs in CAS inputs"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+      "role": "strict result DTO, explicit migration, CAS read/write"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "role": "nested report serialization and proof projection; keep outer status/review semantics"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/privacy_transportability.py",
+      "role": "preserve nested diagnostic through transformations without promotion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/transport_resolution_results.py",
+      "role": "preserve nested diagnostic while fallback transforms retain outer authority status"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/causal/readiness.py",
+      "role": "unsupported remains blocked"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py",
+      "role": "gate on outer status and proof review grade"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py",
+      "role": "read report 1.0/1.1; preserve outer status/review; currently hard-codes 1.0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "role": "compose status/confidence/blockers from outer result"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+      "role": "score by outer status only"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/status_deficits.py",
+      "role": "unsupported remains hard block"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+      "role": "public summary: display candidate as limited separately from outer status"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "role": "forward summary without promoting candidate"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "role": "export new nested public DTO"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models/catalog.py",
+      "role": "register DTO for generated ABI"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "role": "record new result/report schema versions and hashes"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/transportability_result.schema.json",
+      "role": "publish result 2.2 schema"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+      "role": "publish nested report 1.1 schema"
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "role": "update public schema reference"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "role": "analytics facade lazy resolver; exposes the model declared in ir/api.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "role": "stable root facade; add TransportabilityCandidateDiagnosticV1 to __all__ and _EXPORTS as the defining object alias"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "role": "required transportability_result compatibility registry; register result 2.1 predecessor and 2.2 reader, normalize known legacy payloads and reject unknown future result versions"
+    }
+  ],
+  "source_and_schema_pins": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "sha256": "0cedf70070ff9799ecb9372583130dd6e2b8a9bfc237ea6c13f26797a10de0c3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+      "sha256": "ab7f728f358f77396f41f57916a806badd3dfc9ffdf2d1a30b12f55d315038b6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "sha256": "8a0bdbb558fe06bf49f7ead05fe52bf89e044382c4a1a82d57f4e45d6ea30a6d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/transport_resolution_results.py",
+      "sha256": "111a1671b09f5c3e5c07c15e779cd7502afc7cb87074d64b0cf3389309872c10"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py",
+      "sha256": "ac26bb10333e20d9534400c4e0a569c83ca4acbf336acc07075e553a7d1135fd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "5d39da588953d1f2ea517cb845c7a2cb8be5c456796758c8a1864270354b0876"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/legal_evaluation/transport_constraints.py",
+      "sha256": "5a8939c2ae9a5402afded38922ba1f57cf001685d61c238222d5901d4329c412"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+      "sha256": "c116b86285706b3d2577dc49258233b460ba23c411e963d3cd192ebf776ad4d2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+      "sha256": "c2c9d34e9c91fb0d61c553bba1330a9a7c0fe2aaae66c04768280ce75a115bdd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "sha256": "8d9f455691fa394e6c36013821bd3f95be8bd93de2c2abaa898ddd1b28fb6264"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/privacy_transportability.py",
+      "sha256": "849026f2fbbf9086eec87f013160f76bede9e8b37682994c277b2cad1ddb8150"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "sha256": "b60a27ea0319511f90a8e084ac2b034d03887c9cb56fc9856908b2aebd53af1d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/causal/readiness.py",
+      "sha256": "9ac22c24727273dcf583546d3f468641028ab7f95353bf43e6e2f521bfe69b7e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py",
+      "sha256": "5544e40b315b11557226563c2a3233c4409a9eb739f63e481a3899a0e93a7067"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py",
+      "sha256": "635a33383c94ccba6e3be48dde267cf718cbf07e08ae31502f2c16837eb2ce3e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "sha256": "f9eaf375a67492ff3baaa19b9bd40a74e150e39916b8d53ac625867c11276f45"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_leaderboard.py",
+      "sha256": "71ca4848ffa92502fdf64ed5d1ef9b3312033c863157116ef0a8e2639a99f3d4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/status_deficits.py",
+      "sha256": "58b1793722b377403c55ef1b5afd0aa9e75bc78dc106ef26f598343a4c9229a4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+      "sha256": "ffad4970b6ae14512edfe17ea56486a88c109b7bb687dc173b5158484aac73ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "sha256": "9400382f5338cde67857ee954ebf507e24d3cf42bbd180eef88f98a16d98fca9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "sha256": "8884334fd5acd1b5ae6d8fb4ff59c1df408805157cda140cd4abf1f7698cf454"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models/catalog.py",
+      "sha256": "01b83592bc97d7bba8a7ed29b9a8b41da1339c65fed1f27d4161cd31028fb485"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "sha256": "1851e3348e373a4d21178e921ac92e9465cc4b6bfdd6a205106045c24434347b"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/transportability_result.schema.json",
+      "sha256": "fb32154134b7877baa61a28d92e33883b45acdb97e3fcdd5a89c6b17ffa0b9c7"
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+      "sha256": "86918949f665d3fcd95130d3d6619a8d20848b752db1e31c0e4870b22fe69b4b"
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "sha256": "1cbc55cba9de278c926378c2cb32833055d6b806d0be36a3f89b87ecbc68f393"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+    },
+    {
+      "path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_phase14_causal_ensemble_e2e.py",
+      "sha256": "98e6a8b1dd961baf1f68d721a6ab27ee2ad06c6684a05a9e2641555e4fcc34cf"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_queries_node.py",
+      "sha256": "3e9a343911e62b87148c1748eb6eccb408201ab12fe30e73ea40293a26faa69d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_causal_ensemble_node.py",
+      "sha256": "7290e2202e702ba42a35d1aff84e26f67ca8204e72fb3bf90338e9b7669f963f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py",
+      "sha256": "3258e6386c46059e3fe358b416fd1376ad7e8545b2dda409cd89c29da3f8ac09"
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_public_transport_facade.py",
+      "sha256": "c42f31208cbc06df7b8dd98cfe377f808868b9e808fa38a5a53e5e083d51fda7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "sha256": "b2f85373ee23c25093b1007f883234eb002bb6c5b03075a637fd22897b0af806"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/README.md",
+      "sha256": "b9c981bf5f63d02e215cae929cad3c010f649a9fa11bdd6163cabba124442401"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "sha256": "6a8a76ccc19f88571101dd1b54ef67e56a5a66048700f6b4117c47505984094a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "910d79c146b59baa4ca2b35086dd4c48322b787d2e69a705b5b81457e3c88f93"
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/public-surface.md",
+      "sha256": "b59e6d8d0aab95a8ed0ed10967c0fd2233186515cfe0a491abe7787e18f697f8"
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "sha256": "845969bc19d3ffbd4b5dbb28eeb980521deb0166def02d781f9565c8bd26269c"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_public_surface.py",
+      "sha256": "2c40434ba6c0a17196c68a698075e40990e0b75a97d538e2f0a2b7c7d266c340"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_schema_catalog.py",
+      "sha256": "f4ae6147efb804ebb9facfd14f060827c0c535e72f7bfae93bbe5de6550ce5f5"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_supported_facade_route_identities.py",
+      "sha256": "ed7175d52b61df26351dd701136cd1791b9d9bbb3576477bc50b0b14bf326a2b"
+    },
+    {
+      "path": "policy-engine/tests/contract/test_ir_migrations.py",
+      "sha256": "80fca0727d6d0c3decd9a57d2483688a946e6b7ab3bfbece27329c381235034c"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_transportability_contract.py",
+      "sha256": "4e88f32c9f4c77fc5546670f6382230a851fdcaf8b41b4d14ffe963d8072a2c2"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_api_facades.py",
+      "sha256": "2c6ddeb8651d2dd570946f2a31ebad5f365b24d1a8360b378e883806461217fe"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "sha256": "c2e8500bd394c18437dd1e086f8842f96c2dba4e48901347de2878af8cd0ec58"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+      "sha256": "13ce0bfa6a6a5746d1161a8f31e06578170113c0fdab325cd136d0e6bbb218f0"
+    }
+  ],
+  "authoritative_criterion_pins": [
+    {
+      "finding": "B33#1:B_r19:EMP-01:8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": "621-634",
+      "occurrence_ordinal": 159,
+      "index": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+        "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+      },
+      "state": "limited; bridge_missing; not_established / UNRUN; no formal G adjudication"
+    },
+    {
+      "finding": "B31#1:B_r19:EMP-01:9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": "593-606",
+      "occurrence_ordinal": 157,
+      "status": "not exercised; native uncertainty vs identification bounds"
+    },
+    {
+      "finding": "B161#1:B_r19:FUN-03:f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": "4165-4176",
+      "occurrence_ordinal": 78,
+      "status": "not exercised; early unknown merge_max may dominate later same-scope refinement"
+    },
+    {
+      "finding": "B214#1:B_r19:GRF-03:48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": "5218-5229",
+      "occurrence_ordinal": 136,
+      "status": "current candidate UNRUN; reversed edge preservation/cyclic projection issue"
+    }
+  ],
+  "pattern_register": {
+    "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+  },
+  "ratified_boundary": {
+    "source": {
+      "path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7"
+    },
+    "rules": [
+      "S0-K03",
+      "S0-K06"
+    ]
+  },
+  "contribution_guidance": {
+    "path": "policy-engine/CONTRIBUTING.md",
+    "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+  },
+  "predicate_provenance": {
+    "query_and_solver_execution": "recomputed relative to the invocation and exact admitted inputs",
+    "graph_bytes_and_hash": "recomputed/content-bound if producer retains and CAS-binds the selected graph ref; owner authority remains not_established",
+    "source_target_context_values": "content-bound values/refs required; valid-time/currentness not_established unless independently supplied",
+    "legal_relation_truth": "not_established",
+    "candidate_result_authority": "not_established; may not carry protected gate"
+  },
+  "capability_labels": {
+    "candidate_pag_diagnostics_under_declared_legal_unknown": "bridge_missing",
+    "positive_legal_source_relation": [
+      "producer_missing",
+      "artifact_missing",
+      "verification_missing"
+    ],
+    "b33_named_model_or_identification_plan_bridge": "bridge_missing"
+  },
+  "no_source_or_test_patch": true,
+  "no_formal_g_or_e02_closure": true,
+  "consumer_adoption_set_declared_count": 22,
+  "public_surface_routes": [
+    {
+      "route": "polisyos.ir.analytics.TransportabilityCandidateDiagnosticV1",
+      "owner": "polisyos.ir.analytics.transportability.TransportabilityCandidateDiagnosticV1",
+      "export_declaration": "policy-engine/src/polisyos/ir/api.py::ANALYTICS_FACADE_EXPORTS",
+      "resolver": "policy-engine/src/polisyos/ir/analytics/__init__.py"
+    },
+    {
+      "route": "polisyos.ir.TransportabilityCandidateDiagnosticV1",
+      "owner": "polisyos.ir.analytics.transportability.TransportabilityCandidateDiagnosticV1",
+      "export_declaration": "policy-engine/src/polisyos/ir/__init__.py::__all__ and _EXPORTS",
+      "resolver": "policy-engine/src/polisyos/ir/__init__.py"
+    },
+    {
+      "identity_requirement": "Both public routes resolve to the exact defining model class; do not create a second facade model or narrow the public API to analytics-only."
+    }
+  ],
+  "required_public_surface_documentation": [
+    {
+      "path": "policy-engine/src/polisyos/ir/README.md",
+      "role": "document the stable root facade export and supported import route"
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/public-surface.md",
+      "role": "update generated analytics facade export counts and public route reference"
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "role": "update generated public IR schema catalog for the new nested DTO/version"
+    }
+  ],
+  "required_verification_test_set": [
+    {
+      "path": "policy-engine/tests/unit/ir/test_public_surface.py",
+      "role": "assert analytics and root facade export plus exact class identity"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_schema_catalog.py",
+      "role": "assert DTO schema catalog metadata and regenerated reference catalog"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_supported_facade_route_identities.py",
+      "role": "assert both supported facade routes preserve defining-owner object identity"
+    },
+    {
+      "path": "policy-engine/tests/contract/test_ir_migrations.py",
+      "role": "assert known compatibility versions normalize and unknown future versions fail closed"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_transportability_contract.py",
+      "role": "assert strict DTO, CAS, nested report round-trip and unchanged outer refusal"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_api_facades.py",
+      "role": "retain curated root facade structural/import checks"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "role": "retain actual analytics export-map resolution checks"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+      "role": "assert CausalEffectReport nested candidate serialization and stable facade identity"
+    }
+  ],
+  "required_rollout_path_counts": {
+    "r3_baseline_adoption_rows": 19,
+    "r4_added_adoption_rows": 3,
+    "complete_adoption_rows": 22,
+    "documentation_companions": 3,
+    "verification_test_modules": 8,
+    "unique_required_rollout_paths": 33,
+    "path_set_definition": "22 complete adoption/update paths + 3 additional documentation companions + 8 mandatory test modules; unique paths across these sets"
+  },
+  "proposed_version_migration": {
+    "transportability_result": {
+      "contract_id": "ir.transportability_result.v2",
+      "payload_schema_version": "2.2",
+      "cas_manifest": "ir.transportability_result@2.2",
+      "new_optional_field": "candidate_diagnostics: TransportabilityCandidateDiagnosticV1 | None",
+      "nested_schema_version": "1.0",
+      "legacy_read_versions": [
+        "1.0",
+        "2.0",
+        "2.1"
+      ],
+      "legacy_default": "candidate_diagnostics=None",
+      "unknown_future_version": "reject_fail_closed"
+    },
+    "causal_effect_report": {
+      "contract_id": "ir.causal_effect_report.v1",
+      "payload_schema_version": "1.1",
+      "cas_manifest": "ir.causal_effect_report@1.1",
+      "legacy_read_version": "1.0",
+      "legacy_default": "nested candidate diagnostics absent/None",
+      "old_reader_behavior": "reject 1.1 until coordinated upgrade; never strip the nested field",
+      "current_payload_schema_version": "1.1",
+      "known_read_versions": [
+        "1.0",
+        "1.1"
+      ],
+      "unknown_future_version": "reject_fail_closed",
+      "migration_owner_paths": [
+        "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py"
+      ],
+      "compatibility_scope": "Explicit report DTO/CAS reader accepts 1.0 and 1.1, maps absent legacy candidate to None, and rejects unknown future versions; no existing causal_effect_report entry is claimed in schema_registry.py."
+    },
+    "rollout": "Atomic in-tree reader/consumer/ABI/schema update first; enable new writers second. Negotiate or reject for old external strict readers.",
+    "existing_version_discrepancy": {
+      "model_and_abi": "2.1",
+      "writer_manifest_default": "1.0",
+      "current_migration_registry_entries": [
+        "1.0",
+        "2.0"
+      ],
+      "r1_failure_payload": "2.0"
+    }
+  },
+  "r3_delta_disposition": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-causal-query-candidate-authority-r3-delta-review-20261021-r1/review.md",
+      "sha256": "c2871f6b3add308983f67accde7d7ae597e6a5ffaee4710479f35adcd3e3144d",
+      "receipt_sha256": "7a780d3a4753add9e0d4b6b286427f907a3b3bf028bc03a378055a834bfc6f3e"
+    },
+    "findings": [
+      {
+        "id": "F1",
+        "class": "public-schema-and-migration-adoption-set-incomplete",
+        "disposition": "expanded once to 22 adoption rows, 3 documentation companions, and 8 test modules; complete 33-path set pinned below",
+        "formal_G_or_implementation_claim": false
+      },
+      {
+        "id": "F2",
+        "class": "decision-evidence-provenance-binding",
+        "disposition": "R2 exact selector correction retained; R4 pins runtime-origin capture and all 14 immediate R1 actual output files",
+        "formal_G_or_implementation_claim": false
+      },
+      {
+        "id": "N1",
+        "class": "G-recommendation-versus-ratification-clarity",
+        "disposition": "selected wording and receipt key replaced with proposed/recommended terminology",
+        "formal_G_or_implementation_claim": false
+      }
+    ],
+    "p40_closeout_rule": "Treat F1 as one complete public/migration set and F2 as the same packet evidence-binding class at the next depth. Do not add paths incrementally after this inventory; an omitted required member falsifies this packet inventory and returns it for a complete-set repair."
+  },
+  "p40_inventory_closeout": {
+    "class_1": "public/migration rollout set completeness; full 22+3+8 path inventory above",
+    "class_2": "decision-evidence provenance binding; full 14-file R1 actual/ inventory and six module origins above",
+    "status": "packet correction prepared; independent R4 review required; no implementation or G closure claimed",
+    "falsifier": "Walk the exact R1 actual/ directory and verify all immediate files are pinned once; verify all 33 rollout paths have current hashes and both facade identity/migration rejection requirements are in the test set."
+  },
+  "source_and_schema_pin_count": 51,
+  "source_and_schema_pin_semantics": "Pins bind current preimages and review inputs only; they do not imply the candidate type, schema, or tests have been implemented."
+}

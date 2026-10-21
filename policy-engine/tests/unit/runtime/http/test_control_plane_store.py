@@ -28,9 +28,9 @@ from polisyos.runtime.http.resource_binding import (
 )
 from polisyos.runtime.http.services.control.job_attempt_publication import (
     _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
-    _NL_REQUEST_SNAPSHOT_SCHEMA,
     _nl_request_body_bytes,
     _nl_request_snapshot_content_hash,
+    _nl_request_snapshot_schema,
 )
 from polisyos.runtime.http.services.control.run_lifecycle import HumanDecisionAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import (
@@ -3275,7 +3275,7 @@ def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instanc
         )
         request_body_bytes = _nl_request_body_bytes(request)
         request_snapshot = {
-            "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+            "schema_version": _nl_request_snapshot_schema(request),
             "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
             "request": request.model_dump(mode="json"),
             "normalized_llm_models": ["unit-test-model"],

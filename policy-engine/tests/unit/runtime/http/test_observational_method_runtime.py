@@ -902,13 +902,6 @@ def _put_runtime_legacy_observational_source(
     )
 
 
-@pytest.mark.parametrize(
-    ("classification", "tenant_context"),
-    [
-        ("restricted", None),
-        ("public", ArtifactTenantContextInfo(tenant_id="tenant-private", cell_id="cell-private")),
-    ],
-)
 @pytest.mark.parametrize("cancelled_before_start", [True, False])
 def test_bounded_shared_executor_wait_preserves_timeout_disposition(
     cancelled_before_start: bool,
@@ -1029,7 +1022,10 @@ def test_graph_projection_timeout_keeps_exact_source_and_withholds_admission(
     assert work.method_result_ref is None
 
 
-@pytest.mark.parametrize("scope_kind", ["restricted", "tenant_scoped"])
+@pytest.mark.parametrize(
+    "scope_kind",
+    ["restricted", "tenant_scoped", "foreign_tenant_scoped"],
+)
 def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
     runtime_api_env: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
@@ -1039,14 +1035,17 @@ def test_http_post_refuses_private_or_tenant_scoped_source_before_enqueue(
     queued: list[object] = []
     monkeypatch.setattr(service, "_enqueue_job", lambda **kwargs: queued.append(kwargs))
     classification = "restricted" if scope_kind == "restricted" else "public"
-    tenant_context = (
-        None
-        if scope_kind == "restricted"
-        else ArtifactTenantContextInfo(
+    tenant_context = None
+    if scope_kind == "tenant_scoped":
+        tenant_context = ArtifactTenantContextInfo(
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=runtime_api_env["cell_a"],
         )
-    )
+    elif scope_kind == "foreign_tenant_scoped":
+        tenant_context = ArtifactTenantContextInfo(
+            tenant_id="tenant-private",
+            cell_id="cell-private",
+        )
     source_ref = _put_runtime_observational_source(
         service,
         classification=classification,

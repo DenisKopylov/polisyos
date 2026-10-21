@@ -103,6 +103,7 @@ class _HTEInputMethod:
         output_slots=frozenset(
             {SlotSpec("values", SlotType.VECTOR, Unit("dimensionless", "array"))}
         ),
+        parameters=(),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,
         backend=ComputeBackend.NUMPY,
@@ -232,6 +233,7 @@ class _CapturedGraphMethod:
         version="1.0.0",
         input_slots=frozenset(),
         output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("ratio", "ratio"))}),
+        parameters=(),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,
         backend=ComputeBackend.NUMPY,

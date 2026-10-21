@@ -1201,14 +1201,21 @@ async def test_served_authorization_proof_binds_exact_body_and_query_bytes(tmp_p
 
 
 def test_nl_request_snapshot_digest_profile_accepts_float_and_type_key() -> None:
+    from polisyos.runtime.http.services.control.job_attempt_publication import (
+        _nl_request_snapshot_schema,
+    )
     from polisyos.runtime.http.services.control.run_lifecycle import (
         _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
-        _NL_REQUEST_SNAPSHOT_SCHEMA,
         _nl_request_snapshot_content_hash,
     )
 
+    schema_request = NaturalLanguageRunRequest(
+        request="snapshot digest fixture",
+        context={"_type": "caller-owned-context-key"},
+        run_budget_usd=2.0,
+    )
     snapshot = {
-        "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+        "schema_version": _nl_request_snapshot_schema(schema_request),
         "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
         "request": {
             "context": {"_type": "caller-owned-context-key"},

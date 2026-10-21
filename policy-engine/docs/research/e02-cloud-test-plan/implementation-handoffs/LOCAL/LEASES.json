@@ -49579,5 +49579,99 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-runtime13-full-four-collection-companion-adoption-20261021-r1": {
+    "slice_base": "5a19132e01fca6ca1ff86923be5c68542a1d4f21",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "310dc1cc554a5ea4a6bc1e5c1200d0e1229480dc7154e9068fdb54f840870fec",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/postimages/policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "postimage_sha256": "c9a752ee3d5089b9b6527f3c2b8295b37a53fbb2c50e17290f775742f8784f15",
+        "postimage_bytes": 96089
+      },
+      "policy-engine/tests/unit/runtime/http/test_control_plane_store.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "8913890f08c0f798006c67b556ad9251b91e9357a0f84736028eac0bac646aec",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/postimages/policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+        "postimage_sha256": "663e8c8b6592b38ab96696daa09aa8815c092ff24cf99299749cc5e00f5458bb",
+        "postimage_bytes": 142373
+      },
+      "policy-engine/tests/unit/runtime/http/test_observational_method_runtime.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "a26cb26054ae9ddb31b521c6970e98dbfe66d7b41db91d47a28637e74e1409b1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/postimages/policy-engine/tests/unit/runtime/http/test_observational_method_runtime.py",
+        "postimage_sha256": "88d8d0954b3b4b4a1bfe261e3b3e5eb6d56a88ed21021f09d42dac3201b5c818",
+        "postimage_bytes": 118857
+      },
+      "policy-engine/tests/unit/scientist/compute/test_runner_execution_lineage.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "1bdc8e3db25f2ee5d7a5d4b74c1f086c9a814acd0c05dc645593c752cffa31a0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/postimages/policy-engine/tests/unit/scientist/compute/test_runner_execution_lineage.py",
+        "postimage_sha256": "4e6c8afc44cd47894b14df7788da3152e161b154fb9f34150627e72b119ad890",
+        "postimage_bytes": 28781
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-full-four-collection-companion-adoption-20261021-r1/source-application.json",
+      "sha256": "8bf5a8e9cf1f9ee81dc30b7c931ba03e9af066aaf9e507be9335580fbe06d16c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-full-four-collection-companion-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/manifest.json",
+        "sha256": "adab9bf51a9439e02bf1a327395de371c797ef5fc513a6184fb316726a9fffc1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/candidate.patch",
+        "sha256": "51565e21ab0e61bca4ab55c59268640d493d19b4336d5d97d448efcc0d03dab3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/verification.json",
+        "sha256": "1301aa88937805a59f7da7b5453958bb92b10eb85317324d41bd2bbfc4ea466e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-collection-companion-author-20261021-r1/source-census.json",
+        "sha256": "13bfa164c50accd10023c5e51e5a3530d5306c26667d2bbf936b975f3f31336d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-runtime13-collection-companion-review-20261021-r1/review.json",
+        "sha256": "c1a0dd8cae51931609b59a2b42f17a1ba67c4d45f104cd4dd2883e1fff9d2ccc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime13-can-http3-composed-5d31a170d25f-20261021-r1/actual/result.json",
+        "sha256": "580d071ecc96a9b24eb9f246c91728f91a5b28f54d693285bf9be3bb93e13175"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same deeper caller/fixture compatibility",
+      "action": "Both schema consumers and both missing-parameter fixtures plus complete decorator binding census; no production default, aliases, or permission weakening."
+    },
+    "bounded_proof": "Independent c1a0dd8 full4postimages/census review; exact current preimages and native Ruff check+format preflight plus branch blob readback.",
+    "limitations": [
+      "Test-source-only; independent source review and native static gates, not executed runtime receipt.",
+      "Previous16module selection collected393 partial then3 collectionERROR/0calls.",
+      "Next selection must contain17whole modules, adding test_control_job_execution_intent.py.",
+      "Current C12 actual26PASS2FAIL and four profile-origin qualification errors are distinct and retained; no closure inferred."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After current auth repair, replay17whole Runtime/CANHTTP modules at exact composed source, full phase/source/origin and removal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

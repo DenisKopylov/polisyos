@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
 from polisyos.core.artifacts import (
-    CanonSpec,
     CoreJSONArtifactBoundedInputManifestReader,
     CoreJSONArtifactBoundedMemberReader,
     CoreJsonArtifactBoundedRead,
@@ -38,6 +37,7 @@ from polisyos.core.artifacts.manifest import (
     InputRef,
     artifact_ref_identity_key,
 )
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.search.objective import (
     MethodMetricObservation,
     MethodMetricPredicateEvidence,

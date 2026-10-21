@@ -48826,5 +48826,61 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ui5-native-hook-reconciliation-20261021-r1/reconciliation.json",
       "sha256": "fe1c982b8ccf3c882e25e4d39979c347e947705c746638c51f84524cf760ae6c"
     }
+  },
+  "root-r12-core-canon-public-import-adoption-20261021-r1": {
+    "slice_base": "13e3353a55d3d5d9cbff5223bbe5ba7e0e1378f4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py": {
+        "operation": "update",
+        "mode": "100644",
+        "preimage_sha256": "13467a5463098b7d42d9ffd4a8ff4f7fea3bfa13d907aefb676dc29ceb63ae31",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-canon-public-import-repair-20261021-r1/postimages/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_method_metrics.py",
+        "postimage_sha256": "8d5d139a0c60594aa1bc259b7441e01ba2230599d8c109081423e517a66e7674",
+        "postimage_bytes": 192291
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-canon-public-import-adoption-20261021-r1/source-application.json",
+      "sha256": "947bcb1c33d5144d511f989eee74610a49deebcd35337458fd165412a34b1e23"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-canon-public-import-adoption-20261021-r1/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r12-core-canon-public-import-repair-20261021-r1/receipt.json",
+        "sha256": "7047dd55784713ce4b88d12df2441ecf645546c1537414368167bbc6db5d73bd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-root-r12-core-canon-import-repair-review-20261021-r1/receipt.json",
+        "sha256": "ae3c0d1be5323c6a505c4f2b6a80f3ca45f7121a1eb24349d923d9f3c285c637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r12-thirteen-whole-bd55aa9ce697-20261021-r1/actual/result.json",
+        "sha256": "08baca6aba6669d99f9ce4faa809e02783e448f71f7c99da3bc3ff1ad042273c"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": {
+      "bucket": "same cross-module public facade contract class",
+      "action": "Use exact existing Core owner type; retain API/profile/options, no new export aliases."
+    },
+    "bounded_proof": "Exact one-import-origin delta independently reviewed; native Ruff check and format before ordinary source commit; branch blobs read back.",
+    "limitations": [
+      "Independent review GO for one source/API repair only. Runtime13 at bd55 failed before collection, all13UNRUN.",
+      "No inference, scientific law, live authority or capability closure claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run actual13 complete Runtime modules on current composed source with full source/input/output and native origins; then remaining reviewed blocking batches and G04-06 companions.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }
